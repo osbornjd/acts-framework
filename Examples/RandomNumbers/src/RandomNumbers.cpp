@@ -17,7 +17,7 @@
 // the main hello world executable
 int main (int argc, char *argv[]) {
 
-    size_t nEvents = 10000;
+    size_t nEvents = 1000;
     
     // Create the random number engine
     FW::RandomNumbers::Config brConfig;

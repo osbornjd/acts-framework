@@ -2,13 +2,13 @@
 file (GLOB src_files "src/*.*pp")
 
 # define library target
-add_executable(RandomNumberExample ${src_files})
+add_executable(ACTFWRandomNumberExample ${src_files})
 
 # setup linker dependencies
-target_link_libraries(RandomNumberExample PRIVATE ACTFWCore)
+target_link_libraries(ACTFWRandomNumberExample PRIVATE ACTFramework)
 
 # set installation directories
-install(TARGETS RandomNumberExample RUNTIME DESTINATION bin)
+install(TARGETS ACTFWRandomNumberExample RUNTIME DESTINATION bin)
 
 
 

@@ -1,4 +1,4 @@
-#include "ACTS/Extrapolation/IExtrapolationEngine.h"
+#include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Framework/MsgStreamMacros.hpp"
 #include "ACTFW/Random/RandomNumbers.hpp"

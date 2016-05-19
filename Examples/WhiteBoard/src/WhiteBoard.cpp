@@ -5,7 +5,6 @@
 //  Created by Andreas Salzburger on 11/05/16.
 //
 //
-
 #include <stdio.h>
 #include <memory>
 

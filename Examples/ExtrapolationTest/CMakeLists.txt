@@ -5,15 +5,15 @@ file (GLOB src_files "src/*.*pp")
 find_package(ACTS)
 
 # define library target
-add_executable(ExtrapolationExample ${src_files})
+add_executable(ACTFWExtrapolationExample ${src_files})
 
 # setup include directories
-target_include_directories(ExtrapolationExample PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
-target_link_libraries(ExtrapolationExample PRIVATE ACTFWCore)
-target_link_libraries(ExtrapolationExample PUBLIC ACTSCore)
+target_include_directories(ACTFWExtrapolationExample PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
+target_link_libraries(ACTFWExtrapolationExample PUBLIC ACTSCore ACTSGenericDetectorExample)
+target_link_libraries(ACTFWExtrapolationExample PRIVATE ACTFramework)
 
 # set installation directories
-install(TARGETS ExtrapolationExample RUNTIME DESTINATION bin)
+install(TARGETS ACTFWExtrapolationExample RUNTIME DESTINATION bin)
 
 
 
