@@ -14,6 +14,12 @@ FW::ProcessCode FW::Sequencer::initializeEventLoop()
     MSG_INFO("      -> " << m_cfg.ioAlgorithms.size() << " IO Algorithms");
     MSG_INFO("      -> " << m_cfg.eventAlgorithms.size() << " Event Algorithms");
 
+    // initialize the services
+    for (auto& isvc: m_cfg.services){
+        if (isvc->initialize() != ProcessCode::SUCCESS)
+            return ProcessCode::ABORT;
+    }
+    
     // initialize the i/o algorithms
     for (auto& ioalg: m_cfg.ioAlgorithms){
         if (ioalg->initialize(m_cfg.eventBoard,m_cfg.jobBoard) != ProcessCode::SUCCESS)
@@ -74,13 +80,19 @@ FW::ProcessCode FW::Sequencer::finalizeEventLoop()
     MSG_INFO("      -> " << m_cfg.ioAlgorithms.size() << " IO Algorithms");
     MSG_INFO("      -> " << m_cfg.eventAlgorithms.size() << " Event Algorithms");
 
-    // initialize the i/o algorithms
+    // finalize the services
+    for (auto& isvc: m_cfg.services){
+        if (isvc->finalize() != ProcessCode::SUCCESS)
+            return ProcessCode::ABORT;
+    }
+    
+    // finalize the i/o algorithms
     for (auto& ioalg: m_cfg.ioAlgorithms){
         if (ioalg->finalize() != ProcessCode::SUCCESS)
             return ProcessCode::ABORT;
     }
     
-    // initialize the event algorithms
+    // finalize the event algorithms
     for (auto& alg: m_cfg.eventAlgorithms){
         if (alg->finalize() != ProcessCode::SUCCESS)
             return ProcessCode::ABORT;

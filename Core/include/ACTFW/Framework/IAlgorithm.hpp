@@ -47,7 +47,6 @@ namespace FW {
         /** return the jobStore - things that live for the full job */
         virtual std::shared_ptr<WhiteBoard> jobStore() const = 0;
         
-        
     };
          
 }

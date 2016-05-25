@@ -1,5 +1,5 @@
 # get list of all source files
-file (GLOB src_files "src/*/*.cpp" "include/*/*/*.hpp")
+file (GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
 
 # define library target
 add_library(ACTFramework SHARED ${src_files})

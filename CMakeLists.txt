@@ -9,3 +9,4 @@ set (CMAKE_INSTALL_PREFIX "/opt/ACTFW/${ACTFW_VERSION}" CACHE STRING "installati
 
 add_subdirectory (Core)
 add_subdirectory (Examples)
+add_subdirectory (Plugins)

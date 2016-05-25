@@ -13,6 +13,7 @@
 #include "ACTFW/Framework/MsgStreamMacros.hpp"
 #include "ACTFW/Framework/IOAlgorithm.hpp"
 #include "ACTFW/Framework/IAlgorithm.hpp"
+#include "ACTFW/Framework/IService.hpp"
 #include <memory>
 #include <vector>
 #include <string>
@@ -34,13 +35,13 @@ namespace FW {
         class Config {
           public:
             
+            std::vector< std::shared_ptr<IService> >    services;        //!< the serivces
             std::vector< std::shared_ptr<IOAlgorithm> > ioAlgorithms;    //!< i/o algorithms
             std::vector< std::shared_ptr<IAlgorithm> >  eventAlgorithms; //!< algorithms
             std::shared_ptr<WhiteBoard>                 eventBoard;      //!< event board
             std::shared_ptr<WhiteBoard>                 jobBoard;        //!< the job board
             std::string                                 name;            //!< the name of this sequencer
             MessageLevel                                msgLvl;          //!< the message level of this algorithm
-
             
             Config():
               ioAlgorithms(),
@@ -58,6 +59,9 @@ namespace FW {
         
         /** Destructor*/
         ~Sequencer();
+
+        /** Add the algorithms - for IO */
+        ProcessCode addServices(std::vector< std::shared_ptr<IService> > iservice);
 
         /** Add the algorithms - for IO */
         ProcessCode addIOAlgorithms(std::vector< std::shared_ptr<IOAlgorithm> > ioalgs);
@@ -87,6 +91,19 @@ namespace FW {
         Config  m_cfg; //!< configuration object
         
     };
+    
+    inline ProcessCode Sequencer::addServices(std::vector< std::shared_ptr<IService> > iservices)
+    {
+        for (auto& isvc : iservices){
+            if (!isvc){
+                MSG_FATAL("Trying to add empty Service to Sequencer. Abort.");
+                return ProcessCode::ABORT;
+            }
+            MSG_INFO("Sucessfully added IO Algorithm " << isvc->name() << " to Seqeuencer.");
+            m_cfg.services.push_back(std::move(isvc));
+        }
+        return ProcessCode::SUCCESS;
+    }
     
     inline ProcessCode Sequencer::addIOAlgorithms(std::vector< std::shared_ptr<IOAlgorithm> > ioalgs)
     {
