@@ -5,7 +5,7 @@ project (ACTFW)
 set (ACTFW_VERSION 0.0.1)
 
 # default installation direction
-set (CMAKE_INSTALL_PREFIX "/opt/ACTFW/${ACTFW_VERSION}" CACHE STRING "installation directory")
+#set (CMAKE_INSTALL_PREFIX "/opt/ACTFW/${ACTFW_VERSION}" CACHE STRING "installation directory")
 
 # Enable OpenMP support
 find_package (OpenMP REQUIRED)

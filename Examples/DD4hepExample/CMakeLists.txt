@@ -1,0 +1,2 @@
+add_subdirectory(DD4hepDetector)
+add_subdirectory(DD4hepTest)
