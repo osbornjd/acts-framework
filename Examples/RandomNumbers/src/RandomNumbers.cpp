@@ -20,8 +20,7 @@ int main (int argc, char *argv[]) {
     size_t nEvents = 1000;
     
     // Create the random number engine
-    FW::RandomNumbers::Config brConfig;
-    brConfig.name = "RandomNumbers";
+    FW::RandomNumbers::Config brConfig("RandomNumbersSvc");
     brConfig.gauss_parameters = {{ 0., 1. }};
     brConfig.uniform_parameters = {{ 0., 1. }};
     brConfig.landau_parameters = {{ 1., 7. }};
@@ -30,16 +29,13 @@ int main (int argc, char *argv[]) {
     std::shared_ptr<FW::RandomNumbers> bRandomNumbers(new FW::RandomNumbers(brConfig));
     
     // create the config object for the hello world algorithm
-    FWE::RandomNumbersAlgorithm::Config rNumbersConfig;
-    rNumbersConfig.name = "RandomNumbersAlgorithm";
+    FWE::RandomNumbersAlgorithm::Config rNumbersConfig("RandomNumbersAlgorithm");
     rNumbersConfig.randomNumbers = bRandomNumbers;
     rNumbersConfig.drawsPerEvent = 5000;
-    rNumbersConfig.msgLvl        = FW::MessageLevel::INFO;
     // and now the hello world algorithm
     std::shared_ptr<FW::IAlgorithm> rNumbers(new FWE::RandomNumbersAlgorithm(rNumbersConfig));
     // create the config object for the sequencer
-    FW::Sequencer::Config seqConfig;
-    seqConfig.name = "RandomNumbersSeqeuncer";
+    FW::Sequencer::Config seqConfig("Sequencer");
     // now create the sequencer
     FW::Sequencer sequencer(seqConfig);
     sequencer.appendEventAlgorithms({rNumbers});

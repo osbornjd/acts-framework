@@ -18,6 +18,8 @@ template <class T> FW::ProcessCode ExtrapolationTestAlgorithm::executeTestT(cons
     //ecc.setParticleHypothesis(m_cfg.particleType);
     ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
     ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
+    ecc.searchMode = m_cfg.searchMode;
+    // now set the behavioral bits
     if (m_cfg.collectSensitive)     ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
     if (m_cfg.collectPassive)       ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
     if (m_cfg.collectBoundary)      ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
@@ -30,11 +32,11 @@ template <class T> FW::ProcessCode ExtrapolationTestAlgorithm::executeTestT(cons
         ecc.addConfigurationMode(Acts::ExtrapolationMode::StopWithPathLimit);
     }
     // screen output
-    MSG_DEBUG("===> forward extrapolation - collecting information <<===");
+    ACTS_DEBUG("===> forward extrapolation - collecting information <<===");
     // call the extrapolation engine
     Acts::ExtrapolationCode eCode = m_cfg.extrapolationEngine->extrapolate(ecc);
     if (eCode.isFailure()){
-        MSG_WARNING("Extrapolation failed.");
+        ACTS_WARNING("Extrapolation failed.");
         return FW::ProcessCode::ABORT;
     }
     // write out if configured

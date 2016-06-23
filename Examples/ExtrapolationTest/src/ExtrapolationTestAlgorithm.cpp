@@ -5,7 +5,6 @@
 #include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Surfaces/PerigeeSurface.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Framework/MsgStreamMacros.hpp"
 #include "ACTFW/Random/RandomNumbers.hpp"
 #include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
 #include "ExtrapolationTestAlgorithm.hpp"
@@ -25,10 +24,10 @@ FW::ProcessCode FWE::ExtrapolationTestAlgorithm::initialize(std::shared_ptr<FW::
 {
     // call the algorithm initialize for setting the stores
     if ( FW::Algorithm::initialize(eStore,jStore) != FW::ProcessCode::SUCCESS){
-        MSG_FATAL("Algorithm::initialize() did not succeed!");
+        ACTS_FATAL("Algorithm::initialize() did not succeed!");
         return FW::ProcessCode::SUCCESS;
     }
-    MSG_VERBOSE("initialize successful.");
+    ACTS_VERBOSE("initialize successful.");
     return FW::ProcessCode::SUCCESS;
 }
 
@@ -52,7 +51,7 @@ FW::ProcessCode FWE::ExtrapolationTestAlgorithm::execute(size_t eventNumber)
         std::unique_ptr<Acts::ActsSymMatrixD<5> > cov;
         Acts::ActsVectorD<5> pars; pars << d0, z0, phi, theta, q/p;
         // perigee parameters
-        MSG_VERBOSE("Building parameters from Perigee with (" << d0 << ", " << z0 << ", " << phi << ", " << theta << ", " << q/p);
+        ACTS_VERBOSE("Building parameters from Perigee with (" << d0 << ", " << z0 << ", " << phi << ", " << theta << ", " << q/p);
         // charged extrapolation
         Acts::PerigeeSurface pSurface(Acts::Vector3D(0.,0.,0.));
         
@@ -60,13 +59,13 @@ FW::ProcessCode FWE::ExtrapolationTestAlgorithm::execute(size_t eventNumber)
         if (m_cfg.parameterType){
             Acts::BoundParameters startParameters(std::move(cov),std::move(pars),pSurface);
             if (executeTestT<Acts::TrackParameters>(startParameters) != FW::ProcessCode::SUCCESS)
-                MSG_WARNING("Test of parameter extrapolation did not succeed.");
+                ACTS_WARNING("Test of parameter extrapolation did not succeed.");
         
         } else {
             // charged extrapolation
             Acts::NeutralBoundParameters startParameters(std::move(cov),std::move(pars),pSurface);
             if (executeTestT<Acts::NeutralParameters>(startParameters) != FW::ProcessCode::SUCCESS)
-                MSG_WARNING("Test of parameter extrapolation did not succeed.");
+                ACTS_WARNING("Test of parameter extrapolation did not succeed.");
        }
         
     }
@@ -74,10 +73,9 @@ FW::ProcessCode FWE::ExtrapolationTestAlgorithm::execute(size_t eventNumber)
     return FW::ProcessCode::SUCCESS;
 }
 
-/** Framework finalize mehtod */
 FW::ProcessCode FWE::ExtrapolationTestAlgorithm::finalize()
 {
-    MSG_VERBOSE("initialize successful.");
+    ACTS_VERBOSE("initialize successful.");
     return FW::ProcessCode::SUCCESS;
 }
 

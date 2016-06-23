@@ -5,16 +5,14 @@
 //
 //
 
-#ifndef RootExCellWriter_h
-#define RootExCellWriter_h
+#ifndef ACTFW_PLUGINS_ROOTEXCELLWRITER_H
+#define ACTFW_PLUGINS_ROOTEXCELLWRITER_H 1
 
+#include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
-
 #include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Framework/MsgStreamMacros.hpp"
-
 #include "TTree.h"
 
 class TFile;
@@ -23,59 +21,68 @@ class TFile;
 #define MAXSTEPS 100
 #endif
 
-/** namespace Framework Root Plugins */
 namespace FWRoot {
     
-    /** @class IExtrapolatiionCellWriter
-     Interface class for extrapolation cell writers*/
+    /// @class ExtrapolatiionCellWriter
+    /// 
+    /// a root based implementation to write out extrapolation steps
+    /// 
     class RootExCellWriter : public FW::IExtrapolationCellWriter {
     public:
-        /** @struct */
+        ///  @struct ExtrapolationStep 
+        ///  this holds the information to be written out
         struct ExtrapolationStep {
-            float x, y, z;          // position (global)
-            float px, py, pz;       // momentum
-            float type;             // type of the step
+            float x, y, z;          ///< position (global)
+            float px, py, pz;       ///< momentum
+            float type;             ///< type of the step
         };
         
         
-        /** @class Config
-         nested config file */
+        // @class Config
+        // 
+        // The nested config class
         class Config {
         public:
-            std::string                 treeName;           //!< the name of the output tree
-            std::string                 fileName;           //!< the name of the output file
-            std::string                 name;               //!< the name of the algorithm
-            FW::MessageLevel            msgLvl;             //!< the message level of this algorithm
+          std::shared_ptr<Acts::Logger>   logger;     ///< the default logger 
+            std::string                   treeName;   ///< the name of the output tree
+            std::string                   fileName;   ///< the name of the output file
+            std::string                   name;       ///< the name of the algorithm
             
-            Config() :
-            name("Anonymous"),
-            msgLvl(FW::MessageLevel::INFO)
+            Config(const std::string& lname = "Algorithm", 
+                   Acts::Logging::Level lvl = Acts::Logging::INFO)
+             : logger(Acts::getDefaultLogger(lname,lvl))
+             , treeName("TTree")
+             , fileName("TFile.root")         
+             , name(lname)
             {}
         };
         
-        /** Constructor */
+        /// Constructor
+        ///
+        /// @param cfg is the configuration class 
         RootExCellWriter(const Config& cfg);
         
-        /** Destructor */
+        /// Destructor 
         virtual ~RootExCellWriter();
         
-        /** Framework intialize method */
+        /// Framework intialize method 
         FW::ProcessCode initialize() final;
         
-        /** Framework finalize mehtod */
+        /// Framework finalize mehtod 
         FW::ProcessCode finalize() final;
 
-        /** The write interface */
+        /// The write interface 
+        ///
+        /// @param eCell is the extrapolation cell that is parsed and written
         FW::ProcessCode write(const Acts::ExCellCharged& eCell) final;
         
-        /** The write interface */
+        /// The write interface 
+        /// 
+        /// @param eCell is the extrapolation cell that is parsed and written
         FW::ProcessCode write(const Acts::ExCellNeutral& eCell) final;
 
-        /** Framework name() method */
+        /// Framework name() method 
         const std::string& name() const final;
-        
-        /** return the MessageLevel */
-        FW::MessageLevel messageLevel()const final;
 
     private:
         Config                      m_cfg;                  //!< the config class
@@ -84,19 +91,24 @@ namespace FWRoot {
         std::vector<float>          m_positionX;
         std::vector<float>          m_positionY;
         std::vector<float>          m_positionZ;
-        
-        
+
+        /// Private helper method for actual filling
         template <class T> FW::ProcessCode writeT(const Acts::ExtrapolationCell<T>& eCell);
+
+        /// Private access to the logging instance
+        const Acts::Logger&
+        logger() const
+        {
+          return *m_cfg.logger;
+        }   
         
     };
     
     const std::string& RootExCellWriter::name() const { return m_cfg.name; }
-    
-    FW::MessageLevel RootExCellWriter::messageLevel() const { return m_cfg.msgLvl; }
  
 #include "RootExCellWriter.ipp"
     
 }
 
 
-#endif /* RootExCellWriter_h */
+#endif // ACTFW_PLUGINS_ROOTEXCELLWRITER_H

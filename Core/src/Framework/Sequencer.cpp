@@ -9,10 +9,10 @@ FW::Sequencer::~Sequencer(){}
 FW::ProcessCode FW::Sequencer::initializeEventLoop()
 {
 
-    MSG_INFO("=================================================================");
-    MSG_INFO("Initializing the event loop for:");
-    MSG_INFO("      -> " << m_cfg.ioAlgorithms.size() << " IO Algorithms");
-    MSG_INFO("      -> " << m_cfg.eventAlgorithms.size() << " Event Algorithms");
+    ACTS_INFO("=================================================================");
+    ACTS_INFO("Initializing the event loop for:");
+    ACTS_INFO("      -> " << m_cfg.ioAlgorithms.size() << " IO Algorithms");
+    ACTS_INFO("      -> " << m_cfg.eventAlgorithms.size() << " Event Algorithms");
 
     // initialize the services
     for (auto& isvc: m_cfg.services){
@@ -37,19 +37,19 @@ FW::ProcessCode FW::Sequencer::initializeEventLoop()
 
 FW::ProcessCode FW::Sequencer::processEventLoop(size_t nEvents, size_t skipEvents)
 {
-    MSG_INFO("=================================================================");
-    MSG_INFO("Processing the event loop:");
+    ACTS_INFO("=================================================================");
+    ACTS_INFO("Processing the event loop:");
 
     // skip the events if necessary
     if (skipEvents){
-        MSG_INFO("==> SKIP   " << skipEvents << " events.");
+        ACTS_INFO("==> SKIP   " << skipEvents << " events.");
         for (auto& ioalg: m_cfg.ioAlgorithms)
             if (ioalg->skip(skipEvents) != ProcessCode::SUCCESS)
                 return ProcessCode::ABORT;
     }
     // execute the event loop
     for (size_t ievent = 0; ievent < nEvents; ++ievent){
-        MSG_INFO("==> EVENT " << skipEvents+ievent << " <== start. ");
+        ACTS_INFO("==> EVENT " << skipEvents+ievent << " <== start. ");
         // a) then call read on all io algoirhtms
         for (auto& ioalg: m_cfg.ioAlgorithms){
             if (ioalg->read(skipEvents+ievent) != ProcessCode::SUCCESS)
@@ -65,7 +65,7 @@ FW::ProcessCode FW::Sequencer::processEventLoop(size_t nEvents, size_t skipEvent
             if (ioalg->write(skipEvents+ievent) != ProcessCode::SUCCESS)
                 return ProcessCode::ABORT;
         }
-        MSG_INFO("<== EVENT " << skipEvents+ievent << " ==> done. ");
+        ACTS_INFO("<== EVENT " << skipEvents+ievent << " ==> done. ");
     }
     // return with success
     return ProcessCode::SUCCESS;
@@ -75,10 +75,10 @@ FW::ProcessCode FW::Sequencer::processEventLoop(size_t nEvents, size_t skipEvent
 FW::ProcessCode FW::Sequencer::finalizeEventLoop()
 {
     
-    MSG_INFO("=================================================================");
-    MSG_INFO("Finalize the event loop for:");
-    MSG_INFO("      -> " << m_cfg.ioAlgorithms.size() << " IO Algorithms");
-    MSG_INFO("      -> " << m_cfg.eventAlgorithms.size() << " Event Algorithms");
+    ACTS_INFO("=================================================================");
+    ACTS_INFO("Finalize the event loop for:");
+    ACTS_INFO("      -> " << m_cfg.ioAlgorithms.size() << " IO Algorithms");
+    ACTS_INFO("      -> " << m_cfg.eventAlgorithms.size() << " Event Algorithms");
 
     // finalize the services
     for (auto& isvc: m_cfg.services){

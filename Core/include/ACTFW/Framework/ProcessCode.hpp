@@ -6,14 +6,12 @@
 //
 //
 
-#ifndef ProcessCode_h
-#define ProcessCode_h
+#ifndef ACTFW_FRAMEWORK_PROCESSCODE_H
+#define ACTFW_FRAMEWORK_PROCESSCODE_H 1
 
 namespace FW {
-
     enum class ProcessCode { SUCCESS, ABORT };
+  }
 
-}
 
-
-#endif /* ProcessCode_h */
+#endif // ACTFW_FRAMEWORK_PROCESSCODE_H

@@ -1,14 +1,7 @@
-//
-//  RootExCellWriter.ipp
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
 
 template <class T> FW::ProcessCode RootExCellWriter::writeT(const Acts::ExtrapolationCell<T>& eCell)
 {
-    MSG_VERBOSE("Writing an eCell object with " << eCell.extrapolationSteps.size() << " steps.");
+    ACTS_VERBOSE("Writing an eCell object with " << eCell.extrapolationSteps.size() << " steps.");
     
     m_positionX.clear();
     m_positionY.clear();

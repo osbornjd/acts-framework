@@ -5,12 +5,11 @@
 //
 //
 
-#ifndef IExtrapolationCellWriter_h
-#define IExtrapolationCellWriter_h
+#ifndef ACTFW_WRITERS_IEXTRAPOLATIONCELLWRITER_H
+#define ACTFW_WRITERS_IEXTRAPOLATIONCELLWRITER_H 1
 
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-
 #include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/EventData/NeutralParameters.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
@@ -22,17 +21,20 @@ namespace Acts {
 }
 
 namespace FW {
-    /** @class IExtrapolatiionCellWriter 
-     Interface class for extrapolation cell writers*/
+
+    /// @class IExtrapolatiionCellWriter 
+    ///
+    /// Interface class for extrapolation cell writers
+    ///
     class IExtrapolationCellWriter : public IService {
     public:
-        /** Virtual Destructor */
+        /// Virtual Destructor 
         virtual ~IExtrapolationCellWriter() {}
         
-        /** The write interface */
+        /// The write interface 
         virtual ProcessCode write(const Acts::ExCellCharged& eCell) = 0;
 
-        /** The write interface */
+        /// The write interface 
         virtual ProcessCode write(const Acts::ExCellNeutral& eCell) = 0;
 
     };
@@ -40,4 +42,4 @@ namespace FW {
 }
 
 
-#endif /* IExtrapolationCellWriter_h */
+#endif // ACTFW_WRITERS_IEXTRAPOLATIONCELLWRITER_H

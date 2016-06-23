@@ -1,4 +1,3 @@
-#include "ACTFW/Framework/MsgStreamMacros.hpp"
 #include "ACTFW/Random/RandomNumbers.hpp"
 #include "RandomNumbersAlgorithm.hpp"
 #include <iostream>
@@ -17,10 +16,10 @@ FW::ProcessCode FWE::RandomNumbersAlgorithm::initialize(std::shared_ptr<FW::Whit
 {
     // call the algorithm initialize for setting the stores
     if ( FW::Algorithm::initialize(eStore,jStore) != FW::ProcessCode::SUCCESS){
-        MSG_FATAL("Algorithm::initialize() did not succeed!");
+        ACTS_FATAL("Algorithm::initialize() did not succeed!");
         return FW::ProcessCode::SUCCESS;
     }
-    MSG_VERBOSE("initialize successful.");
+    ACTS_VERBOSE("initialize successful.");
     return FW::ProcessCode::SUCCESS;
 }
 
@@ -36,10 +35,10 @@ FW::ProcessCode FWE::RandomNumbersAlgorithm::execute(size_t eventNumber)
         double landau  = m_cfg.randomNumbers->draw(FW::Distribution::landau);
         double gamma   = m_cfg.randomNumbers->draw(FW::Distribution::gamma);
 
-        MSG_VERBOSE("Gauss   : " << gauss );
-        MSG_VERBOSE("Uniform : " << uniform );
-        MSG_VERBOSE("Landau  : " << landau );
-        MSG_VERBOSE("Gamma   : " << gamma );
+        ACTS_VERBOSE("Gauss   : " << gauss );
+        ACTS_VERBOSE("Uniform : " << uniform );
+        ACTS_VERBOSE("Landau  : " << landau );
+        ACTS_VERBOSE("Gamma   : " << gamma );
 
     }
     return FW::ProcessCode::SUCCESS;
@@ -48,6 +47,6 @@ FW::ProcessCode FWE::RandomNumbersAlgorithm::execute(size_t eventNumber)
 /** Framework finalize mehtod */
 FW::ProcessCode FWE::RandomNumbersAlgorithm::finalize()
 {
-    MSG_VERBOSE("initialize successful.");
+    ACTS_VERBOSE("initialize successful.");
     return FW::ProcessCode::SUCCESS;
 }

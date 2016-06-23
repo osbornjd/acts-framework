@@ -16,26 +16,26 @@
 
 namespace FWE {
     
-    /** @class Algorithm */
+    /// @class Simple data class with 
     class DataClassOne {
         
     public :
-        /* Constructor*/
+        /// Constructor
         DataClassOne(const std::string& stringData, size_t eventData) :
           m_dataString(stringData),
           m_dataSizeT(eventData)
         {}
         
-        /* Destructor*/
+        /// Destructor
         ~DataClassOne(){}
         
-        /* the contained data : string */
+        /// the contained data : string 
         const std::string data() const;
 
         
     private:
-        std::string m_dataString; //!< data member string
-        size_t      m_dataSizeT;  //!< data member size_t
+        std::string m_dataString; ///< data member string
+        size_t      m_dataSizeT;  ///< data member size_t
         
     };
     
