@@ -24,7 +24,7 @@
 // the main hello world executable
 int main (int argc, char *argv[]) {
 
-    size_t nEvents = 500;
+    size_t nEvents = 100;
     
     // create the tracking geometry as a shared pointer
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry = Acts::trackingGeometry(Acts::Logging::INFO,0);
@@ -80,14 +80,14 @@ int main (int argc, char *argv[]) {
     FWE::ExtrapolationTestAlgorithm::Config eTestConfig("ExtrapolationEngineTest");
     eTestConfig.testsPerEvent           = 100;
     eTestConfig.parameterType           = 0;
-    eTestConfig.searchMode              = -1;
+    eTestConfig.searchMode              = 1;
     eTestConfig.extrapolationEngine     = extrapolationEngine;
     eTestConfig.extrapolationCellWriter = rootEcWriter;
     eTestConfig.randomNumbers           = randomNumbers;
     eTestConfig.d0Defs                  = {{0.,2.}};
     eTestConfig.z0Defs                  = {{0.,50.}};
     eTestConfig.phiRange                = {{-M_PI,M_PI}};
-    eTestConfig.etaRange                = {{-3.5,3.5}};
+    eTestConfig.etaRange                = {{-2.5,2.5}};
     eTestConfig.ptRange                 = {{10000.,100000.}};
     eTestConfig.particleType            = 3;
     eTestConfig.collectSensitive        = true;
