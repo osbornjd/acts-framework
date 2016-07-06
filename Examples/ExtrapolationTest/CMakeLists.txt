@@ -1,5 +1,5 @@
 # get list of all source files
-file (GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
+file (GLOB_RECURSE src_files "src/*.*pp")
 
 # find the ACTS package
 find_package(ACTS)
