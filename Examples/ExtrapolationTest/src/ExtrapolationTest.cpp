@@ -72,7 +72,7 @@ int main (int argc, char *argv[]) {
     
     // Write ROOT TTree
     FWRoot::RootExCellWriter::Config recWriterConfig("RootExCellWriter");
-    recWriterConfig.fileName = "/Users/salzburg/Desktop/ExtrapolationTest.root";
+    recWriterConfig.fileName = "$PWD/ExtrapolationTest.root";
     recWriterConfig.treeName = "ExtrapolationTest";
     std::shared_ptr<FW::IExtrapolationCellWriter> rootEcWriter(new FWRoot::RootExCellWriter(recWriterConfig));
     
