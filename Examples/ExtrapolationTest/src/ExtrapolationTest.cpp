@@ -32,7 +32,7 @@ int main (int argc, char *argv[]) {
     // set up the magnetic field
     FWE::ConstantFieldSvc::Config cffConfig;
     cffConfig.name = "ConstantMagField";
-    cffConfig.field = {{ 0., 0., 20000. }};
+    cffConfig.field = {{ 0., 0., 0.002 }}; // field is given in kT
     std::shared_ptr<Acts::IMagneticFieldSvc> magFieldSvc(new FWE::ConstantFieldSvc(cffConfig));
     
     // EXTRAPOLATOR - set up the extrapolator
@@ -79,7 +79,7 @@ int main (int argc, char *argv[]) {
     // the Algorithm with its configurations
     FWE::ExtrapolationTestAlgorithm::Config eTestConfig("ExtrapolationEngineTest");
     eTestConfig.testsPerEvent           = 100;
-    eTestConfig.parameterType           = 0;
+    eTestConfig.parameterType           = 1;
     eTestConfig.searchMode              = 1;
     eTestConfig.extrapolationEngine     = extrapolationEngine;
     eTestConfig.extrapolationCellWriter = rootEcWriter;
