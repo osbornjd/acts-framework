@@ -36,6 +36,8 @@ int main (int argc, char *argv[]) {
     std::shared_ptr<Acts::IMagneticFieldSvc> magFieldSvc(new FWE::ConstantFieldSvc(cffConfig));
     
     // EXTRAPOLATOR - set up the extrapolator
+    // a centraol logging level
+    Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
     // (a) RungeKuttaPropagtator
     Acts::RungeKuttaEngine::Config rungeKuttaConfig("RungeKuttaEngine");
     rungeKuttaConfig.fieldService = magFieldSvc;
@@ -44,18 +46,18 @@ int main (int argc, char *argv[]) {
     Acts::MaterialEffectsEngine::Config materialEffectsConfig("MaterialEffectsEngine");
     std::shared_ptr<Acts::IMaterialEffectsEngine> materialEffects(new Acts::MaterialEffectsEngine(materialEffectsConfig));
     // (c) StaticNavigationEngine
-    Acts::StaticNavigationEngine::Config staticNavigatorConfig("StaticNavigator", Acts::Logging::INFO);
+    Acts::StaticNavigationEngine::Config staticNavigatorConfig("StaticNavigator", eLogLevel);
     staticNavigatorConfig.propagationEngine = rungeKuttaEngine;
     staticNavigatorConfig.trackingGeometry  = tGeometry;
     std::shared_ptr<Acts::INavigationEngine> staticNavigator(new Acts::StaticNavigationEngine(staticNavigatorConfig));
     // (d) the StaticEngine
-    Acts::StaticEngine::Config staticEngineConfig("StaticEngine", Acts::Logging::INFO);
+    Acts::StaticEngine::Config staticEngineConfig("StaticEngine", eLogLevel);
     staticEngineConfig.propagationEngine     = rungeKuttaEngine;
     staticEngineConfig.materialEffectsEngine = materialEffects;
     staticEngineConfig.navigationEngine      = staticNavigator;
     std::shared_ptr<Acts::IExtrapolationEngine> staticEngine(new Acts::StaticEngine(staticEngineConfig));
     // (e) the material engine
-    Acts::ExtrapolationEngine::Config extrapolationEngineConfig("ExtrapolationEngine", Acts::Logging::INFO);
+    Acts::ExtrapolationEngine::Config extrapolationEngineConfig("ExtrapolationEngine", eLogLevel);
     extrapolationEngineConfig.navigationEngine = staticNavigator;
     extrapolationEngineConfig.extrapolationEngines = { staticEngine };
     extrapolationEngineConfig.propagationEngine    = rungeKuttaEngine;
@@ -79,13 +81,13 @@ int main (int argc, char *argv[]) {
     // the Algorithm with its configurations
     FWE::ExtrapolationTestAlgorithm::Config eTestConfig("ExtrapolationEngineTest");
     eTestConfig.testsPerEvent           = 100;
-    eTestConfig.parameterType           = 1;
+    eTestConfig.parameterType           = 0;
     eTestConfig.searchMode              = 1;
     eTestConfig.extrapolationEngine     = extrapolationEngine;
     eTestConfig.extrapolationCellWriter = rootEcWriter;
     eTestConfig.randomNumbers           = randomNumbers;
-    eTestConfig.d0Defs                  = {{0.,2.}};
-    eTestConfig.z0Defs                  = {{0.,50.}};
+    eTestConfig.d0Defs                  = {{0.,0.}};
+    eTestConfig.z0Defs                  = {{0.,0.}};
     eTestConfig.phiRange                = {{-M_PI,M_PI}};
     eTestConfig.etaRange                = {{-2.5,2.5}};
     eTestConfig.ptRange                 = {{10000.,100000.}};
