@@ -16,6 +16,7 @@
 #include <iostream>
 #include <vector>
 #include "TGeoManager.h"
+#include "TApplication.h"
 
 std::unique_ptr<const Acts::TrackingGeometry> gdmlTrackingGeometry(Acts::Logging::Level lvl = Acts::Logging::VERBOSE)
 {
@@ -70,24 +71,43 @@ std::unique_ptr<const Acts::TrackingGeometry> gdmlTrackingGeometry(Acts::Logging
       = std::make_shared<Acts::CylinderVolumeBuilder>(bpvConfig);
   
   // ATLAS pixel detector
-  TGeoManager::Import("Pixel.gdml");
+  TGeoManager::Import("Pixel_ATLAS.gdml");
   //
   // configuration for Layer0
   Acts::TGeoLayerBuilder::LayerConfig pix0Config;
   pix0Config.layerName  = "Pixel::Layer0";
-  pix0Config.sensorName = "SensorBrl_0";
-  pix0Config.unitscalor = 10.;
-  pix0Config.binsLoc0   = 20;
-  pix0Config.binsLoc1   = 20;
+  pix0Config.sensorName = "SensorBrl";
+  pix0Config.envelope   = std::pair<double,double>(1.,5.);
+  pix0Config.localAxes  = "yzx";
+  pix0Config.binsLoc0   = 40;
+  pix0Config.binsLoc1   = 40;
+  //
+  // configuration for Layer1
+  Acts::TGeoLayerBuilder::LayerConfig pix1Config;
+  pix1Config.layerName  = "Pixel::Layer1";
+  pix1Config.sensorName = "SensorBrl";
+  pix1Config.envelope   = std::pair<double,double>(1.,5.);
+  pix1Config.localAxes  = "yzx";
+  pix1Config.binsLoc0   = 40;
+  pix1Config.binsLoc1   = 40;
+  //
+  // configuration for Layer2
+  Acts::TGeoLayerBuilder::LayerConfig pix2Config;
+  pix2Config.layerName  = "Pixel::Layer2";
+  pix2Config.sensorName = "SensorBrl";
+  pix2Config.envelope   = std::pair<double,double>(1.,5.);
+  pix2Config.localAxes  = "yzx";
+  pix2Config.binsLoc0   = 40;
+  pix2Config.binsLoc1   = 40;
   // configuration for the layer builder
   Acts::TGeoLayerBuilder::Config pixLayerBuilderConfig;
   pixLayerBuilderConfig.logger = Acts::getDefaultLogger("PixelLayerBuilder", lvl);
   pixLayerBuilderConfig.configurationName    = "Pixel";
-  pixLayerBuilderConfig.layerCreator         = layerCreator; 
+  pixLayerBuilderConfig.unit                 = 10.;
+  pixLayerBuilderConfig.layerCreator         = layerCreator;
   pixLayerBuilderConfig.negativeLayerConfigs = {};
-  pixLayerBuilderConfig.centralLayerConfigs  = { pix0Config };
+    pixLayerBuilderConfig.centralLayerConfigs  = { pix0Config }; //, pix1Config, pix2Config };
   pixLayerBuilderConfig.positiveLayerConfigs = {};
-  
   /// 
   auto pixelLayerBuilder = std::make_shared<Acts::TGeoLayerBuilder>(pixLayerBuilderConfig);  
     
@@ -129,10 +149,15 @@ std::unique_ptr<const Acts::TrackingGeometry> gdmlTrackingGeometry(Acts::Logging
 // the main hello world executable
 int main (int argc, char *argv[])
 {
+    
+    TApplication theApp("tapp", &argc, argv);
 
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry =
-    std::move(gdmlTrackingGeometry());
+    std::move(gdmlTrackingGeometry(Acts::Logging::DEBUG));
     
+    gGeoManager->GetTopVolume()->Draw("ogl");
+
+    theApp.Run();
     
     return 0;
 }

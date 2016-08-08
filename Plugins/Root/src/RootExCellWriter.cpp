@@ -42,8 +42,8 @@ FW::ProcessCode FWRoot::RootExCellWriter::initialize()
   m_outputTree->Branch("StepZ",&m_positionZ);
   
   m_outputTree->Branch("MaterialStep",  &m_material);
-  m_outputTree->Branch("BoundaryStep",  &m_material);
-  m_outputTree->Branch("SensitiveStep", &m_material);
+  m_outputTree->Branch("BoundaryStep",  &m_boundary);
+  m_outputTree->Branch("SensitiveStep", &m_sensitive);
 
   m_outputTree->Branch("VolumeID",  &m_volumeID);
   m_outputTree->Branch("LayerID",   &m_layerID);

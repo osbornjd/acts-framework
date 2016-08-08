@@ -24,10 +24,10 @@
 // the main hello world executable
 int main (int argc, char *argv[]) {
 
-    size_t nEvents = 100;
+    size_t nEvents = 1000;
     
     // create the tracking geometry as a shared pointer
-    std::shared_ptr<const Acts::TrackingGeometry> tGeometry = Acts::trackingGeometry(Acts::Logging::INFO,0);
+    std::shared_ptr<const Acts::TrackingGeometry> tGeometry = Acts::trackingGeometry(Acts::Logging::INFO,1);
     
     // set up the magnetic field
     FWE::ConstantFieldSvc::Config cffConfig;
@@ -76,12 +76,16 @@ int main (int argc, char *argv[]) {
     FWRoot::RootExCellWriter::Config recWriterConfig("RootExCellWriter");
     recWriterConfig.fileName = "$PWD/ExtrapolationTest.root";
     recWriterConfig.treeName = "ExtrapolationTest";
+    recWriterConfig.writeBoundary  = false;
+    recWriterConfig.writeMaterial  = false;
+    recWriterConfig.writeSensitive = true;
+    recWriterConfig.writePassive   = false;
     std::shared_ptr<FW::IExtrapolationCellWriter> rootEcWriter(new FWRoot::RootExCellWriter(recWriterConfig));
     
     // the Algorithm with its configurations
     FWE::ExtrapolationTestAlgorithm::Config eTestConfig("ExtrapolationEngineTest");
     eTestConfig.testsPerEvent           = 100;
-    eTestConfig.parameterType           = 0;
+    eTestConfig.parameterType           = 1;
     eTestConfig.searchMode              = 1;
     eTestConfig.extrapolationEngine     = extrapolationEngine;
     eTestConfig.extrapolationCellWriter = rootEcWriter;
@@ -90,12 +94,12 @@ int main (int argc, char *argv[]) {
     eTestConfig.z0Defs                  = {{0.,0.}};
     eTestConfig.phiRange                = {{-M_PI,M_PI}};
     eTestConfig.etaRange                = {{-2.5,2.5}};
-    eTestConfig.ptRange                 = {{10000.,100000.}};
+    eTestConfig.ptRange                 = {{1000.,100000.}};
     eTestConfig.particleType            = 3;
     eTestConfig.collectSensitive        = true;
     eTestConfig.collectPassive          = false;
     eTestConfig.collectBoundary         = false;
-    eTestConfig.collectMaterial         = true;
+    eTestConfig.collectMaterial         = false;
     eTestConfig.sensitiveCurvilinear    = false;
     eTestConfig.pathLimit               = -1.;
     

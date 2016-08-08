@@ -20,14 +20,13 @@ template <class T> FW::ProcessCode RootExCellWriter::writeT(const Acts::Extrapol
     
     for (auto& es : eCell.extrapolationSteps){
         if (es.parameters){
+          /// step parameters
             const T& pars = (*es.parameters);
-            /// goblal position information
-            m_positionX.push_back(pars.position().x());
-            m_positionY.push_back(pars.position().y());
-            m_positionZ.push_back(pars.position().z());
-            /// local position information
-            m_localposition0.push_back(pars.parameters()[Acts::eLOC_X]);
-            m_localposition1.push_back(pars.parameters()[Acts::eLOC_Y]);
+            /// type information
+            int material  = es.stepConfiguration.checkMode(Acts::ExtrapolationMode::CollectMaterial);
+            int boundary  = es.stepConfiguration.checkMode(Acts::ExtrapolationMode::CollectBoundary);
+            int sensitive = es.stepConfiguration.checkMode(Acts::ExtrapolationMode::CollectSensitive);
+            int passive   = es.stepConfiguration.checkMode(Acts::ExtrapolationMode::CollectPassive);
             /// check the layer, surface, volume ID
             Acts::geo_id_value volumeID = pars.associatedSurface().geoID().value(
                                                                 Acts::GeometryID::volume_mask,
@@ -37,19 +36,29 @@ template <class T> FW::ProcessCode RootExCellWriter::writeT(const Acts::Extrapol
                                                                 Acts::GeometryID::layer_shift);
             Acts::geo_id_value surfaceID = pars.associatedSurface().geoID().value(
                                                                   Acts::GeometryID::sensitive_mask,
-                                                                  Acts::GeometryID::sensitive_shift);
-            m_volumeID.push_back(volumeID);
-            m_layerID.push_back(layerID);
-            m_surfaceID.push_back(surfaceID);
-            /// type information
-            int material  = es.stepConfiguration.checkMode(Acts::ExtrapolationMode::CollectMaterial);
-            int boundary  = es.stepConfiguration.checkMode(Acts::ExtrapolationMode::CollectBoundary);
-            int sensitive = es.stepConfiguration.checkMode(Acts::ExtrapolationMode::CollectSensitive);
-            m_material.push_back(material);
-            m_boundary.push_back(boundary);
-            m_sensitive.push_back(sensitive);
-            
-            
+                                                                  Acts::GeometryID::sensitive_shift);   
+            /// 
+            if ((m_cfg.writeSensitive && sensitive) || 
+                (m_cfg.writeBoundary && boundary) || 
+                (m_cfg.writeMaterial && material) ||
+                (m_cfg.writePassive && passive)) {
+                                                                             
+                /// goblal position information
+                m_positionX.push_back(pars.position().x());
+                m_positionY.push_back(pars.position().y());
+                m_positionZ.push_back(pars.position().z());
+                /// local position information
+                m_localposition0.push_back(pars.parameters()[Acts::eLOC_X]);
+                m_localposition1.push_back(pars.parameters()[Acts::eLOC_Y]);
+                /// 
+                m_volumeID.push_back(volumeID);
+                m_layerID.push_back(layerID);
+                m_surfaceID.push_back(surfaceID);
+                /// 
+                m_material.push_back(material);
+                m_boundary.push_back(boundary);
+                m_sensitive.push_back(sensitive);
+          }
         }
     }
     // write to 
