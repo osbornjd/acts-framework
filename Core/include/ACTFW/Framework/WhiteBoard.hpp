@@ -19,38 +19,19 @@
 
 namespace FW {
 
-    /// @class WhiteBoard 
-    /// Simple whit board class to read from and write to 
+    /// @class WhiteBoard
+    /// Simple whit board class to read from and write to
     class WhiteBoard {
         
       public:
-        ///  @class Config 
-        /// Nested Config class for this WhiteBoard
-        class Config {
-          public:
-            /// the default logger
-            std::shared_ptr<Acts::Logger> logger; 
-            /// the name of the component
-            std::string                    name;
-            
-            Config(const std::string& lname = "WhiteBoard", 
-                   Acts::Logging::Level lvl = Acts::Logging::INFO)
-             : logger(Acts::getDefaultLogger(lname,lvl))
-             , name(lname)       
-            {}
-        };
-    
         /// Constructor
         /// @param cfg is the config struct for this WhiteBoard
-        WhiteBoard(const Config& cfg);
+        WhiteBoard(std::unique_ptr<Acts::Logger> logger = Acts::getDefaultLogger("WhiteBoard", Acts::Logging::INFO));
         
-        /// Destructor 
+        /// Destructor
         virtual ~WhiteBoard();
-        
-        /// Framework name() method 
-        const std::string& name() const;
-        
-        /// clear the white board 
+
+        /// clear the white board
         ///
         /// @param name is the collection name that should be cleared
         template <class T> ProcessCode clearT(const std::string& name)
@@ -69,10 +50,10 @@ namespace FW {
             return ProcessCode::SUCCESS;
         }
         
-        /// write to the white board 
+        /// write to the white board
         ///
         /// @paramt coll is the collection to be written
-        /// @param cname is the collection to name 
+        /// @param cname is the collection to name
         template <class T> ProcessCode writeT(std::vector< std::unique_ptr<T> >* coll, const std::string& cname)
         {
             // clear the entry in the event store
@@ -88,10 +69,10 @@ namespace FW {
         
         }
 
-        /// read from the white board 
+        /// read from the white board
         ///
         /// @paramt coll is the collection to be written
-        /// @param cname is the collection to name 
+        /// @param cname is the collection to name
         template <class T> ProcessCode readT(std::vector< std::unique_ptr<T> >*& coll, const std::string& cname)
         {
             auto sCol = m_store.find(cname);
@@ -106,8 +87,7 @@ namespace FW {
         }
         
       private:
-        /// the internal configuration file 
-        Config                        m_cfg; 
+        std::unique_ptr<Acts::Logger> m_logger;
         /// the internal store
         std::map<std::string, void*> m_store;
         
@@ -115,13 +95,10 @@ namespace FW {
         const Acts::Logger&
         logger() const
         {
-          return *m_cfg.logger;
-        }        
+          return *m_logger;
+        }
   
-    };    
-    
-    inline const std::string& WhiteBoard::name() const { return m_cfg.name; }
-    
+    };
 }
 
 
