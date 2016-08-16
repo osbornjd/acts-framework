@@ -8,11 +8,12 @@
 #ifndef ACTFW_FRAMEWORK_ALGORITHM_H
 #define ACTFW_FRAMEWORK_ALGORITHM_H 1
 
+#include <string>
+#include <memory>
+
 #include "ACTFW/Framework/IAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTS/Utilities/Logger.hpp"
-#include <string>
-#include <memory>
 
 namespace FW {
         

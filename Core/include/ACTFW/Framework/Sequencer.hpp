@@ -9,14 +9,15 @@
 #ifndef ACTF_FRAMEWORK_SEQUENCER_H
 #define ACTF_FRAMEWORK_SEQUENCER_H 1
 
+#include <memory>
+#include <vector>
+#include <string>
+
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/IOAlgorithm.hpp"
 #include "ACTFW/Framework/IAlgorithm.hpp"
 #include "ACTFW/Framework/IService.hpp"
-#include <memory>
-#include <vector>
-#include <string>
 
 namespace FW {
     

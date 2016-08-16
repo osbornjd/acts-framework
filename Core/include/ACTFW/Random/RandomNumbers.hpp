@@ -9,13 +9,13 @@
 #ifndef ACTFW_RANDOM_RANDOMNUMBERS_H
 #define ACTFW_RANDOM_RANDOMNUMBERS_H 1
 
-#include "ACTS/Utilities/Logger.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include <stdio.h>
 #include <string>
 #include <array>
 #include <memory>
 #include <random>
+
+#include "ACTS/Utilities/Logger.hpp"
+#include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace FW {
     
