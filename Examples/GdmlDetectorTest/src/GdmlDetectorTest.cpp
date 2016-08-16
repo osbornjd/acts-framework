@@ -1,5 +1,12 @@
-#include <stdio.h>
+#include <cstdlib>
 #include <memory>
+#include <array>
+#include <iostream>
+#include <vector>
+
+#include <TGeoManager.h>
+#include <TApplication.h>
+
 #include "ACTS/Plugins/TGeoPlugins/TGeoLayerBuilder.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Material/Material.hpp"
@@ -12,55 +19,40 @@
 #include "ACTS/Tools/PassiveLayerBuilder.hpp"
 #include "ACTS/Tools/SurfaceArrayCreator.hpp"
 #include "ACTS/Tools/TrackingVolumeArrayCreator.hpp"
-#include <array>
-#include <iostream>
-#include <vector>
-#include "TGeoManager.h"
-#include "TApplication.h"
 
 std::unique_ptr<const Acts::TrackingGeometry> gdmlTrackingGeometry(Acts::Logging::Level lvl = Acts::Logging::VERBOSE)
 {
-  
-  // configure surface array creator
-  Acts::SurfaceArrayCreator::Config sacConfig;
-  sacConfig.logger             = Acts::getDefaultLogger("SurfaceArrayCreator", lvl);
-  auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(sacConfig);
+  auto makeLogger = [=](const std::string& name) {
+    return Acts::getDefaultLogger(name, lvl);
+  };
+
+  auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(makeLogger("SurfaceArrayCreator"));
   // configure the layer creator that uses the surface array creator
   Acts::LayerCreator::Config lcConfig;
-  lcConfig.logger              = Acts::getDefaultLogger("LayerCreator", lvl);
   lcConfig.surfaceArrayCreator = surfaceArrayCreator;
-  auto layerCreator = std::make_shared<Acts::LayerCreator>(lcConfig);
-  // configure the layer array creator 
-  Acts::LayerArrayCreator::Config lacConfig;
-  lacConfig.logger            = Acts::getDefaultLogger("LayerArrayCreator", lvl);  
-  auto layerArrayCreator = std::make_shared<Acts::LayerArrayCreator>(lacConfig);
-  // tracking volume array creator
-  Acts::TrackingVolumeArrayCreator::Config tvacConfig;
-  tvacConfig.logger           = Acts::getDefaultLogger("TrackingVolumeArrayCreator", lvl);  
-  auto tVolumeArrayCreator = std::make_shared<Acts::TrackingVolumeArrayCreator>(tvacConfig);
+  auto layerCreator = std::make_shared<Acts::LayerCreator>(lcConfig, makeLogger("LayerCreator"));
+  auto layerArrayCreator = std::make_shared<Acts::LayerArrayCreator>(makeLogger("LayerArrayCreator"));
+  auto tVolumeArrayCreator = std::make_shared<Acts::TrackingVolumeArrayCreator>(makeLogger("TrackingVolumeArrayCreator"));
   // configure the cylinder volume helper
   Acts::CylinderVolumeHelper::Config cvhConfig;
-  cvhConfig.logger            = Acts::getDefaultLogger("CylinderVolumeHelper", lvl);
   cvhConfig.layerArrayCreator = layerArrayCreator;
   cvhConfig.trackingVolumeArrayCreator = tVolumeArrayCreator;
   auto cylinderVolumeHelper
-      = std::make_shared<Acts::CylinderVolumeHelper>(cvhConfig);
+      = std::make_shared<Acts::CylinderVolumeHelper>(cvhConfig, makeLogger("CylinderVolumeHelper"));
   
   //-------------------------------------------------------------------------------------
   // beam pipe
   //-------------------------------------------------------------------------------------
   // configure the beam pipe layer builder
   Acts::PassiveLayerBuilder::Config bplConfig;
-  bplConfig.logger = Acts::getDefaultLogger("PassiveLayerBuilder", lvl);
   bplConfig.layerIdentification     = "BeamPipe";
   bplConfig.centralLayerRadii       = std::vector<double>(1, 19.);
   bplConfig.centralLayerHalflengthZ = std::vector<double>(1, 200.);
   bplConfig.centralLayerThickness   = std::vector<double>(1, 0.8);
   bplConfig.centralLayerMaterial    = { Acts::Material(352.8,407.,9.012, 4., 1.848e-3) };
-  auto beamPipeBuilder = std::make_shared<Acts::PassiveLayerBuilder>(bplConfig);
+  auto beamPipeBuilder = std::make_shared<Acts::PassiveLayerBuilder>(bplConfig, makeLogger("PassiveLayerBuilder"));
   // create the volume for the beam pipe
   Acts::CylinderVolumeBuilder::Config bpvConfig;
-  bpvConfig.logger = Acts::getDefaultLogger("CylinderVolumeBuilder", lvl);
   bpvConfig.trackingVolumeHelper = cylinderVolumeHelper;
   bpvConfig.volumeName           = "BeamPipe";
   bpvConfig.layerBuilder         = beamPipeBuilder;
@@ -68,7 +60,7 @@ std::unique_ptr<const Acts::TrackingGeometry> gdmlTrackingGeometry(Acts::Logging
   bpvConfig.layerEnvelopeZ       = 1.;
   bpvConfig.volumeSignature      = 0;
   auto beamPipeVolumeBuilder
-      = std::make_shared<Acts::CylinderVolumeBuilder>(bpvConfig);
+      = std::make_shared<Acts::CylinderVolumeBuilder>(bpvConfig, makeLogger("CylinderVolumeBuilder"));
   
   // ATLAS pixel detector
   TGeoManager::Import("Pixel_ATLAS.gdml");
@@ -101,21 +93,19 @@ std::unique_ptr<const Acts::TrackingGeometry> gdmlTrackingGeometry(Acts::Logging
   pix2Config.binsLoc1   = 40;
   // configuration for the layer builder
   Acts::TGeoLayerBuilder::Config pixLayerBuilderConfig;
-  pixLayerBuilderConfig.logger = Acts::getDefaultLogger("PixelLayerBuilder", lvl);
   pixLayerBuilderConfig.configurationName    = "Pixel";
   pixLayerBuilderConfig.unit                 = 10.;
   pixLayerBuilderConfig.layerCreator         = layerCreator;
   pixLayerBuilderConfig.negativeLayerConfigs = {};
     pixLayerBuilderConfig.centralLayerConfigs  = { pix0Config }; //, pix1Config, pix2Config };
   pixLayerBuilderConfig.positiveLayerConfigs = {};
-  /// 
-  auto pixelLayerBuilder = std::make_shared<Acts::TGeoLayerBuilder>(pixLayerBuilderConfig);  
+  ///
+  auto pixelLayerBuilder = std::make_shared<Acts::TGeoLayerBuilder>(pixLayerBuilderConfig, makeLogger("PixelLayerBuilder"));
     
   /// create the geometry
   //-------------------------------------------------------------------------------------
   // build the pixel volume
   Acts::CylinderVolumeBuilder::Config pvbConfig;
-  pvbConfig.logger = Acts::getDefaultLogger("PixelVolumeBuilder", lvl);
   pvbConfig.trackingVolumeHelper = cylinderVolumeHelper;
   pvbConfig.volumeName           = "Pixel";
   pvbConfig.volumeToBeamPipe     = false;
@@ -124,7 +114,7 @@ std::unique_ptr<const Acts::TrackingGeometry> gdmlTrackingGeometry(Acts::Logging
   pvbConfig.layerEnvelopeZ       = 10.;
   pvbConfig.volumeSignature      = 0;
   auto pixelVolumeBuilder
-  = std::make_shared<Acts::CylinderVolumeBuilder>(pvbConfig);
+  = std::make_shared<Acts::CylinderVolumeBuilder>(pvbConfig, makeLogger("PixelVolumeBuilder"));
 
   //-------------------------------------------------------------------------------------
   // list the volume builders
@@ -135,13 +125,12 @@ std::unique_ptr<const Acts::TrackingGeometry> gdmlTrackingGeometry(Acts::Logging
   //-------------------------------------------------------------------------------------
   // create the tracking geometry
   Acts::CylinderGeometryBuilder::Config tgConfig;
-  tgConfig.logger = Acts::getDefaultLogger("CylinderGeometryBuilder", lvl);
   tgConfig.beamPipeBuilder        = beamPipeVolumeBuilder;
   tgConfig.trackingVolumeBuilders = detectorBuilders;
   tgConfig.trackingVolumeHelper   = cylinderVolumeHelper;
   // cylindrical geometry builder
   auto cylinderGeometryBuilder
-  = std::make_shared<const Acts::CylinderGeometryBuilder>(tgConfig);
+  = std::make_shared<const Acts::CylinderGeometryBuilder>(tgConfig, makeLogger("CylinderGeometryBuilder"));
   return cylinderGeometryBuilder->trackingGeometry();
 }
 
@@ -161,5 +150,3 @@ int main (int argc, char *argv[])
     
     return 0;
 }
-
-
