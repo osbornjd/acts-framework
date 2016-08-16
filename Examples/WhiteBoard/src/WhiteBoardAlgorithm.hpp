@@ -14,7 +14,7 @@
 
 namespace FWE {
     
-    /// @class Algorithm 
+    /// @class Algorithm
     ///
     /// Test algorithm for the WhiteBoard writing/reading
     ///
@@ -24,40 +24,31 @@ namespace FWE {
         /// @class Config
         /// Nested Configuration class for the WhiteBoardAlgorithm
         /// It extends the Algorithm::Config Class
-        class Config : public FW::Algorithm::Config
+        struct Config : public FW::Algorithm::Config
         {
-          public:
-            std::string inputClassOneCollection;
-            std::string outputClassOneCollection;
-            std::string inputClassTwoCollection;
-            std::string outputClassTwoCollection;
-            
-            Config(const std::string& lname = "Algorithm", 
-                   Acts::Logging::Level lvl = Acts::Logging::INFO)
-              : Algorithm::Config(lname,lvl)
-              , inputClassOneCollection("")
-              , outputClassOneCollection("")
-              , inputClassTwoCollection("")
-              , outputClassTwoCollection("")
-            {}
+          std::string inputClassOneCollection = "";
+          std::string outputClassOneCollection = "";
+          std::string inputClassTwoCollection = "";
+          std::string outputClassTwoCollection = "";
         };
         
         /// Constructor
         ///
-        /// @param cfg is the configruation 
-        WhiteBoardAlgorithm(const Config& cfg);
+        /// @param cfg is the configruation
+        WhiteBoardAlgorithm(const Config& cfg,
+                            std::unique_ptr<Acts::Logger> logger = Acts::getDefaultLogger("WhiteBoardAlgorithm", Acts::Logging::INFO));
         
         /// Destructor
         ~WhiteBoardAlgorithm();
         
-        /// Framework intialize method 
+        /// Framework intialize method
         FW::ProcessCode initialize(std::shared_ptr<FW::WhiteBoard> eventStore = nullptr,
                                    std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) final;
         
-        /// Framework execode method 
+        /// Framework execode method
         FW::ProcessCode execute(size_t eventNumber) final;
         
-        /// Framework finalize mehtod 
+        /// Framework finalize mehtod
         FW::ProcessCode finalize() final;
         
         private :
