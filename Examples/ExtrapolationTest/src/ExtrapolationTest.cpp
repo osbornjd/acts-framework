@@ -65,7 +65,7 @@ int main (int argc, char *argv[]) {
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine(new Acts::ExtrapolationEngine(extrapolationEngineConfig));
     
     // RANDOM NUMBERS - Create the random number engine
-    FW::RandomNumbers::Config brConfig("RandomNumbers");
+    FW::RandomNumbers::Config brConfig;
     brConfig.gauss_parameters = {{ 0., 1. }};
     brConfig.uniform_parameters = {{ 0., 1. }};
     brConfig.landau_parameters = {{ 1., 7. }};
@@ -73,7 +73,7 @@ int main (int argc, char *argv[]) {
     std::shared_ptr<FW::RandomNumbers> randomNumbers(new FW::RandomNumbers(brConfig));
     
     // Write ROOT TTree
-    FWRoot::RootExCellWriter::Config recWriterConfig("RootExCellWriter");
+    FWRoot::RootExCellWriter::Config recWriterConfig;
     recWriterConfig.fileName = "$PWD/ExtrapolationTest.root";
     recWriterConfig.treeName = "ExtrapolationTest";
     recWriterConfig.writeBoundary  = false;
@@ -83,7 +83,7 @@ int main (int argc, char *argv[]) {
     std::shared_ptr<FW::IExtrapolationCellWriter> rootEcWriter(new FWRoot::RootExCellWriter(recWriterConfig));
     
     // the Algorithm with its configurations
-    FWE::ExtrapolationTestAlgorithm::Config eTestConfig("ExtrapolationEngineTest");
+    FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
     eTestConfig.testsPerEvent           = 100;
     eTestConfig.parameterType           = 1;
     eTestConfig.searchMode              = 1;
@@ -106,7 +106,7 @@ int main (int argc, char *argv[]) {
     std::shared_ptr<FW::IAlgorithm> extrapolationAlg(new FWE::ExtrapolationTestAlgorithm(eTestConfig));
     
     // create the config object for the sequencer
-    FW::Sequencer::Config seqConfig("Sequencer");
+    FW::Sequencer::Config seqConfig;
     // now create the sequencer
     FW::Sequencer sequencer(seqConfig);
     sequencer.addServices({rootEcWriter});
