@@ -1,6 +1,8 @@
-#include "ACTFW/Root/RootExCellWriter.hpp"
 #include <iostream>
-#include "TFile.h"
+
+#include <TFile.h>
+
+#include "ACTFW/Root/RootExCellWriter.hpp"
 
 FWRoot::RootExCellWriter::RootExCellWriter(const FWRoot::RootExCellWriter::Config& cfg) :
 FW::IExtrapolationCellWriter(),
@@ -78,4 +80,3 @@ FW::ProcessCode FWRoot::RootExCellWriter::write(const Acts::ExCellNeutral& eCell
   
   return writeT<Acts::NeutralParameters>(eCell);
 }
-

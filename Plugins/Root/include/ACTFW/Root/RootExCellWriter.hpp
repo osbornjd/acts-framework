@@ -8,12 +8,13 @@
 #ifndef ACTFW_PLUGINS_ROOTEXCELLWRITER_H
 #define ACTFW_PLUGINS_ROOTEXCELLWRITER_H 1
 
+#include <TTree.h>
+
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "TTree.h"
 
 class TFile;
 
@@ -63,7 +64,7 @@ namespace FWRoot {
       , writeSensitive(true)
       , writeMaterial(true)
       , writePassive(true)
-      , writeBoundary(true)         
+      , writeBoundary(true)
       {}
     };
     
