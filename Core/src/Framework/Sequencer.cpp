@@ -1,7 +1,8 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 
-FW::Sequencer::Sequencer(const Sequencer::Config& cfg):
-  m_cfg(cfg)
+FW::Sequencer::Sequencer(const Sequencer::Config& cfg,
+                         std::unique_ptr<Acts::Logger> logger):
+  m_cfg(cfg), m_logger(std::move(logger))
 {}
 
 FW::Sequencer::~Sequencer(){}
@@ -100,5 +101,3 @@ FW::ProcessCode FW::Sequencer::finalizeEventLoop()
     // return with success
     return ProcessCode::SUCCESS;
 }
-
-

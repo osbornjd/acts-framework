@@ -25,71 +25,68 @@ namespace FW {
 
 namespace FWE {
 
-    /// @class Algorithm 
+    /// @class Algorithm
     class ExtrapolationTestAlgorithm : public FW::Algorithm {
         
       public :
-        /// @class Config 
-        class Config : public FW::Algorithm::Config {
-        public:
-            std::shared_ptr<FW::RandomNumbers>            randomNumbers;       ///< FW random number service
-            std::shared_ptr<Acts::IExtrapolationEngine>   extrapolationEngine; ///< the extrapolation engine
-            std::shared_ptr<FW::IExtrapolationCellWriter> extrapolationCellWriter; ///< output writer
-            size_t                                        testsPerEvent;       ///< number of tests per event
-            int                                           parameterType;       ///< parameter type : 0 = neutral | 1 = charged
-            std::array<double,2>                          d0Defs;              ///< mean, sigma for d0 range
-            std::array<double,2>                          z0Defs;              ///< mean, sigma for z0 range
-            std::array<double,2>                          etaRange;            ///< low, high for eta range
-            std::array<double,2>                          phiRange;            ///< low, high for phi range
-            std::array<double,2>                          ptRange;             ///< low, high for pt range
-            bool                                          particleType;        ///< particle type definition
-            bool                                          collectSensitive;    ///< configuration: sensitive collection
-            bool                                          collectPassive;      ///< configuration: collect passive
-            bool                                          collectBoundary;     ///< configuration: collect boundary
-            bool                                          collectMaterial;     ///< configuration: collect material
-            bool                                          sensitiveCurvilinear;///< configuration: don't collapse
-            int                                           searchMode;          ///< define how robust the search mode is
-            double                                        pathLimit;           ///< set the patch limit of the extrapolation
+        /// @class Config
+        struct Config : public FW::Algorithm::Config {
+          /// FW random number service
+          std::shared_ptr<FW::RandomNumbers> randomNumbers = nullptr;
+          /// the extrapolation engine
+          std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
+          /// output writer
+          std::shared_ptr<FW::IExtrapolationCellWriter> extrapolationCellWriter = nullptr;
+          /// number of tests per event
+          size_t testsPerEvent = 1;
+          /// parameter type : 0 = neutral | 1 = charged
+          int parameterType = 1;
+          /// mean, sigma for d0 range
+          std::array<double,2> d0Defs = {0., 2.};
+          /// mean, sigma for z0 range
+          std::array<double,2> z0Defs = {0., 50.};
+          /// low, high for eta range
+          std::array<double,2> etaRange = {-3., 3.};
+          /// low, high for phi range
+          std::array<double,2> phiRange = {-M_PI, M_PI};
+          /// low, high for pt range
+          std::array<double,2> ptRange = {100., 10000.};
+          /// particle type definition
+          bool particleType = true;
+          /// configuration: sensitive collection
+          bool collectSensitive = true;
+          /// configuration: collect passive
+          bool collectPassive = true;
+          /// configuration: collect boundary
+          bool collectBoundary = true;
+          /// configuration: collect material
+          bool collectMaterial = true;
+          /// configuration: don't collapse
+          bool sensitiveCurvilinear = false;
+          /// define how robust the search mode is
+          int searchMode = 0;
+          /// set the patch limit of the extrapolation
+          double pathLimit = -1.;
 
-            Config(const std::string& lname = "Algorithm", 
-                   Acts::Logging::Level lvl = Acts::Logging::INFO)
-          : Algorithm::Config(lname,lvl),
-            randomNumbers(nullptr),
-            extrapolationEngine(nullptr),
-            extrapolationCellWriter(nullptr),
-            testsPerEvent(1),
-            parameterType(1),
-            d0Defs({{0.,2.}}),
-            z0Defs({{0.,50.}}),
-            etaRange({{-3.,3.}}),
-            phiRange({{-M_PI,M_PI}}),
-            ptRange({{100.,100000.}}),
-            particleType(3),
-            collectSensitive(true),
-            collectPassive(true),
-            collectBoundary(true),
-            collectMaterial(true),
-            sensitiveCurvilinear(false),
-            searchMode(0),
-            pathLimit(-1.)
-            {}
-            
+          Config() : FW::Algorithm::Config("ExtrapolationTestAlgorithm") {}
         };
         
         /// Constructor
-        ExtrapolationTestAlgorithm(const Config& cnf);
+        ExtrapolationTestAlgorithm(const Config& cnf,
+                                   std::unique_ptr<Acts::Logger> logger
+                                   = Acts::getDefaultLogger("ExtrapolationTestAlgorithm", Acts::Logging::INFO));
         
         /// Destructor
         ~ExtrapolationTestAlgorithm();
         
-        /// Framework intialize method 
+        /// Framework intialize method
         FW::ProcessCode initialize(std::shared_ptr<FW::WhiteBoard> eventStore = nullptr,
                                    std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) final;
         
-        /// Framework execode method 
+        /// Framework execode method
         FW::ProcessCode execute(size_t eventNumber) final;
         
-        /// Framework finalize mehtod 
+        /// Framework finalize mehtod
         FW::ProcessCode finalize() final;
 
     private:

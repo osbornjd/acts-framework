@@ -9,8 +9,10 @@
 #include "ACTFW/Random/RandomNumbers.hpp"
 #include "ACTFW/Random/LandauQuantile.hpp"
 
-FW::RandomNumbers::RandomNumbers(const FW::RandomNumbers::Config& cfg) :
+FW::RandomNumbers::RandomNumbers(const FW::RandomNumbers::Config& cfg,
+                                 std::unique_ptr<Acts::Logger> logger) :
 m_cfg(cfg),
+m_logger(std::move(logger)),
 m_engine(0),
 m_gauss(0.,1.),
 m_uniform(0.,1.),
@@ -54,4 +56,3 @@ double FW::RandomNumbers::draw(FW::Distribution dType) {
     }
     return 0.;
 }
-

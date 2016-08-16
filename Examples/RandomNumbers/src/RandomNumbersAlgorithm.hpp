@@ -20,39 +20,34 @@ namespace FW {
 
 namespace FWE {
 
-    /// @class Algorithm 
+    /// @class Algorithm
     class RandomNumbersAlgorithm : public FW::Algorithm {
         
       public :
-        /// @class Config 
-        class Config : public FW::Algorithm::Config {
-        public:
-            std::shared_ptr<FW::RandomNumbers> randomNumbers;
-            size_t                             drawsPerEvent;
-            
-            Config(const std::string& lname = "Algorithm", 
-                   Acts::Logging::Level lvl = Acts::Logging::INFO)
-              : Algorithm::Config(lname,lvl)
-              , randomNumbers(nullptr)
-              , drawsPerEvent(0)
-            {}
-            
+        /// @class Config
+        struct Config : public FW::Algorithm::Config {
+          std::shared_ptr<FW::RandomNumbers> randomNumbers = nullptr;
+          size_t drawsPerEvent = 0;
+          
+          Config() : FW::Algorithm::Config("RandomNumbersAlgorithm") {}
         };
         
         /// Constructor
-        RandomNumbersAlgorithm(const Config& cnf);
+        RandomNumbersAlgorithm(const Config& cnf,
+                               std::unique_ptr<Acts::Logger> logger
+                               = Acts::getDefaultLogger("RandomNumbersAlgorithm", Acts::Logging::INFO));
         
         /// Destructor
         ~RandomNumbersAlgorithm();
         
-        /// Framework intialize method 
+        /// Framework intialize method
         FW::ProcessCode initialize(std::shared_ptr<FW::WhiteBoard> eventStore = nullptr,
                                    std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) final;
         
-        /// Framework execode method 
+        /// Framework execode method
         FW::ProcessCode execute(size_t eventNumber) final;
         
-        /// Framework finalize mehtod 
+        /// Framework finalize mehtod
         FW::ProcessCode finalize() final;
         
     private:
@@ -60,6 +55,6 @@ namespace FWE {
         
     };
 
-} 
+}
 
 #endif // ACTFW_EXAMPLES_RANDOMNUMBERSALGORITHM_H

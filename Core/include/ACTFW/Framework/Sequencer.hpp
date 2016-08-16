@@ -6,7 +6,7 @@
 //
 //
 
-#ifndef ACTF_FRAMEWORK_SEQUENCER_H 
+#ifndef ACTF_FRAMEWORK_SEQUENCER_H
 #define ACTF_FRAMEWORK_SEQUENCER_H 1
 
 #include "ACTS/Utilities/Logger.hpp"
@@ -23,42 +23,34 @@ namespace FW {
     class WhiteBoard;
     
     /// @class  Sequencer
-    ///    
+    ///
     /// This is the backbone of the mini framework, it initializes all algorithms,
     /// calls execute per event and deals with the event store */
-    /// 
+    ///
     class Sequencer {
         
       public:
-        /// @class Config 
+        /// @class Config
         ///
         /// Nested, public configuration class for the algorithm sequences
-        class Config {
-          public:
-            std::shared_ptr<Acts::Logger>               logger;          ///< default logging instance
-            std::vector< std::shared_ptr<IService> >    services;        ///< the serivces
-            std::vector< std::shared_ptr<IOAlgorithm> > ioAlgorithms;    ///< i/o algorithms
-            std::vector< std::shared_ptr<IAlgorithm> >  eventAlgorithms; ///< algorithms
-            std::shared_ptr<WhiteBoard>                 eventBoard;      ///< event board
-            std::shared_ptr<WhiteBoard>                 jobBoard;        ///< the job board
-            std::string                                 name;            ///< the name of this sequencer
-            
-            Config(const std::string& lname = "Sequencer", 
-                   Acts::Logging::Level lvl = Acts::Logging::INFO)
-             : logger(Acts::getDefaultLogger(lname,lvl))
-             , ioAlgorithms()
-             , eventAlgorithms()
-             , eventBoard(nullptr)
-             , jobBoard(nullptr)
-             , name(lname)
-            {}
-            
+        struct Config {
+          /// the serivces
+          std::vector< std::shared_ptr<IService> > services = {};
+          /// i/o algorithms
+          std::vector< std::shared_ptr<IOAlgorithm> > ioAlgorithms = {};
+          /// algorithms
+          std::vector< std::shared_ptr<IAlgorithm> > eventAlgorithms = {};
+          /// event board
+          std::shared_ptr<WhiteBoard> eventBoard = nullptr;
+          /// the job board
+          std::shared_ptr<WhiteBoard> jobBoard = nullptr;
         };
         
         /// Constructor
         ///
         /// @param cfg is the configuration object
-        Sequencer(const Config& cfg);
+        Sequencer(const Config& cfg,
+                  std::unique_ptr<Acts::Logger> logger = Acts::getDefaultLogger("Sequencer", Acts::Logging::INFO));
         
         /// Destructor
         ~Sequencer();
@@ -73,12 +65,12 @@ namespace FW {
         /// @param ioalgs is the vector of I/O algorithms to be added
         ProcessCode addIOAlgorithms(std::vector< std::shared_ptr<IOAlgorithm> > ioalgs);
 
-        /// Prepend algorithms 
+        /// Prepend algorithms
         ///
         /// @param ialgs is the vector of algorithms to be prepended
         ProcessCode prependEventAlgorithms(std::vector< std::shared_ptr<IAlgorithm> > ialgs);
 
-        /// Append algorithms 
+        /// Append algorithms
         ///
         /// @param ialgs is the vector of algorithms to be appended
         ProcessCode appendEventAlgorithms(std::vector< std::shared_ptr<IAlgorithm> > ialgs);
@@ -91,19 +83,17 @@ namespace FW {
 
         /// Event loop finalization method
         ProcessCode finalizeEventLoop();
-        
-        /// Framework name() method 
-        const std::string& name() const;
 
       private:
-        Config          m_cfg; ///< configuration object
+        Config m_cfg;
+        std::unique_ptr<Acts::Logger> m_logger;
         
         /// Private access to the logging instance
         const Acts::Logger&
         logger() const
         {
-          return *m_cfg.logger;
-        }        
+          return *m_logger;
+        }
         
     };
     
@@ -158,9 +148,6 @@ namespace FW {
         }
         return ProcessCode::SUCCESS;
     }
-
-    inline const std::string& Sequencer::name() const { return m_cfg.name; }
-        
 }
 
 #endif // ACTF_FRAMEWORK_SEQUENCER_H
