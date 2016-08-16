@@ -8,9 +8,10 @@
 #ifndef ACTFW_EXAMPLES_WHITEBOARDALGORITHM_H
 #define ACTFW_EXAMPLES_WHITEBOARDALGORITHM_H 1
 
+#include <memory>
+
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include <memory>
 
 namespace FWE {
     

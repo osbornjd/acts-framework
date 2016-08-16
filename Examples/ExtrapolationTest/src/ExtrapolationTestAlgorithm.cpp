@@ -1,14 +1,15 @@
+#include <iostream>
+
+#include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
 #include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/EventData/NeutralParameters.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Surfaces/PerigeeSurface.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbers.hpp"
 #include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
 #include "ExtrapolationTestAlgorithm.hpp"
-#include <iostream>
 
 FWE::ExtrapolationTestAlgorithm::ExtrapolationTestAlgorithm(const FWE::ExtrapolationTestAlgorithm::Config& cfg,
                                                             std::unique_ptr<Acts::Logger> logger) :

@@ -1,8 +1,9 @@
+#include <iostream>
+
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "WhiteBoardAlgorithm.hpp"
 #include "DataClassOne.hpp"
 #include "DataClassTwo.hpp"
-#include <iostream>
 
 FWE::WhiteBoardAlgorithm::WhiteBoardAlgorithm(const Config& cfg,
                                               std::unique_ptr<Acts::Logger> logger) :

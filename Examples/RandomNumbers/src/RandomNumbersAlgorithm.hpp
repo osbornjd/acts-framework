@@ -9,13 +9,14 @@
 #ifndef ACTFW_EXAMPLES_RANDOMNUMBERSALGORITHM_H
 #define ACTFW_EXAMPLES_RANDOMNUMBERSALGORITHM_H 1
 
+#include <memory>
+
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include <memory>
 
 namespace FW {
     class WhiteBoard;
-    class IRandomNumbers;
+    class RandomNumbers;
 }
 
 namespace FWE {

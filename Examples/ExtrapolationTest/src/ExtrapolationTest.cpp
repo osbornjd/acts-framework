@@ -5,8 +5,9 @@
 //  Created by Andreas Salzburger on 11/05/16.
 //
 //
-#include <stdio.h>
+
 #include <memory>
+
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Random/RandomNumbers.hpp"

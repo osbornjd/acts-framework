@@ -9,9 +9,11 @@
 #ifndef ACTFW_EXAMPLES_EXTRAPOLATIONTESTALGORITHM_H
 #define ACTFW_EXAMPLES_EXTRAPOLATIONTESTALGORITHM_H 1
 
+#include <cmath>
+#include <memory>
+
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include <memory>
 
 namespace Acts {
     class IExtrapolationEngine;
@@ -19,8 +21,8 @@ namespace Acts {
 
 namespace FW {
     class WhiteBoard;
-    class IRandomNumbers;
-    class IEExtrapolationCellWriter;
+    class RandomNumbers;
+    class IExtrapolationCellWriter;
 }
 
 namespace FWE {

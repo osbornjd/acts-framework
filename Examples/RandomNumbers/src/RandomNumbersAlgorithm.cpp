@@ -1,6 +1,8 @@
-#include "ACTFW/Random/RandomNumbers.hpp"
 #include "RandomNumbersAlgorithm.hpp"
+
 #include <iostream>
+
+#include "ACTFW/Random/RandomNumbers.hpp"
 
 FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(const FWE::RandomNumbersAlgorithm::Config& cfg,
                                                     std::unique_ptr<Acts::Logger> logger) :

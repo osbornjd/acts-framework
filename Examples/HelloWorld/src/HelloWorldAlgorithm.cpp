@@ -1,4 +1,5 @@
 #include "HelloWorldAlgorithm.hpp"
+
 #include <iostream>
 
 FWE::HelloWorldAlgorithm::HelloWorldAlgorithm(const FW::Algorithm::Config& cnf) :
