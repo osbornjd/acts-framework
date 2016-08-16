@@ -2,11 +2,12 @@
 #include "RandomNumbersAlgorithm.hpp"
 #include <iostream>
 
-FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(const FWE::RandomNumbersAlgorithm::Config& cfg) :
-    FW::Algorithm(cfg),
+FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(const FWE::RandomNumbersAlgorithm::Config& cfg,
+                                                    std::unique_ptr<Acts::Logger> logger) :
+    FW::Algorithm(cfg, std::move(logger)),
     m_cfg(cfg)
 {}
-
+  
 FWE::RandomNumbersAlgorithm::~RandomNumbersAlgorithm()
 {}
 
