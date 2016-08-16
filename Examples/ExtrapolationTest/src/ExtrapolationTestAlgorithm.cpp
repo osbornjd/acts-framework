@@ -10,8 +10,9 @@
 #include "ExtrapolationTestAlgorithm.hpp"
 #include <iostream>
 
-FWE::ExtrapolationTestAlgorithm::ExtrapolationTestAlgorithm(const FWE::ExtrapolationTestAlgorithm::Config& cfg) :
-    FW::Algorithm(cfg),
+FWE::ExtrapolationTestAlgorithm::ExtrapolationTestAlgorithm(const FWE::ExtrapolationTestAlgorithm::Config& cfg,
+                                                            std::unique_ptr<Acts::Logger> logger) :
+    FW::Algorithm(cfg, std::move(logger)),
     m_cfg(cfg)
 {}
 
@@ -93,5 +94,3 @@ double FWE::ExtrapolationTestAlgorithm::drawUniform(const std::array<double,2>& 
     double delta = high-low;
     return low+m_cfg.randomNumbers->draw(FW::Distribution::uniform)*delta;
 }
-
-
