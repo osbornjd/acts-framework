@@ -9,6 +9,7 @@
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
+#include "ACTS/Utilities/Logger.hpp"
 
 template <class T> FW::ProcessCode ExtrapolationTestAlgorithm::executeTestT(const T& startParameters) {
 
@@ -24,7 +25,7 @@ template <class T> FW::ProcessCode ExtrapolationTestAlgorithm::executeTestT(cons
     if (m_cfg.collectPassive)       ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
     if (m_cfg.collectBoundary)      ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
     if (m_cfg.collectMaterial)      ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
-    if (m_cfg.sensitiveCurvilinear) ecc.sensitiveCurvilinear = true;    
+    if (m_cfg.sensitiveCurvilinear) ecc.sensitiveCurvilinear = true;
     
     // force a stop in the extrapoaltion mode
     if (m_cfg.pathLimit > 0.) {
@@ -46,4 +47,3 @@ template <class T> FW::ProcessCode ExtrapolationTestAlgorithm::executeTestT(cons
     return FW::ProcessCode::SUCCESS;
 
 }
-
