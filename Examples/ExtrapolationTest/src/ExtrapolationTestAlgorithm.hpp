@@ -46,15 +46,15 @@ public:
     /// parameter type : 0 = neutral | 1 = charged
     int parameterType = 1;
     /// mean, sigma for d0 range
-    std::array<double, 2> d0Defs = {0., 2.};
+    std::array<double, 2> d0Defs = {{0., 2.}};
     /// mean, sigma for z0 range
-    std::array<double, 2> z0Defs = {0., 50.};
+    std::array<double, 2> z0Defs = {{0., 50.}};
     /// low, high for eta range
-    std::array<double, 2> etaRange = {-3., 3.};
+    std::array<double, 2> etaRange = {{-3., 3.}};
     /// low, high for phi range
-    std::array<double, 2> phiRange = {-M_PI, M_PI};
+    std::array<double, 2> phiRange = {{-M_PI, M_PI}};
     /// low, high for pt range
-    std::array<double, 2> ptRange = {100., 10000.};
+    std::array<double, 2> ptRange = {{100., 10000.}};
     /// particle type definition
     bool particleType = true;
     /// configuration: sensitive collection

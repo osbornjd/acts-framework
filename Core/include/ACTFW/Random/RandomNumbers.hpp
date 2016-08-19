@@ -42,13 +42,13 @@ public:
     /// random seed
     unsigned int seed = 1234567890;
     /// configuration uniform
-    std::array<double, 2> uniform_parameters = {0, 1};
+    std::array<double, 2> uniform_parameters = {{0, 1}};
     /// configuration gauss
-    std::array<double, 2> gauss_parameters = {0, 1};
+    std::array<double, 2> gauss_parameters = {{0, 1}};
     /// configuration landau
-    std::array<double, 2> landau_parameters = {0, 1};
+    std::array<double, 2> landau_parameters = {{0, 1}};
     /// configuration gamma
-    std::array<double, 2> gamma_parameters = {0, 1};
+    std::array<double, 2> gamma_parameters = {{0, 1}};
   };
 
   /// Constructor
