@@ -7,7 +7,6 @@
 //
 
 #include <memory>
-
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Random/RandomNumbers.hpp"
@@ -18,8 +17,8 @@
 #include "ACTS/Extrapolation/RungeKuttaEngine.hpp"
 #include "ACTS/Extrapolation/StaticEngine.hpp"
 #include "ACTS/Extrapolation/StaticNavigationEngine.hpp"
-#include "ConstantFieldSvc.hpp"
-#include "ExtrapolationTestAlgorithm.hpp"
+#include "ACTS/MagneticField/ConstantFieldSvc.hpp"
+#include "ACTFW/ExtrapolationTest/ExtrapolationTestAlgorithm.hpp"
 
 // the main hello world executable
 int
