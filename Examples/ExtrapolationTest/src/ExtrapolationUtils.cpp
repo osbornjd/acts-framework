@@ -13,7 +13,7 @@
 #include "ACTS/Extrapolation/ExtrapolationEngine.hpp"
 
 
-std::shared_ptr<Acts::IExtrapolationEngine>
+std::unique_ptr<Acts::IExtrapolationEngine>
 FWE::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, std::shared_ptr<Acts::IMagneticFieldSvc> magFieldSvc, Acts::Logging::Level eLogLevel)
 {
     // EXTRAPOLATOR - set up the extrapolator
@@ -42,9 +42,9 @@ FWE::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, 
     exEngineConfig.propagationEngine    = propEngine;
     exEngineConfig.navigationEngine     = navEngine;
     exEngineConfig.extrapolationEngines = {statEngine};
-    auto exEngine = std::make_shared<Acts::ExtrapolationEngine>(exEngineConfig);
+    auto exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
     exEngine->setLogger(
                         Acts::getDefaultLogger("ExtrapolationEngine", eLogLevel));
     
-    return exEngine;
+    return std::move(exEngine);
 }
