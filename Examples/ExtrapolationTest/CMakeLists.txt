@@ -16,7 +16,6 @@ target_link_libraries(ACTFWExtrapolationExample PUBLIC ACTS::ACTSCore ACTS::ACTS
 target_link_libraries(ACTFWExtrapolationExample PUBLIC ACTFramework ACTFWRootPlugins)
 
 # setup include directories for ExtrapolationTest
-target_include_directories (ACTFWExtrapolationTest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 target_link_libraries(ACTFWExtrapolationTest PRIVATE ACTS::ACTSCore ACTS::ACTSExamples)
 target_link_libraries(ACTFWExtrapolationTest PRIVATE ACTFramework ACTFWRootPlugins)
 target_link_libraries(ACTFWExtrapolationTest PRIVATE ACTFWExtrapolationExample)
