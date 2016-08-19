@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbers.hpp"
 #include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
@@ -9,7 +8,7 @@
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
 #include "ACTS/Surfaces/PerigeeSurface.hpp"
 #include "ACTS/Utilities/Definitions.hpp"
-#include "ExtrapolationTestAlgorithm.hpp"
+#include "ACTFW/ExtrapolationTest/ExtrapolationTestAlgorithm.hpp"
 
 FWE::ExtrapolationTestAlgorithm::ExtrapolationTestAlgorithm(
     const FWE::ExtrapolationTestAlgorithm::Config& cfg,

@@ -7,7 +7,6 @@
 //
 
 #include <memory>
-
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Random/RandomNumbers.hpp"
@@ -18,59 +17,31 @@
 #include "ACTS/Extrapolation/RungeKuttaEngine.hpp"
 #include "ACTS/Extrapolation/StaticEngine.hpp"
 #include "ACTS/Extrapolation/StaticNavigationEngine.hpp"
-#include "ConstantFieldSvc.hpp"
-#include "ExtrapolationTestAlgorithm.hpp"
+#include "ACTS/MagneticField/ConstantFieldSvc.hpp"
+#include "ACTFW/ExtrapolationTest/ExtrapolationTestAlgorithm.hpp"
+#include "ACTFW/ExtrapolationTest/ExtrapolationUtils.hpp"
 
 // the main hello world executable
 int
 main(int argc, char* argv[])
 {
   size_t nEvents = 1000;
-
+  // a centraol logging level
+  Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
+    
   // create the tracking geometry as a shared pointer
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
-      = Acts::trackingGeometry(Acts::Logging::INFO, 1);
+      = Acts::trackingGeometry(eLogLevel, 1);
 
   // set up the magnetic field
-  FWE::ConstantFieldSvc::Config cffConfig;
+  Acts::ConstantFieldSvc::Config cffConfig;
   cffConfig.name  = "ConstantMagField";
   cffConfig.field = {{0., 0., 0.002}};  // field is given in kT
   std::shared_ptr<Acts::IMagneticFieldSvc> magFieldSvc(
-      new FWE::ConstantFieldSvc(cffConfig));
+      new Acts::ConstantFieldSvc(cffConfig));
 
   // EXTRAPOLATOR - set up the extrapolator
-  // a centraol logging level
-  Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
-  // (a) RungeKuttaPropagtator
-  Acts::RungeKuttaEngine::Config rungeKuttaConfig;
-  rungeKuttaConfig.fieldService = magFieldSvc;
-  std::shared_ptr<Acts::IPropagationEngine> rungeKuttaEngine(
-      new Acts::RungeKuttaEngine(rungeKuttaConfig));
-  // (b) MaterialEffectsEngine
-  Acts::MaterialEffectsEngine::Config           materialEffectsConfig;
-  std::shared_ptr<Acts::IMaterialEffectsEngine> materialEffects(
-      new Acts::MaterialEffectsEngine(materialEffectsConfig));
-  // (c) StaticNavigationEngine
-  Acts::StaticNavigationEngine::Config staticNavigatorConfig;
-  staticNavigatorConfig.propagationEngine = rungeKuttaEngine;
-  staticNavigatorConfig.trackingGeometry  = tGeometry;
-  std::shared_ptr<Acts::INavigationEngine> staticNavigator(
-      new Acts::StaticNavigationEngine(staticNavigatorConfig));
-  // (d) the StaticEngine
-  Acts::StaticEngine::Config staticEngineConfig;
-  staticEngineConfig.propagationEngine     = rungeKuttaEngine;
-  staticEngineConfig.materialEffectsEngine = materialEffects;
-  staticEngineConfig.navigationEngine      = staticNavigator;
-  std::shared_ptr<Acts::IExtrapolationEngine> staticEngine(
-      new Acts::StaticEngine(staticEngineConfig));
-  // (e) the material engine
-  Acts::ExtrapolationEngine::Config extrapolationEngineConfig;
-  extrapolationEngineConfig.navigationEngine     = staticNavigator;
-  extrapolationEngineConfig.extrapolationEngines = {staticEngine};
-  extrapolationEngineConfig.propagationEngine    = rungeKuttaEngine;
-  extrapolationEngineConfig.trackingGeometry     = tGeometry;
-  std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine(
-      new Acts::ExtrapolationEngine(extrapolationEngineConfig));
+  std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = FWE::initExtrapolator(tGeometry,magFieldSvc,eLogLevel);
 
   // RANDOM NUMBERS - Create the random number engine
   FW::RandomNumbers::Config brConfig;
