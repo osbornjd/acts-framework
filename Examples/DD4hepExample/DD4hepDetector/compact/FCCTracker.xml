@@ -242,6 +242,6 @@
             <composite name="Barrel2"/>
             <composite name="nEndCap2"/>
             <composite name="pEndCap2"/>
-        </detector>
+        </detector> 
     </detectors>
 </lccdd>

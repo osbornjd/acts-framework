@@ -11,7 +11,7 @@ using namespace DD4hep;
 using namespace DD4hep::Geometry;
 
 /**
- Constructor for a cylindrical barrel volume, possibly containing layers and the layers possibly containing modules.
+ Constructor for a cylindrical barrel volume, possibly containing layers and the layers possibly containing modules. CMS like style
 */
 
 static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
@@ -95,7 +95,9 @@ static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
                 }
             }
         }
-        Acts::DetExtension* detlayer = new Acts::DetExtension(mod);
+        //set granularity of layer material mapping and where material should be mapped
+        // hand over modules to ACTS
+        Acts::DetExtension* detlayer = new Acts::DetExtension(100,100,Acts::LayerMaterialPos::inner,mod);
         lay_det.addExtension<Acts::IDetExtension>(detlayer);
         //Place layer volume
         PlacedVolume placedLayer = tube_vol.placeVolume(layer_vol);

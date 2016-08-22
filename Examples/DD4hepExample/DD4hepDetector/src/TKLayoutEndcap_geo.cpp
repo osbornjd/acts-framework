@@ -11,7 +11,7 @@ using namespace DD4hep;
 using namespace DD4hep::Geometry;
 
 /**
- Constructor for a disc like endcap volume, possibly containing layers and the layers possibly containing modules. Both endcaps, the positive and negative can be build with this constructor.
+ Constructor for a disc like endcap volume, possibly containing layers and the layers possibly containing modules. Both endcaps, the positive and negative can be build with this constructor. CMS like style
  */
 
 static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
@@ -88,7 +88,9 @@ static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
             ++module_num_num;
           }
         }
-        Acts::DetExtension* detlayer = new Acts::DetExtension(mod);
+        //set granularity of layer material mapping and where material should be mapped
+        // hand over modules to ACTS
+        Acts::DetExtension* detlayer = new Acts::DetExtension(100,100,Acts::LayerMaterialPos::inner,mod,"XzY");
         lay_det.addExtension<Acts::IDetExtension>(detlayer);
         double layerZpos = x_layer.z();
         if (x_det_dim.z() < 0.) layerZpos = -x_layer.z();

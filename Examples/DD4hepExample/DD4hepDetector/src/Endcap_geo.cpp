@@ -11,7 +11,7 @@ using namespace DD4hep;
 using namespace DD4hep::Geometry;
 
 /**
- Constructor for a disc like endcap volume, possibly containing layers and the layers possibly containing modules. Both endcaps, the positive and negative can be build with this constructor.
+ Constructor for a disc like endcap volume, possibly containing layers and the layers possibly containing modules. Both endcaps, the positive and negative can be build with this constructor. Atlas like style
  */
 
 static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
@@ -73,9 +73,36 @@ static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
                 if (x_module.isSensitive()) {
                     mod_vol.setSensitiveDetector(sens);
                     //add Extension for sensitive component
-                    Acts::DetExtension* detSensComponent = new Acts::DetExtension(sens.readout().segmentation());
-                    mod_det.addExtension<Acts::IDetExtension>(detSensComponent);
+                    Acts::DetExtension* detSensModule = new Acts::DetExtension(sens.readout().segmentation());
+                    mod_det.addExtension<Acts::IDetExtension>(detSensModule);
                 }
+                
+                // go through possible components
+                int comp_num = 0.;
+                for (xml_coll_t comp(x_module,_U(module_component)); comp; comp++) {
+                    xml_comp_t x_comp = comp;
+                    // create the component volume
+                    string comp_name = _toString(comp_num,"component%d") + x_comp.materialStr();
+                    Volume comp_vol(comp_name, Trapezoid(x_comp.x1(),x_comp.x2(),x_comp.thickness(),x_comp.thickness(),x_comp.length()),lcdd.material(x_comp.materialStr()));
+                    comp_vol.setVisAttributes(lcdd, x_comp.visStr());
+                    // Create DetElement
+                    DetElement comp_det(mod_det,comp_name,comp_num);
+                    // Set Sensitive Volumes sensitive
+/*                    if(x_comp.isSensitive()) {
+                        comp_vol.setSensitiveDetector(sens);
+                        //add Extension for sensitive component
+                        Acts::DetExtension* detSensComponent = new Acts::DetExtension(sens.readout().segmentation());
+                        mod_det.addExtension<Acts::IDetExtension>(detSensComponent);
+                    }*/
+                    // place component in module
+                    Position translation (0., x_comp.z(), 0.);
+                    PlacedVolume placed_comp = mod_vol.placeVolume(comp_vol,translation);
+                    // assign the placed Volume to the DetElement
+                    comp_det.setPlacement(placed_comp);
+                    placed_comp.addPhysVolID("component",comp_num);
+                    ++comp_num;
+                }
+                
                 mod.push_back(mod_det);
                 //Place Module Box Volumes in layer
                 PlacedVolume placedmodule = layer_vol.placeVolume(mod_vol,Transform3D(RotationX(0.5*M_PI)*RotationY(phi+0.5*M_PI)*RotationZ(0.1*M_PI),trans)); //RotationX(0.5*M_PI)*RotationY(phi+0.5*M_PI)*RotationZ(0.1*M_PI),trans)
@@ -87,7 +114,9 @@ static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
             ++module_num_num;
           }
         }
-        Acts::DetExtension* detlayer = new Acts::DetExtension(mod);
+        //set granularity of layer material mapping and where material should be mapped
+        // hand over modules to ACTS
+        Acts::DetExtension* detlayer = new Acts::DetExtension(100,100,Acts::LayerMaterialPos::inner,mod,"XzY");
         lay_det.addExtension<Acts::IDetExtension>(detlayer);
         double layerZpos = x_layer.z();
         if (x_det_dim.z() < 0.) layerZpos = -x_layer.z();

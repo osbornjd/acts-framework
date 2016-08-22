@@ -600,7 +600,7 @@
     <readouts>
         <readout name="B0_Readout">
             <segmentation type="CartesianGridXY" grid_size_x="0.05*mm" grid_size_y="0.05*mm"/>
-            <id>system:3,layer:3,module:15,x:32:-16,y:-16</id>
+            <id>system:3,layer:4,module:25,x:32:-16,y:-16</id>
         </readout>
     </readouts>
 

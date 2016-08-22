@@ -11,7 +11,7 @@ using namespace DD4hep;
 using namespace DD4hep::Geometry;
 
 /**
- Constructor for a cylindrical barrel volume, possibly containing layers and the layers possibly containing modules.
+ Constructor for a cylindrical barrel volume, possibly containing layers and the layers possibly containing modules. In Atlas style
 */
 
 static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
@@ -42,10 +42,10 @@ static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
         string layer_name  = det_name + _toString(layer_num,"layer%d");
         Volume layer_vol(layer_name,Tube(l_rmin,l_rmax,l_length), lcdd.material(x_layer.materialStr()));
         DetElement lay_det (cylinderVolume,layer_name,layer_num);
-        //the vector for the modules
-        std::vector<DD4hep::Geometry::DetElement> mod;
         //Visualization
         layer_vol.setVisAttributes(lcdd, x_layer.visStr());
+        //the vector for the modules
+        std::vector<DD4hep::Geometry::DetElement> mod;
         //go trough possible modules
         if(x_layer.hasChild(_U(module))){
             xml_comp_t x_module = x_layer.child(_U(module));
@@ -56,9 +56,11 @@ static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
             int zrepeat = x_slice.repeat();
             double dz   = x_slice.z();
             double dr   = x_slice.dr();
-            size_t module_num = 0;
             //Create the module volume
             Volume mod_vol("module",Box(x_module.length(),x_module.width(),x_module.thickness()),lcdd.material(x_module.materialStr()));
+            //Visualization
+            mod_vol.setVisAttributes(lcdd, x_module.visStr());
+            size_t module_num = 0;
             //Place the Modules in z
             for (int k=-zrepeat;k<=zrepeat;k++)
             {
@@ -67,8 +69,6 @@ static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
                 if (k%2 == 0) r+=dr;
                 //Place the modules in phi
                 for (int i=0; i<repeat; ++i) {
-                    //Visualization
-                    mod_vol.setVisAttributes(lcdd, x_module.visStr());
                     double phi = deltaphi/dd4hep::rad * i;
                     string module_name = zname + _toString(i,"module%d");
                     Position trans(r*cos(phi),
@@ -94,7 +94,9 @@ static Ref_t create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
                 }
             }
         }
-        Acts::DetExtension* detlayer = new Acts::DetExtension(mod);
+        //set granularity of layer material mapping and where material should be mapped
+        // hand over modules to ACTS
+        Acts::DetExtension* detlayer = new Acts::DetExtension(100,100,Acts::LayerMaterialPos::inner,mod);
         lay_det.addExtension<Acts::IDetExtension>(detlayer);
         //Place layer volume
         PlacedVolume placedLayer = tube_vol.placeVolume(layer_vol);

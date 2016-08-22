@@ -14,7 +14,7 @@
         url="none"
         status="development"
         version="$Id:??$">
-        <comment>First demonstration tracker in FCC dimensions, containing simple silicon modules, without any substructure or support material. The example contains three hierarchies, a pixel tracker, a short strip and a long strip tracker.</comment>
+        <comment>Simple Tracker with IBL like barrel modules</comment>
     </info>
     
     <define>
@@ -44,7 +44,7 @@
         <constant name="B0_L1_M_repeatPhi"  value="60"/>
         <constant name="B0_L2_rmin"         value="112.5*mm"/>
         <constant name="B0_L2_rmax"         value="132.5*mm"/>
-        <constant name="B0_L2_M_repeatPhi"  value="100"/>
+        <constant name="B0_L2_M_repeatPhi"  value="80"/>
         <!--Module-->
         <constant name="B0_L0_M_width"          value="10.*mm"/>
         <constant name="B0_L0_M_length"         value="20.65*mm"/>
@@ -170,7 +170,15 @@
     <readouts>
         <readout name="B0_Readout">
             <segmentation type="CartesianGridXY" grid_size_x="0.05*mm" grid_size_y="0.05*mm"/>
-            <id>system:3,layer:3,module:15,x:32:-16,y:-16</id>
+            <id>system:3,layer:4,module:15,component:4,x:32:-16,y:-16</id>
+        </readout>
+        <readout name="nE0_Readout">
+            <segmentation type="CartesianGridXY" grid_size_x="0.05*mm" grid_size_y="0.05*mm"/>
+            <id>system:3,layer:3,module:15,component:3,x:32:-16,y:-16</id>
+        </readout>
+        <readout name="pE0_Readout">
+            <segmentation type="CartesianGridXY" grid_size_x="0.05*mm" grid_size_y="0.05*mm"/>
+            <id>system:3,layer:3,module:15,component:3,x:32:-16,y:-16</id>
         </readout>
     </readouts>
     
@@ -179,9 +187,9 @@
     <detectors>
         <detector id="1" name="IBLSimpleBarrel" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
             <shape name="EnvelopeShape1" type="Tube" rmin="Env0_rmin" rmax="Env0_rmax" dz="Env0_dz" material="Air"/>
-       <!--     <composite name="Barrel0"/> -->
+            <composite name="Barrel0"/>
             <composite name="nEndCap0"/>
-       <!--     <composite name="pEndCap0"/>-->
+            <composite name="pEndCap0"/>
         </detector>
     </detectors>
 </lccdd>
