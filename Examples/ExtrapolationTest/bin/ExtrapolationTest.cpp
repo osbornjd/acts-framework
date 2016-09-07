@@ -4,7 +4,6 @@
 //
 //  Created by Andreas Salzburger on 11/05/16.
 //
-//
 
 #include <memory>
 #include "ACTFW/Framework/Algorithm.hpp"
@@ -25,13 +24,17 @@
 int
 main(int argc, char* argv[])
 {
-  size_t nEvents = 1000;
-  // a centraol logging level
-  Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
-    
+  size_t nEvents = 100;
+  
+  // set geometry building logging level
+  Acts::Logging::Level gLogLevel = Acts::Logging::INFO;
+  
   // create the tracking geometry as a shared pointer
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
-      = Acts::trackingGeometry(eLogLevel, 1);
+      = Acts::trackingGeometry(gLogLevel, 3);
+
+  // set extrapolation logging level
+  Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
 
   // set up the magnetic field
   Acts::ConstantFieldSvc::Config cffConfig;
@@ -54,19 +57,19 @@ main(int argc, char* argv[])
 
   // Write ROOT TTree
   FWRoot::RootExCellWriter::Config recWriterConfig;
-  recWriterConfig.fileName       = "$PWD/ExtrapolationTest.root";
-  recWriterConfig.treeName       = "ExtrapolationTest";
-  recWriterConfig.writeBoundary  = false;
-  recWriterConfig.writeMaterial  = false;
-  recWriterConfig.writeSensitive = true;
-  recWriterConfig.writePassive   = false;
+  recWriterConfig.fileName            = "$PWD/ExtrapolationTest.root";
+  recWriterConfig.treeName            = "ExtrapolationTest";
+  recWriterConfig.writeBoundary       = false;
+  recWriterConfig.writeMaterial       = false;
+  recWriterConfig.writeSensitive      = true;
+  recWriterConfig.writePassive        = false;
   std::shared_ptr<FW::IExtrapolationCellWriter> rootEcWriter(
       new FWRoot::RootExCellWriter(recWriterConfig));
 
   // the Algorithm with its configurations
   FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
   eTestConfig.testsPerEvent           = 100;
-  eTestConfig.parameterType           = 1;
+  eTestConfig.parameterType           = 0;
   eTestConfig.searchMode              = 1;
   eTestConfig.extrapolationEngine     = extrapolationEngine;
   eTestConfig.extrapolationCellWriter = rootEcWriter;
@@ -74,13 +77,13 @@ main(int argc, char* argv[])
   eTestConfig.d0Defs                  = {{0., 0.}};
   eTestConfig.z0Defs                  = {{0., 0.}};
   eTestConfig.phiRange                = {{-M_PI, M_PI}};
-  eTestConfig.etaRange                = {{-2.5, 2.5}};
-  eTestConfig.ptRange                 = {{1000., 100000.}};
+  eTestConfig.etaRange                = {{ -2.75, 2.75}};
+  eTestConfig.ptRange                 = {{ 1000., 10000.}};
   eTestConfig.particleType            = 3;
   eTestConfig.collectSensitive        = true;
-  eTestConfig.collectPassive          = false;
-  eTestConfig.collectBoundary         = false;
-  eTestConfig.collectMaterial         = false;
+  eTestConfig.collectPassive          = true;
+  eTestConfig.collectBoundary         = true;
+  eTestConfig.collectMaterial         = true;
   eTestConfig.sensitiveCurvilinear    = false;
   eTestConfig.pathLimit               = -1.;
 

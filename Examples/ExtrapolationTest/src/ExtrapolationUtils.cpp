@@ -21,21 +21,25 @@ FWE::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, 
     auto propConfig         = Acts::RungeKuttaEngine::Config();
     propConfig.fieldService = magFieldSvc;
     auto propEngine         = std::make_shared<Acts::RungeKuttaEngine>(propConfig);
+    propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", eLogLevel));
     // (b) MaterialEffectsEngine
-    auto matConfig      = Acts::MaterialEffectsEngine::Config();
+    auto matConfig          = Acts::MaterialEffectsEngine::Config();
     auto materialEngine = std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
+    materialEngine->setLogger(Acts::getDefaultLogger("MaterialEffectsEngine", eLogLevel));
      // (c) StaticNavigationEngine
     auto navConfig                  = Acts::StaticNavigationEngine::Config();
     navConfig.propagationEngine     = propEngine;
     navConfig.materialEffectsEngine = materialEngine;
     navConfig.trackingGeometry      = geo;
     auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
+    navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", eLogLevel));
     // (d) the StaticEngine
     auto statConfig                  = Acts::StaticEngine::Config();
     statConfig.propagationEngine     = propEngine;
     statConfig.navigationEngine      = navEngine;
     statConfig.materialEffectsEngine = materialEngine;
     auto statEngine                  = std::make_shared<Acts::StaticEngine>(statConfig);
+    statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", eLogLevel));
     // (e) the material engine
     auto exEngineConfig                 = Acts::ExtrapolationEngine::Config();
     exEngineConfig.trackingGeometry     = geo;
@@ -43,8 +47,7 @@ FWE::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, 
     exEngineConfig.navigationEngine     = navEngine;
     exEngineConfig.extrapolationEngines = {statEngine};
     auto exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
-    exEngine->setLogger(
-                        Acts::getDefaultLogger("ExtrapolationEngine", eLogLevel));
+    exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", eLogLevel));
     
     return std::move(exEngine);
 }
