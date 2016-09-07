@@ -103,20 +103,34 @@ public:
   name() const final;
 
 private:
-  Config             m_cfg;             ///< the config class
-  TFile*             m_outputFile;      ///< the output file name
-  TTree*             m_outputTree;      ///< the output tree name
-  std::vector<float> m_positionX;       ///< global position x of the step
-  std::vector<float> m_positionY;       ///< global position y of the step
-  std::vector<float> m_positionZ;       ///< global position z of the step
-  std::vector<int>   m_material;        ///< type of the step: material
-  std::vector<int>   m_boundary;        ///< type of the step: boundary
-  std::vector<int>   m_sensitive;       ///< type of the step: sensitive
-  std::vector<int>   m_volumeID;        ///< volume identification
-  std::vector<int>   m_layerID;         ///< layer identification
-  std::vector<int>   m_surfaceID;       ///< surface identification
-  std::vector<float> m_localposition0;  ///< local position - first coordinate
-  std::vector<float> m_localposition1;  ///< local position - second coordinate
+  Config             m_cfg;               ///< the config class
+    
+    
+  TFile*             m_outputFile;        ///< the output file name
+  
+  // this is the steering tree
+  TTree*             m_steeringTree;
+    
+  // this is the main tree for outputting
+  TTree*             m_outputTree;        ///< the output tree name
+  float              m_eta;               ///< global eta start
+  float              m_phi;               ///< global phi start
+  float              m_materialX0;        ///< material in X0
+  float              m_materialL0;        ///< material in L0
+  std::vector<float> m_s_positionX;       ///< global position x of the step
+  std::vector<float> m_s_positionY;       ///< global position y of the step
+  std::vector<float> m_s_positionZ;       ///< global position z of the step
+  std::vector<float> m_s_positionR;       ///< global position z of the step
+  std::vector<float> m_s_materialX0;      ///< step material X0
+  std::vector<float> m_s_materialL0;      ///< step material L0
+  std::vector<int>   m_s_material;        ///< type of the step: material
+  std::vector<int>   m_s_boundary;        ///< type of the step: boundary
+  std::vector<int>   m_s_sensitive;       ///< type of the step: sensitive
+  std::vector<int>   m_s_volumeID;        ///< volume identification
+  std::vector<int>   m_s_layerID;         ///< layer identification
+  std::vector<int>   m_s_surfaceID;       ///< surface identification
+  std::vector<float> m_s_localposition0;  ///< local position - first coordinate
+  std::vector<float> m_s_localposition1;  ///< local position - second coordinate
 
   /// Private helper method for actual filling
   template <class T>

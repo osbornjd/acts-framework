@@ -25,35 +25,39 @@ FWRoot::RootExCellWriter::initialize()
   m_outputFile = new TFile(m_cfg.fileName.c_str(), "recreate");
   m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
 
-  m_positionX.reserve(MAXSTEPS);
-  m_positionY.reserve(MAXSTEPS);
-  m_positionZ.reserve(MAXSTEPS);
+  // initial parameters
+  // @TODO implement smearing
+  m_outputTree->Branch("Eta", &m_eta);
+  m_outputTree->Branch("Phi", &m_phi);
+  
+  // output the step information
+  m_outputTree->Branch("StepX", &m_s_positionX);
+  m_outputTree->Branch("StepY", &m_s_positionY);
+  m_outputTree->Branch("StepZ", &m_s_positionZ);
+  m_outputTree->Branch("StepR", &m_s_positionR);
 
-  m_material.reserve(MAXSTEPS);
-  m_sensitive.reserve(MAXSTEPS);
-  m_boundary.reserve(MAXSTEPS);
+  // identification
+  m_outputTree->Branch("StepVolumeID",  &m_s_volumeID);
+  m_outputTree->Branch("StepLayerID",   &m_s_layerID);
+  m_outputTree->Branch("StepSurfaceID", &m_s_surfaceID);
+  // material section
+  if (m_cfg.writeMaterial){
+    m_outputTree->Branch("MaterialX0",     &m_materialX0);
+    m_outputTree->Branch("MaterialL0",     &m_materialL0);
+    m_outputTree->Branch("StepMaterialX0", &m_s_materialX0);
+    m_outputTree->Branch("StepMaterialL0", &m_s_materialL0);
+    m_outputTree->Branch("MaterialStep",   &m_s_material);
+  }
+  // sensitive section
+  if (m_cfg.writeSensitive){
+    m_outputTree->Branch("SensitiveStep", &m_s_sensitive);
+    m_outputTree->Branch("StepLocal0",    &m_s_localposition0);
+    m_outputTree->Branch("StepLocal1",    &m_s_localposition1);
+  }
+  // boundary section
+  if (m_cfg.writeBoundary)
+    m_outputTree->Branch("BoundaryStep", &m_s_boundary);
 
-  m_volumeID.reserve(MAXSTEPS);
-  m_layerID.reserve(MAXSTEPS);
-  m_surfaceID.reserve(MAXSTEPS);
-
-  m_localposition0.reserve(MAXSTEPS);
-  m_localposition1.reserve(MAXSTEPS);
-
-  m_outputTree->Branch("StepX", &m_positionX);
-  m_outputTree->Branch("StepY", &m_positionY);
-  m_outputTree->Branch("StepZ", &m_positionZ);
-
-  m_outputTree->Branch("MaterialStep", &m_material);
-  m_outputTree->Branch("BoundaryStep", &m_boundary);
-  m_outputTree->Branch("SensitiveStep", &m_sensitive);
-
-  m_outputTree->Branch("VolumeID", &m_volumeID);
-  m_outputTree->Branch("LayerID", &m_layerID);
-  m_outputTree->Branch("SurfaceID", &m_surfaceID);
-
-  m_outputTree->Branch("Local0", &m_localposition0);
-  m_outputTree->Branch("Local1", &m_localposition1);
 
   return FW::ProcessCode::SUCCESS;
 }
