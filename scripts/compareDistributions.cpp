@@ -10,8 +10,10 @@
 void
 compareDistributions(std::string inFile1,
                      std::string hist1Name,
+                     int         col1,
                      std::string inFile2,
-                     std::string hist2Name)
+                     std::string hist2Name,
+                     int         col2)
 {
     std::cout << "Opening file: " << inFile1 << std::endl;
     TFile inputFile1(inFile1.c_str());
@@ -23,8 +25,9 @@ compareDistributions(std::string inFile1,
     TH1F* h1 = (TH1F*)inputFile1.Get(hist1Name.c_str());
     TH1F* h2 = (TH1F*)inputFile2.Get(hist2Name.c_str());
     
+    h1->SetLineColor(col1);
     h1->DrawNormalized();
-    h2->SetLineColor(2);
+    h2->SetLineColor(col2);
     h2->DrawNormalized("same");
     
     TLegend* leg = new TLegend(0.72, 0.71, 0.99, 0.95);
