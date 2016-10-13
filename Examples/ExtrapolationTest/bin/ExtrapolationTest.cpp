@@ -27,11 +27,16 @@ main(int argc, char* argv[])
   size_t nEvents = 100;
   
   // set geometry building logging level
-  Acts::Logging::Level gLogLevel = Acts::Logging::INFO;
+  Acts::Logging::Level surfaceLogLevel = Acts::Logging::INFO;
+  Acts::Logging::Level layerLogLevel = Acts::Logging::INFO;
+  Acts::Logging::Level volumeLogLevel = Acts::Logging::INFO;
   
   // create the tracking geometry as a shared pointer
-  std::shared_ptr<const Acts::TrackingGeometry> tGeometry
-      = Acts::trackingGeometry(gLogLevel, 3);
+    std::shared_ptr<const Acts::TrackingGeometry> tGeometry
+    = Acts::buildGenericDetector(surfaceLogLevel,
+                                 layerLogLevel,
+                                 volumeLogLevel,
+                                 3);
 
   // set extrapolation logging level
   Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
