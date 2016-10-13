@@ -131,6 +131,7 @@ private:
   std::vector<int>   m_s_surfaceID;       ///< surface identification
   std::vector<float> m_s_localposition0;  ///< local position - first coordinate
   std::vector<float> m_s_localposition1;  ///< local position - second coordinate
+  int                m_hits;              ///< number of hits in sensitive material
 
   /// Private helper method for actual filling
   template <class T>
