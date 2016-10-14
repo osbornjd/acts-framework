@@ -8,7 +8,7 @@
 // the input file into the same canvas with the colors given
 
 void
-compareHistogram(std::string inFile1,
+compareHistograms(std::string inFile1,
                  std::string hist1Name,
                  int         col1,
                  std::string inFile2,
