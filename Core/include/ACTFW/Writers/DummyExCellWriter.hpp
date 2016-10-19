@@ -37,7 +37,7 @@ public:
 
   /// Constructor
   ///
-  /// @param name is the name that the dummy writer will use
+  /// @param cfg is the configuration class
   DummyExCellWriter(const Config& cfg) : m_cfg(cfg) { }
 
   /// Destructor
