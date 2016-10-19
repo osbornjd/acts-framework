@@ -51,6 +51,8 @@ template <class T> FW::ProcessCode RootExCellWriter::writeT(const Acts::Extrapol
       m_s_boundary.clear();
       m_s_boundary.reserve(MAXSTEPS);
     }
+    // the number of sensitive hits per event
+    m_hits = 0;
     // loop over extrapolation steps
     for (auto& es : eCell.extrapolationSteps){
         if (es.parameters){
@@ -113,6 +115,7 @@ template <class T> FW::ProcessCode RootExCellWriter::writeT(const Acts::Extrapol
                 m_s_boundary.push_back(boundary);
                 m_s_sensitive.push_back(sensitive);
           }
+            if (sensitive) m_hits++;
         }
     }
     // write to 

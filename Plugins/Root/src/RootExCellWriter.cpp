@@ -57,7 +57,8 @@ FWRoot::RootExCellWriter::initialize()
   // boundary section
   if (m_cfg.writeBoundary)
     m_outputTree->Branch("BoundaryStep", &m_s_boundary);
-
+  // numer of sensitive hits
+  m_outputTree->Branch("nHits", &m_hits);
 
   return FW::ProcessCode::SUCCESS;
 }
