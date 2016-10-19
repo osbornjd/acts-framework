@@ -29,8 +29,8 @@ public:
   public:
     std::string                   name;      ///< the name of the service
 
-    Config(const std::string&   lname = "DummyExCellWriter")
-      : name(lname)
+    Config(const std::string& p_name = "DummyExCellWriter")
+      : name(p_name)
     {
     }
   };
@@ -65,7 +65,7 @@ public:
 
   /// Framework name() method
   const std::string&
-  name() const final { return m_cfg.name; };
+  name() const final { return m_cfg.name; }
   
 private:
    Config             m_cfg;               ///< the config class
