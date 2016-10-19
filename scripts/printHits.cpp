@@ -47,14 +47,15 @@ printHits(std::string inFile,
     tree->SetBranchAddress("StepY", &y);
     tree->SetBranchAddress("StepZ", &z);
     tree->SetBranchAddress("SensitiveStep", &sens);
+    
     if (tree->FindBranch("BoundaryStep")) {
+        std::cout << "No BoundarySteps are given." << std::endl;
         tree->SetBranchAddress("BoundaryStep", &bounds);
     }
     if (tree->FindBranch("MaterialStep")) {
-        ;
+        std::cout << "No MaterialSteps are given." << std::endl;
         tree->SetBranchAddress("MaterialStep", &mat);
     }
-    
     Int_t entries = tree->GetEntries();
     std::cout << "Creating new output file: " << outFile
     << " and writing out histograms. " << std::endl;
