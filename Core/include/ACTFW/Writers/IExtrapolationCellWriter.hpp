@@ -31,6 +31,7 @@ class IExtrapolationCellWriter : public IService
 public:
   /// Virtual Destructor
   virtual ~IExtrapolationCellWriter() {}
+
   /// The write interface
   virtual ProcessCode
   write(const Acts::ExCellCharged& eCell)
