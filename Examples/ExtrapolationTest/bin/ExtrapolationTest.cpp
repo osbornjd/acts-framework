@@ -16,7 +16,7 @@
 #include "ACTS/Extrapolation/RungeKuttaEngine.hpp"
 #include "ACTS/Extrapolation/StaticEngine.hpp"
 #include "ACTS/Extrapolation/StaticNavigationEngine.hpp"
-#include "ACTS/MagneticField/ConstantFieldSvc.hpp"
+#include "ACTS/MagneticField/ConstantBField.hpp"
 #include "ACTFW/ExtrapolationTest/ExtrapolationTestAlgorithm.hpp"
 #include "ACTFW/ExtrapolationTest/ExtrapolationUtils.hpp"
 
@@ -42,14 +42,11 @@ main(int argc, char* argv[])
   Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
 
   // set up the magnetic field
-  Acts::ConstantFieldSvc::Config cffConfig;
-  cffConfig.name  = "ConstantMagField";
-  cffConfig.field = {{0., 0., 0.002}};  // field is given in kT
-  std::shared_ptr<Acts::IMagneticFieldSvc> magFieldSvc(
-      new Acts::ConstantFieldSvc(cffConfig));
+  std::shared_ptr<Acts::ConstantBField> magField(
+      new Acts::ConstantBField{{0., 0., 0.002}});  // field is given in kT
 
   // EXTRAPOLATOR - set up the extrapolator
-  std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = FWE::initExtrapolator(tGeometry,magFieldSvc,eLogLevel);
+  std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = FWE::initExtrapolator(tGeometry,magField,eLogLevel);
 
   // RANDOM NUMBERS - Create the random number engine
   FW::RandomNumbers::Config brConfig;
