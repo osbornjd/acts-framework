@@ -1,3 +1,4 @@
+#include "ACTFW/Concurrency/parallel_for.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -62,7 +63,7 @@ FW::Sequencer::processEventLoop(size_t nEvents, size_t skipEvents)
         return ProcessCode::ABORT;
   }
   // execute the event loop
-  for (size_t ievent = 0; ievent < nEvents; ++ievent) {
+  ACTFW_PARALLEL_FOR(ievent, 0, nEvents,
     const size_t eventNumber = skipEvents + ievent;
     ACTS_INFO("==> EVENT " << eventNumber << " <== start. ");
     
@@ -77,20 +78,20 @@ FW::Sequencer::processEventLoop(size_t nEvents, size_t skipEvents)
     // a) then call read on all io algoirhtms
     for (const auto& ioalg : m_cfg.ioAlgorithms) {
       if (ioalg->read({ ialg++, eventContext }) != ProcessCode::SUCCESS)
-        return ProcessCode::ABORT;
+        ACTFW_PARALLEL_FOR_ABORT(ievent);
     }
     // b) now call execute for all event algorithms
     for (const auto& alg : m_cfg.eventAlgorithms) {
       if (alg->execute({ ialg++, eventContext }) != ProcessCode::SUCCESS)
-        return ProcessCode::ABORT;
+        ACTFW_PARALLEL_FOR_ABORT(ievent);
     }
     // c) now call write to all io algoirhtms
     for (const auto& ioalg : m_cfg.ioAlgorithms) {
       if (ioalg->write({ ialg++, eventContext }) != ProcessCode::SUCCESS)
-        return ProcessCode::ABORT;
+        ACTFW_PARALLEL_FOR_ABORT(ievent);
     }
     ACTS_INFO("<== EVENT " << eventNumber << " ==> done. ");
-  }
+  )
   // return with success
   return ProcessCode::SUCCESS;
 }
