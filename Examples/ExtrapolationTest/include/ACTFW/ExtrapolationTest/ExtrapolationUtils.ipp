@@ -1,11 +1,6 @@
-///////////////////////////////////////////////////////////////////
-// ExtrapolationUtils.cpp
-///////////////////////////////////////////////////////////////////
-
 #include "ACTFW/ExtrapolationTest/ExtrapolationUtils.hpp"
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/MagneticField/IMagneticFieldSvc.hpp"
 #include "ACTS/Extrapolation/RungeKuttaEngine.hpp"
 #include "ACTS/Extrapolation/MaterialEffectsEngine.hpp"
 #include "ACTS/Extrapolation/StaticNavigationEngine.hpp"
@@ -13,14 +8,16 @@
 #include "ACTS/Extrapolation/ExtrapolationEngine.hpp"
 
 
+template <class MagneticField = Acts::ConstantBField>
 std::unique_ptr<Acts::IExtrapolationEngine>
-FWE::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, std::shared_ptr<Acts::IMagneticFieldSvc> magFieldSvc, Acts::Logging::Level eLogLevel)
+initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, std::shared_ptr<MagneticField> magFieldSvc, Acts::Logging::Level eLogLevel)
 {
     // EXTRAPOLATOR - set up the extrapolator
     // (a) RungeKuttaPropagtator
-    auto propConfig         = Acts::RungeKuttaEngine::Config();
+    using RKEngine = Acts::RungeKuttaEngine<MagneticField>;
+    typename RKEngine::Config propConfig{};
     propConfig.fieldService = magFieldSvc;
-    auto propEngine         = std::make_shared<Acts::RungeKuttaEngine>(propConfig);
+    auto propEngine         = std::make_shared<RKEngine>(propConfig);
     propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", eLogLevel));
     // (b) MaterialEffectsEngine
     auto matConfig          = Acts::MaterialEffectsEngine::Config();
