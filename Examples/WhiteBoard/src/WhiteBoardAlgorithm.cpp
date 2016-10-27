@@ -18,11 +18,10 @@ FWE::WhiteBoardAlgorithm::~WhiteBoardAlgorithm()
 
 /** Framework finalize mehtod */
 FW::ProcessCode
-FWE::WhiteBoardAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> eStore,
-                                     std::shared_ptr<FW::WhiteBoard> jStore)
+FWE::WhiteBoardAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 {
   // call the algorithm initialize for setting the stores
-  if (FW::Algorithm::initialize(eStore, jStore) != FW::ProcessCode::SUCCESS) {
+  if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
     ACTS_FATAL("Algorithm::initialize() did not succeed!");
     return FW::ProcessCode::SUCCESS;
   }
@@ -32,8 +31,12 @@ FWE::WhiteBoardAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> eStore,
 
 /** Framework execode method */
 FW::ProcessCode
-FWE::WhiteBoardAlgorithm::execute(size_t eventNumber)
+FWE::WhiteBoardAlgorithm::execute(const FW::AlgorithmContext context) const
 {
+  // Retrieve relevant information from the execution context
+  size_t eventNumber = context.eventContext->eventNumber;
+  auto eventStore = context.eventContext->eventStore;
+
   // -------- Reading -----------------------
   // Reading Class One
   if (!m_cfg.inputClassOneCollection.empty()) {
@@ -41,8 +44,8 @@ FWE::WhiteBoardAlgorithm::execute(size_t eventNumber)
     // read in the collection
     FWE::DataClassOneCollection* dcoCollIn = nullptr;
     // write to the EventStore
-    if (eventStore()
-        && eventStore()->readT(dcoCollIn, m_cfg.inputClassOneCollection)
+    if (eventStore
+        && eventStore->readT(dcoCollIn, m_cfg.inputClassOneCollection)
             == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
     // screen output
@@ -57,8 +60,8 @@ FWE::WhiteBoardAlgorithm::execute(size_t eventNumber)
     // read in the collection
     FWE::DataClassTwoCollection* dctCollIn = nullptr;
     // write to the EventStore
-    if (eventStore()
-        && eventStore()->readT(dctCollIn, m_cfg.inputClassTwoCollection)
+    if (eventStore
+        && eventStore->readT(dctCollIn, m_cfg.inputClassTwoCollection)
             == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
     // screen output
@@ -78,8 +81,8 @@ FWE::WhiteBoardAlgorithm::execute(size_t eventNumber)
     ACTS_VERBOSE("Written out DataClassOne object as " << dcoOut->data());
     dcoCollOut->push_back(std::move(dcoOut));
     // write to the EventStore
-    if (eventStore()
-        && eventStore()->writeT(dcoCollOut, m_cfg.outputClassOneCollection)
+    if (eventStore
+        && eventStore->writeT(dcoCollOut, m_cfg.outputClassOneCollection)
             == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
   }
@@ -94,8 +97,8 @@ FWE::WhiteBoardAlgorithm::execute(size_t eventNumber)
     ACTS_VERBOSE("Written out DataClassTwo object as " << dctOut->data());
     dctCollOut->push_back(std::move(dctOut));
     // write to the EventStore
-    if (eventStore()
-        && eventStore()->writeT(dctCollOut, m_cfg.outputClassTwoCollection)
+    if (eventStore
+        && eventStore->writeT(dctCollOut, m_cfg.outputClassTwoCollection)
             == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
   }
