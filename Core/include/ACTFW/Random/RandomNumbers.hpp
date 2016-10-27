@@ -36,6 +36,7 @@ class RandomNumbers
 {
 public:
   /// @class Config
+  ///
   /// Nested Configuration class
   struct Config
   {
@@ -58,9 +59,10 @@ public:
 
   /// Destructor
   ~RandomNumbers() {}
-  /// Draw the random number
+
+  /// Draw a random number
   ///
-  /// @param dPar is the indicator which distrubtion to be drawn
+  /// @param dPar is the distribution to draw from
   double
   draw(Distribution dPar);
 
@@ -76,7 +78,7 @@ public:
   setConfiguration(const Config& sfg);
 
 private:
-  Config                        m_cfg;  ///< the configuration class
+  Config                        m_cfg;      ///< the configuration class
   std::unique_ptr<Acts::Logger> m_logger;
   RandomEngine                  m_engine;   ///< the random engine
   GaussDist                     m_gauss;    ///< gauss distribution

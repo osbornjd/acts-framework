@@ -39,9 +39,9 @@ FW::RandomNumbers::setConfiguration(const FW::RandomNumbers::Config& cfg)
 }
 
 double
-FW::RandomNumbers::draw(FW::Distribution dType)
+FW::RandomNumbers::draw(FW::Distribution dPar)
 {
-  switch (dType) {
+  switch (dPar) {
   case Distribution::gauss:
     return m_gauss(m_engine);
   case Distribution::uniform:
