@@ -42,10 +42,10 @@ public:
     std::vector<std::shared_ptr<IOAlgorithm>> ioAlgorithms = {};
     /// algorithms
     std::vector<std::shared_ptr<IAlgorithm>> eventAlgorithms = {};
-    /// event board
-    std::shared_ptr<WhiteBoard> eventBoard = nullptr;
-    /// the job board
-    std::shared_ptr<WhiteBoard> jobBoard = nullptr;
+    /// event store logging level
+    Acts::Logging::Level eventStoreLogLevel = Acts::Logging::INFO;
+    /// the job store
+    std::shared_ptr<WhiteBoard> jobStore = nullptr;
   };
 
   /// Constructor
