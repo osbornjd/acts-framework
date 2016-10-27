@@ -1,24 +1,22 @@
 //
-//  RandomNumbers.cpp
+//  RandomNumbersSvc.cpp
 //  ACTFW
 //
 //  Created by Andreas Salzburger on 17/05/16.
 //
 //
 
-#include "ACTFW/Random/RandomNumbers.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Random/LandauQuantile.hpp"
 
-FW::RandomNumbers::RandomNumbers(const FW::RandomNumbers::Config& cfg,
-                                 std::unique_ptr<Acts::Logger>    logger)
+FW::RandomNumbersSvc::RandomNumbersSvc(const FW::RandomNumbersSvc::Config& cfg)
   : m_cfg(cfg)
-  , m_logger(std::move(logger))
   , m_rng{ m_cfg, m_cfg.seed }
 {
 }
 
-FW::RandomNumbers::Generator::Generator(const Config & cfg,
-                                        unsigned int seed)
+FW::RandomNumbersSvc::Generator::Generator(const Config & cfg,
+                                           unsigned int seed)
   : m_cfg{cfg}
   , m_engine{seed}
   , m_gauss{m_cfg.gauss_parameters[0],
@@ -30,8 +28,21 @@ FW::RandomNumbers::Generator::Generator(const Config & cfg,
 {
 }
 
-FW::RandomNumbers::Generator
-FW::RandomNumbers::spawnGenerator(const AlgorithmContext & context) const
+FW::ProcessCode
+FW::RandomNumbersSvc::initialize()
+{
+  return FW::ProcessCode::SUCCESS;
+}
+
+FW::ProcessCode
+FW::RandomNumbersSvc::finalize()
+{
+  return FW::ProcessCode::SUCCESS;
+}
+
+
+FW::RandomNumbersSvc::Generator
+FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext & context) const
 {
    const auto eventContext = context.eventContext;
    const unsigned int generatorID =
@@ -42,7 +53,7 @@ FW::RandomNumbers::spawnGenerator(const AlgorithmContext & context) const
 }
 
 double
-FW::RandomNumbers::Generator::draw(FW::Distribution dPar)
+FW::RandomNumbersSvc::Generator::draw(FW::Distribution dPar)
 {
   switch (dPar) {
   case Distribution::gauss:
@@ -62,7 +73,7 @@ FW::RandomNumbers::Generator::draw(FW::Distribution dPar)
 }
 
 double
-FW::RandomNumbers::draw(FW::Distribution dPar)
+FW::RandomNumbersSvc::draw(FW::Distribution dPar)
 {
   return m_rng.draw(dPar);
 }

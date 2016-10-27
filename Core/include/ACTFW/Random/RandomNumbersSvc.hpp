@@ -1,13 +1,13 @@
 //
-//  RandomNumbers.hpp
+//  RandomNumbersSvc.hpp
 //  ACTFW
 //
 //  Created by Andreas Salzburger on 17/05/16.
 //
 //
 
-#ifndef ACTFW_RANDOM_RANDOMNUMBERS_H
-#define ACTFW_RANDOM_RANDOMNUMBERS_H 1
+#ifndef ACTFW_RANDOM_RANDOMNUMBERSSVC_H
+#define ACTFW_RANDOM_RANDOMNUMBERSSVC_H 1
 
 #include <array>
 #include <memory>
@@ -15,6 +15,7 @@
 #include <string>
 
 #include "ACTFW/Framework/AlgorithmContext.hpp"
+#include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -23,9 +24,9 @@ namespace FW {
 ///  @enum class Distribution
 enum class Distribution { uniform, gauss, landau, gamma };
 
-/// @class RandomNumbers
+/// @class RandomNumbersSvc
 ///
-///  An implementation of the std random numbers
+/// An implementation of the std random numbers
 ///
 typedef std::mt19937                     RandomEngine;  // Mersenne Twister
 typedef std::normal_distribution<double> GaussDist;     // Normal Distribution
@@ -33,7 +34,7 @@ typedef std::uniform_real_distribution<double>
                                         UniformDist;  // Uniform Distribution
 typedef std::gamma_distribution<double> GammaDist;    // Gamma Distribution
 
-class RandomNumbers
+class RandomNumbersSvc : public IService
 {
 public:
   /// @class Config
@@ -41,6 +42,10 @@ public:
   /// Nested Configuration class
   struct Config
   {
+    /// default logger
+    std::shared_ptr<Acts::Logger> logger;
+    /// service name
+    std::string name;
     /// random seed
     unsigned int seed = 1234567890;
     /// configuration uniform
@@ -51,6 +56,13 @@ public:
     std::array<double, 2> landau_parameters = {{0, 1}};
     /// configuration gamma
     std::array<double, 2> gamma_parameters = {{0, 1}};
+
+	Config(const std::string&   lname = "RandomNumbersSvc",
+           Acts::Logging::Level lvl   = Acts::Logging::INFO)
+      : logger{Acts::getDefaultLogger(lname, lvl)}
+      , name{lname}
+    {
+    }
   };
 
   /// @class Generator
@@ -81,12 +93,15 @@ public:
   };
 
   /// Constructor
-  RandomNumbers(const Config&                 cfg,
-                std::unique_ptr<Acts::Logger> logger
-                = Acts::getDefaultLogger("RandomNumbers", Acts::Logging::INFO));
+  RandomNumbersSvc(const Config& cfg);
 
-  /// Destructor
-  ~RandomNumbers() {}
+  // Framework initialize method
+  FW::ProcessCode
+  initialize() override final;
+
+  /// Framework finalize mehtod
+  FW::ProcessCode
+  finalize() override final;
 
   /// Spawn an algorithm-local random number generator
   ///
@@ -107,18 +122,28 @@ public:
     return m_cfg.seed;
   }
 
+  /// Framework name() method
+  const std::string&
+  name() const override final;
+
 private:
   Config                        m_cfg;      ///< the configuration class
-  std::unique_ptr<Acts::Logger> m_logger;
   Generator                     m_rng;      ///< default generator
 
   /// Private access to the logging instance
   const Acts::Logger&
   logger() const
   {
-    return *m_logger;
+    return *m_cfg.logger;
   }
 };
+
+inline const std::string&
+RandomNumbersSvc::name() const
+{
+  return m_cfg.name;
 }
 
-#endif  // ACTFW_RANDOM_RANDOMNUMBERS_H
+}
+
+#endif  // ACTFW_RANDOM_RANDOMNUMBERSSVC_H
