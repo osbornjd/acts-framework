@@ -16,7 +16,7 @@
 
 namespace FW {
 class WhiteBoard;
-class RandomNumbers;
+class RandomNumbersSvc;
 }
 
 namespace FWE {
@@ -28,8 +28,8 @@ public:
   /// @class Config
   struct Config : public FW::Algorithm::Config
   {
-    std::shared_ptr<FW::RandomNumbers> randomNumbers = nullptr;
-    size_t                             drawsPerEvent = 0;
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    size_t                                drawsPerEvent = 0;
 
     Config() : FW::Algorithm::Config("RandomNumbersAlgorithm") {}
   };
