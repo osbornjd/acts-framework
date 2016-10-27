@@ -14,6 +14,7 @@
 #include <random>
 #include <string>
 
+#include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -52,6 +53,33 @@ public:
     std::array<double, 2> gamma_parameters = {{0, 1}};
   };
 
+  /// @class Generator
+  ///
+  /// A random number generator
+  class Generator
+  {
+  public:
+    /// Initialize a generator
+    ///
+    /// @param cfg is the host's configuration
+    /// @param seed is the seed to use for this generator
+    Generator(const Config & cfg,
+              unsigned int seed);
+
+    /// Draw a random number
+    ///
+    /// @param dPar is the distribution to draw from
+    double
+    draw(Distribution dPar);
+
+  private:
+    const Config & m_cfg;      ///< link to host configuration
+    RandomEngine   m_engine;   ///< random engine
+    GaussDist      m_gauss;    ///< gauss distribution
+    UniformDist    m_uniform;  ///< uniform distribution
+    GammaDist      m_gamma;    ///< gamma distribution
+  };
+
   /// Constructor
   RandomNumbers(const Config&                 cfg,
                 std::unique_ptr<Acts::Logger> logger
@@ -60,7 +88,13 @@ public:
   /// Destructor
   ~RandomNumbers() {}
 
-  /// Draw a random number
+  /// Spawn an algorithm-local random number generator
+  ///
+  /// @param context is the AlgorithmContext of the host algorithm
+  Generator
+  spawnGenerator(const AlgorithmContext & context) const;
+
+  /// Draw a random number in a thread-unsafe way
   ///
   /// @param dPar is the distribution to draw from
   double
@@ -76,10 +110,7 @@ public:
 private:
   Config                        m_cfg;      ///< the configuration class
   std::unique_ptr<Acts::Logger> m_logger;
-  RandomEngine                  m_engine;   ///< the random engine
-  GaussDist                     m_gauss;    ///< gauss distribution
-  UniformDist                   m_uniform;  ///< uniform distribution
-  GammaDist                     m_gamma;    ///< gamma distribution
+  Generator                     m_rng;      ///< default generator
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -87,10 +118,6 @@ private:
   {
     return *m_logger;
   }
-
-  /// Set the configuration
-  ProcessCode
-  setConfiguration(const Config& sfg);
 };
 }
 
