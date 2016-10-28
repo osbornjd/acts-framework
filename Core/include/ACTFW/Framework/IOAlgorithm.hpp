@@ -31,17 +31,17 @@ public:
              std::shared_ptr<WhiteBoard> jobStore   = nullptr)
       = 0;
 
-  /// Framework execode method
+  /// Skip a few events in the IO stream
   virtual ProcessCode
   skip(size_t nEvents = 1)
       = 0;
 
-  /// Framework execode method
+  /// Read out data from the input stream
   virtual ProcessCode
   read(size_t eventNumber)
       = 0;
 
-  /// Framework execode method
+  /// Write data to the output stream
   virtual ProcessCode
   write(size_t eventNumber)
       = 0;

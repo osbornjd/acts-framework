@@ -30,7 +30,7 @@ public:
   {
     /// the event WhiteBoard
     std::shared_ptr<WhiteBoard> eBoard = nullptr;
-    /// the event JobBoard
+    /// the job WhiteBoard
     std::shared_ptr<WhiteBoard> jBoard = nullptr;
     /// the name of the algorithm
     std::string name = "Algorithm";
@@ -57,7 +57,7 @@ public:
   initialize(std::shared_ptr<WhiteBoard> eventStore = nullptr,
              std::shared_ptr<WhiteBoard> jobStore   = nullptr) override;
 
-  /// Framework execode method
+  /// Framework execute method
   virtual ProcessCode
   execute(size_t eventNumber) override;
 
@@ -67,15 +67,15 @@ public:
 
   /// Framework name() method
   const std::string&
-  name() const final;
+  name() const override final;
 
   /// return the eventStore - things that live per event
   std::shared_ptr<WhiteBoard>
-  eventStore() const final;
+  eventStore() const override final;
 
   /// return the jobStore - things that live for the full job
   std::shared_ptr<WhiteBoard>
-  jobStore() const final;
+  jobStore() const override final;
 
 protected:
   Config                        m_cfg;
