@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "ACTFW/Random/RandomNumbers.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
     const FWE::RandomNumbersAlgorithm::Config& cfg,
@@ -32,11 +32,15 @@ FWE::RandomNumbersAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 FW::ProcessCode
 FWE::RandomNumbersAlgorithm::execute(const FW::AlgorithmContext context) const
 {
+  // Create a random number generator
+  FW::RandomNumbersSvc::Generator rng =
+    m_cfg.randomNumbers->spawnGenerator(context);
+
   for (size_t idraw = 0; idraw < m_cfg.drawsPerEvent; ++idraw) {
-    double gauss   = m_cfg.randomNumbers->draw(FW::Distribution::gauss);
-    double uniform = m_cfg.randomNumbers->draw(FW::Distribution::uniform);
-    double landau  = m_cfg.randomNumbers->draw(FW::Distribution::landau);
-    double gamma   = m_cfg.randomNumbers->draw(FW::Distribution::gamma);
+    double gauss   = rng.draw(FW::Distribution::gauss);
+    double uniform = rng.draw(FW::Distribution::uniform);
+    double landau  = rng.draw(FW::Distribution::landau);
+    double gamma   = rng.draw(FW::Distribution::gamma);
 
     ACTS_VERBOSE("Gauss   : " << gauss);
     ACTS_VERBOSE("Uniform : " << uniform);
