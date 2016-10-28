@@ -12,11 +12,10 @@ FWE::HelloWorldAlgorithm::~HelloWorldAlgorithm()
 }
 
 FW::ProcessCode
-FWE::HelloWorldAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> eStore,
-                                     std::shared_ptr<FW::WhiteBoard> jStore)
+FWE::HelloWorldAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 {
   // call the algorithm initialize for setting the stores
-  if (FW::Algorithm::initialize(eStore, jStore) != FW::ProcessCode::SUCCESS) {
+  if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
     ACTS_FATAL("Algorithm::initialize() did not succeed!");
     return FW::ProcessCode::SUCCESS;
   }
@@ -25,9 +24,9 @@ FWE::HelloWorldAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> eStore,
 }
 
 FW::ProcessCode
-FWE::HelloWorldAlgorithm::execute(size_t eventNumber)
+FWE::HelloWorldAlgorithm::execute(const FW::AlgorithmContext context) const
 {
-  ACTS_INFO(" Hello World! (from event " << eventNumber << ")");
+  ACTS_INFO(" Hello World! (from event " << context.eventContext->eventNumber << ")");
   return FW::ProcessCode::SUCCESS;
 }
 

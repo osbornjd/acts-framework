@@ -17,11 +17,10 @@ FWE::RandomNumbersAlgorithm::~RandomNumbersAlgorithm()
 
 /** Framework finalize mehtod */
 FW::ProcessCode
-FWE::RandomNumbersAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> eStore,
-                                        std::shared_ptr<FW::WhiteBoard> jStore)
+FWE::RandomNumbersAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 {
   // call the algorithm initialize for setting the stores
-  if (FW::Algorithm::initialize(eStore, jStore) != FW::ProcessCode::SUCCESS) {
+  if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
     ACTS_FATAL("Algorithm::initialize() did not succeed!");
     return FW::ProcessCode::SUCCESS;
   }
@@ -31,7 +30,7 @@ FWE::RandomNumbersAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> eStore,
 
 /** Framework execode method */
 FW::ProcessCode
-FWE::RandomNumbersAlgorithm::execute(size_t eventNumber)
+FWE::RandomNumbersAlgorithm::execute(const FW::AlgorithmContext context) const
 {
   for (size_t idraw = 0; idraw < m_cfg.drawsPerEvent; ++idraw) {
     double gauss   = m_cfg.randomNumbers->draw(FW::Distribution::gauss);

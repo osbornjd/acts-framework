@@ -45,16 +45,15 @@ public:
 
   /// Framework intialize method
   FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> eventStore = nullptr,
-             std::shared_ptr<FW::WhiteBoard> jobStore   = nullptr) final;
+  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) override final;
 
   /// Framework execode method
   FW::ProcessCode
-  execute(size_t eventNumber) final;
+  execute(const FW::AlgorithmContext context) const override final;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() final;
+  finalize() override final;
 
 private:
   Config m_cfg;  ///< the config class

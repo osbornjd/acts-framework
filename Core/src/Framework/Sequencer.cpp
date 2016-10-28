@@ -1,3 +1,5 @@
+#include "ACTFW/Framework/WhiteBoard.hpp"
+
 #include "ACTFW/Framework/Sequencer.hpp"
 
 FW::Sequencer::Sequencer(const Sequencer::Config&      cfg,
@@ -26,14 +28,14 @@ FW::Sequencer::initializeEventLoop()
 
   // initialize the i/o algorithms
   for (auto& ioalg : m_cfg.ioAlgorithms) {
-    if (ioalg->initialize(m_cfg.eventBoard, m_cfg.jobBoard)
+    if (ioalg->initialize(m_cfg.jobStore)
         != ProcessCode::SUCCESS)
       return ProcessCode::ABORT;
   }
 
   // initialize the event algorithms
   for (auto& alg : m_cfg.eventAlgorithms) {
-    if (alg->initialize(m_cfg.eventBoard, m_cfg.jobBoard)
+    if (alg->initialize(m_cfg.jobStore)
         != ProcessCode::SUCCESS)
       return ProcessCode::ABORT;
   }
@@ -47,6 +49,10 @@ FW::Sequencer::processEventLoop(size_t nEvents, size_t skipEvents)
   ACTS_INFO(
       "=================================================================");
   ACTS_INFO("Processing the event loop:");
+  
+  // Setup the job context
+  auto jobContext = std::make_shared<const JobContext>(
+    nEvents, m_cfg.jobStore );
 
   // skip the events if necessary
   if (skipEvents) {
@@ -57,23 +63,33 @@ FW::Sequencer::processEventLoop(size_t nEvents, size_t skipEvents)
   }
   // execute the event loop
   for (size_t ievent = 0; ievent < nEvents; ++ievent) {
-    ACTS_INFO("==> EVENT " << skipEvents + ievent << " <== start. ");
+    const size_t eventNumber = skipEvents + ievent;
+    ACTS_INFO("==> EVENT " << eventNumber << " <== start. ");
+    
+    // Setup the event and algorithm context
+    const auto eventStore = std::make_shared<WhiteBoard>(
+      Acts::getDefaultLogger("EventStore#"+std::to_string(eventNumber),
+                             m_cfg.eventStoreLogLevel));
+    const auto eventContext = std::make_shared<const EventContext>(
+      eventNumber, eventStore, jobContext );
+    size_t ialg = 0;
+    
     // a) then call read on all io algoirhtms
-    for (auto& ioalg : m_cfg.ioAlgorithms) {
-      if (ioalg->read(skipEvents + ievent) != ProcessCode::SUCCESS)
+    for (const auto& ioalg : m_cfg.ioAlgorithms) {
+      if (ioalg->read({ ialg++, eventContext }) != ProcessCode::SUCCESS)
         return ProcessCode::ABORT;
     }
     // b) now call execute for all event algorithms
-    for (auto& alg : m_cfg.eventAlgorithms) {
-      if (alg->execute(skipEvents + ievent) != ProcessCode::SUCCESS)
+    for (const auto& alg : m_cfg.eventAlgorithms) {
+      if (alg->execute({ ialg++, eventContext }) != ProcessCode::SUCCESS)
         return ProcessCode::ABORT;
     }
     // c) now call write to all io algoirhtms
-    for (auto& ioalg : m_cfg.ioAlgorithms) {
-      if (ioalg->write(skipEvents + ievent) != ProcessCode::SUCCESS)
+    for (const auto& ioalg : m_cfg.ioAlgorithms) {
+      if (ioalg->write({ ialg++, eventContext }) != ProcessCode::SUCCESS)
         return ProcessCode::ABORT;
     }
-    ACTS_INFO("<== EVENT " << skipEvents + ievent << " ==> done. ");
+    ACTS_INFO("<== EVENT " << eventNumber << " ==> done. ");
   }
   // return with success
   return ProcessCode::SUCCESS;

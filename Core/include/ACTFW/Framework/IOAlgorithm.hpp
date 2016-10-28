@@ -11,6 +11,7 @@
 #include <memory>
 #include <string>
 
+#include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace FW {
@@ -27,23 +28,22 @@ public:
   virtual ~IOAlgorithm() {}
   /// Framework intialize method
   virtual ProcessCode
-  initialize(std::shared_ptr<WhiteBoard> eventStore = nullptr,
-             std::shared_ptr<WhiteBoard> jobStore   = nullptr)
+  initialize(std::shared_ptr<WhiteBoard> jobStore   = nullptr)
       = 0;
 
-  /// Framework execode method
+  /// Skip a few events in the IO stream
   virtual ProcessCode
   skip(size_t nEvents = 1)
       = 0;
 
-  /// Framework execode method
+  /// Read out data from the input stream
   virtual ProcessCode
-  read(size_t eventNumber)
+  read(const AlgorithmContext context) const
       = 0;
 
-  /// Framework execode method
+  /// Write data to the output stream
   virtual ProcessCode
-  write(size_t eventNumber)
+  write(const AlgorithmContext context) const
       = 0;
 
   /// Framework finalize mehtod
@@ -54,10 +54,6 @@ public:
   /// Framework name() method
   virtual const std::string&
   name() const = 0;
-
-  /// return the eventStore - things that live per event
-  virtual std::shared_ptr<WhiteBoard>
-  eventStore() const = 0;
 
   /// return the jobStore - things that live for the full job
   virtual std::shared_ptr<WhiteBoard>
