@@ -73,10 +73,6 @@ public:
     return m_cfg.seed;
   }
 
-  /// Set the configuration
-  ProcessCode
-  setConfiguration(const Config& sfg);
-
 private:
   Config                        m_cfg;      ///< the configuration class
   std::unique_ptr<Acts::Logger> m_logger;
@@ -91,6 +87,10 @@ private:
   {
     return *m_logger;
   }
+
+  /// Set the configuration
+  ProcessCode
+  setConfiguration(const Config& sfg);
 };
 }
 
