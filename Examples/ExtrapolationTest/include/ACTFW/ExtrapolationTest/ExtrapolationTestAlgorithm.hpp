@@ -21,7 +21,7 @@ class IExtrapolationEngine;
 
 namespace FW {
 class WhiteBoard;
-class RandomNumbers;
+class RandomNumbersSvc;
 class IExtrapolationCellWriter;
 }
 
@@ -35,7 +35,7 @@ public:
   struct Config : public FW::Algorithm::Config
   {
     /// FW random number service
-    std::shared_ptr<FW::RandomNumbers> randomNumbers = nullptr;
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     /// the extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
     /// output writer
@@ -87,28 +87,29 @@ public:
 
   /// Framework intialize method
   FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> eventStore = nullptr,
-             std::shared_ptr<FW::WhiteBoard> jobStore   = nullptr) final;
+  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) override final;
 
   /// Framework execode method
   FW::ProcessCode
-  execute(size_t eventNumber) final;
+  execute(const FW::AlgorithmContext context) const override final;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() final;
+  finalize() override final;
 
 private:
   Config m_cfg;  //!< the config class
 
   double
-  drawGauss(const std::array<double, 2>& range) const;
+  drawGauss(FW::RandomNumbersSvc::Generator& rng,
+            const std::array<double, 2>& range) const;
   double
-  drawUniform(const std::array<double, 2>& range) const;
+  drawUniform(FW::RandomNumbersSvc::Generator& rng,
+              const std::array<double, 2>& range) const;
 
   template <class T>
   FW::ProcessCode
-  executeTestT(const T& startParameters);
+  executeTestT(const T& startParameters) const;
 };
 
 #include "ExtrapolationTestAlgorithm.ipp"

@@ -16,7 +16,7 @@
 
 namespace FW {
 class WhiteBoard;
-class RandomNumbers;
+class RandomNumbersSvc;
 }
 
 namespace FWE {
@@ -28,8 +28,8 @@ public:
   /// @class Config
   struct Config : public FW::Algorithm::Config
   {
-    std::shared_ptr<FW::RandomNumbers> randomNumbers = nullptr;
-    size_t                             drawsPerEvent = 0;
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    size_t                                drawsPerEvent = 0;
 
     Config() : FW::Algorithm::Config("RandomNumbersAlgorithm") {}
   };
@@ -45,16 +45,15 @@ public:
 
   /// Framework intialize method
   FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> eventStore = nullptr,
-             std::shared_ptr<FW::WhiteBoard> jobStore   = nullptr) final;
+  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) override final;
 
   /// Framework execode method
   FW::ProcessCode
-  execute(size_t eventNumber) final;
+  execute(const FW::AlgorithmContext context) const override final;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() final;
+  finalize() override final;
 
 private:
   Config m_cfg;  ///< the config class

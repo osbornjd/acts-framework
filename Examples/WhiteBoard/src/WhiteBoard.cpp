@@ -20,8 +20,7 @@ main(int argc, char* argv[])
   size_t nEvents = 10;
 
   // creating the data stores
-  auto eventStore = std::make_shared<FW::WhiteBoard>(
-      Acts::getDefaultLogger("EventStore", Acts::Logging::INFO));
+  Acts::Logging::Level eventStoreLogLevel = Acts::Logging::INFO;
   auto detectorStore = std::make_shared<FW::WhiteBoard>(
       Acts::getDefaultLogger("DetectorStore", Acts::Logging::INFO));
 
@@ -44,8 +43,8 @@ main(int argc, char* argv[])
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
-  seqConfig.eventBoard = eventStore;
-  seqConfig.jobBoard   = detectorStore;
+  seqConfig.eventStoreLogLevel = eventStoreLogLevel;
+  seqConfig.jobStore = detectorStore;
 
   // now create the sequencer
   FW::Sequencer sequencer(seqConfig);

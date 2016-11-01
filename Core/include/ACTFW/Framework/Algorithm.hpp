@@ -28,9 +28,7 @@ public:
   ///  nested class definition */
   struct Config
   {
-    /// the event WhiteBoard
-    std::shared_ptr<WhiteBoard> eBoard = nullptr;
-    /// the event JobBoard
+    /// the job WhiteBoard
     std::shared_ptr<WhiteBoard> jBoard = nullptr;
     /// the name of the algorithm
     std::string name = "Algorithm";
@@ -51,15 +49,16 @@ public:
 
   /// Framework intialize method
   ///
-  /// @param eventStore is the WhiteBoard that gets cleared every event
   /// @param jobStore is the WhiteBoard that gets cleared at the end of the job
   virtual ProcessCode
-  initialize(std::shared_ptr<WhiteBoard> eventStore = nullptr,
-             std::shared_ptr<WhiteBoard> jobStore   = nullptr) override;
+  initialize(std::shared_ptr<WhiteBoard> jobStore   = nullptr) override;
 
-  /// Framework execode method
+  /// Framework execute method
+  ///
+  /// @param context contains all the processing data that is specific to one
+  ///                algorithm execution: active event info, algorithm ID...
   virtual ProcessCode
-  execute(size_t eventNumber) override;
+  execute(const AlgorithmContext context) const override;
 
   /// Framework finalize mehtod
   virtual ProcessCode
@@ -67,15 +66,11 @@ public:
 
   /// Framework name() method
   const std::string&
-  name() const final;
-
-  /// return the eventStore - things that live per event
-  std::shared_ptr<WhiteBoard>
-  eventStore() const final;
+  name() const override final;
 
   /// return the jobStore - things that live for the full job
   std::shared_ptr<WhiteBoard>
-  jobStore() const final;
+  jobStore() const override final;
 
 protected:
   Config                        m_cfg;
@@ -88,12 +83,6 @@ protected:
     return *m_logger;
   }
 };
-
-inline std::shared_ptr<WhiteBoard>
-Algorithm::eventStore() const
-{
-  return m_cfg.eBoard;
-}
 
 inline std::shared_ptr<WhiteBoard>
 Algorithm::jobStore() const

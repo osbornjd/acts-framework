@@ -13,7 +13,8 @@ if (ROOT_FOUND)
     
     # setup include directories
     target_include_directories(ACTFWRootPlugins PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
-    target_include_directories (ACTFWRootPlugins PUBLIC ${ROOT_INCLUDE_DIRS})    
+    target_include_directories (ACTFWRootPlugins PUBLIC ${ROOT_INCLUDE_DIRS})
+    target_link_libraries(ACTFWRootPlugins PUBLIC Threads::Threads)
     target_link_libraries(ACTFWRootPlugins PUBLIC ACTS::ACTSCore ACTFramework)
     target_link_libraries(ACTFWRootPlugins PUBLIC Core Hist Tree)
     

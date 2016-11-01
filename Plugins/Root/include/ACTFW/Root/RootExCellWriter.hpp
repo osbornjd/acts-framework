@@ -8,6 +8,8 @@
 #ifndef ACTFW_PLUGINS_ROOTEXCELLWRITER_H
 #define ACTFW_PLUGINS_ROOTEXCELLWRITER_H 1
 
+#include <mutex>
+
 #include <TTree.h>
 
 #include "ACTFW/Framework/IService.hpp"
@@ -24,9 +26,11 @@ class TFile;
 
 namespace FWRoot {
 
-/// @class ExtrapolatiionCellWriter
+/// @class ExtrapolationCellWriter
 ///
-/// a root based implementation to write out extrapolation steps
+/// A root based implementation to write out extrapolation steps.
+///
+/// Safe to use from multiple writer threads.
 ///
 class RootExCellWriter : public FW::IExtrapolationCellWriter
 {
@@ -104,7 +108,8 @@ public:
 
 private:
   Config             m_cfg;               ///< the config class
-    
+
+  std::mutex         m_write_mutex;       ///< mutex used to protect multi-threaded writes
     
   TFile*             m_outputFile;        ///< the output file name
   

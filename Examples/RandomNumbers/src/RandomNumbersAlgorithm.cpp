@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "ACTFW/Random/RandomNumbers.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
     const FWE::RandomNumbersAlgorithm::Config& cfg,
@@ -17,11 +17,10 @@ FWE::RandomNumbersAlgorithm::~RandomNumbersAlgorithm()
 
 /** Framework finalize mehtod */
 FW::ProcessCode
-FWE::RandomNumbersAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> eStore,
-                                        std::shared_ptr<FW::WhiteBoard> jStore)
+FWE::RandomNumbersAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 {
   // call the algorithm initialize for setting the stores
-  if (FW::Algorithm::initialize(eStore, jStore) != FW::ProcessCode::SUCCESS) {
+  if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
     ACTS_FATAL("Algorithm::initialize() did not succeed!");
     return FW::ProcessCode::SUCCESS;
   }
@@ -31,13 +30,17 @@ FWE::RandomNumbersAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> eStore,
 
 /** Framework execode method */
 FW::ProcessCode
-FWE::RandomNumbersAlgorithm::execute(size_t eventNumber)
+FWE::RandomNumbersAlgorithm::execute(const FW::AlgorithmContext context) const
 {
+  // Create a random number generator
+  FW::RandomNumbersSvc::Generator rng =
+    m_cfg.randomNumbers->spawnGenerator(context);
+
   for (size_t idraw = 0; idraw < m_cfg.drawsPerEvent; ++idraw) {
-    double gauss   = m_cfg.randomNumbers->draw(FW::Distribution::gauss);
-    double uniform = m_cfg.randomNumbers->draw(FW::Distribution::uniform);
-    double landau  = m_cfg.randomNumbers->draw(FW::Distribution::landau);
-    double gamma   = m_cfg.randomNumbers->draw(FW::Distribution::gamma);
+    double gauss   = rng.draw(FW::Distribution::gauss);
+    double uniform = rng.draw(FW::Distribution::uniform);
+    double landau  = rng.draw(FW::Distribution::landau);
+    double gamma   = rng.draw(FW::Distribution::gamma);
 
     ACTS_VERBOSE("Gauss   : " << gauss);
     ACTS_VERBOSE("Uniform : " << uniform);

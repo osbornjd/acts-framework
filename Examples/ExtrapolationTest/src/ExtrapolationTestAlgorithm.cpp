@@ -1,6 +1,6 @@
 #include <iostream>
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Random/RandomNumbers.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
 #include "ACTS/EventData/NeutralParameters.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
@@ -24,11 +24,10 @@ FWE::ExtrapolationTestAlgorithm::~ExtrapolationTestAlgorithm()
 /** Framework finalize mehtod */
 FW::ProcessCode
 FWE::ExtrapolationTestAlgorithm::initialize(
-    std::shared_ptr<FW::WhiteBoard> eStore,
     std::shared_ptr<FW::WhiteBoard> jStore)
 {
   // call the algorithm initialize for setting the stores
-  if (FW::Algorithm::initialize(eStore, jStore) != FW::ProcessCode::SUCCESS) {
+  if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
     ACTS_FATAL("Algorithm::initialize() did not succeed!");
     return FW::ProcessCode::SUCCESS;
   }
@@ -38,19 +37,23 @@ FWE::ExtrapolationTestAlgorithm::initialize(
 
 /** Framework execode method */
 FW::ProcessCode
-FWE::ExtrapolationTestAlgorithm::execute(size_t eventNumber)
+FWE::ExtrapolationTestAlgorithm::execute(const FW::AlgorithmContext context) const
 {
+  // Create a random number generator
+  FW::RandomNumbersSvc::Generator rng =
+    m_cfg.randomNumbers->spawnGenerator(context);
+
   // loop
   for (size_t iex = 0; iex < m_cfg.testsPerEvent; ++iex) {
     // gaussian d0 and z0
-    double d0    = drawGauss(m_cfg.d0Defs);
-    double z0    = drawGauss(m_cfg.z0Defs);
-    double phi   = drawUniform(m_cfg.phiRange);
-    double eta   = drawUniform(m_cfg.etaRange);
+    double d0    = drawGauss(rng, m_cfg.d0Defs);
+    double z0    = drawGauss(rng, m_cfg.z0Defs);
+    double phi   = drawUniform(rng, m_cfg.phiRange);
+    double eta   = drawUniform(rng, m_cfg.etaRange);
     double theta = 2. * atan(exp(-eta));
-    double pt    = drawUniform(m_cfg.ptRange);
+    double pt    = drawUniform(rng, m_cfg.ptRange);
     double p     = pt / sin(theta);
-    double q     = drawUniform({{0., 1.}}) > 0.5 ? 1. : -1.;
+    double q     = drawUniform(rng, {{0., 1.}}) > 0.5 ? 1. : -1.;
 
     Acts::Vector3D momentum(
         p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta));
@@ -98,19 +101,21 @@ FWE::ExtrapolationTestAlgorithm::finalize()
 
 double
 FWE::ExtrapolationTestAlgorithm::drawGauss(
-    const std::array<double, 2>& pars) const
+    FW::RandomNumbersSvc::Generator& rng,
+    const std::array<double, 2> & pars) const
 {
   double mean  = pars[0];
   double sigma = pars[1];
-  return mean + m_cfg.randomNumbers->draw(FW::Distribution::gauss) * sigma;
+  return mean + rng.draw(FW::Distribution::gauss) * sigma;
 }
 
 double
 FWE::ExtrapolationTestAlgorithm::drawUniform(
+    FW::RandomNumbersSvc::Generator& rng,
     const std::array<double, 2>& range) const
 {
   double low   = range[0];
   double high  = range[1];
   double delta = high - low;
-  return low + m_cfg.randomNumbers->draw(FW::Distribution::uniform) * delta;
+  return low + rng.draw(FW::Distribution::uniform) * delta;
 }

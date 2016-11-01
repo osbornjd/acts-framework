@@ -11,7 +11,7 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
-template <class T> FW::ProcessCode ExtrapolationTestAlgorithm::executeTestT(const T& startParameters) {
+template <class T> FW::ProcessCode ExtrapolationTestAlgorithm::executeTestT(const T& startParameters) const {
 
 
     // setup the extrapolation how you'd like it
