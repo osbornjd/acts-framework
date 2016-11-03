@@ -1,5 +1,3 @@
-# manually trigger build of DD4Hep example
-option (BUILD_DD4HEP_EXAMPLE "build DD4HEP example" OFF)
 
   # find the ACTS package
   find_package(ACTS COMPONENTS Core TGeoPlugin DD4hepPlugin)
@@ -26,10 +24,8 @@ option (BUILD_DD4HEP_EXAMPLE "build DD4HEP example" OFF)
       target_link_libraries(ACTFWDD4hepDetector PUBLIC ACTS::ACTSCore ACTS::ACTSDD4hepPlugin)
       target_link_libraries(ACTFWDD4hepDetector PRIVATE ACTFramework)
       target_link_libraries(ACTFWDD4hepDetector PUBLIC ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES})
-    target_link_libraries (ACTFWDD4hepDetector PUBLIC "-L/afs/cern.ch/sw/lcg/releases/LCG_83/ROOT/6.06.00/x86_64-slc6-gcc49-opt/lib -lGeom" ${DD4hep_LIBRARIES})
 
       install(TARGETS ACTFWDD4hepDetector LIBRARY DESTINATION lib)
-
 
       cmake_minimum_required(VERSION 2.8.3 FATAL_ERROR)
 
