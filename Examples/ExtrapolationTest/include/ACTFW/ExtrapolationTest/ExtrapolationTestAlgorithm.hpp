@@ -111,8 +111,7 @@ private:
   FW::ProcessCode
   executeTestT(const T& startParameters) const;
 };
-
-#include "ExtrapolationTestAlgorithm.ipp"
 }
+#include "ExtrapolationTestAlgorithm.ipp"
 
 #endif

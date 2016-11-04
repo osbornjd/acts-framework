@@ -10,8 +10,9 @@
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
-template <class T> FW::ProcessCode ExtrapolationTestAlgorithm::executeTestT(const T& startParameters) const {
+template <class T> FW::ProcessCode FWE::ExtrapolationTestAlgorithm::executeTestT(const T& startParameters) const {
 
 
     // setup the extrapolation how you'd like it
