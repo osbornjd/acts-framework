@@ -1,5 +1,5 @@
 
-template <class T> FW::ProcessCode RootExCellWriter::writeT(const Acts::ExtrapolationCell<T>& eCell)
+template <class T> FW::ProcessCode FWRoot::RootExCellWriter::writeT(const Acts::ExtrapolationCell<T>& eCell)
 {
     {
         std::lock_guard<std::mutex> lock(m_write_mutex);

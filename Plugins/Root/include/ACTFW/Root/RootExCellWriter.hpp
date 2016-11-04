@@ -156,8 +156,8 @@ RootExCellWriter::name() const
 {
   return m_cfg.name;
 }
+}
 
 #include "RootExCellWriter.ipp"
-}
 
 #endif  // ACTFW_PLUGINS_ROOTEXCELLWRITER_H
