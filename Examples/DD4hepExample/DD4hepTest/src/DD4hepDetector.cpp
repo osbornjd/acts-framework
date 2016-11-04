@@ -8,7 +8,7 @@
 #include "ACTFW/ExtrapolationTest/ExtrapolationUtils.hpp"
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Random/RandomNumbers.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Root/RootExCellWriter.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Examples/BuildGenericDetector.hpp"
@@ -62,13 +62,13 @@ extrapolation(std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
       = FWE::initExtrapolator(tGeometry, magField, eLogLevel);
 
   // RANDOM NUMBERS - Create the random number engine
-  FW::RandomNumbers::Config brConfig;
+  FW::RandomNumbersSvc::Config brConfig;
   brConfig.gauss_parameters   = {{0., 1.}};
   brConfig.uniform_parameters = {{0., 1.}};
   brConfig.landau_parameters  = {{1., 7.}};
   brConfig.gamma_parameters   = {{1., 1.}};
-  std::shared_ptr<FW::RandomNumbers> randomNumbers(
-      new FW::RandomNumbers(brConfig));
+  std::shared_ptr<FW::RandomNumbersSvc> randomNumbers(
+      new FW::RandomNumbersSvc(brConfig));
 
   // Write ROOT TTree
   FWRoot::RootExCellWriter::Config recWriterConfig("RootExCellWriter",
