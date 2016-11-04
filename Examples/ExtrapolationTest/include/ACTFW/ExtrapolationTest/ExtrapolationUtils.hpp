@@ -25,8 +25,8 @@ template <class MagneticField = Acts::ConstantBField>
 std::unique_ptr<Acts::IExtrapolationEngine>
     initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, std::shared_ptr<MagneticField> magField, Acts::Logging::Level eLogLevel);
 
-#include "ExtrapolationUtils.ipp"
-
 }
+
+#include "ExtrapolationUtils.ipp"
 
 #endif //ACTFW_EXTRAPOLATIONUTILS
