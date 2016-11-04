@@ -17,8 +17,6 @@
 #include "ACTS/Extrapolation/RungeKuttaEngine.hpp"
 #include "ACTS/Extrapolation/StaticEngine.hpp"
 #include "ACTS/Extrapolation/StaticNavigationEngine.hpp"
-#include "ACTS/MagneticField/ConstantFieldSvc.hpp"
-#include "ACTS/Plugins/DD4hepPlugins/DD4hepCylinderGeometryBuilder.hpp"
 #include "ACTS/Tools/CylinderVolumeBuilder.hpp"
 #include "ACTS/Tools/CylinderVolumeHelper.hpp"
 #include "ACTS/Tools/LayerArrayCreator.hpp"
@@ -38,6 +36,9 @@ trackingGeometry(std::string xmlFileName, Acts::Logging::Level lvl)
                                                  Acts::Logging::VERBOSE);
   gsConfig.xmlFileName = xmlFileName;
   gsConfig.lvl         = lvl;
+  gsConfig.bTypePhi    = Acts::equidistant;
+  gsConfig.bTypeR      = Acts::equidistant;
+  gsConfig.bTypeZ      = Acts::equidistant;
   auto geometrySvc = std::make_shared<DD4hepPlugin::GeometryService>(gsConfig);
 
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
@@ -53,15 +54,12 @@ extrapolation(std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
   size_t nEvents = 1000;
 
   // set up the magnetic field
-  Acts::ConstantFieldSvc::Config cffConfig;
-  cffConfig.name  = "ConstantMagField";
-  cffConfig.field = {{0., 0., 0.002}};
-  std::shared_ptr<Acts::IMagneticFieldSvc> magFieldSvc(
-      new Acts::ConstantFieldSvc(cffConfig));
+  std::shared_ptr<Acts::ConstantBField> magField(
+      new Acts::ConstantBField{{0., 0., 0.002}});  // field is given in kT
 
   // EXTRAPOLATOR - set up the extrapolator
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
-      = FWE::initExtrapolator(tGeometry, magFieldSvc, eLogLevel);
+      = FWE::initExtrapolator(tGeometry, magField, eLogLevel);
 
   // RANDOM NUMBERS - Create the random number engine
   FW::RandomNumbers::Config brConfig;
@@ -75,24 +73,28 @@ extrapolation(std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
   // Write ROOT TTree
   FWRoot::RootExCellWriter::Config recWriterConfig("RootExCellWriter",
                                                    eLogLevel);
-  recWriterConfig.fileName = "$PWD/ExtrapolationTestion.root";
-  recWriterConfig.treeName = "ExtrapolationTestion";
+  recWriterConfig.fileName       = "$PWD/ExtrapolationTestion.root";
+  recWriterConfig.treeName       = "ExtrapolationTestion";
+  recWriterConfig.writeBoundary  = false;
+  recWriterConfig.writeMaterial  = false;
+  recWriterConfig.writeSensitive = true;
+  recWriterConfig.writePassive   = false;
   std::shared_ptr<FW::IExtrapolationCellWriter> rootEcWriter(
       new FWRoot::RootExCellWriter(recWriterConfig));
 
   // the Algorithm with its configurations
   FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
-  eTestConfig.name                    = "ExtrapolationEngineTest";
   eTestConfig.testsPerEvent           = 100;
   eTestConfig.parameterType           = 0;
+  eTestConfig.searchMode              = 1;
   eTestConfig.extrapolationEngine     = extrapolationEngine;
   eTestConfig.extrapolationCellWriter = rootEcWriter;
   eTestConfig.randomNumbers           = randomNumbers;
-  eTestConfig.d0Defs                  = {{0., 2.}};
-  eTestConfig.z0Defs                  = {{0., 50.}};
+  eTestConfig.d0Defs                  = {{0., 0.}};
+  eTestConfig.z0Defs                  = {{0., 0.}};
   eTestConfig.phiRange                = {{-M_PI, M_PI}};
-  eTestConfig.etaRange                = {{-1., 1.}};
-  eTestConfig.ptRange                 = {{10000., 100000.}};
+  eTestConfig.etaRange                = {{-5., 5.}};
+  eTestConfig.ptRange                 = {{1000., 100000.}};
   eTestConfig.particleType            = 3;
   eTestConfig.collectSensitive        = true;
   eTestConfig.collectPassive          = true;
@@ -118,4 +120,4 @@ extrapolation(std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
   // finalize loop
   sequencer.finalizeEventLoop();
 }
-}
+}  // end of namespace DD4hepExample

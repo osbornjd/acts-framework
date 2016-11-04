@@ -1,10 +1,12 @@
 #include "ACTFW/DD4hepPlugin/GeometryService.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Plugins/DD4hepPlugins/DD4hepCylinderGeometryBuilder.hpp"
+#include "ACTS/Plugins/DD4hepPlugins/ConvertDD4hepDetector.hpp"
 #include "ACTS/Tools/CylinderVolumeBuilder.hpp"
 #include "ACTS/Tools/CylinderVolumeHelper.hpp"
 #include "ACTS/Tools/LayerArrayCreator.hpp"
+#include "ACTS/Tools/SurfaceArrayCreator.hpp"
 #include "ACTS/Tools/TrackingVolumeArrayCreator.hpp"
+#include "ACTS/Utilities/BinningType.hpp"
 
 DD4hepPlugin::GeometryService::GeometryService(
     const DD4hepPlugin::GeometryService::Config& cfg)
@@ -71,34 +73,9 @@ DD4hepPlugin::GeometryService::tgeoGeometry()
 FW::ProcessCode
 DD4hepPlugin::GeometryService::buildTrackingGeometry()
 {
-  // hand over LayerArrayCreator
-  auto layerArrayCreator = std::make_shared<Acts::LayerArrayCreator>(
-      Acts::getDefaultLogger("LayArrayCreator", m_cfg.lvl));
-  // tracking volume array creator
-  auto trackingVolumeArrayCreator
-      = std::make_shared<Acts::TrackingVolumeArrayCreator>(
-          Acts::getDefaultLogger("TrkVolArrayCreator", m_cfg.lvl));
-  // configure the cylinder volume helper
-  Acts::CylinderVolumeHelper::Config cvhConfig;
-  cvhConfig.layerArrayCreator          = layerArrayCreator;
-  cvhConfig.trackingVolumeArrayCreator = trackingVolumeArrayCreator;
-  auto cylinderVolumeHelper = std::make_shared<Acts::CylinderVolumeHelper>(
-      cvhConfig, Acts::getDefaultLogger("CylVolHelper", m_cfg.lvl));
-  // configure the volume builder
-  Acts::CylinderVolumeBuilder::Config pvbConfig;
-  pvbConfig.trackingVolumeHelper = cylinderVolumeHelper;
-  pvbConfig.volumeSignature      = 0;
-  auto cylinderVolumeBuilder = std::make_shared<Acts::CylinderVolumeBuilder>(
-      pvbConfig, Acts::getDefaultLogger("CylVolBuilder", m_cfg.lvl));
-  // configure geometry builder with the surface array creator
-  Acts::DD4hepCylinderGeometryBuilder::Config cgConfig;
-  cgConfig.detWorld      = dd4hepGeometry();
-  cgConfig.volumeHelper  = cylinderVolumeHelper;
-  cgConfig.volumeBuilder = cylinderVolumeBuilder;
-  auto geometryBuilder = std::make_shared<Acts::DD4hepCylinderGeometryBuilder>(
-      cgConfig, Acts::getDefaultLogger("DD4hepCylGeoBuilder", m_cfg.lvl));
   // set the tracking geometry
-  m_trackingGeometry = std::move(geometryBuilder->trackingGeometry());
+  m_trackingGeometry = std::move(Acts::convertDD4hepDetector(
+      dd4hepGeometry(), m_cfg.lvl, m_cfg.bTypePhi, m_cfg.bTypeR, m_cfg.bTypeZ));
   return FW::ProcessCode::SUCCESS;
 }
 
