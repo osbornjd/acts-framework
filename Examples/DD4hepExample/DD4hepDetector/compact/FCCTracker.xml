@@ -114,7 +114,7 @@
         
         <!-------------------------------------------------------->
         <!--Envelope1-->
-        <constant name="Env1_rmin"          value="1.*cm"/>
+        <constant name="Env1_rmin"          value="1.9*cm"/>
         <constant name="Env1_rmax"          value="156.45*cm"/>
         <constant name="Env1_dz"            value="500.*cm"/>
         <!--Barrel1-->
@@ -160,7 +160,7 @@
         <constant name="E1_L3_pos"          value="-62.25*cm"/>
         <!-------------------------------------------------------->
         <!--Envelope2-->
-        <constant name="Env2_rmin"          value="1.*cm"/>
+        <constant name="Env2_rmin"          value="1.9*cm"/>
         <constant name="Env2_rmax"          value="252*cm"/>
         <constant name="Env2_dz"            value="800.*cm"/>
         <!--Barrel2-->
