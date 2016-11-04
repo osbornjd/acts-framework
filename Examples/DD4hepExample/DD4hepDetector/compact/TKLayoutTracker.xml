@@ -25,11 +25,11 @@
         <constant name="world_z" value="world_size"/>
         <!-------------------------------------------------------->
         <!--Envelope0-->
-        <constant name="Env0_rmin"          value="21*mm"/>
+        <constant name="Env0_rmin"          value="19*mm"/>
         <constant name="Env0_rmax"          value="800.*mm"/>
-        <constant name="Env0_dz"            value="3100.*mm"/>
+        <constant name="Env0_dz"            value="10.95*m"/>
         <!--Barrel0-->
-        <constant name="B0_rmin"            value="21*mm"/>
+        <constant name="B0_rmin"            value="20*mm"/>
         <constant name="B0_rmax"            value="700*mm"/>
         <constant name="B0_dz"              value="1100*mm"/>
         <constant name="B0_zpos"            value="0.*mm"/>
@@ -37,7 +37,7 @@
         <constant name="B0_L0_rmin"         value="21.5*mm"/>
         <constant name="B0_L0_rmax"         value="31.5*mm"/>
         <constant name="B0_L0_M_repeatPhi"  value="14"/>
-        <constant name="B0_L0_M_repeatZ"    value="23"/>
+        <constant name="B0_L0_M_repeatZ"    value="21"/>
         <constant name="B0_L0_dz"           value="500.*mm"/>
         <!--Layer1-->
         <constant name="B0_L1_rmin"         value="62*mm"/>
@@ -151,7 +151,7 @@
         <constant name="B0_L8_M_offsetRZ"       value="3.*mm"/>
         <constant name="B0_L8_M_offsetR"        value="3.0*mm"/>
         <!--EndCap0-->
-        <constant name="E0_rmin"            value="21.*mm"/>
+        <constant name="E0_rmin"            value="20.*mm"/>
         <constant name="E0_rmax"            value="700.*mm"/>
         <constant name="E0_dz"              value="1000.*mm"/>
         <constant name="pE0_zpos"           value="2100.*mm"/>
@@ -215,11 +215,11 @@
         <!-------------------------------------------------------->
         <!--Envelope1-->
         <constant name="Env1_rmin"          value="21.*mm"/>
-        <constant name="Env1_rmax"          value="5000.*mm"/><!--Old:3000.*mm now for forward tracker bigger, change later-->
+        <constant name="Env1_rmax"          value="2500.1*mm"/><!--Old:3000.*mm now for forward tracker bigger, change later-->
         <constant name="Env1_dz"            value="30.*m"/><!--Old:9000.*mm now for forward tracker bigger, change later-->
         <!--Barrel1-->
         <constant name="B1_rmin"            value="810.*mm"/>
-        <constant name="B1_rmax"            value="4000.*mm"/><!--Old:2400.*mm now for forward tracker bigger, change later-->
+        <constant name="B1_rmax"            value="2500.*mm"/><!--Old:2400.*mm now for forward tracker bigger, change later-->
         <constant name="B1_dz"              value="3100.*mm"/>
         <constant name="B1_zpos"            value="0.*mm"/>
         <!--Layer0-->
@@ -329,8 +329,8 @@
         
         <!--EndCap1-->
         <constant name="E1_rmin"            value="21.*mm"/>
-        <constant name="E1_rmax"            value="4000.*mm"/> <!--Old:2405.*mm now for forward tracker bigger, change later-->
-        <constant name="E1_dz"              value="10.95*m"/> <!--Old:2500.*mm now for forward tracker bigger, change later-->
+        <constant name="E1_rmax"            value="2405.*mm*mm"/> <!--Old:2405.*mm now for forward tracker bigger, change later-->
+        <constant name="E1_dz"              value="2500.*m"/> <!--Old:2500.*mm now for forward tracker bigger, change later-->
         <constant name="pE1_zpos"           value="14.05*m"/>
         <constant name="nE1_zpos"           value="-14.05*m"/>
         <!--Layers-->
@@ -348,7 +348,7 @@
         <constant name="E1_L8_pos"          value="1697.9*mm"/>
         <constant name="E1_L9_pos"          value="2400.*mm"/>-->
         <constant name="E1_L_rmin"          value="23.*mm"/>
-        <constant name="E1_L_rmax"          value="3500.*mm"/><!--Old:2401.5.*mm now for forward tracker bigger, change later-->
+        <constant name="E1_L_rmax"          value="2401.5*mm"/><!--Old:2401.5.*mm now for forward tracker bigger, change later-->
         <constant name="E1_L_dz"            value="6.*cm"/>
         <constant name="E1_L0_pos"          value="-10550.*mm"/>
         <constant name="E1_L1_pos"          value="-10213.3*mm"/>
@@ -593,7 +593,7 @@
         <vis name="BlueVisTrans" alpha="0.1" r="0.0" g="0.0" b="1.0" showDaughters="true" visible="false"/>
         <vis name="BarrelVis" alpha="1" r="1.0" g="0.0" b="0.0" showDaughters="true" visible="false"/>
         <vis name="EndCapVis" alpha="1" r="0.0" g="0.0" b="1.0" showDaughters="true" visible="false"/>
-        <vis name="BarrelLayerVis" alpha="1" r="0.0" g="1.0" b="0.0" showDaughters="true" visible="true"/>
+        <vis name="BarrelLayerVis" alpha="1" r="0.0" g="1.0" b="0.0" showDaughters="true" visible="false"/>
         <vis name="EndcapLayerVis" alpha="1" r="1.0" g="0.0" b="1.0" showDaughters="true" visible="false"/>
     </display>
 
