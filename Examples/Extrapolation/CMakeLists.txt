@@ -1,4 +1,4 @@
-# get list of all source files
+#get list of all source files
 file (GLOB_RECURSE src_files "src/*.*pp")
 
 # find the ACTS package
@@ -6,27 +6,23 @@ file (GLOB_RECURSE src_files "src/*.*pp")
 find_package(ACTS REQUIRED COMPONENTS Core Examples)
 
 # define library target
-add_library(ACTFWExtrapolationExample SHARED ${src_files})
+add_library(ACTFWExtrapolation SHARED ${src_files})
 # define executable 
-add_executable(ACTFWExtrapolationTest bin/ExtrapolationTest.cpp)
+add_executable(ACTFWExtrapolationExample bin/ExtrapolationTest.cpp)
 
-# setup include directories for ExtrapolationExample
-target_include_directories(ACTFWExtrapolationExample PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
+# setup include directories for ACTFWExtrapolation library
+target_include_directories(ACTFWExtrapolation PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
+target_include_directories(ACTFWExtrapolation PUBLIC ACTFWRootPlugins)
+target_link_libraries(ACTFWExtrapolation PUBLIC ACTS::ACTSCore ACTS::ACTSExamples)
+target_link_libraries(ACTFWExtrapolation PUBLIC ACTFramework ACTFWRootPlugins)
 
-target_include_directories(ACTFWExtrapolationExample PUBLIC ACTFWRootPlugins)
-target_link_libraries(ACTFWExtrapolationExample PUBLIC ACTS::ACTSCore ACTS::ACTSExamples)
-target_link_libraries(ACTFWExtrapolationExample PUBLIC ACTFramework ACTFWRootPlugins)
-
-# setup include directories for ExtrapolationTest
-target_link_libraries(ACTFWExtrapolationTest PRIVATE ACTS::ACTSCore ACTS::ACTSExamples)
-target_link_libraries(ACTFWExtrapolationTest PRIVATE ACTFramework ACTFWRootPlugins)
-target_link_libraries(ACTFWExtrapolationTest PRIVATE ACTFWExtrapolationExample)
+# setup include directories for ACTFWExtrapolationExample
+target_link_libraries(ACTFWExtrapolationExample PRIVATE ACTS::ACTSCore ACTS::ACTSExamples)
+target_link_libraries(ACTFWExtrapolationExample PRIVATE ACTFramework ACTFWRootPlugins)
+target_link_libraries(ACTFWExtrapolationExample PRIVATE ACTFWExtrapolation)
 
 # set installation directories
-install(TARGETS ACTFWExtrapolationExample LIBRARY DESTINATION lib)
-install(TARGETS ACTFWExtrapolationTest RUNTIME DESTINATION bin)
-install(DIRECTORY include/ACTFW/ExtrapolationTest DESTINATION include)
-
-
-
+install(TARGETS ACTFWExtrapolation LIBRARY DESTINATION lib)
+install(TARGETS ACTFWExtrapolationExample RUNTIME DESTINATION bin)
+install(DIRECTORY include/ACTFW/Extrapolation DESTINATION include)
 

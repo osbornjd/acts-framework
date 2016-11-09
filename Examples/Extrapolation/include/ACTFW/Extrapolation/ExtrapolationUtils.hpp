@@ -7,13 +7,12 @@
 
 #include <memory>
 
-#include "ACTS/MagneticField/ConstantBField.hpp"
 #include "ACTS/Utilities/Logger.hpp"
+#include "ACTS/MagneticField/ConstantBField.hpp"
 
 namespace Acts {
     class IExtrapolationEngine;
     class TrackingGeometry;
-    class IMagneticFieldSvc;
 }
 
 namespace FWE {

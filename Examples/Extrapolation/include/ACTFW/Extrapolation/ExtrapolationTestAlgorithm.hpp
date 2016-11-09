@@ -86,16 +86,16 @@ public:
   ~ExtrapolationTestAlgorithm();
 
   /// Framework intialize method
-  FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) override final;
+  virtual FW::ProcessCode
+  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) final;
 
   /// Framework execode method
-  FW::ProcessCode
-  execute(const FW::AlgorithmContext context) const override final;
+  virtual FW::ProcessCode
+  execute(const FW::AlgorithmContext context) const final;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() override final;
+  finalize() final;
 
 private:
   Config m_cfg;  //!< the config class

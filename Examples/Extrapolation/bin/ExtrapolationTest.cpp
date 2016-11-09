@@ -17,8 +17,8 @@
 #include "ACTS/Extrapolation/StaticEngine.hpp"
 #include "ACTS/Extrapolation/StaticNavigationEngine.hpp"
 #include "ACTS/MagneticField/ConstantBField.hpp"
-#include "ACTFW/ExtrapolationTest/ExtrapolationTestAlgorithm.hpp"
-#include "ACTFW/ExtrapolationTest/ExtrapolationUtils.hpp"
+#include "ACTFW/Extrapolation/ExtrapolationTestAlgorithm.hpp"
+#include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 
 // the main hello world executable
 int

@@ -2,13 +2,13 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
+#include "ACTFW/Extrapolation/ExtrapolationTestAlgorithm.hpp"
 #include "ACTS/EventData/NeutralParameters.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
 #include "ACTS/Surfaces/PerigeeSurface.hpp"
 #include "ACTS/Utilities/Definitions.hpp"
-#include "ACTFW/ExtrapolationTest/ExtrapolationTestAlgorithm.hpp"
 
 FWE::ExtrapolationTestAlgorithm::ExtrapolationTestAlgorithm(
     const FWE::ExtrapolationTestAlgorithm::Config& cfg,
@@ -35,7 +35,6 @@ FWE::ExtrapolationTestAlgorithm::initialize(
   return FW::ProcessCode::SUCCESS;
 }
 
-/** Framework execode method */
 FW::ProcessCode
 FWE::ExtrapolationTestAlgorithm::execute(const FW::AlgorithmContext context) const
 {
