@@ -49,7 +49,7 @@ FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext & context) const
    const unsigned int generatorID =
        context.algorithmNumber * eventContext->jobContext->eventCount
      + eventContext->eventNumber;
-
+   
    return Generator{ m_cfg, m_cfg.seed + generatorID };
 }
 
@@ -73,7 +73,7 @@ double
 }
 
 double
-  FW::RandomNumbersSvc::draw(FW::Distribution dPar)
+FW::RandomNumbersSvc::draw(FW::Distribution dPar)
 {
   return m_rng.draw(dPar);
 }

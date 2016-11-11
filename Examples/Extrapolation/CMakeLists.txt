@@ -8,7 +8,7 @@ find_package(ACTS REQUIRED COMPONENTS Core Examples)
 # define library target
 add_library(ACTFWExtrapolation SHARED ${src_files})
 # define executable 
-add_executable(ACTFWExtrapolationExample bin/ExtrapolationTest.cpp)
+add_executable(ACTFWExtrapolationExample bin/ExtrapolationExample.cpp)
 
 # setup include directories for ACTFWExtrapolation library
 target_include_directories(ACTFWExtrapolation PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)

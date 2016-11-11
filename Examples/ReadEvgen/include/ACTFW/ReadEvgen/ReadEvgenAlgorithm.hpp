@@ -14,7 +14,7 @@
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/IOAlgorithm.hpp"
-#include "ACTFW/Readers/IEvgenReader.hpp"
+#include "ACTFW/Readers/IParticleReader.hpp"
 
 namespace FW {
 class WhiteBoard;
@@ -39,21 +39,20 @@ public:
   struct Config {
     
     /// name of the output collection
-    std::string                            vertexCollectionName      = "ProcessVertices";
+    std::string                            particleCollectionName    = "SimulationParticles";
     /// the hard scatter reader
-    std::shared_ptr<FW::IEvgenReader>      hardscatterEvgenReader    = nullptr;
+    std::shared_ptr<FW::IParticleReader>   hardscatterParticleReader = nullptr;
     /// the pileup reader                                           
-    std::shared_ptr<FW::IEvgenReader>      pileupEvgenReader         = nullptr;
+    std::shared_ptr<FW::IParticleReader>   pileupParticleReader      = nullptr;
     /// the number of pileup events                                 
-    size_t                                 pileupEvents              = 0;
     FW::Distribution                       pileupType                = FW::Distribution::poisson;
     std::shared_ptr<FW::RandomNumbersSvc>  pileupRandomNumbers       = nullptr;
-                                                                     
+    std::shared_ptr<FW::RandomNumbersSvc>  pileupVertexDistT         = nullptr;
+    std::shared_ptr<FW::RandomNumbersSvc>  pileupVertexDistZ         = nullptr;
     /// the job WhiteBoard                                           
     std::shared_ptr<FW::WhiteBoard>        jBoard                    = nullptr;
     /// the name of the algorithm
     std::string name = "Algorithm";
-  
       
     Config()
     {

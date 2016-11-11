@@ -16,8 +16,8 @@ FW::ProcessCode
 FWE::ReadEvgenAlgorithm::skip(size_t nEvents)
 {
   // there is a hard scatter evgen reader
-  if (m_cfg.hardscatterEvgenReader)
-      m_cfg.hardscatterEvgenReader->skip(nEvents);
+  if (m_cfg.hardscatterParticleReader)
+      m_cfg.hardscatterParticleReader->skip(nEvents);
   
   return FW::ProcessCode::SUCCESS;  
 }
@@ -33,48 +33,71 @@ FWE::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
   ACTS_DEBUG("Reading in genertated event info for event no. " << eventNumber);
   
   // Create a random number generator
-  FW::RandomNumbersSvc::Generator rng =
+  FW::RandomNumbersSvc::Generator rngPileup =
     m_cfg.pileupRandomNumbers->spawnGenerator(context);
+
+  FW::RandomNumbersSvc::Generator rngVertexT =
+    m_cfg.pileupVertexDistT->spawnGenerator(context);
+
+  FW::RandomNumbersSvc::Generator rngVertexZ =
+    m_cfg.pileupVertexDistZ->spawnGenerator(context);
   
   // prepare the output vector
-  std::vector< std::unique_ptr<Acts::ProcessVertex> >* eventVertices
-    = new std::vector< std::unique_ptr<Acts::ProcessVertex> >;
+  std::vector< Acts::ParticleProperties >* eventParticles
+    = new std::vector< Acts::ParticleProperties >;
   
   // get the hard scatter if you have it
-  std::vector< Acts::ProcessVertex > hardscatterVertices = {};
-  if (m_cfg.hardscatterEvgenReader)
-      hardscatterVertices = m_cfg.hardscatterEvgenReader->processVertices();
+  std::vector< Acts::ParticleProperties > hardscatterParticles = {};
+  if (m_cfg.hardscatterParticleReader)
+      hardscatterParticles = m_cfg.hardscatterParticleReader->particles();
   
-  ACTS_VERBOSE("- number of hard scatter events   : "
-                         << (hardscatterVertices.size()> 0 ? 1 : 0) );
+  ACTS_VERBOSE("- [HS X] number of hard scatter particles   : "
+                         << (hardscatterParticles.size()> 0 ? 1 : 0) );
   
   // generate the number of pileup events
-  size_t nPileUpEvents = (m_cfg.pileupEvents && m_cfg.pileupRandomNumbers) ?
-    size_t(rng.draw(FW::Distribution::poisson)) : 0;
+  size_t nPileUpEvents = m_cfg.pileupRandomNumbers ?
+         size_t(rngPileup.draw(FW::Distribution::poisson)) : 0;
   
-  ACTS_VERBOSE("- number of in-time pileup events : " << nPileUpEvents);
+  ACTS_VERBOSE("- [PU X] number of in-time pileup events : " << nPileUpEvents);
   
-  // pile-up events have one vertex usually
-  eventVertices->reserve(nPileUpEvents+hardscatterVertices.size());
+  // reserve a lot
+  eventParticles->reserve((nPileUpEvents)*hardscatterParticles.size()*2);
   
-  // fill in the hard scatter vertics
-  for (auto& hsVertex : hardscatterVertices)
-    eventVertices->push_back(std::make_unique<Acts::ProcessVertex>(hsVertex));
+  //
+  // reserve quite a lot of space
+  double vertexX = rngVertexT.draw(FW::Distribution::gauss);
+  double vertexY = rngVertexT.draw(FW::Distribution::gauss);
+  double vertexZ = rngVertexZ.draw(FW::Distribution::gauss);
+  Acts::Vector3D vertex(vertexX,vertexY,vertexZ);
   
+  
+  // fill in the particles
+  for (auto& hsParticle : hardscatterParticles ){
+    // shift the particle by the vertex
+    hsParticle.shift(vertex);
+    // now push-back
+    eventParticles->push_back(hsParticle);
+  }
+    
   // loop over the pile-up vertices
   for (size_t ipue = 0; ipue < nPileUpEvents; ++ipue){
+    // reserve quite a lot of space
+    double puVertexX = rngVertexT.draw(FW::Distribution::gauss);
+    double puVertexY = rngVertexT.draw(FW::Distribution::gauss);
+    double puVertexZ = rngVertexZ.draw(FW::Distribution::gauss);
+    Acts::Vector3D puVertex(puVertexX,puVertexY,puVertexZ);
     // get the vertices per pileup event
-    auto pileupVertices = m_cfg.pileupEvgenReader->processVertices();
-    for (auto& puVertex : pileupVertices)
-      eventVertices->push_back(std::make_unique<Acts::ProcessVertex>(puVertex));
+    auto pileupPartiles = m_cfg.pileupParticleReader->particles();
+    ACTS_VERBOSE("- [PU " << ipue << "] number pile-up particles : " << pileupPartiles.size());
+    for (auto& puParticle : pileupPartiles){
+      puParticle.shift(puVertex);
+      eventParticles->push_back(puParticle);
+    }
   }
-  
-  // tell how many signal vertices to be processed
-  ACTS_VERBOSE("- total number of signal vertices : " << eventVertices->size());
   
   // write to the EventStore
   if (eventStore
-      && eventStore->writeT(eventVertices, m_cfg.vertexCollectionName)
+      && eventStore->writeT(eventParticles, m_cfg.particleCollectionName)
       == FW::ProcessCode::ABORT){
     ACTS_WARNING("Could not write colleciton of process vertices to event store.");
     return FW::ProcessCode::ABORT;  

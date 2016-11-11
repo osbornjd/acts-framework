@@ -7,7 +7,7 @@ find_package(ACTS REQUIRED COMPONENTS Core)
 # define library target
 add_library(ACTFWReadEvgen SHARED ${src_files})
 # define executable 
-#add_executable(ACTFWExtrapolationTest bin/ExtrapolationTest.cpp)
+add_executable(ACTFWReadEvgenExample bin/ReadEvgenExample.cpp)
 
 # setup include directories for ExtrapolationExample
 target_include_directories(ACTFWReadEvgen PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
@@ -16,11 +16,11 @@ target_link_libraries(ACTFWReadEvgen PUBLIC ACTS::ACTSCore)
 target_link_libraries(ACTFWReadEvgen PUBLIC ACTFramework ACTFWRootPlugins)
 
 # setup include directories for ExtrapolationTest
-#target_link_libraries(ACTFWExtrapolationTest PRIVATE ACTS::ACTSCore ACTS::ACTSExamples)
-#target_link_libraries(ACTFWExtrapolationTest PRIVATE ACTFramework ACTFWRootPlugins)
-#target_link_libraries(ACTFWExtrapolationTest PRIVATE ACTFWReadEvgen)
+target_link_libraries(ACTFWReadEvgenExample PRIVATE ACTS::ACTSCore)
+target_link_libraries(ACTFWReadEvgenExample PRIVATE ACTFramework ACTFWRootPlugins ACTFWRootPythia8Plugins)
+target_link_libraries(ACTFWReadEvgenExample PRIVATE ACTFWReadEvgen)
 
 # set installation directories
 install(TARGETS ACTFWReadEvgen LIBRARY DESTINATION lib)
-#install(TARGETS ACTFWExtrapolationTest RUNTIME DESTINATION bin)
-#install(DIRECTORY include/ACTFW/ReadEvgen DESTINATION include)
+install(TARGETS ACTFWReadEvgenExample RUNTIME DESTINATION bin)
+install(DIRECTORY include/ACTFW/ReadEvgen DESTINATION include)

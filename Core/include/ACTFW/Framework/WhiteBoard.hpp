@@ -44,8 +44,8 @@ public:
     // return if nothing to do
     if (sCol == m_store.end()) return ProcessCode::SUCCESS;
     // static cast to the concrete type
-    std::vector<std::unique_ptr<T>>* coll
-        = reinterpret_cast<std::vector<std::unique_ptr<T>>*>(sCol->second);
+    std::vector<T>* coll
+        = reinterpret_cast<std::vector<T>*>(sCol->second);
     // erase from the map
     m_store.erase(sCol);
     // now delete the memory
@@ -60,7 +60,7 @@ public:
   /// @param cname is the collection to name
   template <class T>
   ProcessCode
-  writeT(std::vector<std::unique_ptr<T>>* coll, const std::string& cname)
+  writeT(std::vector<T>* coll, const std::string& cname)
   {
     // clear the entry in the event store
     if (clearT<T>(cname) != ProcessCode::SUCCESS) return ProcessCode::ABORT;
@@ -80,7 +80,7 @@ public:
   /// @param cname is the collection to name
   template <class T>
   ProcessCode
-  readT(std::vector<std::unique_ptr<T>>*& coll, const std::string& cname)
+  readT(std::vector<T>*& coll, const std::string& cname)
   {
     auto sCol = m_store.find(cname);
     if (sCol == m_store.end()) {
@@ -88,7 +88,7 @@ public:
       return ProcessCode::ABORT;
     }
     // now do the static_cast
-    coll = reinterpret_cast<std::vector<std::unique_ptr<T>>*>(sCol->second);
+    coll = reinterpret_cast<std::vector<T>*>(sCol->second);
     ACTS_VERBOSE("Reading collection " << cname << " from board");
     return ProcessCode::SUCCESS;
   }
