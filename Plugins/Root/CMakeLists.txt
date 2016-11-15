@@ -1,6 +1,6 @@
 
 # find the ACTS package
-find_package(ACTS REQUIRED COMPONENTS Core)
+find_package(ACTS REQUIRED COMPONENTS Core MaterialPlugin)
 
 #find the ROOT package
 find_package(ROOT REQUIRED COMPONENTS Core Hist Tree)
@@ -15,8 +15,8 @@ if (ROOT_FOUND)
     target_include_directories(ACTFWRootPlugins PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
     target_include_directories (ACTFWRootPlugins PUBLIC ${ROOT_INCLUDE_DIRS})
     target_link_libraries(ACTFWRootPlugins PUBLIC Threads::Threads)
-    target_link_libraries(ACTFWRootPlugins PUBLIC ACTS::ACTSCore ACTFramework)
-    target_link_libraries(ACTFWRootPlugins PUBLIC Core Hist Tree)
+    target_link_libraries(ACTFWRootPlugins PUBLIC ACTS::ACTSCore ACTFramework ACTS::ACTSMaterialPlugin)
+    target_link_libraries(ACTFWRootPlugins PUBLIC Core Hist Tree TreePlayer)
     
     # set installation directories
     # set installation directories
