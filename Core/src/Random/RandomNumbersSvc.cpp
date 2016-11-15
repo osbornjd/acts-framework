@@ -25,7 +25,7 @@ FW::RandomNumbersSvc::Generator::Generator(const Config & cfg,
               m_cfg.uniform_parameters[1]}
   , m_gamma{m_cfg.gamma_parameters[0],
             m_cfg.gamma_parameters[1]}
-  , m_poisson(40)
+  , m_poisson(m_cfg.poisson_parameter)
 {
 }
 

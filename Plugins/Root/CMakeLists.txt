@@ -26,7 +26,6 @@ if (ROOT_FOUND)
     target_link_libraries(ACTFWRootPlugins PUBLIC Core Hist Tree TreePlayer)
     
     # set installation directories
-    # set installation directories
     install (TARGETS ACTFWRootPlugins LIBRARY DESTINATION lib)
     
     install (DIRECTORY include/ACTFW DESTINATION include)

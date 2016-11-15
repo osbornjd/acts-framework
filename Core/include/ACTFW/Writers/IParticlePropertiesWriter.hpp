@@ -8,7 +8,7 @@
 #ifndef ACTFW_WRITERS_IPARTICLEPROPERTIESWRITER_H
 #define ACTFW_WRITERS_IPARTICLEPROPERTIESWRITER_H 1
 
-#include "ACTS/EventData/ParticleProperties.hpp"
+#include "ACTS/EventData/ParticleDefinitions.hpp"
 
 namespace FW {
 

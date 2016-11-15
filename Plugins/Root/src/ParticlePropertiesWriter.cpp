@@ -1,12 +1,10 @@
 #include <iostream>
-
 #include <TFile.h>
-
 #include "ACTFW/Root/ParticlePropertiesWriter.hpp"
 
 FWRoot::ParticlePropertiesWriter::ParticlePropertiesWriter(
     const FWRoot::ParticlePropertiesWriter::Config& cfg)
-  : FW::IExtrapolationCellWriter()
+  : FW::IParticlePropertiesWriter()
   , m_cfg(cfg)
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
@@ -54,8 +52,10 @@ FWRoot::ParticlePropertiesWriter::finalize()
 }
 
 FW::ProcessCode
-FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperties>& pProperties);
+FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperties>& pProperties)
 {
+  size_t nParticles = pProperties.size();
+    
   m_eta.clear();
   m_phi.clear();
   m_vx.clear();
@@ -90,17 +90,16 @@ FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperti
     m_phi.push_back(particle.momentum().phi());
     m_px.push_back(particle.momentum().x());
     m_py.push_back(particle.momentum().y());
-    m_pz.push_back(particle.momentum().Z());
+    m_pz.push_back(particle.momentum().z());
     m_pT.push_back(particle.momentum().perp());
     m_charge.push_back(particle.charge());
     m_mass.push_back(particle.mass());
-    m_pdgCode.push_back(particle.pdgCode());
+    m_pdgCode.push_back(particle.pdgID());
   }
-  
-  
-  
-  
-  m_outputTree->Fill();
+  // fill the tree
+  if (m_outputTree) m_outputTree->Fill();
+    
+  return FW::ProcessCode::SUCCESS;
 }
 
 

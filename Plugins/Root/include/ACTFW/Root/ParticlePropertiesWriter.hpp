@@ -13,7 +13,8 @@
 
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/EventData/ParticleProperties.hpp"
+#include "ACTFW/Writers/IParticlePropertiesWriter.hpp"
+#include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
 class TFile;
@@ -111,6 +112,4 @@ ParticlePropertiesWriter::name() const
 }
 }
 
-#include "ParticlePropertiesWriter.ipp"
-
-#endif  // ACTFW_PLUGINS_ROOTEXCELLWRITER_H
+#endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H

@@ -28,6 +28,11 @@ public:
   class Config
   {
   public:
+      int                       pdgBeam0  = 2212;   ///< pdg code of incoming beam 1
+      int                       pdgBeam1  = 2212;   ///< pdg code of incoming beam 2
+      double                    cmsEnergy = 14000.; ///< center of mass energy
+      std::vector<std::string>  processStrings = {{"HardQCD:all = on"}}; ///< pocesses
+      
       Config()
       {
       }

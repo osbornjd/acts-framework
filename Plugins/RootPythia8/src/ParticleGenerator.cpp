@@ -32,10 +32,15 @@ FWRootPythia8::ParticleGenerator::ParticleGenerator(
   m_pythia8 = new TPythia8();
 
   // Configure
-  m_pythia8->ReadString("HardQCD:all = on");
+  for (auto& pString : m_cfg.processStrings) {
+    ACTS_VERBOSE("Setting string " << pString << " to Pythia8");
+    m_pythia8->ReadString(pString.c_str());
+  }
 
   // Initialize
-  m_pythia8->Initialize(2212 /* p */, 2212 /* p */, 14000. /* TeV */);
+  m_pythia8->Initialize(m_cfg.pdgBeam0 /* beam0 */,
+                        m_cfg.pdgBeam1 /* beam1 */,
+                        m_cfg.cmsEnergy /* TeV */);
 }
 
 FWRootPythia8::ParticleGenerator::~ParticleGenerator()
@@ -89,4 +94,3 @@ FWRootPythia8::ParticleGenerator::skip(size_t nEvents) const
   for (size_t is = 0; is < nEvents; ++is) m_pythia8->GenerateEvent();
   return;
 }
-
