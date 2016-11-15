@@ -4,4 +4,5 @@ add_subdirectory(RandomNumbers)
 add_subdirectory(ExtrapolationTest)
 add_subdirectory(GdmlDetectorTest)
 add_subdirectory(DD4hepExample)
+add_subdirectory(MaterialMappingTest)
 
