@@ -9,7 +9,14 @@ if (ROOT_FOUND)
     # get list of all source files
     file (GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
 
-    add_library(ACTFWRootPlugins SHARED ${src_files})
+	#---Define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)
+        message(STATUS "ROOT_USE_FILE" ${ROOT_USE_FILE})
+        include(${ROOT_USE_FILE})
+        # generate root dictionary - needed to write this class to a root file
+        ROOT_GENERATE_DICTIONARY(G__Material ${ACTS_INCLUDE_DIR}/ACTS/Plugins/MaterialPlugins/MaterialStep.hpp ${ACTS_INCLUDE_DIR}/ACTS/Plugins/MaterialPlugins/MaterialTrackRecord.hpp ${ACTS_INCLUDE_DIR}/ACTS/Material/Material.hpp LINKDEF include/ACTFW/Root/Material_LinkDef.h OPTIONS -I/${ACTS_INCLUDE_DIR})
+
+
+    add_library(ACTFWRootPlugins SHARED ${src_files} G__Material.cxx)
     
     # setup include directories
     target_include_directories(ACTFWRootPlugins PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
