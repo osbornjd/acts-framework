@@ -1,5 +1,6 @@
 #include <iostream>
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
@@ -71,9 +72,11 @@ FWE::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
   Acts::Vector3D vertex(vertexX, vertexY, vertexZ);
 
   // fill in the particles
+  barcode_type pCounter = 0;
   for (auto& hsParticle : hardscatterParticles) {
     // shift the particle by the vertex
     hsParticle.shift(vertex);
+      hsParticle.assign(m_cfg.barcodeSvc->generate(0,pCounter++));
     // now push-back
     eventParticles->push_back(hsParticle);
   }
@@ -87,13 +90,17 @@ FWE::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
     Acts::Vector3D puVertex(puVertexX, puVertexY, puVertexZ);
     // get the vertices per pileup event
     auto pileupPartiles = m_cfg.pileupParticleReader->particles();
+    pCounter = 0;
     ACTS_VERBOSE("- [PU " << ipue << "] number of pile-up particles : "
                           << pileupPartiles.size()
                           << " - with z vertex position: "
                           << puVertexZ);
     // loop over pileupParicles
     for (auto& puParticle : pileupPartiles) {
+      // shift to the pile-up vertex
       puParticle.shift(puVertex);
+      puParticle.assign(m_cfg.barcodeSvc->generate(ipue+1,pCounter++));
+      // now store the particle
       eventParticles->push_back(puParticle);
     }
   }

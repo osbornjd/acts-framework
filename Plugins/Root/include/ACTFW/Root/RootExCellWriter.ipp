@@ -67,14 +67,11 @@ template <class T> FW::ProcessCode FWRoot::RootExCellWriter::writeT(const Acts::
                 int passive   = es.stepConfiguration.checkMode(Acts::ExtrapolationMode::CollectPassive);
                 /// check the layer, surface, volume ID
                 Acts::geo_id_value volumeID = pars.associatedSurface().geoID().value(
-                                                                    Acts::GeometryID::volume_mask,
-                                                                    Acts::GeometryID::volume_shift);
+                                                                    Acts::GeometryID::volume_mask);
                 Acts::geo_id_value layerID = pars.associatedSurface().geoID().value(
-                                                                    Acts::GeometryID::layer_mask,
-                                                                    Acts::GeometryID::layer_shift);
+                                                                    Acts::GeometryID::layer_mask);
                 Acts::geo_id_value surfaceID = pars.associatedSurface().geoID().value(
-                                                                      Acts::GeometryID::sensitive_mask,
-                                                                      Acts::GeometryID::sensitive_shift);   
+                                                                    Acts::GeometryID::sensitive_mask);   
                 /// 
                 if ((m_cfg.writeSensitive && sensitive) || 
                     (m_cfg.writeBoundary && boundary) || 

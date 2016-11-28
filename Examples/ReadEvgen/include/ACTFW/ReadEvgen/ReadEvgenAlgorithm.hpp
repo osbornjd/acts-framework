@@ -20,6 +20,7 @@
 namespace FW {
 class WhiteBoard;
 class RandomNumbersSvc;
+class BarcodeSvc;
 }
 
 
@@ -50,6 +51,8 @@ public:
     std::shared_ptr<FW::RandomNumbersSvc>  pileupRandomNumbers       = nullptr;
     std::shared_ptr<FW::RandomNumbersSvc>  pileupVertexDistT         = nullptr;
     std::shared_ptr<FW::RandomNumbersSvc>  pileupVertexDistZ         = nullptr;
+    /// the BarcodeSvc
+    std::shared_ptr<FW::BarcodeSvc>        barcodeSvc                = nullptr;
     /// output writer
     std::shared_ptr<FW::IParticlePropertiesWriter> particleWriter    = nullptr;
     /// the job WhiteBoard

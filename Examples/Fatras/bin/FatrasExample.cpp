@@ -6,20 +6,47 @@
 //
 
 #include <memory>
+#include "ACTS/Examples/BuildGenericDetector.hpp"
+#include "ACTS/Utilities/Units.hpp"
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/Root/RootExCellWriter.hpp"
 #include "ACTFW/Root/ParticlePropertiesWriter.hpp"
 #include "ACTFW/RootPythia8/ParticleGenerator.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
+#include "ACTFW/Extrapolation/ExtrapolationTestAlgorithm.hpp" // to be replaced by simulation algorithm
+#include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 
 // the main hello world executable
 int
 main(int argc, char* argv[])
 {
-  size_t nEvents = 500;
+  size_t nEvents = 10;
+
+  // set geometry building logging level
+  Acts::Logging::Level surfaceLogLevel = Acts::Logging::INFO;
+  Acts::Logging::Level layerLogLevel = Acts::Logging::INFO;
+  Acts::Logging::Level volumeLogLevel = Acts::Logging::INFO;
+  
+  // create the tracking geometry as a shared pointer
+    std::shared_ptr<const Acts::TrackingGeometry> tGeometry
+    = Acts::buildGenericDetector(surfaceLogLevel,
+                                 layerLogLevel,
+                                 volumeLogLevel, 3);
+
+  // set extrapolation logging level
+  Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
+  
+  // set up the magnetic field
+  std::shared_ptr<Acts::ConstantBField> magField(
+      new Acts::ConstantBField{{0., 0., 0.002 }}); // * Acts::units::_T
+
+  // EXTRAPOLATOR - set up the extrapolator
+  std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
+     = FWE::initExtrapolator(tGeometry,magField,eLogLevel);
 
   // creating the data stores
   auto detectorStore = std::make_shared<FW::WhiteBoard>(
@@ -58,12 +85,12 @@ main(int argc, char* argv[])
       new FW::RandomNumbersSvc(pileupNumbersCfg));
 
   FW::RandomNumbersSvc::Config pileupVertexTCfg;
-  pileupVertexTCfg.gauss_parameters = {{0., 0.015}};
+  pileupVertexTCfg.gauss_parameters = {{0., 0.015 * Acts::units::_mm}};
   std::shared_ptr<FW::RandomNumbersSvc> pileupVertexT(
       new FW::RandomNumbersSvc(pileupVertexTCfg));
 
   FW::RandomNumbersSvc::Config pileupVertexZCfg;
-  pileupVertexZCfg.gauss_parameters = {{0., 5.5}};
+  pileupVertexZCfg.gauss_parameters = {{0., 55.0 * Acts::units::_mm}};
   std::shared_ptr<FW::RandomNumbersSvc> pileupVertexZ(
       new FW::RandomNumbersSvc(pileupVertexZCfg));
 
@@ -75,8 +102,8 @@ main(int argc, char* argv[])
 
   // Write ROOT TTree
   FWRoot::ParticlePropertiesWriter::Config particleWriterConfig;
-  particleWriterConfig.fileName = "$PWD/SimulationParticles.root";
-  particleWriterConfig.treeName = "SimulationParticles.root";
+  particleWriterConfig.fileName = "$PWD/Evgen.root";
+  particleWriterConfig.treeName = "Evgen";
   particleWriterConfig.barcodeSvc = barcodeSvc;
   auto particleWriter = std::make_shared<FWRoot::ParticlePropertiesWriter>(
       particleWriterConfig);
@@ -102,17 +129,43 @@ main(int argc, char* argv[])
   readEvgenCfg.particleWriter = particleWriter;
   // create the read Algorithm
   auto readEvgen = std::make_shared<FWE::ReadEvgenAlgorithm>(
-      readEvgenCfg,
-      Acts::getDefaultLogger("ReadEvgenAlgorithm", Acts::Logging::INFO));
+      readEvgenCfg, Acts::getDefaultLogger("ReadEvgenAlgorithm", Acts::Logging::INFO));
+  
+  // Write ROOT TTree
+  FWRoot::RootExCellWriter::Config recWriterConfig;
+  recWriterConfig.fileName            = "$PWD/Fatras.root";
+  recWriterConfig.treeName            = "Fatras";
+  recWriterConfig.writeBoundary       = false;
+  recWriterConfig.writeMaterial       = false;
+  recWriterConfig.writeSensitive      = true;
+  recWriterConfig.writePassive        = false;
+  std::shared_ptr<FW::IExtrapolationCellWriter> rootEcWriter(
+      new FWRoot::RootExCellWriter(recWriterConfig));
+  
+  // the Algorithm with its configurations
+  FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
+  eTestConfig.particleCollectionName = readEvgenCfg.particleCollectionName;
+  eTestConfig.searchMode              = 1;
+  eTestConfig.extrapolationEngine     = extrapolationEngine;
+  eTestConfig.extrapolationCellWriter = rootEcWriter;
+  eTestConfig.collectSensitive        = true;
+  eTestConfig.collectPassive          = true;
+  eTestConfig.collectBoundary         = true;
+  eTestConfig.collectMaterial         = true;
+  eTestConfig.sensitiveCurvilinear    = false;
+  eTestConfig.pathLimit               = -1.;
+  
+  std::shared_ptr<FW::IAlgorithm> extrapolationAlg(
+      new FWE::ExtrapolationTestAlgorithm(eTestConfig));
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
   // now create the sequencer
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices(
-      {particleWriter, pileupNumbers, pileupVertexT, pileupVertexZ});
+      {rootEcWriter, particleWriter, pileupNumbers, pileupVertexT, pileupVertexZ});
   sequencer.addIOAlgorithms({readEvgen});
-  sequencer.appendEventAlgorithms({});
+  sequencer.appendEventAlgorithms({extrapolationAlg});
 
   // initialize loop
   sequencer.initializeEventLoop();
@@ -120,4 +173,5 @@ main(int argc, char* argv[])
   sequencer.processEventLoop(nEvents);
   // finalize loop
   sequencer.finalizeEventLoop();
+
 }

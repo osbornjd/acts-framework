@@ -1,3 +1,5 @@
+add_subdirectory(Extrapolation)
+add_subdirectory(Fatras)
 add_subdirectory(HelloWorld)
 add_subdirectory(WhiteBoard)
 add_subdirectory(RandomNumbers)

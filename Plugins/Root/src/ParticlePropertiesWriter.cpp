@@ -20,23 +20,29 @@ FWRoot::ParticlePropertiesWriter::initialize()
 {
   ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
   // open the output file
-  m_outputFile = new TFile(m_cfg.fileName.c_str(), "recreate");
+  m_outputFile = new TFile(m_cfg.fileName.c_str(), m_cfg.fileMode.c_str());
   m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
 
   // initial parameters
-  m_outputTree->Branch("Eta",     &m_eta);
-  m_outputTree->Branch("Phi",     &m_phi);
-  m_outputTree->Branch("Vx",      &m_vx);
-  m_outputTree->Branch("Vy",      &m_vy);
-  m_outputTree->Branch("Vz",      &m_vz);
-  m_outputTree->Branch("Px",      &m_px);
-  m_outputTree->Branch("Py",      &m_py);
-  m_outputTree->Branch("Pz",      &m_pz);
-  m_outputTree->Branch("Pt",      &m_pT);
-  m_outputTree->Branch("Charge",  &m_charge);
-  m_outputTree->Branch("Mass",    &m_mass);
-  m_outputTree->Branch("PdgCode", &m_pdgCode);
-
+  m_outputTree->Branch("eta",        &m_eta);
+  m_outputTree->Branch("phi",        &m_phi);
+  m_outputTree->Branch("vx",         &m_vx);
+  m_outputTree->Branch("vy",         &m_vy);
+  m_outputTree->Branch("vz",         &m_vz);
+  m_outputTree->Branch("px",         &m_px);
+  m_outputTree->Branch("py",         &m_py);
+  m_outputTree->Branch("pz",         &m_pz);
+  m_outputTree->Branch("pt",         &m_pT);
+  m_outputTree->Branch("charge",     &m_charge);
+  m_outputTree->Branch("mass",       &m_mass);
+  m_outputTree->Branch("pdg",        &m_pdgCode);
+  m_outputTree->Branch("barcode",    &m_barcode);
+  m_outputTree->Branch("vertex",     &m_vertex);
+  m_outputTree->Branch("primary",    &m_primary);
+  m_outputTree->Branch("generation", &m_generation);
+  m_outputTree->Branch("secondary",  &m_secondary);
+  m_outputTree->Branch("process",    &m_process);
+  
   return FW::ProcessCode::SUCCESS;
 }
 
@@ -68,6 +74,12 @@ FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperti
   m_charge.clear();
   m_mass.clear();
   m_pdgCode.clear();
+  m_barcode.clear();
+  m_vertex.clear();
+  m_primary.clear();
+  m_generation.clear();
+  m_secondary.clear();
+  m_process.clear();
   m_eta.reserve(nParticles);
   m_phi.reserve(nParticles);
   m_vx.reserve(nParticles);
@@ -79,7 +91,13 @@ FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperti
   m_pT.reserve(nParticles);
   m_charge.reserve(nParticles);
   m_mass.reserve(nParticles);
+  m_barcode.reserve(nParticles);
   m_pdgCode.reserve(nParticles);
+  m_vertex.reserve(nParticles);
+  m_primary.reserve(nParticles);
+  m_generation.reserve(nParticles);
+  m_secondary.reserve(nParticles);
+  m_process.reserve(nParticles);
   // loop and fill
   for (auto& particle : pProperties){
     /// collect the information
@@ -95,9 +113,20 @@ FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperti
     m_charge.push_back(particle.charge());
     m_mass.push_back(particle.mass());
     m_pdgCode.push_back(particle.pdgID());
+    m_barcode.push_back(particle.barcode());
+    // decode using the barcode service
+    if (m_cfg.barcodeSvc){
+      // the barcode service
+      m_vertex.push_back(m_cfg.barcodeSvc->vertex(particle.barcode()));
+      m_primary.push_back(m_cfg.barcodeSvc->primary(particle.barcode()));
+      m_generation.push_back(m_cfg.barcodeSvc->generate(particle.barcode()));
+      m_secondary.push_back(m_cfg.barcodeSvc->secondary(particle.barcode()));
+      m_process.push_back(m_cfg.barcodeSvc->process(particle.barcode()));
+    }
   }
   // fill the tree
-  if (m_outputTree) m_outputTree->Fill();
+  if (m_outputTree)
+    m_outputTree->Fill();
     
   return FW::ProcessCode::SUCCESS;
 }

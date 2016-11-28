@@ -24,5 +24,5 @@ target_link_libraries(ACTFWExtrapolationExample PRIVATE ACTFWExtrapolation)
 # set installation directories
 install(TARGETS ACTFWExtrapolation LIBRARY DESTINATION lib)
 install(TARGETS ACTFWExtrapolationExample RUNTIME DESTINATION bin)
-install(DIRECTORY include/ACTFW/Extrapolation DESTINATION include)
+install(DIRECTORY include/ACTFW DESTINATION include)
 

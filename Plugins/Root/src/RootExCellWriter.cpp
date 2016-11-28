@@ -22,7 +22,7 @@ FWRoot::RootExCellWriter::initialize()
 {
   ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
   // open the output file
-  m_outputFile = new TFile(m_cfg.fileName.c_str(), "recreate");
+  m_outputFile = new TFile(m_cfg.fileName.c_str(), m_cfg.fileMode.c_str());
   m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
 
   // initial parameters

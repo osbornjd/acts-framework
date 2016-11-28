@@ -1,4 +1,5 @@
 
+#include "ACTS/Utilities/Units.hpp"
 #include "ACTFW/RootPythia8/ParticleGenerator.hpp"
 #include "TSystem.h"
 #include "TPythia8.h"
@@ -77,7 +78,9 @@ FWRootPythia8::ParticleGenerator::particles() const
     Float_t mass   = part->GetMass();
     // and now create a particle
     Acts::Vector3D vertex(part->Vx(), part->Vy(), part->Vz());
-    Acts::Vector3D momentum(part->Px(), part->Py(), part->Pz());
+    Acts::Vector3D momentum(part->Px()*1000.,
+                            part->Py()*1000.,
+                            part->Pz()*1000.);
     // the particle should be ready now
     particleProperties.push_back(
         Acts::ParticleProperties(vertex, momentum, mass, charge, pdg));

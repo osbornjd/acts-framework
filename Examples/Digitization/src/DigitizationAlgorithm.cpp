@@ -1,29 +1,21 @@
+#include "ACTFW/Extrapolation/DigitizationAlgorithm.hpp"
 #include <iostream>
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
-#include "ACTFW/Extrapolation/ExtrapolationTestAlgorithm.hpp"
-#include "ACTS/EventData/NeutralParameters.hpp"
-#include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/EventData/TrackParameters.hpp"
-#include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
-#include "ACTS/Surfaces/PerigeeSurface.hpp"
-#include "ACTS/Utilities/Definitions.hpp"
-#include "ACTS/Utilities/Units.hpp"
 
-FWE::ExtrapolationTestAlgorithm::ExtrapolationTestAlgorithm(
-    const FWE::ExtrapolationTestAlgorithm::Config& cfg,
+FWE::DigitizationAlgorithm::DigitizationAlgorithm(
+    const FWE::DigitizationAlgorithm::Config& cfg,
     std::unique_ptr<Acts::Logger>                  logger)
   : FW::Algorithm(cfg, std::move(logger)), m_cfg(cfg)
 {
 }
 
-FWE::ExtrapolationTestAlgorithm::~ExtrapolationTestAlgorithm()
+FWE::DigitizationAlgorithm::~DigitizationAlgorithm()
 {}
 
 /** Framework finalize mehtod */
 FW::ProcessCode
-FWE::ExtrapolationTestAlgorithm::initialize(
+FWE::DigitizationAlgorithm::initialize(
     std::shared_ptr<FW::WhiteBoard> jStore)
 {
   // call the algorithm initialize for setting the stores
@@ -36,7 +28,7 @@ FWE::ExtrapolationTestAlgorithm::initialize(
 }
 
 FW::ProcessCode
-FWE::ExtrapolationTestAlgorithm::execute(
+FWE::DigitizationAlgorithm::execute(
     const FW::AlgorithmContext context) const
 {
   // we read from a collection
@@ -144,14 +136,14 @@ FWE::ExtrapolationTestAlgorithm::execute(
 }
 
 FW::ProcessCode
-FWE::ExtrapolationTestAlgorithm::finalize()
+FWE::DigitizationAlgorithm::finalize()
 {
   ACTS_VERBOSE("initialize successful.");
   return FW::ProcessCode::SUCCESS;
 }
 
 double
-FWE::ExtrapolationTestAlgorithm::drawGauss(
+FWE::DigitizationAlgorithm::drawGauss(
     FW::RandomNumbersSvc::Generator& rng,
     const std::array<double, 2>& pars) const
 {
@@ -161,7 +153,7 @@ FWE::ExtrapolationTestAlgorithm::drawGauss(
 }
 
 double
-FWE::ExtrapolationTestAlgorithm::drawUniform(
+FWE::DigitizationAlgorithm::drawUniform(
     FW::RandomNumbersSvc::Generator& rng,
     const std::array<double, 2>& range) const
 {

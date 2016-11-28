@@ -41,6 +41,12 @@ public:
     /// output writer
     std::shared_ptr<FW::IExtrapolationCellWriter> extrapolationCellWriter
         = nullptr;
+    /// if this is set then the particles are taken from the collection
+    std::string particleCollectionName = "";
+    /// the cuts applied in this case 
+    /// @todo remove later and replace by particle selector
+    double maxEta        = 3.;
+    double minPt         = 250.;  
     /// number of tests per event
     size_t testsPerEvent = 1;
     /// parameter type : 0 = neutral | 1 = charged
@@ -60,7 +66,7 @@ public:
     /// configuration: sensitive collection
     bool collectSensitive = true;
     /// configuration: collect passive
-    bool collectPassive = true;
+    bool collectPassive   = true;
     /// configuration: collect boundary
     bool collectBoundary = true;
     /// configuration: collect material

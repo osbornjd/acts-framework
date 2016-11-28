@@ -23,4 +23,5 @@ target_link_libraries(ACTFWReadEvgenExample PRIVATE ACTFWReadEvgen)
 # set installation directories
 install(TARGETS ACTFWReadEvgen LIBRARY DESTINATION lib)
 install(TARGETS ACTFWReadEvgenExample RUNTIME DESTINATION bin)
-install(DIRECTORY include/ACTFW/ReadEvgen DESTINATION include)
+install(DIRECTORY include/ACTFW DESTINATION include)
+

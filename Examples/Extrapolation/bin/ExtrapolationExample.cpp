@@ -6,10 +6,6 @@
 //
 
 #include <memory>
-#include "ACTFW/Framework/Algorithm.hpp"
-#include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/Root/RootExCellWriter.hpp"
 #include "ACTS/Examples/BuildGenericDetector.hpp"
 #include "ACTS/Extrapolation/ExtrapolationEngine.hpp"
 #include "ACTS/Extrapolation/MaterialEffectsEngine.hpp"
@@ -17,6 +13,11 @@
 #include "ACTS/Extrapolation/StaticEngine.hpp"
 #include "ACTS/Extrapolation/StaticNavigationEngine.hpp"
 #include "ACTS/MagneticField/ConstantBField.hpp"
+#include "ACTS/Utilities/Units.hpp"
+#include "ACTFW/Framework/Algorithm.hpp"
+#include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Root/RootExCellWriter.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationTestAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 
@@ -43,10 +44,11 @@ main(int argc, char* argv[])
 
   // set up the magnetic field
   std::shared_ptr<Acts::ConstantBField> magField(
-      new Acts::ConstantBField{{0., 0., 0.002}});  // field is given in kT
-
+       new Acts::ConstantBField{{0., 0., 0.002}});
+  
   // EXTRAPOLATOR - set up the extrapolator
-  std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = FWE::initExtrapolator(tGeometry,magField,eLogLevel);
+  std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
+    = FWE::initExtrapolator(tGeometry,magField,eLogLevel);
 
   // RANDOM NUMBERS - Create the random number engine
   FW::RandomNumbersSvc::Config brConfig;
@@ -71,7 +73,7 @@ main(int argc, char* argv[])
   // the Algorithm with its configurations
   FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
   eTestConfig.testsPerEvent           = 100;
-  eTestConfig.parameterType           = 0;
+  eTestConfig.parameterType           = 1;
   eTestConfig.searchMode              = 1;
   eTestConfig.extrapolationEngine     = extrapolationEngine;
   eTestConfig.extrapolationCellWriter = rootEcWriter;
@@ -79,8 +81,8 @@ main(int argc, char* argv[])
   eTestConfig.d0Defs                  = {{0., 0.}};
   eTestConfig.z0Defs                  = {{0., 0.}};
   eTestConfig.phiRange                = {{-M_PI, M_PI}};
-  eTestConfig.etaRange                = {{ -2.75, 2.75}};
-  eTestConfig.ptRange                 = {{ 1000., 10000.}};
+  eTestConfig.etaRange                = {{ -3.75, 3.75}};
+  eTestConfig.ptRange                 = {{ 100., 1000.}};
   eTestConfig.particleType            = 3;
   eTestConfig.collectSensitive        = true;
   eTestConfig.collectPassive          = true;
