@@ -74,8 +74,13 @@ FW::ProcessCode
 DD4hepPlugin::GeometryService::buildTrackingGeometry()
 {
   // set the tracking geometry
-  m_trackingGeometry = std::move(Acts::convertDD4hepDetector(
-      dd4hepGeometry(), m_cfg.lvl, m_cfg.bTypePhi, m_cfg.bTypeR, m_cfg.bTypeZ));
+  m_trackingGeometry = std::move(Acts::convertDD4hepDetector(dd4hepGeometry(),
+                                                             m_cfg.lvl,
+                                                             m_cfg.bTypePhi,
+                                                             m_cfg.bTypeR,
+                                                             m_cfg.bTypeZ,
+                                                             m_cfg.envelopeR,
+                                                             m_cfg.envelopeZ));
   return FW::ProcessCode::SUCCESS;
 }
 

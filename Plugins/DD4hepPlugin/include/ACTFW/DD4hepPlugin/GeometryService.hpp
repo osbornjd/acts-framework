@@ -49,6 +49,9 @@ public:
     Acts::BinningType bTypeR;
     /// Binningtype in z
     Acts::BinningType bTypeZ;
+    //
+    double envelopeR;
+    double envelopeZ;
 
     Config(const std::string&   lname = "GeometryService",
            Acts::Logging::Level level = Acts::Logging::INFO)
@@ -59,6 +62,8 @@ public:
       , bTypePhi(Acts::equidistant)
       , bTypeR(Acts::equidistant)
       , bTypeZ(Acts::equidistant)
+      , envelopeR(0.)
+      , envelopeZ(0.)
     {
     }
   };
