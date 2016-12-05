@@ -27,7 +27,13 @@
 namespace DD4hepExample {
 
 std::shared_ptr<const Acts::TrackingGeometry>
-trackingGeometry(std::string xmlFileName, Acts::Logging::Level lvl)
+trackingGeometry(std::string          xmlFileName,
+                 Acts::Logging::Level lvl,
+                 Acts::BinningType    bTypePhi,
+                 Acts::BinningType    bTypeR,
+                 Acts::BinningType    bTypeZ,
+                 double               envelopeR,
+                 double               envelopeZ)
 {
   // create the tracking geometry as a shared pointer
   // for testing DD4hep
@@ -36,9 +42,11 @@ trackingGeometry(std::string xmlFileName, Acts::Logging::Level lvl)
                                                  Acts::Logging::VERBOSE);
   gsConfig.xmlFileName = xmlFileName;
   gsConfig.lvl         = lvl;
-  gsConfig.bTypePhi    = Acts::equidistant;
-  gsConfig.bTypeR      = Acts::equidistant;
-  gsConfig.bTypeZ      = Acts::equidistant;
+  gsConfig.bTypePhi    = bTypePhi;
+  gsConfig.bTypeR      = bTypeR;
+  gsConfig.bTypeZ      = bTypeZ;
+  gsConfig.envelopeR   = envelopeR;
+  gsConfig.envelopeZ   = envelopeZ;
   auto geometrySvc = std::make_shared<DD4hepPlugin::GeometryService>(gsConfig);
 
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
@@ -49,10 +57,12 @@ trackingGeometry(std::string xmlFileName, Acts::Logging::Level lvl)
 
 void
 extrapolation(std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
-              Acts::Logging::Level                          eLogLevel)
+              Acts::Logging::Level                          eLogLevel,
+              size_t                                        nEvents,
+              size_t                                        nTests,
+              std::array<double, 2> etaRange,
+              std::array<double, 2> phiRange)
 {
-  size_t nEvents = 1000;
-
   // set up the magnetic field
   std::shared_ptr<Acts::ConstantBField> magField(
       new Acts::ConstantBField{{0., 0., 0.002}});  // field is given in kT
@@ -84,16 +94,16 @@ extrapolation(std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
 
   // the Algorithm with its configurations
   FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
-  eTestConfig.testsPerEvent           = 100;
+  eTestConfig.testsPerEvent           = nTests;
   eTestConfig.parameterType           = 0;
-  eTestConfig.searchMode              = 1;
+  eTestConfig.searchMode              = -1;
   eTestConfig.extrapolationEngine     = extrapolationEngine;
   eTestConfig.extrapolationCellWriter = rootEcWriter;
   eTestConfig.randomNumbers           = randomNumbers;
   eTestConfig.d0Defs                  = {{0., 0.}};
   eTestConfig.z0Defs                  = {{0., 0.}};
-  eTestConfig.phiRange                = {{-M_PI, M_PI}};
-  eTestConfig.etaRange                = {{-5., 5.}};
+  eTestConfig.phiRange                = phiRange;
+  eTestConfig.etaRange                = etaRange;
   eTestConfig.ptRange                 = {{1000., 100000.}};
   eTestConfig.particleType            = 3;
   eTestConfig.collectSensitive        = true;
