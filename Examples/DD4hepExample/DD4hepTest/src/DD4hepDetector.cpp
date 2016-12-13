@@ -96,7 +96,7 @@ extrapolation(std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
   FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
   eTestConfig.testsPerEvent           = nTests;
   eTestConfig.parameterType           = 0;
-  eTestConfig.searchMode              = -1;
+  eTestConfig.searchMode              = 0;
   eTestConfig.extrapolationEngine     = extrapolationEngine;
   eTestConfig.extrapolationCellWriter = rootEcWriter;
   eTestConfig.randomNumbers           = randomNumbers;
