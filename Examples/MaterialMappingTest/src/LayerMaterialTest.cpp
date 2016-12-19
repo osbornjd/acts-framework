@@ -63,13 +63,9 @@ FWE::LayerMaterialTest::execute(const FW::AlgorithmContext context) const
   const std::map<const Acts::Layer*, Acts::LayerMaterialRecord> layerRecords
       = m_cnf.materialMapper->layerRecords();
   size_t nLayer = 0;
-  // loop through the layer records and print out the material
+  // loop through the layer records and print out the Binned Surface material
   for (auto& layerRecord : layerRecords) {
-    std::string lname = "layer" + std::to_string(nLayer);
-    /*    m_cnf.materialWriter->write(
-            layerRecord.second.layerMaterial(), layerRecord.first->geoID(),
-       lname);*/
-
+    std::string                  lname = "layer" + std::to_string(nLayer);
     const Acts::SurfaceMaterial* surfMat
         = layerRecord.first->materialSurface()->associatedMaterial();
     const Acts::BinnedSurfaceMaterial* binnedSurfMat
@@ -82,43 +78,16 @@ FWE::LayerMaterialTest::execute(const FW::AlgorithmContext context) const
   // access the material steps assigned per layer and write out the material at
   // a specific position for each layer
   ACTS_INFO("Access the geant4 material steps per layer and print them");
-  const std::multimap<const Acts::Layer*, const Acts::MaterialStep>
+  const std::map<const Acts::Layer*,
+                 std::vector<std::pair<const Acts::MaterialStep,
+                                       const Acts::Vector3D>>>
       layersAndSteps = m_cnf.materialMapper->layerMaterialSteps();
 
-  // Now compare with original material -> write out all the material steps
-  // which are assigned to one layer
-  // access the layers of which the material should be printed out
-  std::vector<std::pair<const Acts::Layer*, const Acts::MaterialStep>> layers;
-  unique_copy(
-      begin(layersAndSteps),
-      end(layersAndSteps),
-      back_inserter(layers),
-      [](const std::pair<const Acts::Layer*, const Acts::MaterialStep>& entry1,
-         const std::pair<const Acts::Layer*, const Acts::MaterialStep>&
-             entry2) { return (entry1.first == entry2.first); });
-  int nLayers = 0;
-  // go through layers and write out all the material which was assigned to them
-  for (auto& layer : layers) {
-    // now access all the material steps assigned to one layer
-    std::pair<std::multimap<const Acts::Layer*,
-                            const Acts::MaterialStep>::const_iterator,
-              std::multimap<const Acts::Layer*,
-                            const Acts::MaterialStep>::const_iterator>
-        layerRange;
-    layerRange = layersAndSteps.equal_range(layer.first);
-    // write out the steps per layer
-    std::vector<Acts::MaterialStep> steps;
-
-    for (auto step = layerRange.first; step != layerRange.second; ++step) {
-      steps.push_back((*step).second);
-    }
-    std::string histName = "G4layer" + std::to_string(nLayers) + "_"
-        + std::to_string(layer.first->geoID().value());
-    ACTS_INFO("before MaterialStepWriter write()");
+  for (auto& step : layersAndSteps) {
+    std::string histName = std::to_string(step.first->geoID().value());
     m_cnf.materialStepWriter->write(
-        histName, layer.first->materialSurface(), steps);
-    nLayers++;
-  }  // go through layers
+        histName, step.first->materialSurface(), step.second);
+  }
   return FW::ProcessCode::SUCCESS;
 }
 
