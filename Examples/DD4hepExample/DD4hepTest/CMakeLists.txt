@@ -25,7 +25,7 @@
 
         target_link_libraries(ACTFWDD4hepTest PUBLIC ACTS::ACTSCore)
         target_link_libraries(ACTFWDD4hepTest PRIVATE ACTFramework ACTFWDD4hepDetector ACTFWDD4hepPlugin ACTFWRootPlugins ACTFWExtrapolationExample)
-        target_link_libraries (ACTFWDD4hepTest PUBLIC ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES})
+        target_link_libraries (ACTFWDD4hepTest PUBLIC ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES} ${GEANT4_LIBRARIES})
         target_link_libraries (ACTFWDD4hepTest PUBLIC ${DD4hep_LIBRARIES})
 
         target_compile_options (ACTFWDD4hepExample PRIVATE -std=c++14)

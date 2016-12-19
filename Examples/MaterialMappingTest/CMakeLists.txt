@@ -14,13 +14,10 @@ target_include_directories(ACTFWMaterialMappingTest PRIVATE ${DD4hep_INCLUDE_DIR
 
 target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTFramework ACTFWRootPlugins ACTFWGeant4MaterialMapping ACTFWDD4hepG4 ACTFWDD4hepPlugin)
 include(${Geant4_USE_FILE})
-target_link_libraries(ACTFWMaterialMappingTest PRIVATE ${Geant4_LIBRARIES})
 target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTS::ACTSCore ACTS::ACTSMaterialPlugin)
 target_link_libraries(ACTFWMaterialMappingTest PRIVATE ${DD4hep_LIBRARIES})
 target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTFWExtrapolationExample)
 
-
-target_compile_options(ACTFWMaterialMappingTest PRIVATE -std=c++14)
 
 set(CMAKE_DEBUG_TARGET_PROPERTIES COMPILE_OPTIONS)
 # set installation directories
