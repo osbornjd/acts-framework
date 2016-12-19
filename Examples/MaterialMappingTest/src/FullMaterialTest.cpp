@@ -61,12 +61,19 @@ FWE::FullMaterialTest::execute(const FW::AlgorithmContext context) const
 {
   // propagate through the detector and collect the material
 
-  // create random direction
-  double x = -1 + m_cnf.randomNumbers->draw(FW::Distribution::uniform) * 2;
-  double y = -1 + m_cnf.randomNumbers->draw(FW::Distribution::uniform) * 2;
-  double z = -1 + m_cnf.randomNumbers->draw(FW::Distribution::uniform) * 2;
-  Acts::Vector3D       direction(x, y, z);
+  // create random direction in cylindrical coordinates
+  double phi = -M_PI
+      + m_cnf.randomNumbers->draw(FW::Distribution::uniform) * 2. * M_PI;
+  double theta = m_cnf.randomNumbers->draw(FW::Distribution::uniform) * M_PIs;
+  Acts::Vector3D direction(
+      cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
   const Acts::Vector3D startPos(0., 0., 0.);
+  ACTS_VERBOSE("________________FullMaterialTest___________________"
+               << " new direction: "
+               << direction
+               << "Event number: "
+               << context.eventContext->eventNumber
+               << "___________________________________________________");
   // create the beginning neutral parameters to extrapolate through the
   // geometry
   std::unique_ptr<Acts::ActsSymMatrixD<5>> cov;
@@ -102,11 +109,13 @@ FWE::FullMaterialTest::execute(const FW::AlgorithmContext context) const
                                                   es.materialPosition.y(),
                                                   es.materialPosition.z());
 
-        const Acts::MaterialProperties material(es.material->thickness(),
+        const Acts::MaterialProperties material(es.material->thickness()
+                                                    * es.materialScaling,
                                                 es.material->x0(),
                                                 es.material->l0(),
                                                 es.material->averageA(),
                                                 es.material->averageZ(),
+                                                es.material->averageRho(),
                                                 es.material->dEdX());
 
         msteps.push_back(Acts::MaterialStep(material, matPos));

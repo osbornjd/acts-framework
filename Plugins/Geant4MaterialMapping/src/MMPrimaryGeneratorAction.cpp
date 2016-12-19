@@ -54,14 +54,16 @@ G4MM::MMPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // this function is called at the begining of event
 
   // generate random direction
-  G4double x0 = 2. * (G4UniformRand() - 0.5);
-  G4double y0 = 2. * (G4UniformRand() - 0.5);
-  G4double z0 = 2. * (G4UniformRand() - 0.5);
-  m_dir       = G4ThreeVector(x0, y0, z0);
+  G4double phi   = -M_PI + G4UniformRand() * 2. * M_PI;
+  G4double theta = G4UniformRand() * M_PI;
 
-  /*   G4cout << "___________________________________" << G4endl;
-     G4cout << " new direction: " << m_dir << G4endl;
-     G4cout << "___________________________________" << G4endl;*/
+  m_dir
+      = G4ThreeVector(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
+
+  /* G4cout << "___________________________________" << G4endl;
+   G4cout << " new direction: " << m_dir << G4endl;
+   G4cout << "Event ID: " << anEvent->GetEventID() << G4endl;
+   G4cout << "___________________________________" << G4endl;*/
 
   fParticleGun->SetParticleMomentumDirection(m_dir);
 
