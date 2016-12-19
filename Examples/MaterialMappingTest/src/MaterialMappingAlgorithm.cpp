@@ -57,22 +57,22 @@ FWE::MaterialMappingAlgorithm::execute(const FW::AlgorithmContext context) const
   // access the tree
   std::vector<Acts::MaterialTrackRecord> mRecords
       = m_cnf.materialTrackRecReader->materialTrackRecords();
-  ACTS_INFO("Collected " << mRecords.size()
-                         << " MaterialTrackRecords for this event.");
+  ACTS_VERBOSE("Collected " << mRecords.size()
+                            << " MaterialTrackRecords for this event.");
   // go through the records and map them
   for (auto& record : mRecords) {
     double         theta = record.theta();
     double         phi   = record.phi();
     Acts::Vector3D direction(
         cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
-    ACTS_INFO("direction: "
-              << "("
-              << direction.x()
-              << ","
-              << direction.y()
-              << ","
-              << direction.z()
-              << ")");
+    ACTS_VERBOSE("direction: "
+                 << "("
+                 << direction.x()
+                 << ","
+                 << direction.y()
+                 << ","
+                 << direction.z()
+                 << ")");
     m_cnf.materialMapper->mapMaterial(record);
   }
   return FW::ProcessCode::SUCCESS;
@@ -83,19 +83,8 @@ FWE::MaterialMappingAlgorithm::finalize()
 {
   // average material and hand over to layer
   m_cnf.materialMapper->averageLayerMaterial();
-  ACTS_INFO("finalize layer material");
+  ACTS_VERBOSE("finalize layer material");
   m_cnf.materialMapper->finalizeLayerMaterial();
-  ACTS_INFO("finalize successful.");
-  /*   ACTS_INFO("Now get the material maps of the layers and print them");
-     const std::map<const Acts::Layer*, Acts::LayerMaterialRecord> layerRecords
-   = m_cnf.materialMapper->layerRecords();
-     ACTS_INFO("finalize1");
-     for (auto& layerRecord : layerRecords) {
-         ACTS_INFO("layerRecord");
-   //      std::shared_ptr<const Acts::BinnedSurfaceMaterial> layerMaterial =
-   layerRecord.second.layerMaterial();
-         m_cnf.materialWriter->write(layerRecord.second.layerMaterial(),layerRecord.first->geoID());
-     }
-     ACTS_INFO("finalize successful2.");*/
+  ACTS_VERBOSE("finalize successful.");
   return FW::ProcessCode::SUCCESS;
 }
