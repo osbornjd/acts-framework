@@ -40,6 +40,7 @@ public:
     /// The name of the output file
     std::string fileName;
 
+    /// default constructor
     Config(const std::string&   lname = "MaterialWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
       : logger(Acts::getDefaultLogger(lname, lvl)), name(lname), fileName("")
@@ -61,11 +62,17 @@ public:
   FW::ProcessCode
   finalize() final;
 
-  /// Interface method which writes out the MaterialStep entities
+  /// Writes out the MaterialStep entities
+  /// @param surface the underlying Acts::Surface corresponding to the material
+  /// steps and layer positions
+  /// @param stepAndLayerPos a pair of the total Acts::MaterialSteps for this
+  /// Surface and the respective assigned position on the layer
   FW::ProcessCode
-  write(std::string                     name,
-        const Acts::Surface*            surface,
-        std::vector<Acts::MaterialStep> msteps) final;
+  write(std::string          name,
+        const Acts::Surface* surface,
+        const std::vector<std::pair<const Acts::MaterialStep,
+                                    const Acts::Vector3D>> stepsAndLayerPos)
+      final;
 
   /// Framework name() method
   const std::string&
