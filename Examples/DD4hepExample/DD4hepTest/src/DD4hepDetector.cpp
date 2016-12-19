@@ -52,6 +52,8 @@ trackingGeometry(std::string          xmlFileName,
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
       = geometrySvc->trackingGeometry();
   // set the tracking geometry
+  if (tGeometry)
+    std::cout << "Successfully returned TrackingGeometry" << std::endl;
   return (tGeometry);
 }
 
