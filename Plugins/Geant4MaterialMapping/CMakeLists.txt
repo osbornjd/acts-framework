@@ -6,7 +6,7 @@ if (BUILD_GEANT4_MATERIALMAPPING)
     find_package(ACTS COMPONENTS Core MaterialPlugin)
 
     # find the Geant4 package
-    find_package(Geant4 REQUIRED COMPONENTS)
+    find_package(Geant4 REQUIRED COMPONENTS multithreaded)
 
     # find the Root geometry package
     find_package (ROOT REQUIRED COMPONENTS Geom)
@@ -33,6 +33,7 @@ if (BUILD_GEANT4_MATERIALMAPPING)
         target_link_libraries(ACTFWGeant4MaterialMapping PUBLIC ${ROOT_LIBRARIES})
 #    target_link_libraries(ACTFWGeant4MaterialMapping PUBLIC ${VGM_LIBRARIES}) #${VGM_GEANT4_LIBRARIES} ${VGM_ROOT_LIBRARIES})
 
+target_compile_options(ACTFWGeant4MaterialMapping PUBLIC ${Geant4_DEFINITIONS})
     set(CMAKE_CXX_FLAGS "-std=c++14")
     # set installation directories
         install (TARGETS ACTFWGeant4MaterialMapping LIBRARY DESTINATION lib)
