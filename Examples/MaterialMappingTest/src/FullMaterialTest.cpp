@@ -64,9 +64,10 @@ FWE::FullMaterialTest::execute(const FW::AlgorithmContext context) const
   // create random direction in cylindrical coordinates
   double phi = -M_PI
       + m_cnf.randomNumbers->draw(FW::Distribution::uniform) * 2. * M_PI;
-  double theta = m_cnf.randomNumbers->draw(FW::Distribution::uniform) * M_PIs;
+  double theta = m_cnf.randomNumbers->draw(FW::Distribution::uniform) * M_PI;
   Acts::Vector3D direction(
       cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
+
   const Acts::Vector3D startPos(0., 0., 0.);
   ACTS_VERBOSE("________________FullMaterialTest___________________"
                << " new direction: "
