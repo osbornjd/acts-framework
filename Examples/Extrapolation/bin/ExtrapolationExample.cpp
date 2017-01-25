@@ -72,8 +72,8 @@ main(int argc, char* argv[])
 
   // the Algorithm with its configurations
   FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
-  eTestConfig.testsPerEvent           = 100;
-  eTestConfig.parameterType           = 1;
+  eTestConfig.testsPerEvent           = 250;
+  eTestConfig.parameterType           = 0;
   eTestConfig.searchMode              = 1;
   eTestConfig.extrapolationEngine     = extrapolationEngine;
   eTestConfig.extrapolationCellWriter = rootEcWriter;

@@ -14,20 +14,24 @@
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTS/Utilities/GeometryID.hpp"
+#include "ACTFW/Barcode/BarcodeSvc.hpp"
 
 namespace Acts {
 class IExtrapolationEngine;
+class TrackingGeometry;
+class TrackingVolume;
 }
 
 namespace FW {
 class WhiteBoard;
-class RandomNumbersSvc;
 class IExtrapolationCellWriter;
 }
 
 namespace FWE {
 
-/// @class Algorithm
+/// @class ExtrapolationTestAlgorithm
 class ExtrapolationTestAlgorithm : public FW::Algorithm
 {
 public:
@@ -41,12 +45,18 @@ public:
     /// output writer
     std::shared_ptr<FW::IExtrapolationCellWriter> extrapolationCellWriter
         = nullptr;
+    /// the tracking geometry
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
     /// if this is set then the particles are taken from the collection
-    std::string particleCollectionName = "";
-    /// the cuts applied in this case 
+    std::string evgenParticlesCollection = "";
+    /// if this is set then the particles are written to the event store
+    std::string simulatedParticlesCollection = "";
+    /// if this is set then the hit collection is written
+    std::string simulatedHitsCollection = "";
+    /// the cuts applied in this case
     /// @todo remove later and replace by particle selector
-    double maxEta        = 3.;
-    double minPt         = 250.;  
+    double maxEta = 3.;
+    double minPt  = 250.;
     /// number of tests per event
     size_t testsPerEvent = 1;
     /// parameter type : 0 = neutral | 1 = charged
@@ -66,7 +76,7 @@ public:
     /// configuration: sensitive collection
     bool collectSensitive = true;
     /// configuration: collect passive
-    bool collectPassive   = true;
+    bool collectPassive = true;
     /// configuration: collect boundary
     bool collectBoundary = true;
     /// configuration: collect material
@@ -92,19 +102,19 @@ public:
   ~ExtrapolationTestAlgorithm();
 
   /// Framework intialize method
-  virtual FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) final;
+  FW::ProcessCode
+  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) override final;
 
   /// Framework execode method
-  virtual FW::ProcessCode
-  execute(const FW::AlgorithmContext context) const final;
+  FW::ProcessCode
+  execute(const FW::AlgorithmContext context) const override final;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() final;
+  finalize() override final;
 
 private:
-  Config m_cfg;  //!< the config class
+  Config m_cfg;  ///< the config class
 
   double
   drawGauss(FW::RandomNumbersSvc::Generator& rng,
@@ -115,7 +125,10 @@ private:
 
   template <class T>
   FW::ProcessCode
-  executeTestT(const T& startParameters) const;
+  executeTestT(const T& startParameters,
+               barcode_type barcode = 0,
+               FW::DetectorData<geo_id_value, std::pair< std::unique_ptr<const T>, barcode_type >  >* dData = nullptr) const;
+
 };
 }
 #include "ExtrapolationTestAlgorithm.ipp"

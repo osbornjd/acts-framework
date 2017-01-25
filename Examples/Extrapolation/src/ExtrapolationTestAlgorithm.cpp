@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
@@ -7,6 +8,9 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
+#include "ACTS/Detector/TrackingGeometry.hpp"
+#include "ACTS/Detector/TrackingVolume.hpp"
+#include "ACTS/Layers/Layer.hpp"
 #include "ACTS/Surfaces/PerigeeSurface.hpp"
 #include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Utilities/Units.hpp"
@@ -19,7 +23,8 @@ FWE::ExtrapolationTestAlgorithm::ExtrapolationTestAlgorithm(
 }
 
 FWE::ExtrapolationTestAlgorithm::~ExtrapolationTestAlgorithm()
-{}
+{
+}
 
 /** Framework finalize mehtod */
 FW::ProcessCode
@@ -40,7 +45,7 @@ FWE::ExtrapolationTestAlgorithm::execute(
     const FW::AlgorithmContext context) const
 {
   // we read from a collection
-  if (m_cfg.particleCollectionName != "") {
+  if (m_cfg.evgenParticlesCollection != "") {
     // Retrieve relevant information from the execution context
     auto eventStore = context.eventContext->eventStore;
 
@@ -48,45 +53,85 @@ FWE::ExtrapolationTestAlgorithm::execute(
     std::vector<Acts::ParticleProperties>* eventParticles = nullptr;
     // read and go
     if (eventStore
-        && eventStore->readT(eventParticles, m_cfg.particleCollectionName)
+        && eventStore->readT(eventParticles, m_cfg.evgenParticlesCollection)
             == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
     // run over it
     ACTS_INFO("Successfully read in collection with " << eventParticles->size()
                                                       << " particles");
 
+    // create a new detector data hit container
+    typedef std::pair< std::unique_ptr<const Acts::TrackParameters>, barcode_type> FatrasHit;
+    FW::DetectorData<geo_id_value, FatrasHit >* simulatedHits = 
+        m_cfg.simulatedHitsCollection != "" ?
+        new FW::DetectorData<geo_id_value, FatrasHit > 
+        : nullptr;  
+    // prepare the output vector
+    std::vector<Acts::ParticleProperties>* simulatedParticles = 
+       m_cfg.simulatedParticlesCollection != "" ?
+       new std::vector<Acts::ParticleProperties>
+      : nullptr;
+
+    // counters
     size_t pCounter = 0;
     size_t sCounter = 0;
     for (auto& eParticle : (*eventParticles)) {
       // process the particle // TODO make configuraable
-      if (eParticle.charge() != 0.
-          && eParticle.vertex().perp() < 1.
+      if (eParticle.charge() != 0. && eParticle.vertex().perp() < 1.
           && eParticle.momentum().perp() > m_cfg.minPt
-          && fabs(eParticle.momentum().eta()) < m_cfg.maxEta ){
-        // count simulated particles    
-        ++pCounter;    
+          && fabs(eParticle.momentum().eta()) < m_cfg.maxEta) {
+        // count simulated particles
+        ++pCounter;
+        // record the simulated particles
+        if (simulatedParticles) 
+            simulatedParticles->push_back(eParticle);          
         // TODO update to better structure with Vertex-Particle tree
         Acts::PerigeeSurface surface(eParticle.vertex());
-        double d0    = 0.;
-        double z0    = 0.;
-        double phi   = eParticle.momentum().phi();
-        double theta = eParticle.momentum().theta();
-        double qop   = eParticle.charge()/eParticle.momentum().mag();
+        double               d0    = 0.;
+        double               z0    = 0.;
+        double               phi   = eParticle.momentum().phi();
+        double               theta = eParticle.momentum().theta();
+        double qop = eParticle.charge() / eParticle.momentum().mag();
         // parameters
         Acts::ActsVectorD<5> pars;
         pars << d0, z0, phi, theta, qop;
         // some screen output
         std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
-
-        Acts::BoundParameters startParameters(std::move(cov), std::move(pars), surface);
-        if (executeTestT<Acts::TrackParameters>(startParameters) != FW::ProcessCode::SUCCESS)
-            ACTS_VERBOSE("Test of parameter extrapolation did not succeed.");
-      } else 
+        // create the bound parameters
+        Acts::BoundParameters startParameters(
+            std::move(cov), std::move(pars), surface);
+        if (executeTestT<Acts::TrackParameters>(startParameters, 
+                                                eParticle.barcode(),
+                                                simulatedHits)
+            != FW::ProcessCode::SUCCESS)
+          ACTS_VERBOSE("Test of parameter extrapolation did not succeed.");
+      } else
         ++sCounter;
     }
-    ACTS_INFO("Number of simulated particles : " <<  pCounter);
-    ACTS_INFO("Number of skipped   particles : " <<  sCounter);
-    
+
+    ACTS_INFO("Number of simulated particles : " << pCounter);
+    ACTS_INFO("Number of skipped   particles : " << sCounter);
+    if (eventStore 
+        && simulatedParticles
+        && eventStore->writeT(simulatedParticles, m_cfg.simulatedParticlesCollection)
+            == FW::ProcessCode::ABORT) {
+          ACTS_WARNING("Could not write colleciton of simulated particles to event store.");
+          return FW::ProcessCode::ABORT;
+        } else if (simulatedParticles)
+          ACTS_INFO("Truth information for " << simulatedParticles->size()
+                                             << " particles written to EventStore.");
+
+    // write to the EventStore
+    if (eventStore
+        && simulatedHits
+        && eventStore->writeT(simulatedHits, m_cfg.simulatedHitsCollection)
+            == FW::ProcessCode::ABORT) {
+      ACTS_WARNING("Could not write colleciton of hits to event store.");
+      return FW::ProcessCode::ABORT;
+    } else if (simulatedHits)
+      ACTS_INFO("Hit information for " << simulatedHits->size()
+                                       << " volumes written to EventStore.");
+
   } else {
 
     // Create a random number generator
@@ -123,6 +168,7 @@ FWE::ExtrapolationTestAlgorithm::execute(
 
       // neutral extrapolation
       if (m_cfg.parameterType) {
+        // prepare the start parameters
         Acts::BoundParameters startParameters(
             std::move(cov), std::move(pars), pSurface);
         if (executeTestT<Acts::TrackParameters>(startParameters)
@@ -133,6 +179,7 @@ FWE::ExtrapolationTestAlgorithm::execute(
         // charged extrapolation
         Acts::NeutralBoundParameters startParameters(
             std::move(cov), std::move(pars), pSurface);
+        // prepare hits for charged neutral paramters
         if (executeTestT<Acts::NeutralParameters>(startParameters)
             != FW::ProcessCode::SUCCESS)
           ACTS_WARNING("Test of parameter extrapolation did not succeed.");

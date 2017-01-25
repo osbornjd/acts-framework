@@ -5,8 +5,8 @@
 //  Created by Andreas Salzburger on 11/05/16.
 //
 //
-#ifndef ACTFW_EXAMPLES_READEVGENALGORITHM_H
-#define ACTFW_EXAMPLES_READEVGENALGORITHM_H 1
+#ifndef ACTFW_FATRAS_WRITEALGORITHM_H
+#define ACTFW_FATRAS_WRITEALGORITHM_H 1
 
 #include <memory>
 #include <string>
@@ -14,8 +14,8 @@
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/IOAlgorithm.hpp"
-#include "ACTFW/Readers/IParticleReader.hpp"
 #include "ACTFW/Writers/IParticlePropertiesWriter.hpp"
+#include "ACTFW/Writers/IPlanarClusterWriter.hpp"
 
 namespace FW {
 class WhiteBoard;
@@ -27,11 +27,11 @@ class BarcodeSvc;
 namespace FWE {
 
 
-/// @class ReadEvgenAlgorithm
+/// @class FatrasWriteAlgorithm
 ///
-/// ReadEvgenAlgorithm to read EvGen from some input
+/// FatrasWriteAlgorithm to read EvGen from some input
 /// Allows for pile-up reading as well 
-class ReadEvgenAlgorithm : public FW::IOAlgorithm
+class FatrasWriteAlgorithm : public FW::IOAlgorithm
 {
 
 public:
@@ -40,25 +40,18 @@ public:
   /// configuration struct for this Algorithm
   struct Config {
     
-    /// name of the output collection
-    std::string                            evgenParticlesCollection  = "EvgenParticles";
-    /// the hard scatter reader
-    std::shared_ptr<FW::IParticleReader>   hardscatterParticleReader = nullptr;
-    /// the pileup reader                                           
-    std::shared_ptr<FW::IParticleReader>   pileupParticleReader      = nullptr;
-    /// the number of pileup events                                 
-    FW::Distribution                       pileupType                = FW::Distribution::poisson;
-    std::shared_ptr<FW::RandomNumbersSvc>  pileupRandomNumbers       = nullptr;
-    std::shared_ptr<FW::RandomNumbersSvc>  pileupVertexDistT         = nullptr;
-    std::shared_ptr<FW::RandomNumbersSvc>  pileupVertexDistZ         = nullptr;
-    /// the BarcodeSvc
-    std::shared_ptr<FW::BarcodeSvc>        barcodeSvc                = nullptr;
-    /// output writer
-    std::shared_ptr<FW::IParticlePropertiesWriter> particleWriter    = nullptr;
+    /// name of the particle collection
+    std::string                            simulatedParticlesCollection  = "SimulatedParticles";
+    /// particle writer
+    std::shared_ptr<FW::IParticlePropertiesWriter> particleWriter        = nullptr;
+    // name of the cluster collection
+    std::string                            planarClustersCollection      = "PlanarClusters";
+    // 
+    std::shared_ptr<FW::IPlanarClusterWriter> planarClusterWriter        = nullptr;
     /// the job WhiteBoard
-    std::shared_ptr<FW::WhiteBoard>        jBoard                    = nullptr;
+    std::shared_ptr<FW::WhiteBoard>        jBoard                        = nullptr;
     /// the name of the algorithm
-    std::string name = "Algorithm";
+    std::string name = "FatrasWriteAlgorithm";
       
     Config()
     {
@@ -67,14 +60,14 @@ public:
   };
 
   /// Constructor
-  ReadEvgenAlgorithm(
+  FatrasWriteAlgorithm(
       const Config&                 cnf,
       std::unique_ptr<Acts::Logger> logger
-      = Acts::getDefaultLogger("ReadEvgenAlgorithm",
+      = Acts::getDefaultLogger("FatrasWriteAlgorithm",
                                Acts::Logging::INFO));
 
   /// Virtual destructor
-  virtual ~ReadEvgenAlgorithm() {}
+  virtual ~FatrasWriteAlgorithm() {}
   
   /// Framework intialize method
   FW::ProcessCode
@@ -119,23 +112,23 @@ protected:
 };
 
 inline FW::ProcessCode
-ReadEvgenAlgorithm::write(const FW::AlgorithmContext) const
+FatrasWriteAlgorithm::read(const FW::AlgorithmContext) const
 {
   return FW::ProcessCode::SUCCESS;
 }
 
 inline std::shared_ptr<FW::WhiteBoard>
-ReadEvgenAlgorithm::jobStore() const
+FatrasWriteAlgorithm::jobStore() const
 {
   return m_cfg.jBoard;
 }
 
 inline const std::string&
-ReadEvgenAlgorithm::name() const
+FatrasWriteAlgorithm::name() const
 {
   return m_cfg.name;
 }
 
 }
 
-#endif  /// ACTFW_EXAMPLES_READEVGENALGORITHM_H
+#endif  /// ACTFW_FATRAS_WRITEALGORITHM_H

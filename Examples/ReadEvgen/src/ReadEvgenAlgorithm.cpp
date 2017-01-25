@@ -116,7 +116,7 @@ FWE::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
 
   // write to the EventStore
   if (eventStore
-      && eventStore->writeT(eventParticles, m_cfg.particleCollectionName)
+      && eventStore->writeT(eventParticles, m_cfg.evgenParticlesCollection)
           == FW::ProcessCode::ABORT) {
     ACTS_WARNING(
         "Could not write colleciton of process vertices to event store.");

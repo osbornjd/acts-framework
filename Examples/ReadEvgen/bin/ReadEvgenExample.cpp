@@ -75,8 +75,8 @@ main(int argc, char* argv[])
 
   // Write ROOT TTree
   FWRoot::ParticlePropertiesWriter::Config particleWriterConfig;
-  particleWriterConfig.fileName = "$PWD/SimulationParticles.root";
-  particleWriterConfig.treeName = "SimulationParticles.root";
+  particleWriterConfig.fileName = "$PWD/EvgenParticles.root";
+  particleWriterConfig.treeName = "EvgenParticles.root";
   particleWriterConfig.barcodeSvc = barcodeSvc;
   auto particleWriter = std::make_shared<FWRoot::ParticlePropertiesWriter>(
       particleWriterConfig);
@@ -84,7 +84,7 @@ main(int argc, char* argv[])
   // get the read-in algorithm
   FWE::ReadEvgenAlgorithm::Config readEvgenCfg;
 
-  readEvgenCfg.particleCollectionName = "SimulationParticles";
+  readEvgenCfg.evgenParticlesCollection = "EvgenParticles";
   // the hard scatter reader
   readEvgenCfg.hardscatterParticleReader = hsPythiaGenerator;
   // the pileup reader
