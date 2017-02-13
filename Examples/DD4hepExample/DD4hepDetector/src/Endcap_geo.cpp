@@ -35,8 +35,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
       det_name, tube_shape, lcdd.air());  // air at the moment change later
   tube_vol.setVisAttributes(lcdd, x_det_dim.visStr());
   // go trough possible layers
-  int    module_num_num = 0;
-  size_t layer_num      = 0;
+  size_t layer_num = 0;
   // if it is the positive or negative endcap
   int sign = 1;
   for (xml_coll_t j(xml, _U(layer)); j; ++j) {
@@ -52,6 +51,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
     DetElement lay_det(cylinderVolume, layer_name, layer_num);
     // Visualization
     layer_vol.setVisAttributes(lcdd, x_layer.visStr());
+    int module_num_num = 0;
     // go trough possible modules
     if (x_layer.hasChild(_U(module))) {
       for (xml_coll_t i(x_layer, _U(module)); i; i++) {
@@ -60,6 +60,9 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
         double     deltaphi = 2. * M_PI / repeat;
         double     radius   = x_module.radius();
         double     slicedz  = x_module.dz();
+
+        size_t module_num = 0;
+
         // Create the module volume
         Volume mod_vol("module",
                        Trapezoid(x_module.x1(),
@@ -68,12 +71,41 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
                                  x_module.thickness(),
                                  x_module.length()),
                        lcdd.material(x_module.materialStr()));
-        size_t module_num = 0;
+        mod_vol.setVisAttributes(lcdd, x_module.visStr());
+        // the sensitive placed components to be used later to create the
+        // DetElements
+        std::vector<PlacedVolume> sensComponents;
+        // go through possible components
+        int comp_num = 0;
+        for (xml_coll_t comp(x_module, _U(module_component)); comp; comp++) {
+          xml_comp_t x_comp = comp;
+          // create the component volume
+          string comp_name
+              = _toString(comp_num, "component%d") + x_comp.materialStr();
+          Volume comp_vol(comp_name,
+                          Trapezoid(x_comp.x1(),
+                                    x_comp.x2(),
+                                    x_comp.thickness(),
+                                    x_comp.thickness(),
+                                    x_comp.length()),
+                          lcdd.material(x_comp.materialStr()));
+          comp_vol.setVisAttributes(lcdd, x_comp.visStr());
+
+          // Set Sensitive Volumes sensitive
+          if (x_comp.isSensitive()) comp_vol.setSensitiveDetector(sens);
+
+          // place component in module
+          Position     translation(0., x_comp.z(), 0.);
+          PlacedVolume placed_comp = mod_vol.placeVolume(comp_vol, translation);
+          if (x_comp.isSensitive()) sensComponents.push_back(placed_comp);
+          placed_comp.addPhysVolID("component", module_num);
+          ++comp_num;
+        }
+
         // Place the Modules
         for (int k = 0; k < repeat; k++) {
           string zname = _toString(k, "z%d");
-          // Visualization
-          mod_vol.setVisAttributes(lcdd, x_module.visStr());
+
           double phi         = deltaphi / dd4hep::rad * k;
           string module_name = zname
               + _toString(repeat * module_num_num + module_num, "module%d");
@@ -81,40 +113,17 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
           // Create the module DetElement
           DetElement mod_det(
               lay_det, module_name, repeat * module_num_num + module_num);
-          // Set Sensitive Volmes sensitive
+          // Set Sensitive Volumes sensitive
           if (x_module.isSensitive()) {
             mod_vol.setSensitiveDetector(sens);
           }
 
-          // go through possible components
-          int comp_num = 0.;
-          for (xml_coll_t comp(x_module, _U(module_component)); comp; comp++) {
-            xml_comp_t x_comp = comp;
-            // create the component volume
-            string comp_name
-                = _toString(comp_num, "component%d") + x_comp.materialStr();
-            Volume comp_vol(comp_name,
-                            Trapezoid(x_comp.x1(),
-                                      x_comp.x2(),
-                                      x_comp.thickness(),
-                                      x_comp.thickness(),
-                                      x_comp.length()),
-                            lcdd.material(x_comp.materialStr()));
-            comp_vol.setVisAttributes(lcdd, x_comp.visStr());
+          int comp_num = 0;
+          for (auto& sensComp : sensComponents) {
             // Create DetElement
-            DetElement comp_det(mod_det, comp_name, comp_num);
-            // Set Sensitive Volumes sensitive
-            /*                    if(x_comp.isSensitive()) {
-                                    comp_vol.setSensitiveDetector(sens);
-                                }*/
-            // place component in module
-            Position     translation(0., x_comp.z(), 0.);
-            PlacedVolume placed_comp
-                = mod_vol.placeVolume(comp_vol, translation);
-            // assign the placed Volume to the DetElement
-            comp_det.setPlacement(placed_comp);
-            placed_comp.addPhysVolID("component", comp_num);
-            ++comp_num;
+            DetElement comp_det(mod_det, "component", comp_num);
+            comp_det.setPlacement(sensComp);
+            comp_num++;
           }
           Rotation3D rotation1(1., 0., 0., 0., 1., 0., 0., 0., 1.);
           // Place Module Box Volumes in layer
@@ -137,9 +146,12 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
     // mapped
     // hand over modules to ACTS
     Acts::ActsExtension::Config layConfig;
-    layConfig.isLayer             = true;
-    layConfig.axes                = "XZy";
-    Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
+    layConfig.isLayer               = true;
+    layConfig.axes                  = "XZy";
+    layConfig.materialBins1         = 50;
+    layConfig.materialBins2         = 50;
+    layConfig.layerMaterialPosition = Acts::LayerMaterialPos::inner;
+    Acts::ActsExtension* detlayer   = new Acts::ActsExtension(layConfig);
     lay_det.addExtension<Acts::IActsExtension>(detlayer);
     // Placed Layer Volume
     Position     layer_pos(0., 0., x_layer.z());

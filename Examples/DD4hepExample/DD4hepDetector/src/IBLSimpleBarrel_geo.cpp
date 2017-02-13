@@ -48,6 +48,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
     DetElement lay_det(cylinderVolume, layer_name, layer_num);
     // Visualization
     layer_vol.setVisAttributes(lcdd, x_layer.visStr());
+
     // go trough possible modules
     if (x_layer.hasChild(_U(module))) {
       xml_comp_t x_module = x_layer.child(_U(module));
@@ -58,22 +59,94 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
       int        zrepeat = x_slice.repeat();
       double     dz      = x_slice.z();
       double     dr      = x_slice.dr();
-      // Create the module volume
+
+      // Place the Modules in z
+      size_t module_num = 0;
+      // create the module volume and its corresponing component volumes first
       Volume mod_vol(
           "module",
           Box(x_module.length(), x_module.width(), x_module.thickness()),
           lcdd.material(x_module.materialStr()));
       // Visualization
       mod_vol.setVisAttributes(lcdd, x_module.visStr());
-      // Place the Modules in z
-      size_t module_num = 0;
+      // the sensitive placed components to be used later to create the
+      // DetElements
+      std::vector<PlacedVolume> sensComponents;
+      int                       comp_num = 0;
+      // go through module components
+      for (xml_coll_t comp(x_module, _U(module_component)); comp; ++comp) {
+        string     component_name = _toString(comp_num, "component%d");
+        xml_comp_t x_component    = comp;
+        Volume     comp_vol(component_name,
+                        Box(x_component.length(),
+                            x_component.width(),
+                            x_component.thickness()),
+                        lcdd.material(x_component.materialStr()));
+        comp_vol.setVisAttributes(lcdd, x_component.visStr());
+
+        // make sensitive components sensitive
+        if (x_component.isSensitive()) comp_vol.setSensitiveDetector(sens);
+
+        // Place Component in Module
+        Position     trans(x_component.x(), 0., x_component.z());
+        PlacedVolume placedcomponent = mod_vol.placeVolume(comp_vol, trans);
+        placedcomponent.addPhysVolID("component", comp_num);
+        if (x_component.isSensitive())
+          sensComponents.push_back(placedcomponent);
+        comp_num++;
+      }
+      // add possible trapezoidal shape with hole for cooling pipe
+      if (x_module.hasChild(_U(subtraction))) {
+        xml_comp_t x_sub          = x_module.child(_U(subtraction));
+        xml_comp_t x_trd          = x_sub.child(_U(trd));
+        xml_comp_t x_tubs         = x_sub.child(_U(tubs));
+        string     component_name = _toString(comp_num, "component%d");
+        // create the two shapes first
+        Trapezoid trap_shape(x_trd.x1(),
+                             x_trd.x2(),
+                             x_trd.length(),
+                             x_trd.length(),
+                             x_trd.thickness());
+        Tube tubs_shape(x_tubs.rmin(), x_tubs.rmax(), x_tubs.dz());
+        // create the substraction
+        Volume sub_vol("subtraction_components",
+                       SubtractionSolid(trap_shape,
+                                        tubs_shape,
+                                        Transform3D(RotationX(0.5 * M_PI))),
+                       lcdd.material(x_sub.materialStr()));
+        sub_vol.setVisAttributes(lcdd, x_sub.visStr());
+        // Place the volume in the module
+        PlacedVolume placedSub = mod_vol.placeVolume(
+            sub_vol,
+            Transform3D(RotationZ(0.5 * M_PI) * RotationY(M_PI),
+                        Position(0., 0., x_sub.z())));
+        placedSub.addPhysVolID("component", comp_num);
+        comp_num++;
+      }
+      // add posibble cooling pipe
+      if (x_module.hasChild(_U(tubs))) {
+        xml_comp_t x_tubs         = x_module.child(_U(tubs));
+        string     component_name = _toString(comp_num, "component%d");
+        Volume     pipe_vol("CoolingPipe",
+                        Tube(x_tubs.rmin(), x_tubs.rmax(), x_tubs.dz()),
+                        lcdd.material(x_tubs.materialStr()));
+        pipe_vol.setVisAttributes(lcdd, x_tubs.visStr());
+        // Place the cooling pipe into the module
+        PlacedVolume placedPipe = mod_vol.placeVolume(
+            pipe_vol,
+            Transform3D(RotationX(0.5 * M_PI) * RotationY(0.5 * M_PI),
+                        Position(0., 0., x_tubs.z())));
+        placedPipe.addPhysVolID("component", comp_num);
+        comp_num++;
+      }
+      // Now place the module
       for (int k = -zrepeat; k <= zrepeat; k++) {
         double r = (l_rmax + l_rmin) * 0.5;
         if (k % 2 == 0) r += dr;
         // Place the modules in phi
         for (int i = 0; i < repeat; ++i) {
           double   phi         = deltaphi / dd4hep::rad * i;
-          string   module_name = _toString(module_num, "module%d");
+          string   module_name = layer_name + _toString(module_num, "module%d");
           Position trans(r * cos(phi), r * sin(phi), k * dz);
           // create detector element
           DetElement mod_det(lay_det, module_name, module_num);
@@ -81,82 +154,13 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
           if (x_module.isSensitive()) {
             mod_vol.setSensitiveDetector(sens);
           }
-
           int comp_num = 0;
-          // go through module components
-          for (xml_coll_t comp(x_module, _U(module_component)); comp; ++comp) {
-            string     component_name = _toString(comp_num, "component%d");
-            xml_comp_t x_component    = comp;
-            Volume     comp_vol("component",
-                            Box(x_component.length(),
-                                x_component.width(),
-                                x_component.thickness()),
-                            lcdd.material(x_component.materialStr()));
-            comp_vol.setVisAttributes(lcdd, x_component.visStr());
-            // create detector element
-            DetElement component_det(mod_det, component_name, comp_num);
-            // make sensitive components sensitive
-            /*                      if(x_component.isSensitive()) {
-                                      comp_vol.setSensitiveDetector(sens);
-                                  }*/
-            // Place Component in Module
-            Position     trans(x_component.x(), 0., x_component.z());
-            PlacedVolume placedcomponent = mod_vol.placeVolume(comp_vol, trans);
-            placedcomponent.addPhysVolID("component", comp_num);
-            // assign the placed Volume to the DetElement
-            component_det.setPlacement(placedcomponent);
+          for (auto& sensComp : sensComponents) {
+            DetElement component_det(mod_det, "component", comp_num);
+            component_det.setPlacement(sensComp);
             comp_num++;
           }
-          // add possible trapezoidal shape with hole for cooling pipe
-          if (x_module.hasChild(_U(subtraction))) {
-            xml_comp_t x_sub          = x_module.child(_U(subtraction));
-            xml_comp_t x_trd          = x_sub.child(_U(trd));
-            xml_comp_t x_tubs         = x_sub.child(_U(tubs));
-            string     component_name = _toString(comp_num, "component%d");
-            // create the two shapes first
-            Trapezoid trap_shape(x_trd.x1(),
-                                 x_trd.x2(),
-                                 x_trd.length(),
-                                 x_trd.length(),
-                                 x_trd.thickness());
-            Tube tubs_shape(x_tubs.rmin(), x_tubs.rmax(), x_tubs.dz());
-            // create the substraction
-            Volume sub_vol("subtraction_components",
-                           SubtractionSolid(trap_shape,
-                                            tubs_shape,
-                                            Transform3D(RotationX(0.5 * M_PI))),
-                           lcdd.material(x_sub.materialStr()));
-            sub_vol.setVisAttributes(lcdd, x_sub.visStr());
-            // Place the volume in the module
-            PlacedVolume placedSub = mod_vol.placeVolume(
-                sub_vol,
-                Transform3D(RotationZ(0.5 * M_PI) * RotationY(M_PI),
-                            Position(0., 0., x_sub.z())));
-            placedSub.addPhysVolID("component", comp_num);
-            // create detector element
-            DetElement sub_det(mod_det, component_name, comp_num);
-            sub_det.setPlacement(placedSub);
-            comp_num++;
-          }
-          // add posibble cooling pipe
-          if (x_module.hasChild(_U(tubs))) {
-            xml_comp_t x_tubs         = x_module.child(_U(tubs));
-            string     component_name = _toString(comp_num, "component%d");
-            Volume     pipe_vol("CoolingPipe",
-                            Tube(x_tubs.rmin(), x_tubs.rmax(), x_tubs.dz()),
-                            lcdd.material(x_tubs.materialStr()));
-            pipe_vol.setVisAttributes(lcdd, x_tubs.visStr());
-            // Place the cooling pipe into the module
-            PlacedVolume placedPipe = mod_vol.placeVolume(
-                pipe_vol,
-                Transform3D(RotationX(0.5 * M_PI) * RotationY(0.5 * M_PI),
-                            Position(0., 0., x_tubs.z())));
-            placedPipe.addPhysVolID("component", comp_num);
-            // create detector element
-            DetElement pipe_det(mod_det, component_name, comp_num);
-            pipe_det.setPlacement(placedPipe);
-            comp_num++;
-          }
+
           // Place Module Box Volumes in layer
           PlacedVolume placedmodule = layer_vol.placeVolume(
               mod_vol,
@@ -170,12 +174,30 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
         }
       }
     }
+
+    if (x_layer.hasChild(_U(tubs))) {
+      xml_comp_t x_support = x_layer.child(_U(tubs));
+      double     srmin     = l_rmin + x_support.offset();
+      double     srmax     = srmin + x_support.thickness();
+      // create the volume of the support structure
+      Volume support_vol("SupportStructure",
+                         Tube(srmin, srmax, x_support.dz()),
+                         lcdd.material(x_support.materialStr()));
+      support_vol.setVisAttributes(lcdd, x_support.visStr());
+      // place the support structure
+      PlacedVolume placedSupport = layer_vol.placeVolume(support_vol);
+      //   placedSupport.addPhysVolID("support", 1);
+    }
+
     // set granularity of layer material mapping and where material should be
     // mapped
     // hand over modules to ACTS
     Acts::ActsExtension::Config layConfig;
-    layConfig.isLayer             = true;
-    Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
+    layConfig.isLayer               = true;
+    layConfig.materialBins1         = 100;
+    layConfig.materialBins2         = 100;
+    layConfig.layerMaterialPosition = Acts::LayerMaterialPos::inner;
+    Acts::ActsExtension* detlayer   = new Acts::ActsExtension(layConfig);
     lay_det.addExtension<Acts::IActsExtension>(detlayer);
     // Place layer volume
     PlacedVolume placedLayer = tube_vol.placeVolume(layer_vol);
