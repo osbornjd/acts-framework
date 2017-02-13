@@ -32,12 +32,11 @@ G4MM::MMEventAction::BeginOfEventAction(const G4Event* event)
 }
 
 void
-G4MM::MMEventAction::EndOfEventAction(const G4Event*)
+G4MM::MMEventAction::EndOfEventAction(const G4Event* event)
 {
-  // access the start position of the track
-  G4ThreeVector startPos
-      = MMPrimaryGeneratorAction::Instance()->startPosition();
-  Acts::MaterialStep::Position pos(startPos.x(), startPos.y(), startPos.z());
+  Acts::MaterialStep::Position pos(event->GetPrimaryVertex()->GetX0(),
+                                   event->GetPrimaryVertex()->GetY0(),
+                                   event->GetPrimaryVertex()->GetZ0());
   // access the initial direction of the track
   G4ThreeVector dir   = MMPrimaryGeneratorAction::Instance()->direction();
   double        theta = dir.theta();
