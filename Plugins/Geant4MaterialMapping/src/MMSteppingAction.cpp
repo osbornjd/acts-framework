@@ -1,4 +1,5 @@
 #include "ACTFW/Geant4MaterialMapping/MMSteppingAction.hpp"
+#include "ACTS/Utilities/Units.hpp"
 #include "G4Material.hh"
 #include "G4Step.hh"
 
@@ -28,6 +29,7 @@ G4MM::MMSteppingAction::UserSteppingAction(const G4Step* step)
 {
   // get the material
   G4Material* material = step->GetPreStepPoint()->GetMaterial();
+
   if (material && material->GetName() != "Vacuum"
       && material->GetName() != "Air") {
     // go through the elements of the material & weigh it with its fraction
@@ -39,7 +41,7 @@ G4MM::MMSteppingAction::UserSteppingAction(const G4Step* step)
     double                 X0        = material->GetRadlen();
     double                 L0        = material->GetNuclearInterLength();
     double rho        = material->GetDensity() * CLHEP::mm3 / CLHEP::gram;
-    double steplength = step->GetStepLength() / CLHEP::mm3;
+    double steplength = step->GetStepLength() / CLHEP::mm;
     if (nElements == 1) {
       A = material->GetA() * CLHEP::mole / CLHEP::gram;
       Z = material->GetZ();
@@ -52,16 +54,16 @@ G4MM::MMSteppingAction::UserSteppingAction(const G4Step* step)
       if (A != 0.) Z /= nElements;
     }
 
-    G4cout << *material << G4endl;
-    G4cout << "----G4StepMaterial----" << G4endl;
-    /// @TODO remove output after testing
-    G4cout << "Material: " << material->GetName() << G4endl;
-    G4cout << "X0: " << X0 << G4endl;
-    G4cout << "L0: " << L0 << G4endl;
-    G4cout << "A: " << A << G4endl;
-    G4cout << "Z: " << Z << G4endl;
-    G4cout << "rho: " << rho << G4endl;
-    G4cout << "steplength: " << steplength << G4endl;
+    /*   G4cout << *material << G4endl;
+       G4cout << "----G4StepMaterial----" << G4endl;
+       /// @TODO remove output after testing
+       G4cout << "Material: " << material->GetName() << G4endl;
+       G4cout << "X0: " << X0 << G4endl;
+       G4cout << "L0: " << L0 << G4endl;
+       G4cout << "A: " << A << G4endl;
+       G4cout << "Z: " << Z << G4endl;
+       G4cout << "rho: " << rho << G4endl;
+       G4cout << "steplength: " << steplength << G4endl;*/
 
     // create the Materialstep
     const Acts::MaterialStep::Position pos(
