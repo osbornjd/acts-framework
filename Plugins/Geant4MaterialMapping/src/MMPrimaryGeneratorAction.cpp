@@ -56,9 +56,9 @@ G4MM::MMPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // generate random direction
   G4double phi   = -M_PI + G4UniformRand() * 2. * M_PI;
   G4double theta = G4UniformRand() * M_PI;
-
   m_dir
       = G4ThreeVector(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
+  G4ThreeVector position(0., 0., G4RandGauss::shoot(0., 150.));
 
   /* G4cout << "___________________________________" << G4endl;
    G4cout << " new direction: " << m_dir << G4endl;
@@ -66,6 +66,7 @@ G4MM::MMPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
    G4cout << "___________________________________" << G4endl;*/
 
   fParticleGun->SetParticleMomentumDirection(m_dir);
+  // fParticleGun->SetParticlePosition(position);
 
   fParticleGun->GeneratePrimaryVertex(anEvent);
 }
