@@ -122,12 +122,12 @@
         <constant name="B1_rmax"            value="156.25*cm"/>
         <constant name="B1_dz"              value="300.*cm"/>
         <constant name="B1_zpos"            value="0.*cm"/>
-        <constant name="B1_M_repeatZ"       value="23"/>
+        <constant name="B1_M_repeatZ"       value="23"/> 
         <constant name="B1_L_dz"            value="288.5*cm"/>
         <!--Layer0-->
         <constant name="B1_L0_rmin"         value="98.25*cm"/>
         <constant name="B1_L0_rmax"         value="107.25*cm"/>
-        <constant name="B1_L0_M_repeatPhi"  value="130"/>
+        <constant name="B1_L0_M_repeatPhi"  value="130"/> 
         <!--Layer1-->
         <constant name="B1_L1_rmin"         value="113.25*cm"/>
         <constant name="B1_L1_rmax"         value="124.25*cm"/>
@@ -190,7 +190,7 @@
         <constant name="B2_M_width"          value="50.0*mm"/>
         <constant name="B2_M_length"         value="100.4*mm"/>
         <constant name="B2_M_thickness"      value="0.1375*mm"/>
-        <constant name="B2_M_offsetZ"        value="200.*mm"/>
+        <constant name="B2_M_offsetZ"        value="150.*mm"/>
         <constant name="B2_M_offsetR"        value="0.3*mm"/>
         <!--EndCap2-->
         <constant name="E2_rmin"            value="2.1*cm"/>
@@ -224,9 +224,9 @@
     </readouts>
 
 
-   <include ref="FCCTrackerPixel.xml"/>
-   <include ref="FCCTrackerShortStrip.xml"/> 
-   <include ref="FCCTrackerLongStrip.xml"/>
+  <include ref="FCCTrackerPixel.xml"/>
+  <include ref="FCCTrackerShortStrip.xml"/> 
+  <include ref="FCCTrackerLongStrip.xml"/>
 
     <detectors>
     <!--BeamTube-->
@@ -235,19 +235,16 @@
             <dimensions rmin="Tube_rmin" rmax="Tube_rmax" z="Tube_length" vis="violet" material="Air"/>
         </detector>
         <detector id="1" name="FCCTrackerPixel" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
-            <shape name="EnvelopeShape1" type="Tube" rmin="Env0_rmin" rmax="Env0_rmax" dz="Env0_dz" material="Air"/>
             <composite name="Barrel0"/>
             <composite name="nEndCap0"/>
-            <composite name="pEndCap0"/> 
+            <composite name="pEndCap0"/>
         </detector>
         <detector id="2" name="FCCTrackerShortStrip" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
-            <shape name="EnvelopeShape2" type="Tube" rmin="Env1_rmin" rmax="Env1_rmax" dz="Env1_dz" material="Air"/>
             <composite name="Barrel1"/>
             <composite name="nEndCap1"/>
             <composite name="pEndCap1"/>
         </detector>
         <detector id="3" name="FCCTrackerLongStrip" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
-            <shape name="EnvelopeShape3" type="Tube" rmin="Env2_rmin" rmax="Env2_rmax" dz="Env2_dz" material="Air"/>
             <composite name="Barrel2"/>
             <composite name="nEndCap2"/>
             <composite name="pEndCap2"/>
