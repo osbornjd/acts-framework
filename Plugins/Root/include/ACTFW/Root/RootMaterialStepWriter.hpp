@@ -65,14 +65,15 @@ public:
   /// Writes out the MaterialStep entities
   /// @param surface the underlying Acts::Surface corresponding to the material
   /// steps and layer positions
-  /// @param stepAndLayerPos a pair of the total Acts::MaterialSteps for this
-  /// Surface and the respective assigned position on the layer
-  FW::ProcessCode
-  write(std::string          name,
-        const Acts::Surface* surface,
-        const std::vector<std::pair<const Acts::MaterialStep,
-                                    const Acts::Vector3D>> stepsAndLayerPos)
-      final;
+  /// @param steps all MaterialSteps of this layer/surface
+  /// @param realAnsAssignedPos the real and corresponding assigned positions of
+  /// the material
+  virtual FW::ProcessCode
+  write(std::string                           name,
+        const Acts::Surface*                  surface,
+        const std::vector<Acts::MaterialStep> steps,
+        const std::vector<std::pair<const Acts::Vector3D, const Acts::Vector3D>>
+            realAndAssignedPos) final;
 
   /// Framework name() method
   const std::string&

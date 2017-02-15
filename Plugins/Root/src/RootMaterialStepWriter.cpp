@@ -31,10 +31,11 @@ FWRoot::RootMaterialStepWriter::finalize()
 
 FW::ProcessCode
 FWRoot::RootMaterialStepWriter::write(
-    std::string          name,
-    const Acts::Surface* surface,
-    const std::vector<std::pair<const Acts::MaterialStep, const Acts::Vector3D>>
-        stepsAndLayerPos)
+    std::string                           name,
+    const Acts::Surface*                  surface,
+    const std::vector<Acts::MaterialStep> steps,
+    const std::vector<std::pair<const Acts::Vector3D, const Acts::Vector3D>>
+        realAndAssignedPos)
 {
   // create the tree
   TTree* surfTree = new TTree(name.c_str(), name.c_str());
@@ -49,14 +50,18 @@ FWRoot::RootMaterialStepWriter::write(
     int bins1 = binUtility->bins(0);
     int bins2 = binUtility->bins(1);
     // real global positions of the material
-    std::vector<float> globR;
+    std::vector<float> globX;
+    std::vector<float> globY;
     std::vector<float> globZ;
+    std::vector<float> globR;
     // assigned global positions of the material
-    std::vector<float> assignedGlobR;
+    std::vector<float> assignedGlobX;
+    std::vector<float> assignedGlobY;
     std::vector<float> assignedGlobZ;
+    std::vector<float> assignedGlobR;
     // local coordinates
-    std::vector<float> phi;
-    std::vector<float> z;
+    std::vector<float> loc1;
+    std::vector<float> loc2;
     // material properties
     std::vector<float> A;
     std::vector<float> Z;
@@ -67,30 +72,41 @@ FWRoot::RootMaterialStepWriter::write(
     std::vector<float> tInL0;
     std::vector<float> tInX0;
     // prepare
-    assignedGlobR.reserve(stepsAndLayerPos.size());
-    assignedGlobZ.reserve(stepsAndLayerPos.size());
-    globR.reserve(stepsAndLayerPos.size());
-    globZ.reserve(stepsAndLayerPos.size());
+    globX.reserve(realAndAssignedPos.size());
+    globY.reserve(realAndAssignedPos.size());
+    globZ.reserve(realAndAssignedPos.size());
+    globR.reserve(realAndAssignedPos.size());
 
-    phi.reserve(stepsAndLayerPos.size());
-    z.reserve(stepsAndLayerPos.size());
-    A.reserve(stepsAndLayerPos.size());
-    Z.reserve(stepsAndLayerPos.size());
-    x0.reserve(stepsAndLayerPos.size());
-    l0.reserve(stepsAndLayerPos.size());
-    thickness.reserve(stepsAndLayerPos.size());
-    rho.reserve(stepsAndLayerPos.size());
-    tInX0.reserve(stepsAndLayerPos.size());
-    tInL0.reserve(stepsAndLayerPos.size());
+    assignedGlobX.reserve(realAndAssignedPos.size());
+    assignedGlobY.reserve(realAndAssignedPos.size());
+    assignedGlobZ.reserve(realAndAssignedPos.size());
+    assignedGlobR.reserve(realAndAssignedPos.size());
+
+    loc1.reserve(steps.size());
+    loc2.reserve(steps.size());
+    A.reserve(steps.size());
+    Z.reserve(steps.size());
+    x0.reserve(steps.size());
+    l0.reserve(steps.size());
+    thickness.reserve(steps.size());
+    rho.reserve(steps.size());
+    tInX0.reserve(steps.size());
+    tInL0.reserve(steps.size());
 
     // create the branches
-    surfTree->Branch("assignedGlobR", &assignedGlobR);
-    surfTree->Branch("assignedGlobZ", &assignedGlobZ);
-    surfTree->Branch("globR", &globR);
-    surfTree->Branch("globZ", &globZ);
 
-    surfTree->Branch("phi", &phi);
-    surfTree->Branch("z", &z);
+    surfTree->Branch("globX", &globX);
+    surfTree->Branch("globY", &globY);
+    surfTree->Branch("globZ", &globZ);
+    surfTree->Branch("globR", &globR);
+
+    surfTree->Branch("assignedGlobX", &assignedGlobX);
+    surfTree->Branch("assignedGlobY", &assignedGlobY);
+    surfTree->Branch("assignedGlobZ", &assignedGlobZ);
+    surfTree->Branch("assignedGlobR", &assignedGlobR);
+
+    surfTree->Branch("loc1", &loc1);
+    surfTree->Branch("loc2", &loc2);
     surfTree->Branch("A", &A);
     surfTree->Branch("Z", &Z);
     surfTree->Branch("x0", &x0);
@@ -101,29 +117,27 @@ FWRoot::RootMaterialStepWriter::write(
     surfTree->Branch("tInL0", &tInL0);
 
     // now loop through the materialsteps
-    for (auto step : stepsAndLayerPos) {
+    for (auto step : steps) {
       // access material properties
-      const Acts::MaterialProperties mprop = step.first.material();
+      const Acts::MaterialProperties mprop = step.material();
       // access position and convert to position on surface
-      const Acts::Vector3D position(step.first.position().x,
-                                    step.first.position().y,
-                                    step.first.position().z);
-      // convert to local position
-      // @TODO probably change later for not cylindrical surfaces
-      const Acts::Transform3D& surfaceTrans = surface->transform();
-      Acts::Transform3D        inverseTrans(surfaceTrans.inverse());
-      Acts::Vector3D           loc3D(inverseTrans * position);
-      Acts::Vector2D           lposition(loc3D.phi(), loc3D.z());
+      const Acts::Vector3D position(
+          step.position().x, step.position().y, step.position().z);
 
-      // fill the histogram
-      globR.push_back(
-          sqrt(position.x() * position.x() + position.y() * position.y()));
-      globZ.push_back(position.z());
-      assignedGlobR.push_back(sqrt(step.second.x() * step.second.x()
-                                   + step.second.y() * step.second.y()));
-      assignedGlobZ.push_back(step.second.z());
-      phi.push_back(lposition.x());
-      z.push_back(lposition.y());
+      // convert to local position
+      Acts::Vector2D lposition(0., 0.);
+
+      // distinguish cylinder surface (local coordinates are (rphi,z) and we
+      // wanr phi,z)
+      if (surface->type() == Acts::Surface::SurfaceType::Cylinder) {
+        Acts::Transform3D inverseTrans(surface->transform().inverse());
+        Acts::Vector3D    loc3D(inverseTrans * position);
+        lposition = Acts::Vector2D(loc3D.phi(), loc3D.z());
+      } else
+        surface->globalToLocal(position, Acts::Vector3D(0., 0., 0.), lposition);
+
+      loc1.push_back(lposition.x());
+      loc2.push_back(lposition.y());
       A.push_back(mprop.averageA());
       Z.push_back(mprop.averageZ());
       x0.push_back(mprop.x0());
@@ -134,6 +148,20 @@ FWRoot::RootMaterialStepWriter::write(
       tInL0.push_back(mprop.thicknessInL0());
     }
 
+    for (auto pos : realAndAssignedPos) {
+      // fill the histogram
+      globX.push_back(pos.first.x());
+      globY.push_back(pos.first.y());
+      globZ.push_back(pos.first.z());
+      globR.push_back(
+          sqrt(pos.first.x() * pos.first.x() + pos.first.y() * pos.first.y()));
+
+      assignedGlobX.push_back(pos.second.x());
+      assignedGlobY.push_back(pos.second.y());
+      assignedGlobZ.push_back(pos.second.z());
+      assignedGlobR.push_back(sqrt(pos.second.x() * pos.second.x()
+                                   + pos.second.y() * pos.second.y()));
+    }
     surfTree->Fill();
     // write the histogram onto the file
     surfTree->Write();

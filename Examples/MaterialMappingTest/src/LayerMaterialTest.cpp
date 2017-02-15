@@ -65,7 +65,7 @@ FWE::LayerMaterialTest::execute(const FW::AlgorithmContext context) const
   size_t nLayer = 0;
   // loop through the layer records and print out the Binned Surface material
   for (auto& layerRecord : layerRecords) {
-    std::string                  lname = "layer" + std::to_string(nLayer);
+    std::string                  lname = "Layer" + std::to_string(nLayer);
     const Acts::SurfaceMaterial* surfMat
         = layerRecord.first->materialSurface()->associatedMaterial();
     const Acts::BinnedSurfaceMaterial* binnedSurfMat
@@ -74,20 +74,82 @@ FWE::LayerMaterialTest::execute(const FW::AlgorithmContext context) const
         binnedSurfMat->clone());
     m_cnf.materialWriter->write(bsMat, layerRecord.first->geoID(), lname);
     nLayer++;
-  }
-  // access the material steps assigned per layer and write out the material at
-  // a specific position for each layer
-  ACTS_INFO("Access the geant4 material steps per layer and print them");
-  const std::map<const Acts::Layer*,
-                 std::vector<std::pair<const Acts::MaterialStep,
-                                       const Acts::Vector3D>>>
-      layersAndSteps = m_cnf.materialMapper->layerMaterialSteps();
 
-  for (auto& step : layersAndSteps) {
-    std::string histName = std::to_string(step.first->geoID().value());
-    m_cnf.materialStepWriter->write(
-        histName, step.first->materialSurface(), step.second);
+    // access the material steps assigned per layer and write out the material
+    // at
+    // a specific position for each layer
+    ACTS_INFO("Access the geant4 material steps per layer and print them");
+
+    std::vector<std::pair<const std::vector<Acts::MaterialStep>,
+                          const Acts::Vector3D>>
+        layerMaterialSteps = layerRecord.second.layerMaterialSteps();
+
+    std::vector<Acts::MaterialStep> steps;
+    std::vector<std::pair<const Acts::Vector3D, const Acts::Vector3D>>
+        realAndAssignedPos;
+
+    for (auto& layerMaterialStep : layerMaterialSteps) {
+      std::vector<Acts::MaterialStep> materialSteps = layerMaterialStep.first;
+
+      // sum up all the material of the layer at this point
+      float thickness = 0.;
+      float rho       = 0.;
+      float x0        = 0.;
+      float l0        = 0.;
+      float A         = 0.;
+      float Z         = 0.;
+      float x         = 0.;
+      float y         = 0.;
+      float z         = 0.;
+      for (auto& layerStep : materialSteps) {
+        float t       = layerStep.material().thickness();
+        float density = layerStep.material().averageRho();
+        thickness += t;
+        rho += density * t;
+        x0 += layerStep.material().x0() * t;
+        l0 += layerStep.material().l0() * t;
+        A += layerStep.material().averageA() * density * t;
+        Z += layerStep.material().averageZ() * density * t;
+        x += layerStep.position().x;
+        y += layerStep.position().y;
+        z += layerStep.position().z;
+        realAndAssignedPos.push_back(
+            std::make_pair(Acts::Vector3D(layerStep.position().x,
+                                          layerStep.position().y,
+                                          layerStep.position().z),
+                           layerMaterialStep.second));
+      }
+      if (rho != 0.) {
+        A /= rho;
+        Z /= rho;
+      }
+      if (thickness != 0.) {
+        x0 /= thickness;
+        l0 /= thickness;
+        rho /= thickness;
+      }
+      if (materialSteps.size()) {
+        x /= materialSteps.size();
+        y /= materialSteps.size();
+        z /= materialSteps.size();
+      }
+
+      const Acts::MaterialStep averagedStep(
+          Acts::MaterialProperties(thickness, x0, l0, A, Z, rho),
+          Acts::MaterialStep::Position(x, y, z));
+
+      steps.push_back(averagedStep);
+    }
+    std::string histName = "G4Layer"
+        + std::to_string(std::distance(layerRecords.begin(),
+                                       layerRecords.find(layerRecord.first)));
+
+    m_cnf.materialStepWriter->write(histName,
+                                    layerRecord.first->materialSurface(),
+                                    steps,
+                                    realAndAssignedPos);
   }
+
   return FW::ProcessCode::SUCCESS;
 }
 
