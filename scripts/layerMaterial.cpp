@@ -231,6 +231,7 @@ layerMaterial(std::string inFile,
       assigned_x_y->Fill(assignedGlobX->at(i), assignedGlobY->at(i));
   }
 
+  gStyle->SetOptStat(0);
   // A
   A_loc2->Write();
   A_loc1->Write();

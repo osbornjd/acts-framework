@@ -65,6 +65,7 @@ errorOf1DHistograms(std::string inFile1,
                 (h1->GetBinContent(i) - h2->GetBinContent(i)));
   }
   TCanvas* c1 = new TCanvas();
+  gStyle->SetOptStat(0);
   c1->Divide(1, 2);
   c1->cd(1);
   h1->SetMarkerColor(1);
@@ -129,8 +130,14 @@ errorOf2DHistograms(std::string inFile1,
             << ", max1: " << max1 << ", nBins1: " << bins1 << ", min2: " << min2
             << ", max2: " << max2 << ", nBins2: " << bins2 << std::endl;
 
-  TH2F* error = new TH2F(
-      "error", "relative error", bins1, min1, max1, bins2, min2, max2);
+  std::string title = "relative error";
+  if (hist1Name == hist2Name)
+    title += " of " + hist1Name + " in " + legendName1 + " and " + legendName2;
+  else
+    title += " of " + hist1Name + " in " + legendName1 + " and " + hist1Name
+        + legendName2;
+  TH2F* error
+      = new TH2F("error", title.c_str(), bins1, min1, max1, bins2, min2, max2);
 
   if (!(bins1 == h2->GetXaxis()->GetNbins())
       && !(bins2 == h2->GetYaxis()->GetNbins())) {
@@ -145,9 +152,10 @@ errorOf2DHistograms(std::string inFile1,
                   (h1->GetBinContent(i, j) - h2->GetBinContent(i, j)));
     }
   }
-
+  TCanvas* c1 = new TCanvas();
+  gStyle->SetOptStat(0);
   error->Divide(h2);
-  error->Draw("");
+  error->Draw("colZ");
 
   error->SetDirectory(0);
 
