@@ -2,6 +2,7 @@
 file (GLOB_RECURSE src_files "src/*.*pp")
 
 # find the ACTS package
+
 find_package(ACTS REQUIRED COMPONENTS Core Examples)
 
 # define library target
@@ -11,6 +12,7 @@ add_executable(ACTFWExtrapolationTest bin/ExtrapolationTest.cpp)
 
 # setup include directories for ExtrapolationExample
 target_include_directories(ACTFWExtrapolationExample PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
+
 target_include_directories(ACTFWExtrapolationExample PUBLIC ACTFWRootPlugins)
 target_link_libraries(ACTFWExtrapolationExample PUBLIC ACTS::ACTSCore ACTS::ACTSExamples)
 target_link_libraries(ACTFWExtrapolationExample PUBLIC ACTFramework ACTFWRootPlugins)

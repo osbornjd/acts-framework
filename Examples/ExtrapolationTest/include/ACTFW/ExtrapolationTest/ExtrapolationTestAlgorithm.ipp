@@ -11,6 +11,7 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
 
 template <class T> FW::ProcessCode FWE::ExtrapolationTestAlgorithm::executeTestT(const T& startParameters) const {
 

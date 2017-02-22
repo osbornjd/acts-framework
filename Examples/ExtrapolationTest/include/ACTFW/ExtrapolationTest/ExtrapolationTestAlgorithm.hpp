@@ -11,9 +11,9 @@
 
 #include <cmath>
 #include <memory>
-
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 namespace Acts {
 class IExtrapolationEngine;

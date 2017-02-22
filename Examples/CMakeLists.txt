@@ -2,6 +2,11 @@ add_subdirectory(HelloWorld)
 add_subdirectory(WhiteBoard)
 add_subdirectory(RandomNumbers)
 add_subdirectory(ExtrapolationTest)
-#add_subdirectory(GdmlDetectorTest)
-
+add_subdirectory(GdmlDetectorTest)
+if (BUILD_DD4HEP_PLUGIN)
+  add_subdirectory(DD4hepExample)
+endif(BUILD_DD4HEP_PLUGIN)
+if (BUILD_DD4HEP_PLUGIN AND BUILD_GEANT4_MATERIALMAPPING)
+  add_subdirectory(MaterialMappingTest)
+endif(BUILD_DD4HEP_PLUGIN AND BUILD_GEANT4_MATERIALMAPPING)
 
