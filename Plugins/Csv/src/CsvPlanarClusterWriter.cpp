@@ -49,7 +49,7 @@ FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::
           double ey       = 0.;
           Acts::Vector2D local(lx,ly);
           // get the surface                         
-          const Acts::Surface& clusterSurface = cluster.associatedSurface();
+          const Acts::Surface& clusterSurface = cluster.referenceSurface();
           // transform global to local
           clusterSurface.localToGlobal(local, mom, pos);
           // write one line per barcode

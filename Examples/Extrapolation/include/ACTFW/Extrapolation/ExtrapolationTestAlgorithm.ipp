@@ -60,7 +60,7 @@ FWE::ExtrapolationTestAlgorithm::executeTestT(
     for (auto& es : ecc.extrapolationSteps ){
       if (es.stepConfiguration.checkMode(Acts::ExtrapolationMode::CollectSensitive)) {
         // get the surface
-        const Acts::Surface& sf = es.parameters->associatedSurface();
+        const Acts::Surface& sf = es.parameters->referenceSurface();
         // fill the appropriate vector
         geo_id_value volumeID = sf.geoID().value(Acts::GeometryID::volume_mask);
         geo_id_value layerID  = sf.geoID().value(Acts::GeometryID::layer_mask);

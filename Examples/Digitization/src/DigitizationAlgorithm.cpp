@@ -83,7 +83,7 @@ FWE::DigitizationAlgorithm::execute(const FW::AlgorithmContext context) const
             auto hitParameters   = hit.first.get();
             auto particleBarcode = hit.second;
             // get the surface
-            const Acts::Surface& hitSurface = hitParameters->associatedSurface();
+            const Acts::Surface& hitSurface = hitParameters->referenceSurface();
             // get the DetectorElement
             auto hitDetElement = hitSurface.associatedDetectorElement();
             if (hitDetElement) {
@@ -102,7 +102,8 @@ FWE::DigitizationAlgorithm::execute(const FW::AlgorithmContext context) const
                     ->cellSteps(*hitDigitizationModule,
                                 localIntersection,
                                 localDirection.unit());
-                
+                // everything under threshold or edge effects
+                if (!dSteps.size()) continue;
                 /// let' create a cluster - centroid method
                 double   localX    = 0.;
                 double   localY    = 0.;

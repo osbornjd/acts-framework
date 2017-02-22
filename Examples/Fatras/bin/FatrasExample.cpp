@@ -29,7 +29,7 @@
 int
 main(int argc, char* argv[])
 {
-  size_t nEvents = 1;
+  size_t nEvents = 10;
 
   // set geometry building logging level
   Acts::Logging::Level surfaceLogLevel = Acts::Logging::INFO;

@@ -74,11 +74,11 @@ FWRoot::RootExCellWriter::writeT(const Acts::ExtrapolationCell<T>& eCell)
         int passive = es.stepConfiguration.checkMode(
             Acts::ExtrapolationMode::CollectPassive);
         /// check the layer, surface, volume ID
-        geo_id_value volumeID = pars.associatedSurface().geoID().value(
+        geo_id_value volumeID = pars.referenceSurface().geoID().value(
             Acts::GeometryID::volume_mask);
-        geo_id_value layerID = pars.associatedSurface().geoID().value(
+        geo_id_value layerID = pars.referenceSurface().geoID().value(
             Acts::GeometryID::layer_mask);
-        geo_id_value surfaceID = pars.associatedSurface().geoID().value(
+        geo_id_value surfaceID = pars.referenceSurface().geoID().value(
             Acts::GeometryID::sensitive_mask);
         ///
         if ((m_cfg.writeSensitive && sensitive)
