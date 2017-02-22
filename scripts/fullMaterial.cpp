@@ -112,8 +112,8 @@ fullMaterial(std::string inFile,
     float rho       = 0.;
     float A         = 0.;
     float Z         = 0.;
-    float x0        = 0.;
-    float l0        = 0.;
+    float tInX0     = 0.;
+    float tInL0     = 0.;
 
     for (auto& step : steps) {
       //  std::cout << "t" << step.material().thickness() << std::endl;
@@ -123,42 +123,43 @@ fullMaterial(std::string inFile,
       rho += r * t;
       A += step.material().averageA() * r * t;
       Z += step.material().averageZ() * r * t;
-      x0 += step.material().x0() * t;
-      l0 += step.material().l0() * t;
+      tInX0 += (t != 0. && step.material().x0() != 0.)
+          ? t / step.material().x0()
+          : 0.;
+
+      tInL0 += (t != 0. && step.material().x0() != 0.)
+          ? t / step.material().l0()
+          : 0.;
     }
     if (rho != 0.) {
       A /= rho;
       Z /= rho;
     }
-    if (thickness != 0.) {
-      rho /= thickness;
-      x0 /= thickness;
-      l0 /= thickness;
-    }
+    if (thickness != 0.) rho /= thickness;
 
     t_phi->Fill(phi, thickness);
     t_theta->Fill(theta, thickness);
     t_eta->Fill(eta, thickness);
 
-    x0_phi->Fill(phi, x0);
-    x0_theta->Fill(theta, x0);
-    x0_eta->Fill(eta, x0);
-
-    l0_phi->Fill(phi, l0);
-    l0_theta->Fill(theta, l0);
-    l0_eta->Fill(eta, l0);
-
-    if (x0 != 0.) {
-      tInX0_phi->Fill(phi, thickness / x0);
-      tInX0_theta->Fill(theta, thickness / x0);
-      tInX0_eta->Fill(eta, thickness / x0);
+    if (tInX0 != 0.) {
+      x0_phi->Fill(phi, thickness / tInX0);
+      x0_theta->Fill(theta, thickness / tInX0);
+      x0_eta->Fill(eta, thickness / tInX0);
     }
 
-    if (l0 != 0.) {
-      tInL0_phi->Fill(phi, thickness / l0);
-      tInL0_theta->Fill(theta, thickness / l0);
-      tInL0_eta->Fill(eta, thickness / l0);
+    if (tInL0 != 0.) {
+      l0_phi->Fill(phi, thickness / tInL0);
+      l0_theta->Fill(theta, thickness / tInL0);
+      l0_eta->Fill(eta, thickness / tInL0);
     }
+
+    tInX0_phi->Fill(phi, tInX0);
+    tInX0_theta->Fill(theta, tInX0);
+    tInX0_eta->Fill(eta, tInX0);
+
+    tInL0_phi->Fill(phi, tInL0);
+    tInL0_theta->Fill(theta, tInL0);
+    tInL0_eta->Fill(eta, tInL0);
 
     A_phi->Fill(phi, A);
     A_theta->Fill(theta, A);
