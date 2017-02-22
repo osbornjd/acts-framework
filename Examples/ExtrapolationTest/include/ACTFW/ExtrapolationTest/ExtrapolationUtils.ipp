@@ -8,7 +8,7 @@
 #include "ACTS/Extrapolation/ExtrapolationEngine.hpp"
 
 
-template <class MagneticField = Acts::ConstantBField>
+template <class MagneticField>
 std::unique_ptr<Acts::IExtrapolationEngine>
 FWE::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, std::shared_ptr<MagneticField> magFieldSvc, Acts::Logging::Level eLogLevel)
 {
