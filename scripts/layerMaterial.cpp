@@ -41,8 +41,8 @@ layerMaterial(std::string inFile,
   TTree* layer = (TTree*)inputFile.Get(layerName.c_str());
   std::cout << "Reading tree: " << layerName << std::endl;
 
+  std::vector<float>* loc0  = new std::vector<float>;
   std::vector<float>* loc1  = new std::vector<float>;
-  std::vector<float>* loc2  = new std::vector<float>;
   std::vector<float>* A     = new std::vector<float>;
   std::vector<float>* Z     = new std::vector<float>;
   std::vector<float>* x0    = new std::vector<float>;
@@ -63,8 +63,8 @@ layerMaterial(std::string inFile,
   std::vector<float>* assignedGlobZ = new std::vector<float>;
   std::vector<float>* assignedGlobR = new std::vector<float>;
 
+  layer->SetBranchAddress("loc0", &loc0);
   layer->SetBranchAddress("loc1", &loc1);
-  layer->SetBranchAddress("loc2", &loc2);
   layer->SetBranchAddress("A", &A);
   layer->SetBranchAddress("Z", &Z);
   layer->SetBranchAddress("x0", &x0);
@@ -95,13 +95,13 @@ layerMaterial(std::string inFile,
   layer->GetEntry(0);
 
   // get minima and maxima for different layers
+  auto  minmax0 = std::minmax_element(loc0->begin(), loc0->end());
+  float min0    = *minmax0.first;
+  float max0    = *minmax0.second;
+
   auto  minmax1 = std::minmax_element(loc1->begin(), loc1->end());
   float min1    = *minmax1.first;
   float max1    = *minmax1.second;
-
-  auto  minmax2 = std::minmax_element(loc2->begin(), loc2->end());
-  float min2    = *minmax2.first;
-  float max2    = *minmax2.second;
 
   inputFile.Close();
   std::cout << "Creating new output file: " << outFile << " and writing "
@@ -111,52 +111,52 @@ layerMaterial(std::string inFile,
   TDirectory* dir = outputFile.mkdir(layerName.c_str());
   dir->cd();
   // thickness in X0
-  TProfile* dInX0_loc2
-      = new TProfile("dInX0_loc2", "dInX0_loc2", binsLoc1, min2, max2);
   TProfile* dInX0_loc1
       = new TProfile("dInX0_loc1", "dInX0_loc1", binsLoc1, min1, max1);
+  TProfile* dInX0_loc0
+      = new TProfile("dInX0_loc0", "dInX0_loc0", binsLoc1, min0, max0);
   TProfile2D* dInX0_map = new TProfile2D(
-      "dInX0", "dInX0", binsLoc1, min2, max2, binsLoc1, min1, max1);
+      "dInX0", "dInX0", binsLoc1, min1, max1, binsLoc1, min0, max0);
   // thickness in L0
-  TProfile* dInL0_loc2
-      = new TProfile("dInL0_loc2", "dInL0_loc2", binsLoc2, min2, max2);
   TProfile* dInL0_loc1
-      = new TProfile("dInL0_loc1", "dInL0_loc1", binsLoc1, min1, max1);
+      = new TProfile("dInL0_loc1", "dInL0_loc1", binsLoc2, min1, max1);
+  TProfile* dInL0_loc0
+      = new TProfile("dInL0_loc0", "dInL0_loc0", binsLoc1, min0, max0);
   TProfile2D* dInL0_map = new TProfile2D(
-      "dInL0", "dInL0", binsLoc2, min2, max2, binsLoc1, min1, max1);
+      "dInL0", "dInL0", binsLoc2, min1, max1, binsLoc1, min0, max0);
   // A
-  TProfile*   A_loc2 = new TProfile("A_loc2", "A_loc2", binsLoc2, min2, max2);
-  TProfile*   A_loc1 = new TProfile("A_loc1", "A_loc1", binsLoc1, min1, max1);
+  TProfile*   A_loc1 = new TProfile("A_loc1", "A_loc1", binsLoc2, min1, max1);
+  TProfile*   A_loc0 = new TProfile("A_loc0", "A_loc0", binsLoc1, min0, max0);
   TProfile2D* A_map
-      = new TProfile2D("A", "A", binsLoc2, min2, max2, binsLoc1, min1, max1);
+      = new TProfile2D("A", "A", binsLoc2, min1, max1, binsLoc1, min0, max0);
   // Z
-  TProfile*   Z_loc2 = new TProfile("Z_loc2", "Z_loc2", binsLoc2, min2, max2);
-  TProfile*   Z_loc1 = new TProfile("Z_loc1", "Z_loc1", binsLoc1, min1, max1);
+  TProfile*   Z_loc1 = new TProfile("Z_loc1", "Z_loc1", binsLoc2, min1, max1);
+  TProfile*   Z_loc0 = new TProfile("Z_loc0", "Z_loc0", binsLoc1, min0, max0);
   TProfile2D* Z_map
-      = new TProfile2D("Z", "Z", binsLoc2, min2, max2, binsLoc1, min1, max1);
+      = new TProfile2D("Z", "Z", binsLoc2, min1, max1, binsLoc1, min0, max0);
   // Rho
-  TProfile* rho_loc2
-      = new TProfile("rho_loc2", "rho_loc2", binsLoc2, min2, max2);
   TProfile* rho_loc1
-      = new TProfile("rho_loc1", "rho_loc1", binsLoc1, min1, max1);
+      = new TProfile("rho_loc1", "rho_loc1", binsLoc2, min1, max1);
+  TProfile* rho_loc0
+      = new TProfile("rho_loc0", "rho_loc0", binsLoc1, min0, max0);
   TProfile2D* rho_map = new TProfile2D(
-      "rho", "rho", binsLoc2, min2, max2, binsLoc1, min1, max1);
+      "rho", "rho", binsLoc2, min1, max1, binsLoc1, min0, max0);
   // x0
-  TProfile* x0_loc2 = new TProfile("x0_loc2", "x0_loc2", binsLoc2, min2, max2);
-  TProfile* x0_loc1 = new TProfile("x0_loc1", "x0_loc1", binsLoc1, min1, max1);
+  TProfile* x0_loc1 = new TProfile("x0_loc1", "x0_loc1", binsLoc2, min1, max1);
+  TProfile* x0_loc0 = new TProfile("x0_loc0", "x0_loc0", binsLoc1, min0, max0);
   TProfile2D* x0_map
-      = new TProfile2D("x0", "x0", binsLoc2, min2, max2, binsLoc1, min1, max1);
+      = new TProfile2D("x0", "x0", binsLoc2, min1, max1, binsLoc1, min0, max0);
   // l0
-  TProfile* l0_loc2 = new TProfile("l0_loc2", "l0_loc2", binsLoc2, min2, max2);
-  TProfile* l0_loc1 = new TProfile("l0_loc1", "l0_loc1", binsLoc1, min1, max1);
+  TProfile* l0_loc1 = new TProfile("l0_loc1", "l0_loc1", binsLoc2, min1, max1);
+  TProfile* l0_loc0 = new TProfile("l0_loc0", "l0_loc0", binsLoc1, min0, max0);
   TProfile2D* l0_map
-      = new TProfile2D("l0", "l0", binsLoc2, min2, max2, binsLoc1, min1, max1);
+      = new TProfile2D("l0", "l0", binsLoc2, min1, max1, binsLoc1, min0, max0);
 
   // thickness
-  TProfile*   t_loc2 = new TProfile("t_loc2", "t_loc2", binsLoc2, min2, max2);
-  TProfile*   t_loc1 = new TProfile("t_loc1", "t_loc1", binsLoc1, min1, max1);
+  TProfile*   t_loc1 = new TProfile("t_loc1", "t_loc1", binsLoc2, min1, max1);
+  TProfile*   t_loc0 = new TProfile("t_loc0", "t_loc0", binsLoc1, min0, max0);
   TProfile2D* t_map
-      = new TProfile2D("t", "t", binsLoc2, min2, max2, binsLoc1, min1, max1);
+      = new TProfile2D("t", "t", binsLoc2, min1, max1, binsLoc1, min0, max0);
 
   // global
   TH2F* glob_r_z = new TH2F(
@@ -181,40 +181,40 @@ layerMaterial(std::string inFile,
                                 -maxGlobR,
                                 maxGlobR);
 
-  size_t nEntries = loc2->size();
+  size_t nEntries = loc1->size();
   for (int i = 0; i < nEntries; i++) {
     // A
-    A_loc2->Fill(loc2->at(i), A->at(i));
     A_loc1->Fill(loc1->at(i), A->at(i));
-    A_map->Fill(loc2->at(i), loc1->at(i), A->at(i));
+    A_loc0->Fill(loc0->at(i), A->at(i));
+    A_map->Fill(loc1->at(i), loc0->at(i), A->at(i));
     // Z
-    Z_loc2->Fill(loc2->at(i), Z->at(i));
     Z_loc1->Fill(loc1->at(i), Z->at(i));
-    Z_map->Fill(loc2->at(i), loc1->at(i), Z->at(i));
+    Z_loc0->Fill(loc0->at(i), Z->at(i));
+    Z_map->Fill(loc1->at(i), loc0->at(i), Z->at(i));
     // x0
-    x0_loc2->Fill(loc2->at(i), x0->at(i));
     x0_loc1->Fill(loc1->at(i), x0->at(i));
-    x0_map->Fill(loc2->at(i), loc1->at(i), x0->at(i));
+    x0_loc0->Fill(loc0->at(i), x0->at(i));
+    x0_map->Fill(loc1->at(i), loc0->at(i), x0->at(i));
     // l0
-    l0_loc2->Fill(loc2->at(i), l0->at(i));
     l0_loc1->Fill(loc1->at(i), l0->at(i));
-    l0_map->Fill(loc2->at(i), loc1->at(i), l0->at(i));
+    l0_loc0->Fill(loc0->at(i), l0->at(i));
+    l0_map->Fill(loc1->at(i), loc0->at(i), l0->at(i));
     // rho
-    rho_loc2->Fill(loc2->at(i), rho->at(i));
     rho_loc1->Fill(loc1->at(i), rho->at(i));
-    rho_map->Fill(loc2->at(i), loc1->at(i), rho->at(i));
+    rho_loc0->Fill(loc0->at(i), rho->at(i));
+    rho_map->Fill(loc1->at(i), loc0->at(i), rho->at(i));
     // thickness in X0
-    dInX0_loc2->Fill(loc2->at(i), dInX0->at(i));
     dInX0_loc1->Fill(loc1->at(i), dInX0->at(i));
-    dInX0_map->Fill(loc2->at(i), loc1->at(i), dInX0->at(i));
+    dInX0_loc0->Fill(loc0->at(i), dInX0->at(i));
+    dInX0_map->Fill(loc1->at(i), loc0->at(i), dInX0->at(i));
     // thickness in L0
-    dInL0_loc2->Fill(loc2->at(i), dInL0->at(i));
     dInL0_loc1->Fill(loc1->at(i), dInL0->at(i));
-    dInL0_map->Fill(loc2->at(i), loc1->at(i), dInL0->at(i));
+    dInL0_loc0->Fill(loc0->at(i), dInL0->at(i));
+    dInL0_map->Fill(loc1->at(i), loc0->at(i), dInL0->at(i));
     // thickness
-    t_loc2->Fill(loc2->at(i), t->at(i));
     t_loc1->Fill(loc1->at(i), t->at(i));
-    t_map->Fill(loc2->at(i), loc1->at(i), t->at(i));
+    t_loc0->Fill(loc0->at(i), t->at(i));
+    t_map->Fill(loc1->at(i), loc0->at(i), t->at(i));
 
     // fill global r/z
     if (globZ->size() && globR->size())
@@ -233,61 +233,61 @@ layerMaterial(std::string inFile,
 
   gStyle->SetOptStat(0);
   // A
-  A_loc2->Write();
   A_loc1->Write();
+  A_loc0->Write();
   A_map->Write();
-  delete A_loc2;
   delete A_loc1;
+  delete A_loc0;
   delete A_map;
   // Z
-  Z_loc2->Write();
   Z_loc1->Write();
+  Z_loc0->Write();
   Z_map->Write();
-  delete Z_loc2;
   delete Z_loc1;
+  delete Z_loc0;
   delete Z_map;
   // x0
-  x0_loc2->Write();
   x0_loc1->Write();
+  x0_loc0->Write();
   x0_map->Write();
-  delete x0_loc2;
   delete x0_loc1;
+  delete x0_loc0;
   delete x0_map;
   // l0
-  l0_loc2->Write();
   l0_loc1->Write();
+  l0_loc0->Write();
   l0_map->Write();
-  delete l0_loc2;
   delete l0_loc1;
+  delete l0_loc0;
   delete l0_map;
   // rho
-  rho_loc2->Write();
   rho_loc1->Write();
+  rho_loc0->Write();
   rho_map->Write();
-  delete rho_loc2;
   delete rho_loc1;
+  delete rho_loc0;
   delete rho_map;
   // thickness in X0
-  dInX0_loc2->Write();
   dInX0_loc1->Write();
+  dInX0_loc0->Write();
   dInX0_map->Write();
-  delete dInX0_loc2;
   delete dInX0_loc1;
+  delete dInX0_loc0;
   delete dInX0_map;
   // thickness in L0
-  dInL0_loc2->Write();
   dInL0_loc1->Write();
+  dInL0_loc0->Write();
   dInL0_map->Write();
-  delete dInL0_loc2;
   delete dInL0_loc1;
+  delete dInL0_loc0;
   delete dInL0_map;
   // thickness
-  t_loc2->Write();
   t_loc1->Write();
+  t_loc0->Write();
   t_map->Write();
 
+  delete loc0;
   delete loc1;
-  delete loc2;
   delete A;
   delete Z;
   delete x0;

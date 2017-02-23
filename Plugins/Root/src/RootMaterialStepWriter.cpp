@@ -46,9 +46,6 @@ FWRoot::RootMaterialStepWriter::write(
   if (material) {
     // acces the bin utility
     const Acts::BinUtility* binUtility = material->binUtility();
-    // get the bin size
-    int bins1 = binUtility->bins(0);
-    int bins2 = binUtility->bins(1);
     // real global positions of the material
     std::vector<float> globX;
     std::vector<float> globY;
@@ -60,8 +57,8 @@ FWRoot::RootMaterialStepWriter::write(
     std::vector<float> assignedGlobZ;
     std::vector<float> assignedGlobR;
     // local coordinates
+    std::vector<float> loc0;
     std::vector<float> loc1;
-    std::vector<float> loc2;
     // material properties
     std::vector<float> A;
     std::vector<float> Z;
@@ -82,8 +79,8 @@ FWRoot::RootMaterialStepWriter::write(
     assignedGlobZ.reserve(realAndAssignedPos.size());
     assignedGlobR.reserve(realAndAssignedPos.size());
 
+    loc0.reserve(steps.size());
     loc1.reserve(steps.size());
-    loc2.reserve(steps.size());
     A.reserve(steps.size());
     Z.reserve(steps.size());
     x0.reserve(steps.size());
@@ -105,8 +102,8 @@ FWRoot::RootMaterialStepWriter::write(
     surfTree->Branch("assignedGlobZ", &assignedGlobZ);
     surfTree->Branch("assignedGlobR", &assignedGlobR);
 
+    surfTree->Branch("loc0", &loc0);
     surfTree->Branch("loc1", &loc1);
-    surfTree->Branch("loc2", &loc2);
     surfTree->Branch("A", &A);
     surfTree->Branch("Z", &Z);
     surfTree->Branch("x0", &x0);
@@ -136,8 +133,8 @@ FWRoot::RootMaterialStepWriter::write(
       } else
         surface->globalToLocal(position, Acts::Vector3D(0., 0., 0.), lposition);
 
-      loc1.push_back(lposition.x());
-      loc2.push_back(lposition.y());
+      loc0.push_back(lposition.x());
+      loc1.push_back(lposition.y());
       A.push_back(mprop.averageA());
       Z.push_back(mprop.averageZ());
       x0.push_back(mprop.x0());
