@@ -50,10 +50,11 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<Acts::Logger> logger;    ///< the default logger
-    std::string                   treeName;  ///< the name of the output tree
-    std::string                   fileName;  ///< the name of the output file
-    std::string                   name;      ///< the name of the algorithm
+    std::shared_ptr<Acts::Logger> logger;                ///< the default logger
+    std::string                   treeName;              ///< the name of the output tree
+    std::string                   fileName;              ///< the name of the output file
+    std::string                   name;                  ///< the name of the algorithm
+    std::string                   fileMode = "recreate"; //!< recreating the file
 
     bool writeSensitive;
     bool writeMaterial;

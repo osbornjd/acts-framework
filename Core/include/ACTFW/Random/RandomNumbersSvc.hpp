@@ -22,17 +22,18 @@
 namespace FW {
 
 ///  @enum class Distribution
-enum class Distribution { uniform, gauss, landau, gamma };
+enum class Distribution { uniform, gauss, landau, gamma, poisson };
 
 /// @class RandomNumbersSvc
 ///
 /// An implementation of the std random numbers
 ///
-typedef std::mt19937                     RandomEngine;  // Mersenne Twister
-typedef std::normal_distribution<double> GaussDist;     // Normal Distribution
+typedef std::mt19937                     RandomEngine;   ///< Mersenne Twister
+typedef std::normal_distribution<double> GaussDist;      ///< Normal Distribution
 typedef std::uniform_real_distribution<double>
-                                        UniformDist;  // Uniform Distribution
-typedef std::gamma_distribution<double> GammaDist;    // Gamma Distribution
+                                         UniformDist;    ///< Uniform Distribution
+typedef std::gamma_distribution<double>  GammaDist;      ///< Gamma Distribution
+typedef std::poisson_distribution<int>   PoissonDist;    ///< Poisson Distribution 
 
 class RandomNumbersSvc : public IService
 {
@@ -56,6 +57,8 @@ public:
     std::array<double, 2> landau_parameters = {{0, 1}};
     /// configuration gamma
     std::array<double, 2> gamma_parameters = {{0, 1}};
+    /// configuration poisson
+    int                   poisson_parameter = 40;
 
 	Config(const std::string&   lname = "RandomNumbersSvc",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
@@ -90,6 +93,7 @@ public:
     GaussDist      m_gauss;    ///< gauss distribution
     UniformDist    m_uniform;  ///< uniform distribution
     GammaDist      m_gamma;    ///< gamma distribution
+    PoissonDist    m_poisson;  ///< poisson distribution
   };
 
   /// Constructor

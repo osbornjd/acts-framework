@@ -25,6 +25,7 @@ FW::RandomNumbersSvc::Generator::Generator(const Config & cfg,
               m_cfg.uniform_parameters[1]}
   , m_gamma{m_cfg.gamma_parameters[0],
             m_cfg.gamma_parameters[1]}
+  , m_poisson(m_cfg.poisson_parameter)
 {
 }
 
@@ -48,26 +49,25 @@ FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext & context) const
    const unsigned int generatorID =
        context.algorithmNumber * eventContext->jobContext->eventCount
      + eventContext->eventNumber;
-
+   
    return Generator{ m_cfg, m_cfg.seed + generatorID };
 }
 
 double
-FW::RandomNumbersSvc::Generator::draw(FW::Distribution dPar)
+  FW::RandomNumbersSvc::Generator::draw(FW::Distribution dPar)
 {
+  // switch and return
   switch (dPar) {
-  case Distribution::gauss:
-    return m_gauss(m_engine);
-  case Distribution::uniform:
-    return m_uniform(m_engine);
-  case Distribution::gamma:
-    return m_gamma(m_engine);
-  case Distribution::landau: {
-    double x   = m_uniform(m_engine);
-    double res = m_cfg.landau_parameters[0]
+    case Distribution::gauss: return m_gauss(m_engine);
+    case Distribution::uniform: return m_uniform(m_engine);
+    case Distribution::gamma: return m_gamma(m_engine);
+    case Distribution::landau: {
+      double x   = m_uniform(m_engine);
+      double res = m_cfg.landau_parameters[0]
         + landau_quantile(x, m_cfg.landau_parameters[1]);
-    return res;
-  }
+      return res;
+    }
+    case Distribution::poisson: return m_poisson(m_engine);
   }
   return 0.;
 }

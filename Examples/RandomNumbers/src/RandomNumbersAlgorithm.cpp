@@ -41,11 +41,13 @@ FWE::RandomNumbersAlgorithm::execute(const FW::AlgorithmContext context) const
     double uniform = rng.draw(FW::Distribution::uniform);
     double landau  = rng.draw(FW::Distribution::landau);
     double gamma   = rng.draw(FW::Distribution::gamma);
+    int    poisson = rng.draw(FW::Distribution::poisson);
 
     ACTS_VERBOSE("Gauss   : " << gauss);
     ACTS_VERBOSE("Uniform : " << uniform);
     ACTS_VERBOSE("Landau  : " << landau);
     ACTS_VERBOSE("Gamma   : " << gamma);
+    ACTS_VERBOSE("Poisson : " << poisson);
   }
   return FW::ProcessCode::SUCCESS;
 }
