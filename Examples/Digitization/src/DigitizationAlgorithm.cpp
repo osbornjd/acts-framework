@@ -92,8 +92,8 @@ FWE::DigitizationAlgorithm::execute(const FW::AlgorithmContext context) const
               if (hitDigitizationModule) {
                 // parameters
                 auto           pars = hitParameters->parameters();
-                Acts::Vector2D localIntersection(pars[Acts::ParDef::eLOC_1],
-                                                 pars[Acts::ParDef::eLOC_2]);
+                Acts::Vector2D localIntersection(pars[Acts::ParDef::eLOC_0],
+                                                 pars[Acts::ParDef::eLOC_1]);
                 Acts::Vector3D localDirection(
                     hitSurface.transform().inverse().linear()
                     * hitParameters->momentum());

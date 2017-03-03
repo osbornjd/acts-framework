@@ -43,8 +43,8 @@ FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::
           Acts::Vector3D pos(0.,0.,0.); 
           Acts::Vector3D mom(1.,1.,1.);
           auto parameters = cluster.parameters();
-          double lx       = parameters[Acts::ParDef::eLOC_1];
-          double ly       = parameters[Acts::ParDef::eLOC_2];
+          double lx       = parameters[Acts::ParDef::eLOC_0];
+          double ly       = parameters[Acts::ParDef::eLOC_1];
           double ex       = 0.;
           double ey       = 0.;
           Acts::Vector2D local(lx,ly);

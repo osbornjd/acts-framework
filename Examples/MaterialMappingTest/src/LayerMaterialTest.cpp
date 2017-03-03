@@ -135,7 +135,7 @@ FWE::LayerMaterialTest::execute(const FW::AlgorithmContext context) const
       }
 
       const Acts::MaterialStep averagedStep(
-          Acts::MaterialProperties(thickness, x0, l0, A, Z, rho),
+          Acts::MaterialProperties(x0, l0, A, Z, rho,thickness),
           Acts::MaterialStep::Position(x, y, z));
 
       steps.push_back(averagedStep);

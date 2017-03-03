@@ -46,11 +46,11 @@ FWRoot::RootMaterialWriter::write(
   const Acts::MaterialPropertiesMatrix materialMat
       = surfMaterial->fullMaterial();
   // get the bin size
-  int bins1 = binUtility->bins(0);
-  int bins2 = binUtility->bins(1);
+  int bins0 = binUtility->bins(0);
+  int bins1 = binUtility->bins(1);
   // position vectors
+  std::vector<float> loc0;
   std::vector<float> loc1;
-  std::vector<float> loc2;
   // material proerties
   std::vector<float> A;
   std::vector<float> Z;
@@ -62,21 +62,21 @@ FWRoot::RootMaterialWriter::write(
   std::vector<float> tInX0;
   std::vector<int>   entries;
   // prepare
-  loc1.reserve(bins1 * bins2);
-  loc2.reserve(bins1 * bins2);
-  A.reserve(bins1 * bins2);
-  Z.reserve(bins1 * bins2);
-  x0.reserve(bins1 * bins2);
-  l0.reserve(bins1 * bins2);
-  thickness.reserve(bins1 * bins2);
-  rho.reserve(bins1 * bins2);
-  tInX0.reserve(bins1 * bins2);
-  tInL0.reserve(bins1 * bins2);
-  entries.reserve(bins1 * bins2);
+  loc0.reserve(bins0 * bins1);
+  loc1.reserve(bins0 * bins1);
+  A.reserve(bins0 * bins1);
+  Z.reserve(bins0 * bins1);
+  x0.reserve(bins0 * bins1);
+  l0.reserve(bins0 * bins1);
+  thickness.reserve(bins0 * bins1);
+  rho.reserve(bins0 * bins1);
+  tInX0.reserve(bins0 * bins1);
+  tInL0.reserve(bins0 * bins1);
+  entries.reserve(bins0 * bins1);
 
   // create the branches
+  surfTree->Branch("loc0", &loc0);
   surfTree->Branch("loc1", &loc1);
-  surfTree->Branch("loc2", &loc2);
   surfTree->Branch("A", &A);
   surfTree->Branch("Z", &Z);
   surfTree->Branch("x0", &x0);
@@ -89,11 +89,11 @@ FWRoot::RootMaterialWriter::write(
 
   const std::vector<Acts::BinningData> binningData = binUtility->binningData();
   // loop through the material matrix
-  for (int i = 0; i < bins1; i++) {
-    for (int j = 0; j < bins2; j++) {
+  for (int i = 0; i < bins0; i++) {
+    for (int j = 0; j < bins1; j++) {
       const Acts::MaterialProperties* material = materialMat.at(j).at(i);
-      loc1.push_back(binningData.at(0).centerValue(i));
-      loc2.push_back(binningData.at(1).centerValue(j));
+      loc0.push_back(binningData.at(0).centerValue(i));
+      loc1.push_back(binningData.at(1).centerValue(j));
       A.push_back(material->averageA());
       Z.push_back(material->averageZ());
       x0.push_back(material->x0());
