@@ -9,7 +9,7 @@
 #include "ACTFW/Geant4MaterialMapping/MMPrimaryGeneratorAction.hpp"
 #include "ACTFW/Geant4MaterialMapping/MMRunAction.hpp"
 #include "ACTFW/Geant4MaterialMapping/MMSteppingAction.hpp"
-#include "ACTFW/Root/RootMaterialTrackRecWriter.hpp"
+#include "ACTFW/RootMaterialMapping/RootMaterialTrackRecWriter.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrackRecord.hpp"
 #include "FTFP_BERT.hh"
 #include "G4RunManager.hh"
