@@ -12,7 +12,7 @@ add_executable(ACTFWMaterialMappingTest ${src_files})
 # setup linker dependencies
 target_include_directories(ACTFWMaterialMappingTest PRIVATE ${DD4hep_INCLUDE_DIRS})
 
-target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTFramework ACTFWRootPlugins ACTFWGeant4MaterialMapping ACTFWDD4hepG4 ACTFWDD4hepPlugin)
+target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTFramework ACTFWRootMaterialMapping ACTFWGeant4MaterialMapping ACTFWDD4hepG4 ACTFWDD4hepPlugin)
 include(${Geant4_USE_FILE})
 target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTS::ACTSCore ACTS::ACTSMaterialPlugin)
 target_link_libraries(ACTFWMaterialMappingTest PRIVATE ${DD4hep_LIBRARIES})

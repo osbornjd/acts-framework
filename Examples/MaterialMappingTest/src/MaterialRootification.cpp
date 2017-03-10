@@ -4,8 +4,8 @@
 
 #include "MaterialRootification.hpp"
 #include <iostream>
-#include "ACTFW/Root/RootMaterialTrackRecReader.hpp"
-#include "ACTFW/Root/RootMaterialTrackRecWriter.hpp"
+#include "ACTFW/RootMaterialMapping/RootMaterialTrackRecReader.hpp"
+#include "ACTFW/RootMaterialMapping/RootMaterialTrackRecWriter.hpp"
 #include "ACTS/Material/MaterialProperties.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialStep.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrackRecord.hpp"

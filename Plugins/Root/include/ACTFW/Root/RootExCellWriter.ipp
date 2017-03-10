@@ -65,13 +65,13 @@ FWRoot::RootExCellWriter::writeT(const Acts::ExtrapolationCell<T>& eCell)
         /// step parameters
         const T& pars = (*es.parameters);
         /// type information
-        int material = es.configuration.checkMode(
+        int material = es.stepConfiguration.checkMode(
             Acts::ExtrapolationMode::CollectMaterial);
-        int boundary = es.configuration.checkMode(
+        int boundary = es.stepConfiguration.checkMode(
             Acts::ExtrapolationMode::CollectBoundary);
-        int sensitive = es.configuration.checkMode(
+        int sensitive = es.stepConfiguration.checkMode(
             Acts::ExtrapolationMode::CollectSensitive);
-        int passive = es.configuration.checkMode(
+        int passive = es.stepConfiguration.checkMode(
             Acts::ExtrapolationMode::CollectPassive);
         /// check the layer, surface, volume ID
         geo_id_value volumeID = pars.referenceSurface().geoID().value(

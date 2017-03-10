@@ -1,4 +1,4 @@
-#include "ACTFW/Root/RootMaterialWriter.hpp"
+#include "ACTFW/RootMaterialMapping/RootMaterialWriter.hpp"
 #include <iostream>
 #include "ACTS/Utilities/BinUtility.hpp"
 #include "ACTS/Utilities/BinningData.hpp"

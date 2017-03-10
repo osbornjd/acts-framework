@@ -1,4 +1,4 @@
-#include "ACTFW/Root/RootMaterialStepWriter.hpp"
+#include "ACTFW/RootMaterialMapping/RootMaterialStepWriter.hpp"
 #include "ACTS/Material/BinnedSurfaceMaterial.hpp"
 #include "ACTS/Utilities/BinUtility.hpp"
 #include "ACTS/Utilities/BinningData.hpp"

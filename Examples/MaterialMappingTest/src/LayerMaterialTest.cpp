@@ -4,7 +4,7 @@
 
 #include "LayerMaterialTest.hpp"
 #include <iostream>
-#include "ACTFW/Root/RootMaterialTrackRecReader.hpp"
+#include "ACTFW/RootMaterialMapping/RootMaterialTrackRecReader.hpp"
 #include "ACTS/Layers/Layer.hpp"
 #include "ACTS/Plugins/MaterialPlugins/LayerMaterialRecord.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialMapping.hpp"
@@ -135,7 +135,7 @@ FWE::LayerMaterialTest::execute(const FW::AlgorithmContext context) const
       }
 
       const Acts::MaterialStep averagedStep(
-          Acts::MaterialProperties(x0, l0, A, Z, rho,thickness),
+          Acts::MaterialProperties(x0, l0, A, Z, rho, thickness),
           Acts::MaterialStep::Position(x, y, z));
 
       steps.push_back(averagedStep);

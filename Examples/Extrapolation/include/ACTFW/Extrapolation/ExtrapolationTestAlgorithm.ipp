@@ -58,7 +58,7 @@ FWE::ExtrapolationTestAlgorithm::executeTestT(
   if (dData){
      /// loop over steps and get the sensitive
     for (auto& es : ecc.extrapolationSteps ){
-      if (es.configuration.checkMode(Acts::ExtrapolationMode::CollectSensitive)) {
+      if (es.stepConfiguration.checkMode(Acts::ExtrapolationMode::CollectSensitive)) {
         // get the surface
         const Acts::Surface& sf = es.parameters->referenceSurface();
         // fill the appropriate vector

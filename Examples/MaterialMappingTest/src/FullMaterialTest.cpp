@@ -4,7 +4,7 @@
 
 #include "FullMaterialTest.hpp"
 #include <iostream>
-#include "ACTFW/Root/RootMaterialTrackRecReader.hpp"
+#include "ACTFW/RootMaterialMapping/RootMaterialTrackRecReader.hpp"
 #include "ACTS/EventData/NeutralParameters.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp"

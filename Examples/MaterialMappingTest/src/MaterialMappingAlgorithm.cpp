@@ -4,7 +4,7 @@
 
 #include "MaterialMappingAlgorithm.hpp"
 #include <iostream>
-#include "ACTFW/Root/RootMaterialTrackRecReader.hpp"
+#include "ACTFW/RootMaterialMapping/RootMaterialTrackRecReader.hpp"
 #include "ACTS/Layers/Layer.hpp"
 #include "ACTS/Plugins/MaterialPlugins/LayerMaterialRecord.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialMapping.hpp"
