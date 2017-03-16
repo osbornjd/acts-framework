@@ -16,7 +16,7 @@ target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTFramework ACTFWRootMat
 include(${Geant4_USE_FILE})
 target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTS::ACTSCore ACTS::ACTSMaterialPlugin)
 target_link_libraries(ACTFWMaterialMappingTest PRIVATE ${DD4hep_LIBRARIES})
-target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTFWExtrapolationExample)
+target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTFWExtrapolation)
 
 
 set(CMAKE_DEBUG_TARGET_PROPERTIES COMPILE_OPTIONS)

@@ -24,7 +24,7 @@
         target_include_directories(ACTFWDD4hepTest PUBLIC ACTFramework ACTFWDD4hepDetector ACTFWDD4hepPlugin ACTFWRootPlugins ACTFWExtrapolationExample)
 
         target_link_libraries(ACTFWDD4hepTest PUBLIC ACTS::ACTSCore)
-        target_link_libraries(ACTFWDD4hepTest PRIVATE ACTFramework ACTFWDD4hepDetector ACTFWDD4hepPlugin ACTFWRootPlugins ACTFWExtrapolationExample)
+        target_link_libraries(ACTFWDD4hepTest PRIVATE ACTFramework ACTFWDD4hepDetector ACTFWDD4hepPlugin ACTFWRootPlugins ACTFWExtrapolation)
         target_link_libraries (ACTFWDD4hepTest PUBLIC ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES} ${GEANT4_LIBRARIES})
         target_link_libraries (ACTFWDD4hepTest PUBLIC ${DD4hep_LIBRARIES})
 
