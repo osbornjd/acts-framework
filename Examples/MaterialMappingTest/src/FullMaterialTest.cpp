@@ -105,7 +105,7 @@ FWE::FullMaterialTest::execute(const FW::AlgorithmContext context) const
                "materialsteps <<===");
     // loop over the collected information
     for (auto& es : ecc.extrapolationSteps) {
-      if (es.configuration.checkMode(
+      if (es.stepConfiguration.checkMode(
               Acts::ExtrapolationMode::CollectMaterial)) {
         // create the material steps
         const Acts::MaterialStep::Position matPos(es.materialPosition.x(),
