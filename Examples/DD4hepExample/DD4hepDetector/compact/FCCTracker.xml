@@ -114,11 +114,11 @@
         
         <!-------------------------------------------------------->
         <!--Envelope1-->
-        <constant name="Env1_rmin"          value="1.9*cm"/>
+        <constant name="Env1_rmin"          value="937.*mm"/>
         <constant name="Env1_rmax"          value="156.45*cm"/>
         <constant name="Env1_dz"            value="500.*cm"/>
         <!--Barrel1-->
-        <constant name="B1_rmin"            value="93.7*cm"/>
+        <constant name="B1_rmin"            value="938.*mm"/>
         <constant name="B1_rmax"            value="156.25*cm"/>
         <constant name="B1_dz"              value="300.*cm"/>
         <constant name="B1_zpos"            value="0.*cm"/>
@@ -149,7 +149,7 @@
         <!--EndCap0-->
         <constant name="E1_rmin"            value="2.1*cm"/>
         <constant name="E1_rmax"            value="156.25*cm"/>
-        <constant name="E1_dz"              value="93.75*cm"/>
+        <constant name="E1_dz"              value="93.*cm"/>
         <constant name="nE1_zpos"           value="-406.25*cm"/>
         <constant name="pE1_zpos"           value="406.25*cm"/>
         <!--Layer0-->
