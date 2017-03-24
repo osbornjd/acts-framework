@@ -1234,6 +1234,6 @@
             </module>
             <module name ="TrMod29" radius="E1_M29_r" dz="E1_M29_pos" x1="E1_M29_X1" x2="E1_M29_X2" length="E1_M29_length" thickness="E_M_thickness" repeat="E1_M29_modulesInPhi" material="Silicon" vis="orange" sensitive="true">
             </module>
-        </layer>
-    </detector>-->
+        </layer>-->
+    </detector>
 </detectors>
