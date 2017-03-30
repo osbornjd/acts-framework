@@ -23,8 +23,6 @@
         <constant name="world_x" value="world_size"/>
         <constant name="world_y" value="world_size"/>
         <constant name="world_z" value="world_size"/>
-        <!-------------------------------------------------------->
-        <!--Dimensions of BeamTube-->
         <constant name="Tube_rmin" value="0.*mm"/>
         <constant name="Tube_rmax" value="15.*mm"/>
         <constant name="Tube_length" value="1865.*mm"/>
@@ -112,7 +110,6 @@
         <constant name="E_M6_X2"            value="230.*mm"/>
         <constant name="E0_L0_M6_r"         value="211.*cm"/>
         
-        <!-------------------------------------------------------->
         <!--Envelope1-->
         <constant name="Env1_rmin"          value="937.*mm"/>
         <constant name="Env1_rmax"          value="156.45*cm"/>
@@ -158,7 +155,6 @@
         <constant name="E1_L1_pos"          value="20.75*cm"/>
         <constant name="E1_L2_pos"          value="-20.75*cm"/>
         <constant name="E1_L3_pos"          value="-62.25*cm"/>
-        <!-------------------------------------------------------->
         <!--Envelope2-->
         <constant name="Env2_rmin"          value="1.9*cm"/>
         <constant name="Env2_rmax"          value="252*cm"/>
