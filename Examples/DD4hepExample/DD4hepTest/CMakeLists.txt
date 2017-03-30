@@ -13,9 +13,15 @@
         add_library(ACTFWDD4hepTest SHARED ${src_files})
 
         add_executable(ACTFWDD4hepExample bin/DD4hepGeometryTest.cpp)
-        target_include_directories (ACTFWDD4hepExample PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
-        target_link_libraries (ACTFWDD4hepExample PRIVATE ACTFWDD4hepTest)
-        target_link_libraries (ACTFWDD4hepExample PUBLIC ${ROOT_LIBRARIES})
+        add_executable(ACTFWFCCTkLayoutExample bin/FCCGeometryTest.cpp)
+        set(ACTFWAllDD4hepTestList ACTFWDD4hepExample ACTFWFCCExample)
+        foreach (ACTFWAllDD4hepTests ${ACTFWAllDD4hepTestList})
+        target_include_directories (${ACTFWAllDD4hepTests} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
+        target_link_libraries (${ACTFWAllDD4hepTests} PRIVATE ACTFWDD4hepTest)
+        target_link_libraries (${ACTFWAllDD4hepTests} PUBLIC ${ROOT_LIBRARIES})
+        target_compile_options (${ACTFWAllDD4hepTests} PRIVATE -std=c++14)
+        install(TARGETS ${ACTFWAllDD4hepTests} RUNTIME DESTINATION bin)
+        endforeach(ACTFWAllDD4hepTests)
 
         # setup include directories
         target_include_directories(ACTFWDD4hepTest PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
@@ -28,10 +34,8 @@
         target_link_libraries (ACTFWDD4hepTest PUBLIC ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES} ${GEANT4_LIBRARIES})
         target_link_libraries (ACTFWDD4hepTest PUBLIC ${DD4hep_LIBRARIES})
 
-        target_compile_options (ACTFWDD4hepExample PRIVATE -std=c++14)
 
         install(TARGETS ACTFWDD4hepTest LIBRARY DESTINATION lib)
-        install(TARGETS ACTFWDD4hepExample RUNTIME DESTINATION bin)
         install(DIRECTORY include/ACTFW DESTINATION include)
 
 
