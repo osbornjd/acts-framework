@@ -14,7 +14,7 @@
 
         add_executable(ACTFWDD4hepExample bin/DD4hepGeometryTest.cpp)
         add_executable(ACTFWFCCTkLayoutExample bin/FCCGeometryTest.cpp)
-        set(ACTFWAllDD4hepTestList ACTFWDD4hepExample ACTFWFCCExample)
+        set(ACTFWAllDD4hepTestList ACTFWDD4hepExample ACTFWFCCTkLayoutExample)
         foreach (ACTFWAllDD4hepTests ${ACTFWAllDD4hepTestList})
         target_include_directories (${ACTFWAllDD4hepTests} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
         target_link_libraries (${ACTFWAllDD4hepTests} PRIVATE ACTFWDD4hepTest)
