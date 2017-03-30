@@ -21,7 +21,7 @@ static DD4hep::Geometry::Ref_t createTkLayoutTrackerEndcap(DD4hep::Geometry::LCD
   double l_overlapMargin = 0.0001;
 
   // get sensitive detector type from xml
-  DD4hep::XML::Dimension sdTyp = xmlElement.child("sensitive");  // retrieve the type
+  DD4hep::XML::Dimension sdTyp = xmlElement.child(_Unicode(sensitive));  // retrieve the type
   sensDet.setType(sdTyp.typeStr());  // set for the whole detector
 
   // definition of top volume
@@ -39,9 +39,9 @@ static DD4hep::Geometry::Ref_t createTkLayoutTrackerEndcap(DD4hep::Geometry::LCD
   Volume envelopeVolume(detName, envelopeShape, lcdd.air());
   envelopeVolume.setVisAttributes(lcdd.invisible());
 
-  Component xDiscs = xmlElement.child("discs");
-  Component xFirstDisc = xDiscs.child("discZPls");
-  Component xFirstDiscRings = xFirstDisc.child("rings");
+  Component xDiscs = xmlElement.child(_Unicode(discs));
+  Component xFirstDisc = xDiscs.child(_Unicode(discZPls));
+  Component xFirstDiscRings = xFirstDisc.child(_Unicode(rings));
 
   // create disc volume
   l_overlapMargin *= 0.99;
@@ -61,12 +61,12 @@ static DD4hep::Geometry::Ref_t createTkLayoutTrackerEndcap(DD4hep::Geometry::LCD
     // iterate over rings
     for (DD4hep::XML::Collection_t xRingColl(xFirstDiscRings, _U(ring)); nullptr != xRingColl; ++xRingColl) {
       Component xRing = static_cast<Component>(xRingColl);
-      Component xRingModules = xRing.child("modules");
-      Component xModuleOdd = xRingModules.child("moduleOdd");
-      Component xModuleEven = xRingModules.child("moduleEven");
-      Component xModuleProperties = xRing.child("moduleProperties");
-      Component xModulePropertiesComp = xModuleProperties.child("components");
-      Component xSensorProperties = xRing.child("sensorProperties");
+      Component xRingModules = xRing.child(_Unicode(modules));
+      Component xModuleOdd = xRingModules.child(_Unicode(moduleOdd));
+      Component xModuleEven = xRingModules.child(_Unicode(moduleEven));
+      Component xModuleProperties = xRing.child(_Unicode(moduleProperties));
+      Component xModulePropertiesComp = xModuleProperties.child(_Unicode(components));
+      Component xSensorProperties = xRing.child(_Unicode(sensorProperties));
       
       // place components in module
       double integratedCompThickness = 0.;

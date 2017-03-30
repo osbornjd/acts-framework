@@ -19,7 +19,7 @@ static DD4hep::Geometry::Ref_t createTkLayoutTrackerBarrel(DD4hep::Geometry::LCD
   DD4hep::XML::DetElement xmlDet = static_cast<DD4hep::XML::DetElement>(xmlElement);
   Dimension dimensions(xmlDet.dimensions());
   // get sensitive detector type from xml
-  DD4hep::XML::Dimension sdTyp = xmlElement.child("sensitive");
+  DD4hep::XML::Dimension sdTyp = xmlElement.child(_Unicode(sensitive));
   // sensitive detector used for all sensitive parts of this detector
   sensDet.setType(sdTyp.typeStr());
 
@@ -43,15 +43,15 @@ static DD4hep::Geometry::Ref_t createTkLayoutTrackerBarrel(DD4hep::Geometry::LCD
   unsigned int nPhi;
   double phi = 0;
   // loop over 'layer' nodes in xml
-  DD4hep::XML::Component xLayers = xmlElement.child("layers");
+  DD4hep::XML::Component xLayers = xmlElement.child(_Unicode(layers));
   for (DD4hep::XML::Collection_t xLayerColl(xLayers, _U(layer)); nullptr != xLayerColl; ++xLayerColl) {
     DD4hep::XML::Component xLayer = static_cast<DD4hep::XML::Component>(xLayerColl);
-    DD4hep::XML::Component xRods = xLayer.child("rods");
-    DD4hep::XML::Component xRodEven = xRods.child("rodOdd");
-    DD4hep::XML::Component xRodOdd = xRods.child("rodEven");
-    DD4hep::XML::Component xModulesEven = xRodEven.child("modules");
-    DD4hep::XML::Component xModulePropertiesOdd = xRodOdd.child("moduleProperties");
-    DD4hep::XML::Component xModulesOdd = xRodOdd.child("modules");
+    DD4hep::XML::Component xRods = xLayer.child(_Unicode(rods));
+    DD4hep::XML::Component xRodEven = xRods.child(_Unicode(rodOdd));
+    DD4hep::XML::Component xRodOdd = xRods.child(_Unicode(rodEven));
+    DD4hep::XML::Component xModulesEven = xRodEven.child(_Unicode(modules));
+    DD4hep::XML::Component xModulePropertiesOdd = xRodOdd.child(_Unicode(moduleProperties));
+    DD4hep::XML::Component xModulesOdd = xRodOdd.child(_Unicode(modules));
     double l_overlapMargin = 0.0001;
     DD4hep::Geometry::Tube layerShape(xLayer.rmin(), xLayer.rmax() + l_overlapMargin, dimensions.zmax());
     Volume layerVolume("layer", layerShape, lcdd.material("Air"));
@@ -65,7 +65,7 @@ static DD4hep::Geometry::Ref_t createTkLayoutTrackerBarrel(DD4hep::Geometry::LCD
     Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
     lay_det.addExtension<Acts::IActsExtension>(detlayer);
     lay_det.setPlacement(placedLayerVolume);
-    DD4hep::XML::Component xModuleComponentsOdd = xModulePropertiesOdd.child("components");
+    DD4hep::XML::Component xModuleComponentsOdd = xModulePropertiesOdd.child(_Unicode(components));
     integratedModuleComponentThickness = 0;
     int moduleCounter = 0;
     Volume moduleVolume;
