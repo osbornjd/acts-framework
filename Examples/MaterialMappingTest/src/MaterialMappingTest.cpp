@@ -4,7 +4,7 @@
 
 #include "ACTFW/DD4hepG4/DD4hepToG4Svc.hpp"
 #include "ACTFW/DD4hepPlugin/GeometryService.hpp"
-#include "ACTFW/ExtrapolationTest/ExtrapolationUtils.hpp"
+#include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/RootMaterialMapping/RootMaterialStepWriter.hpp"

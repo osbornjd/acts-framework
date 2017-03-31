@@ -6,7 +6,7 @@
   find_package (DD4hep REQUIRED COMPONENTS DDCore DDSegmentation)
   dd4hep_set_version(DD4hepDetector MAJOR 0 MINOR 1 PATCH 0)
   if (DD4hep_FOUND)
-    find_package (ROOT REQUIRED COMPONENTS Geom)
+    find_package (ROOT REQUIRED COMPONENTS Geom GenVector)
 
     if (ROOT_FOUND)
       message (STATUS "ROOT=${ROOT_INCLUDE_DIRS}")

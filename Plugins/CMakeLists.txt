@@ -10,4 +10,4 @@ message (STATUS "${Red}PYTHIA8 was not found -> skip building of RootPythia8 plu
 endif (PYTHIA8_FOUND)
 if (BUILD_GEANT4_MATERIALMAPPING)
   add_subdirectory(RootMaterialMapping)
-endif(BUILD_DD4HEP_PLUGIN AND BUILD_GEANT4_MATERIALMAPPING)
+endif(BUILD_GEANT4_MATERIALMAPPING)
