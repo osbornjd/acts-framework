@@ -15,7 +15,7 @@ target_include_directories(ACTFWRootPlugins PUBLIC $<BUILD_INTERFACE:${CMAKE_CUR
 target_include_directories (ACTFWRootPlugins PUBLIC ${ROOT_INCLUDE_DIRS})
 target_link_libraries(ACTFWRootPlugins PUBLIC Threads::Threads)
 target_link_libraries(ACTFWRootPlugins PUBLIC ACTS::ACTSCore ACTFramework)
-target_link_libraries(ACTFWRootPlugins PUBLIC Core Hist Tree TreePlayer)
+target_link_libraries(ACTFWRootPlugins PUBLIC ROOT::Core ROOT::Hist ROOT::Tree ROOT::TreePlayer)
     
 # set installation directories
 install (TARGETS ACTFWRootPlugins LIBRARY DESTINATION lib)

@@ -1,6 +1,5 @@
 cmake_minimum_required (VERSION 3.5)
 project (ACTFW)
-
 # set the current version of ACTFW
 set (ACTFW_VERSION 0.0.1)
 
@@ -13,8 +12,10 @@ if (OpenMP_FOUND)
   message (STATUS "Using OpenMP")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
- endif(OpenMP_FOUND)
+  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}") 
+else (OpenMP_FOUND)
+  message (STATUS "Not using OpenMP") 
+endif(OpenMP_FOUND)
 
 # Enable C++11 threading support, with a preference for pthread
 set (CMAKE_THREAD_PREFER_PTHREAD TRUE)
@@ -43,5 +44,3 @@ endif (DEFINED PYTHIA8_INCLUDE_DIR AND PYTHIA8_LIB_DIR)
 add_subdirectory (Core)
 add_subdirectory (Examples)
 add_subdirectory (Plugins)
-
-

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////
-// LayerMaterialTest.hpp
+// SurfaceMaterialTest.hpp
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MATERIALMAPPINGTEST_LAYERMATERIALTEST_H
@@ -11,7 +11,7 @@
 #include "ACTFW/Writers/IMaterialStepWriter.hpp"
 #include "ACTFW/Writers/IMaterialWriter.hpp"
 #include "ACTS/Layers/Layer.hpp"
-#include "ACTS/Plugins/MaterialPlugins/LayerMaterialRecord.hpp"
+#include "ACTS/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace FW {
@@ -24,19 +24,19 @@ class MaterialMapping;
 
 namespace FWE {
 
-/// @class LayerMaterialTest
+/// @class SurfaceMaterialTest
 ///
 /// @brief Writes out ACTS and original Layer material
 ///
-/// The LayerMaterialTest writes out the material maps per layer in ACTS and
+/// The SurfaceMaterialTest writes out the material maps per layer in ACTS and
 /// writes out the original material collected within the full detector
 /// geometry.
 
-class LayerMaterialTest : public FW::Algorithm
+class SurfaceMaterialTest : public FW::Algorithm
 {
 public:
   /// @class Config
-  /// of the LayerMaterialTest
+  /// of the SurfaceMaterialTest
 
   struct Config : public FW::Algorithm::Config
   {
@@ -49,7 +49,7 @@ public:
     std::shared_ptr<FW::IMaterialStepWriter> materialStepWriter;
 
     Config()
-      : FW::Algorithm::Config("LayerMaterialTest")
+      : FW::Algorithm::Config("SurfaceMaterialTest")
       , materialMapper(nullptr)
       , materialWriter(nullptr)
       , materialStepWriter(nullptr)
@@ -58,13 +58,13 @@ public:
   };
 
   /// Constructor
-  LayerMaterialTest(const Config&                 cnf,
+  SurfaceMaterialTest(const Config&                 cnf,
                     std::unique_ptr<Acts::Logger> logger
-                    = Acts::getDefaultLogger("LayerMaterialTest",
+                    = Acts::getDefaultLogger("SurfaceMaterialTest",
                                              Acts::Logging::INFO));
 
   /// Destructor
-  ~LayerMaterialTest();
+  ~SurfaceMaterialTest();
 
   /// Framework intialize method
   FW::ProcessCode

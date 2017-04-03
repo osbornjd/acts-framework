@@ -25,15 +25,13 @@ if (BUILD_DD4HEP_PLUGIN)
         target_link_libraries(ACTFWDD4hepPlugin PUBLIC ACTS::ACTSCore ACTS::ACTSDD4hepPlugin)
         target_link_libraries(ACTFWDD4hepPlugin PRIVATE ACTFramework)
         target_link_libraries (ACTFWDD4hepPlugin PUBLIC ${DD4hep_LIBRARIES})
-        target_link_libraries(ACTFWDD4hepPlugin PUBLIC ${ROOT_LIBRARIES})
+        target_link_libraries(ACTFWDD4hepPlugin PUBLIC ROOT::Geom)
 
         # set installation directories
         install (TARGETS ACTFWDD4hepPlugin LIBRARY DESTINATION lib)
         install(DIRECTORY include/ACTFW DESTINATION include)
         
-        
         cmake_minimum_required(VERSION 2.8.3 FATAL_ERROR)
-        
         
         set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
     

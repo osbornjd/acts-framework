@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #ifndef ROOT_ROOTMATERIALSTEPWRITER_HPP
-#define ROOT_ROOTMATERIALSTEPWRITER_HPP
+#define ROOT_ROOTMATERIALSTEPWRITER_HPP 1
 
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"

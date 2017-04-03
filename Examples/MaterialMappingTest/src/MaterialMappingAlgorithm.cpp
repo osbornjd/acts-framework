@@ -6,7 +6,7 @@
 #include <iostream>
 #include "ACTFW/RootMaterialMapping/RootMaterialTrackRecReader.hpp"
 #include "ACTS/Layers/Layer.hpp"
-#include "ACTS/Plugins/MaterialPlugins/LayerMaterialRecord.hpp"
+#include "ACTS/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialMapping.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrackRecord.hpp"
 #include "TTree.h"
@@ -53,7 +53,8 @@ FW::ProcessCode
 FWE::MaterialMappingAlgorithm::execute(const FW::AlgorithmContext context) const
 {
   // average after every event - if entries = 0 no averaging will be done
-  m_cnf.materialMapper->averageLayerMaterial();
+  // m_cnf.materialMapper->averageLayerMaterial();
+
   // access the tree
   std::vector<Acts::MaterialTrackRecord> mRecords
       = m_cnf.materialTrackRecReader->materialTrackRecords();
@@ -73,8 +74,9 @@ FWE::MaterialMappingAlgorithm::execute(const FW::AlgorithmContext context) const
                  << ","
                  << direction.z()
                  << ")");
-    m_cnf.materialMapper->mapMaterial(record);
+  //  m_cnf.materialMapper->mapMaterial(record);
   }
+  
   return FW::ProcessCode::SUCCESS;
 }
 
@@ -82,9 +84,9 @@ FW::ProcessCode
 FWE::MaterialMappingAlgorithm::finalize()
 {
   // average material and hand over to layer
-  m_cnf.materialMapper->averageLayerMaterial();
+  //m_cnf.materialMapper->averageLayerMaterial();
   ACTS_VERBOSE("finalize layer material");
-  m_cnf.materialMapper->finalizeLayerMaterial();
+  //m_cnf.materialMapper->finalizeLayerMaterial();
   ACTS_VERBOSE("finalize successful.");
   return FW::ProcessCode::SUCCESS;
 }

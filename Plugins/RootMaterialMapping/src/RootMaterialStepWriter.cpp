@@ -45,7 +45,7 @@ FWRoot::RootMaterialStepWriter::write(
           surface->associatedMaterial());
   if (material) {
     // acces the bin utility
-    const Acts::BinUtility* binUtility = material->binUtility();
+    const Acts::BinUtility& binUtility = material->binUtility();
     // real global positions of the material
     std::vector<float> globX;
     std::vector<float> globY;
@@ -116,7 +116,7 @@ FWRoot::RootMaterialStepWriter::write(
     // now loop through the materialsteps
     for (auto step : steps) {
       // access material properties
-      const Acts::MaterialProperties mprop = step.material();
+      const Acts::MaterialProperties mprop = step.materialProperties();
       // access position and convert to position on surface
       const Acts::Vector3D position(
           step.position().x, step.position().y, step.position().z);
@@ -137,8 +137,8 @@ FWRoot::RootMaterialStepWriter::write(
       loc1.push_back(lposition.y());
       A.push_back(mprop.averageA());
       Z.push_back(mprop.averageZ());
-      x0.push_back(mprop.x0());
-      l0.push_back(mprop.l0());
+      x0.push_back(mprop.material().X0());
+      l0.push_back(mprop.material().L0());
       thickness.push_back(mprop.thickness());
       rho.push_back(mprop.averageRho());
       tInX0.push_back(mprop.thicknessInX0());
@@ -168,4 +168,6 @@ FWRoot::RootMaterialStepWriter::write(
   } else
     ACTS_ERROR(
         "Surface has not material assigned - Can not write out its material!");
+
+   return FW::ProcessCode::ABORT; 
 }

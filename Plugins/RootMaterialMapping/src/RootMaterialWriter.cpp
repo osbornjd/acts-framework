@@ -41,13 +41,13 @@ FWRoot::RootMaterialWriter::write(
   std::string surfID   = name;  //+ "_" + std::to_string(geoID.value());
   TTree*      surfTree = new TTree(surfID.c_str(), surfID.c_str());
   // etxract the binUtility
-  const Acts::BinUtility* binUtility = surfMaterial->binUtility();
+  const Acts::BinUtility& binUtility = surfMaterial->binUtility();
   // access the material matrix
   const Acts::MaterialPropertiesMatrix materialMat
       = surfMaterial->fullMaterial();
   // get the bin size
-  int bins0 = binUtility->bins(0);
-  int bins1 = binUtility->bins(1);
+  int bins0 = binUtility.bins(0);
+  int bins1 = binUtility.bins(1);
   // position vectors
   std::vector<float> loc0;
   std::vector<float> loc1;
@@ -60,7 +60,6 @@ FWRoot::RootMaterialWriter::write(
   std::vector<float> rho;
   std::vector<float> tInL0;
   std::vector<float> tInX0;
-  std::vector<int>   entries;
   // prepare
   loc0.reserve(bins0 * bins1);
   loc1.reserve(bins0 * bins1);
@@ -72,7 +71,6 @@ FWRoot::RootMaterialWriter::write(
   rho.reserve(bins0 * bins1);
   tInX0.reserve(bins0 * bins1);
   tInL0.reserve(bins0 * bins1);
-  entries.reserve(bins0 * bins1);
 
   // create the branches
   surfTree->Branch("loc0", &loc0);
@@ -85,24 +83,22 @@ FWRoot::RootMaterialWriter::write(
   surfTree->Branch("rho", &rho);
   surfTree->Branch("tInX0", &tInX0);
   surfTree->Branch("tInL0", &tInL0);
-  surfTree->Branch("entries", &entries);
 
-  const std::vector<Acts::BinningData> binningData = binUtility->binningData();
+  const std::vector<Acts::BinningData> binningData = binUtility.binningData();
   // loop through the material matrix
-  for (int i = 0; i < bins0; i++) {
-    for (int j = 0; j < bins1; j++) {
-      const Acts::MaterialProperties* material = materialMat.at(j).at(i);
+  for (size_t i = 0; i < bins0; i++) {
+    for (size_t j = 0; j < bins1; j++) {
+      const Acts::MaterialProperties* materialProperties = materialMat.at(j).at(i);
       loc0.push_back(binningData.at(0).centerValue(i));
       loc1.push_back(binningData.at(1).centerValue(j));
-      A.push_back(material->averageA());
-      Z.push_back(material->averageZ());
-      x0.push_back(material->x0());
-      l0.push_back(material->l0());
-      thickness.push_back(material->thickness());
-      rho.push_back(material->averageRho());
-      tInX0.push_back(material->thicknessInX0());
-      tInL0.push_back(material->thicknessInL0());
-      entries.push_back(material->entries());
+      A.push_back(materialProperties->averageA());
+      Z.push_back(materialProperties->averageZ());
+      x0.push_back(materialProperties->material().X0());
+      l0.push_back(materialProperties->material().L0());
+      thickness.push_back(materialProperties->thickness());
+      rho.push_back(materialProperties->averageRho());
+      tInX0.push_back(materialProperties->thicknessInX0());
+      tInL0.push_back(materialProperties->thicknessInL0());
     }
   }
   ACTS_VERBOSE("Writing out material of object: " << surfID);

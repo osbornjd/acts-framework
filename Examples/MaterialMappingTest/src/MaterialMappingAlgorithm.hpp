@@ -11,7 +11,7 @@
 #include "ACTFW/Writers/IMaterialTrackRecReader.hpp"
 #include "ACTFW/Writers/IMaterialWriter.hpp"
 #include "ACTS/Layers/Layer.hpp"
-#include "ACTS/Plugins/MaterialPlugins/LayerMaterialRecord.hpp"
+#include "ACTS/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace FW {

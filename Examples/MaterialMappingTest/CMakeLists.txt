@@ -3,7 +3,7 @@ file (GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
 
 # find the ACTS package
 find_package(ACTS COMPONENTS Core MaterialPlugin)
-find_package(Geant4 REQUIRED COMPONENTS)
+find_package(Geant4 REQUIRED)
 find_package(DD4hep REQUIRED COMPONENTS DDCore DDG4)
 
 # define library target

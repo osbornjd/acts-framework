@@ -21,7 +21,7 @@
 #include "ACTS/Plugins/MaterialPlugins/MaterialMapping.hpp"
 #include "CreateMaterialMap.hpp"
 #include "FullMaterialTest.hpp"
-#include "LayerMaterialTest.hpp"
+#include "SurfaceMaterialTest.hpp"
 #include "MaterialMappingAlgorithm.hpp"
 
 int
@@ -108,12 +108,12 @@ main()
 
   // set up the algorithm reading in the material map and mapping the material
   // onto the tracking geometry
-  FWE::LayerMaterialTest::Config lmConfig;
+  FWE::SurfaceMaterialTest::Config lmConfig;
   lmConfig.materialMapper     = materialMapper;
   lmConfig.materialWriter     = materialWriter;
   lmConfig.materialStepWriter = stepWriter;
-  auto layerMaterialAlg       = std::make_shared<FWE::LayerMaterialTest>(
-      lmConfig, Acts::getDefaultLogger("LayerMatTest", eLogLevel));
+  auto layerMaterialAlg       = std::make_shared<FWE::SurfaceMaterialTest>(
+      lmConfig, Acts::getDefaultLogger("SurfaceMaterialTest", eLogLevel));
 
   // Now testing the full material
 

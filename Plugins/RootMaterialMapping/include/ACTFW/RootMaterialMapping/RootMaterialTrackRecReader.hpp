@@ -3,8 +3,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #ifndef ROOT_ROOTMATERIALTRACKRECREADER_H
-#define ROOT_ROOTMATERIALTRACKRECREADER_H
-
+#define ROOT_ROOTMATERIALTRACKRECREADER_H 1
 
 #include "ACTS/Utilities/Definitions.hpp"
 #include "ACTFW/Writers/IMaterialTrackRecReader.hpp"

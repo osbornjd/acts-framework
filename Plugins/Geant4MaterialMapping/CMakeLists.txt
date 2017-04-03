@@ -6,7 +6,7 @@ if (BUILD_GEANT4_MATERIALMAPPING)
     find_package(ACTS COMPONENTS Core MaterialPlugin)
 
     # find the Geant4 package
-    find_package(Geant4 REQUIRED COMPONENTS multithreaded)
+    find_package(Geant4 REQUIRED)
 
     # find the Root geometry package
     find_package (ROOT REQUIRED COMPONENTS Geom)

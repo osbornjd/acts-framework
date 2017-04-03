@@ -108,26 +108,26 @@ FWE::FullMaterialTest::execute(const FW::AlgorithmContext context) const
       if (es.stepConfiguration.checkMode(
               Acts::ExtrapolationMode::CollectMaterial)) {
         // create the material steps
-        const Acts::MaterialStep::Position matPos(es.materialPosition.x(),
-                                                  es.materialPosition.y(),
-                                                  es.materialPosition.z());
-
-        const Acts::MaterialProperties material(es.material->thickness()
-                                                    * es.materialScaling,
-                                                es.material->x0(),
-                                                es.material->l0(),
-                                                es.material->averageA(),
-                                                es.material->averageZ(),
-                                                es.material->averageRho(),
-                                                es.material->dEdX());
-
-        ACTS_DEBUG("MaterialStep Position: (" << matPos.x << "," << matPos.y
-                                              << ","
-                                              << matPos.z
-                                              << ")");
-        ACTS_DEBUG("MaterialProperties: " << material);
-
-        msteps.push_back(Acts::MaterialStep(material, matPos));
+        // const Acts::MaterialStep::Position matPos(es.materialPosition.x(),
+        //                                           es.materialPosition.y(),
+        //                                           es.materialPosition.z());
+        // 
+        // const Acts::MaterialProperties material(es.material->thickness()
+        //                                             * es.materialScaling,
+        //                                         es.material->x0(),
+        //                                         es.material->l0(),
+        //                                         es.material->averageA(),
+        //                                         es.material->averageZ(),
+        //                                         es.material->averageRho(),
+        //                                         es.material->dEdX());
+        // 
+        //ACTS_DEBUG("MaterialStep Position: (" << matPos.x << "," << matPos.y
+        //                                      << ","
+        //                                      << matPos.z
+        //                                      << ")");
+        //ACTS_DEBUG("MaterialProperties: " << material);
+                //
+        //msteps.push_back(Acts::MaterialStep(material, matPos));
       }
       // continue if we have parameters
     }  // loop over extrapolationsteps

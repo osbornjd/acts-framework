@@ -3,8 +3,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #ifndef ROOT_ROOTMATERIALTRACKRECWRITER_H
-#define ROOT_ROOTMATERIALTRACKRECWRITER_H
-
+#define ROOT_ROOTMATERIALTRACKRECWRITER_H 1
 
 #include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrackRecord.hpp"
