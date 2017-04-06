@@ -6,6 +6,7 @@
 #define MATERIALMAPPINGTEST_MATERIALMAPPINGALGORITHM_H
 
 #include <memory>
+#include <climits>
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Writers/IMaterialTrackRecReader.hpp"
@@ -20,6 +21,7 @@ class WhiteBoard;
 
 namespace Acts {
 class MaterialMapping;
+class TrackingGeometry;
 }
 
 namespace FWE {
@@ -43,23 +45,29 @@ public:
   {
   public:
     /// The reader to read in the MaterialTrackRecord entities
-    std::shared_ptr<FW::IMaterialTrackRecReader> materialTrackRecReader;
+    std::shared_ptr<FW::IMaterialTrackRecReader>  materialTrackRecReader;
     /// The ACTS material mapper
-    std::shared_ptr<Acts::MaterialMapping> materialMapper;
+    std::shared_ptr<Acts::MaterialMapping>        materialMapper;
     /// The writer of the material
-    std::shared_ptr<FW::IMaterialWriter> materialWriter;
+    std::shared_ptr<FW::IMaterialWriter>          materialWriter;
+    /// The TrackingGeometry to be mapped on
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
+    /// mapping conditions
+    size_t                                        maximumTrackRecords;  
 
     Config()
       : FW::Algorithm::Config("MaterialRootification")
       , materialTrackRecReader(nullptr)
       , materialMapper(nullptr)
       , materialWriter(nullptr)
+      , trackingGeometry(nullptr)
+      , maximumTrackRecords(std::numeric_limits<size_t>::infinity())    
     {
     }
   };
 
   /// Constructor
-  MaterialMappingAlgorithm(const Config&                 cnf,
+  MaterialMappingAlgorithm(const Config&                 cfg,
                            std::unique_ptr<Acts::Logger> logger
                            = Acts::getDefaultLogger("MaterialMappingAlgorithm",
                                                     Acts::Logging::INFO));
@@ -81,7 +89,7 @@ public:
 
 private:
   /// The config object
-  Config m_cnf;
+  Config m_cfg;
 };
 }
 

@@ -14,7 +14,7 @@
 FWE::MaterialMappingAlgorithm::MaterialMappingAlgorithm(
     const FWE::MaterialMappingAlgorithm::Config& cnf,
     std::unique_ptr<Acts::Logger>                log)
-  : FW::Algorithm(cnf, std::move(log)), m_cnf(cnf)
+  : FW::Algorithm(cnf, std::move(log)), m_cfg(cnf)
 {
 }
 
@@ -33,14 +33,14 @@ FWE::MaterialMappingAlgorithm::initialize(
   }
 
   // set up the reader
-  if (!m_cnf.materialTrackRecReader) {
+  if (!m_cfg.materialTrackRecReader) {
     ACTS_ERROR("Algorithm::MaterialTrackRecReader not set!");
     return FW::ProcessCode::ABORT;
   }
   ACTS_VERBOSE("initialize successful.");
 
   // set up the material mapper
-  if (!m_cnf.materialMapper) {
+  if (!m_cfg.materialMapper) {
     ACTS_ERROR("Algorithm::MaterialMapping not set!");
     return FW::ProcessCode::ABORT;
   }
@@ -52,30 +52,48 @@ FWE::MaterialMappingAlgorithm::initialize(
 FW::ProcessCode
 FWE::MaterialMappingAlgorithm::execute(const FW::AlgorithmContext context) const
 {
-  // average after every event - if entries = 0 no averaging will be done
-  // m_cnf.materialMapper->averageLayerMaterial();
-
-  // access the tree
+  
+  if (!m_cfg.materialMapper || !m_cfg.trackingGeometry){
+    ACTS_INFO("MaterialMapper or TrackingGeometry not available. Aborting.");
+    return FW::ProcessCode::ABORT;
+  }
+  
+  // access the tree and read the records
   std::vector<Acts::MaterialTrackRecord> mRecords
-      = m_cnf.materialTrackRecReader->materialTrackRecords();
-  ACTS_VERBOSE("Collected " << mRecords.size()
-                            << " MaterialTrackRecords for this event.");
+      = m_cfg.materialTrackRecReader->materialTrackRecords();
+
+  ACTS_INFO("Read " << mRecords.size()
+                    << " MaterialTrackRecords from file.");
+  
+  // retrive a cache object 
+  Acts::MaterialMapping::Cache mCache 
+    = m_cfg.materialMapper->materialMappingCache(*m_cfg.trackingGeometry);
+  
+  // some screen output to know what is going on 
+  ACTS_INFO("These will be mapped onto "
+             << mCache.surfaceMaterialRecords.size() << " surfaces.");
+
+  /// eventual stop counter - initialised
+  size_t stopCounter = 0;
   // go through the records and map them
   for (auto& record : mRecords) {
-    double         theta = record.theta();
-    double         phi   = record.phi();
-    Acts::Vector3D direction(
-        cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
-    ACTS_VERBOSE("direction: "
-                 << "("
-                 << direction.x()
-                 << ","
-                 << direction.y()
-                 << ","
-                 << direction.z()
-                 << ")");
-  //  m_cnf.materialMapper->mapMaterial(record);
+    // perform the mapping
+    if (!m_cfg.materialMapper->mapMaterialTrackRecord(mCache,record)){
+      ACTS_ERROR("Problem in the mapping. Aborting.");
+      return FW::ProcessCode::ABORT;
+    }
+    if (++stopCounter > m_cfg.maximumTrackRecords) {
+      ACTS_INFO("External break condition of maximal " 
+          << m_cfg.maximumTrackRecords << " reached.");
+      break;
+    }
   }
+  
+  /// get the maps back 
+  std::map<Acts::GeometryID, Acts::SurfaceMaterial*> maps 
+  = m_cfg.materialMapper->createSurfaceMaterial(mCache);
+
+  // write the maps out to a file 
   
   return FW::ProcessCode::SUCCESS;
 }
@@ -83,10 +101,7 @@ FWE::MaterialMappingAlgorithm::execute(const FW::AlgorithmContext context) const
 FW::ProcessCode
 FWE::MaterialMappingAlgorithm::finalize()
 {
-  // average material and hand over to layer
-  //m_cnf.materialMapper->averageLayerMaterial();
-  ACTS_VERBOSE("finalize layer material");
-  //m_cnf.materialMapper->finalizeLayerMaterial();
+
   ACTS_VERBOSE("finalize successful.");
   return FW::ProcessCode::SUCCESS;
 }

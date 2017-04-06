@@ -31,5 +31,6 @@ class IMaterialWriter : public IService {
       std::shared_ptr<const Acts::BinnedSurfaceMaterial> material,
       const Acts::GeometryID geoID, std::string name) = 0;
 };
+
 }
 #endif  // WRITERS_IMATERIALWRITER_H

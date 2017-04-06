@@ -27,8 +27,8 @@
 int
 main()
 {
-  size_t               nEvents   = 1000;
-  Acts::Logging::Level eLogLevel = Acts::Logging::VERBOSE;
+  size_t               nEvents   = 100000;
+  Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
 
   // set up the geometry service
   DD4hepPlugin::GeometryService::Config gsConfig("GeometryService",
@@ -54,8 +54,7 @@ main()
   /// set up the reader
   FWRoot::RootMaterialTrackRecReader::Config readerConfig("MaterialReader",
                                                           eLogLevel);
-  readerConfig.fileName = "/afs/cern.ch/work/j/jhrdinka/ACTS/ACTS/acts-test-fw/"
-                          "MaterialTrackRecCollections.root";
+  readerConfig.fileName = "MaterialTrackRecCollections.root";
   readerConfig.treeName = "MaterialTrackRecCollections";
   auto materialTrackRecReader
       = std::make_shared<FWRoot::RootMaterialTrackRecReader>(readerConfig);
@@ -89,8 +88,10 @@ main()
   FWE::MaterialMappingAlgorithm::Config mmConfig;
   mmConfig.materialTrackRecReader = materialTrackRecReader;
   mmConfig.materialMapper         = materialMapper;
+  mmConfig.trackingGeometry       = tGeometry;
+  mmConfig.maximumTrackRecords    = 1000;
   auto materialMappingAlg = std::make_shared<FWE::MaterialMappingAlgorithm>(
-      mmConfig, Acts::getDefaultLogger("MatMapAlgorithm", eLogLevel));
+      mmConfig, Acts::getDefaultLogger("MaterialMappingAlgorithm", eLogLevel));
 
   // create the material writer
   FWRoot::RootMaterialWriter::Config matWriterConfig("MaterialWriter",
@@ -144,36 +145,45 @@ main()
   auto fullMaterialTest           = std::make_shared<FWE::FullMaterialTest>(
       fmConfig, Acts::getDefaultLogger("FullMatTest", eLogLevel));
 
+  /*
+  
+  // Geant4 job - these can be many Geant4 jobs, indeed
+  //
   // create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
+  FW::Sequencer::Config seqG4Config;
   // now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
+  FW::Sequencer g4Sequencer(seqG4Config);
   //  sequencer.addServices({geometrySvc});
   //    sequencer.addServices({dd4hepToG4Svc});
-  sequencer.addServices({materialTrackRecWriter});
-  sequencer.appendEventAlgorithms({createMapAlg});
+  g4Sequencer.addServices({materialTrackRecWriter});
+  g4Sequencer.appendEventAlgorithms({createMapAlg});
 
   // initialize loop
-  sequencer.initializeEventLoop();
+  g4Sequencer.initializeEventLoop();
   // run the loop
-  sequencer.processEventLoop(1);
+  g4Sequencer.processEventLoop(1);
   // finalize loop
-  sequencer.finalizeEventLoop();
+  g4Sequencer.finalizeEventLoop();
 
+  */
+  
+  // Mapping job 
+  //
   // create the config object for the sequencer
-  FW::Sequencer::Config seq2Config;
+  FW::Sequencer::Config mapSeqConfig;
   // now create the sequencer
-  FW::Sequencer sequencer2(seq2Config);
-  sequencer2.addServices({materialTrackRecReader});
-  sequencer2.appendEventAlgorithms({materialMappingAlg});
+  FW::Sequencer mappingSequencer(mapSeqConfig);
+  mappingSequencer.addServices({materialTrackRecReader});
+  mappingSequencer.appendEventAlgorithms({materialMappingAlg});
 
   // initialize loop
-  sequencer2.initializeEventLoop();
+  mappingSequencer.initializeEventLoop();
   // run the loop
-  sequencer2.processEventLoop(1);
+  mappingSequencer.processEventLoop(1);
   // finalize loop
-  sequencer2.finalizeEventLoop();
+  mappingSequencer.finalizeEventLoop();
 
+  /*
   // create the config object for the sequencer
   FW::Sequencer::Config seq3Config;
   // now create the sequencer
@@ -202,4 +212,5 @@ main()
   sequencer4.processEventLoop(nEvents);
   // finalize loop
   sequencer4.finalizeEventLoop();
+  */
 }
