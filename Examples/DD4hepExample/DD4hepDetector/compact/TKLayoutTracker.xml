@@ -23,7 +23,10 @@
         <constant name="world_x" value="world_size"/>
         <constant name="world_y" value="world_size"/>
         <constant name="world_z" value="world_size"/>
-        <!-------------------------------------------------------->
+        
+        <constant name="Tube_rmin" value="0.*mm"/>
+        <constant name="Tube_rmax" value="15.*mm"/>
+        <constant name="Tube_length" value="1000.*mm"/>
         <!--Envelope0-->
         <constant name="Env0_rmin"          value="21*mm"/>
         <constant name="Env0_rmax"          value="800.*mm"/>
@@ -212,11 +215,12 @@
         <constant name="E_M5_X2"             value="35.*mm"/>
         <constant name="E_M5_length"         value="34.65*mm"/>
         <constant name="E0_M5_modulesInPhi"  value="64"/>
-        <!-------------------------------------------------------->
+
+
         <!--Envelope1-->
         <constant name="Env1_rmin"          value="21.*mm"/>
         <constant name="Env1_rmax"          value="5000.*mm"/><!--Old:3000.*mm now for forward tracker bigger, change later-->
-        <constant name="Env1_dz"            value="30.*m"/><!--Old:9000.*mm now for forward tracker bigger, change later-->
+        <constant name="Env1_dz"            value="9100.*m"/><!--with FwrdEndcap: 30 m-->
         <!--Barrel1-->
         <constant name="B1_rmin"            value="810.*mm"/>
         <constant name="B1_rmax"            value="4000.*mm"/><!--Old:2400.*mm now for forward tracker bigger, change later-->
@@ -330,12 +334,12 @@
         <!--EndCap1-->
         <constant name="E1_rmin"            value="21.*mm"/>
         <constant name="E1_rmax"            value="4000.*mm"/> <!--Old:2405.*mm now for forward tracker bigger, change later-->
-        <constant name="E1_dz"              value="10.95*m"/> <!--Old:2500.*mm now for forward tracker bigger, change later-->
-        <constant name="pE1_zpos"           value="14.05*m"/>
-        <constant name="nE1_zpos"           value="-14.05*m"/>
+        <constant name="E1_dz"              value="2500.*mm"/> <!--With FwrdEndcap: 10.95, -14.05, 14.05-->
+        <constant name="pE1_zpos"           value="5603.*mm"/>
+        <constant name="nE1_zpos"           value="-5603.*mm"/>
         <!--Layers-->
-  <!--      <constant name="E1_L_rmin"          value="23.*mm"/>
-        <constant name="E1_L_rmax"          value="2401.5*mm"/>
+       <!-- <constant name="E1_L_rmin"          value="23.*mm"/>
+        <constant name="E1_L_rmax"          value="2401.5*mm"/>-->
         <constant name="E1_L_dz"            value="6.*cm"/>
         <constant name="E1_L0_pos"          value="-2100.*mm"/>
         <constant name="E1_L1_pos"          value="-1763.3*mm"/>
@@ -346,10 +350,10 @@
         <constant name="E1_L6_pos"          value="473.2*mm"/>
         <constant name="E1_L7_pos"          value="1057.4*mm"/>
         <constant name="E1_L8_pos"          value="1697.9*mm"/>
-        <constant name="E1_L9_pos"          value="2400.*mm"/>-->
+        <constant name="E1_L9_pos"          value="2400.*mm"/>
         <constant name="E1_L_rmin"          value="23.*mm"/>
         <constant name="E1_L_rmax"          value="3500.*mm"/><!--Old:2401.5.*mm now for forward tracker bigger, change later-->
-        <constant name="E1_L_dz"            value="6.*cm"/>
+       <!--Fwrd <constant name="E1_L_dz"            value="6.*cm"/>
         <constant name="E1_L0_pos"          value="-10550.*mm"/>
         <constant name="E1_L1_pos"          value="-10213.3*mm"/>
         <constant name="E1_L2_pos"          value="-9844.2*mm"/>
@@ -359,7 +363,7 @@
         <constant name="E1_L6_pos"          value="-7976.8*mm"/>
         <constant name="E1_L7_pos"          value="-7392.6*mm"/>
         <constant name="E1_L8_pos"          value="-6752.1*mm"/>
-        <constant name="E1_L9_pos"          value="-6050.*mm"/>
+        <constant name="E1_L9_pos"          value="-6050.*mm"/>-->
         <!--Module-->
         <constant name="E_M_thickness"       value="0.1*mm"/>
         <!--Ring0-->
@@ -516,7 +520,8 @@
         <constant name="E1_M21_X2"             value="60.*mm"/>
         <constant name="E1_M21_length"         value="40.*mm"/>
         <constant name="E1_M21_modulesInPhi"   value="152"/>
-        <!------------------------------------------------------->
+
+
         <!--now adding discs for forward tracker-->
         <constant name="E1_L10_pos"          value="7.45*m"/>
         <constant name="E1_L11_pos"          value="7.95*m"/>
@@ -593,7 +598,7 @@
         <vis name="BlueVisTrans" alpha="0.1" r="0.0" g="0.0" b="1.0" showDaughters="true" visible="false"/>
         <vis name="BarrelVis" alpha="1" r="1.0" g="0.0" b="0.0" showDaughters="true" visible="false"/>
         <vis name="EndCapVis" alpha="1" r="0.0" g="0.0" b="1.0" showDaughters="true" visible="false"/>
-        <vis name="BarrelLayerVis" alpha="1" r="0.0" g="1.0" b="0.0" showDaughters="true" visible="true"/>
+        <vis name="BarrelLayerVis" alpha="1" r="0.0" g="1.0" b="0.0" showDaughters="true" visible="false"/>
         <vis name="EndcapLayerVis" alpha="1" r="1.0" g="0.0" b="1.0" showDaughters="true" visible="false"/>
     </display>
 
@@ -609,6 +614,10 @@
     <include ref="TKLayoutOuter.xml"/>
 
     <detectors>
+    <detector id="0" name="beampipe" type="BeamTube">
+            <status id="0"/>
+            <dimensions rmin="Tube_rmin" rmax="Tube_rmax" z="Tube_length" vis="violet" material="Air"/>
+        </detector>
        <detector id="1" name="TKTrackerInner" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
             <shape name="EnvelopeShape" type="Tube" rmin="Env0_rmin" rmax="Env0_rmax" dz="Env0_dz" material="Air"/>
             <composite name="Barrel0"/>
