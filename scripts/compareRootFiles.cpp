@@ -218,7 +218,7 @@ compareRootFiles(std::string file1, std::string file2)
                                         -> Ordering
       {
         for(auto& branchHarness: branchComparisonHarnesses) {
-          const auto order = branchHarness.compareEvents.first(i, j);
+          const auto order = branchHarness.sortHarness.first.first(i, j);
           if(order != Ordering::EQUAL) { return order; }
         }
         return Ordering::EQUAL;
@@ -228,7 +228,7 @@ compareRootFiles(std::string file1, std::string file2)
       IndexSwapper t1SwapEvents = [&branchComparisonHarnesses]
                                   (std::size_t i, std::size_t j) {
         for(auto& branchHarness: branchComparisonHarnesses) {
-          branchHarness.swapEvents.first(i, j);
+          branchHarness.sortHarness.first.second(i, j);
         }
       };
 
@@ -245,7 +245,7 @@ compareRootFiles(std::string file1, std::string file2)
                                         -> Ordering
       {
         for(auto& branchHarness: branchComparisonHarnesses) {
-          const auto order = branchHarness.compareEvents.second(i, j);
+          const auto order = branchHarness.sortHarness.second.first(i, j);
           if(order != Ordering::EQUAL) { return order; }
         }
         return Ordering::EQUAL;
@@ -255,7 +255,7 @@ compareRootFiles(std::string file1, std::string file2)
       IndexSwapper t2SwapEvents = [&branchComparisonHarnesses]
                                   (std::size_t i, std::size_t j) {
         for(auto& branchHarness: branchComparisonHarnesses) {
-          branchHarness.swapEvents.second(i, j);
+          branchHarness.sortHarness.second.second(i, j);
         }
       };
 

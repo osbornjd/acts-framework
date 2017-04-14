@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <functional>
+#include <sstream>
 #include <vector>
 
 #include "TDictionary.h"
@@ -155,18 +156,17 @@ void quickSort(const std::size_t       firstIndex,
                const IndexComparator & compare,
                const IndexSwapper    & swap)
 {
-  // We're done if the array that we need to sort has zero or one elements
-  if(firstIndex >= lastIndex) return;
-
-  // We switch to non-recursive selection sort when the range becomes too small
-  static const std::size_t NON_RECURSIVE_THRESHOLD = 30;
+  // We switch to non-recursive selection sort when the range becomes too small.
+  // This optimization voids the need for detection of 0- and 1-element input.
+  static const std::size_t NON_RECURSIVE_THRESHOLD = 20;
   if(lastIndex - firstIndex < NON_RECURSIVE_THRESHOLD) {
     selectionSort(firstIndex, lastIndex, compare, swap);
     return;
   }
 
-  // We'll use the midpoint as a pivot, since for the target datasets we do not
-  // expect much benefit from more elaborate schemes like median-of-three
+  // We'll use the midpoint as a pivot. Later on, we can switch to more
+  // elaborate pivot selection schemes if their usefulness for our use case
+  // (pseudorandom events with thread-originated reordering) is demonstrated.
   std::size_t pivotIndex = firstIndex + (lastIndex - firstIndex)/2;
 
   // Partition the data around the pivot using Hoare's scheme
@@ -229,19 +229,19 @@ struct BranchComparisonHarness
   // Type-erased event data for the current branch, in both trees being compared
   HomogeneousPair<AnyVector> eventData;
 
+  // For debugging purposes, it can be useful to print out the event data.
+  // This functor will do it for you.
+  std::function<void()> dumpEventData;
+
   // Function which loads the active event data for the current branch. This is
   // to be performed for each branch and combined with TTreeReader-based event
   // iteration on both trees.
   void loadCurrentEvent() { (*m_eventLoaderPtr)(); }
 
   // Functors which compare two events within a given tree and order them
-  // with respect to one another. By combining such ordering for each branch,
-  // a global canonical order for the entire tree is defined.
-  HomogeneousPair<IndexComparator> compareEvents;
-
-  // Functors which swap two events within a given tree. By performing such
-  // swapping on each branch, event swapping on the entire tree is possible.
-  HomogeneousPair<IndexSwapper> swapEvents;
+  // with respect to one another, and which swap two events. By combining such
+  // functionality for each branch, a global tree order can be produced.
+  HomogeneousPair<std::pair<IndexComparator, IndexSwapper>> sortHarness;
 
   // Functor which compares the current event data in *both* trees and tells
   // whether it is identical. The comparison is order-sensitive, so events
@@ -340,6 +340,15 @@ private:
     tree1Data.reserve(treeMetadata.entryCount);
     tree2Data.reserve(treeMetadata.entryCount);
 
+    // Setup event data printout
+    result.dumpEventData = [&tree1Data, &tree2Data, branchName] {
+      std::cout << "=== Branch " << branchName << " ===" << std::endl;
+      for(std::size_t i = 0; i < tree1Data.size(); ++i) {
+        std::cout << to_string(tree1Data[i]) << "        \t"
+                  << to_string(tree2Data[i]) << std::endl;
+      }
+    };
+
     // Setup event data readout
     result.m_eventLoaderPtr.reset(
       new EventLoader<T>{ treeMetadata.tree1Reader,
@@ -349,23 +358,25 @@ private:
                           tree2Data }
     );
 
-    // Setup event data comparison
-    result.compareEvents.first = [&tree1Data](std::size_t i,
-                                              std::size_t j) -> Ordering {
-      return compare(tree1Data[i], tree1Data[j]);
-    };
-    result.compareEvents.second = [&tree2Data](std::size_t i,
-                                               std::size_t j) -> Ordering {
-      return compare(tree2Data[i], tree2Data[j]);
-    };
-
-    // Setup event data swapping
-    result.swapEvents.first = [&tree1Data](std::size_t i, std::size_t j) {
-      std::swap(tree1Data[i], tree1Data[j]);
-    };
-    result.swapEvents.second = [&tree2Data](std::size_t i, std::size_t j) {
-      std::swap(tree2Data[i], tree2Data[j]);
-    };
+    // Setup event comparison and swapping for each tree
+    result.sortHarness = std::make_pair(
+      std::make_pair(
+        [&tree1Data](std::size_t i, std::size_t j) -> Ordering {
+          return compare(tree1Data[i], tree1Data[j]);
+        },
+        [&tree1Data](std::size_t i, std::size_t j) {
+          std::swap(tree1Data[i], tree1Data[j]);
+        }
+      ),
+      std::make_pair(
+        [&tree2Data](std::size_t i, std::size_t j) -> Ordering {
+          return compare(tree2Data[i], tree2Data[j]);
+        },
+        [&tree2Data](std::size_t i, std::size_t j) {
+          std::swap(tree2Data[i], tree2Data[j]);
+        }
+      )
+    );
 
     // Setup order-sensitive tree comparison
     result.eventDataEqual = [&tree1Data, &tree2Data]() -> bool {
@@ -487,6 +498,26 @@ private:
       std::cout << "      ~ Unsupported branch data type!" << std::endl;
       throw std::exception();
     }
+  }
+
+
+  // For debugging purposes, we'll also need a way to convert any supported
+  // data type to a string, similar to std::to_string...
+  template<typename T>
+  static std::string to_string(const T& value) {
+    return std::to_string(value);
+  }
+
+  // ...but including a specialization for vectors, which C++ does not yet have
+  template<typename U>
+  static std::string to_string(const std::vector<U>& vector) {
+    std::ostringstream sstream;
+    sstream << "{ ";
+    for(const auto& item: vector) {
+      sstream << to_string(item) << " \t";
+    }
+    sstream << " }";
+    return sstream.str();
   }
 
 };
