@@ -319,51 +319,6 @@ struct BranchComparisonHarness
 
 private:
 
-  // Because the ROOT people who created TTreeReaderValue could not bother to
-  // make it movable (for moving it into a lambda), or even just destructible
-  // (for moving a unique_ptr into the lambda), loadEventData can only be
-  // implemented through lots of unpleasant C++98-ish boilerplate.
-  class EventLoaderBase
-  {
-  public:
-    virtual ~EventLoaderBase() = default;
-    virtual void operator()() = 0;
-  };
-  
-  template<typename T>
-  class EventLoader: public EventLoaderBase
-  {
-  public:
-
-    EventLoader(      TTreeReader    & tree1Reader,
-                      TTreeReader    & tree2Reader,
-                const std::string    & branchName,
-                      std::vector<T> & tree1Data,
-                      std::vector<T> & tree2Data)
-      : branch1Reader{ tree1Reader, branchName.c_str() }
-      , branch2Reader{ tree2Reader, branchName.c_str() }
-      , branch1Data(tree1Data)
-      , branch2Data(tree2Data)
-    {}
-
-    void operator()() final override
-    {
-      branch1Data.push_back(*branch1Reader);
-      branch2Data.push_back(*branch2Reader);
-    }
-
-
-  private:
-  
-    TTreeReaderValue<T> branch1Reader, branch2Reader;
-    std::vector<T>& branch1Data;
-    std::vector<T>& branch2Data;
-
-  };
-  
-  std::unique_ptr<EventLoaderBase> m_eventLoaderPtr;
-
-
   // Under the hood, the top-level factory calls the following function
   // template, parametrized with the proper C++ data type
   template<typename T>
@@ -420,6 +375,51 @@ private:
     // ...and we're good to go!
     return std::move(result);
   }
+
+
+  // Because the ROOT people who created TTreeReaderValue could not bother to
+  // make it movable (for moving it into a lambda), or even just destructible
+  // (for moving a unique_ptr into the lambda), loadEventData can only be
+  // implemented through lots of unpleasant C++98-ish boilerplate.
+  class EventLoaderBase
+  {
+  public:
+    virtual ~EventLoaderBase() = default;
+    virtual void operator()() = 0;
+  };
+  
+  template<typename T>
+  class EventLoader: public EventLoaderBase
+  {
+  public:
+
+    EventLoader(      TTreeReader    & tree1Reader,
+                      TTreeReader    & tree2Reader,
+                const std::string    & branchName,
+                      std::vector<T> & tree1Data,
+                      std::vector<T> & tree2Data)
+      : branch1Reader{ tree1Reader, branchName.c_str() }
+      , branch2Reader{ tree2Reader, branchName.c_str() }
+      , branch1Data(tree1Data)
+      , branch2Data(tree2Data)
+    {}
+
+    void operator()() final override
+    {
+      branch1Data.push_back(*branch1Reader);
+      branch2Data.push_back(*branch2Reader);
+    }
+
+
+  private:
+  
+    TTreeReaderValue<T> branch1Reader, branch2Reader;
+    std::vector<T>& branch1Data;
+    std::vector<T>& branch2Data;
+
+  };
+  
+  std::unique_ptr<EventLoaderBase> m_eventLoaderPtr;
 
 
   // This helper factory helps building branches associated with std::vectors
