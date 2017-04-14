@@ -115,8 +115,6 @@ int compareRootFiles(std::string file1, std::string file2)
                     "  - Class name does not match!");
     CHECK_EQUAL(key1->GetCycle(), key2->GetCycle(),
                 "  - Cycle number does not match!");
-    CHECK_EQUAL(key1->GetObjlen(), key2->GetObjlen(),
-                "  - Uncompressed object length does not match!");
     CHECK_STR_EQUAL(key1->GetTitle(), key2->GetTitle(),
                     "  - Title does not match!");
     CHECK_EQUAL(key1->GetVersion(), key2->GetVersion(),
