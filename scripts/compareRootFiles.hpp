@@ -192,8 +192,11 @@ void quickSort(const std::size_t       firstIndex,
 
         // Don't forget to keep track the pivot's index along the way, as this
         // is currently the only way by which we can refer to the pivot element.
-        if(i == pivotIndex) { pivotIndex = j; }
-        if(j == pivotIndex) { pivotIndex = i; }
+        if(i == pivotIndex) {
+          pivotIndex = j;
+        } else if(j == pivotIndex) {
+          pivotIndex = i;
+        }
       } else {
         // If i and j went past each other, our partitioning is done
         splitIndex = j;

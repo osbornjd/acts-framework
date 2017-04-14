@@ -34,7 +34,7 @@
 #define CHECK(pred, msg)            \
   if(!(pred)) {                     \
     std::cout << msg << std::endl;  \
-    return false;                   \
+    return 1;                       \
   }
 
 #define CHECK_EQUAL(v1, v2, msg) \
@@ -44,8 +44,9 @@
   CHECK(strcmp((s1), (s2)) == 0, msg)
 
 
-bool
-compareRootFiles(std::string file1, std::string file2)
+// This script returns 0 if the files have identical contents except for event
+// ordering, and a nonzero result if the contents differ or an error occured.
+int compareRootFiles(std::string file1, std::string file2)
 {
   std::cout << "Comparing ROOT files" << file1 << " and " << file2 << std::endl;
 
@@ -193,7 +194,7 @@ compareRootFiles(std::string file1, std::string file2)
                                                              b1ClassName);
         branchComparisonHarnesses.emplace_back(std::move(branchHarness));
       } catch(...) {
-        return false;
+        return 2;
       }
     }
 
@@ -273,5 +274,5 @@ compareRootFiles(std::string file1, std::string file2)
 
 
   std::cout << "* Input files are equal except for event order!" << std::endl;
-  return true;
+  return 0;
 }
