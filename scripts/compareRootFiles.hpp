@@ -3,7 +3,6 @@
 
 #include <exception>
 #include <functional>
-#include <sstream>
 #include <vector>
 
 #include "TDictionary.h"
@@ -232,10 +231,6 @@ struct BranchComparisonHarness
   // Type-erased event data for the current branch, in both trees being compared
   HomogeneousPair<AnyVector> eventData;
 
-  // For debugging purposes, it can be useful to print out the event data.
-  // This functor will do it for you.
-  std::function<void()> dumpEventData;
-
   // Function which loads the active event data for the current branch. This is
   // to be performed for each branch and combined with TTreeReader-based event
   // iteration on both trees.
@@ -342,15 +337,6 @@ private:
     // Use our advance knowledge of the event count to preallocate storage
     tree1Data.reserve(treeMetadata.entryCount);
     tree2Data.reserve(treeMetadata.entryCount);
-
-    // Setup event data printout
-    result.dumpEventData = [&tree1Data, &tree2Data, branchName] {
-      std::cout << "=== Branch " << branchName << " ===" << std::endl;
-      for(std::size_t i = 0; i < tree1Data.size(); ++i) {
-        std::cout << to_string(tree1Data[i]) << "        \t"
-                  << to_string(tree2Data[i]) << std::endl;
-      }
-    };
 
     // Setup event data readout
     result.m_eventLoaderPtr.reset(
@@ -501,26 +487,6 @@ private:
       std::cout << "      ~ Unsupported branch data type!" << std::endl;
       throw std::exception();
     }
-  }
-
-
-  // For debugging purposes, we'll also need a way to convert any supported
-  // data type to a string, similar to std::to_string...
-  template<typename T>
-  static std::string to_string(const T& value) {
-    return std::to_string(value);
-  }
-
-  // ...but including a specialization for vectors, which C++ does not yet have
-  template<typename U>
-  static std::string to_string(const std::vector<U>& vector) {
-    std::ostringstream sstream;
-    sstream << "{ ";
-    for(const auto& item: vector) {
-      sstream << to_string(item) << " \t";
-    }
-    sstream << " }";
-    return sstream.str();
   }
 
 };
