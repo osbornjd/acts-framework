@@ -2,8 +2,11 @@
 #define COMPARE_ROOT_FILES_HPP
 
 #include <exception>
-#include <memory>
+#include <functional>
 #include <vector>
+
+#include "TDictionary.h"
+#include "TTreeReaderValue.h"
 
 
 // Minimal type-erasure wrapper for std::vector<T>. This will be used as a
@@ -156,14 +159,14 @@ void quickSort(const std::size_t       firstIndex,
   if(firstIndex >= lastIndex) return;
 
   // We switch to non-recursive selection sort when the range becomes too small
-  static const std::size_t NON_RECURSIVE_THRESHOLD = 10;
+  static const std::size_t NON_RECURSIVE_THRESHOLD = 30;
   if(lastIndex - firstIndex < NON_RECURSIVE_THRESHOLD) {
     selectionSort(firstIndex, lastIndex, compare, swap);
     return;
   }
 
-  // For now, we'll use the midpoint as a pivot
-  // TODO: Implement median-of-three rule instead
+  // We'll use the midpoint as a pivot, since for the target datasets we do not
+  // expect much benefit from more elaborate schemes like median-of-three
   std::size_t pivotIndex = firstIndex + (lastIndex - firstIndex)/2;
 
   // Partition the data around the pivot using Hoare's scheme
@@ -187,8 +190,8 @@ void quickSort(const std::size_t       firstIndex,
         // These elements are in the wrong order, swap them
         swap(i, j);
 
-        // Don't forget to keep track the pivot's index along the way: in this
-        // version of the algorithm, we can only refer to the pivot by its index
+        // Don't forget to keep track the pivot's index along the way, as this
+        // is currently the only way by which we can refer to the pivot element.
         if(i == pivotIndex) { pivotIndex = j; }
         if(j == pivotIndex) { pivotIndex = i; }
       } else {

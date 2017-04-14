@@ -1,22 +1,31 @@
-// This ROOT script compares two ROOT files containing TTrees of numbers or
-// vectors of numbers in an order-insensitive way. Its intended use is to
-// compare the output of a single-threaded and multi-threaded programs in order
-// to check that results are reproducible.
+// This ROOT script compares two ROOT files in an order-insensitive way. Its
+// intended use is to compare the output of a single-threaded and multi-threaded
+// programs in order to check that results are perfectly reproducible.
+//
+// As a current limitation, which may be lifted in the future, the script does
+// all of its processing in RAM, which means that the input dataset must fit in
+// RAM. So do not try to run this on terabytes of data. You don't need that much
+// data to check that your multithreaded program runs well anyhow.
+//
+// Another limitation is that the comparison relies on perfect output
+// reproducibility, which is a very costly guarantee to achieve in a
+// multi-threaded environment. If you want to compare "slightly different"
+// outputs, this script will not work as currently written. I cannot think of a
+// way in which imperfect reproducibility could be checked in a manner which
+// doesn't depend on the details of the data being compared.
 
 #include <cstring>
-#include <functional>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "TBranch.h"
-#include "TDictionary.h"
 #include "TFile.h"
 #include "TKey.h"
 #include "TList.h"
 #include "TObject.h"
 #include "TTree.h"
 #include "TTreeReader.h"
-#include "TTreeReaderValue.h"
 
 #include "compareRootFiles.hpp"
 
@@ -176,7 +185,7 @@ compareRootFiles(std::string file1, std::string file2)
                     "      ~ Branch name does not match!");
       }
 
-      std::cout << "    o Building event storage and functors..." << std::endl;
+      std::cout << "    o Building branch comparison harness..." << std::endl;
       try {
         auto branchHarness = BranchComparisonHarness::create(treeMetadata,
                                                              b1BranchName,
