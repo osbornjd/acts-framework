@@ -271,8 +271,7 @@ compareRootFiles(std::string file1, std::string file2)
     }
   }
 
-  // Only if all trees are equal in an order-insensitive fashion, can we declare
-  // the files to be equal in an order-insensitive fashion
+
   std::cout << "* Input files are equal except for event order!" << std::endl;
   return true;
 }
