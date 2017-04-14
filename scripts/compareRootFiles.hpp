@@ -157,7 +157,7 @@ void quickSort(const std::size_t       firstIndex,
 {
   // We switch to non-recursive selection sort when the range becomes too small.
   // This optimization voids the need for detection of 0- and 1-element input.
-  static const std::size_t NON_RECURSIVE_THRESHOLD = 20;
+  static const std::size_t NON_RECURSIVE_THRESHOLD = 25;
   if(lastIndex - firstIndex < NON_RECURSIVE_THRESHOLD) {
     selectionSort(firstIndex, lastIndex, compare, swap);
     return;

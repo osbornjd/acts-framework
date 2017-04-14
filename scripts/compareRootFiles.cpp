@@ -16,6 +16,7 @@
 
 #include <cstring>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -69,6 +70,38 @@ int compareRootFiles(std::string file1, std::string file2)
     for(int i = 0; i < f1KeyCount; ++i) {
       keyPairs.emplace_back(dynamic_cast<TKey*>(f1KeyIter()),
                             dynamic_cast<TKey*>(f2KeyIter()));
+    }
+  }
+
+
+  std::cout << "* Eliminating old key cycles..." << std::endl;
+  {
+    std::cout << "  - Determining latest cycle for each key..." << std::endl;
+    std::unordered_map<std::string, short> latestKeyCycle;
+    for(const auto& keyPair: keyPairs)
+    {
+      const auto& key1 = keyPair.first;
+      const std::string keyName{ key1->GetName() };
+      const short newCycle = key1->GetCycle();
+
+      auto latestCycleIter = latestKeyCycle.find(keyName);
+      if(latestCycleIter != latestKeyCycle.end()) {
+        const short oldCycle = latestCycleIter->second;
+        latestCycleIter->second = std::max(oldCycle, newCycle);
+      } else {
+        latestKeyCycle.emplace(keyName, newCycle);
+      }
+    }
+
+    std::cout << "  - Ignoring all older key cycles..." << std::endl;
+    for(auto keyIter = keyPairs.cbegin(); keyIter != keyPairs.cend(); )
+    {
+      const auto& key1 = keyIter->first;
+      if(key1->GetCycle() != latestKeyCycle[key1->GetName()]) {
+        keyIter = keyPairs.erase(keyIter);
+      } else {
+        ++keyIter;
+      }
     }
   }
 
