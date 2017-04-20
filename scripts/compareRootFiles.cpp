@@ -15,8 +15,8 @@
 // doesn't depend on the details of the data being compared.
 
 #include <cstring>
+#include <map>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -53,54 +53,95 @@ int compareRootFiles(std::string file1, std::string file2)
 
 
   std::cout << "* Opening the files..." << std::endl;
-  TFile f1{ file1.c_str() }, f2{ file2.c_str() };
+  HomogeneousPair<TFile> files{ file1.c_str(), file2.c_str() };
 
 
   std::cout << "* Extracting file keys..." << std::endl;
-  std::vector<HomogeneousPair<TKey*>> keyPairs;
+  HomogeneousPair<std::vector<TKey*>> fileKeys;
   {
-    // Check number of keys and allocate key storage
-    const int f1KeyCount = f1.GetNkeys();
-    const int f2KeyCount = f2.GetNkeys();
-    CHECK_EQUAL(f1KeyCount, f2KeyCount, "  - Number of keys does not match!");
-    keyPairs.reserve(f1KeyCount);
-
-    // Extract file keys using TFile::GetListOfKeys()
-    TIter f1KeyIter{ f1.GetListOfKeys() }, f2KeyIter{ f2.GetListOfKeys() };
-    for(int i = 0; i < f1KeyCount; ++i) {
-      keyPairs.emplace_back(dynamic_cast<TKey*>(f1KeyIter()),
-                            dynamic_cast<TKey*>(f2KeyIter()));
-    }
+    // This is how we would extract keys from one file
+    const auto loadKeys = [](const TFile& file, std::vector<TKey*>& target)
+    {
+      const int keyCount = file.GetNkeys();
+      target.reserve(keyCount);
+      TIter keyIter{ file.GetListOfKeys() };
+      for(int i = 0; i < keyCount; ++i) {
+        target.emplace_back(dynamic_cast<TKey*>(keyIter()));
+      }
+    };
+    
+    // Do it for each of our files
+    loadKeys(files.first, fileKeys.first);
+    loadKeys(files.second, fileKeys.second);
   }
 
 
-  std::cout << "* Eliminating old key cycles..." << std::endl;
+  std::cout << "* Selecting the latest cycle of each key..." << std::endl;
+  std::vector<HomogeneousPair<TKey*>> keyPairs;
   {
-    std::cout << "  - Determining latest cycle for each key..." << std::endl;
-    std::unordered_map<std::string, short> latestKeyCycle;
-    for(const auto& keyPair: keyPairs)
-    {
-      const auto& key1 = keyPair.first;
-      const std::string keyName{ key1->GetName() };
-      const short newCycle = key1->GetCycle();
+    // For each file and for each key name, we want to know what is the latest
+    // key cycle, and who is the associated key object
+    using KeyMetadata = std::pair<short, TKey*>;
+    using FileMetadata = std::map<std::string, KeyMetadata>;
+    HomogeneousPair<FileMetadata> metadata;
 
-      auto latestCycleIter = latestKeyCycle.find(keyName);
-      if(latestCycleIter != latestKeyCycle.end()) {
-        const short oldCycle = latestCycleIter->second;
-        latestCycleIter->second = std::max(oldCycle, newCycle);
-      } else {
-        latestKeyCycle.emplace(keyName, newCycle);
+    // This is how we compute this metadata for a given file
+    const auto findLatestCycle= [](const std::vector<TKey*>& keys,
+                                   FileMetadata& target)
+    {
+      // Iterate through the file's keys
+      for(const auto key: keys)
+      {
+        // Extract information about the active key
+        const std::string keyName{ key->GetName() };
+        const short newCycle{ key->GetCycle() };
+
+        // Do we already know of a key with the same name?
+        auto latestCycleIter = target.find(keyName);
+        if(latestCycleIter != target.end()) {
+          // If so, keep the key with the most recent cycle
+          auto& latestCycleMetadata = latestCycleIter->second;
+          if(newCycle > latestCycleMetadata.first) {
+            latestCycleMetadata = {newCycle, key};
+          }
+        } else {
+          // If not, this is the most recent key that we have seen yet
+          target.emplace(keyName, KeyMetadata{newCycle, key});
+        }
       }
-    }
+    };
 
-    std::cout << "  - Ignoring all older key cycles..." << std::endl;
-    for(auto keyIter = keyPairs.cbegin(); keyIter != keyPairs.cend(); )
+    // We'll compute this information for both of our files
+    std::cout << "  - Finding the latest cycle for each file..." << std::endl;
+    findLatestCycle(fileKeys.first, metadata.first);
+    findLatestCycle(fileKeys.second, metadata.second);
+
+    // Group keys by name, and detect keys which are only present in one file
+    std::cout << "  - Grouping per-file latest keys..." << std::endl;
     {
-      const auto& key1 = keyIter->first;
-      if(key1->GetCycle() != latestKeyCycle[key1->GetName()]) {
-        keyIter = keyPairs.erase(keyIter);
-      } else {
-        ++keyIter;
+      // Make sure that both files have the same amount of keys once duplicate
+      // versions are removed
+      const auto f1KeyCount = metadata.first.size();
+      const auto f2KeyCount = metadata.second.size();
+      CHECK_EQUAL(f1KeyCount, f2KeyCount,
+                  "    o Number of keys does not match");
+      keyPairs.reserve(f1KeyCount);
+
+      // Iterate through the keys, in the same order (guaranteed by std::map)
+      for(auto f1MetadataIter = metadata.first.cbegin(),
+               f2MetadataIter = metadata.second.cbegin();
+          f1MetadataIter != metadata.first.cend();
+          ++f1MetadataIter, ++f2MetadataIter)
+      {
+        // Do the keys have the same name?
+        const auto& f1KeyName = f1MetadataIter->first;
+        const auto& f2KeyName = f2MetadataIter->first;
+        CHECK_EQUAL(f1KeyName, f2KeyName,
+                    "    o Key names do not match");
+
+        // If so, extract the associated key pair
+        keyPairs.emplace_back(f1MetadataIter->second.second,
+                              f2MetadataIter->second.second);
       }
     }
   }
@@ -113,14 +154,10 @@ int compareRootFiles(std::string file1, std::string file2)
 
     CHECK_STR_EQUAL(key1->GetClassName(), key2->GetClassName(),
                     "  - Class name does not match!");
-    CHECK_EQUAL(key1->GetCycle(), key2->GetCycle(),
-                "  - Cycle number does not match!");
     CHECK_STR_EQUAL(key1->GetTitle(), key2->GetTitle(),
                     "  - Title does not match!");
     CHECK_EQUAL(key1->GetVersion(), key2->GetVersion(),
                 "  - Key version does not match!");
-    CHECK_STR_EQUAL(key1->GetName(), key2->GetName(),
-                    "  - Object name does not match!");
   }
 
 
