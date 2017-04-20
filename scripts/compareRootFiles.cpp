@@ -49,7 +49,7 @@
 // ordering, and a nonzero result if the contents differ or an error occured.
 int compareRootFiles(std::string file1, std::string file2)
 {
-  std::cout << "Comparing ROOT files" << file1 << " and " << file2 << std::endl;
+  std::cout << "Comparing ROOT files " << file1 << " and " << file2 << std::endl;
 
 
   std::cout << "* Opening the files..." << std::endl;
