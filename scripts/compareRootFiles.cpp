@@ -85,7 +85,7 @@ int compareRootFiles(std::string file1, std::string file2)
     using FileMetadata = std::map<std::string, KeyMetadata>;
     HomogeneousPair<FileMetadata> metadata;
 
-    // This is how we compute this metadata for a given file
+    // This is how we compute this metadata for a single file
     const auto findLatestCycle= [](const std::vector<TKey*>& keys,
                                    FileMetadata& target)
     {
@@ -99,24 +99,25 @@ int compareRootFiles(std::string file1, std::string file2)
         // Do we already know of a key with the same name?
         auto latestCycleIter = target.find(keyName);
         if(latestCycleIter != target.end()) {
-          // If so, keep the key with the most recent cycle
+          // If so, keep the key with the most recent cycle number
           auto& latestCycleMetadata = latestCycleIter->second;
           if(newCycle > latestCycleMetadata.first) {
             latestCycleMetadata = {newCycle, key};
           }
         } else {
-          // If not, this is the most recent key that we have seen yet
+          // If not, this is obviously the most recent key we've seen so far
           target.emplace(keyName, KeyMetadata{newCycle, key});
         }
       }
     };
 
-    // We'll compute this information for both of our files
+    // We'll compute this information for both of our files...
     std::cout << "  - Finding the latest cycle for each file..." << std::endl;
     findLatestCycle(fileKeys.first, metadata.first);
     findLatestCycle(fileKeys.second, metadata.second);
 
-    // Group keys by name, and detect keys which are only present in one file
+    // ...and then we'll group the latest keys by name, detect keys which only
+    // exist in a single file along the way, and report that as an error
     std::cout << "  - Grouping per-file latest keys..." << std::endl;
     {
       // Make sure that both files have the same amount of keys once duplicate
@@ -127,7 +128,7 @@ int compareRootFiles(std::string file1, std::string file2)
                   "    o Number of keys does not match");
       keyPairs.reserve(f1KeyCount);
 
-      // Iterate through the keys, in the same order (guaranteed by std::map)
+      // Iterate through the keys, in the same order (as guaranteed by std::map)
       for(auto f1MetadataIter = metadata.first.cbegin(),
                f2MetadataIter = metadata.second.cbegin();
           f1MetadataIter != metadata.first.cend();
@@ -234,6 +235,7 @@ int compareRootFiles(std::string file1, std::string file2)
         std::string b2ClassName, b2BranchName;
         EDataType b2DataType;
         TClass* unused;
+
         b1ClassName = branch1->GetClassName();
         b2ClassName = branch2->GetClassName();
         CHECK_EQUAL(b1ClassName, b2ClassName,
@@ -277,7 +279,6 @@ int compareRootFiles(std::string file1, std::string file2)
         branchHarness.loadCurrentEvent();
       }
     }
-
 
     std::cout << "  - Sorting the first tree..." << std::endl;
     {
