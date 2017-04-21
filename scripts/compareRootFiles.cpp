@@ -39,10 +39,10 @@
   }
 
 #define CHECK_EQUAL(v1, v2, msg) \
-  CHECK((v1) == (v2), msg)
+  CHECK((v1) == (v2), msg << " (" << (v1) << " vs " << (v2) << ')')
 
 #define CHECK_STR_EQUAL(s1, s2, msg) \
-  CHECK(strcmp((s1), (s2)) == 0, msg)
+  CHECK(strcmp((s1), (s2)) == 0, msg << " (" << (s1) << " vs " << (s2) << ')')
 
 
 // This script returns 0 if the files have identical contents except for event
@@ -76,7 +76,7 @@ int compareRootFiles(std::string file1, std::string file2)
   }
 
 
-  std::cout << "* Selecting the latest cycle of each key..." << std::endl;
+  std::cout << "* Selecting the latest key cycle..." << std::endl;
   std::vector<HomogeneousPair<TKey*>> keyPairs;
   {
     // For each file and for each key name, we want to know what is the latest
@@ -202,7 +202,7 @@ int compareRootFiles(std::string file1, std::string file2)
       t1EntryCount
     };
 
-    std::cout << "  - Extracting branch metadata..." << std::endl;
+    std::cout << "  - Comparing branch metadata..." << std::endl;
     std::vector<HomogeneousPair<TBranch*>> branchPairs;
     {
       // Check number of branches and allocate branch storage
@@ -256,7 +256,8 @@ int compareRootFiles(std::string file1, std::string file2)
                     "      ~ Branch name does not match!");
       }
 
-      std::cout << "    o Building branch comparison harness..." << std::endl;
+      std::cout << "    o Building comparison harness for branch "
+                << b1BranchName << "..." << std::endl;
       try {
         auto branchHarness = BranchComparisonHarness::create(treeMetadata,
                                                              b1BranchName,
@@ -336,6 +337,8 @@ int compareRootFiles(std::string file1, std::string file2)
 
     std::cout << "  - Checking that both trees are now equal..." << std::endl;
     for(auto& branchHarness: branchComparisonHarnesses) {
+      std::cout << "    o Comparing branch " << branchHarness.branchName 
+                << "..." << std::endl;
       CHECK(branchHarness.eventDataEqual(),
             "    o Branch contents do not match!");
     }

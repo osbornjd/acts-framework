@@ -228,6 +228,9 @@ using HomogeneousPair = std::pair<T, T>;
 // to a separate struct and its constructor.
 struct BranchComparisonHarness
 {
+  // We'll keep track of the branch name for debugging purposes
+  std::string branchName;
+
   // Type-erased event data for the current branch, in both trees being compared
   HomogeneousPair<AnyVector> eventData;
 
@@ -325,6 +328,9 @@ private:
   {
     // Our result will eventually go there
     BranchComparisonHarness result;
+
+    // Save the branch name for debugging purposes
+    result.branchName = branchName;
 
     // Setup type-erased event data storage
     auto tree1DataStorage = AnyVector::create<T>();
