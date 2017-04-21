@@ -47,7 +47,12 @@
 
 // This script returns 0 if the files have identical contents except for event
 // ordering, and a nonzero result if the contents differ or an error occured.
-int compareRootFiles(std::string file1, std::string file2)
+// 
+// If the optional dump_data_on_failure flag is set, it will also dump the
+// mismatching event data to stdout on failure for manual inspection.
+//
+int compareRootFiles(std::string file1, std::string file2,
+                     bool dump_data_on_failure = false)
 {
   std::cout << "Comparing ROOT files " << file1 << " and " << file2 << std::endl;
 
@@ -339,8 +344,13 @@ int compareRootFiles(std::string file1, std::string file2)
     for(auto& branchHarness: branchComparisonHarnesses) {
       std::cout << "    o Comparing branch " << branchHarness.branchName 
                 << "..." << std::endl;
-      CHECK(branchHarness.eventDataEqual(),
-            "    o Branch contents do not match!");
+      if(!branchHarness.eventDataEqual()) {
+        std::cout << "    o Branch contents do not match!" << std::endl;
+        if(dump_data_on_failure) {
+          branchHarness.dumpEventData();
+        }
+        return 3;
+      }
     }
   }
 

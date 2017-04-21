@@ -1,8 +1,10 @@
 #ifndef COMPARE_ROOT_FILES_HPP
 #define COMPARE_ROOT_FILES_HPP
 
+#include <cmath>
 #include <exception>
 #include <functional>
+#include <sstream>
 #include <vector>
 
 #include "TDictionary.h"
@@ -92,10 +94,21 @@ Ordering compare(const T& x, const T& y)
   }
 }
 
-// ...however, it is better to reimplement std::vector's lexicographic
-// comparison, because the previous algorithm would require multiple iterations
-// through the vector in the worst case, whereas more specialized code can
-// implement the previous comparison in one single vector iteration.
+// ...but we'll want to tweak that a little for floats, to handle NaNs better...
+template<>
+Ordering compare(const float& x, const float& y)
+{
+  if(std::isless(x, y)) {
+    return Ordering::SMALLER;
+  } else if(std::isgreater(x, y)) {
+    return Ordering::GREATER;
+  } else {
+    return Ordering::EQUAL;
+  }
+}
+
+// ...and for vectors, where the default lexicographic comparison cannot
+// efficiently tell all of what we want in a single vector iteration pass.
 template<typename U>
 Ordering compare(const std::vector<U>& v1, const std::vector<U>& v2)
 {
@@ -251,6 +264,10 @@ struct BranchComparisonHarness
   using TreeComparator = std::function<bool()>;
   TreeComparator eventDataEqual;
 
+  // Functor which dumps the event data for the active event side by side, in
+  // two columns. This enables manual comparison during debugging.
+  std::function<void()> dumpEventData;
+
 
   // General metadata about the tree which is identical for every branch
   struct TreeMetadata {
@@ -378,13 +395,22 @@ private:
       return tree1Data == tree2Data;
     };
 
+    // Add a debugging method to dump event data
+    result.dumpEventData = [&tree1Data, &tree2Data] {
+      std::cout << "File 1                \tFile 2" << std::endl;
+      for (std::size_t i = 0; i < tree1Data.size(); ++i) {
+        std::cout << toString(tree1Data[i]) << "      \t"
+                  << toString(tree2Data[i]) << std::endl;
+      }
+    };
+
     // ...and we're good to go!
     return std::move(result);
   }
 
 
-  // Because the ROOT people who created TTreeReaderValue could not bother to
-  // make it movable (for moving it into a lambda), or even just destructible
+  // Because the people who created TTreeReaderValue could not bother to make it
+  // movable (for moving it into a lambda), or even just virtually destructible
   // (for moving a unique_ptr into the lambda), loadEventData can only be
   // implemented through lots of unpleasant C++98-ish boilerplate.
   class EventLoaderBase
@@ -493,6 +519,25 @@ private:
       std::cout << "      ~ Unsupported branch data type!" << std::endl;
       throw std::exception();
     }
+  }
+
+  // This helper method provides general string conversion for all supported
+  // branch event data types.
+  template<typename T>
+  static std::string toString(const T& data) {
+    std::ostringstream oss;
+    oss << data;
+    return oss.str();
+  }
+
+  template<typename U>
+  static std::string toString(const std::vector<U>& vector) {
+    std::ostringstream oss{"{ "};
+    for(const auto& data: vector) {
+      oss << data << "  \t";
+    }
+    oss << " }";
+    return oss.str();
   }
 
 };
