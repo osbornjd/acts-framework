@@ -345,8 +345,9 @@ int compareRootFiles(std::string file1, std::string file2,
       std::cout << "    o Comparing branch " << branchHarness.branchName 
                 << "..." << std::endl;
       if(!branchHarness.eventDataEqual()) {
-        std::cout << "    o Branch contents do not match!" << std::endl;
+        std::cout << "      ~ Branch contents do not match!" << std::endl;
         if(dump_data_on_failure) {
+          std::cout << "      ~ Dumping branch contents:" << std::endl;
           branchHarness.dumpEventData();
         }
         return 3;
