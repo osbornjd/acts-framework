@@ -345,6 +345,6 @@ int compareRootFiles(std::string file1, std::string file2)
   }
 
 
-  std::cout << "* Input files are equal except for event order!" << std::endl;
+  std::cout << "* Input files are equal, event order aside!" << std::endl;
   return 0;
 }
