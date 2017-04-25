@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# This script tests whether the output of a certain ACTS framework example is
+# reproducible between single-threaded and multi-threaded runs. For example,
+# "./testReproducibility.sh Extrapolation" will run the ExtrapolationExample
+# in single-threaded and multi-threaded mode and check whether the output is
+# the same aside from threading-induced event reordering.
+#
 set -uo pipefail
 
 # Check whether the user did specify the name of the example to be run
