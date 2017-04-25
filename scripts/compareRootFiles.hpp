@@ -392,7 +392,10 @@ private:
 
     // Setup order-sensitive tree comparison
     result.eventDataEqual = [&tree1Data, &tree2Data]() -> bool {
-      return tree1Data == tree2Data;
+      for (std::size_t i = 0; i < tree1Data.size(); ++i) {
+        if(compare(tree1Data[i], tree2Data[i]) != Ordering::EQUAL) return false;
+      }
+      return true;
     };
 
     // Add a debugging method to dump event data
