@@ -51,8 +51,12 @@
 // If the optional dump_data_on_failure flag is set, it will also dump the
 // mismatching event data to stdout on failure for manual inspection.
 //
+// If the optional skip_unsupported_branches flag is set, the script will ignore
+// unsupported branch types in the input file instead of aborting.
+//
 int compareRootFiles(std::string file1, std::string file2,
-                     bool dump_data_on_failure = false)
+                     bool dump_data_on_failure = false,
+                     bool skip_unsupported_branches = false)
 {
   std::cout << "Comparing ROOT files " << file1 << " and " << file2 << std::endl;
 
@@ -272,8 +276,17 @@ int compareRootFiles(std::string file1, std::string file2,
                                                              b1DataType,
                                                              b1ClassName);
         branchComparisonHarnesses.emplace_back(std::move(branchHarness));
-      } catch(...) {
-        return 2;
+      } catch(BranchComparisonHarness::UnsupportedBranchType) {
+        // When encountering an unsupported branch type, we can either skip
+        // the branch or abort depending on configuration
+        std::cout << "        + Unsupported branch type! "
+                  << "(eDataType: " << b1DataType
+                  << ", ClassName: \"" << b1ClassName << "\")" << std::endl;
+        if(skip_unsupported_branches) {
+          continue;
+        } else {
+          return 2;
+        }
       }
     }
 

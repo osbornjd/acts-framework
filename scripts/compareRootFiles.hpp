@@ -276,6 +276,9 @@ struct BranchComparisonHarness
     const std::size_t entryCount;
   };
 
+  // This exception will be thrown if an unsupported branch type is encountered
+  class UnsupportedBranchType : public std::exception {};
+
   // Type-erased factory of branch comparison harnesses, taking ROOT run-time
   // type information as input in order to select an appropriate C++ constructor
   static BranchComparisonHarness create(      TreeMetadata& treeMetadata,
@@ -324,12 +327,10 @@ struct BranchComparisonHarness
                                                        branchName,
                                                        std::move(elementType));
         } else {
-          std::cout << "      ~ Unsupported branch data type!" << std::endl;
-          throw std::exception();
+          throw UnsupportedBranchType();
         }
       default:
-        std::cout << "      ~ Unsupported branch data type!" << std::endl;
-        throw std::exception();
+        throw UnsupportedBranchType();
     }
     
   }
@@ -519,8 +520,7 @@ private:
         branchName
       );
     } else {
-      std::cout << "      ~ Unsupported branch data type!" << std::endl;
-      throw std::exception();
+      throw UnsupportedBranchType();
     }
   }
 
