@@ -1,7 +1,7 @@
 #!/bin/bash
 set -uo pipefail
 
-# Check whether the use did specify the name of the example to be run
+# Check whether the user did specify the name of the example to be run
 ARGC=$#
 if [[ $ARGC -lt 1 ]]; then
   echo "Usage: "$0" <name of example>"
