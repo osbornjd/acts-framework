@@ -11,6 +11,13 @@
 #include "TTreeReaderValue.h"
 
 
+// Pairs of elements of the same type
+template<typename T>
+using HomogeneousPair = std::pair<T, T>;
+
+
+// === TYPE ERASURE FOR CONCRETE DATA ===
+
 // Minimal type-erasure wrapper for std::vector<T>. This will be used as a
 // workaround to compensate for the absence of C++17's std::any in Cling.
 class AnyVector
@@ -77,7 +84,9 @@ private:
 };
 
 
-// Generic data ordering mechanism
+// === GENERIC DATA ORDERING ===
+
+// We want to check, in a single operation, how two pieces of data are ordered
 enum class Ordering { SMALLER, EQUAL, GREATER };
 
 // In general, any type which implements comparison operators that behave as a
@@ -137,11 +146,16 @@ Ordering compare(const std::vector<U>& v1, const std::vector<U>& v2)
 }
 
 
-// Generic implementation of sorting algorithms, which require only a comparison
-// operator, a swapping operator, and an inclusive range of indices to be sorted
+// === GENERIC SORTING MECHANISM ===
+
+// The following functions are generic implementations of sorting algorithms,
+// which require only a comparison operator, a swapping operator, and an
+// inclusive range of indices to be sorted in order to operate
 using IndexComparator = std::function<Ordering(std::size_t, std::size_t)>;
 using IndexSwapper = std::function<void(std::size_t, std::size_t)>;
 
+// Selection sort has pertty bad asymptotic scaling, but it is non-recursive
+// and in-place, which makes it a good choice for smaller inputs
 void selectionSort(const std::size_t       firstIndex,
                    const std::size_t       lastIndex,
                    const IndexComparator & compare,
@@ -163,6 +177,7 @@ void selectionSort(const std::size_t       firstIndex,
   }
 }
 
+// Quick sort is used as the top-level sorting algorithm for our datasets
 void quickSort(const std::size_t       firstIndex,
                const std::size_t       lastIndex,
                const IndexComparator & compare,
@@ -217,9 +232,9 @@ void quickSort(const std::size_t       firstIndex,
     }
   }
 
-  // Recursively sort both partitions using quicksort. We should recurse in the
-  // smaller range first, so as to leverage compiler tail call optimization if
-  // available: it can bring our call stack memory requirements down.
+  // Now, we'll recursively sort both partitions using quicksort. We should
+  // recurse in the smaller range first, so as to leverage compiler tail call
+  // optimization if available.
   if(splitIndex-firstIndex <= lastIndex-splitIndex-1) {
     quickSort(firstIndex, splitIndex, compare, swap);
     quickSort(splitIndex+1, lastIndex, compare, swap);
@@ -230,10 +245,7 @@ void quickSort(const std::size_t       firstIndex,
 }
 
 
-// Pairs of elements of the same type
-template<typename T>
-using HomogeneousPair = std::pair<T, T>;
-
+// === GENERIC TTREE BRANCH MANIPULATION MECHANISM ===
 
 // When comparing a pair of TTrees, we'll need to set up quite a few facilities
 // for each branch. Since this setup is dependent on the branch data type, which
