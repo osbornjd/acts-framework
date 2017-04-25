@@ -190,15 +190,18 @@ int compareRootFiles(std::string file1, std::string file2,
     const auto& tree1 = treePair.first;
     const auto& tree2 = treePair.second;
 
-    std::cout << "  - Comparing tree-wide metadata..." << std::endl;
+    std::cout << "  - Comparing tree " << tree1->GetName() << "..."
+              << std::endl;
+
+    std::cout << "    o Comparing tree-wide metadata..." << std::endl;
     const std::size_t t1EntryCount = tree1->GetEntries();
     {
       const std::size_t t2EntryCount = tree2->GetEntries();
       CHECK_EQUAL(t1EntryCount, t2EntryCount,
-                  "    o Number of entries does not match!");
+                  "      ~ Number of entries does not match!");
     }
 
-    std::cout << "  - Preparing for tree readout..." << std::endl;
+    std::cout << "    o Preparing for tree readout..." << std::endl;
     TTreeReader t1Reader(tree1);
     TTreeReader t2Reader(tree2);
     BranchComparisonHarness::TreeMetadata treeMetadata {
@@ -207,14 +210,14 @@ int compareRootFiles(std::string file1, std::string file2,
       t1EntryCount
     };
 
-    std::cout << "  - Comparing branch metadata..." << std::endl;
+    std::cout << "    o Comparing branch metadata..." << std::endl;
     std::vector<HomogeneousPair<TBranch*>> branchPairs;
     {
       // Check number of branches and allocate branch storage
       const int t1BranchCount = tree1->GetNbranches();
       const int t2BranchCount = tree2->GetNbranches();
       CHECK_EQUAL(t1BranchCount, t2BranchCount,
-                  "    o Number of branches does not match!");
+                  "      ~ Number of branches does not match!");
       branchPairs.reserve(t1BranchCount);
 
       // Extract branches using TTree::GetListOfBranches()
@@ -226,14 +229,14 @@ int compareRootFiles(std::string file1, std::string file2,
       }
     }
 
-    std::cout << "  - Setting up branch-specific processing..." << std::endl;
+    std::cout << "    o Setting up branch-specific processing..." << std::endl;
     std::vector<BranchComparisonHarness> branchComparisonHarnesses;
     branchComparisonHarnesses.reserve(branchPairs.size());
     for(const auto& branchPair: branchPairs) {
       const auto& branch1 = branchPair.first;
       const auto& branch2 = branchPair.second;
       
-      std::cout << "    o Checking branch metadata..." << std::endl;
+      std::cout << "      ~ Checking branch metadata..." << std::endl;
       std::string b1ClassName, b1BranchName;
       EDataType b1DataType;
       {
@@ -244,24 +247,24 @@ int compareRootFiles(std::string file1, std::string file2,
         b1ClassName = branch1->GetClassName();
         b2ClassName = branch2->GetClassName();
         CHECK_EQUAL(b1ClassName, b2ClassName,
-                    "      ~ Class name does not match!");
+                    "        + Class name does not match!");
         branch1->GetExpectedType(unused, b1DataType);
         branch2->GetExpectedType(unused, b2DataType);
         CHECK_EQUAL(b1DataType, b2DataType,
-                    "      ~ Raw data type does not match!");
+                    "        + Raw data type does not match!");
         const int b1LeafCount = branch1->GetNleaves();
         const int b2LeafCount = branch2->GetNleaves();
         CHECK_EQUAL(b1LeafCount, b2LeafCount,
-                    "      ~ Number of leaves does not match!");
+                    "        + Number of leaves does not match!");
         CHECK_EQUAL(b1LeafCount, 1,
-                    "      ~ Branches with several leaves are not supported!");
+                    "        + Branches with several leaves are not supported!");
         b1BranchName = branch1->GetName();
         b2BranchName = branch2->GetName();
         CHECK_EQUAL(b1BranchName, b2BranchName,
-                    "      ~ Branch name does not match!");
+                    "        + Branch name does not match!");
       }
 
-      std::cout << "    o Building comparison harness for branch "
+      std::cout << "      ~ Building comparison harness for branch "
                 << b1BranchName << "..." << std::endl;
       try {
         auto branchHarness = BranchComparisonHarness::create(treeMetadata,
@@ -274,7 +277,7 @@ int compareRootFiles(std::string file1, std::string file2,
       }
     }
 
-    std::cout << "  - Reading event data..." << std::endl;
+    std::cout << "    o Reading event data..." << std::endl;
     for(std::size_t i = 0; i < t1EntryCount; ++i) {
       // Move to the next TTree entry (= next event)
       t1Reader.Next();
@@ -286,9 +289,9 @@ int compareRootFiles(std::string file1, std::string file2,
       }
     }
 
-    std::cout << "  - Sorting the first tree..." << std::endl;
+    std::cout << "    o Sorting the first tree..." << std::endl;
     {
-      std::cout << "    o Defining event comparison operator..." << std::endl;
+      std::cout << "      ~ Defining event comparison operator..." << std::endl;
       IndexComparator t1CompareEvents = [&branchComparisonHarnesses]
                                         (std::size_t i, std::size_t j)
                                         -> Ordering
@@ -300,7 +303,7 @@ int compareRootFiles(std::string file1, std::string file2,
         return Ordering::EQUAL;
       };
 
-      std::cout << "    o Defining event swapping operator..." << std::endl;
+      std::cout << "      ~ Defining event swapping operator..." << std::endl;
       IndexSwapper t1SwapEvents = [&branchComparisonHarnesses]
                                   (std::size_t i, std::size_t j) {
         for(auto& branchHarness: branchComparisonHarnesses) {
@@ -308,14 +311,14 @@ int compareRootFiles(std::string file1, std::string file2,
         }
       };
 
-      std::cout << "    o Running quicksort on the tree..." << std::endl;
+      std::cout << "      ~ Running quicksort on the tree..." << std::endl;
       quickSort(0, t1EntryCount-1, t1CompareEvents, t1SwapEvents);
     }
 
 
-    std::cout << "  - Sorting the second tree..." << std::endl;
+    std::cout << "    o Sorting the second tree..." << std::endl;
     {
-      std::cout << "    o Defining event comparison operator..." << std::endl;
+      std::cout << "      ~ Defining event comparison operator..." << std::endl;
       IndexComparator t2CompareEvents = [&branchComparisonHarnesses]
                                         (std::size_t i, std::size_t j)
                                         -> Ordering
@@ -327,7 +330,7 @@ int compareRootFiles(std::string file1, std::string file2,
         return Ordering::EQUAL;
       };
 
-      std::cout << "    o Defining event swapping operator..." << std::endl;
+      std::cout << "      ~ Defining event swapping operator..." << std::endl;
       IndexSwapper t2SwapEvents = [&branchComparisonHarnesses]
                                   (std::size_t i, std::size_t j) {
         for(auto& branchHarness: branchComparisonHarnesses) {
@@ -335,19 +338,19 @@ int compareRootFiles(std::string file1, std::string file2,
         }
       };
 
-      std::cout << "    o Running quicksort on the tree..." << std::endl;
+      std::cout << "      ~ Running quicksort on the tree..." << std::endl;
       quickSort(0, t1EntryCount-1, t2CompareEvents, t2SwapEvents);
     }
 
 
-    std::cout << "  - Checking that both trees are now equal..." << std::endl;
+    std::cout << "    o Checking that both trees are now equal..." << std::endl;
     for(auto& branchHarness: branchComparisonHarnesses) {
-      std::cout << "    o Comparing branch " << branchHarness.branchName 
+      std::cout << "      ~ Comparing branch " << branchHarness.branchName 
                 << "..." << std::endl;
       if(!branchHarness.eventDataEqual()) {
-        std::cout << "      ~ Branch contents do not match!" << std::endl;
+        std::cout << "        + Branch contents do not match!" << std::endl;
         if(dump_data_on_failure) {
-          std::cout << "      ~ Dumping branch contents:" << std::endl;
+          std::cout << "        + Dumping branch contents:" << std::endl;
           branchHarness.dumpEventData();
         }
         return 3;
