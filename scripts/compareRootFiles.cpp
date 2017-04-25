@@ -63,6 +63,13 @@ int compareRootFiles(std::string file1, std::string file2,
 
   std::cout << "* Opening the files..." << std::endl;
   HomogeneousPair<TFile> files{ file1.c_str(), file2.c_str() };
+  if(files.first.IsZombie()) {
+    std::cout << "  - Could not open file " << file1 << "!" << std::endl;
+    return 2;
+  } else if(files.second.IsZombie()) {
+    std::cout << "  - Could not open file " << file2 << "!" << std::endl;
+    return 2;
+  }
 
 
   std::cout << "* Extracting file keys..." << std::endl;
@@ -285,7 +292,7 @@ int compareRootFiles(std::string file1, std::string file2,
         if(skip_unsupported_branches) {
           continue;
         } else {
-          return 2;
+          return 3;
         }
       }
     }
@@ -366,7 +373,7 @@ int compareRootFiles(std::string file1, std::string file2,
           std::cout << "        + Dumping branch contents:" << std::endl;
           branchHarness.dumpEventData();
         }
-        return 3;
+        return 4;
       }
     }
   }
