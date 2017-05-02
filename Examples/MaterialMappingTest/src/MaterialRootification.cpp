@@ -13,7 +13,7 @@
 FWE::MaterialRootification::MaterialRootification(
     const FWE::MaterialRootification::Config& cnf,
     std::unique_ptr<Acts::Logger>             log)
-  : FW::Algorithm(cnf, std::move(log)), m_cnf(cnf)
+  : FW::Algorithm(cnf, std::move(log)), m_cfg(cnf)
 {
 }
 
@@ -54,9 +54,9 @@ FWE::MaterialRootification::execute(const FW::AlgorithmContext context) const
       Acts::MaterialStep::Position(0., 0., 0.), 1., 2., steps);
   Acts::MaterialTrackRecord mtrecord3(
       Acts::MaterialStep::Position(0., 0., 0.), 2., 3., steps);
-  m_cnf.materialTrackRecWriter->write(mtrecord1);
-  m_cnf.materialTrackRecWriter->write(mtrecord2);
-  m_cnf.materialTrackRecWriter->write(mtrecord3);
+  m_cfg.materialTrackRecWriter->write(mtrecord1);
+  m_cfg.materialTrackRecWriter->write(mtrecord2);
+  m_cfg.materialTrackRecWriter->write(mtrecord3);
 
   return FW::ProcessCode::SUCCESS;
 }
@@ -66,6 +66,6 @@ FWE::MaterialRootification::finalize()
 {
   // reading them in
   ACTS_VERBOSE("finalize successful.");
-  m_cnf.materialTrackRecReader->read();
+  m_cfg.materialTrackRecReader->read();
   return FW::ProcessCode::SUCCESS;
 }

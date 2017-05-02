@@ -1,29 +1,29 @@
 ///////////////////////////////////////////////////////////////////
-// SurfaceMaterialTest.cpp
+// MaterialValidation.cpp
 ///////////////////////////////////////////////////////////////////
 
-#include "SurfaceMaterialTest.hpp"
+#include "MaterialValidation.hpp"
 #include <iostream>
 #include "ACTFW/RootMaterialMapping/RootMaterialTrackRecReader.hpp"
 #include "ACTS/Layers/Layer.hpp"
 #include "ACTS/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
-#include "ACTS/Plugins/MaterialPlugins/MaterialMapping.hpp"
+#include "ACTS/Plugins/MaterialPlugins/MaterialMapper.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrackRecord.hpp"
 #include "TTree.h"
 
-FWE::SurfaceMaterialTest::SurfaceMaterialTest(
-    const FWE::SurfaceMaterialTest::Config& cnf,
+FWE::MaterialValidation::MaterialValidation(
+    const FWE::MaterialValidation::Config& cnf,
     std::unique_ptr<Acts::Logger>         log)
-  : FW::Algorithm(cnf, std::move(log)), m_cnf(cnf)
+  : FW::Algorithm(cnf, std::move(log)), m_cfg(cnf)
 {
 }
 
-FWE::SurfaceMaterialTest::~SurfaceMaterialTest()
+FWE::MaterialValidation::~MaterialValidation()
 {
 }
 
 FW::ProcessCode
-FWE::SurfaceMaterialTest::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
+FWE::MaterialValidation::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 {
   // call the algorithm initialize for setting the stores
   if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
@@ -32,19 +32,19 @@ FWE::SurfaceMaterialTest::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
   }
 
   // set up the writer
-  if (!m_cnf.materialWriter) {
+  if (!m_cfg.materialWriter) {
     ACTS_ERROR("Algorithm::MaterialWriter not set!");
     return FW::ProcessCode::ABORT;
   }
 
   // set up the writer
-  if (!m_cnf.materialStepWriter) {
+  if (!m_cfg.materialStepWriter) {
     ACTS_ERROR("Algorithm::MaterialStepWriter not set!");
     return FW::ProcessCode::ABORT;
   }
 
   // set up the material mapper
-  if (!m_cnf.materialMapper) {
+  if (!m_cfg.materialMapper) {
     ACTS_ERROR("Algorithm::MaterialMapping not set!");
     return FW::ProcessCode::ABORT;
   }
@@ -54,14 +54,14 @@ FWE::SurfaceMaterialTest::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 }
 
 FW::ProcessCode
-FWE::SurfaceMaterialTest::execute(const FW::AlgorithmContext context) const
+FWE::MaterialValidation::execute(const FW::AlgorithmContext context) const
 {
   ACTS_INFO("Now access the material maps of the layers and print them");
 // // average after every event - if entries = 0 no
 // // averaging will be done
 // // access the layer records
 // const std::map<const Acts::Layer*, Acts::LayerMaterialRecord> layerRecords
-//     = m_cnf.materialMapper->layerRecords();
+//     = m_cfg.materialMapper->layerRecords();
 // size_t nLayer = 0;
 // // loop through the layer records and print out the Binned Surface material
 // for (auto& layerRecord : layerRecords) {
@@ -72,7 +72,7 @@ FWE::SurfaceMaterialTest::execute(const FW::AlgorithmContext context) const
 //       = dynamic_cast<const Acts::BinnedSurfaceMaterial*>(surfMat);
 //   std::shared_ptr<const Acts::BinnedSurfaceMaterial> bsMat(
 //       binnedSurfMat->clone());
-//   m_cnf.materialWriter->write(bsMat, layerRecord.first->geoID(), lname);
+//   m_cfg.materialWriter->write(bsMat, layerRecord.first->geoID(), lname);
 //   nLayer++;
 //
 //   // access the material steps assigned per layer and write out the material
@@ -144,7 +144,7 @@ FWE::SurfaceMaterialTest::execute(const FW::AlgorithmContext context) const
 //       + std::to_string(std::distance(layerRecords.begin(),
 //                                      layerRecords.find(layerRecord.first)));
 //
-//   m_cnf.materialStepWriter->write(histName,
+//   m_cfg.materialStepWriter->write(histName,
 //                                   layerRecord.first->materialSurface(),
 //                                   steps,
 //                                   realAndAssignedPos);
@@ -154,7 +154,7 @@ FWE::SurfaceMaterialTest::execute(const FW::AlgorithmContext context) const
 }
 
 FW::ProcessCode
-FWE::SurfaceMaterialTest::finalize()
+FWE::MaterialValidation::finalize()
 {
   ACTS_INFO("finalize successful.");
   return FW::ProcessCode::SUCCESS;

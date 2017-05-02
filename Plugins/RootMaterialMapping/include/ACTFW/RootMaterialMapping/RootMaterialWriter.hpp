@@ -8,7 +8,7 @@
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Writers/IMaterialWriter.hpp"
-#include "ACTS/Material/BinnedSurfaceMaterial.hpp"
+#include "ACTS/Material/SurfaceMaterial.hpp"
 #include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 #include "ACTS/Utilities/Logger.hpp"
@@ -60,8 +60,9 @@ class RootMaterialWriter : public FW::IMaterialWriter {
 
   /// Interface method which writes out the material properties
   FW::ProcessCode write(
-      std::shared_ptr<const Acts::BinnedSurfaceMaterial> material,
-      const Acts::GeometryID geoID, std::string name) final;
+      const Acts::SurfaceMaterial& material,
+      const Acts::GeometryID& geoID, 
+      const std::string& name) final;
 
   /// Framework name() method
   const std::string& name() const final;

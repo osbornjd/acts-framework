@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////
-// CreateMaterialMap.cpp
+// GeantinoRecording.cpp
 ///////////////////////////////////////////////////////////////////
 
-#include "CreateMaterialMap.hpp"
+#include "GeantinoRecording.hpp"
 #include <iostream>
 #include "ACTFW/Geant4MaterialMapping/MMDetectorConstruction.hpp"
 #include "ACTFW/Geant4MaterialMapping/MMEventAction.hpp"
@@ -14,19 +14,19 @@
 #include "FTFP_BERT.hh"
 #include "G4RunManager.hh"
 
-FWE::CreateMaterialMap::CreateMaterialMap(
-    const FWE::CreateMaterialMap::Config& cnf,
+FWE::GeantinoRecording::GeantinoRecording(
+    const FWE::GeantinoRecording::Config& cnf,
     std::unique_ptr<Acts::Logger>         log)
-  : FW::Algorithm(cnf, std::move(log)), m_cnf(cnf)
+  : FW::Algorithm(cnf, std::move(log)), m_cfg(cnf)
 {
 }
 
-FWE::CreateMaterialMap::~CreateMaterialMap()
+FWE::GeantinoRecording::~GeantinoRecording()
 {
 }
 
 FW::ProcessCode
-FWE::CreateMaterialMap::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
+FWE::GeantinoRecording::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 {
   // call the algorithm initialize for setting the stores
   if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
@@ -39,19 +39,19 @@ FWE::CreateMaterialMap::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 }
 
 FW::ProcessCode
-FWE::CreateMaterialMap::execute(const FW::AlgorithmContext context) const
+FWE::GeantinoRecording::execute(const FW::AlgorithmContext context) const
 {
   G4RunManager* runManager = new G4RunManager;
   /// check if the geometry should be accessed over the geant4 service
-  if (m_cnf.geant4Service) {
-    runManager->SetUserInitialization(m_cnf.geant4Service->geant4Geometry());
-  } else if (!m_cnf.gdmlFile.empty()) {
+  if (m_cfg.geant4Service) {
+    runManager->SetUserInitialization(m_cfg.geant4Service->geant4Geometry());
+  } else if (!m_cfg.gdmlFile.empty()) {
     /// access the geometry from the gdml file
     ACTS_INFO(
-        "received Geant4 geometry from GDML file: " << m_cnf.gdmlFile.c_str());
+        "received Geant4 geometry from GDML file: " << m_cfg.gdmlFile.c_str());
     G4MM::MMDetectorConstruction* detConstruction
         = new G4MM::MMDetectorConstruction();
-    detConstruction->setGdmlInput(m_cnf.gdmlFile.c_str());
+    detConstruction->setGdmlInput(m_cfg.gdmlFile.c_str());
     runManager->SetUserInitialization(
         detConstruction);  // constructs detector (calls Construct in
                            // Geant4DetectorConstruction)
@@ -73,14 +73,14 @@ FWE::CreateMaterialMap::execute(const FW::AlgorithmContext context) const
    ->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume());
    */
   /// Begin with the simulation
-  runManager->BeamOn(m_cnf.numberOfEvents);
+  runManager->BeamOn(m_cfg.numberOfEvents);
   std::vector<Acts::MaterialTrackRecord> mtrecords
       = G4MM::MMEventAction::Instance()->materialTrackRecords();
   ACTS_INFO(
       "Received " << mtrecords.size()
                   << " MaterialTrackRecords. Writing them now onto file...");
   for (auto& record : mtrecords) {
-    m_cnf.materialTrackRecWriter->write(record);
+    m_cfg.materialTrackRecWriter->write(record);
   }
   delete runManager;
 
@@ -88,7 +88,7 @@ FWE::CreateMaterialMap::execute(const FW::AlgorithmContext context) const
 }
 
 FW::ProcessCode
-FWE::CreateMaterialMap::finalize()
+FWE::GeantinoRecording::finalize()
 {
   ACTS_VERBOSE("finalize successful.");
   return FW::ProcessCode::SUCCESS;

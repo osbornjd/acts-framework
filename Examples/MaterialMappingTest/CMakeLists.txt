@@ -7,19 +7,26 @@ find_package(Geant4 REQUIRED)
 find_package(DD4hep REQUIRED COMPONENTS DDCore DDG4)
 
 # define library target
-add_executable(ACTFWMaterialMappingTest ${src_files})
+#add_executable(ACTFWMaterialMappingTest ${src_files})
 
 # setup linker dependencies
-target_include_directories(ACTFWMaterialMappingTest PRIVATE ${DD4hep_INCLUDE_DIRS})
 
-target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTFramework ACTFWRootMaterialMapping ACTFWGeant4MaterialMapping ACTFWDD4hepG4 ACTFWDD4hepPlugin)
+# define library target
+add_library(ACTFWMaterialMapping SHARED ${src_files})
+target_include_directories(ACTFWMaterialMapping PUBLIC ${DD4hep_INCLUDE_DIRS})  
+target_link_libraries(ACTFWMaterialMapping PUBLIC ${DD4hep_LIBRARIES} ACTFWDD4hepG4)
+target_link_libraries(ACTFWMaterialMapping PUBLIC ACTFramework ACTFWRootMaterialMapping ACTFWGeant4MaterialMapping ACTFWDD4hepG4 ACTFWDD4hepPlugin)
 include(${Geant4_USE_FILE})
-target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTS::ACTSCore ACTS::ACTSMaterialPlugin)
-target_link_libraries(ACTFWMaterialMappingTest PRIVATE ${DD4hep_LIBRARIES})
-target_link_libraries(ACTFWMaterialMappingTest PRIVATE ACTFWExtrapolation)
+target_link_libraries(ACTFWMaterialMapping PUBLIC ACTS::ACTSCore ACTS::ACTSMaterialPlugin)
+target_link_libraries(ACTFWMaterialMapping PUBLIC ${DD4hep_LIBRARIES})
+target_link_libraries(ACTFWMaterialMapping PUBLIC ACTFWExtrapolation)
 
+add_executable(ACTFWGeantinoRecordingTest bin/GeantinoRecordingTest.cpp)
+add_executable(ACTFWMaterialMappingTest bin/MaterialMappingTest.cpp)
 
-set(CMAKE_DEBUG_TARGET_PROPERTIES COMPILE_OPTIONS)
-# set installation directories
-install(TARGETS ACTFWMaterialMappingTest RUNTIME DESTINATION bin)
-
+set(ACTFWMaterialMappingTestList ACTFWGeantinoRecordingTest ACTFWMaterialMappingTest)
+foreach (ACTFWMaterialMappingTests ${ACTFWMaterialMappingTestList})
+target_include_directories(${ACTFWMaterialMappingTests} PRIVATE ${DD4hep_INCLUDE_DIRS}) 
+target_link_libraries(${ACTFWMaterialMappingTests} PRIVATE ACTFWMaterialMapping)
+install(TARGETS ${ACTFWMaterialMappingTests} RUNTIME DESTINATION bin)
+endforeach(ACTFWMaterialMappingTests)

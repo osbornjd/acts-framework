@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////
-// CreateMaterialMap.hpp
+// GeantinoRecording.hpp
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MATERIALMAPPINGTEST_CREATEMATERIALMAP_H
@@ -19,20 +19,20 @@ class WhiteBoard;
 
 namespace FWE {
 
-/// @class CreateMaterialMap
+/// @class GeantinoRecording
 ///
-/// @brief Creates the material maps with Geant4
+/// @brief records the simulation geometry by using geantinos
 ///
-/// The CreateMaterialMap algorithm initiates the geant4 simulation
+/// The GeantinoRecording algorithm initiates the geant4 simulation
 /// of the Geant4materialMapping plugin, creates and writes out
 /// the MaterialTrackRecord entities which are needed for material mapping.
 /// The input for the geant4 geometry can be either provided by a gdml file
 /// or an implementation of the IGeant4Service.
 
-class CreateMaterialMap : public FW::Algorithm
+class GeantinoRecording : public FW::Algorithm
 {
 public:
-  /** @class Config */
+  /// @class Config 
   struct Config : public FW::Algorithm::Config
   {
     /// The writer writing out the MaterialTrackRecord entities
@@ -46,7 +46,7 @@ public:
     size_t numberOfEvents;
 
     Config()
-      : FW::Algorithm::Config("CreateMaterialMap")
+      : FW::Algorithm::Config("GeantinoRecording")
       , materialTrackRecWriter(nullptr)
       , geant4Service(nullptr)
       , gdmlFile("")
@@ -56,13 +56,13 @@ public:
   };
 
   /// Constructor
-  CreateMaterialMap(const Config&                 cnf,
+  GeantinoRecording(const Config&                 cnf,
                     std::unique_ptr<Acts::Logger> logger
-                    = Acts::getDefaultLogger("CreateMaterialMap",
+                    = Acts::getDefaultLogger("GeantinoRecording",
                                              Acts::Logging::INFO));
 
   /// Destructor
-  ~CreateMaterialMap();
+  ~GeantinoRecording();
 
   /// Framework intialize method
   FW::ProcessCode
@@ -78,7 +78,7 @@ public:
 
 private:
   /// The config object
-  Config m_cnf;
+  Config m_cfg;
 };
 }
 

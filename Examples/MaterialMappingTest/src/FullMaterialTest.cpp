@@ -15,7 +15,7 @@
 FWE::FullMaterialTest::FullMaterialTest(
     const FWE::FullMaterialTest::Config& cnf,
     std::unique_ptr<Acts::Logger>        log)
-  : FW::Algorithm(cnf, std::move(log)), m_cnf(cnf)
+  : FW::Algorithm(cnf, std::move(log)), m_cfg(cnf)
 {
 }
 
@@ -33,21 +33,21 @@ FWE::FullMaterialTest::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
   }
 
   // set up the writer
-  if (!m_cnf.materialTrackRecWriter) {
+  if (!m_cfg.materialTrackRecWriter) {
     ACTS_ERROR("Algorithm::MaterialWriter not set!");
     return FW::ProcessCode::ABORT;
   }
   ACTS_VERBOSE("initialize successful.");
 
   // set up the random numbers service
-  if (!m_cnf.randomNumbers) {
+  if (!m_cfg.randomNumbers) {
     ACTS_ERROR("RandomNumbers service not set!");
     return FW::ProcessCode::ABORT;
   }
   ACTS_VERBOSE("initialize successful.");
 
   // check extrapolation engine
-  if (!m_cnf.extrapolationEngine) {
+  if (!m_cfg.extrapolationEngine) {
     ACTS_ERROR("ExtrapolationEngine not set!");
     return FW::ProcessCode::ABORT;
   }
@@ -63,9 +63,9 @@ FWE::FullMaterialTest::execute(const FW::AlgorithmContext context) const
 
   // create random direction in cylindrical coordinates
   double phi = -M_PI
-      + m_cnf.randomNumbers->draw(FW::Distribution::uniform) * 2. * M_PI;
+      + m_cfg.randomNumbers->draw(FW::Distribution::uniform) * 2. * M_PI;
 
-  double theta = m_cnf.randomNumbers->draw(FW::Distribution::uniform) * M_PI;
+  double theta = m_cfg.randomNumbers->draw(FW::Distribution::uniform) * M_PI;
 
   Acts::Vector3D direction(
       cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
@@ -95,7 +95,7 @@ FWE::FullMaterialTest::execute(const FW::AlgorithmContext context) const
   // screen output
   ACTS_DEBUG("===> forward extrapolation - collecting material <<===");
   // call the extrapolation engine
-  Acts::ExtrapolationCode eCode = m_cnf.extrapolationEngine->extrapolate(ecc);
+  Acts::ExtrapolationCode eCode = m_cfg.extrapolationEngine->extrapolate(ecc);
   ACTS_DEBUG("===> finished extrapolation <<===");
   // find all the intersected material
   std::vector<Acts::MaterialStep> msteps;
@@ -139,7 +139,7 @@ FWE::FullMaterialTest::execute(const FW::AlgorithmContext context) const
       direction.theta(),
       direction.phi(),
       msteps);
-  m_cnf.materialTrackRecWriter->write(mtrecord);
+  m_cfg.materialTrackRecWriter->write(mtrecord);
 
   return FW::ProcessCode::SUCCESS;
 }

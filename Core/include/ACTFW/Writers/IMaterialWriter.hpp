@@ -10,8 +10,8 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace Acts {
-class BinnedSurfaceMaterial;
-class GeometryID;
+  class SurfaceMaterial;
+  class GeometryID;
 }
 
 namespace FW {
@@ -27,9 +27,10 @@ class IMaterialWriter : public IService {
   virtual ~IMaterialWriter() = default;
 
   /// Writes out the material map of the layer
-  virtual ProcessCode write(
-      std::shared_ptr<const Acts::BinnedSurfaceMaterial> material,
-      const Acts::GeometryID geoID, std::string name) = 0;
+  virtual FW::ProcessCode write(
+      const Acts::SurfaceMaterial& material,
+      const Acts::GeometryID& geoID, 
+      const std::string& name) = 0;
 };
 
 }

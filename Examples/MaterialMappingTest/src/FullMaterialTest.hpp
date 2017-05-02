@@ -73,7 +73,7 @@ public:
 
 private:
   /// The config object
-  Config m_cnf;
+  Config m_cfg;
 };
 }
 

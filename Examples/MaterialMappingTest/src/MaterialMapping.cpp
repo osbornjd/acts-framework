@@ -1,29 +1,29 @@
 ///////////////////////////////////////////////////////////////////
-// MaterialMappingAlgorithm.cpp
+// MaterialMapping.cpp
 ///////////////////////////////////////////////////////////////////
 
-#include "MaterialMappingAlgorithm.hpp"
+#include "MaterialMapping.hpp"
 #include <iostream>
 #include "ACTFW/RootMaterialMapping/RootMaterialTrackRecReader.hpp"
 #include "ACTS/Layers/Layer.hpp"
 #include "ACTS/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
-#include "ACTS/Plugins/MaterialPlugins/MaterialMapping.hpp"
+#include "ACTS/Plugins/MaterialPlugins/MaterialMapper.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrackRecord.hpp"
 #include "TTree.h"
 
-FWE::MaterialMappingAlgorithm::MaterialMappingAlgorithm(
-    const FWE::MaterialMappingAlgorithm::Config& cnf,
+FWE::MaterialMapping::MaterialMapping(
+    const FWE::MaterialMapping::Config& cnf,
     std::unique_ptr<Acts::Logger>                log)
   : FW::Algorithm(cnf, std::move(log)), m_cfg(cnf)
 {
 }
 
-FWE::MaterialMappingAlgorithm::~MaterialMappingAlgorithm()
+FWE::MaterialMapping::~MaterialMapping()
 {
 }
 
 FW::ProcessCode
-FWE::MaterialMappingAlgorithm::initialize(
+FWE::MaterialMapping::initialize(
     std::shared_ptr<FW::WhiteBoard> jStore)
 {
   // call the algorithm initialize for setting the stores
@@ -50,7 +50,7 @@ FWE::MaterialMappingAlgorithm::initialize(
 }
 
 FW::ProcessCode
-FWE::MaterialMappingAlgorithm::execute(const FW::AlgorithmContext context) const
+FWE::MaterialMapping::execute(const FW::AlgorithmContext context) const
 {
   
   if (!m_cfg.materialMapper || !m_cfg.trackingGeometry){
@@ -66,7 +66,7 @@ FWE::MaterialMappingAlgorithm::execute(const FW::AlgorithmContext context) const
                     << " MaterialTrackRecords from file.");
   
   // retrive a cache object 
-  Acts::MaterialMapping::Cache mCache 
+  Acts::MaterialMapper::Cache mCache
     = m_cfg.materialMapper->materialMappingCache(*m_cfg.trackingGeometry);
   
   // some screen output to know what is going on 
@@ -90,16 +90,25 @@ FWE::MaterialMappingAlgorithm::execute(const FW::AlgorithmContext context) const
   }
   
   /// get the maps back 
-  std::map<Acts::GeometryID, Acts::SurfaceMaterial*> maps 
+  std::map<Acts::GeometryID, Acts::SurfaceMaterial*> sMaterialMaps 
   = m_cfg.materialMapper->createSurfaceMaterial(mCache);
 
   // write the maps out to a file 
+  if (m_cfg.materialWriter){
+    // screen output
+    ACTS_INFO("Writing out the material maps for " << sMaterialMaps.size() << " material surfaces");
+    // loop over the material maps
+    for (auto& sMap : sMaterialMaps) {
+        // write out map by map
+        m_cfg.materialWriter->write(*sMap.second,sMap.first,"");
+    }
+  }
   
   return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWE::MaterialMappingAlgorithm::finalize()
+FWE::MaterialMapping::finalize()
 {
 
   ACTS_VERBOSE("finalize successful.");
