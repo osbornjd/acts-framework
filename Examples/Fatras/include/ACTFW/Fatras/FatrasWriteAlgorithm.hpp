@@ -11,11 +11,16 @@
 #include <memory>
 #include <string>
 #include "ACTS/Utilities/Logger.hpp"
+#include "ACTS/Utilities/Definitions.hpp"
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/IOAlgorithm.hpp"
 #include "ACTFW/Writers/IParticlePropertiesWriter.hpp"
-#include "ACTFW/Writers/IPlanarClusterWriter.hpp"
+#include "ACTFW/Writers/IEventDataWriter.hpp"
+
+namespace Acts {
+  class PlanarModuleCluster;
+}
 
 namespace FW {
 class WhiteBoard;
@@ -44,10 +49,14 @@ public:
     std::string                            simulatedParticlesCollection  = "SimulatedParticles";
     /// particle writer
     std::shared_ptr<FW::IParticlePropertiesWriter> particleWriter        = nullptr;
+    // name of the space point collection
+    std::string                            spacePointCollection          = "SpacePoints";
+    // write out the planar clusters
+    std::shared_ptr<FW::IEventDataWriter<Acts::Vector3D> > spacePointWriter = nullptr;
     // name of the cluster collection
     std::string                            planarClustersCollection      = "PlanarClusters";
-    // 
-    std::shared_ptr<FW::IPlanarClusterWriter> planarClusterWriter        = nullptr;
+    // write out the planar clusters
+    std::shared_ptr<FW::IEventDataWriter<Acts::PlanarModuleCluster> > planarClusterWriter = nullptr;
     /// the job WhiteBoard
     std::shared_ptr<FW::WhiteBoard>        jBoard                        = nullptr;
     /// the name of the algorithm

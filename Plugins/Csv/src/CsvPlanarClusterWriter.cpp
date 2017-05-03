@@ -4,7 +4,7 @@
 
 FWCsv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     const FWCsv::CsvPlanarClusterWriter::Config& cfg)
-  : FW::IPlanarClusterWriter()
+  : FW::IEventDataWriter<Acts::PlanarModuleCluster>()
   , m_cfg(cfg)
 {}
 
@@ -65,7 +65,11 @@ FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::
             // local error
             (*(m_cfg.outputStream)) << "[ " << ex << ", " << ey << "],";
             // pobal position
-            (*(m_cfg.outputStream)) << "[ " << pos.x() << ", " << pos.y() << "," << pos.z() << "], [";
+            (*(m_cfg.outputStream)) << "[ " << pos.x() << ", " << pos.y() << "," << pos.z() << "], ";
+            // thickness of the cluster
+            double thickness = clusterSurface.associatedDetectorElement() ? 
+              clusterSurface.associatedDetectorElement()->thickness() : 0.;
+            (*(m_cfg.outputStream)) << thickness << ",  [";
             // feature set
             size_t cellCounter = 0;
             for (auto& cell : cluster.digitizationCells()){

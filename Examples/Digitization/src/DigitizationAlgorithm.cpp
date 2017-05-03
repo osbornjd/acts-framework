@@ -61,9 +61,13 @@ FWE::DigitizationAlgorithm::execute(const FW::AlgorithmContext context) const
 
     ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitsCollection << "' from event store.");
 
-    // prepare the output data
+    // prepare the output data: Clusters
     FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>* planarClusters
         = new FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>;
+
+    // perpare the second output data : SpacePoints
+    FW::DetectorData<geo_id_value, Acts::Vector3D>* spacePoints
+      = new FW::DetectorData<geo_id_value, Acts::Vector3D>;
 
     // now digitise
     for (auto& vData : (*hitData)) {
@@ -154,8 +158,13 @@ FWE::DigitizationAlgorithm::execute(const FW::AlgorithmContext context) const
                                                    localX, localY,
                                                    std::move(usedCells),
                                                    {particleBarcode});
-                /// insert into the cluster map
-                FW::Data::insert(*planarClusters, volumeKey, layerKey, moduleKey, std::move(pCluster) );                                   
+                
+                // insert into the space point map
+                FW::Data::insert(*spacePoints,  volumeKey, layerKey, moduleKey, hitParameters->position());
+                
+                // insert into the cluster map
+                FW::Data::insert(*planarClusters, volumeKey, layerKey, moduleKey, std::move(pCluster) );
+                                                   
               } // hit moulde proection
             } // hit element protection
           } // hit loop 
@@ -163,7 +172,16 @@ FWE::DigitizationAlgorithm::execute(const FW::AlgorithmContext context) const
       } // layer loop 
     } // volume loop
   
-    // write to the EventStore
+    // write the SpacePoints to the EventStore
+    if (eventStore
+        && spacePoints
+        && eventStore->writeT(spacePoints, m_cfg.spacePointCollection)
+            == FW::ProcessCode::ABORT) {
+      ACTS_WARNING("Could not write collection " << m_cfg.spacePointCollection << " to event store.");
+      return FW::ProcessCode::ABORT;
+    } 
+
+    // write the clusters to the EventStore
     if (eventStore
         && planarClusters
         && eventStore->writeT(planarClusters, m_cfg.clustersCollection)

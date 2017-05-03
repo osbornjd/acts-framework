@@ -74,7 +74,7 @@ FWRootPythia8::ParticleGenerator::particles() const
     if (ist <= 0) continue;
     /// get parameters
     Int_t   pdg    = part->GetPdgCode();
-    Float_t charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge();
+    Float_t charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
     Float_t mass   = part->GetMass();
     // and now create a particle
     Acts::Vector3D vertex(part->Vx(), part->Vy(), part->Vz());

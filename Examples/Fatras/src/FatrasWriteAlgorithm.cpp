@@ -27,6 +27,8 @@ FWE::FatrasWriteAlgorithm::write(const FW::AlgorithmContext context) const
   size_t eventNumber = context.eventContext->eventNumber;
   auto   eventStore  = context.eventContext->eventStore;
 
+  ACTS_INFO("Writing Fatras output to file(s).");
+
   // write the simulated Particles
   if (m_cfg.simulatedParticlesCollection != "" && m_cfg.particleWriter){
     // retrieve it
@@ -34,33 +36,59 @@ FWE::FatrasWriteAlgorithm::write(const FW::AlgorithmContext context) const
     // read and go
     if (eventStore
         && eventStore->readT(simulatedParticles, m_cfg.simulatedParticlesCollection)
-            == FW::ProcessCode::ABORT)
+            == FW::ProcessCode::ABORT){
+    ACTS_WARNING(
+            "Could not read colleciton of simulated particles.");
       return FW::ProcessCode::ABORT;
+    }
     // run over it - and write them
     // write to file if you have
     if (m_cfg.particleWriter->write(*simulatedParticles) == FW::ProcessCode::ABORT) {
     ACTS_WARNING(
-            "Could not write colleciton of simulated particles to writer.");
+            "Could not write colleciton of simulated particles.");
         return FW::ProcessCode::ABORT;
     }
   }
   
-  // write the hits
+  // write the clusters
   if (m_cfg.planarClustersCollection != "" && m_cfg.planarClusterWriter){
     // retrieve the input data
     FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>* planarClusters = nullptr;
     // read and go
     if (eventStore
         && eventStore->readT(planarClusters, m_cfg.planarClustersCollection)
-            == FW::ProcessCode::ABORT)
+            == FW::ProcessCode::ABORT){
+    ACTS_WARNING(
+          "Could not read colleciton of clusters.");
       return FW::ProcessCode::ABORT;
+    }
     // run over it - and write them
     if (m_cfg.planarClusterWriter->write(*planarClusters) == FW::ProcessCode::ABORT){
       ACTS_WARNING(
-              "Could not colleciton of clusters to writer.");
+              "Could not write colleciton of clusters.");
           return FW::ProcessCode::ABORT;
     }
   }
+
+  // write the space points
+  if (m_cfg.spacePointCollection != "" && m_cfg.spacePointWriter){
+    // retrieve the input data
+    FW::DetectorData<geo_id_value, Acts::Vector3D>* spacePoints = nullptr;
+    // read and go
+    if (eventStore
+        && eventStore->readT(spacePoints, m_cfg.spacePointCollection)  == FW::ProcessCode::ABORT){
+      ACTS_WARNING(
+        "Could not read colleciton of space points.");
+                 return FW::ProcessCode::ABORT;
+    }
+    // run over it - and write them
+    if (m_cfg.spacePointWriter->write(*spacePoints) == FW::ProcessCode::ABORT){
+      ACTS_WARNING(
+              "Could not cwrtie olleciton of space points.");
+          return FW::ProcessCode::ABORT;
+    }
+  }
+
 
   return FW::ProcessCode::SUCCESS;
 }

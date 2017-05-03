@@ -9,24 +9,24 @@
 
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTS/Digitization/PlanarModuleCluster.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 
 namespace FW {
 
-/// @class IPlanarClusterWriter
+/// @class IEventDataWriter
 ///
-/// Interface class for planar cluster writing
+/// Interface class for writing EventData that are ordered
+/// in DataContaineras
 ///
-class IPlanarClusterWriter : public IService
+template <class T> class IEventDataWriter : public IService
 {
 public:
   /// Virtual Destructor
-  virtual ~IPlanarClusterWriter() {}
+  virtual ~IEventDataWriter() {}
 
   /// The write interface
   virtual ProcessCode
-  write(const DetectorData<geo_id_value, Acts::PlanarModuleCluster>& ) = 0;
+  write(const DetectorData<geo_id_value, T>& ) = 0;
 
 };
 

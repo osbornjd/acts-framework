@@ -39,6 +39,8 @@ public:
     std::shared_ptr<FW::RandomNumbersSvc>      randomNumbers = nullptr;
     /// input hit collection
     std::string                                simulatedHitsCollection;
+    /// output space point collection
+    std::string                                spacePointCollection;
     /// output clusters collection
     std::string                                clustersCollection; 
     /// module stepper 

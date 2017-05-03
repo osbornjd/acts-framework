@@ -38,7 +38,8 @@ FWCsv::CsvParticleWriter::write(const std::vector<Acts::ParticleProperties>& pPr
     (*(m_cfg.outputStream)) << particle.vertex().z() << "], [";  
     (*(m_cfg.outputStream)) << particle.momentum().mag() << ", ";  
     (*(m_cfg.outputStream)) << particle.momentum().theta() << ", ";
-    (*(m_cfg.outputStream)) << particle.momentum().phi() << "]"<< std::endl;
+    (*(m_cfg.outputStream)) << particle.momentum().phi() << "], ";
+    (*(m_cfg.outputStream)) << particle.charge() << std::endl;
   }  
   (*(m_cfg.outputStream)) << std::endl;
 

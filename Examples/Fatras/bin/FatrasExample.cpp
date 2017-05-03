@@ -16,6 +16,7 @@
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Csv/CsvPlanarClusterWriter.hpp"
+#include "ACTFW/Json/JsonSpacePointWriter.hpp"
 #include "ACTFW/Root/RootExCellWriter.hpp"
 #include "ACTFW/Root/ParticlePropertiesWriter.hpp"
 #include "ACTFW/RootPythia8/ParticleGenerator.hpp"
@@ -189,6 +190,7 @@ main(int argc, char* argv[])
   FWE::DigitizationAlgorithm::Config digConfig;
   digConfig.simulatedHitsCollection = eTestConfig.simulatedHitsCollection;
   digConfig.clustersCollection      = "FatrasClusters";
+  digConfig.spacePointCollection    = "FatrasSpacePoints";
   digConfig.planarModuleStepper     = pmStepper;
 
   std::shared_ptr<FW::IAlgorithm> digitzationAlg(new FWE::DigitizationAlgorithm(
@@ -196,30 +198,44 @@ main(int argc, char* argv[])
       Acts::getDefaultLogger("DigitizationAlgorithm", Acts::Logging::INFO)));
 
   // ----------- WRITER ----------------------------------------------------
-  // or write a Csv File
+  // write a Csv File for clusters and particles
   auto        hitStream = std::shared_ptr<std::ofstream>(new std::ofstream);
   std::string hitOutputName   = "Hits.csv";
   hitStream->open(hitOutputName);
-      
+            
   FWCsv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
   clusterWriterCsvConfig.outputPrecision = 6;
   clusterWriterCsvConfig.outputStream    = hitStream;
   auto clusterWriterCsv
       = std::make_shared<FWCsv::CsvPlanarClusterWriter>(clusterWriterCsvConfig);
-      
+
+  // write out a Json file for 
+  auto spacePointStream = std::shared_ptr<std::ofstream>(new std::ofstream);
+  std::string spOutputName = "SpacePoints.json";
+  spacePointStream->open(spOutputName);
+
+  FWJson::JsonSpacePointWriter<Acts::Vector3D>::Config spWriterJsonConfig;
+  spWriterJsonConfig.outputPrecision = 6;
+  spWriterJsonConfig.outputStream    = spacePointStream;
+  auto spWriterJson
+      = std::make_shared<FWJson::JsonSpacePointWriter<Acts::Vector3D>>(spWriterJsonConfig);
+  
       
   FWE::FatrasWriteAlgorithm::Config writeConfig;
   // the simulated particles
   writeConfig.simulatedParticlesCollection
       = eTestConfig.simulatedParticlesCollection;
   writeConfig.particleWriter = pWriter;
-  /// the created clusters
+  // the created clusters
   writeConfig.planarClustersCollection = digConfig.clustersCollection;
   writeConfig.planarClusterWriter      = clusterWriterCsv;
+  // the created space points
+  writeConfig.spacePointCollection  = digConfig.spacePointCollection;
+  writeConfig.spacePointWriter      = spWriterJson;
 
   auto writeOutput = std::make_shared<FWE::FatrasWriteAlgorithm>(
       writeConfig,
-      Acts::getDefaultLogger("ReadEvgenAlgorithm", Acts::Logging::INFO));
+      Acts::getDefaultLogger("FatrasWriteAlgorithm", Acts::Logging::VERBOSE));
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
@@ -238,5 +254,6 @@ main(int argc, char* argv[])
   
   particleStream->close();
   hitStream->close();
+  spacePointStream->close();
   
 }

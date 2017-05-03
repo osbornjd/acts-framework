@@ -11,14 +11,11 @@
 
 #include <iostream>
 #include <fstream>
-#include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Writers/IPlanarClusterWriter.hpp"
+#include "ACTFW/Writers/IEventDataWriter.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTS/Digitization/PlanarModuleCluster.hpp"
 #include "ACTS/Utilities/Logger.hpp"
-
-class TFile;
 
 namespace FWCsv {
 
@@ -26,7 +23,7 @@ namespace FWCsv {
 ///
 /// A root based implementation to write out particleproperties vector
 ///
-class CsvPlanarClusterWriter : public FW::IPlanarClusterWriter
+class CsvPlanarClusterWriter : public FW::IEventDataWriter<Acts::PlanarModuleCluster>
 {
 public:
   // @class Config
