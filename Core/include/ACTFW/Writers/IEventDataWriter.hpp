@@ -4,8 +4,8 @@
 //  Created by Andreas Salzburger on 23/05/16.
 //
 //
-#ifndef ACTFW_WRITERS_IPLANARCLUSTERWRITER_H
-#define ACTFW_WRITERS_IPLANARCLUSTERWRITER_H 1
+#ifndef ACTFW_WRITERS_IEVENTDATAWRITERT_H
+#define ACTFW_WRITERS_IEVENTDATAWRITERT_H
 
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
@@ -32,4 +32,4 @@ public:
 
 }
 
-#endif  // ACTFW_WRITERS_IPLANARCLUSTERWRITER_H
+#endif  // ACTFW_WRITERS_IEVENTDATAWRITERT_H

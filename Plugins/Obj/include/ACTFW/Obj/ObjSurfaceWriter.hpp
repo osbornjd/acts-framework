@@ -11,12 +11,9 @@
 #include <fstream>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/ISurfaceWriter.hpp"
+#include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Utilities/Logger.hpp"
-
-namespace Acts {
-  class Surface;
-}
+#include "ACTS/Surfaces/Surface.hpp"
 
 namespace FWObj {
 
@@ -24,7 +21,7 @@ namespace FWObj {
 ///
 /// An Obj writer for the geometry
 ///
-class ObjSurfaceWriter : public FW::ISurfaceWriter
+class ObjSurfaceWriter : public FW::IWriterT<Acts::Surface>
 {
 public:
   // @class Config
@@ -43,8 +40,7 @@ public:
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
       : logger(Acts::getDefaultLogger(lname, lvl))
       , name(lname)
-    {
-    }
+    {}
         
   };
 

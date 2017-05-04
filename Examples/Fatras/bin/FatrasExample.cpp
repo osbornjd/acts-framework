@@ -17,6 +17,8 @@
 #include "ACTFW/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Json/JsonSpacePointWriter.hpp"
+#include "ACTFW/Obj/ObjSpacePointWriter.hpp"
+#include "ACTFW/Obj/ObjExCellWriter.hpp"
 #include "ACTFW/Root/RootExCellWriter.hpp"
 #include "ACTFW/Root/ParticlePropertiesWriter.hpp"
 #include "ACTFW/RootPythia8/ParticleGenerator.hpp"
@@ -30,7 +32,7 @@
 int
 main(int argc, char* argv[])
 {
-  size_t nEvents = 10;
+  size_t nEvents = 1;
 
   // set geometry building logging level
   Acts::Logging::Level surfaceLogLevel = Acts::Logging::INFO;
@@ -161,6 +163,19 @@ main(int argc, char* argv[])
   recWriterConfig.writePassive        = false;
   std::shared_ptr<FW::IExtrapolationCellWriter> rootEcWriter(
       new FWRoot::RootExCellWriter(recWriterConfig));
+  
+  // Write OBj file 
+  auto stracksStream = std::shared_ptr<std::ofstream>(new std::ofstream);
+  std::string stracksOutputName = "SimulatedTracks.obj";
+  stracksStream->open(stracksOutputName);
+
+  FWObj::ObjExCellWriter::Config stracksWriterObjConfig;
+  stracksWriterObjConfig.outputPrecision = 4;
+  stracksWriterObjConfig.outputStream    = stracksStream;
+  auto stracksWriterObj
+      = std::make_shared< FWObj::ObjExCellWriter >(stracksWriterObjConfig);
+  
+  
   // the Algorithm with its configurations
   FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
   eTestConfig.evgenParticlesCollection = readEvgenCfg.evgenParticlesCollection;
@@ -169,13 +184,15 @@ main(int argc, char* argv[])
   eTestConfig.minPt                        = 500.;
   eTestConfig.searchMode                   = 1;
   eTestConfig.extrapolationEngine          = extrapolationEngine;
-  eTestConfig.extrapolationCellWriter      = rootEcWriter;
+  eTestConfig.extrapolationCellWriter      = stracksWriterObj; //rootEcWriter;
   eTestConfig.collectSensitive             = true;
   eTestConfig.collectPassive               = true;
   eTestConfig.collectBoundary              = true;
   eTestConfig.collectMaterial              = true;
   eTestConfig.sensitiveCurvilinear         = false;
   eTestConfig.pathLimit                    = -1.;
+
+  
 
   std::shared_ptr<FW::IAlgorithm> extrapolationAlg(
       new FWE::ExtrapolationTestAlgorithm(eTestConfig));
@@ -211,7 +228,7 @@ main(int argc, char* argv[])
 
   // write out a Json file for 
   auto spacePointStream = std::shared_ptr<std::ofstream>(new std::ofstream);
-  std::string spOutputName = "SpacePoints.json";
+  std::string spOutputName = "SpacePoints.obj";
   spacePointStream->open(spOutputName);
 
   FWJson::JsonSpacePointWriter<Acts::Vector3D>::Config spWriterJsonConfig;
@@ -220,6 +237,11 @@ main(int argc, char* argv[])
   auto spWriterJson
       = std::make_shared<FWJson::JsonSpacePointWriter<Acts::Vector3D>>(spWriterJsonConfig);
   
+  FWObj::ObjSpacePointWriter<Acts::Vector3D>::Config spWriterObjConfig;
+  spWriterObjConfig.outputPrecision = 6;
+  spWriterObjConfig.outputStream    = spacePointStream;
+  auto spWriterObj
+      = std::make_shared<FWObj::ObjSpacePointWriter<Acts::Vector3D>>(spWriterObjConfig);
       
   FWE::FatrasWriteAlgorithm::Config writeConfig;
   // the simulated particles
@@ -231,7 +253,7 @@ main(int argc, char* argv[])
   writeConfig.planarClusterWriter      = clusterWriterCsv;
   // the created space points
   writeConfig.spacePointCollection  = digConfig.spacePointCollection;
-  writeConfig.spacePointWriter      = spWriterJson;
+  writeConfig.spacePointWriter      = spWriterObj; // spWriterJson;
 
   auto writeOutput = std::make_shared<FWE::FatrasWriteAlgorithm>(
       writeConfig,

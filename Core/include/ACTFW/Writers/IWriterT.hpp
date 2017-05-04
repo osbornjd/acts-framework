@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////
-// ISurfaceWriter.h
+// IWriterT.h
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ACTFW_WRITERS_ISURFACEWRITER_H
-#define ACTFW_WRITERS_ISURFACEWRITER_H 1
+#ifndef ACTFW_WRITERS_IWRITERT_H
+#define ACTFW_WRITERS_IWRITERT_H
 
 #include <string>
 #include <vector>
@@ -16,22 +16,22 @@ namespace Acts {
 
 namespace FW {
 
-/// @class ISurfaceWriter
+/// @class IWriterT
 ///
 /// Interface to write out the Surfaces
 
-class ISurfaceWriter : public IService
+template <class T> class IWriterT : public IService
 {
 public:
   
   /// Virtual destructor
-  virtual ~ISurfaceWriter() = default;
+  virtual ~IWriterT() = default;
 
   /// the write method
   virtual ProcessCode
-  write(const Acts::Surface& surface) = 0;
+  write(const T& object) = 0;
   
 };
 
 }
-#endif  // ACTFW_WRITERS_ISURFACEWRITER_H
+#endif  // ACTFW_WRITERS_IWRITERT_H

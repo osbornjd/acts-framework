@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////
-// IMaterialWriter.h
+// ISurfaceMaterialWriter.h
 ///////////////////////////////////////////////////////////////////
 
-#ifndef WRITERS_IMATERIALWRITER_H
-#define WRITERS_IMATERIALWRITER_H
+#ifndef ACTFW_WRITERS_IMATERIALWRITER_H
+#define ACTFW_WRITERS_IMATERIALWRITER_H
 
 #include <memory>
 #include "ACTFW/Framework/IService.hpp"
@@ -16,15 +16,15 @@ namespace Acts {
 
 namespace FW {
 
-/// @class IMaterialWriter
+/// @class ISurfaceMaterialWriter
 ///
 /// Interface class for writing out the material
 ///
 
-class IMaterialWriter : public IService {
+class ISurfaceMaterialWriter : public IService {
  public:
   /// Virtual destructor
-  virtual ~IMaterialWriter() = default;
+  virtual ~ISurfaceMaterialWriter() = default;
 
   /// Writes out the material map of the layer
   virtual FW::ProcessCode write(
@@ -34,4 +34,4 @@ class IMaterialWriter : public IService {
 };
 
 }
-#endif  // WRITERS_IMATERIALWRITER_H
+#endif  // ACTFW_WRITERS_IMATERIALWRITER_H

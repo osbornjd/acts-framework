@@ -1,14 +1,12 @@
 #include <iostream>
 #include "ACTFW/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTFW/Writers/ITrackingGeometryWriter.hpp"
-#include "ACTFW/Writers/ISurfaceWriter.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Detector/TrackingVolume.hpp"
 #include "ACTS/Surfaces/Surface.hpp"
 
 FWObj::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
     const FWObj::ObjTrackingGeometryWriter::Config& cfg)
-  : FW::ITrackingGeometryWriter()
+  : FW::IWriterT<Acts::TrackingGeometry>()
   , m_cfg(cfg)
 {}
 
@@ -39,7 +37,6 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
   return FW::ProcessCode::SUCCESS;
 }
 
-
 /// process this volume
 void
 FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
@@ -51,7 +48,7 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       // get the volume name
       const std::string& volumeName = tVolume.volumeName();      
       // find the right surfacewriter
-      std::shared_ptr<FW::ISurfaceWriter> surfaceWriter = nullptr;
+      std::shared_ptr< FW::IWriterT<Acts::Surface> > surfaceWriter = nullptr;
       for (auto writer : m_cfg.surfaceWriters){
         // get name and writer
         auto writerName = writer->name();
@@ -62,7 +59,18 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
             break;
         }        
       }
-      
+      // bail out if you have no surface writer
+      if (!surfaceWriter) return;
+      // try to write the material surface as well 
+      if (layer->surfaceRepresentation().associatedMaterial())
+          surfaceWriter->write(layer->surfaceRepresentation());
+      // the the approaching surfaces and check if they have material
+      if (layer->approachDescriptor()){
+        // loop over the contained Surfaces
+        for (auto& cSurface : layer->approachDescriptor()->containedSurfaces() )
+          if (cSurface->associatedMaterial())
+              surfaceWriter->write(*cSurface);
+      }
       // check for sensitive surfaces
       if (layer->surfaceArray() && surfaceWriter){
         // loop over the surface

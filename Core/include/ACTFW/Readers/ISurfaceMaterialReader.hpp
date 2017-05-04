@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////
-// IMaterialReader.h
+// ISurfaceMaterialReader.h
 ///////////////////////////////////////////////////////////////////
 
-#ifndef WRITERS_IMATERIALREADER_H
-#define WRITERS_IMATERIALREADER_H
+#ifndef ACTFW_READERS_IMATERIALREADER_H
+#define ACTFW_READERS_IMATERIALREADER_H
 
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -16,20 +16,20 @@ namespace Acts {
 namespace FW {
     
     
-    /// @class IMaterialReader
+    /// @class ISurfaceMaterialReader
     ///
     /// Interface class for reading in the  material 
     ///
     
-    class IMaterialReader : public IService {
+    class ISurfaceMaterialReader : public IService {
         
     public:
         /// Virtual destructor
-        virtual ~IMaterialReader() = default;
+        virtual ~ISurfaceMaterialReader() = default;
         
         /// Writes out the material map of the 
         virtual ProcessCode read() = 0;
         
     };
 }
-#endif // WRITERS_IMATERIALREADER_H
+#endif // ACTFW_READERS_IMATERIALREADER_H

@@ -37,7 +37,7 @@ main()
     // the detectors
     std::vector<std::string> subDetectors = { "Pix", "SStrip", "LStrip" };
     // the writers
-    std::vector< std::shared_ptr<FW::ISurfaceWriter> > subWriters;
+    std::vector< std::shared_ptr<FW::IWriterT<Acts::Surface> > > subWriters;
     // loop and create 
     for (auto sdet : subDetectors){
       // sub detector stream

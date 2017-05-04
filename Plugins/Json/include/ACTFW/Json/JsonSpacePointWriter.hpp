@@ -52,7 +52,7 @@ public:
   JsonSpacePointWriter(const Config& cfg);
 
   /// Destructor
-  virtual ~JsonSpacePointWriter() {}
+  virtual ~JsonSpacePointWriter() = default;
 
   /// Framework intialize method
   FW::ProcessCode

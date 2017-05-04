@@ -16,7 +16,7 @@ target_link_libraries(ACTFWFatras PUBLIC ACTFramework)
 
 # setup include directories for FatrasExample
 target_include_directories(ACTFWFatrasExample PRIVATE ACTS::ACTSCore ACTS::ACTSExamples)
-target_include_directories(ACTFWFatrasExample PRIVATE ACTFramework ACTFWRootPythia8Plugins ACTFWCsvPlugins ACTFWRootPlugins ACTWReadEvgen ACTFWExtrapolation ACTFWDigitization)
+target_include_directories(ACTFWFatrasExample PRIVATE ACTFramework ACTFWRootPythia8Plugins ACTFWCsvPlugins ACTFWObjPlugins ACTFWRootPlugins ACTWReadEvgen ACTFWExtrapolation ACTFWDigitization)
 target_link_libraries(ACTFWFatrasExample PRIVATE ACTS::ACTSCore ACTS::ACTSExamples)
 target_link_libraries(ACTFWFatrasExample PRIVATE ACTFramework ACTFWCsvPlugins ACTFWRootPlugins ACTFWRootPythia8Plugins ACTFWReadEvgen ACTFWExtrapolation ACTFWDigitization)
 target_link_libraries(ACTFWFatrasExample PRIVATE ACTFWFatras)

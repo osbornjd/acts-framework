@@ -1,13 +1,12 @@
 #include <iostream>
 #include "ACTFW/Obj/ObjSurfaceWriter.hpp"
-#include "ACTS/Surfaces/Surface.hpp"
 #include "ACTS/Surfaces/SurfaceBounds.hpp"
+#include "ACTS/Surfaces/CylinderBounds.hpp"
 #include "ACTS/Surfaces/PlanarBounds.hpp"
-
 
 FWObj::ObjSurfaceWriter::ObjSurfaceWriter(
     const FWObj::ObjSurfaceWriter::Config& cfg)
-  : FW::ISurfaceWriter()
+  : FW::IWriterT<Acts::Surface>()
   , m_cfg(cfg)
   , m_nvertices(0)    
 {}
@@ -61,7 +60,6 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
       (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*v3D.x() << " " 
                                       << m_cfg.outputScalor*v3D.y() << " "
                                       << m_cfg.outputScalor*v3D.z() << '\n'; 
-      
     }
     // output to file
     (*(m_cfg.outputStream)) << "f ";
@@ -71,9 +69,58 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     (*(m_cfg.outputStream)) << '\n';
     
   }
-  (*(m_cfg.outputStream)) << std::endl;
-  (*(m_cfg.outputStream)) << std::endl;
-
+  // dynamic cast to CylinderBounds or disc bounds work the same 
+  const Acts::CylinderBounds* cylinderBounds = 
+    dynamic_cast<const Acts::CylinderBounds*>(&surfaceBounds);
+  if (cylinderBounds){
+    // take the flip
+    std::vector<int> flip    = { -1, 1};
+    std::vector<int> vfaces  = { 1, 2, 4, 3};
+    // get the surface transform
+    auto transform = surface.transform();
+    double r    = cylinderBounds->r();
+    double hZ   = cylinderBounds->halflengthZ();
+    // get the radius and the halfZ value
+    size_t nfaces    = 36;
+    double phistep   = 2*M_PI/nfaces;
+    size_t vcounter = m_nvertices;
+    // 
+    for (size_t iphi = 0; iphi < nfaces; ++iphi){
+      // currentPhi 
+      double phi = -M_PI + iphi*phistep;
+      double cphi = cos(phi);
+      double sphi = sin(phi);
+      for (auto iflip : flip ){
+        // create the vertex
+        Acts::Vector3D point(transform*Acts::Vector3D(r*cos(phi),r*sin(phi),iflip*hZ));
+        // the counter for later usage
+        ++m_nvertices;
+        // write out the vertex 
+        (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*point.x() << " "
+                                        << m_cfg.outputScalor*point.y() << " "
+                                        << m_cfg.outputScalor*point.z() << '\n'; 
+      }
+    }
+    // now create the faces
+    size_t iphi = 0;
+    for (; iphi < nfaces-1; ++iphi ){
+      // output to file
+      (*(m_cfg.outputStream)) << "f ";
+      for (auto face: vfaces)
+         (*(m_cfg.outputStream)) << vcounter+(2*iphi)+face << " ";
+      (*(m_cfg.outputStream)) << '\n';
+    }
+    // close the loop
+    (*(m_cfg.outputStream)) << "f " << vcounter+(2*iphi)+1 << " " 
+                                    << vcounter+(2*iphi)+2 << " "
+                                    << vcounter+2          << " "
+                                    << vcounter+1          << '\n';
+    //
+    (*(m_cfg.outputStream)) << '\n';
+  }
+  // and a newline at the end
+  (*(m_cfg.outputStream)) << '\n';
+  // return success 
   return FW::ProcessCode::SUCCESS;
 }
 

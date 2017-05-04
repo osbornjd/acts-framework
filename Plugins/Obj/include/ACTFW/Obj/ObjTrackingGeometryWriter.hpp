@@ -11,11 +11,12 @@
 #include <fstream>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/ITrackingGeometryWriter.hpp"
+#include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Utilities/Logger.hpp"
+#include "ACTS/Surfaces/Surface.hpp"
+#include "ACTS/Detector/TrackingGeometry.hpp"
 
 namespace Acts {
-  class TrackingGeometry;
   class TrackingVolume;
 }
 
@@ -30,7 +31,7 @@ namespace FWObj {
 ///
 /// An Obj writer for the geometry
 ///
-class ObjTrackingGeometryWriter : public FW::ITrackingGeometryWriter
+class ObjTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
 {
 public:
   // @class Config
@@ -40,11 +41,11 @@ public:
   {
   public:
     /// the default logger
-    std::shared_ptr<Acts::Logger>                      logger;
+    std::shared_ptr<Acts::Logger>                                logger;
     /// the name of the writer
-    std::string                                         name;
+    std::string                                                  name;
     /// surfaceWriters 
-    std::vector< std::shared_ptr<FW::ISurfaceWriter > > surfaceWriters;
+    std::vector< std::shared_ptr<FW::IWriterT<Acts::Surface> > > surfaceWriters;
   
     Config(const std::string&   lname = "ObjTrackingGeometryWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
@@ -56,7 +57,6 @@ public:
   };
 
   /// Constructor
-  ///
   /// @param cfg is the configuration class
   ObjTrackingGeometryWriter(const Config& cfg);
 
@@ -84,7 +84,6 @@ private:
   Config         m_cfg;         ///< the config class
 
   /// process this volume
-  ///
   /// @param tVolume the volume to be processed
   void
   write(const Acts::TrackingVolume& tVolume);
