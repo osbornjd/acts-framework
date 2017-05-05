@@ -14,7 +14,7 @@
     <constant name="world_y" value="world_size"/>
     <constant name="world_z" value="world_size"/>
     <!-- BEAM PIPE -->
-    <constant name="CentralBeamTube_dz" value="800.0*cm"/>
+    <constant name="CentralBeamTube_dz" value="800.0*mm"/>
     <constant name="CentralBeamTube_rmax" value="2.1*cm"/>
     <constant name="CentralBeamTube_rmin" value="2.*cm"/>
 

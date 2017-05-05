@@ -367,7 +367,7 @@
                     </rodEven>
                 </rods>
             </layer>
-            <layer id="3" radius="450.000*mm" rmin="441.425*mm" rmax="459.289*mm" bigDelta="5.000*mm" phi0="1.570796*rad">
+            <layer id="3" radius="450.000*mm" rmin="441.425*mm" rmax="459.*mm" bigDelta="5.000*mm" phi0="1.570796*rad">
                 <rods repeat="56" smallDelta="2.500*mm" rPhiOverlap="0.000*mm" nRPhiSegments="2" zOverlap="0.000*mm" nModules="17">
                     <rodOdd id="1">
                         <modules>
