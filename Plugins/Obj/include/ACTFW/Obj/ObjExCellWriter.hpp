@@ -6,7 +6,7 @@
 //
 
 #ifndef ACTFW_PLUGINS_OBJEXCELLWRITER_H
-#define ACTFW_PLUGINS_OBJEXCELLWRITER_H 1
+#define ACTFW_PLUGINS_OBJEXCELLWRITER_H
 
 #include <mutex>
 
@@ -17,12 +17,6 @@
 #include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Utilities/Logger.hpp"
-
-class TFile;
-
-#ifndef MAXSTEPS
-#define MAXSTEPS 100
-#endif
 
 namespace FWObj {
 

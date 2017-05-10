@@ -3,7 +3,7 @@
 //
 //
 #ifndef ACTFW_OBJ_PLUGINS_SURFACEWRITER_H
-#define ACTFW_OBJ_PLUGINS_SURFACEWRITER_H 1
+#define ACTFW_OBJ_PLUGINS_SURFACEWRITER_H
 
 #include <mutex>
 
@@ -14,6 +14,7 @@
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/Surfaces/Surface.hpp"
+#include "ACTFW/Obj/ObjHelper.hpp"
 
 namespace FWObj {
 
@@ -32,8 +33,14 @@ public:
   public:
     std::shared_ptr<Acts::Logger>  logger;                      ///< the default logger
     std::string                    name;                        ///< the name of the algorithm
+    unsigned int                   outputPhiSegemnts = 72;      ///< approximate cyinders by that
+    double                         outputThickness   = 2.;      ///< write thickness if available   
+    bool                           outputSensitive   = true;    ///!< write sensitive surfaces
     double                         outputScalor      = 1.;      ///< output scalor
-    size_t                         outputPrecision   = 4;       ///< precision for out
+    unsigned int                   outputPrecision   = 6;       ///< precision for out
+    std::string                    planarPrefix      = "";
+    std::string                    cylinderPrefix    = "";
+    std::string                    diskPrefix        = "";
     std::shared_ptr<std::ofstream> outputStream      = nullptr; ///< the output stream
 
     Config(const std::string&   lname = "ObjSurfaceWriter",
@@ -63,15 +70,20 @@ public:
   /// The write interface
   /// @param surface to be written out
   FW::ProcessCode
-  write(const Acts::Surface& surface);
+  write(const Acts::Surface& surface) final override;
+
+  /// write a bit of string
+  /// @param is the string to be written
+  FW::ProcessCode
+  write(const std::string& sinfo) final override;
 
   /// Framework name() method
   const std::string&
   name() const final;
 
 private:
-  Config         m_cfg;         ///< the config class
-  unsigned int   m_nvertices;   ///< written vertices 
+  Config                    m_cfg;        ///< the config class
+  FWObjHelper::VtnCounter   m_vtnCounter; ///< vertex, texture, normal
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -86,6 +98,14 @@ ObjSurfaceWriter::name() const
 {
   return m_cfg.name;
 }
+
+FW::ProcessCode
+ObjSurfaceWriter::write(const std::string& sinfo)
+{
+  if (!(m_cfg.outputStream)) return FW::ProcessCode::SUCCESS;
+  (*m_cfg.outputStream) << sinfo << '\n'; 
+}
+
 }
 
 #endif  // ACTFW_OBJ_PLUGINS_SURFACEWRITER_H

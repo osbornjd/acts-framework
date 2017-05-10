@@ -26,8 +26,8 @@ main()
     // 
     // set geometry building logging level
     Acts::Logging::Level surfaceLogLevel = Acts::Logging::INFO;
-    Acts::Logging::Level layerLogLevel   = Acts::Logging::INFO;
-    Acts::Logging::Level volumeLogLevel  = Acts::Logging::VERBOSE;
+    Acts::Logging::Level layerLogLevel   = Acts::Logging::VERBOSE;
+    Acts::Logging::Level volumeLogLevel  = Acts::Logging::INFO;
     
     // create the tracking geometry as a shared pointer
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry
@@ -38,33 +38,45 @@ main()
     std::vector<std::string> subDetectors = { "Pix", "SStrip", "LStrip" };
     // the writers
     std::vector< std::shared_ptr<FW::IWriterT<Acts::Surface> > > subWriters;
-    // loop and create 
+    std::vector< std::shared_ptr<std::ofstream> > subStreams;
+    // loop and create
     for (auto sdet : subDetectors){
       // sub detector stream
       auto  sdStream = std::shared_ptr<std::ofstream>(new std::ofstream);
       std::string sdOutputName   = sdet+std::string(".obj");
       sdStream->open(sdOutputName);
       // object surface writers
-      FWObj::ObjSurfaceWriter::Config sdObjWriterConfig(sdet);
-      sdObjWriterConfig.outputPrecision = 3;
-      sdObjWriterConfig.outputScalor    = 1.;
-      sdObjWriterConfig.outputStream    = sdStream;
+      FWObj::ObjSurfaceWriter::Config sdObjWriterConfig(sdet, Acts::Logging::VERBOSE);
+      sdObjWriterConfig.outputPhiSegemnts = 72;
+      sdObjWriterConfig.outputPrecision   = 6;
+      sdObjWriterConfig.outputScalor      = 1.;
+      sdObjWriterConfig.outputThickness   = 1.;
+      sdObjWriterConfig.outputSensitive   = true;
+      sdObjWriterConfig.outputStream      = sdStream;
       auto sdObjWriter
           = std::make_shared<FWObj::ObjSurfaceWriter>(sdObjWriterConfig);
       // push back
       subWriters.push_back(sdObjWriter);
+      subStreams.push_back(sdStream);
     }
-
-
     // configure the tracking geometry writer
-    FWObj::ObjTrackingGeometryWriter::Config tgObjWriterConfig;
+    FWObj::ObjTrackingGeometryWriter::Config tgObjWriterConfig("ObjTrackingGeometryWriter",
+                                                              Acts::Logging::VERBOSE);
     tgObjWriterConfig.surfaceWriters = subWriters;
-    // the tracking geometry writers 
+    tgObjWriterConfig.filePrefix           = "mtllib materials.mtl";
+    tgObjWriterConfig.sensitiveGroupPrefix = "usemtl silicon";
+    tgObjWriterConfig.layerPrefix          = "usemtl support";
+    // the tracking geometry writers
     auto tgObjWriter
             = std::make_shared<FWObj::ObjTrackingGeometryWriter>(tgObjWriterConfig);
 
     // write the tracking geometry object
     tgObjWriter->write(*(tGeometry.get()));
+  
     // -------------------------------------------------------------------------------- 
+    // close the output streams
+    for (auto sStreams : subStreams){
+      sStreams->close();
+    }
   
 }

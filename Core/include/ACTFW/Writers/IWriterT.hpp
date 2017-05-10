@@ -31,6 +31,10 @@ public:
   virtual ProcessCode
   write(const T& object) = 0;
   
+  /// write a bit of string
+  virtual ProcessCode
+  write(const std::string& sinfo) = 0;
+  
 };
 
 }

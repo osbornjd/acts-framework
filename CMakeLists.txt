@@ -42,5 +42,5 @@ endif (DEFINED PYTHIA8_INCLUDE_DIR AND PYTHIA8_LIB_DIR)
 
 # Configure test framework components
 add_subdirectory (Core)
-add_subdirectory (Examples)
 add_subdirectory (Plugins)
+add_subdirectory (Examples)

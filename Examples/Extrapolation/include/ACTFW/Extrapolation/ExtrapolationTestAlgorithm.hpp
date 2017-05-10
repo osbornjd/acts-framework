@@ -103,15 +103,15 @@ public:
 
   /// Framework intialize method
   FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) override final;
+  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) final override;
 
   /// Framework execode method
   FW::ProcessCode
-  execute(const FW::AlgorithmContext context) const override final;
+  execute(const FW::AlgorithmContext context) const final override;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() override final;
+  finalize() final override;
 
 private:
   Config m_cfg;  ///< the config class

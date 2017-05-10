@@ -10,7 +10,6 @@ if (BUILD_DD4HEP_PLUGIN)
     dd4hep_set_version(DD4hepPlugin MAJOR 0 MINOR 1 PATCH 0)
     find_package (ROOT REQUIRED COMPONENTS Geom)
     if (DD4hep_FOUND AND ROOT_FOUND)
-        message (STATUS "ROOT=${ROOT_INCLUDE_DIRS}")
         # get list of all source files
         file (GLOB_RECURSE src_files "src/*.cpp")
         

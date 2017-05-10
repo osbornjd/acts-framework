@@ -3,7 +3,7 @@
 //
 //
 #ifndef ACTFW_OBJ_PLUGINS_TRACKINGGEOMETRYWRITER_H
-#define ACTFW_OBJ_PLUGINS_TRACKINGGEOMETRYWRITER_H 1
+#define ACTFW_OBJ_PLUGINS_TRACKINGGEOMETRYWRITER_H
 
 #include <mutex>
 
@@ -43,9 +43,12 @@ public:
     /// the default logger
     std::shared_ptr<Acts::Logger>                                logger;
     /// the name of the writer
-    std::string                                                  name;
+    std::string                                                  name = "";
     /// surfaceWriters 
     std::vector< std::shared_ptr<FW::IWriterT<Acts::Surface> > > surfaceWriters;
+    std::string                                                  filePrefix = "";
+    std::string                                                  sensitiveGroupPrefix = "";
+    std::string                                                  layerPrefix = "";
   
     Config(const std::string&   lname = "ObjTrackingGeometryWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
@@ -53,7 +56,6 @@ public:
       , name(lname)
       , surfaceWriters()
     {}
-        
   };
 
   /// Constructor
@@ -74,8 +76,13 @@ public:
   /// The write interface
   /// @param surface to be written out
   FW::ProcessCode
-  write(const Acts::TrackingGeometry& tGeometry);
-
+  write(const Acts::TrackingGeometry& tGeometry) final override;
+  
+  /// write a bit of string
+  /// @param is the string to be written
+  FW::ProcessCode
+  write(const std::string& sinfo) final override;
+  
   /// Framework name() method
   const std::string&
   name() const final;
@@ -101,6 +108,13 @@ ObjTrackingGeometryWriter::name() const
 {
   return m_cfg.name;
 }
+
+FW::ProcessCode
+ObjTrackingGeometryWriter::write(const std::string&)
+{
+  return FW::ProcessCode::SUCCESS;
+}
+
 }
 
 #endif  // ACTFW_OBJ_PLUGINS_TRACKINGGEOMETRYWRITER_H

@@ -4,7 +4,6 @@
 //
 //  Created by Andreas Salzburger on 11/05/16.
 //
-
 #include <memory>
 #include "ACTS/Examples/BuildGenericDetector.hpp"
 #include "ACTS/Digitization/PlanarModuleStepper.hpp"
@@ -231,11 +230,11 @@ main(int argc, char* argv[])
   std::string spOutputName = "SpacePoints.obj";
   spacePointStream->open(spOutputName);
 
-  FWJson::JsonSpacePointWriter<Acts::Vector3D>::Config spWriterJsonConfig;
-  spWriterJsonConfig.outputPrecision = 6;
-  spWriterJsonConfig.outputStream    = spacePointStream;
-  auto spWriterJson
-      = std::make_shared<FWJson::JsonSpacePointWriter<Acts::Vector3D>>(spWriterJsonConfig);
+  //FWJson::JsonSpacePointWriter<Acts::Vector3D>::Config spWriterJsonConfig;
+  //spWriterJsonConfig.outputPrecision = 6;
+  //spWriterJsonConfig.outputStream    = spacePointStream;
+  // auto spWriterJson
+  //    = std::make_shared<FWJson::JsonSpacePointWriter<Acts::Vector3D>>(spWriterJsonConfig);
   
   FWObj::ObjSpacePointWriter<Acts::Vector3D>::Config spWriterObjConfig;
   spWriterObjConfig.outputPrecision = 6;

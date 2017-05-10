@@ -54,11 +54,11 @@ public:
 
   /// Framework initialize method
   FW::ProcessCode
-  initialize() override final;
+  initialize() final override;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() override final;
+  finalize() final override;
 
   /// generate a new barcode / encoding
   barcode_type
@@ -90,7 +90,7 @@ public:
 
   /// Framework name() method
   const std::string&
-  name() const override final;
+  name() const final override;
 
 private:
   Config                        m_cfg;     ///< the configuration class

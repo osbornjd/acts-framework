@@ -66,11 +66,11 @@ public:
 
   /// Framework name() method
   const std::string&
-  name() const override final;
+  name() const final override;
 
   /// return the jobStore - things that live for the full job
   std::shared_ptr<WhiteBoard>
-  jobStore() const override final;
+  jobStore() const final override;
 
 protected:
   Config                        m_cfg;
