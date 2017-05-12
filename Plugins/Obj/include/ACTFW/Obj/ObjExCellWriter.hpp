@@ -9,12 +9,10 @@
 #define ACTFW_PLUGINS_OBJEXCELLWRITER_H
 
 #include <mutex>
-
 #include <TTree.h>
-
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
+#include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -26,13 +24,14 @@ namespace FWObj {
 ///
 /// Safe to use from multiple writer threads.
 ///
-class ObjExCellWriter : public FW::IExtrapolationCellWriter
+template <class T> class ObjExCellWriter
+  : public FW::IWriterT<const Acts::ExtrapolationCell<T> > 
 {
 public:
 
   // @class Config
   //
-  // The nested config class
+  // The nested configuration class
   class Config
   {
   public:
@@ -61,24 +60,24 @@ public:
 
   /// Framework intialize method
   FW::ProcessCode
-  initialize() final;
+  initialize() override final;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() final;
+  finalize() override final;
 
   /// The write interface
-  ///
   /// @param eCell is the extrapolation cell that is parsed and written
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  write(const Acts::ExCellCharged& eCell) final;
+  write(const Acts::ExtrapolationCell<T>& eCell) override final;
 
-  /// The write interface
-  ///
-  /// @param eCell is the extrapolation cell that is parsed and written
-  FW::ProcessCode
-  write(const Acts::ExCellNeutral& eCell) final;
-
+  /// write a bit of string
+  /// @param sinfo is some string info to be written
+  /// @return is a ProcessCode indicating return/failure
+  ProcessCode
+  write(const std::string& sinfo) override final;
+  
   /// Framework name() method
   const std::string&
   name() const final;
@@ -86,13 +85,7 @@ public:
 private:
   Config             m_cfg;               ///< the config class
   size_t             m_vCounter;          ///< the vertex counter
-
   std::mutex         m_write_mutex;       ///< mutex used to protect multi-threaded writes
-    
-  /// Private helper method for actual filling
-  template <class T>
-  FW::ProcessCode
-  writeT(const Acts::ExtrapolationCell<T>& eCell);
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -102,52 +95,47 @@ private:
   }
 };
 
-
-inline ObjExCellWriter::ObjExCellWriter(
-    const ObjExCellWriter::Config& cfg)
-  : FW::IExtrapolationCellWriter()
+template <class T>
+ObjExCellWriter<T>::ObjExCellWriter(
+    const ObjExCellWriter<T>::Config& cfg)
+  : FW::IWriterT<const Acts::ExtrapolationCell<T> >()
   , m_cfg(cfg)
   , m_vCounter(0)    
 {}
 
-inline FW::ProcessCode
-ObjExCellWriter::initialize()
+template <class T> FW::ProcessCode
+ObjExCellWriter<T>::initialize()
 {
   return FW::ProcessCode::SUCCESS;
 }
 
-inline FW::ProcessCode
-ObjExCellWriter::finalize()
+template <class T>
+FW::ProcessCode
+ObjExCellWriter<T>::finalize()
 {
   return FW::ProcessCode::SUCCESS;
 }
 
+template <class T>
 const std::string&
-ObjExCellWriter::name() const
+ObjExCellWriter<T>::name() const
 {
   return m_cfg.name;
 }
 
-inline FW::ProcessCode
-ObjExCellWriter::write(const Acts::ExCellCharged& eCell)
-{
-  return writeT<Acts::TrackParameters>(eCell);
-}
-
-inline FW::ProcessCode
-ObjExCellWriter::write(const Acts::ExCellNeutral& eCell)
-{
-  return writeT<Acts::NeutralParameters>(eCell);
-}
-
-
 template <class T>
 FW::ProcessCode
-ObjExCellWriter::writeT(const Acts::ExtrapolationCell<T>& eCell)
+ObjExCellWriter<T>::write(const Acts::ExtrapolationCell<T>& eCell)
 {
+  
+   // abort if you don't have a stream
+  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
+  // lock the mutex for writing
   std::lock_guard<std::mutex> lock(m_write_mutex);
+  
   // remember the first counter
   size_t fCounter = m_vCounter;
+  
   // increase the vertex counter
   ++m_vCounter;
   // the event paramters
@@ -176,12 +164,24 @@ ObjExCellWriter::writeT(const Acts::ExtrapolationCell<T>& eCell)
   for (size_t iv = fCounter; iv < m_vCounter; ++iv)
     (*(m_cfg.outputStream)) << iv << " ";
   (*(m_cfg.outputStream)) << '\n';
+  // new line
   (*(m_cfg.outputStream)) << '\n';
-
   // return success 
   return FW::ProcessCode::SUCCESS;
 }
 
+template <class T>
+FW::ProcessCode
+ObjExCellWriter<T>::write(const std::string& sinfo)
+{  
+  // abort if you don't have a stream
+  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
+  // lock the mutex for writing
+  std::lock_guard<std::mutex> lock(m_write_mutex);
+  
+  (*(m_cfg.outputStream)) << sinfo;
+  return FW::ProcessCode::SUCCESS;
+}
 
 } // end of namespace
 

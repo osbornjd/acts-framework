@@ -1,27 +1,21 @@
-# get list of all source files
-file (GLOB_RECURSE src_files "src/*.*pp")
+if (PYTHIA8_FOUND)
+  # get list of all source files
+  file (GLOB_RECURSE src_files "src/*.*pp")
 
-# find the ACTS package
-find_package(ACTS REQUIRED COMPONENTS Core)
+  # find the ACTS package
+  find_package(ACTS REQUIRED COMPONENTS Core)
 
-# define library target
-add_library(ACTFWReadEvgen SHARED ${src_files})
-# define executable 
-add_executable(ACTFWReadEvgenExample bin/ReadEvgenExample.cpp)
+  # define executable 
+  add_executable(ACTFWReadEvgenExample src/ReadEvgenExample.cpp)
 
-# setup include directories for ExtrapolationExample
-target_include_directories(ACTFWReadEvgen PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
-target_include_directories(ACTFWReadEvgen PUBLIC ACTFWRootPlugins)
-target_link_libraries(ACTFWReadEvgen PUBLIC ACTS::ACTSCore)
-target_link_libraries(ACTFWReadEvgen PUBLIC ACTFramework ACTFWRootPlugins)
+  # setup include directories for ExtrapolationTest
+  target_link_libraries(ACTFWReadEvgenExample PRIVATE ACTS::ACTSCore)
+  target_link_libraries(ACTFWReadEvgenExample PRIVATE ACTFramework ACTFWReadEvgen ACTFWRootPlugin)
 
-# setup include directories for ExtrapolationTest
-target_link_libraries(ACTFWReadEvgenExample PRIVATE ACTS::ACTSCore)
-target_link_libraries(ACTFWReadEvgenExample PRIVATE ACTFramework ACTFWRootPlugins ACTFWRootPythia8Plugins)
-target_link_libraries(ACTFWReadEvgenExample PRIVATE ACTFWReadEvgen)
+  # set installation directories
+  install(TARGETS ACTFWReadEvgenExample RUNTIME DESTINATION bin)
+else (NOT PYTHIA8_FOUND)
+  message (STATUS "${Red}ACTFWReadEvgenExample: PYTHIA8 was not found -> skip building of ReadEvgen example${ColorReset}")
+endif (PYTHIA8_FOUND)
 
-# set installation directories
-install(TARGETS ACTFWReadEvgen LIBRARY DESTINATION lib)
-install(TARGETS ACTFWReadEvgenExample RUNTIME DESTINATION bin)
-install(DIRECTORY include/ACTFW DESTINATION include)
 

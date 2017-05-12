@@ -6,12 +6,11 @@
 #define ACTFW_OBJ_PLUGINS_SPACEPOINTWRITER_H
 
 #include <mutex>
-
 #include <iostream>
 #include <fstream>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IEventDataWriter.hpp"
+#include "ACTFW/Writers/IEventDataWriterT.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace FWObj {
@@ -20,7 +19,7 @@ namespace FWObj {
 ///
 /// An Obj writer for the geometry
 ///
-template <class T> class ObjSpacePointWriter : public FW::IEventDataWriter<T>
+template <class T> class ObjSpacePointWriter : public FW::IEventDataWriterT<T>
 {
 public:
   // @class Config
@@ -54,23 +53,33 @@ public:
 
   /// Framework intialize method
   FW::ProcessCode
-  initialize() final;
+  initialize() override final;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() final;
+  finalize() override final;
 
   /// The write interface
   /// @param eData is the event data to be written out
   FW::ProcessCode
-  write(const FW::DetectorData<geo_id_value, T>& eData);
-
+  write(const FW::DetectorData<geo_id_value, T>& eData) override final;
+  
+  
+  /// write a bit of string
+  /// @param sinfo is some string info to be written
+  /// @return is a ProcessCode indicating return/failure
+  FW::ProcessCode
+  write(const std::string& sinfo) override final;
+  
+  
   /// Framework name() method
   const std::string&
-  name() const final;
+  name() const override final;
 
 private:
   Config         m_cfg;         ///< the config class
+  std::mutex     m_write_mutex; ///< mutex to protect multi-threaded writes
+  
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -80,35 +89,53 @@ private:
   }
 };
 
-template <class T> const std::string&
+template <class T> 
+const std::string&
 ObjSpacePointWriter<T>::name() const
 {
   return m_cfg.name;
 }
 
-template <class T> ObjSpacePointWriter<T>::ObjSpacePointWriter(
+template <class T> 
+ObjSpacePointWriter<T>::ObjSpacePointWriter(
     const ObjSpacePointWriter<T>::Config& cfg)
-  : FW::IEventDataWriter<T>()
+  : FW::IEventDataWriterT<T>()
   , m_cfg(cfg)
 {}
 
 
-template <class T> FW::ProcessCode
+template <class T> 
+FW::ProcessCode
 ObjSpacePointWriter<T>::initialize()
 {
   return FW::ProcessCode::SUCCESS;
 }
 
-template <class T> FW::ProcessCode
+template <class T> 
+FW::ProcessCode
 ObjSpacePointWriter<T>::finalize()
 {
+  return FW::ProcessCode::SUCCESS;
+}
+
+template <class T> 
+FW::ProcessCode
+ObjSpacePointWriter<T>::write(const std::string& sinfo)
+{
+  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
+  // write out the info to the stream
+  (*(m_cfg.outputStream)) << sinfo;
   return FW::ProcessCode::SUCCESS;
 }
 
 template <class T> FW::ProcessCode
 ObjSpacePointWriter<T>::write(const FW::DetectorData<geo_id_value, T>& eData)
 {
- if (!m_cfg.outputStream)   return FW::ProcessCode::SUCCESS;
+  // abort if you don't have a stream
+ if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
+ // lock the mutex for writing
+ std::lock_guard<std::mutex> lock(m_write_mutex);
+ 
  (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
  // count the vertex
  size_t vertex = 0;

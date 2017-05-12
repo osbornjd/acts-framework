@@ -1,6 +1,6 @@
 template <class T> FWJson::JsonSpacePointWriter<T>::JsonSpacePointWriter(
     const FWJson::JsonSpacePointWriter<T>::Config& cfg)
-  : FW::IEventDataWriter<T>()
+  : FW::IEventDataWriterT<T>()
   , m_cfg(cfg)
 {}
 

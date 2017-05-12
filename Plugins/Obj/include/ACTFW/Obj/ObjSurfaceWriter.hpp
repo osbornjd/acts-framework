@@ -6,7 +6,6 @@
 #define ACTFW_OBJ_PLUGINS_SURFACEWRITER_H
 
 #include <mutex>
-
 #include <iostream>
 #include <fstream>
 #include "ACTFW/Framework/IService.hpp"
@@ -31,17 +30,19 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<Acts::Logger>  logger;                      ///< the default logger
-    std::string                    name;                        ///< the name of the algorithm
-    unsigned int                   outputPhiSegemnts = 72;      ///< approximate cyinders by that
-    double                         outputThickness   = 2.;      ///< write thickness if available   
-    bool                           outputSensitive   = true;    ///!< write sensitive surfaces
-    double                         outputScalor      = 1.;      ///< output scalor
-    unsigned int                   outputPrecision   = 6;       ///< precision for out
-    std::string                    planarPrefix      = "";
-    std::string                    cylinderPrefix    = "";
-    std::string                    diskPrefix        = "";
-    std::shared_ptr<std::ofstream> outputStream      = nullptr; ///< the output stream
+    std::shared_ptr<Acts::Logger>  logger;                       ///< the default logger
+    std::string                    name;                         ///< the name of the algorithm
+    unsigned int                   outputPhiSegemnts  = 72;      ///< approximate cyinders by that
+    double                         outputThickness    = 2.;      ///< write thickness if available   
+    bool                           outputSensitive    = true;    ///< write sensitive surfaces
+    bool                           outputLayerSurface = true;    ///< write the layer surface out
+    double                         outputScalor       = 1.;      ///< output scalor
+    unsigned int                   outputPrecision    = 6;       ///< precision for out
+    std::string                    filePrefix         = "";      ///< file prefix to be written out
+    std::string                    planarPrefix       = "";      ///< prefixes
+    std::string                    cylinderPrefix     = "";      ///< prefixes
+    std::string                    diskPrefix         = "";      ///< prefixes
+    std::shared_ptr<std::ofstream> outputStream       = nullptr; ///< the output stream
 
     Config(const std::string&   lname = "ObjSurfaceWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
@@ -84,6 +85,8 @@ public:
 private:
   Config                    m_cfg;        ///< the config class
   FWObjHelper::VtnCounter   m_vtnCounter; ///< vertex, texture, normal
+  std::mutex                m_write_mutex;///< mutex to protect multi-threaded writes
+  
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -102,8 +105,14 @@ ObjSurfaceWriter::name() const
 FW::ProcessCode
 ObjSurfaceWriter::write(const std::string& sinfo)
 {
-  if (!(m_cfg.outputStream)) return FW::ProcessCode::SUCCESS;
-  (*m_cfg.outputStream) << sinfo << '\n'; 
+  
+  // abort if you don't have a stream
+  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
+  // lock the mutex for writing
+  std::lock_guard<std::mutex> lock(m_write_mutex);
+  // and write
+  (*m_cfg.outputStream) << sinfo;
+  return FW::ProcessCode::SUCCESS;
 }
 
 }

@@ -14,7 +14,7 @@
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Writers/IParticlePropertiesWriter.hpp"
+#include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -26,7 +26,8 @@ namespace FWRoot {
 ///
 /// A root based implementation to write out particleproperties vector
 ///
-class ParticlePropertiesWriter : public FW::IParticlePropertiesWriter
+class ParticlePropertiesWriter 
+  : public FW::IWriterT<const std::vector<Acts::ParticleProperties> >
 {
 public:
   // @class Config
@@ -44,6 +45,7 @@ public:
     std::shared_ptr<FW::BarcodeSvc>
     barcodeSvc;  ///< the barcode service to decode
 
+    /// Constructor
     Config(const std::string&   lname = "ParticlePropertiesWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
       : logger(Acts::getDefaultLogger(lname, lvl))
@@ -54,6 +56,7 @@ public:
       , barcodeSvc(nullptr)
     {
     }
+    
   };
 
   /// Constructor
@@ -65,19 +68,30 @@ public:
   virtual ~ParticlePropertiesWriter();
 
   /// Framework intialize method
+  /// @return a ProcessCode to indicate success/failure
   FW::ProcessCode
-  initialize() final;
+  initialize() override final;
 
   /// Framework finalize mehtod
+  /// @return a ProcessCode to indicate success/failure
   FW::ProcessCode
-  finalize() final;
+  finalize() override final;
 
-  /// The write interface
-  /// @param pProperties is the vector of particle properties
+  /// The write method
+  /// @param ppBegin is the begin iterator of the container
+  /// @param ppEnd is the end iterator of the container
+  /// @return a ProcessCode to indicate success/failure
   FW::ProcessCode
-  write(const std::vector<Acts::ParticleProperties>& pProperties);
+  write(const std::vector<Acts::ParticleProperties>& particles) override final;
 
+  /// write a bit of string
+  /// @param sinfo is some string info to be written
+  /// @return is a ProcessCode indicating return/failure
+  FW::ProcessCode
+  write(const std::string& sinfo) override final;
+  
   /// Framework name() method
+  // @return the name of the tool      
   const std::string&
   name() const final;
 
@@ -122,6 +136,7 @@ ParticlePropertiesWriter::name() const
 {
   return m_cfg.name;
 }
+
 }
 
 #endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H

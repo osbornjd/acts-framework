@@ -8,13 +8,12 @@
 #define ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H 1
 
 #include <mutex>
-
 #include <iostream>
 #include <fstream>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Writers/IParticlePropertiesWriter.hpp"
+#include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -26,7 +25,8 @@ namespace FWCsv {
 ///
 /// A root based implementation to write out particleproperties vector
 ///
-class CsvParticleWriter : public FW::IParticlePropertiesWriter
+class CsvParticleWriter 
+  : public FW::IWriterT<const std::vector<Acts::ParticleProperties> > 
 {
 public:
   // @class Config
@@ -35,10 +35,10 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<Acts::Logger>  logger;           ///< the default logger
-    std::string                    name;             ///< the name of the algorithm
-    size_t                         outputPrecision   = 4;
-    std::shared_ptr<std::ofstream> outputStream      = nullptr;
+    std::shared_ptr<Acts::Logger>  logger;                      ///< the default logger
+    std::string                    name;                        ///< the name of the algorithm
+    size_t                         outputPrecision   = 4;       ///< the precision 
+    std::shared_ptr<std::ofstream> outputStream      = nullptr; //!< the ofstream 
         
     std::shared_ptr<FW::BarcodeSvc>
     barcodeSvc;  ///< the barcode service to decode
@@ -54,33 +54,43 @@ public:
   };
 
   /// Constructor
-  ///
   /// @param cfg is the configuration class
   CsvParticleWriter(const Config& cfg);
 
   /// Destructor
-  virtual ~CsvParticleWriter();
+  virtual ~CsvParticleWriter() = default;
 
   /// Framework intialize method
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  initialize() final;
+  initialize() override final;
 
   /// Framework finalize mehtod
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  finalize() final;
+  finalize() override final;
 
   /// The write interface
   /// @param pProperties is the vector of particle properties
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  write(const std::vector<Acts::ParticleProperties>& pProperties);
+  write(const std::vector<Acts::ParticleProperties>& particles) override final;
+
+  /// The write interace for string
+  /// @param sinfo is some additional string info
+  /// @return ProcessCode to indicate success/failure
+  FW::ProcessCode
+  write(const std::string& sinfo) override final;
 
   /// Framework name() method
+  /// @return the name of the tool
   const std::string&
   name() const final;
 
 private:
-  Config                             m_cfg;         ///< the config class
-
+  Config        m_cfg;         ///< the config class
+  std::mutex    m_write_mutex; ///< mutex used to protect multi-threaded writes
+  
   /// Private access to the logging instance
   const Acts::Logger&
   logger() const

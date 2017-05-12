@@ -8,11 +8,10 @@
 #define ACTFW_CSV_PLUGINS_PLANARCLUSTERWRITER_H 1
 
 #include <mutex>
-
 #include <iostream>
 #include <fstream>
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IEventDataWriter.hpp"
+#include "ACTFW/Writers/IEventDataWriterT.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTS/Digitization/PlanarModuleCluster.hpp"
 #include "ACTS/Utilities/Logger.hpp"
@@ -23,7 +22,7 @@ namespace FWCsv {
 ///
 /// A root based implementation to write out particleproperties vector
 ///
-class CsvPlanarClusterWriter : public FW::IEventDataWriter<Acts::PlanarModuleCluster>
+class CsvPlanarClusterWriter : public FW::IEventDataWriterT<Acts::PlanarModuleCluster>
 {
 public:
   // @class Config
@@ -55,24 +54,35 @@ public:
   virtual ~CsvPlanarClusterWriter();
 
   /// Framework intialize method
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  initialize() final;
+  initialize() override final;
 
   /// Framework finalize mehtod
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  finalize() final;
+  finalize() override final;
 
   /// The write interface
   /// @param pClusters is the DetectorData of planar clusters
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  write(const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& pClusters) final;
+  write(const FW::DetectorData<geo_id_value, 
+        Acts::PlanarModuleCluster>& pClusters) override final;
+
+  /// write a bit of string
+  /// @param sinfo is some string info to be written
+  /// @return is a ProcessCode indicating return/failure
+  FW::ProcessCode
+  write(const std::string& sinfo) override final;
 
   /// Framework name() method
   const std::string&
   name() const final;
 
 private:
-  Config                             m_cfg;         ///< the config class
+  Config        m_cfg;         ///< the config class
+  std::mutex    m_write_mutex; ///< mutex used to protect multi-threaded writes
 
   /// Private access to the logging instance
   const Acts::Logger&

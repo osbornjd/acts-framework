@@ -4,7 +4,7 @@
 
 FWRoot::ParticlePropertiesWriter::ParticlePropertiesWriter(
     const FWRoot::ParticlePropertiesWriter::Config& cfg)
-  : FW::IParticlePropertiesWriter()
+  : FW::IWriterT<const std::vector<Acts::ParticleProperties> >()
   , m_cfg(cfg)
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
@@ -58,10 +58,12 @@ FWRoot::ParticlePropertiesWriter::finalize()
 }
 
 FW::ProcessCode
-FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperties>& pProperties)
+FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperties>& particles)
 {
-  size_t nParticles = pProperties.size();
-    
+  
+  // the number of particles
+  size_t nParticles = particles.size();
+  // clear the branches    
   m_eta.clear();
   m_phi.clear();
   m_vx.clear();
@@ -80,6 +82,7 @@ FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperti
   m_generation.clear();
   m_secondary.clear();
   m_process.clear();
+  // and reserve the appropriately
   m_eta.reserve(nParticles);
   m_phi.reserve(nParticles);
   m_vx.reserve(nParticles);
@@ -99,7 +102,7 @@ FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperti
   m_secondary.reserve(nParticles);
   m_process.reserve(nParticles);
   // loop and fill
-  for (auto& particle : pProperties){
+  for ( auto& particle : particles){
     /// collect the information
     m_vx.push_back(particle.vertex().x());
     m_vy.push_back(particle.vertex().y());
@@ -129,6 +132,12 @@ FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperti
     m_outputTree->Fill();
     
   return FW::ProcessCode::SUCCESS;
+}
+
+FW::ProcessCode
+FWRoot::ParticlePropertiesWriter::write(const std::string& sinfo)
+{
+  return FW::ProcessCode::SUCCESS;  
 }
 
 

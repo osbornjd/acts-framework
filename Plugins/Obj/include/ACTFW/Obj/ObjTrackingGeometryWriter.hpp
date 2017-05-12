@@ -30,8 +30,8 @@ namespace FWObj {
 /// @class ObjTrackingGeometryWriter
 ///
 /// An Obj writer for the geometry
-///
-class ObjTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
+/// It delegates the writing of surfaces to the surface writers  
+  class ObjTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
 {
 public:
   // @class Config
@@ -66,24 +66,29 @@ public:
   virtual ~ObjTrackingGeometryWriter();
 
   /// Framework intialize method
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
   initialize() final;
 
   /// Framework finalize mehtod
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
   finalize() final;
 
   /// The write interface
-  /// @param surface to be written out
+  /// @param tGeometry is the geometry to be written out
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
   write(const Acts::TrackingGeometry& tGeometry) final override;
   
   /// write a bit of string
-  /// @param is the string to be written
+  /// @param is the string to be written out
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
   write(const std::string& sinfo) final override;
   
   /// Framework name() method
+  /// @return the name of the tool
   const std::string&
   name() const final;
 

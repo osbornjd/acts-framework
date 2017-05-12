@@ -22,7 +22,7 @@
 #include "ACTFW/Root/ParticlePropertiesWriter.hpp"
 #include "ACTFW/RootPythia8/ParticleGenerator.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
-#include "ACTFW/Extrapolation/ExtrapolationTestAlgorithm.hpp"  // to be replaced by simulation algorithm
+#include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"  // to be replaced by simulation algorithm
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 #include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
 #include "ACTFW/Fatras/FatrasWriteAlgorithm.hpp"
@@ -176,7 +176,7 @@ main(int argc, char* argv[])
   
   
   // the Algorithm with its configurations
-  FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
+  FWE::ExtrapolationAlgorithm::Config eTestConfig;
   eTestConfig.evgenParticlesCollection = readEvgenCfg.evgenParticlesCollection;
   eTestConfig.simulatedParticlesCollection = "FatrasParticles";
   eTestConfig.simulatedHitsCollection      = "FatrasHits";
@@ -191,10 +191,8 @@ main(int argc, char* argv[])
   eTestConfig.sensitiveCurvilinear         = false;
   eTestConfig.pathLimit                    = -1.;
 
-  
-
   std::shared_ptr<FW::IAlgorithm> extrapolationAlg(
-      new FWE::ExtrapolationTestAlgorithm(eTestConfig));
+      new FWE::ExtrapolationAlgorithm(eTestConfig));
 
   // ----------- DIGITIZATION ----------------------------------------------
   // set up the planar module stepper

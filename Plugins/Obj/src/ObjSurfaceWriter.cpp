@@ -20,6 +20,9 @@ FWObj::ObjSurfaceWriter::~ObjSurfaceWriter()
 FW::ProcessCode
 FWObj::ObjSurfaceWriter::initialize()
 {
+  // write out the the file 
+  if (!(m_cfg.outputStream)) return FW::ProcessCode::SUCCESS;
+  (*(m_cfg.outputStream)) << m_cfg.filePrefix << '\n';
   return FW::ProcessCode::SUCCESS;
 }
 
@@ -32,12 +35,14 @@ FWObj::ObjSurfaceWriter::finalize()
 FW::ProcessCode
 FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
 {
+
+  std::lock_guard<std::mutex> lock(m_write_mutex);
+  
   // check
   if (!(m_cfg.outputStream)) return FW::ProcessCode::SUCCESS;
   ACTS_DEBUG(">>Obj: Writer for Surface object called.");
 
   auto  scalor = m_cfg.outputScalor;
-    
   // let's get the bounds & the transform
   const Acts::SurfaceBounds& surfaceBounds = surface.bounds();
   auto sTransform = surface.transform();
@@ -83,7 +88,7 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
  //dynamic cast to CylinderBounds work the same 
  const Acts::CylinderBounds* cylinderBounds = 
    dynamic_cast<const Acts::CylinderBounds*>(&surfaceBounds);
- if (cylinderBounds){
+ if (cylinderBounds && m_cfg.outputLayerSurface){
    ACTS_VERBOSE(">>Obj: Writing out a CylinderSurface with r = " << cylinderBounds->r());
    // name the object
    auto layerID = surface.geoID().value(Acts::GeometryID::layer_mask);
@@ -103,7 +108,7 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
  ////dynamic cast to RadialBounds or disc bounds work the same 
  const Acts::RadialBounds* radialBounds = 
    dynamic_cast<const Acts::RadialBounds*>(&surfaceBounds);
- if (radialBounds){
+ if (radialBounds && m_cfg.outputLayerSurface){
    ACTS_VERBOSE(">>Obj: Writing out a DiskSurface at z = " << sTransform.translation().z());
    // name the object
    auto layerID = surface.geoID().value(Acts::GeometryID::layer_mask);

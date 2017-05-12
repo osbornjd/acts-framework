@@ -13,7 +13,7 @@
 #include <fstream>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IEventDataWriter.hpp"
+#include "ACTFW/Writers/IEventDataWriterT.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -23,7 +23,7 @@ namespace FWJson {
 ///
 /// A Json based implementation
 ///
-template <class T> class JsonSpacePointWriter : public FW::IEventDataWriter<T>
+template <class T> class JsonSpacePointWriter : public FW::IEventDataWriterT<T>
 {
 public:
   // @class Config
@@ -90,7 +90,7 @@ JsonSpacePointWriter<T>::name() const
 
 template <class T> JsonSpacePointWriter<T>::JsonSpacePointWriter(
     const FWJson::JsonSpacePointWriter<T>::Config& cfg)
-  : FW::IEventDataWriter<T>()
+  : FW::IEventDataWriterT<T>()
   , m_cfg(cfg)
 {}
 

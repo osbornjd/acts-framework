@@ -4,7 +4,7 @@
 #include "ACTFW/DD4hepPlugin/GeometryService.hpp"
 #include "ACTFW/DD4hepPlugin/GeometryService.hpp"
 #include "ACTFW/Examples/DD4hepExample/DD4hepDetector.hpp"
-#include "ACTFW/Extrapolation/ExtrapolationTestAlgorithm.hpp"
+#include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -95,7 +95,7 @@ extrapolation(std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
       new FWRoot::RootExCellWriter(recWriterConfig));
 
   // the Algorithm with its configurations
-  FWE::ExtrapolationTestAlgorithm::Config eTestConfig;
+  FWE::ExtrapolationAlgorithm::Config eTestConfig;
   eTestConfig.testsPerEvent           = nTests;
   eTestConfig.parameterType           = 0;
   eTestConfig.searchMode              = 0;
@@ -116,7 +116,7 @@ extrapolation(std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
   eTestConfig.pathLimit               = -1.;
 
   std::shared_ptr<FW::IAlgorithm> extrapolationAlg(
-      new FWE::ExtrapolationTestAlgorithm(eTestConfig));
+      new FWE::ExtrapolationAlgorithm(eTestConfig));
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;

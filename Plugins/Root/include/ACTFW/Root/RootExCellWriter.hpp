@@ -11,10 +11,11 @@
 #include <mutex>
 
 #include <TTree.h>
-
+#include <TFile.h>
+#include "ACTFW/Root/RootExCellWriter.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IExtrapolationCellWriter.hpp"
+#include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -25,14 +26,14 @@ class TFile;
 #endif
 
 namespace FWRoot {
-
 /// @class ExtrapolationCellWriter
 ///
 /// A root based implementation to write out extrapolation steps.
 ///
 /// Safe to use from multiple writer threads.
 ///
-class RootExCellWriter : public FW::IExtrapolationCellWriter
+template <class T> class RootExCellWriter 
+  : public FW::IWriterT<const Acts::ExtrapolationCell<T> > 
 {
 public:
   ///  @struct ExtrapolationStep
@@ -76,7 +77,6 @@ public:
   };
 
   /// Constructor
-  ///
   /// @param cfg is the configuration class
   RootExCellWriter(const Config& cfg);
 
@@ -84,28 +84,31 @@ public:
   virtual ~RootExCellWriter();
 
   /// Framework intialize method
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  initialize() final;
+  initialize() override final;
 
   /// Framework finalize mehtod
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  finalize() final;
+  finalize() override final;
 
   /// The write interface
-  ///
   /// @param eCell is the extrapolation cell that is parsed and written
+  /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  write(const Acts::ExCellCharged& eCell) final;
+  write(const Acts::ExtrapolationCell<T>& eCell) override final;
 
-  /// The write interface
-  ///
-  /// @param eCell is the extrapolation cell that is parsed and written
+  /// write a bit of string
+  /// @param sinfo is some string info to be written
+  /// @return is a ProcessCode indicating return/failure
   FW::ProcessCode
-  write(const Acts::ExCellNeutral& eCell) final;
+  write(const std::string& sinfo) override final;
 
   /// Framework name() method
+  /// @return name of the tool 
   const std::string&
-  name() const final;
+  name() const override final;
 
 private:
   Config             m_cfg;               ///< the config class
@@ -139,11 +142,6 @@ private:
   std::vector<float> m_s_localposition1;  ///< local position - second coordinate
   int                m_hits;              ///< number of hits in sensitive material
 
-  /// Private helper method for actual filling
-  template <class T>
-  FW::ProcessCode
-  writeT(const Acts::ExtrapolationCell<T>& eCell);
-
   /// Private access to the logging instance
   const Acts::Logger&
   logger() const
@@ -152,8 +150,9 @@ private:
   }
 };
 
+template <class T>
 const std::string&
-RootExCellWriter::name() const
+RootExCellWriter<T>::name() const
 {
   return m_cfg.name;
 }
