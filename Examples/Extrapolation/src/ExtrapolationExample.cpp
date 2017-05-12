@@ -28,8 +28,8 @@ main(int argc, char* argv[])
   size_t nEvents = 100;
   
   // set geometry building logging level
-  Acts::Logging::Level surfaceLogLevel = Acts::Logging::INFO;
-  Acts::Logging::Level layerLogLevel   = Acts::Logging::INFO;
+  Acts::Logging::Level surfaceLogLevel  = Acts::Logging::INFO;
+  Acts::Logging::Level layerLogLevel    = Acts::Logging::INFO;
   Acts::Logging::Level volumeLogLevel   = Acts::Logging::INFO;
   
   // create the tracking geometry as a shared pointer
@@ -65,9 +65,9 @@ main(int argc, char* argv[])
   reccWriterConfig.fileName            = "$PWD/ExtrapolationChargedTest.root";
   reccWriterConfig.treeName            = "ExtrapolationChargedTest";
   reccWriterConfig.writeBoundary       = false;
-  reccWriterConfig.writeMaterial       = false;
+  reccWriterConfig.writeMaterial       = true;
   reccWriterConfig.writeSensitive      = true;
-  reccWriterConfig.writePassive        = false;
+  reccWriterConfig.writePassive        = true;
   std::shared_ptr<FW::IWriterT<const Acts::ExtrapolationCell<Acts::TrackParameters> > >
   rootEccWriter(
          new FWRoot::RootExCellWriter<Acts::TrackParameters>(reccWriterConfig));
@@ -78,9 +78,9 @@ main(int argc, char* argv[])
   recnWriterConfig.fileName            = "$PWD/ExtrapolationNeutralTest.root";
   recnWriterConfig.treeName            = "ExtrapolationNeutralTest";
   recnWriterConfig.writeBoundary       = false;
-  recnWriterConfig.writeMaterial       = false;
+  recnWriterConfig.writeMaterial       = true;
   recnWriterConfig.writeSensitive      = true;
-  recnWriterConfig.writePassive        = false;
+  recnWriterConfig.writePassive        = true;
   std::shared_ptr<FW::IWriterT<const Acts::ExtrapolationCell<Acts::NeutralParameters> > >
   rootEcnWriter(
                 new FWRoot::RootExCellWriter<Acts::NeutralParameters>(recnWriterConfig));

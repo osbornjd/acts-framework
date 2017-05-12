@@ -62,7 +62,7 @@ public:
     bool writePassive;
     bool writeBoundary;
 
-    Config(const std::string&   lname = "Algorithm",
+    Config(const std::string&   lname = "RootExCellWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
       : logger(Acts::getDefaultLogger(lname, lvl))
       , treeName("TTree")
@@ -156,6 +156,7 @@ RootExCellWriter<T>::name() const
 {
   return m_cfg.name;
 }
+
 }
 
 #include "RootExCellWriter.ipp"
