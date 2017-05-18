@@ -11,7 +11,7 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
-#include "ACTFW/Plugins/Root/ParticlePropertiesWriter.hpp"
+#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/TPythia8Generator.hpp"
 
 // the main hello world executable
@@ -73,11 +73,11 @@ main(int argc, char* argv[])
        Acts::getDefaultLogger("BarcodeSvc", Acts::Logging::INFO));
 
   // Write ROOT TTree
-  FWRoot::ParticlePropertiesWriter::Config particleWriterConfig;
+  FWRoot::RootParticleWriter::Config particleWriterConfig;
   particleWriterConfig.fileName = "$PWD/EvgenParticles.root";
   particleWriterConfig.treeName = "EvgenParticles.root";
   particleWriterConfig.barcodeSvc = barcodeSvc;
-  auto particleWriter = std::make_shared<FWRoot::ParticlePropertiesWriter>(
+  auto particleWriter = std::make_shared<FWRoot::RootParticleWriter>(
       particleWriterConfig);
 
   // get the read-in algorithm

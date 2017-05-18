@@ -4,8 +4,8 @@
 //  Created by Andreas Salzburger on 23/05/16.
 //
 //
-#ifndef ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H
-#define ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H 1
+#ifndef ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
+#define ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
 
 #include <mutex>
 
@@ -22,12 +22,12 @@ class TFile;
 
 namespace FWRoot {
 
-/// @class ParticlePropertiesWriter
+/// @class RootParticleWriter
 ///
 /// A root based implementation to write out particleproperties vector
 ///
-class ParticlePropertiesWriter 
-  : public FW::IWriterT<const std::vector<Acts::ParticleProperties> >
+class RootParticleWriter 
+  : public FW::IWriterT< std::vector<Acts::ParticleProperties> >
 {
 public:
   // @class Config
@@ -46,7 +46,7 @@ public:
     barcodeSvc;  ///< the barcode service to decode
 
     /// Constructor
-    Config(const std::string&   lname = "ParticlePropertiesWriter",
+    Config(const std::string&   lname = "RootParticleWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
       : logger(Acts::getDefaultLogger(lname, lvl))
       , treeName("TTree")
@@ -62,10 +62,10 @@ public:
   /// Constructor
   ///
   /// @param cfg is the configuration class
-  ParticlePropertiesWriter(const Config& cfg);
+  RootParticleWriter(const Config& cfg);
 
   /// Destructor
-  virtual ~ParticlePropertiesWriter();
+  virtual ~RootParticleWriter();
 
   /// Framework intialize method
   /// @return a ProcessCode to indicate success/failure
@@ -132,11 +132,11 @@ private:
 };
 
 const std::string&
-ParticlePropertiesWriter::name() const
+RootParticleWriter::name() const
 {
   return m_cfg.name;
 }
 
 }
 
-#endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H
+#endif  // ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H

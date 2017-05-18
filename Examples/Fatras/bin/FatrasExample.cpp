@@ -19,7 +19,7 @@
 #include "ACTFW/Obj/ObjSpacePointWriter.hpp"
 #include "ACTFW/Obj/ObjExCellWriter.hpp"
 #include "ACTFW/Root/RootExCellWriter.hpp"
-#include "ACTFW/Root/ParticlePropertiesWriter.hpp"
+#include "ACTFW/Root/RootParticleWriter.hpp"
 #include "ACTFW/RootPythia8/ParticleGenerator.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"  // to be replaced by simulation algorithm
@@ -106,12 +106,12 @@ main(int argc, char* argv[])
       barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", Acts::Logging::INFO));
 
   // Write ROOT TTree
-  FWRoot::ParticlePropertiesWriter::Config pWriterRootConfig;
+  FWRoot::RootParticleWriter::Config pWriterRootConfig;
   pWriterRootConfig.fileName   = "$PWD/Evgen.root";
   pWriterRootConfig.treeName   = "Evgen";
   pWriterRootConfig.barcodeSvc = barcodeSvc;
   auto pWriterRoot
-      = std::make_shared<FWRoot::ParticlePropertiesWriter>(pWriterRootConfig);
+      = std::make_shared<FWRoot::RootParticleWriter>(pWriterRootConfig);
   // or write a Csv File
   auto        particleStream = std::shared_ptr<std::ofstream>(new std::ofstream);
   std::string particleOutputName   = "Particles.csv";
@@ -124,7 +124,7 @@ main(int argc, char* argv[])
   auto pWriterCsv
       = std::make_shared<FWCsv::CsvParticleWriter>(pWriterCsvConfig);
 
-  std::shared_ptr<FW::IParticlePropertiesWriter> pWriter = pWriterCsv;
+  std::shared_ptr<FW::IRootParticleWriter> pWriter = pWriterCsv;
 
   // ----------- EVGEN --------------------------------------------------
   // get the read-in algorithm

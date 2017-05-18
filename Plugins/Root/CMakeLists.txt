@@ -7,7 +7,7 @@ message(STATUS "ACTFWRootPlugin: adding base components")
 # find the ROOT components for core
 find_package(ROOT REQUIRED COMPONENTS Core Hist Tree)
 # add the core source
-file (GLOB_RECURSE src_files "src/ParticlePropertiesWriter.cpp" "include/RootExCell*pp" "include/ParticlePropertiesWriter.hpp")
+file (GLOB_RECURSE src_files "src/RootParticleWriter.cpp" "include/RootExCell*pp" "include/RootParticleWriter.hpp")
 
 # (2) IF pythia8 is supported
 if (PYTHIA8_FOUND)

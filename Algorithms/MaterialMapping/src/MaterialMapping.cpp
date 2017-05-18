@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
-#include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
 #include "ACTS/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "TTree.h"

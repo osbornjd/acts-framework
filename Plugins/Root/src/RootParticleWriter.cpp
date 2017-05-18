@@ -1,22 +1,22 @@
 #include <iostream>
 #include <TFile.h>
-#include "ACTFW/Plugins/Root/ParticlePropertiesWriter.hpp"
+#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 
-FWRoot::ParticlePropertiesWriter::ParticlePropertiesWriter(
-    const FWRoot::ParticlePropertiesWriter::Config& cfg)
-  : FW::IWriterT<const std::vector<Acts::ParticleProperties> >()
+FWRoot::RootParticleWriter::RootParticleWriter(
+    const FWRoot::RootParticleWriter::Config& cfg)
+  : FW::IWriterT< std::vector<Acts::ParticleProperties> >()
   , m_cfg(cfg)
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
 {
 }
 
-FWRoot::ParticlePropertiesWriter::~ParticlePropertiesWriter()
+FWRoot::RootParticleWriter::~RootParticleWriter()
 {
 }
 
 FW::ProcessCode
-FWRoot::ParticlePropertiesWriter::initialize()
+FWRoot::RootParticleWriter::initialize()
 {
   ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
   // open the output file
@@ -47,7 +47,7 @@ FWRoot::ParticlePropertiesWriter::initialize()
 }
 
 FW::ProcessCode
-FWRoot::ParticlePropertiesWriter::finalize()
+FWRoot::RootParticleWriter::finalize()
 {
   ACTS_INFO("Closing and Writing ROOT output File : " << m_cfg.fileName);
   m_outputFile->cd();
@@ -58,7 +58,7 @@ FWRoot::ParticlePropertiesWriter::finalize()
 }
 
 FW::ProcessCode
-FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperties>& particles)
+FWRoot::RootParticleWriter::write(const std::vector<Acts::ParticleProperties>& particles)
 {
   
   // the number of particles
@@ -135,7 +135,7 @@ FWRoot::ParticlePropertiesWriter::write(const std::vector<Acts::ParticleProperti
 }
 
 FW::ProcessCode
-FWRoot::ParticlePropertiesWriter::write(const std::string& sinfo)
+FWRoot::RootParticleWriter::write(const std::string& sinfo)
 {
   return FW::ProcessCode::SUCCESS;  
 }

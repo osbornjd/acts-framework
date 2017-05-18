@@ -5,8 +5,8 @@
 //  Created by Andreas Salzburger on 11/05/16.
 //
 //
-#ifndef ACTFW_FATRAS_WRITEALGORITHM_H
-#define ACTFW_FATRAS_WRITEALGORITHM_H 1
+#ifndef ACTFW_ALGORITHMS_FATRAS_WRITEALGORITHM_H
+#define ACTFW_ALGORITHMS_FATRAS_WRITEALGORITHM_H
 
 #include <memory>
 #include <string>
@@ -15,11 +15,12 @@
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/IOAlgorithm.hpp"
-#include "ACTFW/Writers/IParticlePropertiesWriter.hpp"
+#include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTFW/Writers/IEventDataWriterT.hpp"
 
 namespace Acts {
   class PlanarModuleCluster;
+  class ParticleProperties;
 }
 
 namespace FW {
@@ -29,7 +30,7 @@ class BarcodeSvc;
 }
 
 
-namespace FWE {
+namespace FWA {
 
 
 /// @class FatrasWriteAlgorithm
@@ -48,7 +49,7 @@ public:
     /// name of the particle collection
     std::string                            simulatedParticlesCollection  = "SimulatedParticles";
     /// particle writer
-    std::shared_ptr<FW::IParticlePropertiesWriter> particleWriter        = nullptr;
+    std::shared_ptr<FW::IWriterT<std::vector<Acts::ParticleProperties>> > particleWriter        = nullptr;
     // name of the space point collection
     std::string                            spacePointCollection          = "SpacePoints";
     // write out the planar clusters
@@ -80,31 +81,36 @@ public:
   
   /// Framework intialize method
   FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr);
+  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr)
+  override final;
 
   /// Skip a few events in the IO stream
-  virtual FW::ProcessCode
-  skip(size_t nEvents = 1);
+  FW::ProcessCode
+  skip(size_t nEvents = 1)
+  override final;
 
   /// Read out data from the input stream
-  virtual FW::ProcessCode
-  read(const FW::AlgorithmContext context) const;
+  FW::ProcessCode
+  read(const FW::AlgorithmContext context) const
+  override final;
 
   /// Write data to the output stream
-  virtual FW::ProcessCode
-  write(const FW::AlgorithmContext context) const;
+  FW::ProcessCode
+  write(const FW::AlgorithmContext context) const
+  override final;
 
   /// Framework finalize mehtod
-  virtual FW::ProcessCode
-  finalize();
+  FW::ProcessCode
+  finalize()
+  override final;
 
   /// Framework name() method
-  virtual const std::string&
-  name() const;
+  const std::string&
+  name() const override final;
 
   /// return the jobStore - things that live for the full job
-  virtual std::shared_ptr<FW::WhiteBoard>
-  jobStore() const;
+  std::shared_ptr<FW::WhiteBoard>
+  jobStore() const override final;
   
 protected:
   Config                        m_cfg;
@@ -140,4 +146,4 @@ FatrasWriteAlgorithm::name() const
 
 }
 
-#endif  /// ACTFW_FATRAS_WRITEALGORITHM_H
+#endif  /// ACTFW_ALGORITHMS_FATRAS_WRITEALGORITHM_H

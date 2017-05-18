@@ -3,7 +3,7 @@
 
 FWCsv::CsvParticleWriter::CsvParticleWriter(
     const FWCsv::CsvParticleWriter::Config& cfg)
-  : FW::IWriterT<const std::vector<Acts::ParticleProperties> >()
+  : FW::IWriterT<std::vector<Acts::ParticleProperties> >()
   , m_cfg(cfg)
 {}
 

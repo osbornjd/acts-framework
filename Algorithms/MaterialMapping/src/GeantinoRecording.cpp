@@ -9,7 +9,6 @@
 #include "ACTFW/Plugins/Geant4/MMPrimaryGeneratorAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMRunAction.hpp"
-#include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "FTFP_BERT.hh"
 
 FWA::GeantinoRecording::GeantinoRecording(

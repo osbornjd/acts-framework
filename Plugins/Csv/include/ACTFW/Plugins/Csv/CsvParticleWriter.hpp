@@ -26,7 +26,7 @@ namespace FWCsv {
 /// A root based implementation to write out particleproperties vector
 ///
 class CsvParticleWriter 
-  : public FW::IWriterT<const std::vector<Acts::ParticleProperties> > 
+  : public FW::IWriterT<std::vector<Acts::ParticleProperties> > 
 {
 public:
   // @class Config

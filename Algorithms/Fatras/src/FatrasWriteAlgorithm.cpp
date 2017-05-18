@@ -1,12 +1,13 @@
-#include "ACTFW/Fatras/FatrasWriteAlgorithm.hpp"
 #include <iostream>
+#include "ACTFW/Fatras/FatrasWriteAlgorithm.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTS/Digitization/PlanarModuleCluster.hpp"
+#include "ACTS/EventData/ParticleDefinitions.hpp"
 
-FWE::FatrasWriteAlgorithm::FatrasWriteAlgorithm(
+FWA::FatrasWriteAlgorithm::FatrasWriteAlgorithm(
     const Config&                 cfg,
     std::unique_ptr<Acts::Logger> logger)
   : m_cfg(cfg), m_logger(std::move(logger))
@@ -14,13 +15,13 @@ FWE::FatrasWriteAlgorithm::FatrasWriteAlgorithm(
 }
 
 FW::ProcessCode
-FWE::FatrasWriteAlgorithm::skip(size_t nEvents)
+FWA::FatrasWriteAlgorithm::skip(size_t nEvents)
 {
   return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWE::FatrasWriteAlgorithm::write(const FW::AlgorithmContext context) const
+FWA::FatrasWriteAlgorithm::write(const FW::AlgorithmContext context) const
 {
 
   // Retrieve relevant information from the execution context
@@ -94,14 +95,14 @@ FWE::FatrasWriteAlgorithm::write(const FW::AlgorithmContext context) const
 }
 
 FW::ProcessCode
-FWE::FatrasWriteAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
+FWA::FatrasWriteAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 {
   m_cfg.jBoard = jStore;
   return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWE::FatrasWriteAlgorithm::finalize()
+FWA::FatrasWriteAlgorithm::finalize()
 {
   return FW::ProcessCode::SUCCESS;
 }
