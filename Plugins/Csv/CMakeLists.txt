@@ -1,4 +1,3 @@
-
 # find the ACTS package
 find_package(ACTS REQUIRED COMPONENTS Core)
 
@@ -15,4 +14,4 @@ target_link_libraries(ACTFWCsvPlugin PUBLIC ACTS::ACTSCore ACTFramework)
 # set installation directories
 install (TARGETS ACTFWCsvPlugin LIBRARY DESTINATION lib)
 
-install (DIRECTORY include/ACTFW DESTINATION include)
+install (DIRECTORY include/ACTFW DESTINATION include/)

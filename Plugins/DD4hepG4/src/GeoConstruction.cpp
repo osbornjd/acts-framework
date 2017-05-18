@@ -1,13 +1,10 @@
-#include "ACTFW/DD4hepG4/GeoConstruction.hpp"
+#include "ACTFW/Plugins/DD4hepG4/GeoConstruction.hpp"
 #include <stdexcept>
-// DD4hep
 #include "DDG4/Geant4Converter.h"
 #include "DD4hep/Plugins.h"
 #include "DD4hep/LCDD.h"
-// Geant4
 
-
-namespace DD4hepG4 {
+namespace FWDD4hepG4 {
     GeoConstruction::GeoConstruction(DD4hep::Geometry::LCDD& lcdd)
     : m_lcdd(lcdd) {}
     

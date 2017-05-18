@@ -19,12 +19,13 @@
 #include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/EventData/NeutralParameters.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
+#include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 
 namespace Acts {
-class IExtrapolationEngine;
-class TrackingGeometry;
-class TrackingVolume;
+ class IExtrapolationEngine;
+ class TrackingGeometry;
+ class TrackingVolume;
 }
 
 namespace FW {
@@ -45,11 +46,14 @@ public:
     /// the extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
     /// output writer for charged particles
-    std::shared_ptr<FW::IWriterT<const Acts::ExtrapolationCell<Acts::TrackParameters> > >
-       ecChargedWriter = nullptr;
+    std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters> > >
+      ecChargedWriter = nullptr;
     /// output writer for charged particles
-    std::shared_ptr<FW::IWriterT<const Acts::ExtrapolationCell<Acts::NeutralParameters> > >
-       ecNeutralWriter = nullptr;
+    std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::NeutralParameters> > >
+      ecNeutralWriter = nullptr;
+    /// output writer for material
+    std::shared_ptr< FW::IWriterT<Acts::MaterialTrack> >
+      materialWriter = nullptr; 
     /// the tracking geometry
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
     /// if this is set then the particles are taken from the collection
@@ -134,7 +138,7 @@ private:
                barcode_type barcode = 0,
                FW::DetectorData<geo_id_value, 
                std::pair< std::unique_ptr<const T>, barcode_type >  >* dData = nullptr,
-               std::shared_ptr< FW::IWriterT<const Acts::ExtrapolationCell<T> > > writer = nullptr) const;
+               std::shared_ptr< FW::IWriterT< Acts::ExtrapolationCell<T> > > writer = nullptr) const;
 
 };
 }

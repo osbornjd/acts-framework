@@ -1,4 +1,4 @@
-#include "ACTFW/DD4hep/GeometryService.hpp"
+#include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Plugins/DD4hepPlugins/ConvertDD4hepDetector.hpp"
 #include "ACTS/Tools/CylinderVolumeBuilder.hpp"

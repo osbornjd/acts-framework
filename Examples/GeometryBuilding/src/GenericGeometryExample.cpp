@@ -4,8 +4,8 @@
 
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Examples/BuildGenericDetector.hpp"
-#include "ACTFW/Obj/ObjSurfaceWriter.hpp"
-#include "ACTFW/Obj/ObjTrackingGeometryWriter.hpp"
+#include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
+#include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 
 int
 main()

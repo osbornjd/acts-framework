@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ACTFW/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 
 FWCsv::CsvParticleWriter::CsvParticleWriter(
     const FWCsv::CsvParticleWriter::Config& cfg)

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ACTFW/Obj/ObjSurfaceWriter.hpp"
+#include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTS/Surfaces/SurfaceBounds.hpp"
 #include "ACTS/Surfaces/CylinderBounds.hpp"
 #include "ACTS/Surfaces/PlanarBounds.hpp"

@@ -9,25 +9,25 @@ if (BUILD_DD4HEP_PLUGIN AND BUILD_GEANT4_MATERIALMAPPING)
         file (GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
     
     
-        add_library(ACTFWDD4hepG4 SHARED ${src_files})
+        add_library(ACTFWDD4hepG4Plugin SHARED ${src_files})
     
         # setup include directories
-        target_include_directories(ACTFWDD4hepG4 PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
-        target_include_directories (ACTFWDD4hepG4 PUBLIC ${ROOT_INCLUDE_DIRS})
-        target_include_directories (ACTFWDD4hepG4 PUBLIC ${DD4hep_INCLUDE_DIRS})
+        target_include_directories(ACTFWDD4hepG4Plugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
+        target_include_directories (ACTFWDD4hepG4Plugin PUBLIC ${ROOT_INCLUDE_DIRS})
+        target_include_directories (ACTFWDD4hepG4Plugin PUBLIC ${DD4hep_INCLUDE_DIRS})
     
         include(${Geant4_USE_FILE})
         message (STATUS "Geant4_USE_FILE " ${Geant4_USE_FILE})
         
         message (STATUS "Geant4 libraries to be found in ${G4LIB}")
     
-        target_link_libraries(ACTFWDD4hepG4 PUBLIC ${ROOT_LIBRARIES})
-        target_link_libraries(ACTFWDD4hepG4 PUBLIC ${Geant4_LIBRARIES})
-        target_link_libraries(ACTFWDD4hepG4 PUBLIC ${DD4hep_LIBRARIES})
-        target_link_libraries(ACTFWDD4hepG4 PUBLIC ${DD4hep_DDG4_LIBRARY})
-        target_link_libraries(ACTFWDD4hepG4 PUBLIC ACTFramework)
+        target_link_libraries(ACTFWDD4hepG4Plugin PUBLIC ${ROOT_LIBRARIES})
+        target_link_libraries(ACTFWDD4hepG4Plugin PUBLIC ${Geant4_LIBRARIES})
+        target_link_libraries(ACTFWDD4hepG4Plugin PUBLIC ${DD4hep_LIBRARIES})
+        target_link_libraries(ACTFWDD4hepG4Plugin PUBLIC ${DD4hep_DDG4_LIBRARY})
+        target_link_libraries(ACTFWDD4hepG4Plugin PUBLIC ACTFramework)
         # set installation directories
-        install (TARGETS ACTFWDD4hepG4 LIBRARY DESTINATION lib)
+        install (TARGETS ACTFWDD4hepG4Plugin LIBRARY DESTINATION lib)
     
         install (DIRECTORY include/ACTFW DESTINATION include)
     elseif (NOT Geant4_FOUND)

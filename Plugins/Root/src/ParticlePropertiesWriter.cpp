@@ -1,6 +1,6 @@
 #include <iostream>
 #include <TFile.h>
-#include "ACTFW/Root/ParticlePropertiesWriter.hpp"
+#include "ACTFW/Plugins/Root/ParticlePropertiesWriter.hpp"
 
 FWRoot::ParticlePropertiesWriter::ParticlePropertiesWriter(
     const FWRoot::ParticlePropertiesWriter::Config& cfg)

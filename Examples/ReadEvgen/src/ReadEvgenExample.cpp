@@ -4,16 +4,15 @@
 //
 //  Created by Andreas Salzburger on 11/05/16.
 //
-
 #include <memory>
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Root/ParticlePropertiesWriter.hpp"
-#include "ACTFW/Root/TPythia8Generator.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
+#include "ACTFW/Plugins/Root/ParticlePropertiesWriter.hpp"
+#include "ACTFW/Plugins/Root/TPythia8Generator.hpp"
 
 // the main hello world executable
 int

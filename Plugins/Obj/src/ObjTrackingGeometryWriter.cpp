@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ACTFW/Obj/ObjTrackingGeometryWriter.hpp"
+#include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Detector/TrackingVolume.hpp"
 #include "ACTS/Surfaces/Surface.hpp"

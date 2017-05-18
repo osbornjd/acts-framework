@@ -4,6 +4,8 @@ add_subdirectory(RandomNumbers)
 add_subdirectory(ReadEvgen)
 add_subdirectory(GeometryBuilding)
 add_subdirectory(Extrapolation)
+add_subdirectory(MaterialMapping)
+
 
 #add_subdirectory(Digitization)
 # if (PYTHIA8_FOUND)

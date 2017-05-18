@@ -1,6 +1,7 @@
 add_subdirectory(ReadEvgen)
 add_subdirectory(Digitization)
 add_subdirectory(Extrapolation)
+add_subdirectory(MaterialMapping)
 
 # if (PYTHIA8_FOUND)
 #  add_subdirectory(ReadEvgen)

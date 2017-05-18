@@ -17,9 +17,9 @@
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/Root/RootExCellWriter.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
+#include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 
 // the main hello world executable
 int
@@ -68,7 +68,7 @@ main(int argc, char* argv[])
   reccWriterConfig.writeMaterial       = true;
   reccWriterConfig.writeSensitive      = true;
   reccWriterConfig.writePassive        = true;
-  std::shared_ptr<FW::IWriterT<const Acts::ExtrapolationCell<Acts::TrackParameters> > >
+  std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters> > >
   rootEccWriter(
          new FWRoot::RootExCellWriter<Acts::TrackParameters>(reccWriterConfig));
 
@@ -81,7 +81,7 @@ main(int argc, char* argv[])
   recnWriterConfig.writeMaterial       = true;
   recnWriterConfig.writeSensitive      = true;
   recnWriterConfig.writePassive        = true;
-  std::shared_ptr<FW::IWriterT<const Acts::ExtrapolationCell<Acts::NeutralParameters> > >
+  std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::NeutralParameters> > >
   rootEcnWriter(
                 new FWRoot::RootExCellWriter<Acts::NeutralParameters>(recnWriterConfig));
   

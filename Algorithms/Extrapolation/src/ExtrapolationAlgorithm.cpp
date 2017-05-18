@@ -43,7 +43,8 @@ FW::ProcessCode
 FWA::ExtrapolationAlgorithm::execute(
     const FW::AlgorithmContext context) const
 {
-  // we read from a collection
+  // we read from a collection 
+  // -> will be outsourced into a simulation algorithm
   if (m_cfg.evgenParticlesCollection != "") {
     // Retrieve relevant information from the execution context
     auto eventStore = context.eventContext->eventStore;

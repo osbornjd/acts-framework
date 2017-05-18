@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ACTFW/Csv/CsvPlanarClusterWriter.hpp"
+#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTS/Digitization/PlanarModuleCluster.hpp"
 
 FWCsv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(

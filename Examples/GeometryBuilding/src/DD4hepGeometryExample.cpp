@@ -3,10 +3,9 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Examples/BuildGenericDetector.hpp"
-#include "ACTFW/DD4hepPlugin/GeometryService.hpp"
-#include "ACTFW/Obj/ObjSurfaceWriter.hpp"
-#include "ACTFW/Obj/ObjTrackingGeometryWriter.hpp"
+#include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
+#include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
+#include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 
 int
 main()
@@ -16,18 +15,31 @@ main()
     // DD4Hep detector definition
     //
     // set up the geometry service 
-    // DD4hepPlugin::GeometryService::Config gsConfig("GeometryService",
-    //                                                Acts::Logging::INFO);
+    FWDD4hep::GeometryService::Config gsConfig("GeometryService",
+                                                Acts::Logging::INFO);
     // gsConfig.xmlFileName
-    //     = "file:Examples/DD4hepExample/DD4hepDetector/compact/FCCTracker.xml";
-    // auto geometrySvc = std::make_shared<DD4hepPlugin::GeometryService>(gsConfig);
+    //      = "file:Examples/DD4hepExample/DD4hepDetector/compact/FCChhTrackerTkLayout.xml";
+    // auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
     // std::shared_ptr<const Acts::TrackingGeometry> dd4Geometry
-    //     = geometrySvc->trackingGeometry();
+    //      = geometrySvc->trackingGeometry();
     // 
-    // set geometry building logging level
-
+    // // the detectors
+    // std::vector<std::string> subDetectors = { "FCChhBeampipe",
+    //                                           "FCChhInner0", 
+    //                                           "FCChhInner", 
+    //                                           "FCChhOuter" };
+    
+    gsConfig.xmlFileName
+         = "file:Examples/DD4hepExample/DD4hepDetector/compact/FCCTracker.xml";
+    auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
+    std::shared_ptr<const Acts::TrackingGeometry> dd4Geometry
+         = geometrySvc->trackingGeometry();
+    
     // the detectors
-    std::vector<std::string> subDetectors = { "BeamPipe", "Pix", "PST", "SStrip", "LStrip" };
+    std::vector<std::string> subDetectors = { "FCCTrackerPixel", 
+                                              "FCCTrackerShortStrip", 
+                                              "FCCTrackerLongStrip" };
+    
     // the writers
     std::vector< std::shared_ptr<FW::IWriterT<Acts::Surface> > > subWriters;
     std::vector< std::shared_ptr<std::ofstream> > subStreams;
@@ -67,7 +79,7 @@ main()
             = std::make_shared<FWObj::ObjTrackingGeometryWriter>(tgObjWriterConfig);
 
     // write the tracking geometry object
-    tgObjWriter->write(*(tGeometry.get()));
+    tgObjWriter->write(*(dd4Geometry.get()));
   
     // -------------------------------------------------------------------------------- 
     // close the output streams

@@ -1,5 +1,5 @@
 #include "ACTS/Utilities/Units.hpp"
-#include "ACTFW/Root/TPythia8Generator.hpp"
+#include "ACTFW/Plugins/Root/TPythia8Generator.hpp"
 #include "TSystem.h"
 #include "TPythia8.h"
 #include "TParticle.h"

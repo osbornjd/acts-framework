@@ -17,7 +17,19 @@ if (PYTHIA8_FOUND)
   file (GLOB_RECURSE src_files ${src_files} "src/TPythia8Generator.cpp" "include/TPythia8Generator.hpp")
 endif (PYTHIA8_FOUND)
 
-add_library(ACTFWRootPlugin SHARED ${src_files})
+# (3) IF MaterialPlugin support 
+find_package(ACTS QUIET COMPONENTS MaterialPlugin)
+message(STATUS "ACTFWRootPlugin: adding MaterialPlugin support")
+  # get list of all source files
+file (GLOB_RECURSE src_files ${src_files} "src/Root*Material*.cpp" "include/Root*Material.*pp")
+
+#---Define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)
+message(STATUS "ROOT_USE_FILE" ${ROOT_USE_FILE})
+include(${ROOT_USE_FILE})
+# generate root dictionary for material mapping - needed to write this class to a root file
+
+ROOT_GENERATE_DICTIONARY(G__Material  ${ACTS_INCLUDE_DIR}/ACTS/Plugins/MaterialPlugins/MaterialStep.hpp ${ACTS_INCLUDE_DIR}/ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp ${ACTS_INCLUDE_DIR}/ACTS/Material/Material.hpp LINKDEF include/ACTFW/Plugins/Root/Material_LinkDef.h OPTIONS -I/${ACTS_INCLUDE_DIR})
+add_library(ACTFWRootPlugin SHARED ${src_files} G__Material.cxx)
     
 # (1) setup include directories
 target_include_directories(ACTFWRootPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
@@ -31,6 +43,8 @@ if (PYTHIA8_FOUND)
   target_link_libraries(ACTFWRootPlugin PUBLIC -L${PYTHIA8_LIB_DIR})
   target_link_libraries(ACTFWRootPlugin PUBLIC ROOT::EGPythia8)
 endif (PYTHIA8_FOUND)
+# (3) MaterialPlugin
+target_link_libraries(ACTFWRootPlugin PUBLIC ACTS::ACTSMaterialPlugin)
 
 # set installation directories
 install (TARGETS ACTFWRootPlugin LIBRARY DESTINATION lib)
