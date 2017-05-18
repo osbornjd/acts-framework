@@ -1,10 +1,10 @@
 #include <iostream>
-#include "ACTFW/Csv/CsvPlanarClusterWriter.hpp"
+#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTS/Digitization/PlanarModuleCluster.hpp"
 
 FWCsv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     const FWCsv::CsvPlanarClusterWriter::Config& cfg)
-  : FW::IPlanarClusterWriter()
+  : FW::IEventDataWriterT<Acts::PlanarModuleCluster>()
   , m_cfg(cfg)
 {}
 
@@ -27,13 +27,15 @@ FWCsv::CsvPlanarClusterWriter::finalize()
 FW::ProcessCode
 FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& pClusters)
 {
- if (!m_cfg.outputStream)   return FW::ProcessCode::SUCCESS;
-    
-  (*(m_cfg.outputStream)) << std::endl;
+  // abort if you have no stream
+  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
+  // lock the mutex
+  std::lock_guard<std::mutex> lock(m_write_mutex);
+  // now write out    
+  (*(m_cfg.outputStream)) << '\n';
   (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
   
   size_t hitCounter = 0;
-  
   // loop and fill
   for (auto& volumeData : pClusters)
     for (auto& layerData : volumeData.second)
@@ -65,7 +67,11 @@ FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::
             // local error
             (*(m_cfg.outputStream)) << "[ " << ex << ", " << ey << "],";
             // pobal position
-            (*(m_cfg.outputStream)) << "[ " << pos.x() << ", " << pos.y() << "," << pos.z() << "], [";
+            (*(m_cfg.outputStream)) << "[ " << pos.x() << ", " << pos.y() << "," << pos.z() << "], ";
+            // thickness of the cluster
+            double thickness = clusterSurface.associatedDetectorElement() ? 
+              clusterSurface.associatedDetectorElement()->thickness() : 0.;
+            (*(m_cfg.outputStream)) << thickness << ",  [";
             // feature set
             size_t cellCounter = 0;
             for (auto& cell : cluster.digitizationCells()){
@@ -74,13 +80,25 @@ FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::
               if (cellCounter < cluster.digitizationCells().size()-1 ) (*(m_cfg.outputStream)) << ", ";
               ++cellCounter;
             }        
-            (*(m_cfg.outputStream)) << "]" << std::endl;
+            (*(m_cfg.outputStream)) << "]" << '\n';
           }
         }
-    
-  (*(m_cfg.outputStream)) << std::endl;
-
+  // add a new loine    
+  (*(m_cfg.outputStream)) << '\n';
+  // return success
   return FW::ProcessCode::SUCCESS;
 }
 
-
+FW::ProcessCode
+FWCsv::CsvPlanarClusterWriter::write(const std::string& sinfo)
+{
+  // abort if you have no stream
+  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
+  // lock the mutex
+  std::lock_guard<std::mutex> lock(m_write_mutex);
+  // write
+  (*(m_cfg.outputStream)) << sinfo;
+  // return success
+  return FW::ProcessCode::SUCCESS;
+}
+  

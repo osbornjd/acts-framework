@@ -28,6 +28,7 @@ namespace FW {
     public:
         /// virtual destructor
         virtual ~ITrackingGeometryService() = default;
+        
         /// Access to the ACTS TrackingGeometry
         virtual std::unique_ptr<const Acts::TrackingGeometry> trackingGeometry() = 0;
         

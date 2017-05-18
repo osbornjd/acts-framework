@@ -101,11 +101,11 @@ public:
 
   // Framework initialize method
   FW::ProcessCode
-  initialize() override final;
+  initialize() final override;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() override final;
+  finalize() final override;
 
   /// Spawn an algorithm-local random number generator
   ///
@@ -128,7 +128,7 @@ public:
 
   /// Framework name() method
   const std::string&
-  name() const override final;
+  name() const final override;
 
 private:
   Config                        m_cfg;      ///< the configuration class

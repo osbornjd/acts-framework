@@ -1,0 +1,5 @@
+add_subdirectory(Digitization)
+add_subdirectory(Extrapolation)
+add_subdirectory(ReadEvgen)
+add_subdirectory(MaterialMapping)
+add_subdirectory(Fatras)
