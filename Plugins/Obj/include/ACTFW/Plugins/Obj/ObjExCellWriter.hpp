@@ -25,7 +25,7 @@ namespace FWObj {
 /// Safe to use from multiple writer threads.
 ///
 template <class T> class ObjExCellWriter
-  : public FW::IWriterT<const Acts::ExtrapolationCell<T> > 
+  : public FW::IWriterT<Acts::ExtrapolationCell<T> > 
 {
 public:
 
@@ -75,7 +75,7 @@ public:
   /// write a bit of string
   /// @param sinfo is some string info to be written
   /// @return is a ProcessCode indicating return/failure
-  ProcessCode
+  FW::ProcessCode
   write(const std::string& sinfo) override final;
   
   /// Framework name() method
@@ -98,7 +98,7 @@ private:
 template <class T>
 ObjExCellWriter<T>::ObjExCellWriter(
     const ObjExCellWriter<T>::Config& cfg)
-  : FW::IWriterT<const Acts::ExtrapolationCell<T> >()
+  : FW::IWriterT<Acts::ExtrapolationCell<T> >()
   , m_cfg(cfg)
   , m_vCounter(0)    
 {}

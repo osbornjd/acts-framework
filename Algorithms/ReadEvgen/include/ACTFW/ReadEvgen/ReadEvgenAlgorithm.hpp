@@ -55,7 +55,7 @@ public:
     /// the BarcodeSvc
     std::shared_ptr<FW::BarcodeSvc>        barcodeSvc                = nullptr;
     /// output writer
-    std::shared_ptr<FW::IWriterT< const std::vector<Acts::ParticleProperties> > > 
+    std::shared_ptr<FW::IWriterT< std::vector<Acts::ParticleProperties> > > 
         particleWriter    = nullptr;
     /// the job WhiteBoard
     std::shared_ptr<FW::WhiteBoard>        jBoard                    = nullptr;
