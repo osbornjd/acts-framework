@@ -17,29 +17,17 @@ main()
     // set up the geometry service 
     FWDD4hep::GeometryService::Config gsConfig("GeometryService",
                                                 Acts::Logging::INFO);
-    // gsConfig.xmlFileName
-    //      = "file:Examples/DD4hepExample/DD4hepDetector/compact/FCChhTrackerTkLayout.xml";
-    // auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
-    // std::shared_ptr<const Acts::TrackingGeometry> dd4Geometry
-    //      = geometrySvc->trackingGeometry();
-    // 
-    // // the detectors
-    // std::vector<std::string> subDetectors = { "FCChhBeampipe",
-    //                                           "FCChhInner0", 
-    //                                           "FCChhInner", 
-    //                                           "FCChhOuter" };
-    
     gsConfig.xmlFileName
-         = "file:Examples/DD4hepExample/DD4hepDetector/compact/FCCTracker.xml";
+         = "file:Examples/DD4hepExample/DD4hepDetector/compact/FCChhTrackerTkLayout.xml";
     auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
     std::shared_ptr<const Acts::TrackingGeometry> dd4Geometry
          = geometrySvc->trackingGeometry();
     
     // the detectors
-    std::vector<std::string> subDetectors = { "FCCTrackerPixel", 
-                                              "FCCTrackerShortStrip", 
-                                              "FCCTrackerLongStrip" };
-    
+    std::vector<std::string> subDetectors = { "FCChhBeampipe",
+                                              "FCChhInner0", 
+                                              "FCChhInner", 
+                                              "FCChhOuter" };
     // the writers
     std::vector< std::shared_ptr<FW::IWriterT<Acts::Surface> > > subWriters;
     std::vector< std::shared_ptr<std::ofstream> > subStreams;
