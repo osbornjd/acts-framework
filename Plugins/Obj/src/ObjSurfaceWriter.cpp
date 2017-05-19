@@ -59,7 +59,7 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     // get the vertices
     auto planarVertices = planarBounds->vertices();
     // loop over the vertices
-    std::vector<const Acts::Vector3D> vertices;
+    std::vector<Acts::Vector3D> vertices;
     vertices.reserve(planarVertices.size());
     for (auto pv : planarVertices){
       // get the point in 3D
