@@ -35,7 +35,7 @@ if (ROOT_FOUND)
   target_include_directories (ACTFWRootPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
   target_link_libraries(ACTFWRootPlugin PUBLIC Threads::Threads)
   target_link_libraries(ACTFWRootPlugin PUBLIC ACTS::ACTSCore ACTFramework)
-  target_link_libraries(ACTFWRootPlugin PUBLIC ROOT::Core ROOT::Hist ROOT::Tree ROOT::TreePlayer)
+  target_link_libraries(ACTFWRootPlugin PUBLIC Core Hist Tree TreePlayer)
   # (2) Pythia8 support
   if (PYTHIA8_FOUND)
     target_include_directories(ACTFWRootPlugin PUBLIC ${PYTHIA8_INCLUDE_DIR}) 
