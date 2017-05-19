@@ -1,7 +1,6 @@
-# manually trigger build of Geant4MaterialMapping
-option (BUILD_GEANT4_PLUGIN "build Geant4MaterialMapping" OFF)
-
-if (BUILD_GEANT4_PLUGIN)
+# find the Geant4 package
+find_package(Geant4)
+if (Geant4_FOUND)
   # get list of all source files
   file (GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
   
@@ -19,4 +18,4 @@ if (BUILD_GEANT4_PLUGIN)
   # set installation directories
   install(TARGETS ACTFWMaterialMapping LIBRARY DESTINATION lib)
   install(DIRECTORY include/ACTFW DESTINATION include)
-endif (BUILD_GEANT4_PLUGIN)
+endif (Geant4_FOUND)

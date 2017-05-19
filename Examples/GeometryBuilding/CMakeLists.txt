@@ -15,9 +15,8 @@ target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFramework ACTFWObjP
 # set installation directories
 install(TARGETS ACTFWGenericGeometryExample RUNTIME DESTINATION bin)
 
-
 # (2) DD4HEP DETECTOR
-find_package(DD4hep REQUIRED COMPONENTS DDCore DDG4)
+find_package(DD4hep COMPONENTS DDCore DDG4)
 if (DD4hep_FOUND)
   add_executable(ACTFWDD4hepGeometryExample src/DD4hepGeometryExample.cpp)  
   target_include_directories(ACTFWDD4hepGeometryExample PRIVATE ${DD4hep_INCLUDE_DIRS}) 
