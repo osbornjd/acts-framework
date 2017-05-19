@@ -14,7 +14,3 @@ target_link_libraries(ACTFWWhiteBoardExample PUBLIC ACTS::ACTSCore)
 # set installation directories
 install(TARGETS ACTFWWhiteBoardExample RUNTIME DESTINATION bin)
 
-
-
-
-

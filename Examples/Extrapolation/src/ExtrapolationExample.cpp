@@ -4,7 +4,6 @@
 //
 //  Created by Andreas Salzburger on 11/05/16.
 //
-
 #include <memory>
 #include "ACTS/Examples/BuildGenericDetector.hpp"
 #include "ACTS/Extrapolation/ExtrapolationEngine.hpp"

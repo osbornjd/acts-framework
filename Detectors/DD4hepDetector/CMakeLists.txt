@@ -33,7 +33,6 @@ if (DD4hep_FOUND)
     cmake_minimum_required(VERSION 2.8.3 FATAL_ERROR)
 
     set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
-#    message(STATUS "LIBRARY_OUTPUT_PATH -> ${LIBRARY_OUTPUT_PATH}")
     dd4hep_generate_rootmap(ACTFWDD4hepDetector)
 
   endif (ROOT_FOUND)
