@@ -35,7 +35,7 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<Acts::Logger>  logger;                      ///< the default logger
+    std::shared_ptr<const Acts::Logger>  logger;                      ///< the default logger
     std::string                    name;                        ///< the name of the algorithm
     double                         outputScalor      = 1.;      ///< output scalor
     size_t                         outputPrecision   = 4;       ///< precision for out

@@ -30,7 +30,7 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<Acts::Logger>  logger;                       ///< the default logger
+    std::shared_ptr<const Acts::Logger>  logger;                       ///< the default logger
     std::string                    name;                         ///< the name of the algorithm
     unsigned int                   outputPhiSegemnts  = 72;      ///< approximate cyinders by that
     double                         outputThickness    = 2.;      ///< write thickness if available   

@@ -46,7 +46,7 @@ public:
 
   /// Constructor
   BarcodeSvc(const Config&                 bsConfig,
-             std::unique_ptr<Acts::Logger> mlogger
+             std::unique_ptr<const Acts::Logger> mlogger
              = Acts::getDefaultLogger("BarcodeSvc", Acts::Logging::INFO));
 
   /// Destructor
@@ -94,7 +94,7 @@ public:
 
 private:
   Config                        m_cfg;     ///< the configuration class
-  std::shared_ptr<Acts::Logger> m_logger;  ///!< the logging instance
+  std::shared_ptr<const Acts::Logger> m_logger;  ///!< the logging instance
 
   /// Private access to the logging instance
   const Acts::Logger&

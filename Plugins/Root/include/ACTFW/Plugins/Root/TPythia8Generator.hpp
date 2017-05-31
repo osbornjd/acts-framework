@@ -10,6 +10,7 @@
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
+#include <mutex>
 
 class TPythia8;
 
@@ -45,7 +46,7 @@ public:
   /// @param cfg is the configuration class
   /// @param logger is the logger instance
   TPythia8Generator(const Config& cfg,
-                    std::unique_ptr<Acts::Logger> logger
+                    std::unique_ptr<const Acts::Logger> logger
                     = Acts::getDefaultLogger("TPythia8Generator", Acts::Logging::INFO));
 
   /// Destructor
@@ -85,7 +86,7 @@ private:
     
   Config                        m_cfg;     ///< the configuration class
   TPythia8*                     m_pythia8; ///< the pythia object
-  std::unique_ptr<Acts::Logger> m_logger;  ///< logger instance
+  std::unique_ptr<const Acts::Logger> m_logger;  ///< logger instance
   std::mutex                    m_read_mutex; ///< mutex used to protect multi-threaded reads
     
 };

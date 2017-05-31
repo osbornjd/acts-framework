@@ -37,7 +37,7 @@ namespace FWRoot {
             /// The name of the output file
             std::string                     fileName;
             /// The default logger
-            std::shared_ptr<Acts::Logger>   logger;
+            std::shared_ptr<const Acts::Logger>   logger;
             /// The name of the service
             std::string                     name;
             

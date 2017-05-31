@@ -35,7 +35,7 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<Acts::Logger>  logger;                      ///< the default logger
+    std::shared_ptr<const Acts::Logger>  logger;                      ///< the default logger
     std::string                    name;                        ///< the name of the algorithm
     size_t                         outputPrecision   = 4;       ///< the precision 
     std::shared_ptr<std::ofstream> outputStream      = nullptr; //!< the ofstream 

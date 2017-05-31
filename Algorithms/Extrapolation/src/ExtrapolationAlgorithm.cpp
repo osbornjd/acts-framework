@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
@@ -15,7 +14,7 @@
 
 FWA::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
     const FWA::ExtrapolationAlgorithm::Config& cfg,
-    std::unique_ptr<Acts::Logger>  logger)
+    std::unique_ptr<const Acts::Logger>  logger)
   : FW::Algorithm(cfg, std::move(logger))
   , m_cfg(cfg)
 {

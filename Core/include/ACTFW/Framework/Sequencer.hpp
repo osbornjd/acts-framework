@@ -52,7 +52,7 @@ public:
   ///
   /// @param cfg is the configuration object
   Sequencer(const Config&                 cfg,
-            std::unique_ptr<Acts::Logger> logger
+            std::unique_ptr<const Acts::Logger> logger
             = Acts::getDefaultLogger("Sequencer", Acts::Logging::INFO));
 
   /// Destructor
@@ -96,7 +96,7 @@ public:
 
 private:
   Config                        m_cfg;
-  std::unique_ptr<Acts::Logger> m_logger;
+  std::unique_ptr<const Acts::Logger> m_logger;
 
   /// Private access to the logging instance
   const Acts::Logger&
