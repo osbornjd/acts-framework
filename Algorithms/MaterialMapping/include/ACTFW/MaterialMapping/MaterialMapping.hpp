@@ -74,8 +74,8 @@ public:
   };
 
   /// Constructor
-  MaterialMapping(const Config&                 cfg,
-                  std::unique_ptr<Acts::Logger> logger
+  MaterialMapping(const Config&                       cfg,
+                  std::unique_ptr<const Acts::Logger> logger
                            = Acts::getDefaultLogger("MaterialMapping",
                              Acts::Logging::INFO));
 
