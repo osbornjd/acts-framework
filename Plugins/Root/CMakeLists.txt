@@ -40,7 +40,7 @@ if (ROOT_FOUND)
   if (PYTHIA8_FOUND)
     target_include_directories(ACTFWRootPlugin PUBLIC ${PYTHIA8_INCLUDE_DIR}) 
     target_link_libraries(ACTFWRootPlugin PUBLIC -L${PYTHIA8_LIB_DIR})
-    target_link_libraries(ACTFWRootPlugin PUBLIC ROOT::EGPythia8)
+    target_link_libraries(ACTFWRootPlugin PUBLIC EGPythia8)
   endif (PYTHIA8_FOUND)
   # (3) MaterialPlugin
   target_link_libraries(ACTFWRootPlugin PUBLIC ACTS::ACTSMaterialPlugin)
