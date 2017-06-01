@@ -28,11 +28,16 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<const Acts::Logger>  logger;                      ///< the default logger
-    std::string                    name;                        ///< the name of the algorithm
-    double                         outputScalor      = 1.;      ///< output scalor
-    size_t                         outputPrecision   = 4;       ///< precision for out
-    std::shared_ptr<std::ofstream> outputStream      = nullptr; ///< the output stream
+    /// the default logger
+    std::shared_ptr<const Acts::Logger> logger;
+    /// the name of the algorithm
+    std::string                         name;
+    /// output scalor
+    double                              outputScalor      = 1.;
+    /// precision for out
+    size_t                              outputPrecision   = 4;
+    /// the output stream
+    std::shared_ptr<std::ofstream>      outputStream      = nullptr;
 
     Config(const std::string&   lname = "ObjSpacePointWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)

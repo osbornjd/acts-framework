@@ -41,7 +41,7 @@ public:
   {
   public:
     /// the default logger
-    std::shared_ptr<const Acts::Logger>                                logger;
+    std::shared_ptr<const Acts::Logger>                          logger;
     /// the name of the writer
     std::string                                                  name = "";
     /// surfaceWriters 

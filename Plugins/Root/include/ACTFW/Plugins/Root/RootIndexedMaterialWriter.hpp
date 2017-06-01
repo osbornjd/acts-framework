@@ -33,13 +33,13 @@ namespace FWRoot {
         class Config {
         public:
             /// The name of the output tree
-            std::string                     folderNameBase = "Material";
+            std::string                           folderNameBase = "Material";
             /// The name of the output file
-            std::string                     fileName;
+            std::string                           fileName;
             /// The default logger
             std::shared_ptr<const Acts::Logger>   logger;
             /// The name of the service
-            std::string                     name;
+            std::string                           name;
             
             Config(const std::string& lname = "MaterialWriter",
                    Acts::Logging::Level lvl = Acts::Logging::INFO) :

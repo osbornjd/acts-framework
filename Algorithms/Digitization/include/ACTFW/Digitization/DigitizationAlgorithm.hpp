@@ -49,7 +49,7 @@ public:
 
   /// Constructor
   DigitizationAlgorithm(
-      const Config&                 cnf,
+      const Config&                       cnf,
       std::unique_ptr<const Acts::Logger> logger
       = Acts::getDefaultLogger("DigitizationAlgorithm",
                                Acts::Logging::INFO));

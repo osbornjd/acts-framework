@@ -71,7 +71,7 @@ public:
 
   /// Constructor
   FatrasWriteAlgorithm(
-      const Config&                 cnf,
+      const Config&                       cnf,
       std::unique_ptr<const Acts::Logger> logger
       = Acts::getDefaultLogger("FatrasWriteAlgorithm",
                                Acts::Logging::INFO));
@@ -113,7 +113,7 @@ public:
   jobStore() const override final;
   
 protected:
-  Config                        m_cfg;
+  Config                              m_cfg;
   std::unique_ptr<const Acts::Logger> m_logger;
 
   /// Private access to the logging instance

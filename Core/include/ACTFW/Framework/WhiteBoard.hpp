@@ -95,6 +95,7 @@ public:
 
 private:
   std::unique_ptr<const Acts::Logger> m_logger;
+
   /// the internal store
   std::map<std::string, void*> m_store;
 

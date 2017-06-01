@@ -40,7 +40,7 @@ public:
   /// Constructor
   ///
   /// @param cfg is the configuration struct
-  Algorithm(const Config&                 cfg,
+  Algorithm(const Config&                       cfg,
             std::unique_ptr<const Acts::Logger> logger
             = Acts::getDefaultLogger("Algorithm", Acts::Logging::INFO));
 
@@ -73,7 +73,7 @@ public:
   jobStore() const final override;
 
 protected:
-  Config                        m_cfg;
+  Config                              m_cfg;
   std::unique_ptr<const Acts::Logger> m_logger;
 
   /// Private access to the logging instance

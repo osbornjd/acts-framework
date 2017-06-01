@@ -6,7 +6,7 @@
 #include "WhiteBoardAlgorithm.hpp"
 
 FWE::WhiteBoardAlgorithm::WhiteBoardAlgorithm(
-    const Config&                 cfg,
+    const Config&                       cfg,
     std::unique_ptr<const Acts::Logger> logger)
   : FW::Algorithm(cfg, std::move(logger)), m_cfg(cfg)
 {

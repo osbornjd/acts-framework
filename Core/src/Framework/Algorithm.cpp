@@ -1,6 +1,6 @@
 #include "ACTFW/Framework/Algorithm.hpp"
 
-FW::Algorithm::Algorithm(const Config&                 cfg,
+FW::Algorithm::Algorithm(const Config&                       cfg,
                          std::unique_ptr<const Acts::Logger> logger)
   : m_cfg(cfg), m_logger(std::move(logger))
 {

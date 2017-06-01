@@ -35,7 +35,7 @@ public:
   };
 
   /// Constructor
-  RandomNumbersAlgorithm(const Config&                 cnf,
+  RandomNumbersAlgorithm(const Config&                       cnf,
                          std::unique_ptr<const Acts::Logger> logger
                          = Acts::getDefaultLogger("RandomNumbersAlgorithm",
                                                   Acts::Logging::INFO));

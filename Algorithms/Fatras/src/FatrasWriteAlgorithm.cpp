@@ -8,7 +8,7 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 
 FWA::FatrasWriteAlgorithm::FatrasWriteAlgorithm(
-    const Config&                 cfg,
+    const Config&                       cfg,
     std::unique_ptr<const Acts::Logger> logger)
   : m_cfg(cfg), m_logger(std::move(logger))
 {

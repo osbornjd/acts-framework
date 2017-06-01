@@ -35,10 +35,14 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<const Acts::Logger>  logger;                      ///< the default logger
-    std::string                    name;                        ///< the name of the algorithm
-    size_t                         outputPrecision   = 4;       ///< the precision 
-    std::shared_ptr<std::ofstream> outputStream      = nullptr; //!< the ofstream 
+    /// the default logger
+    std::shared_ptr<const Acts::Logger> logger;
+    /// the name of the algorithm
+    std::string                         name;
+    /// the precision
+    size_t                              outputPrecision = 4;
+    /// the ofstream
+    std::shared_ptr<std::ofstream>      outputStream    = nullptr;
         
     std::shared_ptr<FW::BarcodeSvc>
     barcodeSvc;  ///< the barcode service to decode
