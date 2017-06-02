@@ -1,0 +1,79 @@
+image: gitlab-registry.cern.ch/acts/a-common-tracking-sw/centos7:latest
+
+stages:
+    - build_acts
+    - build_testfw
+    - test
+
+variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+
+before_script:
+    # CI executor uses fail on error by default
+    # setup scripts do not like that
+    - set +e && source CI/setup_lcgenv.sh; set -e
+
+build_acts_default:
+    stage: build_acts
+    tags:
+        - cvmfs
+    script:
+        - mkdir build_acts_default
+        - cd build_acts_default
+        - cmake -GNinja -DBOOST_ROOT=${BOOST_ROOT} -DEIGEN_INCLUDE_DIR=${EIGEN_INCLUDE_DIR} -DCMAKE_INSTALL_PREFIX=../install_default ../acts
+        - cmake --build . -- install
+    artifacts:
+        paths:
+            - install_default
+
+build_testfw_default:
+    stage: build_testfw
+    dependencies:
+        - build_acts_default
+    tags:
+        - cvmfs
+    script:
+        - mkdir build_testfw_default
+        - cd build_testfw_default
+        - cmake -GNinja -DCMAKE_PREFIX_PATH=../install_default -DCMAKE_INSTALL_PREFIX=../install_default ..
+        - cmake --build . -- install
+    artifacts:
+        paths:
+            - install_default
+
+build_acts_full:
+    stage: build_acts
+    tags:
+        - cvmfs
+    script:
+        - mkdir build_acts_full
+        - cd build_acts_full
+        - cmake -GNinja -DBOOST_ROOT=${BOOST_ROOT} -DEIGEN_INCLUDE_DIR=${EIGEN_INCLUDE_DIR} -DBUILD_DD4HEP_PLUGIN=on -DBUILD_MATERIAL_PLUGIN=on -DBUILD_TGEO_PLUGIN=on -DCMAKE_INSTALL_PREFIX=../install_full ../acts
+        - cmake --build . -- install
+    artifacts:
+        paths:
+            - install_full
+
+build_testfw_full:
+    stage: build_testfw
+    dependencies:
+        - build_acts_full
+    tags:
+        - cvmfs
+    script:
+        - mkdir build_testfw_full
+        - cd build_testfw_full
+        # TODO USE_GEANT4=on fails due to an installation bug in LCG_88
+        # TODO USE_PYTHIA8=on requires a custom ROOT build
+        - cmake -GNinja -DUSE_DD4HEP=on -DCMAKE_PREFIX_PATH=../install_full -DCMAKE_INSTALL_PREFIX=../install_full ..
+        - cmake --build . -- install
+    artifacts:
+        paths:
+            - install_full
+
+versions:
+    stage: build_acts
+    tags:
+        - cvmfs
+    script:
+        - ./CI/show_versions.sh
