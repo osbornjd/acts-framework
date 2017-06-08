@@ -31,7 +31,7 @@ namespace FWDD4hepG4 {
         class Config {
         public:
             /// The default logger
-            std::shared_ptr<Acts::Logger>   logger;
+            std::shared_ptr<const Acts::Logger>   logger;
             /// The Service for accessing the DD4hep geometry
             std::shared_ptr<FW::IDD4hepService> dd4hepService;
             /// The name of the service

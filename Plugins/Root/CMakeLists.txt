@@ -5,6 +5,16 @@ find_package(ROOT COMPONENTS Core Hist Tree)
 if (ROOT_FOUND)  
   # (1) Main functionality:
   message(STATUS "${Blue}ACTFWRootPlugin: adding base components.${ColorReset}")
+
+  # fix for ROOT namespace 
+  # 6.08 does not yet support ROOT CMake namespace
+  # to be removed when minimum verison > 6.09
+  if (${ROOT_VERSION_MINOR} MATCHES "8" )
+    set(ROOT_CNS "")
+  else (${ROOT_VERSION_MINOR} MATCHES "8" )
+    set(ROOT_CNS "ROOT::")
+  endif (${ROOT_VERSION_MINOR} MATCHES "8" )
+  
   # find the ROOT components for core
   # add the core source
   file (GLOB_RECURSE src_files "src/RootParticleWriter.cpp" "include/RootExCell*pp" "include/RootParticleWriter.hpp")
@@ -35,12 +45,12 @@ if (ROOT_FOUND)
   target_include_directories (ACTFWRootPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
   target_link_libraries(ACTFWRootPlugin PUBLIC Threads::Threads)
   target_link_libraries(ACTFWRootPlugin PUBLIC ACTS::ACTSCore ACTFramework)
-  target_link_libraries(ACTFWRootPlugin PUBLIC Core Hist Tree TreePlayer)
+  target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_CNS}Core ${ROOT_CNS}Hist ${ROOT_CNS}Tree ${ROOT_CNS}TreePlayer)
   # (2) Pythia8 support
   if (PYTHIA8_FOUND)
     target_include_directories(ACTFWRootPlugin PUBLIC ${PYTHIA8_INCLUDE_DIR}) 
     target_link_libraries(ACTFWRootPlugin PUBLIC -L${PYTHIA8_LIB_DIR})
-    target_link_libraries(ACTFWRootPlugin PUBLIC EGPythia8)
+    target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_CNS}EGPythia8)
   endif (PYTHIA8_FOUND)
   # (3) MaterialPlugin
   target_link_libraries(ACTFWRootPlugin PUBLIC ACTS::ACTSMaterialPlugin)

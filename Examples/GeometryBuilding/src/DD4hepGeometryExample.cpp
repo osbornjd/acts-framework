@@ -17,7 +17,7 @@ main(int argc, char* argv[])
   // set up the geometry service
   FWDD4hep::GeometryService::Config gsConfig("GeometryService",
                                              Acts::Logging::INFO);
-  if (argv[1] != '\0') {
+  if (argc > 1) {
     std::cout << "Creating detector from xml-file: '" << argv[1] << "'!"
               << std::endl;
     gsConfig.xmlFileName = argv[1];
@@ -29,7 +29,7 @@ main(int argc, char* argv[])
   gsConfig.bTypeZ                   = Acts::equidistant;
   gsConfig.envelopeR                = 0.;
   gsConfig.envelopeZ                = 0.;
-  gsConfig.buildDigitizationModules = false;
+  //gsConfig.buildDigitizationModules = false;
 
   auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
   std::shared_ptr<const Acts::TrackingGeometry> dd4Geometry

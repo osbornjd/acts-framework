@@ -36,7 +36,7 @@ public:
   {
   public:
     /// The default logger
-    std::shared_ptr<Acts::Logger> logger;
+    std::shared_ptr<const Acts::Logger> logger;
     /// XML-file with the detector description
     std::string xmlFileName;
     /// Logger for the geometry transformation
