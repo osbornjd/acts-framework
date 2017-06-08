@@ -33,13 +33,13 @@ namespace FWRoot {
         class Config {
         public:
             /// The name of the input tree
-            std::string                   treeName;
+            std::string                         treeName;
             /// The name of the input file
-            std::vector<std::string>      fileList;
+            std::vector<std::string>            fileList;
             /// The default logger
-            std::shared_ptr<Acts::Logger> logger;
+            std::shared_ptr<const Acts::Logger> logger;
             /// The name of the service
-            std::string                   name;
+            std::string                         name;
             
             Config(const std::string& lname = "MaterialReader",
                    Acts::Logging::Level lvl = Acts::Logging::INFO) :

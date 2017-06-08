@@ -102,8 +102,8 @@ public:
 
   /// Constructor
   ExtrapolationAlgorithm(
-      const Config&                 cnf,
-      std::unique_ptr<Acts::Logger> logger
+      const Config&                       cnf,
+      std::unique_ptr<const Acts::Logger> logger
       = Acts::getDefaultLogger("ExtrapolationAlgorithm",
                                Acts::Logging::INFO));
 

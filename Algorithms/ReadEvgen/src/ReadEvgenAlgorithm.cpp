@@ -5,8 +5,8 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
 FWA::ReadEvgenAlgorithm::ReadEvgenAlgorithm(
-    const Config&                 cfg,
-    std::unique_ptr<Acts::Logger> logger)
+    const Config&                       cfg,
+    std::unique_ptr<const Acts::Logger> logger)
   : m_cfg(cfg), m_logger(std::move(logger))
 {
 }

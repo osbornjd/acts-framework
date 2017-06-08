@@ -36,8 +36,8 @@ public:
   /// Constructor
   ///
   /// @param cfg is the configruation
-  WhiteBoardAlgorithm(const Config&                 cfg,
-                      std::unique_ptr<Acts::Logger> logger
+  WhiteBoardAlgorithm(const Config&                       cfg,
+                      std::unique_ptr<const Acts::Logger> logger
                       = Acts::getDefaultLogger("WhiteBoardAlgorithm",
                                                Acts::Logging::INFO));
 

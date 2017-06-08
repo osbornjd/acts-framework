@@ -10,7 +10,7 @@
 
 FWA::MaterialMapping::MaterialMapping(
     const FWA::MaterialMapping::Config& cnf,
-    std::unique_ptr<Acts::Logger>                log)
+    std::unique_ptr<const Acts::Logger> log)
   : FW::Algorithm(cnf, std::move(log)), m_cfg(cnf)
 {
 }

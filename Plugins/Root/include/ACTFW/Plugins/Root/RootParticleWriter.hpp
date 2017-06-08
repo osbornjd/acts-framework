@@ -36,11 +36,16 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<Acts::Logger> logger;    ///< the default logger
-    std::string                   treeName;  ///< the name of the output tree
-    std::string                   fileName;  ///< the name of the output file
-    std::string                   fileMode;   
-    std::string                   name;      ///< the name of the algorithm
+    /// the default logger
+    std::shared_ptr<const Acts::Logger> logger;
+    /// the name of the output tree
+    std::string                         treeName;
+    /// the name of the output file
+    std::string                         fileName;
+    /// the file access mode (recreate by default)
+    std::string                         fileMode;
+    /// the name of the algorithm
+    std::string                         name;
     
     std::shared_ptr<FW::BarcodeSvc>
     barcodeSvc;  ///< the barcode service to decode

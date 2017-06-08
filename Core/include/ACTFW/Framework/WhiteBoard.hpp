@@ -26,7 +26,7 @@ class WhiteBoard
 public:
   /// Constructor
   /// @param cfg is the config struct for this WhiteBoard
-  WhiteBoard(std::unique_ptr<Acts::Logger> logger
+  WhiteBoard(std::unique_ptr<const Acts::Logger> logger
              = Acts::getDefaultLogger("WhiteBoard", Acts::Logging::INFO));
 
   /// Destructor
@@ -94,7 +94,8 @@ public:
   }
 
 private:
-  std::unique_ptr<Acts::Logger> m_logger;
+  std::unique_ptr<const Acts::Logger> m_logger;
+
   /// the internal store
   std::map<std::string, void*> m_store;
 

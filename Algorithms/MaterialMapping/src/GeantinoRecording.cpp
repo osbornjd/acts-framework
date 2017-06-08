@@ -13,7 +13,7 @@
 
 FWA::GeantinoRecording::GeantinoRecording(
     const FWA::GeantinoRecording::Config& cnf,
-    std::unique_ptr<Acts::Logger>         log)
+    std::unique_ptr<const Acts::Logger>   log)
   : FW::Algorithm(cnf, std::move(log))
   , m_cfg(cnf)
   , m_runManager(nullptr)

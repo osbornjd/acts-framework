@@ -44,7 +44,7 @@ public:
   struct Config
   {
     /// default logger
-    std::shared_ptr<Acts::Logger> logger;
+    std::shared_ptr<const Acts::Logger> logger;
     /// service name
     std::string name;
     /// random seed

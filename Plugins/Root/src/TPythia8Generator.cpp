@@ -8,7 +8,7 @@
 
 FWRoot::TPythia8Generator::TPythia8Generator(
     const FWRoot::TPythia8Generator::Config& cfg,
-    std::unique_ptr<Acts::Logger> mlogger)
+    std::unique_ptr<const Acts::Logger>      mlogger)
   : FW::IReaderT< std::vector<Acts::ParticleProperties> >()
   , m_cfg(cfg)
   , m_pythia8(nullptr)

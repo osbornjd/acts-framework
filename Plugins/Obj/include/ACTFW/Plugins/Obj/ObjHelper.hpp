@@ -91,7 +91,7 @@ namespace FWObjHelper {
   writePlanarFace(std::ofstream& stream,
                   VtnCounter& vtnCounter,
                   double scalor,
-                  const std::vector<const Acts::Vector3D>& vertices,
+                  const std::vector<Acts::Vector3D>& vertices,
                   double thickness = 0.,
                   const std::vector<unsigned int>& vsides = {} )
   {

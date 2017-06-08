@@ -64,8 +64,8 @@ public:
   };
 
   /// Constructor
-  GeantinoRecording(const Config&                 cnf,
-                    std::unique_ptr<Acts::Logger> logger
+  GeantinoRecording(const Config&                       cnf,
+                    std::unique_ptr<const Acts::Logger> logger
                     = Acts::getDefaultLogger("GeantinoRecording",
                                              Acts::Logging::INFO));
 

@@ -30,19 +30,30 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<Acts::Logger>  logger;                       ///< the default logger
-    std::string                    name;                         ///< the name of the algorithm
-    unsigned int                   outputPhiSegemnts  = 72;      ///< approximate cyinders by that
-    double                         outputThickness    = 2.;      ///< write thickness if available   
-    bool                           outputSensitive    = true;    ///< write sensitive surfaces
-    bool                           outputLayerSurface = true;    ///< write the layer surface out
-    double                         outputScalor       = 1.;      ///< output scalor
-    unsigned int                   outputPrecision    = 6;       ///< precision for out
-    std::string                    filePrefix         = "";      ///< file prefix to be written out
-    std::string                    planarPrefix       = "";      ///< prefixes
-    std::string                    cylinderPrefix     = "";      ///< prefixes
-    std::string                    diskPrefix         = "";      ///< prefixes
-    std::shared_ptr<std::ofstream> outputStream       = nullptr; ///< the output stream
+    /// the default logger
+    std::shared_ptr<const Acts::Logger>  logger;
+    /// the name of the algorithm
+    std::string                          name;
+    /// approximate cyinders by that
+    unsigned int                         outputPhiSegemnts  = 72;
+    /// write thickness if available
+    double                               outputThickness    = 2.;
+    /// write sensitive surfaces
+    bool                                 outputSensitive    = true;
+    /// write the layer surface out
+    bool                                 outputLayerSurface = true;
+    /// output scalor
+    double                               outputScalor       = 1.;
+    /// precision for out
+    unsigned int                         outputPrecision    = 6;
+    /// file prefix to be written out
+    std::string                          filePrefix         = "";
+    /// prefixes
+    std::string                          planarPrefix       = "";
+    std::string                          cylinderPrefix     = "";
+    std::string                          diskPrefix         = "";
+    /// the output stream
+    std::shared_ptr<std::ofstream>       outputStream       = nullptr;
 
     Config(const std::string&   lname = "ObjSurfaceWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
