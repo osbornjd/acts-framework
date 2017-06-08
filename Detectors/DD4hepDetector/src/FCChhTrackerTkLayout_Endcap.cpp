@@ -159,7 +159,7 @@ createTkLayoutTrackerEndcap(DD4hep::Geometry::LCDD&             lcdd,
     Acts::ActsExtension::Config layConfig;
     // the local coordinate systems of modules in dd4hep and acts differ
     // see http://acts.web.cern.ch/ACTS/latest/doc/group__DD4hepPlugins.html
-    layConfig.axes = "ZXY";  // correct translation of local x axis in dd4hep to
+    layConfig.axes = "XZy";  // correct translation of local x axis in dd4hep to
                              // local x axis in acts
     layConfig.isLayer             = true;
     Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
