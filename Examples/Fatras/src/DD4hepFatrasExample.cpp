@@ -1,25 +1,37 @@
-#include "FatrasExampleBase.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
+#include "ACTS/Detector/TrackingGeometry.hpp"
+#include "FatrasExampleBase.hpp"
 
 // the main executable
 int
 main(int argc, char* argv[])
 {
   size_t nEvents = 1000;
-  
+
   // get the DD4hep detector
   // DETECTOR:
   // --------------------------------------------------------------------------------
   FWDD4hep::GeometryService::Config gsConfig("GeometryService",
-                                              Acts::Logging::INFO);
-  
-  gsConfig.xmlFileName
-       = "file:Examples/DD4hepExample/DD4hepDetector/compact/FCChhTrackerTkLayout.xml";
+                                             Acts::Logging::INFO);
+
+  if (argv[1] != '\0') {
+    std::cout << "Creating detector from xml-file: '" << argv[1] << "'!"
+              << std::endl;
+    gsConfig.xmlFileName = argv[1];
+  } else
+    gsConfig.xmlFileName
+        = "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml";
+  gsConfig.bTypePhi                 = Acts::equidistant;
+  gsConfig.bTypeR                   = Acts::equidistant;
+  gsConfig.bTypeZ                   = Acts::equidistant;
+  gsConfig.envelopeR                = 0.;
+  gsConfig.envelopeZ                = 0.;
+  gsConfig.buildDigitizationModules = false;
+
   auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
   std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
-       = geometrySvc->trackingGeometry();
-  
+      = geometrySvc->trackingGeometry();
+
   // run the example
-  return ACTFWFatrasExample::run(nEvents,dd4tGeometry);
+  return ACTFWFatrasExample::run(nEvents, dd4tGeometry);
 }
