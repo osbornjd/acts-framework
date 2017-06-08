@@ -1,6 +1,5 @@
 # this plugin needs DD4hep and ROOT
 find_package (DD4hep COMPONENTS DDCore)
-dd4hep_set_version(DD4hepPlugin MAJOR 0 MINOR 1 PATCH 0)
 find_package (ROOT COMPONENTS Geom)
 if (DD4hep_FOUND AND ROOT_FOUND)
     # find the ACTS packages
