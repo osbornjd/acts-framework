@@ -2,6 +2,16 @@
 find_package (DD4hep COMPONENTS DDCore)
 find_package (ROOT COMPONENTS Geom)
 if (DD4hep_FOUND AND ROOT_FOUND)
+
+  # fix for ROOT namespace 
+  # 6.08 does not yet support ROOT CMake namespace
+  # to be removed when minimum verison > 6.09
+  if (${ROOT_VERSION_MINOR} MATCHES "8" )
+    set(ROOT_CNS "")
+  else (${ROOT_VERSION_MINOR} MATCHES "8" )
+    set(ROOT_CNS "ROOT::")
+  endif (${ROOT_VERSION_MINOR} MATCHES "8" )
+  
     # find the ACTS packages
     find_package(ACTS REQUIRED COMPONENTS Core TGeoPlugin DD4hepPlugin)
     # set DD4hep cmake 
@@ -22,7 +32,7 @@ if (DD4hep_FOUND AND ROOT_FOUND)
     target_link_libraries(ACTFWDD4hepPlugin PUBLIC ACTS::ACTSCore ACTS::ACTSDD4hepPlugin)
     target_link_libraries(ACTFWDD4hepPlugin PRIVATE ACTFramework)
     target_link_libraries (ACTFWDD4hepPlugin PUBLIC ${DD4hep_LIBRARIES})
-    target_link_libraries(ACTFWDD4hepPlugin PUBLIC ROOT::Geom)
+    target_link_libraries(ACTFWDD4hepPlugin PUBLIC ${ROOT_CNS}Geom)
 
     # set installation directories
     install (TARGETS ACTFWDD4hepPlugin LIBRARY DESTINATION lib)
