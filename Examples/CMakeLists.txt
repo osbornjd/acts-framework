@@ -7,4 +7,3 @@ add_subdirectory_if(MaterialMapping USE_DD4HEP AND USE_GEANT4)
 add_subdirectory(RandomNumbers)
 add_subdirectory_if(ReadEvgen USE_PYTHIA8)
 add_subdirectory(WhiteBoard)
-
