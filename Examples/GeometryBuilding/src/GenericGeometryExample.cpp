@@ -55,9 +55,9 @@ main()
     FWObj::ObjTrackingGeometryWriter::Config tgObjWriterConfig("ObjTrackingGeometryWriter",
                                                               Acts::Logging::INFO);
     tgObjWriterConfig.surfaceWriters = subWriters;
-    tgObjWriterConfig.filePrefix           = "mtllib materials.mtl";
-    tgObjWriterConfig.sensitiveGroupPrefix = "usemtl silicon";
-    tgObjWriterConfig.layerPrefix          = "usemtl support";
+    tgObjWriterConfig.filePrefix           = "mtllib materials.mtl\n";
+    tgObjWriterConfig.sensitiveGroupPrefix = "usemtl silicon\n";
+    tgObjWriterConfig.layerPrefix          = "usemtl support\n";
     // the tracking geometry writers
     auto tgObjWriter
             = std::make_shared<FWObj::ObjTrackingGeometryWriter>(tgObjWriterConfig);
