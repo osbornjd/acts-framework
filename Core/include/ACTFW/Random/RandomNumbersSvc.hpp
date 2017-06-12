@@ -28,12 +28,12 @@ enum class Distribution { uniform, gauss, landau, gamma, poisson };
 ///
 /// An implementation of the std random numbers
 ///
-typedef std::mt19937                     RandomEngine;   ///< Mersenne Twister
-typedef std::normal_distribution<double> GaussDist;      ///< Normal Distribution
+typedef std::mt19937                     RandomEngine;  ///< Mersenne Twister
+typedef std::normal_distribution<double> GaussDist;     ///< Normal Distribution
 typedef std::uniform_real_distribution<double>
-                                         UniformDist;    ///< Uniform Distribution
-typedef std::gamma_distribution<double>  GammaDist;      ///< Gamma Distribution
-typedef std::poisson_distribution<int>   PoissonDist;    ///< Poisson Distribution 
+                                        UniformDist;  ///< Uniform Distribution
+typedef std::gamma_distribution<double> GammaDist;    ///< Gamma Distribution
+typedef std::poisson_distribution<int>  PoissonDist;  ///< Poisson Distribution
 
 class RandomNumbersSvc : public IService
 {
@@ -58,12 +58,11 @@ public:
     /// configuration gamma
     std::array<double, 2> gamma_parameters = {{0, 1}};
     /// configuration poisson
-    int                   poisson_parameter = 40;
+    int poisson_parameter = 40;
 
-	Config(const std::string&   lname = "RandomNumbersSvc",
+    Config(const std::string&   lname = "RandomNumbersSvc",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger{Acts::getDefaultLogger(lname, lvl)}
-      , name{lname}
+      : logger{Acts::getDefaultLogger(lname, lvl)}, name{lname}
     {
     }
   };
@@ -78,8 +77,7 @@ public:
     ///
     /// @param cfg is the host's configuration
     /// @param seed is the seed to use for this generator
-    Generator(const Config & cfg,
-              unsigned int seed);
+    Generator(const Config& cfg, unsigned int seed);
 
     /// Draw a random number
     ///
@@ -88,12 +86,12 @@ public:
     draw(Distribution dPar);
 
   private:
-    const Config & m_cfg;      ///< link to host configuration
-    RandomEngine   m_engine;   ///< random engine
-    GaussDist      m_gauss;    ///< gauss distribution
-    UniformDist    m_uniform;  ///< uniform distribution
-    GammaDist      m_gamma;    ///< gamma distribution
-    PoissonDist    m_poisson;  ///< poisson distribution
+    const Config& m_cfg;      ///< link to host configuration
+    RandomEngine  m_engine;   ///< random engine
+    GaussDist     m_gauss;    ///< gauss distribution
+    UniformDist   m_uniform;  ///< uniform distribution
+    GammaDist     m_gamma;    ///< gamma distribution
+    PoissonDist   m_poisson;  ///< poisson distribution
   };
 
   /// Constructor
@@ -101,23 +99,33 @@ public:
 
   // Framework initialize method
   FW::ProcessCode
-  initialize() final override;
+  initialize() override final;
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() final override;
+  finalize() override final;
 
   /// Spawn an algorithm-local random number generator
   ///
   /// @param context is the AlgorithmContext of the host algorithm
   Generator
-  spawnGenerator(const AlgorithmContext & context) const;
+  spawnGenerator(const AlgorithmContext& context) const;
 
-  /// Draw a random number in a thread-unsafe way
-  ///
-  /// @param dPar is the distribution to draw from
+  /// draw random number from gauss distribution
   double
-  draw(Distribution dPar);
+  drawGauss();
+  /// draw random number from uniform distribution
+  double
+  drawUniform();
+  /// draw random number from landau distribution
+  double
+  drawLandau();
+  /// draw random number from gamma distribution
+  double
+  drawGamma();
+  /// draw random number from poisson distribution
+  double
+  drawPoisson();
 
   /// Ask for the seed
   unsigned int
@@ -128,11 +136,11 @@ public:
 
   /// Framework name() method
   const std::string&
-  name() const final override;
+  name() const override final;
 
 private:
-  Config                        m_cfg;      ///< the configuration class
-  Generator                     m_rng;      ///< default generator
+  Config    m_cfg;  ///< the configuration class
+  Generator m_rng;  ///< default generator
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -147,7 +155,6 @@ RandomNumbersSvc::name() const
 {
   return m_cfg.name;
 }
-
 }
 
 #endif  // ACTFW_RANDOM_RANDOMNUMBERSSVC_H
