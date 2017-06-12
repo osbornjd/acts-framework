@@ -10,26 +10,26 @@
 
 #include <cmath>
 #include <memory>
+#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Utilities/GeometryID.hpp"
-#include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/EventData/NeutralParameters.hpp"
+#include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTS/Utilities/GeometryID.hpp"
 
 namespace Acts {
- class IExtrapolationEngine;
- class TrackingGeometry;
- class TrackingVolume;
+class IExtrapolationEngine;
+class TrackingGeometry;
+class TrackingVolume;
 }
 
 namespace FW {
- class WhiteBoard;
+class WhiteBoard;
 }
 
 namespace FWA {
@@ -46,14 +46,16 @@ public:
     /// the extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
     /// output writer for charged particles
-    std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters> > >
-      ecChargedWriter = nullptr;
+    std::
+        shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters>>>
+            ecChargedWriter = nullptr;
     /// output writer for charged particles
-    std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::NeutralParameters> > >
-      ecNeutralWriter = nullptr;
+    std::
+        shared_ptr<FW::IWriterT<Acts::
+                                    ExtrapolationCell<Acts::NeutralParameters>>>
+            ecNeutralWriter = nullptr;
     /// output writer for material
-    std::shared_ptr< FW::IWriterT<Acts::MaterialTrack> >
-      materialWriter = nullptr; 
+    std::shared_ptr<FW::IWriterT<Acts::MaterialTrack>> materialWriter = nullptr;
     /// the tracking geometry
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
     /// if this is set then the particles are taken from the collection
@@ -101,11 +103,10 @@ public:
   };
 
   /// Constructor
-  ExtrapolationAlgorithm(
-      const Config&                       cnf,
-      std::unique_ptr<const Acts::Logger> logger
-      = Acts::getDefaultLogger("ExtrapolationAlgorithm",
-                               Acts::Logging::INFO));
+  ExtrapolationAlgorithm(const Config&                       cnf,
+                         std::unique_ptr<const Acts::Logger> logger
+                         = Acts::getDefaultLogger("ExtrapolationAlgorithm",
+                                                  Acts::Logging::INFO));
 
   /// Destructor
   ~ExtrapolationAlgorithm();
@@ -125,23 +126,18 @@ public:
 private:
   Config m_cfg;  ///< the config class
 
-  double
-  drawGauss(FW::RandomNumbersSvc::Generator& rng,
-            const std::array<double, 2>& range) const;
-  double
-  drawUniform(FW::RandomNumbersSvc::Generator& rng,
-              const std::array<double, 2>& range) const;
-
   template <class T>
   FW::ProcessCode
-  executeTestT(const T& startParameters,
-               barcode_type barcode = 0,
-               FW::DetectorData<geo_id_value, 
-               std::pair< std::unique_ptr<const T>, barcode_type >  >* dData = nullptr,
-               std::shared_ptr< FW::IWriterT< Acts::ExtrapolationCell<T> > > writer = nullptr) const;
-
+  executeTestT(
+      const T&     startParameters,
+      barcode_type barcode = 0,
+      FW::DetectorData<geo_id_value,
+                       std::pair<std::unique_ptr<const T>, barcode_type>>* dData
+      = nullptr,
+      std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<T>>> writer
+      = nullptr) const;
 };
 }
 #include "ExtrapolationAlgorithm.ipp"
 
-#endif //ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H
+#endif  // ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H
