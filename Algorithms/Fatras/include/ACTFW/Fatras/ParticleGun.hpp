@@ -3,10 +3,13 @@
 #define ACTFW_ROOTPYTHIA8_PARTICLEGUN_H 1
 
 #include <mutex>
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
+
+namespace FW {
+class RandomNumbersSvc;
+}
 
 namespace FWE {
 
@@ -57,13 +60,13 @@ public:
   /// Destructor
   virtual ~ParticleGun();
 
-  /// Reads in a  list of paritlces
-  /// for the fast simulation
-  /// @param pProperties is the vector to be read in
-  /// @return is a process code indicateing if the reading succeeded
+  // clang-format off
+  /// @copydoc FW::IReaderT::read(std::vector<Acts::ParticleProperties>&,size_t,const FW::AlgorithmContext*)
+  // clang-format on
   FW::ProcessCode
-  read(std::vector<Acts::ParticleProperties>& pProperties,
-       size_t                                 skip = 0) override final;
+  read(std::vector<Acts::ParticleProperties>& particleProperties,
+       size_t                                 skip    = 0,
+       const FW::AlgorithmContext*            context = nullptr) override final;
 
   /// Reads in a  list of paritlces
   /// @return is a process code indicateing if the reading succeeded
@@ -92,8 +95,6 @@ private:
   Config m_cfg;
   /// logger instance
   std::unique_ptr<const Acts::Logger> m_logger;
-  /// mutex used to protect multi-threaded reads
-  std::mutex m_read_mutex;
 };
 
 const std::string&

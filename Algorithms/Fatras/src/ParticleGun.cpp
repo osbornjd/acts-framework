@@ -1,4 +1,5 @@
 #include "ACTFW/Fatras/ParticleGun.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTS/Utilities/Units.hpp"
 
 FWE::ParticleGun::ParticleGun(const FWE::ParticleGun::Config&     cfg,
@@ -8,7 +9,7 @@ FWE::ParticleGun::ParticleGun(const FWE::ParticleGun::Config&     cfg,
   , m_logger(std::move(mlogger))
 {
   if (!m_cfg.randomNumbers) {
-    ACTS_FATAL("Algorithm::initialize() did not succeed! No RandomNumbersSvc "
+    ACTS_FATAL("ParticleGun constructor did not succeed! No RandomNumbersSvc "
                "handed over!");
   }
 }
@@ -20,24 +21,29 @@ FWE::ParticleGun::~ParticleGun()
 FW::ProcessCode
 FWE::ParticleGun::read(
     std::vector<Acts::ParticleProperties>& particleProperties,
-    size_t                                 skip)
+    size_t                                 skip,
+    const FW::AlgorithmContext*            context)
 {
-  // lock the mutex
-  std::lock_guard<std::mutex> lock(m_read_mutex);
+  if (!context) {
+    ACTS_FATAL("read() did not succeed! No AlgorithmContext "
+               "handed over!");
+    return FW::ProcessCode::ABORT;
+  }
+
+  // Create a random number generator
+  FW::RandomNumbersSvc::Generator rng
+      = m_cfg.randomNumbers->spawnGenerator(*context);
 
   // Particle loop
   for (int ip = 0; ip < m_cfg.nParticles; ip++) {
     // generate random parameters
     double phi = m_cfg.phiRange.at(0)
-        + m_cfg.randomNumbers->drawUniform()
-            * fabs(m_cfg.phiRange.at(1) - m_cfg.phiRange.at(0));
+        + rng.drawUniform() * fabs(m_cfg.phiRange.at(1) - m_cfg.phiRange.at(0));
     double eta = m_cfg.etaRange.at(0)
-        + m_cfg.randomNumbers->drawUniform()
-            * fabs(m_cfg.etaRange.at(1) - m_cfg.etaRange.at(0));
+        + rng.drawUniform() * fabs(m_cfg.etaRange.at(1) - m_cfg.etaRange.at(0));
     double theta = 2. * atan(exp(-eta));
     double pt    = m_cfg.ptRange.at(0)
-        + m_cfg.randomNumbers->drawUniform()
-            * fabs(m_cfg.ptRange.at(1) - m_cfg.ptRange.at(0));
+        + rng.drawUniform() * fabs(m_cfg.ptRange.at(1) - m_cfg.ptRange.at(0));
     double p = pt / sin(theta);
     // create momentum from random parameters
     Acts::Vector3D momentum(
