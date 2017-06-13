@@ -212,6 +212,11 @@ int compareRootFiles(std::string file1, std::string file2,
                   "      ~ Number of entries does not match!");
     }
 
+    if(t1EntryCount == 0) {
+      std::cout << "    o Skipping empty tree!" << std::endl;
+      continue;
+    }
+
     std::cout << "    o Preparing for tree readout..." << std::endl;
     TTreeReader t1Reader(tree1);
     TTreeReader t2Reader(tree2);
