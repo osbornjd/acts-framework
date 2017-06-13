@@ -122,7 +122,6 @@ namespace ACTFWFatrasExample {
     // the pileup reader
     readEvgenCfg.pileupParticleReader = puPythiaGenerator;
     // the number of pileup events
-    readEvgenCfg.pileupType          = FW::Distribution::poisson;
     readEvgenCfg.pileupRandomNumbers = pileupNumbers;
     readEvgenCfg.pileupVertexDistT   = pileupVertexT;
     readEvgenCfg.pileupVertexDistZ   = pileupVertexZ;
