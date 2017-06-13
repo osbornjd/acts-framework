@@ -10,7 +10,7 @@
 #include "ACTFW/Random/LandauQuantile.hpp"
 
 FW::RandomNumbersSvc::RandomNumbersSvc(const FW::RandomNumbersSvc::Config& cfg)
-  : m_cfg(cfg), m_rng{m_cfg, m_cfg.seed}
+  : m_cfg(cfg)
 {
 }
 
@@ -47,51 +47,34 @@ FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext& context) const
 }
 
 double
-FW::RandomNumbersSvc::Generator::draw(FW::Distribution dPar)
+FW::RandomNumbersSvc::Generator::drawGauss()
 {
-  // switch and return
-  switch (dPar) {
-  case Distribution::gauss:
-    return m_gauss(m_engine);
-  case Distribution::uniform:
-    return m_uniform(m_engine);
-  case Distribution::gamma:
-    return m_gamma(m_engine);
-  case Distribution::landau: {
-    double x   = m_uniform(m_engine);
-    double res = m_cfg.landau_parameters[0]
-        + landau_quantile(x, m_cfg.landau_parameters[1]);
-    return res;
-  }
-  case Distribution::poisson:
-    return m_poisson(m_engine);
-  }
-  return 0.;
+  return m_gauss(m_engine);
 }
 
 double
-FW::RandomNumbersSvc::drawGauss()
+FW::RandomNumbersSvc::Generator::drawUniform()
 {
-  return m_rng.draw(Distribution::gauss);
+  return m_uniform(m_engine);
 }
 
 double
-FW::RandomNumbersSvc::drawUniform()
+FW::RandomNumbersSvc::Generator::drawLandau()
 {
-  return m_rng.draw(Distribution::uniform);
+  double x   = m_uniform(m_engine);
+  double res = m_cfg.landau_parameters[0]
+      + landau_quantile(x, m_cfg.landau_parameters[1]);
+  return res;
 }
+
 double
-FW::RandomNumbersSvc::drawLandau()
+FW::RandomNumbersSvc::Generator::drawGamma()
 {
-  return m_rng.draw(Distribution::landau);
+  return m_gamma(m_engine);
 }
+
 double
-FW::RandomNumbersSvc::drawGamma()
+FW::RandomNumbersSvc::Generator::drawPoisson()
 {
-  return m_rng.draw(Distribution::gamma);
-}
-double
-FW::RandomNumbersSvc::drawPoisson()
-{
-  return m_rng.draw(Distribution::poisson);
+  return m_poisson(m_engine);
 }

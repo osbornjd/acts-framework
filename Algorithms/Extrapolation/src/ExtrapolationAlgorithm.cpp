@@ -140,21 +140,21 @@ FWA::ExtrapolationAlgorithm::execute(const FW::AlgorithmContext context) const
     for (size_t iex = 0; iex < m_cfg.testsPerEvent; ++iex) {
       // gaussian d0 and z0
       double d0 = m_cfg.d0Defs.at(0)
-          + m_cfg.randomNumbers->drawGauss() * m_cfg.d0Defs.at(1);
+          + rng.drawGauss() * m_cfg.d0Defs.at(1);
       double z0 = m_cfg.z0Defs.at(0)
-          + m_cfg.randomNumbers->drawGauss() * m_cfg.z0Defs.at(1);
+          + rng.drawGauss() * m_cfg.z0Defs.at(1);
       double phi = m_cfg.phiRange.at(0)
-          + m_cfg.randomNumbers->drawUniform()
+          + rng.drawUniform()
               * fabs(m_cfg.phiRange.at(1) - m_cfg.phiRange.at(0));
       double eta = m_cfg.etaRange.at(0)
-          + m_cfg.randomNumbers->drawUniform()
+          + rng.drawUniform()
               * fabs(m_cfg.etaRange.at(1) - m_cfg.etaRange.at(0));
       double theta = 2. * atan(exp(-eta));
       double pt    = m_cfg.ptRange.at(0)
-          + m_cfg.randomNumbers->drawUniform()
+          + rng.drawUniform()
               * fabs(m_cfg.ptRange.at(1) - m_cfg.ptRange.at(0));
       double p = pt / sin(theta);
-      double q = m_cfg.randomNumbers->drawUniform() > 0.5 ? 1. : -1.;
+      double q = rng.drawUniform() > 0.5 ? 1. : -1.;
 
       Acts::Vector3D momentum(
           p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta));
