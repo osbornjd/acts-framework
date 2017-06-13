@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Examples/BuildGenericDetector.hpp"
+#include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 

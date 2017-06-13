@@ -1,6 +1,6 @@
 
 # find the ACTS package
-find_package(ACTS REQUIRED COMPONENTS Core Examples)
+find_package(ACTS REQUIRED COMPONENTS Core)
 
 
 # (1) GENERIC DETECTOR
@@ -9,8 +9,8 @@ add_executable(ACTFWGenericGeometryExample src/GenericGeometryExample)
 
 # setup linker dependencies
 target_include_directories(ACTFWGenericGeometryExample PUBLIC ${DD4hep_INCLUDE_DIRS})  
-target_link_libraries(ACTFWGenericGeometryExample PUBLIC ACTS::ACTSCore ACTS::ACTSExamples)
-target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFramework ACTFWObjPlugin)
+target_link_libraries(ACTFWGenericGeometryExample PUBLIC ACTS::ACTSCore)
+target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFramework ACTFWObjPlugin ACTFWGenericDetector)
 
 # set installation directories
 install(TARGETS ACTFWGenericGeometryExample RUNTIME DESTINATION bin)

@@ -1,6 +1,6 @@
 #include "FatrasExampleBase.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Examples/BuildGenericDetector.hpp"
+#include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 
 // the main executable
 int
