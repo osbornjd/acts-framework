@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Examples/BuildGenericDetector.hpp"
+#include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 
@@ -19,7 +19,7 @@ main()
     
     // create the tracking geometry as a shared pointer
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry
-        = Acts::buildGenericDetector(
+        = FWGen::buildGenericDetector(
             surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
     
     // the detectors

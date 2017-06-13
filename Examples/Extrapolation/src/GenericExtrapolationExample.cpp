@@ -1,6 +1,6 @@
 #include "ExtrapolationExampleBase.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Examples/BuildGenericDetector.hpp"
+#include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 
 // the main executable
 int
@@ -18,7 +18,7 @@ main(int argc, char* argv[])
   
   // create the tracking geometry as a shared pointer
   std::shared_ptr<const Acts::TrackingGeometry> gtGeometry
-      = Acts::buildGenericDetector(
+      = FWGen::buildGenericDetector(
           surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
 
   // run the example
