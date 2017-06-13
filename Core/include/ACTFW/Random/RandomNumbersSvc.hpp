@@ -21,12 +21,11 @@
 
 namespace FW {
 
-///  @enum class Distribution
-enum class Distribution { uniform, gauss, landau, gamma, poisson };
-
 /// @class RandomNumbersSvc
 ///
-/// An implementation of the std random numbers
+/// This service provides Algorithm-local random number generators, allowing for
+/// thread-safe, lock-free and reproducible random number generations in both
+/// single-threaded and multi-threaded test framework runs.
 ///
 typedef std::mt19937                     RandomEngine;  ///< Mersenne Twister
 typedef std::normal_distribution<double> GaussDist;     ///< Normal Distribution
@@ -69,7 +68,10 @@ public:
 
   /// @class Generator
   ///
-  /// A random number generator
+  /// A random number generator. The intended mode of operation is that each
+  /// Algorithm::execute() invocation should get its own private instance of
+  /// this class.
+  ///
   class Generator
   {
   public:
@@ -78,12 +80,22 @@ public:
     /// @param cfg is the host's configuration
     /// @param seed is the seed to use for this generator
     Generator(const Config& cfg, unsigned int seed);
-
-    /// Draw a random number
-    ///
-    /// @param dPar is the distribution to draw from
+    
+    /// draw random number from gauss distribution
     double
-    draw(Distribution dPar);
+    drawGauss();
+    /// draw random number from uniform distribution
+    double
+    drawUniform();
+    /// draw random number from landau distribution
+    double
+    drawLandau();
+    /// draw random number from gamma distribution
+    double
+    drawGamma();
+    /// draw random number from poisson distribution
+    double
+    drawPoisson();
 
   private:
     const Config& m_cfg;      ///< link to host configuration
@@ -111,22 +123,6 @@ public:
   Generator
   spawnGenerator(const AlgorithmContext& context) const;
 
-  /// draw random number from gauss distribution
-  double
-  drawGauss();
-  /// draw random number from uniform distribution
-  double
-  drawUniform();
-  /// draw random number from landau distribution
-  double
-  drawLandau();
-  /// draw random number from gamma distribution
-  double
-  drawGamma();
-  /// draw random number from poisson distribution
-  double
-  drawPoisson();
-
   /// Ask for the seed
   unsigned int
   seed() const
@@ -140,7 +136,6 @@ public:
 
 private:
   Config    m_cfg;  ///< the configuration class
-  Generator m_rng;  ///< default generator
 
   /// Private access to the logging instance
   const Acts::Logger&

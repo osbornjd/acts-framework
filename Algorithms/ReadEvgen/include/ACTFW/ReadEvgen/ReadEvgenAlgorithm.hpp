@@ -47,8 +47,7 @@ public:
     /// the pileup reader       
     std::shared_ptr< FW::IReaderT< std::vector<Acts::ParticleProperties> > > 
         pileupParticleReader      = nullptr;
-    /// the number of pileup events                                 
-    FW::Distribution                       pileupType                = FW::Distribution::poisson;
+    /// the number of pileup events
     std::shared_ptr<FW::RandomNumbersSvc>  pileupRandomNumbers       = nullptr;
     std::shared_ptr<FW::RandomNumbersSvc>  pileupVertexDistT         = nullptr;
     std::shared_ptr<FW::RandomNumbersSvc>  pileupVertexDistZ         = nullptr;

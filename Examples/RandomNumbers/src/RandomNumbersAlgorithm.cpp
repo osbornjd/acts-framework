@@ -37,11 +37,11 @@ FWE::RandomNumbersAlgorithm::execute(const FW::AlgorithmContext context) const
     m_cfg.randomNumbers->spawnGenerator(context);
 
   for (size_t idraw = 0; idraw < m_cfg.drawsPerEvent; ++idraw) {
-    double gauss   = rng.draw(FW::Distribution::gauss);
-    double uniform = rng.draw(FW::Distribution::uniform);
-    double landau  = rng.draw(FW::Distribution::landau);
-    double gamma   = rng.draw(FW::Distribution::gamma);
-    int    poisson = rng.draw(FW::Distribution::poisson);
+    double gauss   = rng.drawGauss();
+    double uniform = rng.drawUniform();
+    double landau  = rng.drawLandau();
+    double gamma   = rng.drawGamma();
+    int    poisson = rng.drawPoisson();
 
     ACTS_VERBOSE("Gauss   : " << gauss);
     ACTS_VERBOSE("Uniform : " << uniform);

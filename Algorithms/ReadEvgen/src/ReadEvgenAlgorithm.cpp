@@ -63,7 +63,7 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
 
   // generate the number of pileup events
   size_t nPileUpEvents = m_cfg.pileupRandomNumbers
-      ? size_t(rngPileup.draw(FW::Distribution::poisson))
+      ? size_t(rngPileup.drawPoisson())
       : 0;
 
   ACTS_VERBOSE("- [PU X] number of in-time pileup events : " << nPileUpEvents);
@@ -73,9 +73,9 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
 
   //
   // reserve quite a lot of space
-  double vertexX = rngVertexT.draw(FW::Distribution::gauss);
-  double vertexY = rngVertexT.draw(FW::Distribution::gauss);
-  double vertexZ = rngVertexZ.draw(FW::Distribution::gauss);
+  double vertexX = rngVertexT.drawGauss();
+  double vertexY = rngVertexT.drawGauss();
+  double vertexZ = rngVertexZ.drawGauss();
 
   Acts::Vector3D vertex(vertexX, vertexY, vertexZ);
 
@@ -92,9 +92,9 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
   // loop over the pile-up vertices
   for (size_t ipue = 0; ipue < nPileUpEvents; ++ipue) {
     // reserve quite a lot of space
-    double         puVertexX = rngVertexT.draw(FW::Distribution::gauss);
-    double         puVertexY = rngVertexT.draw(FW::Distribution::gauss);
-    double         puVertexZ = rngVertexZ.draw(FW::Distribution::gauss);
+    double         puVertexX = rngVertexT.drawGauss();
+    double         puVertexY = rngVertexT.drawGauss();
+    double         puVertexZ = rngVertexZ.drawGauss();
     Acts::Vector3D puVertex(puVertexX, puVertexY, puVertexZ);
     // get the vertices per pileup event
     std::vector<Acts::ParticleProperties> pileupPartiles = {};
