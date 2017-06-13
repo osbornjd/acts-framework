@@ -10,43 +10,68 @@ set -uo pipefail
 
 # Check whether the user did specify the name of the example to be run
 ARGC=$#
-if [[ $ARGC -lt 1 ]]; then
-  echo "Usage: "$0" <name of example>"
+if [[ $ARGC -lt 2 ]]; then
+  echo ""
+  echo " Usage: "$0" <example> <output1> [<output2> ...]"
+  echo ""
+  echo " <example> is the example name (which is the executable name without the leading 'ACTFW' and the trailing 'Example')"
+  echo " <outputN> is the output name (which is the output file name without the trailing 'Test.root')"
+  echo ""
   exit 42
 fi
 
-# Compute the name of the example executable and its output file
+# Compute the name of the example executable
 executable=ACTFW$1Example
-output=$1Test.root
 
-# Drop any stale result from previous runs of the example
-rm -f $output
+# Compute the output file names
+for ((i = 2; i <= $ARGC; i++)); do
+  eval output=\$${i}Test.root
+  eval outputs[$i]=$output
+done
 
-# Run the example in multi-threaded mode, back up the results
+# Drop any remaining output file from previous runs of the example
+for output in "${outputs[@]}"; do
+  rm -f $output ST$output MT$output
+done
+
+# Run the example in multi-threaded mode
 eval "$executable"
 result=$?
 if [[ result -ne 0 ]]; then
   echo "Multi-threaded run failed!"
   exit $result
 fi
-mt_output=MT$output
-mv $output $mt_output
 
-# Run the example in single-threaded mode, back up the results
+# Back up the multi-threaded results
+for output in "${outputs[@]}"; do
+  mv $output MT$output
+done
+
+# Run the example in single-threaded mode
 eval "OMP_NUM_THREADS=1 $executable"
 result=$?
 if [[ result -ne 0 ]]; then
   echo "Single-threaded run failed!"
   exit $result
 fi
-st_output=ST$output
-mv $output $st_output
 
-# Check whether the results were identical (up to thread-induced event reordering)
-cmd="root -b -q -l -x -e '.x compareRootFiles.cpp(\"$st_output\", \"$mt_output\")'"
-eval $cmd
-result=$?
+# Back up the single-threaded results
+for output in "${outputs[@]}"; do
+  mv $output ST$output
+done
 
-# Clean up, and return 0 if the results were identical
-rm -f $mt_output $st_output
-exit $result
+# Check whether the results were identical (up to thread-induced reordering)
+for output in "${outputs[@]}"; do
+  # Compare the active results files
+  cmd="root -b -q -l -x -e '.x compareRootFiles.cpp(\"ST$output\", \"MT$output\")'"
+  eval $cmd
+  result=$?
+
+  # If the results were different, abort and return the output status code
+  if [[ result -ne 0 ]]; then
+    exit $result
+  fi
+
+  # Otherwise clean up and continue
+  rm ST$output MT$output
+done
