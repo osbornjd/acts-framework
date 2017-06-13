@@ -12,9 +12,9 @@ main(int argc, char* argv[])
   // DETECTOR:
   // --------------------------------------------------------------------------------
   // set geometry building logging level
-  Acts::Logging::Level surfaceLogLevel = Acts::Logging::VERBOSE;
-  Acts::Logging::Level layerLogLevel   = Acts::Logging::VERBOSE;
-  Acts::Logging::Level volumeLogLevel  = Acts::Logging::VERBOSE;
+  Acts::Logging::Level surfaceLogLevel = Acts::Logging::INFO;
+  Acts::Logging::Level layerLogLevel   = Acts::Logging::INFO;
+  Acts::Logging::Level volumeLogLevel  = Acts::Logging::INFO;
   
   // create the tracking geometry as a shared pointer
   std::shared_ptr<const Acts::TrackingGeometry> gtGeometry
