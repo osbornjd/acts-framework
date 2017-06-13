@@ -18,19 +18,21 @@
 #include "ACTS/Detector/DetectorElementBase.hpp"
 
 namespace Acts {
+  class Surface;
+  class PlanarBounds;
+  class DiscBounds;
+  class SurfaceMaterial;
+  class DigitizationModule;
+}
 
-class Surface;
-class PlanarBounds;
-class DiscBounds;
-class SurfaceMaterial;
-class DigitizationModule;
+namespace FWGen {
 
 /// @class GenericDetectorElement
 ///
 /// This is a lightweight type of detector element,
 /// it simply implements the base class.
 ///
-class GenericDetectorElement : public DetectorElementBase
+class GenericDetectorElement : public Acts::DetectorElementBase
 {
 public:
   /// Constructor for single sided detector element
@@ -42,12 +44,12 @@ public:
   /// @param thickness is the module thickness
   /// @param material is the (optional) Surface material associated to it
   GenericDetectorElement(const Identifier                       identifier,
-                         std::shared_ptr<const Transform3D>     transform,
-                         std::shared_ptr<const PlanarBounds>    pBounds,
+                         std::shared_ptr<const Acts::Transform3D>     transform,
+                         std::shared_ptr<const Acts::PlanarBounds>    pBounds,
                          double                                 thickness,
-                         std::shared_ptr<const SurfaceMaterial> material
+                         std::shared_ptr<const Acts::SurfaceMaterial> material
                          = nullptr,
-                         std::shared_ptr<const DigitizationModule> dModule
+                         std::shared_ptr<const Acts::DigitizationModule> dModule
                          = nullptr);
 
   /// Constructor for single sided detector element
@@ -59,10 +61,10 @@ public:
   /// @param thickness is the module thickness
   /// @param material is the (optional) Surface material associated to it
   GenericDetectorElement(const Identifier                       identifier,
-                         std::shared_ptr<const Transform3D>     transform,
-                         std::shared_ptr<const DiscBounds>      dBounds,
+                         std::shared_ptr<const Acts::Transform3D>     transform,
+                         std::shared_ptr<const Acts::DiscBounds>      dBounds,
                          double                                 thickness,
-                         std::shared_ptr<const SurfaceMaterial> material
+                         std::shared_ptr<const Acts::SurfaceMaterial> material
                          = nullptr);
 
   ///  Destructor
@@ -77,7 +79,7 @@ public:
   /// @note this is called from the surface().transform() in the PROXY mode
   ///
   /// @param identifier is ignored for this simple detector element
-  const Transform3D&
+  const Acts::Transform3D&
   transform(const Identifier& identifier = Identifier()) const final override;
 
   /// Return surface associated with this identifier,
@@ -85,17 +87,17 @@ public:
   /// @param identifier is ignored in this case
   ///
   /// @param identifier is ignored for this simple detector element
-  const Surface&
+  const Acts::Surface&
   surface(const Identifier& identifier = Identifier()) const final override;
 
   /// Returns the full list of all detection surfaces associated
   /// to this detector element
-  const std::vector<std::shared_ptr<const Surface>>&
+  const std::vector<std::shared_ptr<const Acts::Surface>>&
   surfaces() const final override;
 
   /// Return the DigitizationModule
   /// @return optionally the DigitizationModule
-  std::shared_ptr<const DigitizationModule>
+  std::shared_ptr<const Acts::DigitizationModule>
   digitizationModule() const final override;
 
   /// Set the identifier after construction (sometimes needed)
@@ -111,61 +113,61 @@ private:
   /// identifier
   Identifier m_elementIdentifier;
   /// the transform for positioning in 3D space
-  std::shared_ptr<const Transform3D> m_elementTransform;
+  std::shared_ptr<const Acts::Transform3D> m_elementTransform;
   /// the surface represented by it
-  std::shared_ptr<const Surface> m_elementSurface;
-
+  std::shared_ptr<const Acts::Surface> m_elementSurface;
   /// the element thickness
   double m_elementThickness;
 
-  /// the cache
-  std::vector<std::shared_ptr<const Surface>> m_elementSurfaces;
+  /// the cache for the surfaces
+  std::vector<std::shared_ptr<const Acts::Surface>> m_elementSurfaces;
   /// store either
-  std::shared_ptr<const PlanarBounds> m_elementPlanarBounds;
-  std::shared_ptr<const DiscBounds>   m_elementDiscBounds;
+  std::shared_ptr<const Acts::PlanarBounds> m_elementPlanarBounds;
+  std::shared_ptr<const Acts::DiscBounds>   m_elementDiscBounds;
 
-  // the digitization module
-  std::shared_ptr<const DigitizationModule> m_digitizationModule;
+  // the digitization module, it's shared because many 
+  // elements could potentiall have the same readout infrastructure
+  std::shared_ptr<const Acts::DigitizationModule> m_digitizationModule;
 };
 
-inline std::shared_ptr<const DigitizationModule>
-GenericDetectorElement::digitizationModule() const
+inline std::shared_ptr<const Acts::DigitizationModule>
+FWGen::GenericDetectorElement::digitizationModule() const
 {
   return m_digitizationModule;
 }
 
 inline void
-GenericDetectorElement::assignIdentifier(const Identifier& identifier)
+FWGen::GenericDetectorElement::assignIdentifier(const Identifier& identifier)
 {
   m_elementIdentifier = identifier;
 }
 
 inline Identifier
-GenericDetectorElement::identify() const
+FWGen::GenericDetectorElement::identify() const
 {
   return m_elementIdentifier;
 }
 
-inline const Transform3D&
-GenericDetectorElement::transform(const Identifier&) const
+inline const Acts::Transform3D&
+FWGen::GenericDetectorElement::transform(const Identifier&) const
 {
   return *m_elementTransform;
 }
 
-inline const Surface&
-GenericDetectorElement::surface(const Identifier&) const
+inline const Acts::Surface&
+FWGen::GenericDetectorElement::surface(const Identifier&) const
 {
   return *m_elementSurface;
 }
 
-inline const std::vector<std::shared_ptr<const Surface>>&
-GenericDetectorElement::surfaces() const
+inline const std::vector<std::shared_ptr<const Acts::Surface>>&
+FWGen::GenericDetectorElement::surfaces() const
 {
   return m_elementSurfaces;
 }
 
 inline double
-GenericDetectorElement::thickness() const
+FWGen::GenericDetectorElement::thickness() const
 {
   return m_elementThickness;
 }

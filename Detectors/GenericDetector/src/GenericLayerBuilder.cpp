@@ -30,12 +30,15 @@
 #include "ACTS/Utilities/BinnedArray.hpp"
 #include "ACTS/Utilities/Helpers.hpp"
 
-Acts::GenericLayerBuilder::GenericLayerBuilder(
-    const Acts::GenericLayerBuilder::Config& glbConfig,
-    std::unique_ptr<const Logger>            log)
-  : m_nLayers(), m_cLayers(), m_pLayers(), m_logger(std::move(log))
+FWGen::GenericLayerBuilder::GenericLayerBuilder(
+    const FWGen::GenericLayerBuilder::Config& glbConfig,
+    std::unique_ptr<const Acts::Logger>  log)
+  : Acts::ILayerBuilder() 
+  , m_nLayers()
+  , m_cLayers()
+  , m_pLayers()
+  , m_logger(std::move(log))
 {
-  ACTS_DEBUG("initialize()");
   /// @todo a configuraiton check should be done here
   setConfiguration(glbConfig);
   // Tool needs to be initialized
@@ -43,8 +46,8 @@ Acts::GenericLayerBuilder::GenericLayerBuilder(
 }
 
 void
-Acts::GenericLayerBuilder::setConfiguration(
-    const Acts::GenericLayerBuilder::Config& glbConfig)
+FWGen::GenericLayerBuilder::setConfiguration(
+    const FWGen::GenericLayerBuilder::Config& glbConfig)
 {
   // @todo check consistency
   // copy the configuration
@@ -52,17 +55,17 @@ Acts::GenericLayerBuilder::setConfiguration(
 }
 
 void
-Acts::GenericLayerBuilder::setLogger(std::unique_ptr<const Logger> newLogger)
+FWGen::GenericLayerBuilder::setLogger(std::unique_ptr<const Acts::Logger> newLogger)
 {
   m_logger = std::move(newLogger);
 }
 
-Acts::GenericLayerBuilder::~GenericLayerBuilder()
+FWGen::GenericLayerBuilder::~GenericLayerBuilder()
 {
 }
 
 void
-Acts::GenericLayerBuilder::constructLayers()
+FWGen::GenericLayerBuilder::constructLayers()
 {
   size_t imodule = 0;
   // ----------------------- central layers -------------------------
@@ -80,7 +83,7 @@ Acts::GenericLayerBuilder::constructLayers()
       ACTS_DEBUG("Build layer " << icl << " with target radius = " << layerR);
 
       // prepare the Surface vector
-      std::vector<const Surface*> sVector;
+      std::vector<const Acts::Surface*> sVector;
       // assign the current envelope
       double layerEnvelopeCoverZ = m_cfg.centralLayerEnvelopes.size()
           ? m_cfg.centralLayerEnvelopes.at(icl).second
@@ -91,8 +94,8 @@ Acts::GenericLayerBuilder::constructLayers()
       double moduleHalfY     = m_cfg.centralModuleHalfY.at(icl);
       double moduleThickness = m_cfg.centralModuleThickness.at(icl);
       // create the shared module
-      std::shared_ptr<const PlanarBounds> moduleBounds(
-          new RectangleBounds(moduleHalfX, moduleHalfY));
+      std::shared_ptr<const Acts::PlanarBounds> moduleBounds(
+          new Acts::RectangleBounds(moduleHalfX, moduleHalfY));
       // Identifier @todo unique Identifier - use a GenericDetector identifier
       size_t nCetralModules = m_cfg.centralModuleBinningSchema.at(icl).first
           * m_cfg.centralModuleBinningSchema.at(icl).second;
@@ -109,16 +112,16 @@ Acts::GenericLayerBuilder::constructLayers()
 
       // prepartion :
       // create digitizaiton module
-      std::shared_ptr<const DigitizationModule> moduleDigitizationPtr = nullptr;
+      std::shared_ptr<const Acts::DigitizationModule> moduleDigitizationPtr = nullptr;
       if (m_cfg.centralModuleReadoutBinsX.size()) {
         // create the CartesianSegmentation
-        std::shared_ptr<const Segmentation> moduleSegmentation
-            = std::make_shared<const CartesianSegmentation>(
+        std::shared_ptr<const Acts::Segmentation> moduleSegmentation
+            = std::make_shared<const Acts::CartesianSegmentation>(
                 moduleBounds,
                 m_cfg.centralModuleReadoutBinsX.at(icl),
                 m_cfg.centralModuleReadoutBinsY.at(icl));
         // now create the digitzation module
-        moduleDigitizationPtr = std::make_shared<const DigitizationModule>(
+        moduleDigitizationPtr = std::make_shared<const Acts::DigitizationModule>(
             moduleSegmentation,
             m_cfg.centralModuleThickness.at(icl),
             m_cfg.centralModuleReadoutSide.at(icl),
@@ -127,15 +130,14 @@ Acts::GenericLayerBuilder::constructLayers()
 
       // prepartation :
       // create the Module material from input
-      std::shared_ptr<const SurfaceMaterial> moduleMaterialPtr = nullptr;
+      std::shared_ptr<const Acts::SurfaceMaterial> moduleMaterialPtr = nullptr;
       if (m_cfg.centralModuleMaterial.size()) {
         // get the sensor material from configuration
-        Material           moduleMaterial = m_cfg.centralModuleMaterial.at(icl);
-        MaterialProperties moduleMaterialProperties(moduleMaterial,
-                                                    moduleThickness);
+        Acts::Material           moduleMaterial = m_cfg.centralModuleMaterial.at(icl);
+        Acts::MaterialProperties moduleMaterialProperties(moduleMaterial, moduleThickness);
         // create a new surface material
-        moduleMaterialPtr = std::shared_ptr<const SurfaceMaterial>(
-            new HomogeneousSurfaceMaterial(moduleMaterialProperties));
+        moduleMaterialPtr = std::shared_ptr<const Acts::SurfaceMaterial>(
+            new Acts::HomogeneousSurfaceMaterial(moduleMaterialProperties));
       }
 
       // confirm
@@ -150,45 +152,45 @@ Acts::GenericLayerBuilder::constructLayers()
         // create the association transform
         double modulePhi = moduleCenter.phi();
         // the local z axis is the normal vector
-        Vector3D moduleLocalZ(
+        Acts::Vector3D moduleLocalZ(
             cos(modulePhi + modulePhiTilt), sin(modulePhi + modulePhiTilt), 0.);
         // the local y axis is the global z axis
-        Vector3D moduleLocalY(0., 0., 1);
+        Acts::Vector3D moduleLocalY(0., 0., 1);
         // the local x axis the normal to local y,z
-        Vector3D moduleLocalX(-sin(modulePhi + modulePhiTilt),
+        Acts::Vector3D moduleLocalX(-sin(modulePhi + modulePhiTilt),
                               cos(modulePhi + modulePhiTilt),
                               0.);
         // create the RotationMatrix
-        RotationMatrix3D moduleRotation;
+        Acts::RotationMatrix3D moduleRotation;
         moduleRotation.col(0) = moduleLocalX;
         moduleRotation.col(1) = moduleLocalY;
         moduleRotation.col(2) = moduleLocalZ;
         // get the moduleTransform
-        std::shared_ptr<Transform3D> mutableModuleTransform(new Transform3D(
-            getTransformFromRotTransl(moduleRotation, moduleCenter)));
+        std::shared_ptr<Acts::Transform3D> mutableModuleTransform(new Acts::Transform3D(
+            Acts::getTransformFromRotTransl(moduleRotation, moduleCenter)));
         // stereo angle if necessary
         if (m_cfg.centralModuleFrontsideStereo.size()
             && m_cfg.centralModuleFrontsideStereo.at(icl) != 0.) {
           // twist by the stereo angle
           double stereo = m_cfg.centralModuleFrontsideStereo.at(icl);
           (*mutableModuleTransform.get())
-              *= AngleAxis3D(-stereo, Vector3D::UnitZ());
+              *= Acts::AngleAxis3D(-stereo, Acts::Vector3D::UnitZ());
         }
         // count the modules
         ++imodule;
         Identifier moduleIdentifier
             = Identifier(Identifier::value_type(imodule));
         // Finalize the transform
-        auto moduleTransform = std::const_pointer_cast<const Transform3D>(
+        auto moduleTransform = std::const_pointer_cast<const Acts::Transform3D>(
             mutableModuleTransform);
         // create the module
-        DetectorElementBase* module
-            = new GenericDetectorElement(moduleIdentifier,
-                                         moduleTransform,
-                                         moduleBounds,
-                                         moduleThickness,
-                                         moduleMaterialPtr,
-                                         moduleDigitizationPtr);
+        Acts::DetectorElementBase* module
+            = new FWGen::GenericDetectorElement(moduleIdentifier,
+                                                moduleTransform,
+                                                moduleBounds,
+                                                moduleThickness,
+                                                moduleMaterialPtr,
+                                                moduleDigitizationPtr);
         // register the surface
         sVector.push_back(&module->surface());
         // store the module
@@ -203,29 +205,29 @@ Acts::GenericLayerBuilder::constructLayers()
           moduleIdentifier = Identifier(Identifier::value_type(imodule));
           moduleCenter     = moduleCenter
               + m_cfg.centralModuleBacksideGap.at(icl) * moduleLocalZ;
-          mutableModuleTransform = std::shared_ptr<Transform3D>(new Transform3D(
-              getTransformFromRotTransl(moduleRotation, moduleCenter)));
+          mutableModuleTransform = std::shared_ptr<Acts::Transform3D>(new Acts::Transform3D(
+              Acts::getTransformFromRotTransl(moduleRotation, moduleCenter)));
           // apply the stereo
           if (m_cfg.centralModuleBacksideStereo.size()) {
             // twist by the stereo angle
             double stereoBackSide = m_cfg.centralModuleBacksideStereo.at(icl);
             (*mutableModuleTransform.get())
-                *= AngleAxis3D(-stereoBackSide, Vector3D::UnitZ());
+                *= Acts::AngleAxis3D(-stereoBackSide, Acts::Vector3D::UnitZ());
           }
           // Finalize the transform
-          moduleTransform = std::const_pointer_cast<const Transform3D>(
+          moduleTransform = std::const_pointer_cast<const Acts::Transform3D>(
               mutableModuleTransform);
           // everything is set for the next module
-          DetectorElementBase* bsmodule
-              = new GenericDetectorElement(moduleIdentifier,
-                                           moduleTransform,
-                                           moduleBounds,
-                                           moduleThickness,
-                                           moduleMaterialPtr,
-                                           moduleDigitizationPtr);
+          Acts::DetectorElementBase* bsmodule
+              = new FWGen::GenericDetectorElement(moduleIdentifier,
+                                                  moduleTransform,
+                                                  moduleBounds,
+                                                  moduleThickness,
+                                                  moduleMaterialPtr,
+                                                  moduleDigitizationPtr);
           // register the backside as bin member
-          std::vector<const DetectorElementBase*> bsbinmember = {module};
-          std::vector<const DetectorElementBase*> binmember   = {bsmodule};
+          std::vector<const Acts::DetectorElementBase*> bsbinmember = {module};
+          std::vector<const Acts::DetectorElementBase*> binmember   = {bsmodule};
           bsmodule->registerBinmembers(bsbinmember);
           module->registerBinmembers(binmember);
           // memory management - we need a detector store to hold them
@@ -240,7 +242,7 @@ Acts::GenericLayerBuilder::constructLayers()
       zBins *= m_cfg.centralLayerBinMultipliers.second;
       // create the surface array - it will also fill the accesible binmember
       // chache if avalable
-      MutableLayerPtr cLayer
+      Acts::MutableLayerPtr cLayer
           = m_cfg.layerCreator->cylinderLayer(sVector,
                                               m_cfg.approachSurfaceEnvelope,
                                               layerEnvelopeCoverZ,
@@ -249,10 +251,10 @@ Acts::GenericLayerBuilder::constructLayers()
       // the layer is built le't see if it needs material
       if (m_cfg.centralLayerMaterialProperties.size()) {
         // get the material from configuration
-        MaterialProperties layerMaterialProperties
+        Acts::MaterialProperties layerMaterialProperties
             = m_cfg.centralLayerMaterialProperties.at(icl);
-        std::shared_ptr<const SurfaceMaterial> layerMaterialPtr(
-            new HomogeneousSurfaceMaterial(layerMaterialProperties));
+        std::shared_ptr<const Acts::SurfaceMaterial> layerMaterialPtr(
+            new Acts::HomogeneousSurfaceMaterial(layerMaterialProperties));
         // central material
         if (m_cfg.centralLayerMaterialConcentration.at(icl) == 0.) {
           // the layer surface is the material surface
@@ -267,12 +269,12 @@ Acts::GenericLayerBuilder::constructLayers()
               = cLayer->approachDescriptor()->containedSurfaces();
           if (m_cfg.centralLayerMaterialConcentration.at(icl) > 0) {
             auto mutableOuterSurface
-                = const_cast<Surface*>(approachSurfaces.at(1));
+                = const_cast<Acts::Surface*>(approachSurfaces.at(1));
             mutableOuterSurface->setAssociatedMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at outer approach surface");
           } else {
             auto mutableInnerSurface
-                = const_cast<Surface*>(approachSurfaces.at(0));
+                = const_cast<Acts::Surface*>(approachSurfaces.at(0));
             mutableInnerSurface->setAssociatedMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at inner approach surface");
           }
@@ -304,8 +306,8 @@ Acts::GenericLayerBuilder::constructLayers()
       // define the layer envelope
       double layerEnvelopeR = m_cfg.posnegLayerEnvelopeR.at(ipnl);
       // prepare for the r binning
-      std::vector<const Surface*> nsVector;
-      std::vector<const Surface*> psVector;
+      std::vector<const Acts::Surface*> nsVector;
+      std::vector<const Acts::Surface*> psVector;
       // now fill the vectors
       size_t ipnR = 0;
       for (auto& discModulePositions : m_cfg.posnegModulePositions.at(ipnl)) {
@@ -322,26 +324,26 @@ Acts::GenericLayerBuilder::constructLayers()
         double moduleHalfY = m_cfg.posnegModuleHalfY.at(ipnl).at(ipnR);
         // (1) module bounds
         // create the bounds
-        PlanarBounds* pBounds = nullptr;
+        Acts::PlanarBounds* pBounds = nullptr;
         if (moduleMaxHalfX != 0. && moduleMinHalfX != moduleMaxHalfX)
-          pBounds = new TrapezoidBounds(
+          pBounds = new Acts::TrapezoidBounds(
               moduleMinHalfX, moduleMaxHalfX, moduleHalfY);
         else
-          pBounds = new RectangleBounds(moduleMinHalfX, moduleHalfY);
+          pBounds = new Acts::RectangleBounds(moduleMinHalfX, moduleHalfY);
         // now create the shared bounds from it
-        std::shared_ptr<const PlanarBounds> moduleBounds(pBounds);
+        std::shared_ptr<const Acts::PlanarBounds> moduleBounds(pBounds);
         // (2) create digitizaiton module
-        std::shared_ptr<const DigitizationModule> moduleDigitizationPtr
+        std::shared_ptr<const Acts::DigitizationModule> moduleDigitizationPtr
             = nullptr;
         if (m_cfg.posnegModuleReadoutBinsX.size()) {
           // create the CartesianSegmentation
-          std::shared_ptr<const Segmentation> moduleSegmentation
-              = std::make_shared<const CartesianSegmentation>(
+          std::shared_ptr<const Acts::Segmentation> moduleSegmentation
+              = std::make_shared<const Acts::CartesianSegmentation>(
                   moduleBounds,
                   m_cfg.posnegModuleReadoutBinsX.at(ipnl).at(ipnR),
                   m_cfg.posnegModuleReadoutBinsY.at(ipnl).at(ipnR));
           // now create the digitzation module
-          moduleDigitizationPtr = std::make_shared<const DigitizationModule>(
+          moduleDigitizationPtr = std::make_shared<const Acts::DigitizationModule>(
               moduleSegmentation,
               moduleThickness,
               m_cfg.posnegModuleReadoutSide.at(ipnl).at(ipnR),
@@ -349,13 +351,13 @@ Acts::GenericLayerBuilder::constructLayers()
         }
         // (3) module material
         // create the Module material from input
-        std::shared_ptr<const SurfaceMaterial> moduleMaterialPtr = nullptr;
+        std::shared_ptr<const Acts::SurfaceMaterial> moduleMaterialPtr = nullptr;
         if (m_cfg.posnegModuleMaterial.size()) {
-          MaterialProperties moduleMaterialProperties(
+          Acts::MaterialProperties moduleMaterialProperties(
               m_cfg.posnegModuleMaterial.at(ipnl).at(ipnR), moduleThickness);
           // and create the shared pointer
-          moduleMaterialPtr = std::shared_ptr<const SurfaceMaterial>(
-              new HomogeneousSurfaceMaterial(moduleMaterialProperties));
+          moduleMaterialPtr = std::shared_ptr<const Acts::SurfaceMaterial>(
+              new Acts::HomogeneousSurfaceMaterial(moduleMaterialProperties));
         }
 
         // low loop over the phi positions and build the stuff
@@ -363,49 +365,49 @@ Acts::GenericLayerBuilder::constructLayers()
           // the module transform from the position
           double modulePhi = ringModulePosition.phi();
           // the center position of the modules
-          Vector3D pModuleCenter(ringModulePosition);
+          Acts::Vector3D pModuleCenter(ringModulePosition);
           // take the mirrored position wrt x/y
-          Vector3D nModuleCenter(
+          Acts::Vector3D nModuleCenter(
               pModuleCenter.x(), pModuleCenter.y(), -pModuleCenter.z());
           // the rotation matrix of the module
-          Vector3D moduleLocalY(cos(modulePhi), sin(modulePhi), 0.);
+          Acts::Vector3D moduleLocalY(cos(modulePhi), sin(modulePhi), 0.);
           // take different axis to have the same readout direction
-          Vector3D pModuleLocalZ(0., 0., 1.);
+          Acts::Vector3D pModuleLocalZ(0., 0., 1.);
           // take different axis to have the same readout direction
-          Vector3D nModuleLocalZ(0., 0., -1.);
-          Vector3D nModuleLocalX = moduleLocalY.cross(nModuleLocalZ);
-          Vector3D pModuleLocalX = moduleLocalY.cross(pModuleLocalZ);
+          Acts::Vector3D nModuleLocalZ(0., 0., -1.);
+          Acts::Vector3D nModuleLocalX = moduleLocalY.cross(nModuleLocalZ);
+          Acts::Vector3D pModuleLocalX = moduleLocalY.cross(pModuleLocalZ);
           // local rotation matrices
           // create the RotationMatrix - negative side
-          RotationMatrix3D nModuleRotation;
+          Acts::RotationMatrix3D nModuleRotation;
           nModuleRotation.col(0) = nModuleLocalX;
           nModuleRotation.col(1) = moduleLocalY;
           nModuleRotation.col(2) = nModuleLocalZ;
           // create the RotationMatrix - positive side
-          RotationMatrix3D pModuleRotation;
+          Acts::RotationMatrix3D pModuleRotation;
           pModuleRotation.col(0) = pModuleLocalX;
           pModuleRotation.col(1) = moduleLocalY;
           pModuleRotation.col(2) = pModuleLocalZ;
           // the transforms for the two modules
-          std::shared_ptr<const Transform3D> nModuleTransform(new Transform3D(
-              getTransformFromRotTransl(nModuleRotation, nModuleCenter)));
-          std::shared_ptr<const Transform3D> pModuleTransform(new Transform3D(
-              getTransformFromRotTransl(pModuleRotation, pModuleCenter)));
+          std::shared_ptr<const Acts::Transform3D> nModuleTransform(new Acts::Transform3D(
+              Acts::getTransformFromRotTransl(nModuleRotation, nModuleCenter)));
+          std::shared_ptr<const Acts::Transform3D> pModuleTransform(new Acts::Transform3D(
+              Acts::getTransformFromRotTransl(pModuleRotation, pModuleCenter)));
           // create the modules identifier @todo Idenfier service
           Identifier nModuleIdentifier
               = Identifier(Identifier::value_type(2 * imodule));
           Identifier pModuleIdentifier
               = Identifier(Identifier::value_type(2 * imodule + 1));
           // create the module
-          GenericDetectorElement* nmodule
-              = new GenericDetectorElement(nModuleIdentifier,
+          FWGen::GenericDetectorElement* nmodule
+              = new FWGen::GenericDetectorElement(nModuleIdentifier,
                                            nModuleTransform,
                                            moduleBounds,
                                            moduleThickness,
                                            moduleMaterialPtr,
                                            moduleDigitizationPtr);
-          GenericDetectorElement* pmodule
-              = new GenericDetectorElement(pModuleIdentifier,
+          FWGen::GenericDetectorElement* pmodule
+              = new FWGen::GenericDetectorElement(pModuleIdentifier,
                                            pModuleTransform,
                                            moduleBounds,
                                            moduleThickness,
@@ -429,46 +431,46 @@ Acts::GenericLayerBuilder::constructLayers()
                     * pModuleLocalZ;
             // the new transforms
             auto mutableNModuleTransform
-                = std::shared_ptr<Transform3D>(new Transform3D(
-                    getTransformFromRotTransl(nModuleRotation, nModuleCenter)));
+                = std::shared_ptr<Acts::Transform3D>(new Acts::Transform3D(
+                    Acts::getTransformFromRotTransl(nModuleRotation, nModuleCenter)));
             auto mutablePModuleTransform
-                = std::shared_ptr<Transform3D>(new Transform3D(
-                    getTransformFromRotTransl(pModuleRotation, pModuleCenter)));
+                = std::shared_ptr<Acts::Transform3D>(new Acts::Transform3D(
+                    Acts::getTransformFromRotTransl(pModuleRotation, pModuleCenter)));
             // apply the stereo
             if (m_cfg.posnegModuleBacksideStereo.size()) {
               // twist by the stereo angle
               double stereoBackSide
                   = m_cfg.posnegModuleBacksideStereo.at(ipnl).at(ipnR);
               (*mutableNModuleTransform.get())
-                  *= AngleAxis3D(-stereoBackSide, Vector3D::UnitZ());
+                  *= Acts::AngleAxis3D(-stereoBackSide, Acts::Vector3D::UnitZ());
               (*mutablePModuleTransform.get())
-                  *= AngleAxis3D(-stereoBackSide, Vector3D::UnitZ());
+                  *= Acts::AngleAxis3D(-stereoBackSide, Acts::Vector3D::UnitZ());
             }
             // Finalize the transform
-            nModuleTransform = std::const_pointer_cast<const Transform3D>(
+            nModuleTransform = std::const_pointer_cast<const Acts::Transform3D>(
                 mutableNModuleTransform);
-            pModuleTransform = std::const_pointer_cast<const Transform3D>(
+            pModuleTransform = std::const_pointer_cast<const Acts::Transform3D>(
                 mutablePModuleTransform);
             // everything is set for the next module
-            GenericDetectorElement* bsnmodule
-                = new GenericDetectorElement(nModuleIdentifier,
+            FWGen::GenericDetectorElement* bsnmodule
+                = new FWGen::GenericDetectorElement(nModuleIdentifier,
                                              nModuleTransform,
                                              moduleBounds,
                                              moduleThickness,
                                              moduleMaterialPtr,
                                              moduleDigitizationPtr);
-            GenericDetectorElement* bspmodule
-                = new GenericDetectorElement(pModuleIdentifier,
+            FWGen::GenericDetectorElement* bspmodule
+                = new FWGen::GenericDetectorElement(pModuleIdentifier,
                                              pModuleTransform,
                                              moduleBounds,
                                              moduleThickness,
                                              moduleMaterialPtr,
                                              moduleDigitizationPtr);
             // register the backside of the binmembers
-            std::vector<const DetectorElementBase*> bspbinmember = {pmodule};
-            std::vector<const DetectorElementBase*> pbinmember   = {bspmodule};
-            std::vector<const DetectorElementBase*> bsnbinmember = {nmodule};
-            std::vector<const DetectorElementBase*> nbinmember   = {bsnmodule};
+            std::vector<const Acts::DetectorElementBase*> bspbinmember = {pmodule};
+            std::vector<const Acts::DetectorElementBase*> pbinmember   = {bspmodule};
+            std::vector<const Acts::DetectorElementBase*> bsnbinmember = {nmodule};
+            std::vector<const Acts::DetectorElementBase*> nbinmember   = {bsnmodule};
             bsnmodule->registerBinmembers(bsnbinmember);
             nmodule->registerBinmembers(nbinmember);
             bspmodule->registerBinmembers(bspbinmember);
@@ -499,14 +501,14 @@ Acts::GenericLayerBuilder::constructLayers()
         layerBinsPhi *= m_cfg.posnegLayerBinMultipliers.second;
       }
       // create the layers with the surface arrays
-      MutableLayerPtr nLayer
+      Acts::MutableLayerPtr nLayer
           = m_cfg.layerCreator->discLayer(nsVector,
                                           layerEnvelopeR,
                                           layerEnvelopeR,
                                           m_cfg.approachSurfaceEnvelope,
                                           layerBinsR,
                                           layerBinsPhi);
-      MutableLayerPtr pLayer
+      Acts::MutableLayerPtr pLayer
           = m_cfg.layerCreator->discLayer(psVector,
                                           layerEnvelopeR,
                                           layerEnvelopeR,
@@ -516,8 +518,8 @@ Acts::GenericLayerBuilder::constructLayers()
 
       // the layer is built le't see if it needs material
       if (m_cfg.posnegLayerMaterialProperties.size()) {
-        std::shared_ptr<const SurfaceMaterial> layerMaterialPtr(
-            new HomogeneousSurfaceMaterial(
+        std::shared_ptr<const Acts::SurfaceMaterial> layerMaterialPtr(
+            new Acts::HomogeneousSurfaceMaterial(
                 m_cfg.posnegLayerMaterialProperties[ipnl]));
         // central material
         if (m_cfg.posnegLayerMaterialConcentration.at(ipnl) == 0.) {
@@ -538,18 +540,18 @@ Acts::GenericLayerBuilder::constructLayers()
               = pLayer->approachDescriptor()->containedSurfaces();
           if (m_cfg.posnegLayerMaterialConcentration.at(ipnl) > 0.) {
             auto mutableInnerNSurface
-                = const_cast<Surface*>(nApproachSurfaces.at(0));
+                = const_cast<Acts::Surface*>(nApproachSurfaces.at(0));
             mutableInnerNSurface->setAssociatedMaterial(layerMaterialPtr);
             auto mutableOuterPSurface
-                = const_cast<Surface*>(pApproachSurfaces.at(1));
+                = const_cast<Acts::Surface*>(pApproachSurfaces.at(1));
             mutableOuterPSurface->setAssociatedMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at outer approach surfaces.");
           } else {
             auto mutableOuterNSurface
-                = const_cast<Surface*>(nApproachSurfaces.at(1));
+                = const_cast<Acts::Surface*>(nApproachSurfaces.at(1));
             mutableOuterNSurface->setAssociatedMaterial(layerMaterialPtr);
             auto mutableInnerPSurface
-                = const_cast<Surface*>(pApproachSurfaces.at(0));
+                = const_cast<Acts::Surface*>(pApproachSurfaces.at(0));
             mutableInnerPSurface->setAssociatedMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at inner approach surfaces.");
           }

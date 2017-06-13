@@ -10,26 +10,26 @@
 // Beam Pipe
 //-------------------------------------------------------------------------------------
 // configure the beam pipe layer builder
-PassiveLayerBuilder::Config bplConfig;
+Acts::PassiveLayerBuilder::Config bplConfig;
 bplConfig.layerIdentification     = "BeamPipe";
 bplConfig.centralLayerRadii       = std::vector<double>(1, 19.);
 bplConfig.centralLayerHalflengthZ = std::vector<double>(1, 3000.);
 bplConfig.centralLayerThickness   = std::vector<double>(1, 0.8);
-bplConfig.centralLayerMaterial = {Material(352.8, 407., 9.012, 4., 1.848e-3)};
-auto beamPipeBuilder              = std::make_shared<const PassiveLayerBuilder>(
+bplConfig.centralLayerMaterial = {Acts::Material(352.8, 407., 9.012, 4., 1.848e-3)};
+auto beamPipeBuilder              = std::make_shared<const Acts::PassiveLayerBuilder>(
     bplConfig,
-    getDefaultLogger("BeamPipeLayerBuilder", layerLLevel));
+    Acts::getDefaultLogger("BeamPipeLayerBuilder", layerLLevel));
 // create the volume for the beam pipe
-CylinderVolumeBuilder::Config bpvConfig;
+Acts::CylinderVolumeBuilder::Config bpvConfig;
 bpvConfig.trackingVolumeHelper = cylinderVolumeHelper;
 bpvConfig.volumeName           = "BeamPipe";
 bpvConfig.layerBuilder         = beamPipeBuilder;
 bpvConfig.layerEnvelopeR       = {1. * Acts::units::_mm, 1. * Acts::units::_mm};
 bpvConfig.buildToRadiusZero    = true;
 bpvConfig.volumeSignature      = 0;
-auto beamPipeVolumeBuilder     = std::make_shared<const CylinderVolumeBuilder>(
+auto beamPipeVolumeBuilder     = std::make_shared<const Acts::CylinderVolumeBuilder>(
     bpvConfig,
-    getDefaultLogger("BeamPipeVolumeBuilder", volumeLLevel));
+    Acts::getDefaultLogger("BeamPipeVolumeBuilder", volumeLLevel));
 // add to the list of builders
 volumeBuilders.push_back(beamPipeVolumeBuilder);
 //-------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ volumeBuilders.push_back(beamPipeVolumeBuilder);
 // Pixel detector
 //-------------------------------------------------------------------------------------
 // configure pixel layer builder
-GenericLayerBuilder::Config plbConfig;
+FWGen::GenericLayerBuilder::Config plbConfig;
 plbConfig.layerCreator        = layerCreator;
 plbConfig.layerIdentification = "Pixel";
 // fill necessary vectors for configuration
@@ -46,9 +46,9 @@ plbConfig.layerIdentification = "Pixel";
 // envelope for layers
 std::pair<double, double> pcEnvelope(2., 2.);
 // Layer material properties - thickness, X0, L0, A, Z, Rho
-MaterialProperties pcmProperties(1., 95.7, 465.2, 28.03, 14., 2.32e-3);
+Acts::MaterialProperties pcmProperties(1., 95.7, 465.2, 28.03, 14., 2.32e-3);
 // Module material - X0, L0, A, Z, Rho
-Material pcMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
+Acts::Material pcMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
 
 // standard, an approach envelope
 plbConfig.approachSurfaceEnvelope = 1.;
@@ -82,7 +82,7 @@ plbConfig.centralModuleFrontsideStereo = {};
 plbConfig.centralModuleBacksideStereo  = {};
 plbConfig.centralModuleBacksideGap     = {};
 // mPositions
-std::vector<std::vector<Vector3D>> plbCentralModulePositions;
+std::vector<std::vector<Acts::Vector3D>> plbCentralModulePositions;
 for (size_t plb = 0; plb < plbConfig.centralLayerRadii.size(); ++plb) {
   // call the helper function
   plbCentralModulePositions.push_back(
@@ -148,7 +148,7 @@ plbConfig.posnegModuleFrontsideStereo = {};
 plbConfig.posnegModuleBacksideStereo  = {};
 plbConfig.posnegModuleBacksideGap     = {};
 // mPositions
-std::vector<std::vector<std::vector<Vector3D>>> plbPosnegModulePositions;
+std::vector<std::vector<std::vector<Acts::Vector3D>>> plbPosnegModulePositions;
 for (size_t id = 0; id < plbConfig.posnegLayerPositionsZ.size(); ++id) {
   plbPosnegModulePositions.push_back(
       modulePositionsDisc(plbConfig.posnegLayerPositionsZ[id],
@@ -163,21 +163,21 @@ for (size_t id = 0; id < plbConfig.posnegLayerPositionsZ.size(); ++id) {
 plbConfig.posnegModulePositions = plbPosnegModulePositions;
 
 // define the builder
-auto pixelLayerBuilder = std::make_shared<const GenericLayerBuilder>(
+auto pixelLayerBuilder = std::make_shared<const FWGen::GenericLayerBuilder>(
     plbConfig,
-    getDefaultLogger("PixelLayerBuilder", layerLLevel));
+    Acts::getDefaultLogger("PixelLayerBuilder", layerLLevel));
 //-------------------------------------------------------------------------------------
 // build the pixel volume
-CylinderVolumeBuilder::Config pvbConfig;
+Acts::CylinderVolumeBuilder::Config pvbConfig;
 pvbConfig.trackingVolumeHelper = cylinderVolumeHelper;
 pvbConfig.volumeName           = "Pixel";
 pvbConfig.buildToRadiusZero    = false;
 pvbConfig.layerEnvelopeR       = {1. * Acts::units::_mm, 5. * Acts::units::_mm};
 pvbConfig.layerBuilder         = pixelLayerBuilder;
 pvbConfig.volumeSignature      = 0;
-auto pixelVolumeBuilder        = std::make_shared<const CylinderVolumeBuilder>(
+auto pixelVolumeBuilder        = std::make_shared<const Acts::CylinderVolumeBuilder>(
     pvbConfig,
-    getDefaultLogger("PixelVolumeBuilder", volumeLLevel));
+    Acts::getDefaultLogger("PixelVolumeBuilder", volumeLLevel));
 // add to the list of builders
 volumeBuilders.push_back(pixelVolumeBuilder);
 
@@ -185,25 +185,25 @@ volumeBuilders.push_back(pixelVolumeBuilder);
 //-------------------------------------------------------------------------------------
 // Pixel Support Tybe (PST)
 //-------------------------------------------------------------------------------------
-PassiveLayerBuilder::Config pstConfig;
+Acts::PassiveLayerBuilder::Config pstConfig;
 pstConfig.layerIdentification     = "PST";
 pstConfig.centralLayerRadii       = std::vector<double>(1, 200.);
 pstConfig.centralLayerHalflengthZ = std::vector<double>(1, 2800.);
 pstConfig.centralLayerThickness   = std::vector<double>(1, 1.8);
-pstConfig.centralLayerMaterial = {Material(352.8, 407., 9.012, 4., 1.848e-3)};
-auto pstBuilder                   = std::make_shared<const PassiveLayerBuilder>(
+pstConfig.centralLayerMaterial = {Acts::Material(352.8, 407., 9.012, 4., 1.848e-3)};
+auto pstBuilder                   = std::make_shared<const Acts::PassiveLayerBuilder>(
     pstConfig,
-    getDefaultLogger("PSTBuilder", layerLLevel));
+    Acts::getDefaultLogger("PSTBuilder", layerLLevel));
 // create the volume for the beam pipe
-CylinderVolumeBuilder::Config pstvolConfig;
+Acts::CylinderVolumeBuilder::Config pstvolConfig;
 pstvolConfig.trackingVolumeHelper = cylinderVolumeHelper;
 pstvolConfig.volumeName           = "PST";
 pstvolConfig.buildToRadiusZero    = false;
 pstvolConfig.layerBuilder         = pstBuilder;
 pstvolConfig.volumeSignature      = 0;
-auto pstVolumeBuilder = std::make_shared<const CylinderVolumeBuilder>(
+auto pstVolumeBuilder = std::make_shared<const Acts::CylinderVolumeBuilder>(
     pstvolConfig,
-    getDefaultLogger("PSTVolumeBuilder", volumeLLevel));
+    Acts::getDefaultLogger("PSTVolumeBuilder", volumeLLevel));
 // add to the detector builds
 volumeBuilders.push_back(pstVolumeBuilder);
 
@@ -214,7 +214,7 @@ volumeBuilders.push_back(pstVolumeBuilder);
 // STRIPS
 // ----------------------------------------------------------------------------
 // configure short strip layer builder
-GenericLayerBuilder::Config sslbConfig;
+FWGen::GenericLayerBuilder::Config sslbConfig;
 sslbConfig.layerCreator        = layerCreator;
 sslbConfig.layerIdentification = "SStrip";
 // fill necessary vectors for configuration
@@ -223,9 +223,9 @@ sslbConfig.layerIdentification = "SStrip";
 // envelope double
 std::pair<double, double> ssEnvelope(2., 2.);
 // Layer material properties - thickness, X0, L0, A, Z, Rho
-MaterialProperties ssmProperties(1., 95.7, 465.2, 28.03, 14., 2.32e-3);
+Acts::MaterialProperties ssmProperties(1., 95.7, 465.2, 28.03, 14., 2.32e-3);
 // Module material - X0, L0, A, Z, Rho
-Material ssMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
+Acts::Material ssMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
 
 // configure the central barrel
 sslbConfig.centralLayerBinMultipliers = {1, 1};
@@ -249,11 +249,11 @@ sslbConfig.centralModuleLorentzAngle = {0.12, 0.12, 0.12, 0.12};
 
 sslbConfig.centralModuleMaterial
     = {ssMaterial, ssMaterial, ssMaterial, ssMaterial};
-sslbConfig.centralModuleFrontsideStereo = {}; // {-0.02, -0.02, -0.02, -0.02};
-sslbConfig.centralModuleBacksideStereo  = {}; // {0.02, 0.02, 0.02, 0.02};
-sslbConfig.centralModuleBacksideGap     = {}; // {2., 2., 2., 2.};
+sslbConfig.centralModuleFrontsideStereo = {};
+sslbConfig.centralModuleBacksideStereo  = {};
+sslbConfig.centralModuleBacksideGap     = {};
 // mPositions
-std::vector<std::vector<Vector3D>> sslbCentralModulePositions;
+std::vector<std::vector<Acts::Vector3D>> sslbCentralModulePositions;
 for (size_t sslb = 0; sslb < sslbConfig.centralLayerRadii.size(); ++sslb) {
   // call the helper function
   sslbCentralModulePositions.push_back(
@@ -278,10 +278,8 @@ std::vector<double> mrLorentzAngle = {0., 0., 0.};
 
 std::vector<size_t>   mPhiBins   = {52, 56, 60};
 std::vector<double>   mThickness = {0.2, 0.2, 0.2};
-std::vector<Material> mMaterial  = {ssMaterial, ssMaterial, ssMaterial};
-//std::vector<double>   mfStereo   = {-0.02, -0.02, -0.02};
-//std::vector<double>   mbStereo   = {0.02, 0.02, 0.02};
-//std::vector<double>   mfbGap     = {2., 2., 2.};
+std::vector<Acts::Material> mMaterial  = {ssMaterial, ssMaterial, ssMaterial};
+
 
 sslbConfig.posnegLayerBinMultipliers = {1, 2};
 
@@ -290,7 +288,7 @@ size_t nposnegs                  = sslbConfig.posnegLayerPositionsZ.size();
 sslbConfig.posnegLayerEnvelopeR  = std::vector<double>(nposnegs, 5.);
 sslbConfig.posnegLayerMaterialConcentration = std::vector<int>(nposnegs, 0);
 sslbConfig.posnegLayerMaterialProperties
-    = std::vector<MaterialProperties>(nposnegs, ssmProperties);
+    = std::vector<Acts::MaterialProperties>(nposnegs, ssmProperties);
 sslbConfig.posnegModuleMinHalfX
     = std::vector<std::vector<double>>(nposnegs, mrMinHx);
 sslbConfig.posnegModuleMaxHalfX
@@ -311,15 +309,14 @@ sslbConfig.posnegModuleLorentzAngle
     = std::vector<std::vector<double>>(nposnegs, mrLorentzAngle);
 
 sslbConfig.posnegModuleMaterial
-    = std::vector<std::vector<Material>>(nposnegs, mMaterial);
+    = std::vector<std::vector<Acts::Material>>(nposnegs, mMaterial);
+
 sslbConfig.posnegModuleFrontsideStereo = {};
-//    = std::vector<std::vector<double>>(nposnegs, mfStereo);
-sslbConfig.posnegModuleBacksideStereo = {};
-//    = std::vector<std::vector<double>>(nposnegs, mbStereo);
-sslbConfig.posnegModuleBacksideGap = {};
-//    = std::vector<std::vector<double>>(nposnegs, mfbGap);
+sslbConfig.posnegModuleBacksideStereo  = {};
+sslbConfig.posnegModuleBacksideGap     = {};
+
 // mPositions
-std::vector<std::vector<std::vector<Vector3D>>> sslbPosnegModulePositions;
+std::vector<std::vector<std::vector<Acts::Vector3D>>> sslbPosnegModulePositions;
 for (size_t id = 0; id < sslbConfig.posnegLayerPositionsZ.size(); ++id) {
   sslbPosnegModulePositions.push_back(
       modulePositionsDisc(sslbConfig.posnegLayerPositionsZ[id],
@@ -334,20 +331,20 @@ for (size_t id = 0; id < sslbConfig.posnegLayerPositionsZ.size(); ++id) {
 sslbConfig.posnegModulePositions = sslbPosnegModulePositions;
 
 // define the builder
-auto sstripLayerBuilder = std::make_shared<const GenericLayerBuilder>(
+auto sstripLayerBuilder = std::make_shared<const FWGen::GenericLayerBuilder>(
     sslbConfig,
-    getDefaultLogger("SStripLayerBuilder", layerLLevel));
+    Acts::getDefaultLogger("SStripLayerBuilder", layerLLevel));
 //-------------------------------------------------------------------------------------
 // build the pixel volume
-CylinderVolumeBuilder::Config ssvbConfig;
+Acts::CylinderVolumeBuilder::Config ssvbConfig;
 ssvbConfig.trackingVolumeHelper = cylinderVolumeHelper;
 ssvbConfig.volumeName           = "SStrip";
 ssvbConfig.buildToRadiusZero    = false;
 ssvbConfig.layerBuilder         = sstripLayerBuilder;
 ssvbConfig.volumeSignature      = 0;
-auto sstripVolumeBuilder        = std::make_shared<const CylinderVolumeBuilder>(
+auto sstripVolumeBuilder        = std::make_shared<const Acts::CylinderVolumeBuilder>(
     ssvbConfig,
-    getDefaultLogger("SStripVolumeBuilder", volumeLLevel));
+    Acts::getDefaultLogger("SStripVolumeBuilder", volumeLLevel));
 
 //-------------------------------------------------------------------------------------
 // add to the list of builders
@@ -359,7 +356,7 @@ volumeBuilders.push_back(sstripVolumeBuilder);
 //-------------------------------------------------------------------------------------
 
 // configure short strip layer builder
-GenericLayerBuilder::Config lslbConfig;
+FWGen::GenericLayerBuilder::Config lslbConfig;
 lslbConfig.layerCreator        = layerCreator;
 lslbConfig.layerIdentification = "LStrip";
 // fill necessary vectors for configuration
@@ -368,9 +365,9 @@ lslbConfig.layerIdentification = "LStrip";
 // envelope double
 std::pair<double, double> lsEnvelope(2., 2.);
 // Layer material properties - thickness, X0, L0, A, Z, Rho
-MaterialProperties lsmProperties(1., 95.7, 465.2, 28.03, 14., 2.32e-3);
+Acts::MaterialProperties lsmProperties(1., 95.7, 465.2, 28.03, 14., 2.32e-3);
 // Module material - X0, L0, A, Z, Rho
-Material lsMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
+Acts::Material lsMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
 
 // configure the central barrel
 lslbConfig.centralLayerBinMultipliers        = {1, 1};
@@ -394,7 +391,7 @@ lslbConfig.centralModuleFrontsideStereo = {};
 lslbConfig.centralModuleBacksideStereo  = {};
 lslbConfig.centralModuleBacksideGap     = {};
 // mPositions
-std::vector<std::vector<Vector3D>> lslbCentralModulePositions;
+std::vector<std::vector<Acts::Vector3D>> lslbCentralModulePositions;
 for (size_t lslb = 0; lslb < lslbConfig.centralLayerRadii.size(); ++lslb) {
   // call the helper function
   lslbCentralModulePositions.push_back(
@@ -414,9 +411,6 @@ mrHy       = {78., 78.};
 mPhiBins   = {58, 46};
 mThickness = {0.25, 0.25};
 mMaterial  = {lsMaterial, lsMaterial};
-//mfStereo   = {-0.04, -0.04, -0.04};
-//mbStereo   = {0.04, 0.04, 0.04};
-// mfbGap     = {2., 2.};
 
 mrReadoutBinsX = {1120, 1120};  // 100 um pitch
 mrReadoutBinsY = {1, 1};        // 2 strips
@@ -430,7 +424,7 @@ nposnegs                         = lslbConfig.posnegLayerPositionsZ.size();
 lslbConfig.posnegLayerEnvelopeR  = std::vector<double>(nposnegs, 5.);
 lslbConfig.posnegLayerMaterialConcentration = std::vector<int>(nposnegs, 0);
 lslbConfig.posnegLayerMaterialProperties
-    = std::vector<MaterialProperties>(nposnegs, lsmProperties);
+    = std::vector<Acts::MaterialProperties>(nposnegs, lsmProperties);
 lslbConfig.posnegModuleMinHalfX
     = std::vector<std::vector<double>>(nposnegs, mrMinHx);
 lslbConfig.posnegModuleMaxHalfX
@@ -451,15 +445,13 @@ lslbConfig.posnegModuleLorentzAngle
     = std::vector<std::vector<double>>(nposnegs, mrLorentzAngle);
 
 lslbConfig.posnegModuleMaterial
-    = std::vector<std::vector<Material>>(nposnegs, mMaterial);
-lslbConfig.posnegModuleFrontsideStereo = {};
-//    = std::vector<std::vector<double>>(nposnegs, mfStereo);
-lslbConfig.posnegModuleBacksideStereo = {};
-//    = std::vector<std::vector<double>>(nposnegs, mbStereo);
-lslbConfig.posnegModuleBacksideGap = {};
-//    = std::vector<std::vector<double>>(nposnegs, mfbGap);
+    = std::vector<std::vector<Acts::Material>>(nposnegs, mMaterial);
+lslbConfig.posnegModuleFrontsideStereo  = {};
+lslbConfig.posnegModuleBacksideStereo   = {};
+lslbConfig.posnegModuleBacksideGap      = {};
+
 // mPositions
-std::vector<std::vector<std::vector<Vector3D>>> lssbPosnegModulePositions;
+std::vector<std::vector<std::vector<Acts::Vector3D>>> lssbPosnegModulePositions;
 for (size_t id = 0; id < lslbConfig.posnegLayerPositionsZ.size(); ++id) {
   lssbPosnegModulePositions.push_back(modulePositionsDisc(
       lslbConfig.posnegLayerPositionsZ[id],
@@ -474,19 +466,19 @@ for (size_t id = 0; id < lslbConfig.posnegLayerPositionsZ.size(); ++id) {
 lslbConfig.posnegModulePositions = lssbPosnegModulePositions;
 
 // define the builder
-auto lstripLayerBuilder = std::make_shared<const GenericLayerBuilder>(
+auto lstripLayerBuilder = std::make_shared<const FWGen::GenericLayerBuilder>(
     lslbConfig,
-    getDefaultLogger("LStripLayerBuilder", layerLLevel));
+    Acts::getDefaultLogger("LStripLayerBuilder", layerLLevel));
 //-------------------------------------------------------------------------------------
 // build the pixel volume
-CylinderVolumeBuilder::Config lsvbConfig;
+Acts::CylinderVolumeBuilder::Config lsvbConfig;
 lsvbConfig.trackingVolumeHelper = cylinderVolumeHelper;
 lsvbConfig.volumeName           = "LStrip";
 lsvbConfig.buildToRadiusZero    = false;
 lsvbConfig.layerBuilder         = lstripLayerBuilder;
 lsvbConfig.volumeSignature      = 0;
-auto lstripVolumeBuilder        = std::make_shared<const CylinderVolumeBuilder>(
+auto lstripVolumeBuilder        = std::make_shared<const Acts::CylinderVolumeBuilder>(
     lsvbConfig,
-    getDefaultLogger("LStripVolumeBuilder", volumeLLevel));
+    Acts::getDefaultLogger("LStripVolumeBuilder", volumeLLevel));
 // add to the list of builders
 volumeBuilders.push_back(lstripVolumeBuilder);

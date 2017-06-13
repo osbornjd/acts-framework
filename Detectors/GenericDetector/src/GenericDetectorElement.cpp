@@ -16,46 +16,46 @@
 #include "ACTS/Surfaces/PlanarBounds.hpp"
 #include "ACTS/Surfaces/PlaneSurface.hpp"
 
-Acts::GenericDetectorElement::GenericDetectorElement(
+FWGen::GenericDetectorElement::GenericDetectorElement(
     const Identifier                          identifier,
-    std::shared_ptr<const Transform3D>        transform,
-    std::shared_ptr<const PlanarBounds>       pBounds,
+    std::shared_ptr<const Acts::Transform3D>        transform,
+    std::shared_ptr<const Acts::PlanarBounds>       pBounds,
     double                                    thickness,
-    std::shared_ptr<const SurfaceMaterial>    material,
-    std::shared_ptr<const DigitizationModule> dModule)
-  : DetectorElementBase()
+    std::shared_ptr<const Acts::SurfaceMaterial>    material,
+    std::shared_ptr<const Acts::DigitizationModule> dModule)
+  : Acts::DetectorElementBase()
   , m_elementIdentifier(std::move(identifier))
   , m_elementTransform(std::move(transform))
-  , m_elementSurface(new PlaneSurface(pBounds, *this))
+  , m_elementSurface(new Acts::PlaneSurface(pBounds, *this))
   , m_elementThickness(thickness)
   , m_elementSurfaces({m_elementSurface})
   , m_elementPlanarBounds(std::move(pBounds))
   , m_elementDiscBounds(nullptr)
   , m_digitizationModule(dModule)
 {
-  auto mutableSurface = std::const_pointer_cast<Surface>(m_elementSurface);
+  auto mutableSurface = std::const_pointer_cast<Acts::Surface>(m_elementSurface);
   mutableSurface->setAssociatedMaterial(material);
 }
 
-Acts::GenericDetectorElement::GenericDetectorElement(
-    const Identifier                       identifier,
-    std::shared_ptr<const Transform3D>     transform,
-    std::shared_ptr<const DiscBounds>      dBounds,
-    double                                 thickness,
-    std::shared_ptr<const SurfaceMaterial> material)
-  : DetectorElementBase()
+FWGen::GenericDetectorElement::GenericDetectorElement(
+    const Identifier                   identifier,
+    std::shared_ptr<const Acts::Transform3D> transform,
+    std::shared_ptr<const Acts::DiscBounds>  dBounds,
+    double                                   thickness,
+    std::shared_ptr<const Acts::SurfaceMaterial>   material)
+  : Acts::DetectorElementBase()
   , m_elementIdentifier(std::move(identifier))
   , m_elementTransform(std::move(transform))
-  , m_elementSurface(new DiscSurface(dBounds, *this))
+  , m_elementSurface(new Acts::DiscSurface(dBounds, *this))
   , m_elementThickness(thickness)
   , m_elementSurfaces({m_elementSurface})
   , m_elementPlanarBounds(nullptr)
   , m_elementDiscBounds(std::move(dBounds))
 {
-  auto mutableSurface = std::const_pointer_cast<Surface>(m_elementSurface);
+  auto mutableSurface = std::const_pointer_cast<Acts::Surface>(m_elementSurface);
   mutableSurface->setAssociatedMaterial(material);
 }
 
-Acts::GenericDetectorElement::~GenericDetectorElement()
+FWGen::GenericDetectorElement::~GenericDetectorElement()
 {
 }

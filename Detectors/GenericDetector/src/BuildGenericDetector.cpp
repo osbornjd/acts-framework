@@ -24,7 +24,7 @@
 #include "ACTS/Tools/TrackingVolumeArrayCreator.hpp"
 #include "ACTS/Utilities/Units.hpp"
 
-namespace Acts {
+namespace FWGen {
 
 std::unique_ptr<const Acts::TrackingGeometry>
 buildGenericDetector(Acts::Logging::Level surfaceLLevel,
@@ -33,40 +33,40 @@ buildGenericDetector(Acts::Logging::Level surfaceLLevel,
                      size_t         stage)
 {
   // configure surface array creator
-  auto surfaceArrayCreator = std::make_shared<const SurfaceArrayCreator>(
-      getDefaultLogger("SurfaceArrayCreator", surfaceLLevel));
+  auto surfaceArrayCreator = std::make_shared<const Acts::SurfaceArrayCreator>(
+      Acts::getDefaultLogger("SurfaceArrayCreator", surfaceLLevel));
   // configure the layer creator that uses the surface array creator
-  LayerCreator::Config lcConfig;
+  Acts::LayerCreator::Config lcConfig;
   lcConfig.surfaceArrayCreator = surfaceArrayCreator;
-  auto layerCreator            = std::make_shared<const LayerCreator>(
-      lcConfig, getDefaultLogger("LayerCreator", layerLLevel));
+  auto layerCreator            = std::make_shared<const Acts::LayerCreator>(
+      lcConfig, Acts::getDefaultLogger("LayerCreator", layerLLevel));
   // configure the layer array creator
-  auto layerArrayCreator = std::make_shared<const LayerArrayCreator>(
-      getDefaultLogger("LayerArrayCreator", layerLLevel));
+  auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
+      Acts::getDefaultLogger("LayerArrayCreator", layerLLevel));
   // tracking volume array creator
-  auto tVolumeArrayCreator = std::make_shared<const TrackingVolumeArrayCreator>(
-      getDefaultLogger("TrackingVolumeArrayCreator", volumeLLevel));
+  auto tVolumeArrayCreator = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
+      Acts::getDefaultLogger("TrackingVolumeArrayCreator", volumeLLevel));
   // configure the cylinder volume helper
-  CylinderVolumeHelper::Config cvhConfig;
+  Acts::CylinderVolumeHelper::Config cvhConfig;
   cvhConfig.layerArrayCreator          = layerArrayCreator;
   cvhConfig.trackingVolumeArrayCreator = tVolumeArrayCreator;
-  auto cylinderVolumeHelper = std::make_shared<const CylinderVolumeHelper>(
-      cvhConfig, getDefaultLogger("CylinderVolumeHelper", volumeLLevel));
+  auto cylinderVolumeHelper = std::make_shared<const Acts::CylinderVolumeHelper>(
+      cvhConfig, Acts::getDefaultLogger("CylinderVolumeHelper", volumeLLevel));
   //-------------------------------------------------------------------------------------
   // list the volume builders
-  std::list<std::shared_ptr<const ITrackingVolumeBuilder>> volumeBuilders;
+  std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
 
 // a hash include for the Generic Detector : a bit ugly but effective
 #include "ACTFW/GenericDetector/GenericDetectorML.ipp"
 
   //-------------------------------------------------------------------------------------
   // create the tracking geometry
-  TrackingGeometryBuilder::Config tgConfig;
+  Acts::TrackingGeometryBuilder::Config tgConfig;
   tgConfig.trackingVolumeBuilders = volumeBuilders;
   tgConfig.trackingVolumeHelper   = cylinderVolumeHelper;
   auto cylinderGeometryBuilder
-      = std::make_shared<const TrackingGeometryBuilder>(
-          tgConfig, getDefaultLogger("TrackerGeometryBuilder", volumeLLevel));
+      = std::make_shared<const Acts::TrackingGeometryBuilder>(
+          tgConfig, Acts::getDefaultLogger("TrackerGeometryBuilder", volumeLLevel));
   // get the geometry
   auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry();
   /// return the tracking geometry
@@ -84,7 +84,7 @@ modulePositionsCylinder(double radius,
   int nPhiBins = binningSchema.first;
   int nZbins   = binningSchema.second;
   // prepare the return value
-  std::vector<Vector3D> mPositions;
+  std::vector<Acts::Vector3D> mPositions;
   mPositions.reserve(nPhiBins * nZbins);
   // prep work
   double phiStep = 2 * M_PI / (nPhiBins);
@@ -100,7 +100,7 @@ modulePositionsCylinder(double radius,
     for (size_t phiBin = 0; phiBin < size_t(nPhiBins); ++phiBin) {
       // calculate the current phi value
       double modulePhi = minPhi + phiBin * phiStep;
-      mPositions.push_back(Vector3D(
+      mPositions.push_back(Acts::Vector3D(
           moduleR * cos(modulePhi), moduleR * sin(modulePhi), moduleZ));
     }
   }
@@ -152,7 +152,7 @@ modulePositionsDisc(double                     z,
     }
   }
   // now prepare the return method
-  std::vector<std::vector<Vector3D>> mPositions;
+  std::vector<std::vector<Acts::Vector3D>> mPositions;
   for (size_t ir = 0; ir < radii.size(); ++ir) {
     // generate the z value
     // convention inner ring is closer to origin : makes sense
@@ -175,7 +175,7 @@ modulePositionsRing(double z,
                     int    nPhiBins)
 {
   // create and fill the positions
-  std::vector<Vector3D> rPositions;
+  std::vector<Acts::Vector3D> rPositions;
   rPositions.reserve(nPhiBins);
   // prep work
   double phiStep = 2 * M_PI / (nPhiBins);
@@ -200,9 +200,9 @@ modulePositionsRing(double z,
     // main z position depending on phi bin
     double rz = iphi % 2 ? z - 0.5 * phiStagger : z + 0.5 * phiStagger;
     rPositions.push_back(
-        Vector3D(radius * cos(phi), radius * sin(phi), rz + rzs));
+        Acts::Vector3D(radius * cos(phi), radius * sin(phi), rz + rzs));
   }
   return rPositions;
 }
 
-}  // end of namespace Acts
+}  // end of namespace FWGen

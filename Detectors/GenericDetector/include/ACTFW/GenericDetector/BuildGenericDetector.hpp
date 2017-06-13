@@ -15,16 +15,18 @@
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace Acts {
+  class TrackingGeometry;
+}
 
-class TrackingGeometry;
+namespace FWGen {
 
 /// Global method to build the generic tracking geometry
 /// @param lvl is the debug logging level
 /// @param version is the detector version
 std::unique_ptr<const Acts::TrackingGeometry>
-buildGenericDetector(Acts::Logging::Level surfaceLLevel = Logging::INFO,
-                     Acts::Logging::Level layerLLevel   = Logging::INFO,
-                     Acts::Logging::Level volumeLLevel  = Logging::INFO,
+buildGenericDetector(Acts::Logging::Level surfaceLLevel = Acts::Logging::INFO,
+                     Acts::Logging::Level layerLLevel   = Acts::Logging::INFO,
+                     Acts::Logging::Level volumeLLevel  = Acts::Logging::INFO,
                      size_t         version       = 0);
 
 /// Helper method for positioning

@@ -7,11 +7,11 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ///////////////////////////////////////////////////////////////////
-// LayerArrayCreator.h, ACTS project
+// GenericLayerBuilder.h, ACTS project
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ACTS_EXAMPLES_GENERICLAYERBUILDER_H
-#define ACTS_EXAMPLES_GENERICLAYERBUILDER_H 1
+#ifndef AGEN_GENERICDETECTOR_GENERICLAYERBUILDER_H
+#define AGEN_GENERICDETECTOR_GENERICLAYERBUILDER_H 1
 
 #include "ACTS/Layers/Layer.hpp"
 #include "ACTS/Material/Material.hpp"
@@ -23,10 +23,14 @@
 namespace Acts {
 
 class ILayerCreator;
-
 class Surface;
 class DetecorElementBase;
-typedef std::pair<const Surface*, Vector3D> SurfacePosition;
+
+}
+
+namespace FWGen {
+  
+typedef std::pair<const Acts::Surface*, Acts::Vector3D> SurfacePosition;
 
 /// @class GenericLayerBuilder
 ///
@@ -34,7 +38,7 @@ typedef std::pair<const Surface*, Vector3D> SurfacePosition;
 /// input.
 /// This is ment for the simple detector examples.
 ///
-class GenericLayerBuilder : public ILayerBuilder
+class GenericLayerBuilder : public Acts::ILayerBuilder
 {
 public:
   /// @struct Config
@@ -55,11 +59,11 @@ public:
     /// the material concentration: -1 inner, 0 central, 1 outer
     std::vector<int> centralLayerMaterialConcentration;
     /// the assigned material propertis @todo change to surface material
-    std::vector<MaterialProperties> centralLayerMaterialProperties;
+    std::vector<Acts::MaterialProperties> centralLayerMaterialProperties;
     /// teh binning schema: nPhi x nZ
     std::vector<std::pair<int, int>> centralModuleBinningSchema;
     /// the module center positions
-    std::vector<std::vector<Vector3D>> centralModulePositions;
+    std::vector<std::vector<Acts::Vector3D>> centralModulePositions;
     /// the module tilt for this layer
     std::vector<double> centralModuleTiltPhi;
     /// the module bounds: local x
@@ -77,7 +81,7 @@ public:
     /// the central volume readout schema
     std::vector<double> centralModuleLorentzAngle;
     /// the module material @todo change to surface material
-    std::vector<Material> centralModuleMaterial;
+    std::vector<Acts::Material> centralModuleMaterial;
     /// the module front side stereo (if exists)
     std::vector<double> centralModuleFrontsideStereo;
     /// the module back side stereo (if exists)
@@ -95,9 +99,9 @@ public:
     /// the material concentration: -1 inner, 0 central, 1 outer
     std::vector<int> posnegLayerMaterialConcentration;
     /// the material prooperties @todo change to surface material
-    std::vector<MaterialProperties> posnegLayerMaterialProperties;
+    std::vector<Acts::MaterialProperties> posnegLayerMaterialProperties;
     /// the module center positions
-    std::vector<std::vector<std::vector<Vector3D>>> posnegModulePositions;
+    std::vector<std::vector<std::vector<Acts::Vector3D>>> posnegModulePositions;
     /// the phi binning
     std::vector<std::vector<size_t>> posnegModulePhiBins;
     /// the module bounds: min halfx
@@ -117,7 +121,7 @@ public:
     /// the central volume readout schema
     std::vector<std::vector<double>> posnegModuleLorentzAngle;
     /// the module material @todo change to surface material
-    std::vector<std::vector<Material>> posnegModuleMaterial;
+    std::vector<std::vector<Acts::Material>> posnegModuleMaterial;
     /// the module front side stereo (if exists)
     std::vector<std::vector<double>> posnegModuleFrontsideStereo;
     /// the module back side stereo (if exists)
@@ -126,32 +130,32 @@ public:
     std::vector<std::vector<double>> posnegModuleBacksideGap;
 
     /// helper tools: layer creator
-    std::shared_ptr<const ILayerCreator> layerCreator = nullptr;
+    std::shared_ptr<const Acts::ILayerCreator> layerCreator = nullptr;
     /// helper tools: central passiva layer builder
-    std::shared_ptr<const ILayerBuilder> centralPassiveLayerBuilder = nullptr;
+    std::shared_ptr<const Acts::ILayerBuilder> centralPassiveLayerBuilder = nullptr;
     /// helper tools: p/n passive layer builder
-    std::shared_ptr<const ILayerBuilder> posnegPassiveLayerBuilder = nullptr;
+    std::shared_ptr<const Acts::ILayerBuilder> posnegPassiveLayerBuilder = nullptr;
   };
 
   /// Constructor
   /// @param glbConfig is the configuration class
   GenericLayerBuilder(const Config&                 glbConfig,
-                      std::unique_ptr<const Logger> logger
-                      = getDefaultLogger("GenericLayerBuilder", Logging::INFO));
+                      std::unique_ptr<const Acts::Logger> logger
+                      = Acts::getDefaultLogger("GenericLayerBuilder", Acts::Logging::INFO));
 
   /// Destructor
   ~GenericLayerBuilder();
 
   /// LayerBuilder interface method - returning the layers at negative side
-  const LayerVector
+  const Acts::LayerVector
   negativeLayers() const override;
 
   /// LayerBuilder interface method - returning the central layers
-  const LayerVector
+  const Acts::LayerVector
   centralLayers() const override;
 
   /// LayerBuilder interface method - returning the layers at negative side
-  const LayerVector
+  const Acts::LayerVector
   positiveLayers() const override;
 
   /// ILayerBuilder method
@@ -171,59 +175,59 @@ public:
 
   /// set logging instance
   void
-  setLogger(std::unique_ptr<const Logger> logger);
+  setLogger(std::unique_ptr<const Acts::Logger> logger);
 
 private:
   void
   constructLayers();
 
-  LayerVector m_nLayers;  ///< layers on negative side
-  LayerVector m_cLayers;  ///< layers on central side
-  LayerVector m_pLayers;  ///< layers on positive side
+  Acts::LayerVector m_nLayers;  ///< layers on negative side
+  Acts::LayerVector m_cLayers;  ///< layers on central side
+  Acts::LayerVector m_pLayers;  ///< layers on positive side
 
-  std::vector<const DetectorElementBase*>
+  std::vector<const Acts::DetectorElementBase*>
       m_centralModule;  ///< acts as detector store
 
-  std::vector<const DetectorElementBase*>
+  std::vector<const Acts::DetectorElementBase*>
       m_posnegModule;  ///< acts as detector store
 
   /// Configuration member
   Config m_cfg;
 
   /// Private access to the looging instance
-  const Logger&
+  const Acts::Logger&
   logger() const
   {
     return *m_logger;
   }
 
   /// the loging instance
-  std::unique_ptr<const Logger> m_logger;
+  std::unique_ptr<const Acts::Logger> m_logger;
 };
 
-inline const LayerVector
-GenericLayerBuilder::positiveLayers() const
+inline const Acts::LayerVector
+FWGen::GenericLayerBuilder::positiveLayers() const
 {
   return m_pLayers;
 }
 
-inline const LayerVector
-GenericLayerBuilder::negativeLayers() const
+inline const Acts::LayerVector
+FWGen::GenericLayerBuilder::negativeLayers() const
 {
   return m_nLayers;
 }
 
-inline const LayerVector
-GenericLayerBuilder::centralLayers() const
+inline const Acts::LayerVector
+FWGen::GenericLayerBuilder::centralLayers() const
 {
   return m_cLayers;
 }
 
-inline GenericLayerBuilder::Config
-GenericLayerBuilder::getConfiguration() const
+inline FWGen::GenericLayerBuilder::Config
+FWGen::GenericLayerBuilder::getConfiguration() const
 {
   return m_cfg;
 }
 }  // end of namespace
 
-#endif  // ACTS_EXAMPLES_GENERICLAYERBUILDER_H
+#endif  // AGEN_GENERICDETECTOR_GENERICLAYERBUILDER_H
