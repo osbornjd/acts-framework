@@ -12,7 +12,7 @@ set -uo pipefail
 ARGC=$#
 if [[ $ARGC -lt 1 ]]; then
   echo "Usage: "$0" <name of example>"
-  exit
+  exit 42
 fi
 
 # Compute the name of the example executable and its output file
@@ -27,7 +27,7 @@ eval "$executable"
 result=$?
 if [[ result -ne 0 ]]; then
   echo "Multi-threaded run failed!"
-  exit result
+  exit $result
 fi
 mt_output=MT$output
 mv $output $mt_output
@@ -37,7 +37,7 @@ eval "OMP_NUM_THREADS=1 $executable"
 result=$?
 if [[ result -ne 0 ]]; then
   echo "Single-threaded run failed!"
-  exit result
+  exit $result
 fi
 st_output=ST$output
 mv $output $st_output
