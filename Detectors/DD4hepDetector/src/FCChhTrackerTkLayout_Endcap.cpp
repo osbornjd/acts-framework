@@ -97,6 +97,15 @@ createTkLayoutTrackerEndcap(DD4hep::Geometry::LCDD&             lcdd,
                 0.5 * xSensorProperties.attr<double>("sensorLength")),
             lcdd.material(xComp.materialStr()));
 
+        // create the Acts::DigitizationModule (needed to do geometric
+        // digitization) for all modules which have the same segmentation
+        auto digiModule = Acts::trapezoidalDigiModule(
+            0.5 * xModuleProperties.attr<double>("modWidthMin"),
+            0.5 * xModuleProperties.attr<double>("modWidthMax"),
+            0.5 * xSensorProperties.attr<double>("sensorLength"),
+            0.5 * xComp.thickness(),
+            sensDet.readout().segmentation());
+
         unsigned int nPhi = xRing.attr<int>("nModules");
         double       lX, lY, lZ;
         double       phi = 0;
@@ -146,6 +155,13 @@ createTkLayoutTrackerEndcap(DD4hep::Geometry::LCDD&             lcdd,
             DetElement comp_det(
                 disc_det, "comp" + std::to_string(compCounter), compCounter);
             comp_det.setPlacement(placedComponentVolume);
+
+            // create and attach the extension with the shared digitzation
+            // module
+            Acts::ActsExtension* moduleExtension
+                = new Acts::ActsExtension(digiModule);
+            comp_det.addExtension<Acts::IActsExtension>(moduleExtension);
+
             ++compCounter;
           }
         }

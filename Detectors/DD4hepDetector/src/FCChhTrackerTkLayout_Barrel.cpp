@@ -94,6 +94,15 @@ createTkLayoutTrackerBarrel(DD4hep::Geometry::LCDD&             lcdd,
                        0.5 * xModuleComponentOdd.thickness(),
                        0.5 * xModulePropertiesOdd.attr<double>("modLength")),
                    lcdd.material(xModuleComponentOdd.materialStr()));
+
+      // create the Acts::DigitizationModule (needed to do geometric
+      // digitization) for all modules which have the same segmentation
+      auto digiModule = Acts::rectangleDigiModule(
+          0.5 * xModulePropertiesOdd.attr<double>("modLength"),
+          0.5 * xModulePropertiesOdd.attr<double>("modWidth"),
+          0.5 * xModuleComponentOdd.thickness(),
+          sensDet.readout().segmentation());
+
       double lX, lY, lZ;
       nPhi = xRods.repeat();
       DD4hep::XML::Handle_t currentComp;
@@ -131,6 +140,13 @@ createTkLayoutTrackerBarrel(DD4hep::Geometry::LCDD&             lcdd,
                                "module" + std::to_string(moduleCounter),
                                moduleCounter);
             mod_det.setPlacement(placedModuleVolume);
+
+            // create and attach the extension with the shared digitzation
+            // module
+            Acts::ActsExtension* moduleExtension
+                = new Acts::ActsExtension(digiModule);
+            mod_det.addExtension<Acts::IActsExtension>(moduleExtension);
+
             ++moduleCounter;
           }
         }

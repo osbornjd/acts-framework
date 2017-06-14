@@ -72,9 +72,21 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
                                  x_module.length()),
                        lcdd.material(x_module.materialStr()));
         mod_vol.setVisAttributes(lcdd, x_module.visStr());
+
+        // create the Acts::DigitizationModule (needed to do geometric
+        // digitization) for all modules which have the same segmentation
+        auto digiModule
+            = Acts::trapezoidalDigiModule(x_module.x1(),
+                                          x_module.x2(),
+                                          x_module.length(),
+                                          x_module.thickness(),
+                                          sens.readout().segmentation());
+
         // the sensitive placed components to be used later to create the
         // DetElements
         std::vector<PlacedVolume> sensComponents;
+        // the possible digitization module
+        std::shared_ptr<const Acts::DigitizationModule> digiComponent = nullptr;
         // go through possible components
         int comp_num = 0;
         for (xml_coll_t comp(x_module, _U(module_component)); comp; comp++) {
@@ -90,6 +102,15 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
                                     x_comp.length()),
                           lcdd.material(x_comp.materialStr()));
           comp_vol.setVisAttributes(lcdd, x_comp.visStr());
+
+          // create the Acts::DigitizationModule (needed to do geometric
+          // digitization) for all modules which have the same segmentation
+          digiComponent
+              = Acts::trapezoidalDigiModule(x_comp.x1(),
+                                            x_comp.x2(),
+                                            x_comp.length(),
+                                            x_comp.thickness(),
+                                            sens.readout().segmentation());
 
           // Set Sensitive Volumes sensitive
           if (x_comp.isSensitive()) comp_vol.setSensitiveDetector(sens);
@@ -116,12 +137,22 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
           // Set Sensitive Volumes sensitive
           if (x_module.isSensitive()) {
             mod_vol.setSensitiveDetector(sens);
+            // create and attach the extension with the shared digitzation
+            // module
+            Acts::ActsExtension* moduleExtension
+                = new Acts::ActsExtension(digiModule);
+            mod_det.addExtension<Acts::IActsExtension>(moduleExtension);
           }
 
           int comp_num = 0;
           for (auto& sensComp : sensComponents) {
             // Create DetElement
             DetElement comp_det(mod_det, "component", comp_num);
+            // create and attach the extension with the shared digitzation
+            // module
+            Acts::ActsExtension* moduleExtension
+                = new Acts::ActsExtension(digiComponent);
+            comp_det.addExtension<Acts::IActsExtension>(moduleExtension);
             comp_det.setPlacement(sensComp);
             comp_num++;
           }
