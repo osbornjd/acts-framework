@@ -144,7 +144,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   eTestConfig.evgenParticlesCollection = readEvgenCfg.evgenParticlesCollection;
   eTestConfig.simulatedParticlesCollection = "FatrasParticles";
   eTestConfig.simulatedHitsCollection      = "FatrasHits";
-  eTestConfig.minPt                        = 500.;
+  eTestConfig.minPt                        = 0.;
   eTestConfig.maxEta                       = 6.;
   eTestConfig.searchMode                   = 1;
   eTestConfig.extrapolationEngine          = extrapolationEngine;

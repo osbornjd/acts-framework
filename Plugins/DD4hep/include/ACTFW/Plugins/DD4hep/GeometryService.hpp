@@ -49,9 +49,32 @@ public:
     Acts::BinningType bTypeR;
     /// Binningtype in z
     Acts::BinningType bTypeZ;
-    //
+    /// The tolerance added to the geometrical extension in r
+    /// of the layers contained to build the volume envelope around
+    /// @note this parameter only needs to be set if the volumes containing the
+    /// layers (e.g. barrel, endcap volumes) have no specific shape (assemblies)
     double envelopeR;
+    /// The tolerance added to the geometrical extension in z
+    /// of the layers contained to build the volume envelope around
+    /// @note this parameter only needs to be set if the volumes containing the
+    /// layers (e.g. barrel, endcap volumes) have no specific shape (assemblies)
     double envelopeZ;
+    ///  Flag indicating if the
+    /// Acts::DigitizationModule (needed for Acts geometric digitization) will
+    /// be
+    /// build for every single sensitive DD4hep DetElement translating directly
+    /// the
+    /// DD4hep Segmentation.
+    /// @attention Turning on this flag can be very time and memory consuming!
+    /// If
+    /// different modules are sharing the same segmentation (which will be the
+    /// case
+    /// most of the times) please use the
+    /// Acts::ActsExtension(std::shared_ptr<const DigitizationModule>)
+    /// constructor.
+    /// More information on the usage can be found
+    /// in the description of the Acts::ActsExtension class.
+    bool buildDigitizationModules;
 
     Config(const std::string&   lname = "GeometryService",
            Acts::Logging::Level level = Acts::Logging::INFO)
@@ -64,6 +87,7 @@ public:
       , bTypeZ(Acts::equidistant)
       , envelopeR(0.)
       , envelopeZ(0.)
+      , buildDigitizationModules(false)
     {
     }
   };
@@ -79,26 +103,26 @@ public:
 
   /// Framework finalize mehtod
   FW::ProcessCode
-  finalize() override  final;
+  finalize() override final;
 
   /// Framework name() method
   const std::string&
-  name() const override  final;
+  name() const override final;
 
   /// Interface method to access the DD4hep geometry
   /// @return The world DD4hep DetElement
   DD4hep::Geometry::DetElement
   dd4hepGeometry() override final;
-  
+
   /// Interface method to Access the TGeo geometry
   /// @return The world TGeoNode (physical volume)
   TGeoNode*
-  tgeoGeometry() override  final;
-  
+  tgeoGeometry() override final;
+
   /// Interface method to access to the interface of the DD4hep geometry
   DD4hep::Geometry::LCDD*
   lcdd() override final;
-  
+
   /// Interface method to access the ACTS TrackingGeometry
   std::unique_ptr<const Acts::TrackingGeometry>
   trackingGeometry() override final;
@@ -107,7 +131,7 @@ private:
   /// Private method to initiate building of the DD4hep geometry
   FW::ProcessCode
   buildDD4hepGeometry();
-  
+
   /// Private method to initiate building of the ACTS tracking geometry
   FW::ProcessCode
   buildTrackingGeometry();
