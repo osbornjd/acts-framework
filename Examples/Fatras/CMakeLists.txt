@@ -1,13 +1,10 @@
 # get list of all source files
 file (GLOB_RECURSE src_files "src/*.*pp")
 
-# find the ACTS package
-find_package(ACTS REQUIRED COMPONENTS Core)
-
 # Main example needs Pythia8
 if (PYTHIA8_FOUND)
 
-  # define executable 
+  # define executable
   add_executable(ACTFWGenericFatrasExample src/GenericFatrasExample.cpp)
   # setup include directories for FatrasExample
   target_include_directories(ACTFWGenericFatrasExample PRIVATE ACTS::ACTSCore)
