@@ -1,48 +1,61 @@
-cmake_minimum_required (VERSION 3.5)
-project (ACTFW)
-# set the current version of ACTFW
-set (ACTFW_VERSION 0.0.1)
+cmake_minimum_required(VERSION 3.5)
 
-# default installation direction
-#set (CMAKE_INSTALL_PREFIX "/opt/ACTFW/${ACTFW_VERSION}" CACHE STRING "installation directory")
+project(ACTFW VERSION 0.0.1 LANGUAGES CXX)
 
-# Enable OpenMP support
-find_package (OpenMP)
-if (OpenMP_FOUND)
-  message (STATUS "Using OpenMP")
-  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}") 
-else (OpenMP_FOUND)
-  message (STATUS "Not using OpenMP") 
-endif(OpenMP_FOUND)
+option(USE_DD4HEP "Build DD4hep-based code" off)
+option(USE_GEANT4 "Build Geant4-based code" off)
+option(USE_OPENMP "Build framework with OpenMP enabled" off)
+option(USE_PYTHIA8 "Build Pythia8-based code" off)
 
+# require C++14 globally
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
+
+# required packages
+find_package(ACTS REQUIRED COMPONENTS Core MaterialPlugin)
 # Enable C++11 threading support, with a preference for pthread
-set (CMAKE_THREAD_PREFER_PTHREAD TRUE)
-set (THREADS_PREFER_PTHREAD_FLAG TRUE)
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
+find_package(ROOT 6.08 REQUIRED COMPONENTS Core GenVector Geom Hist Tree TreePlayer)
+# ROOT namespace fix: 6.08 does not support ROOT CMake namespace
+# to be removed when minimum version > 6.09
+if(${ROOT_VERSION_MINOR} MATCHES "8")
+  set(ROOT_CNS "")
+else()
+  set(ROOT_CNS "ROOT::")
+endif()
 
-# check for Pythia8
-if (DEFINED PYTHIA8_INCLUDE_DIR AND PYTHIA8_LIB_DIR)
-  message (STATUS "Found Pythia8")
-  set (PYTHIA8_FOUND ON)
-elseif (NOT DEFINED PYTHIA8_INCLUDE_DIR )
-  message (STATUS "'PYTHIA8_INCLUDE_DIR' variable not set
-  include directory of Pythia8 library is not set and 'RootPythia8Plugins' 
-  and the Examples 'ReadEvGen' and 'Fatras' will not be build. 
-  In case you want to use any of them please set it using 
-  'cmake <path/to/ACTS> -DPYTHIA8_INCLUDE_DIR=path/to/Pythia8/include")
-elseif (NOT DEFINED PYTHIA8_LIB_DIR)
-  message (STATUS "'PYTHIA8_LIB_DIR' variable not set
-  library directory of Pythia8 library is not set and 'RootPythia8Plugins' 
-  and the Examples 'ReadEvGen' and 'Fatras' will not be build. 
-  In case you want to use any of them please set it using 
-  'cmake <path/to/ACTS> -DPYTHIA8_LIB_DIR=path/to/Pythia8/lib")
-endif (DEFINED PYTHIA8_INCLUDE_DIR AND PYTHIA8_LIB_DIR)
+# handle optional packages
+if(USE_DD4HEP AND USE_GEANT4)
+  set(DD4HEP_DEBUG_CMAKE on)
+  find_package(ACTS REQUIRED COMPONENTS Core MaterialPlugin DD4hepPlugin TGeoPlugin)
+  find_package(DD4hep REQUIRED COMPONENTS DDCore DDG4 DDSegmentation)
+  find_package(Geant4 REQUIRED)
+elseif(USE_DD4HEP)
+  set(DD4HEP_DEBUG_CMAKE on)
+  find_package(ACTS REQUIRED COMPONENTS Core MaterialPlugin DD4hepPlugin TGeoPlugin)
+  find_package(DD4hep REQUIRED COMPONENTS DDCore DDSegmentation)
+elseif(USE_GEANT4)
+  find_package(Geant4 REQUIRED COMPONENTS gdml)
+endif()
+if(USE_OPENMP)
+  find_package(OpenMP REQUIRED)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
+if (USE_PYTHIA8)
+  # TODO replace manual path checks w/ something like FindPythia8
+  if (NOT DEFINED PYTHIA8_INCLUDEDIR OR NOT DEFINED PYTHIA8_LIBRARYDIR)
+    message(FATAL_ERROR "Missing 'PYTHIA8_INCLUDEDIR' or 'PYTHIA_LIBRARYDIR'")
+  endif()
+  find_package(ROOT REQUIRED COMPONENTS EGPythia8)
+endif()
 
-# Configure test framework components
-add_subdirectory (Core)
-add_subdirectory (Plugins)
-add_subdirectory (Detectors)
-add_subdirectory (Algorithms)
-add_subdirectory (Examples)
+add_subdirectory(Core)
+add_subdirectory(Algorithms)
+add_subdirectory(Detectors)
+add_subdirectory(Plugins)
+add_subdirectory(Examples)
+
