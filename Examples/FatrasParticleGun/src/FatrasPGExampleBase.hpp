@@ -63,7 +63,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // set up the particle gun
   FWE::ParticleGun::Config particleGunConfig;
   particleGunConfig.randomNumbers = randomNumbers;
-  particleGunConfig.nParticles    = 1;
+  particleGunConfig.nParticles    = 100;
   particleGunConfig.etaRange      = {{-5., 5.}};
   particleGunConfig.phiRange      = {{-M_PI, M_PI}};
   particleGunConfig.ptRange       = {{100., 100000.}};
@@ -147,7 +147,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   eTestConfig.evgenParticlesCollection = readEvgenCfg.evgenParticlesCollection;
   eTestConfig.simulatedParticlesCollection = "FatrasParticles";
   eTestConfig.simulatedHitsCollection      = "FatrasHits";
-  eTestConfig.minPt                        = 0.;
+  eTestConfig.minPt                        = 500.;
   eTestConfig.maxEta                       = 6.;
   eTestConfig.searchMode                   = 1;
   eTestConfig.extrapolationEngine          = extrapolationEngine;
