@@ -1,5 +1,7 @@
 add_subdirectory(Extrapolation)
-add_subdirectory(Fatras)
+if(USE_PYTHIA8)
+  add_subdirectory(Fatras)
+endif()
 add_subdirectory(GeometryBuilding)
 add_subdirectory(HelloWorld)
 if(USE_DD4HEP AND USE_GEANT4)
