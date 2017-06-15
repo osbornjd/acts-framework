@@ -1,65 +1,44 @@
-# find the ACTS package
-find_package(ACTS REQUIRED COMPONENTS Core)
+include(${ROOT_USE_FILE})
 
-find_package(ROOT COMPONENTS Core Hist Tree)
-if (ROOT_FOUND)  
-  # (1) Main functionality:
-  message(STATUS "${Blue}ACTFWRootPlugin: adding base components.${ColorReset}")
+set(srcs include/ACTFW/Plugins/Root/RootExCellWriter.hpp
+         include/ACTFW/Plugins/Root/RootExCellWriter.ipp
+         include/ACTFW/Plugins/Root/RootIndexedMaterialReader.hpp
+         include/ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp
+         include/ACTFW/Plugins/Root/RootMaterialTrackReader.hpp
+         include/ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp
+         include/ACTFW/Plugins/Root/RootParticleWriter.hpp
+         src/RootIndexedMaterialReader.cpp
+         src/RootIndexedMaterialWriter.cpp
+         src/RootMaterialTrackReader.cpp
+         src/RootMaterialTrackWriter.cpp
+         src/RootParticleWriter.cpp)
+if(USE_PYTHIA8)
+  list(APPEND srcs include/ACTFW/Plugins/Root/TPythia8Generator.hpp
+                   src/TPythia8Generator.cpp)
+endif()
 
-  # fix for ROOT namespace 
-  # 6.08 does not yet support ROOT CMake namespace
-  # to be removed when minimum verison > 6.09
-  if (${ROOT_VERSION_MINOR} MATCHES "8" )
-    set(ROOT_CNS "")
-  else (${ROOT_VERSION_MINOR} MATCHES "8" )
-    set(ROOT_CNS "ROOT::")
-  endif (${ROOT_VERSION_MINOR} MATCHES "8" )
-  
-  # find the ROOT components for core
-  # add the core source
-  file (GLOB_RECURSE src_files "src/RootParticleWriter.cpp" "include/RootExCell*pp" "include/RootParticleWriter.hpp")
-  
-  # (2) IF pythia8 is supported
-  if (PYTHIA8_FOUND)
-    message(STATUS "${Blue}ACTFWRootPlugin: adding TPythia8 support.${ColorReset}")
-    # find the ROOT components for EGPythia8
-    find_package(ROOT REQUIRED COMPONENTS EGPythia8)
-    file (GLOB_RECURSE src_files ${src_files} "src/TPythia8Generator.cpp" "include/TPythia8Generator.hpp")
-  endif (PYTHIA8_FOUND)
-  
-  # (3) IF MaterialPlugin support 
-  find_package(ACTS QUIET COMPONENTS MaterialPlugin)
-  message(STATUS "${Blue}ACTFWRootPlugin: adding MaterialPlugin support.${ColorReset}")
-    # get list of all source files
-  file (GLOB_RECURSE src_files ${src_files} "src/Root*Material*.cpp" "include/Root*Material.*pp")
-  
-  #---Define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)
-  include(${ROOT_USE_FILE})
-  
-  # generate root dictionary for material mapping - needed to write this class to a root file
-  ROOT_GENERATE_DICTIONARY(G__Material  ${ACTS_INCLUDE_DIR}/ACTS/Plugins/MaterialPlugins/MaterialStep.hpp ${ACTS_INCLUDE_DIR}/ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp ${ACTS_INCLUDE_DIR}/ACTS/Material/Material.hpp LINKDEF include/ACTFW/Plugins/Root/Material_LinkDef.h OPTIONS -I/${ACTS_INCLUDE_DIR})
-  add_library(ACTFWRootPlugin SHARED ${src_files} G__Material.cxx)
-      
-  # (1) setup include directories
-  target_include_directories(ACTFWRootPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
-  target_include_directories (ACTFWRootPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
-  target_link_libraries(ACTFWRootPlugin PUBLIC Threads::Threads)
-  target_link_libraries(ACTFWRootPlugin PUBLIC ACTS::ACTSCore ACTFramework)
-  target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_CNS}Core ${ROOT_CNS}Hist ${ROOT_CNS}Tree ${ROOT_CNS}TreePlayer)
-  # (2) Pythia8 support
-  if (PYTHIA8_FOUND)
-    target_include_directories(ACTFWRootPlugin PUBLIC ${PYTHIA8_INCLUDE_DIR}) 
-    target_link_libraries(ACTFWRootPlugin PUBLIC -L${PYTHIA8_LIB_DIR})
-    target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_CNS}EGPythia8)
-  endif (PYTHIA8_FOUND)
-  # (3) MaterialPlugin
-  target_link_libraries(ACTFWRootPlugin PUBLIC ACTS::ACTSMaterialPlugin)
-  
-  # set installation directories
-  install (TARGETS ACTFWRootPlugin LIBRARY DESTINATION lib)
-      
-  install (DIRECTORY include/ACTFW DESTINATION include)
-else (NOT ROOT_FOUND)  
-  message (STATUS "${Red}ACTFWRootPlugin: ROOT was not found -> skip build of Plugin.${ColorReset}")
-endif (ROOT_FOUND)
+# generate root dictionary for material mapping - needed to write this class to a root file
+root_generate_dictionary(
+  G__Material
+  ${ACTS_INCLUDE_DIR}/ACTS/Plugins/MaterialPlugins/MaterialStep.hpp
+  ${ACTS_INCLUDE_DIR}/ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp
+  ${ACTS_INCLUDE_DIR}/ACTS/Material/Material.hpp
+  LINKDEF include/ACTFW/Plugins/Root/Material_LinkDef.h
+  OPTIONS -I/${ACTS_INCLUDE_DIR})
+
+add_library(ACTFWRootPlugin SHARED ${srcs} G__Material.cxx)
+target_include_directories(ACTFWRootPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+target_include_directories(ACTFWRootPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
+target_link_libraries(ACTFWRootPlugin PUBLIC ACTS::ACTSCore ACTS::ACTSMaterialPlugin)
+target_link_libraries(ACTFWRootPlugin PUBLIC ACTFramework)
+target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_CNS}Core ${ROOT_CNS}Hist ${ROOT_CNS}Tree ${ROOT_CNS}TreePlayer)
+target_link_libraries(ACTFWRootPlugin PUBLIC Threads::Threads)
+if(USE_PYTHIA8)
+  target_include_directories(ACTFWRootPlugin PUBLIC ${PYTHIA8_INCLUDEDIR})
+  target_link_libraries(ACTFWRootPlugin PUBLIC -L${PYTHIA8_LIBRARYDIR})
+  target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_CNS}EGPythia8)
+endif()
+
+install(TARGETS ACTFWRootPlugin LIBRARY DESTINATION lib)
+install(DIRECTORY include/ACTFW DESTINATION include)
 
