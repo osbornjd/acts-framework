@@ -61,6 +61,18 @@ if(USE_PYTHIA8)
   find_package(ROOT REQUIRED COMPONENTS EGPythia8)
 endif()
 
+# simplify handling of optional components
+# all arguments after the path are evaluated in the if(...) context
+function(add_subdirectory_if path)
+  file(RELATIVE_PATH _name ${PROJECT_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/${path}")
+  if(${ARGN})
+    add_subdirectory(${path})
+    message(STATUS "Enable component '${_name}'")
+  else()
+    message(STATUS "Disable component '${_name}'")
+  endif()
+endfunction()
+
 add_subdirectory(Core)
 add_subdirectory(Algorithms)
 add_subdirectory(Detectors)

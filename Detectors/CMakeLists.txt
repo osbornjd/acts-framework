@@ -1,4 +1,2 @@
-if(USE_DD4HEP)
-  add_subdirectory(DD4hepDetector)
-endif()
+add_subdirectory_if(DD4hepDetector USE_DD4HEP)
 add_subdirectory(GenericDetector)
