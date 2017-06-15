@@ -2,9 +2,16 @@ cmake_minimum_required(VERSION 3.5)
 
 project(ACTFW VERSION 0.0.1 LANGUAGES CXX)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "DARWIN")
+  # CMake + FindOpenMP fail on OSX. Unclear why.
+  set(USE_OPENMP_DEFAULT off)
+else()
+  set(USE_OPENMP_DEFAULT on)
+endif()
+
 option(USE_DD4HEP "Build DD4hep-based code" off)
 option(USE_GEANT4 "Build Geant4-based code" off)
-option(USE_OPENMP "Build framework with OpenMP enabled" off)
+option(USE_OPENMP "Build framework with OpenMP enabled" ${USE_OPENMP_DEFAULT})
 option(USE_PYTHIA8 "Build Pythia8-based code" off)
 
 # require C++14 globally
@@ -27,13 +34,13 @@ else()
 endif()
 
 # handle optional packages
+set(DD4HEP_DEBUG_CMAKE on)
+set(Geant4_CONFIG_DEBUG on)
 if(USE_DD4HEP AND USE_GEANT4)
-  set(DD4HEP_DEBUG_CMAKE on)
   find_package(ACTS REQUIRED COMPONENTS Core MaterialPlugin DD4hepPlugin TGeoPlugin)
   find_package(DD4hep REQUIRED COMPONENTS DDCore DDG4 DDSegmentation)
   find_package(Geant4 REQUIRED)
 elseif(USE_DD4HEP)
-  set(DD4HEP_DEBUG_CMAKE on)
   find_package(ACTS REQUIRED COMPONENTS Core MaterialPlugin DD4hepPlugin TGeoPlugin)
   find_package(DD4hep REQUIRED COMPONENTS DDCore DDSegmentation)
 elseif(USE_GEANT4)
@@ -44,6 +51,7 @@ if(USE_OPENMP)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+  message(STATUS "Using OpenMP spec ${OpenMP_CXX_SPEC_DATE}")
 endif()
 if(USE_PYTHIA8)
   # TODO replace manual path checks w/ something like FindPythia8
