@@ -5,5 +5,5 @@ target_include_directories(ACTFWObjPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRE
 target_link_libraries(ACTFWObjPlugin PUBLIC ACTS::ACTSCore ACTFramework)
 target_link_libraries(ACTFWObjPlugin PUBLIC Threads::Threads)
 
-install(TARGETS ACTFWObjPlugin LIBRARY DESTINATION lib)
-install(DIRECTORY include/ACTFW DESTINATION include)
+install(TARGETS ACTFWObjPlugin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

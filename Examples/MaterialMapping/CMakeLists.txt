@@ -9,6 +9,5 @@ foreach(ACTFWMMExample ${ACTFWMaterialMappingExampleList})
   target_link_libraries(${ACTFWMMExample} PRIVATE ACTFWMaterialMapping ACTFWExtrapolation)
   target_link_libraries(${ACTFWMMExample} PRIVATE ACTFWDD4hepPlugin ACTFWDD4hepG4Plugin ACTFWRootPlugin)
   target_link_libraries(${ACTFWMMExample} PUBLIC ${DD4hep_LIBRARIES})
-  install(TARGETS ${ACTFWMMExample} RUNTIME DESTINATION bin)
+  install(TARGETS ${ACTFWMMExample} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endforeach()
-

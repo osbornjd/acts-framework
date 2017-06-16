@@ -8,7 +8,7 @@ target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTS::ACTSCore)
 target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFramework ACTFWGenericDetector ACTFWRootPlugin ACTFWCsvPlugin ACTFWJsonPlugin ACTFWObjPlugin)
 target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWReadEvgen ACTFWExtrapolation ACTFWDigitization ACTFWFatras)
 
-install(TARGETS ACTFWGenericFatrasExample RUNTIME DESTINATION bin)
+install(TARGETS ACTFWGenericFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(USE_DD4HEP)
   add_executable(ACTFWDD4hepFatrasExample src/DD4hepFatrasExample.cpp)
@@ -20,5 +20,5 @@ if(USE_DD4HEP)
   target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFWReadEvgen ACTFWExtrapolation ACTFWDigitization ACTFWFatras)
   target_link_libraries(ACTFWDD4hepFatrasExample PUBLIC ${DD4hep_LIBRARIES})
 
-  install(TARGETS ACTFWDD4hepFatrasExample RUNTIME DESTINATION bin)
+  install(TARGETS ACTFWDD4hepFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()

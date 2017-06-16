@@ -9,6 +9,5 @@ target_link_libraries(ACTFWGeant4Plugin PUBLIC ${Geant4_LIBRARIES})
 target_link_libraries(ACTFWGeant4Plugin PUBLIC ${ROOT_LIBRARIES})
 target_compile_options(ACTFWGeant4Plugin PUBLIC ${Geant4_DEFINITIONS})
 
-install(TARGETS ACTFWGeant4Plugin LIBRARY DESTINATION lib)
-install(DIRECTORY include/ACTFW DESTINATION include)
-
+install(TARGETS ACTFWGeant4Plugin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

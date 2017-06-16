@@ -4,5 +4,5 @@ add_library(ACTFWGenericDetector SHARED ${src_files})
 target_include_directories(ACTFWGenericDetector PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
 target_link_libraries(ACTFWGenericDetector PUBLIC ACTS::ACTSCore)
 
-install(TARGETS ACTFWGenericDetector LIBRARY DESTINATION lib)
-install(DIRECTORY include/ACTFW DESTINATION include)
+install(TARGETS ACTFWGenericDetector LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
