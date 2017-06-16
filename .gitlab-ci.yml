@@ -86,6 +86,7 @@ hello_world:
     tags:
         - cvmfs
     script:
+        - source install_default/bin/setup.sh
         - install_default/bin/ACTFWHelloWorldExample
 
 generic_extrapolation:
@@ -93,4 +94,14 @@ generic_extrapolation:
     tags:
         - cvmfs
     script:
+        - source install_default/bin/setup.sh
         - install_default/bin/ACTFWGenericExtrapolationExample
+
+reproducibility_generic_extrapolation:
+    stage: test
+    tags:
+        - cvmfs
+    script:
+        - source install_default/bin/setup.sh
+        - cd scripts
+        - ./testReproducibility.sh GenericExtrapolation ExtrapolationCharged ExtrapolationNeutral
