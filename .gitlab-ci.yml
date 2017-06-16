@@ -34,6 +34,7 @@ build_testfw_default:
     tags:
         - cvmfs
     script:
+        - source install_default/bin/setup.sh
         - mkdir build_testfw_default
         - cd build_testfw_default
         - cmake -GNinja -DCMAKE_PREFIX_PATH=../install_default -DCMAKE_INSTALL_PREFIX=../install_default -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
@@ -62,6 +63,7 @@ build_testfw_full:
     tags:
         - cvmfs
     script:
+        - source install_full/bin/setup.sh
         - mkdir build_testfw_full
         - cd build_testfw_full
         # TODO USE_GEANT4=on fails due to an installation bug in LCG_88
