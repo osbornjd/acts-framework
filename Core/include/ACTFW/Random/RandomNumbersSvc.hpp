@@ -27,13 +27,50 @@ namespace FW {
 /// thread-safe, lock-free and reproducible random number generations in both
 /// single-threaded and multi-threaded test framework runs.
 ///
+/// The following random number generator ("engine") is used:
+///
 typedef std::mt19937                     RandomEngine;  ///< Mersenne Twister
+///
+/// The following standard random number distributions are supported...
+///
 typedef std::normal_distribution<double> GaussDist;     ///< Normal Distribution
 typedef std::uniform_real_distribution<double>
                                         UniformDist;  ///< Uniform Distribution
 typedef std::gamma_distribution<double> GammaDist;    ///< Gamma Distribution
 typedef std::poisson_distribution<int>  PoissonDist;  ///< Poisson Distribution
+///
+/// ...and, in addition, the Landau distribution is provided
+///
+class LandauDist
+{
+public:
+  /// @class Config
+  ///
+  /// Nested Configuration class
+  struct Config
+  {
+    /// Parameters of the underlying uniform random number distribution
+    std::array<double, 2> uniform_parameters = {{0, 1}};
+    /// Parameters which are specific to the Landau random number distribution
+    std::array<double, 2> landau_parameters = {{0, 1}};
+  };
 
+  /// Constructor
+  LandauDist(const Config& cfg);
+
+  /// Generate a random number following a Landau distribution
+  double
+  operator()(RandomEngine& engine);
+
+private:
+  Config      m_cfg;      ///< configuration struct
+  UniformDist m_uniform;  ///< underlying uniform distribution
+};
+///
+/// The role of the RandomNumbersSvc is only to spawn Algorithm-local random
+/// number generators. Clients should spawn their own local distributions
+/// whenever needed.
+///
 class RandomNumbersSvc : public IService
 {
 public:
@@ -48,62 +85,12 @@ public:
     std::string name;
     /// random seed
     unsigned int seed = 1234567890;
-    /// configuration uniform
-    std::array<double, 2> uniform_parameters = {{0, 1}};
-    /// configuration gauss
-    std::array<double, 2> gauss_parameters = {{0, 1}};
-    /// configuration landau
-    std::array<double, 2> landau_parameters = {{0, 1}};
-    /// configuration gamma
-    std::array<double, 2> gamma_parameters = {{0, 1}};
-    /// configuration poisson
-    int poisson_parameter = 40;
 
     Config(const std::string&   lname = "RandomNumbersSvc",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
       : logger{Acts::getDefaultLogger(lname, lvl)}, name{lname}
     {
     }
-  };
-
-  /// @class Generator
-  ///
-  /// A random number generator. The intended mode of operation is that each
-  /// Algorithm::execute() invocation should get its own private instance of
-  /// this class.
-  ///
-  class Generator
-  {
-  public:
-    /// Initialize a generator
-    ///
-    /// @param cfg is the host's configuration
-    /// @param seed is the seed to use for this generator
-    Generator(const Config& cfg, unsigned int seed);
-    
-    /// draw random number from gauss distribution
-    double
-    drawGauss();
-    /// draw random number from uniform distribution
-    double
-    drawUniform();
-    /// draw random number from landau distribution
-    double
-    drawLandau();
-    /// draw random number from gamma distribution
-    double
-    drawGamma();
-    /// draw random number from poisson distribution
-    double
-    drawPoisson();
-
-  private:
-    const Config& m_cfg;      ///< link to host configuration
-    RandomEngine  m_engine;   ///< random engine
-    GaussDist     m_gauss;    ///< gauss distribution
-    UniformDist   m_uniform;  ///< uniform distribution
-    GammaDist     m_gamma;    ///< gamma distribution
-    PoissonDist   m_poisson;  ///< poisson distribution
   };
 
   /// Constructor
@@ -120,7 +107,7 @@ public:
   /// Spawn an algorithm-local random number generator
   ///
   /// @param context is the AlgorithmContext of the host algorithm
-  Generator
+  RandomEngine
   spawnGenerator(const AlgorithmContext& context) const;
 
   /// Ask for the seed
