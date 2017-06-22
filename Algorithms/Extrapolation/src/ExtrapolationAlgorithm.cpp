@@ -1,5 +1,6 @@
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include <iostream>
+#include <random>
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
@@ -133,28 +134,26 @@ FWA::ExtrapolationAlgorithm::execute(const FW::AlgorithmContext context) const
 
   } else {
     // Create a random number generator
-    FW::RandomNumbersSvc::Generator rng
-        = m_cfg.randomNumbers->spawnGenerator(context);
+    FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
+
+    // Setup random number distributions for our parameters
+    FW::GaussDist d0Dist{ m_cfg.d0Defs.at(0), m_cfg.d0Defs.at(1) };
+    FW::GaussDist z0Dist{ m_cfg.z0Defs.at(0), m_cfg.z0Defs.at(1) };
+    FW::UniformDist phiDist{ m_cfg.phiRange.at(0), m_cfg.phiRange.at(1) };
+    FW::UniformDist etaDist{ m_cfg.etaRange.at(0), m_cfg.etaRange.at(1) };
+    FW::UniformDist ptDist{ m_cfg.ptRange.at(0), m_cfg.ptRange.at(1) };
 
     // loop
     for (size_t iex = 0; iex < m_cfg.testsPerEvent; ++iex) {
       // gaussian d0 and z0
-      double d0 = m_cfg.d0Defs.at(0)
-          + rng.drawGauss() * m_cfg.d0Defs.at(1);
-      double z0 = m_cfg.z0Defs.at(0)
-          + rng.drawGauss() * m_cfg.z0Defs.at(1);
-      double phi = m_cfg.phiRange.at(0)
-          + rng.drawUniform()
-              * fabs(m_cfg.phiRange.at(1) - m_cfg.phiRange.at(0));
-      double eta = m_cfg.etaRange.at(0)
-          + rng.drawUniform()
-              * fabs(m_cfg.etaRange.at(1) - m_cfg.etaRange.at(0));
+      double d0 = d0Dist(rng);
+      double z0 = z0Dist(rng);
+      double phi = phiDist(rng);
+      double eta = etaDist(rng);
       double theta = 2. * atan(exp(-eta));
-      double pt    = m_cfg.ptRange.at(0)
-          + rng.drawUniform()
-              * fabs(m_cfg.ptRange.at(1) - m_cfg.ptRange.at(0));
+      double pt    = ptDist(rng);
       double p = pt / sin(theta);
-      double q = rng.drawUniform() > 0.5 ? 1. : -1.;
+      double q = std::generate_canonical<float, 1>(rng) > 0.5 ? 1. : -1.;
 
       Acts::Vector3D momentum(
           p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta));
