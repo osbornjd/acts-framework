@@ -59,8 +59,6 @@ build_testfw_full:
     stage: build_testfw
     dependencies:
         - build_acts_full
-    # TODO fix CMake bug for TGeoPlugin to be able to remove this again
-    allow_failure: true
     tags:
         - cvmfs
     script:
@@ -99,6 +97,8 @@ generic_extrapolation:
 
 reproducibility_generic_extrapolation:
     stage: test
+    # TODO requires Motif library on docker image
+    allow_failure: true
     tags:
         - cvmfs
     script:
