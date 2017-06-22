@@ -25,7 +25,7 @@ include(GNUInstallDirs)
 
 set(ACTS_COMPONENTS Core MaterialPlugin)
 if(USE_DD4HEP)
-  list(APPEND ACTS_COMPONENTS DD4hepPlugin TGeoPlugin)
+  list(APPEND ACTS_COMPONENTS TGeoPlugin DD4hepPlugin)
 endif()
 set(DD4hep_COMPONENTS DDCore DDSegmentation)
 if(USE_GEANT4)
