@@ -51,20 +51,9 @@ main(int argc, char* argv[])
 
   // random number generation
   // Create the random number engine
-  FW::RandomNumbersSvc::Config pileupNumbersCfg;
-  pileupNumbersCfg.poisson_parameter = 200;
-  std::shared_ptr<FW::RandomNumbersSvc> pileupNumbers(
+  FW::RandomNumbersSvc::Config randomNumbersCfg;
+  std::shared_ptr<FW::RandomNumbersSvc> randomNumbers(
       new FW::RandomNumbersSvc(pileupNumbersCfg));
-
-  FW::RandomNumbersSvc::Config pileupVertexTCfg;
-  pileupVertexTCfg.gauss_parameters = {{0., 0.015}};
-  std::shared_ptr<FW::RandomNumbersSvc> pileupVertexT(
-      new FW::RandomNumbersSvc(pileupVertexTCfg));
-
-  FW::RandomNumbersSvc::Config pileupVertexZCfg;
-  pileupVertexZCfg.gauss_parameters = {{0., 5.5}};
-  std::shared_ptr<FW::RandomNumbersSvc> pileupVertexZ(
-      new FW::RandomNumbersSvc(pileupVertexZCfg));
 
   // the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
@@ -89,9 +78,10 @@ main(int argc, char* argv[])
   // the pileup reader
   readEvgenCfg.pileupParticleReader = puPythiaGenerator;
   // the number of pileup events
-  readEvgenCfg.pileupRandomNumbers = pileupNumbers;
-  readEvgenCfg.pileupVertexDistT   = pileupVertexT;
-  readEvgenCfg.pileupVertexDistZ   = pileupVertexZ;
+  readEvgenCfg.randomNumbers = randomNumbers;
+  readEvgenCfg.pileupPoissonParameter = 200;
+  readEvgenCfg.vertexTParameters = {{0., 0.015}};
+  readEvgenCfg.vertexZParameters = {{0., 5.5}};
   // attach the barcode service
   readEvgenCfg.barcodeSvc          = barcodeSvc;
   // the job WhiteBoard
