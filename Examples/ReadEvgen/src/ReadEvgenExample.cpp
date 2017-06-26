@@ -52,8 +52,7 @@ main(int argc, char* argv[])
   // random number generation
   // Create the random number engine
   FW::RandomNumbersSvc::Config randomNumbersCfg;
-  std::shared_ptr<FW::RandomNumbersSvc> randomNumbers(
-      new FW::RandomNumbersSvc(pileupNumbersCfg));
+  auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
 
   // the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
