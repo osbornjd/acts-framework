@@ -7,24 +7,25 @@
 //
 
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/Random/LandauQuantile.hpp"
 
 
-FW::LandauDist::LandauDist(const Config& cfg)
+FW::LandauDist::param_type::param_type(double mean, double scale)
+  : mean(mean)
+  , scale(scale)
+{
+}
+
+FW::LandauDist::LandauDist(double mean, double scale)
+  : m_cfg(mean, scale)
+{
+}
+
+FW::LandauDist::LandauDist(const param_type& cfg)
   : m_cfg(cfg)
 {
 }
 
-double
-FW::LandauDist::operator()(RandomEngine& engine)
-{
-  double x   = std::generate_canonical<float, 10>(engine);
-  double res = m_cfg.landau_parameters[0]
-      + landau_quantile(x, m_cfg.landau_parameters[1]);
-  return res;
-}
-
-FW::RandomNumbersSvc::RandomNumbersSvc(const FW::RandomNumbersSvc::Config& cfg)
+FW::RandomNumbersSvc::RandomNumbersSvc(const Config& cfg)
   : m_cfg(cfg)
 {
 }

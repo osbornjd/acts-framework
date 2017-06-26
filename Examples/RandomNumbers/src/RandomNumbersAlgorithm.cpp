@@ -39,7 +39,8 @@ FWE::RandomNumbersAlgorithm::execute(const FW::AlgorithmContext context) const
   FW::GaussDist gaussDist(m_cfg.gaussParameters[0], m_cfg.gaussParameters[1]);
   FW::UniformDist uniformDist(m_cfg.uniformParameters[0],
                               m_cfg.uniformParameters[1]);
-  FW::LandauDist landauDist({m_cfg.uniformParameters, m_cfg.landauParameters});
+  FW::LandauDist landauDist(m_cfg.landauParameters[0],
+                            m_cfg.landauParameters[1]);
   FW::GammaDist gammaDist(m_cfg.gammaParameters[0], m_cfg.gammaParameters[1]);
   FW::PoissonDist poissonDist(m_cfg.poissonParameter);
 

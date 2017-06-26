@@ -17,6 +17,7 @@
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTFW/Random/LandauQuantile.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace FW {
@@ -44,24 +45,32 @@ typedef std::poisson_distribution<int>  PoissonDist;  ///< Poisson Distribution
 class LandauDist
 {
 public:
-  /// @class Config
-  ///
-  /// Nested Configuration class
-  struct Config
+  /// RandomNumberDistributions should provide a parameters struct
+  struct param_type
   {
-    /// Parameters which are specific to the Landau random number distribution
-    std::array<double, 2> landau_parameters = {{0, 1}};
+    double mean = 0.;
+    double scale = 1.;
+    param_type(double mean, double scale);
   };
 
-  /// Constructor
-  LandauDist(const Config& cfg);
+  /// There should be a constructor from raw parameters and a parameters struct
+  LandauDist(double mean, double scale);
+  LandauDist(const param_type& cfg);
+
+  /// RandomNumberDistributions should provide a result type typedef
+  using result_type = double;
 
   /// Generate a random number following a Landau distribution
+  template<typename Generator>
   double
-  operator()(RandomEngine& engine);
+  operator()(Generator& engine) {
+    double x   = std::generate_canonical<float, 10>(engine);
+    double res = m_cfg.mean + landau_quantile(x, m_cfg.scale);
+    return res;
+  }
 
 private:
-  Config      m_cfg;      ///< configuration struct
+  param_type m_cfg; ///< configuration struct
 };
 ///
 /// The role of the RandomNumbersSvc is only to spawn Algorithm-local random
