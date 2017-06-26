@@ -15,6 +15,12 @@ FW::LandauDist::param_type::param_type(double mean, double scale)
 {
 }
 
+bool
+FW::LandauDist::param_type::operator==(const param_type& other) const
+{
+    return (mean == other.mean) && (scale == other.scale);
+}
+
 FW::LandauDist::LandauDist(double mean, double scale)
   : m_cfg(mean, scale)
 {
@@ -23,6 +29,12 @@ FW::LandauDist::LandauDist(double mean, double scale)
 FW::LandauDist::LandauDist(const param_type& cfg)
   : m_cfg(cfg)
 {
+}
+
+bool
+FW::LandauDist::operator==(const LandauDist& other) const
+{
+    return (m_cfg == other.m_cfg);
 }
 
 FW::RandomNumbersSvc::RandomNumbersSvc(const Config& cfg)

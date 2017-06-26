@@ -45,29 +45,64 @@ typedef std::poisson_distribution<int>  PoissonDist;  ///< Poisson Distribution
 class LandauDist
 {
 public:
-  /// RandomNumberDistributions should provide a parameters struct
+  /// A RandomNumberDistributions should provide a parameters struct
   struct param_type
   {
-    double mean = 0.;
-    double scale = 1.;
+    double mean = 0.;   ///< Mean of the Landau distribution
+    double scale = 1.;  ///< Scale factor
+
+    /// Default constructor and constructor from raw parameters
+    param_type() = default;
     param_type(double mean, double scale);
+
+    /// Parameters should be CopyConstructible and CopyAssignable
+    param_type(const param_type&) = default;
+    param_type& operator=(const param_type&) = default;
+
+    /// Parameters should be EqualityComparable
+    bool operator==(const param_type& other) const;
+    bool operator!=(const param_type& other) const { return !(*this == other); }
+
+    /// Parameters should link back to the host distribution
+    using distribution_type = LandauDist;
   };
 
-  /// There should be a constructor from raw parameters and a parameters struct
+  /// There should be a default constructor, a constructor from raw parameters,
+  /// and a constructor from a parameters struct
+  LandauDist() = default;
   LandauDist(double mean, double scale);
   LandauDist(const param_type& cfg);
 
-  /// RandomNumberDistributions should provide a result type typedef
+  /// A distribution should be copy-constructible and copy-assignable
+  LandauDist(const LandauDist&) = default;
+  LandauDist& operator=(const LandauDist&) = default;
+
+  /// Some standard ways to control the distribution's state should be provided
+  void reset() { /* Nothing to do for now */ }
+  param_type param() const { return m_cfg; }
+  void param(const param_type& p) { m_cfg = p; }
+
+  /// A RandomNumberDistributions should provide a result type typedef
   using result_type = double;
 
   /// Generate a random number following a Landau distribution
   template<typename Generator>
-  double
-  operator()(Generator& engine) {
+  result_type
+  operator()(Generator& engine) { return (*this)(engine, m_cfg); }
+
+  /// Do the same, but using custom distribution parameters
+  template<typename Generator>
+  result_type
+  operator()(Generator& engine, const param_type& params)
+  {
     double x   = std::generate_canonical<float, 10>(engine);
-    double res = m_cfg.mean + landau_quantile(x, m_cfg.scale);
+    double res = params.mean + landau_quantile(x, params.scale);
     return res;
   }
+
+  /// Provide standard comparison operators
+  bool operator==(const LandauDist& other) const;
+  bool operator!=(const LandauDist& other) const { return !(*this == other); }
 
 private:
   param_type m_cfg; ///< configuration struct
