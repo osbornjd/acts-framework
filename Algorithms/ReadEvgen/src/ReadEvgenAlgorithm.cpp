@@ -53,7 +53,8 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
   // get the hard scatter if you have it
   std::vector<Acts::ParticleProperties> hardscatterParticles = {};
   if (m_cfg.hardscatterParticleReader
-      && m_cfg.hardscatterParticleReader->read(hardscatterParticles)
+      && m_cfg.hardscatterParticleReader->read(
+             hardscatterParticles, 0, &context)
           == FW::ProcessCode::ABORT) {
     ACTS_ERROR("Could not read hard scatter event. Aborting.");
     return FW::ProcessCode::ABORT;

@@ -1,4 +1,5 @@
 #include "ACTFW/Fatras/ParticleGun.hpp"
+#include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTS/Utilities/Units.hpp"
 
@@ -31,20 +32,21 @@ FWE::ParticleGun::read(
   }
 
   // Create a random number generator
-  FW::RandomNumbersSvc::Generator rng
-      = m_cfg.randomNumbers->spawnGenerator(*context);
+  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(*context);
+
+  // Create distributions in given ranges
+  FW::UniformDist phiDist(m_cfg.phiRange.at(0), m_cfg.phiRange.at(1));
+  FW::UniformDist etaDist(m_cfg.etaRange.at(0), m_cfg.etaRange.at(1));
+  FW::UniformDist ptDist(m_cfg.ptRange.at(0), m_cfg.ptRange.at(1));
 
   // Particle loop
   for (int ip = 0; ip < m_cfg.nParticles; ip++) {
     // generate random parameters
-    double phi = m_cfg.phiRange.at(0)
-        + rng.drawUniform() * fabs(m_cfg.phiRange.at(1) - m_cfg.phiRange.at(0));
-    double eta = m_cfg.etaRange.at(0)
-        + rng.drawUniform() * fabs(m_cfg.etaRange.at(1) - m_cfg.etaRange.at(0));
+    double phi   = phiDist(rng);
+    double eta   = etaDist(rng);
     double theta = 2. * atan(exp(-eta));
-    double pt    = m_cfg.ptRange.at(0)
-        + rng.drawUniform() * fabs(m_cfg.ptRange.at(1) - m_cfg.ptRange.at(0));
-    double p = pt / sin(theta);
+    double pt    = ptDist(rng);
+    double p     = pt / sin(theta);
     // create momentum from random parameters
     Acts::Vector3D momentum(
         p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta));

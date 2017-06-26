@@ -53,10 +53,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // RANDOM NUMBERS - Create the random number engine
   FW::RandomNumbersSvc::Config brConfig;
-  brConfig.gauss_parameters   = {{0., 1.}};
-  brConfig.uniform_parameters = {{0., 1.}};
-  brConfig.landau_parameters  = {{0., 1.}};
-  brConfig.gamma_parameters   = {{0., 1.}};
+  brConfig.seed = 1234567890;
   std::shared_ptr<FW::RandomNumbersSvc> randomNumbers(
       new FW::RandomNumbersSvc(brConfig));
 
@@ -104,8 +101,8 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   readEvgenCfg.evgenParticlesCollection = "ParticleGun";
   // the hard scatter reader
   readEvgenCfg.hardscatterParticleReader = particleGun;
-  // the pileup reader
-  readEvgenCfg.pileupParticleReader = nullptr;
+  // The random number service
+  readEvgenCfg.randomNumbers = randomNumbers;
   // attach the barcode service
   readEvgenCfg.barcodeSvc = barcodeSvc;
   // the job WhiteBoard
