@@ -45,7 +45,7 @@ typedef std::poisson_distribution<int>  PoissonDist;  ///< Poisson Distribution
 class LandauDist
 {
 public:
-  /// A RandomNumberDistributions should provide a parameters struct
+  /// A RandomNumberDistribution should provide a parameters struct
   struct param_type
   {
     double mean = 0.;   ///< Mean of the Landau distribution
@@ -82,7 +82,7 @@ public:
   param_type param() const { return m_cfg; }
   void param(const param_type& p) { m_cfg = p; }
 
-  /// A RandomNumberDistributions should provide a result type typedef
+  /// A RandomNumberDistribution should provide a result type typedef
   using result_type = double;
 
   /// Generate a random number following a Landau distribution
@@ -107,6 +107,7 @@ public:
 private:
   param_type m_cfg; ///< configuration struct
 };
+///
 ///
 /// The role of the RandomNumbersSvc is only to spawn Algorithm-local random
 /// number generators. Clients should spawn their own local distributions
