@@ -12,14 +12,13 @@
 
 FW::LandauDist::LandauDist(const Config& cfg)
   : m_cfg(cfg)
-  , m_uniform{m_cfg.uniform_parameters[0], m_cfg.uniform_parameters[1]}
 {
 }
 
 double
 FW::LandauDist::operator()(RandomEngine& engine)
 {
-  double x   = m_uniform(engine);
+  double x   = std::generate_canonical<float, 10>(engine);
   double res = m_cfg.landau_parameters[0]
       + landau_quantile(x, m_cfg.landau_parameters[1]);
   return res;

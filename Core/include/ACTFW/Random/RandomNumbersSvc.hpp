@@ -49,8 +49,6 @@ public:
   /// Nested Configuration class
   struct Config
   {
-    /// Parameters of the underlying uniform random number distribution
-    std::array<double, 2> uniform_parameters = {{0, 1}};
     /// Parameters which are specific to the Landau random number distribution
     std::array<double, 2> landau_parameters = {{0, 1}};
   };
@@ -64,7 +62,6 @@ public:
 
 private:
   Config      m_cfg;      ///< configuration struct
-  UniformDist m_uniform;  ///< underlying uniform distribution
 };
 ///
 /// The role of the RandomNumbersSvc is only to spawn Algorithm-local random
