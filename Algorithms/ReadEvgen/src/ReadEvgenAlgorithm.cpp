@@ -1,4 +1,5 @@
 #include <iostream>
+#include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"

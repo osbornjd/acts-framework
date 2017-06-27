@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <random>
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
