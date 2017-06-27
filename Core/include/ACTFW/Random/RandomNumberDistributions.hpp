@@ -16,11 +16,10 @@ namespace FW {
 
 /// The following standard random number distributions are supported:
 ///
-typedef std::normal_distribution<double> GaussDist;     ///< Normal Distribution
-typedef std::uniform_real_distribution<double>
-                                        UniformDist;  ///< Uniform Distribution
-typedef std::gamma_distribution<double> GammaDist;    ///< Gamma Distribution
-typedef std::poisson_distribution<int>  PoissonDist;  ///< Poisson Distribution
+using GaussDist   = std::normal_distribution<double>;        ///< Normal
+using UniformDist = std::uniform_real_distribution<double>;  ///< Uniform
+using GammaDist   = std::gamma_distribution<double>;         ///< Gamma
+using PoissonDist = std::poisson_distribution<int>;          ///< Poisson
 ///
 /// In addition, the Landau distribution is provided
 ///

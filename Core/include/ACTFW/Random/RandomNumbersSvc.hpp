@@ -28,7 +28,7 @@ namespace FW {
 ///
 /// The following random number generator ("engine") is used:
 ///
-typedef std::mt19937 RandomEngine;  ///< Mersenne Twister
+using RandomEngine = std::mt19937;  ///< Mersenne Twister
 ///
 /// The role of the RandomNumbersSvc is only to spawn Algorithm-local random
 /// number generators ("engines"). It does not, in and of itself, accomodate
