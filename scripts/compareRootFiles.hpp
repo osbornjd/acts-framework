@@ -108,9 +108,9 @@ compare(const T& x, const T& y)
 }
 
 // ...but we'll want to tweak that a little for floats, to handle NaNs better...
-template <>
+template <typename T>
 Ordering
-compare(const float& x, const float& y)
+compareFloat(const T& x, const T& y)
 {
   if (std::isless(x, y)) {
     return Ordering::SMALLER;
@@ -119,6 +119,19 @@ compare(const float& x, const float& y)
   } else {
     return Ordering::EQUAL;
   }
+}
+
+template<>
+Ordering
+compare(const float& x, const float& y)
+{
+  return compareFloat(x, y);
+}
+
+template<>
+Ordering
+compare(const double& x, const double& y) {
+  return compareFloat(x, y);
 }
 
 // ...and for vectors, where the default lexicographic comparison cannot
