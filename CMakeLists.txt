@@ -73,8 +73,11 @@ if(USE_OPENMP)
 endif()
 if(USE_PYTHIA8)
   # TODO replace manual path checks w/ something like FindPythia8
-  if (NOT DEFINED PYTHIA8_INCLUDEDIR OR NOT DEFINED PYTHIA8_LIBRARYDIR)
-    message(FATAL_ERROR "Missing PYTHIA8_INCLUDEDIR or PYTHIA_LIBRARYDIR")
+  if (NOT DEFINED PYTHIA8_INCLUDEDIR)
+    message(FATAL_ERROR "Missing PYTHIA8_INCLUDEDIR")
+  endif()
+  if (NOT DEFINED PYTHIA8_LIBRARYDIR)
+    message(FATAL_ERROR "Missing PYTHIA8_LIBRARYDIR")
   endif()
 endif()
 
