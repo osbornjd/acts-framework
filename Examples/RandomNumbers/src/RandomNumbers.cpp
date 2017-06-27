@@ -21,16 +21,16 @@ main(int argc, char* argv[])
 
   // Create the random number engine
   FW::RandomNumbersSvc::Config brConfig;
-  brConfig.gauss_parameters   = {{0., 1.}};
-  brConfig.uniform_parameters = {{0., 1.}};
-  brConfig.landau_parameters  = {{1., 7.}};
-  brConfig.gamma_parameters   = {{1., 1.}};
   std::shared_ptr<FW::RandomNumbersSvc> bRandomNumbers(
       new FW::RandomNumbersSvc(brConfig));
 
   // create the config object for the hello world algorithm
   FWE::RandomNumbersAlgorithm::Config rNumbersConfig;
   rNumbersConfig.randomNumbers = bRandomNumbers;
+  rNumbersConfig.gaussParameters   = {{0., 1.}};
+  rNumbersConfig.uniformParameters = {{0., 1.}};
+  rNumbersConfig.landauParameters  = {{1., 7.}};
+  rNumbersConfig.gammaParameters   = {{1., 1.}};
   rNumbersConfig.drawsPerEvent = 5000;
   // and now the hello world algorithm
   std::shared_ptr<FW::IAlgorithm> rNumbers(

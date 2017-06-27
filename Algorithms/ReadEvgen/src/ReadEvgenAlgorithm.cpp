@@ -1,4 +1,5 @@
 #include <iostream>
+#include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
@@ -37,14 +38,14 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
   ACTS_DEBUG("Reading in genertated event info for event no. " << eventNumber);
 
   // Create a random number generator
-  FW::RandomNumbersSvc::Generator rngPileup
-      = m_cfg.pileupRandomNumbers->spawnGenerator(context);
+  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
 
-  FW::RandomNumbersSvc::Generator rngVertexT
-      = m_cfg.pileupVertexDistT->spawnGenerator(context);
-
-  FW::RandomNumbersSvc::Generator rngVertexZ
-      = m_cfg.pileupVertexDistZ->spawnGenerator(context);
+  // Setup random number distributions for some quantities
+  FW::PoissonDist pileupDist(m_cfg.pileupPoissonParameter);
+  FW::GaussDist vertexTDist(m_cfg.vertexTParameters[0],
+                            m_cfg.vertexTParameters[1]);
+  FW::GaussDist vertexZDist(m_cfg.vertexZParameters[0],
+                            m_cfg.vertexZParameters[1]);
 
   // prepare the output vector
   std::vector<Acts::ParticleProperties>* eventParticles
@@ -62,8 +63,8 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
                << (hardscatterParticles.size() > 0 ? 1 : 0));
 
   // generate the number of pileup events
-  size_t nPileUpEvents = m_cfg.pileupRandomNumbers
-      ? size_t(rngPileup.drawPoisson())
+  size_t nPileUpEvents = m_cfg.randomNumbers
+      ? size_t(pileupDist(rng))
       : 0;
 
   ACTS_VERBOSE("- [PU X] number of in-time pileup events : " << nPileUpEvents);
@@ -73,9 +74,9 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
 
   //
   // reserve quite a lot of space
-  double vertexX = rngVertexT.drawGauss();
-  double vertexY = rngVertexT.drawGauss();
-  double vertexZ = rngVertexZ.drawGauss();
+  double vertexX = vertexTDist(rng);
+  double vertexY = vertexTDist(rng);
+  double vertexZ = vertexZDist(rng);
 
   Acts::Vector3D vertex(vertexX, vertexY, vertexZ);
 
@@ -92,9 +93,9 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
   // loop over the pile-up vertices
   for (size_t ipue = 0; ipue < nPileUpEvents; ++ipue) {
     // reserve quite a lot of space
-    double         puVertexX = rngVertexT.drawGauss();
-    double         puVertexY = rngVertexT.drawGauss();
-    double         puVertexZ = rngVertexZ.drawGauss();
+    double         puVertexX = vertexTDist(rng);
+    double         puVertexY = vertexTDist(rng);
+    double         puVertexZ = vertexZDist(rng);
     Acts::Vector3D puVertex(puVertexX, puVertexY, puVertexZ);
     // get the vertices per pileup event
     std::vector<Acts::ParticleProperties> pileupPartiles = {};

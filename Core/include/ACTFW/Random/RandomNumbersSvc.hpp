@@ -9,7 +9,6 @@
 #ifndef ACTFW_RANDOM_RANDOMNUMBERSSVC_H
 #define ACTFW_RANDOM_RANDOMNUMBERSSVC_H 1
 
-#include <array>
 #include <memory>
 #include <random>
 #include <string>
@@ -24,16 +23,21 @@ namespace FW {
 /// @class RandomNumbersSvc
 ///
 /// This service provides Algorithm-local random number generators, allowing for
-/// thread-safe, lock-free and reproducible random number generations in both
+/// thread-safe, lock-free and reproducible random number generation across
 /// single-threaded and multi-threaded test framework runs.
 ///
-typedef std::mt19937                     RandomEngine;  ///< Mersenne Twister
-typedef std::normal_distribution<double> GaussDist;     ///< Normal Distribution
-typedef std::uniform_real_distribution<double>
-                                        UniformDist;  ///< Uniform Distribution
-typedef std::gamma_distribution<double> GammaDist;    ///< Gamma Distribution
-typedef std::poisson_distribution<int>  PoissonDist;  ///< Poisson Distribution
-
+/// The following random number generator ("engine") is used:
+///
+using RandomEngine = std::mt19937;  ///< Mersenne Twister
+///
+/// The role of the RandomNumbersSvc is only to spawn Algorithm-local random
+/// number generators ("engines"). It does not, in and of itself, accomodate
+/// requests for specific random number distributions (uniform, gaussian, etc).
+///
+/// For this purpose, clients should spawn their own local distribution objects
+/// as needed, following the C++11 STL design. See RandomNumberDistributions.hpp
+/// for some examples of distributions that can be used.
+///
 class RandomNumbersSvc : public IService
 {
 public:
@@ -48,62 +52,12 @@ public:
     std::string name;
     /// random seed
     unsigned int seed = 1234567890;
-    /// configuration uniform
-    std::array<double, 2> uniform_parameters = {{0, 1}};
-    /// configuration gauss
-    std::array<double, 2> gauss_parameters = {{0, 1}};
-    /// configuration landau
-    std::array<double, 2> landau_parameters = {{0, 1}};
-    /// configuration gamma
-    std::array<double, 2> gamma_parameters = {{0, 1}};
-    /// configuration poisson
-    int poisson_parameter = 40;
 
     Config(const std::string&   lname = "RandomNumbersSvc",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
       : logger{Acts::getDefaultLogger(lname, lvl)}, name{lname}
     {
     }
-  };
-
-  /// @class Generator
-  ///
-  /// A random number generator. The intended mode of operation is that each
-  /// Algorithm::execute() invocation should get its own private instance of
-  /// this class.
-  ///
-  class Generator
-  {
-  public:
-    /// Initialize a generator
-    ///
-    /// @param cfg is the host's configuration
-    /// @param seed is the seed to use for this generator
-    Generator(const Config& cfg, unsigned int seed);
-    
-    /// draw random number from gauss distribution
-    double
-    drawGauss();
-    /// draw random number from uniform distribution
-    double
-    drawUniform();
-    /// draw random number from landau distribution
-    double
-    drawLandau();
-    /// draw random number from gamma distribution
-    double
-    drawGamma();
-    /// draw random number from poisson distribution
-    double
-    drawPoisson();
-
-  private:
-    const Config& m_cfg;      ///< link to host configuration
-    RandomEngine  m_engine;   ///< random engine
-    GaussDist     m_gauss;    ///< gauss distribution
-    UniformDist   m_uniform;  ///< uniform distribution
-    GammaDist     m_gamma;    ///< gamma distribution
-    PoissonDist   m_poisson;  ///< poisson distribution
   };
 
   /// Constructor
@@ -117,10 +71,12 @@ public:
   FW::ProcessCode
   finalize() override final;
 
-  /// Spawn an algorithm-local random number generator
+  /// Spawn an algorithm-local random number generator. To avoid inefficiencies
+  /// and multiple uses of a given RNG seed, this should only be done once per
+  /// Algorithm invocation, after what the generator object should be reused.
   ///
   /// @param context is the AlgorithmContext of the host algorithm
-  Generator
+  RandomEngine
   spawnGenerator(const AlgorithmContext& context) const;
 
   /// Ask for the seed

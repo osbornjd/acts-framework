@@ -31,10 +31,6 @@ namespace ACTFWExtrapolationExample {
 
     // RANDOM NUMBERS - Create the random number engine
     FW::RandomNumbersSvc::Config brConfig;
-    brConfig.gauss_parameters   = {{0., 1.}};
-    brConfig.uniform_parameters = {{0., 1.}};
-    brConfig.landau_parameters  = {{1., 7.}};
-    brConfig.gamma_parameters   = {{1., 1.}};
     std::shared_ptr<FW::RandomNumbersSvc> randomNumbers(
         new FW::RandomNumbersSvc(brConfig));
 

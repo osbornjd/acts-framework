@@ -40,24 +40,27 @@ public:
   struct Config {
     
     /// name of the output collection
-    std::string                            evgenParticlesCollection  = "EvgenParticles";
+    std::string evgenParticlesCollection  = "EvgenParticles";
     /// the hard scatter reader
     std::shared_ptr< FW::IReaderT< std::vector<Acts::ParticleProperties > > > 
         hardscatterParticleReader = nullptr;
     /// the pileup reader       
     std::shared_ptr< FW::IReaderT< std::vector<Acts::ParticleProperties> > > 
-        pileupParticleReader                                         = nullptr;
-    /// the number of pileup events
-    std::shared_ptr<FW::RandomNumbersSvc>  pileupRandomNumbers       = nullptr;
-    std::shared_ptr<FW::RandomNumbersSvc>  pileupVertexDistT         = nullptr;
-    std::shared_ptr<FW::RandomNumbersSvc>  pileupVertexDistZ         = nullptr;
+        pileupParticleReader = nullptr;
+    /// the random number service
+    std::shared_ptr<FW::RandomNumbersSvc>  randomNumbers = nullptr;
+    /// the Poisson parameter for pileup generation
+    int pileupPoissonParameter = 40;
+    /// the Gaussian parameters for transverse and axial vertex generation
+    std::array<double, 2> vertexTParameters = {{ 0., 1. }};
+    std::array<double, 2> vertexZParameters = {{ 0., 1. }};
     /// the BarcodeSvc
-    std::shared_ptr<FW::BarcodeSvc>        barcodeSvc                = nullptr;
+    std::shared_ptr<FW::BarcodeSvc>        barcodeSvc = nullptr;
     /// output writer
     std::shared_ptr<FW::IWriterT< std::vector<Acts::ParticleProperties> > > 
         particleWriter    = nullptr;
     /// the job WhiteBoard
-    std::shared_ptr<FW::WhiteBoard>        jBoard                    = nullptr;
+    std::shared_ptr<FW::WhiteBoard>        jBoard = nullptr;
     /// the name of the algorithm
     std::string name = "Algorithm";
       
