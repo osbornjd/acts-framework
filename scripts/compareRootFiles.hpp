@@ -473,42 +473,35 @@ private:
                const std::string& branchName,
                const std::string  elemType)
   {
-    if (elemType == "char") {
-      return BranchComparisonHarness::create<std::vector<char>>(treeMetadata,
-                                                                branchName);
-    } else if (elemType == "unsigned char") {
-      return BranchComparisonHarness::create<std::vector<unsigned char>>(
-          treeMetadata, branchName);
-    } else if (elemType == "short") {
-      return BranchComparisonHarness::create<std::vector<short>>(treeMetadata,
-                                                                 branchName);
-    } else if (elemType == "unsigned short") {
-      return BranchComparisonHarness::create<std::vector<unsigned short>>(
-          treeMetadata, branchName);
-    } else if (elemType == "int") {
-      return BranchComparisonHarness::create<std::vector<int>>(treeMetadata,
-                                                               branchName);
-    } else if (elemType == "unsigned int") {
-      return BranchComparisonHarness::create<std::vector<unsigned int>>(
-          treeMetadata, branchName);
-    } else if (elemType == "long") {
-      return BranchComparisonHarness::create<std::vector<long>>(treeMetadata,
-                                                                branchName);
-    } else if (elemType == "unsigned long") {
-      return BranchComparisonHarness::create<std::vector<unsigned long>>(
-          treeMetadata, branchName);
-    } else if (elemType == "float") {
-      return BranchComparisonHarness::create<std::vector<float>>(treeMetadata,
-                                                                 branchName);
-    } else if (elemType == "double") {
-      return BranchComparisonHarness::create<std::vector<double>>(treeMetadata,
-                                                                  branchName);
-    } else if (elemType == "bool") {
-      return BranchComparisonHarness::create<std::vector<bool>>(treeMetadata,
-                                                                branchName);
-    } else {
-      throw UnsupportedBranchType();
+    // We support vectors of different types by switching across type (strings)
+    #define CREATE_VECTOR__HANDLE_TYPE(type_name)  \
+    if(elemType == #type_name) {  \
+      return BranchComparisonHarness::create<std::vector<type_name>>(  \
+        treeMetadata,  \
+        branchName  \
+      );  \
     }
+
+    // Handle vectors of booleans
+    CREATE_VECTOR__HANDLE_TYPE(bool)
+
+    // Handle vectors of all standard floating-point types
+    else CREATE_VECTOR__HANDLE_TYPE(float)
+    else CREATE_VECTOR__HANDLE_TYPE(double)
+
+    // For integer types, we'll want to handle both signed and unsigned versions
+    #define CREATE_VECTOR__HANDLE_INTEGER_TYPE(integer_type_name)  \
+    CREATE_VECTOR__HANDLE_TYPE(integer_type_name)  \
+    else CREATE_VECTOR__HANDLE_TYPE(unsigned integer_type_name)
+
+    // Handle vectors of all standard integer types
+    else CREATE_VECTOR__HANDLE_INTEGER_TYPE(char)
+    else CREATE_VECTOR__HANDLE_INTEGER_TYPE(short)
+    else CREATE_VECTOR__HANDLE_INTEGER_TYPE(int)
+    else CREATE_VECTOR__HANDLE_INTEGER_TYPE(long)
+
+    // Throw an exception if the vector element type is not recognized
+    else throw UnsupportedBranchType();
   }
 
   // This helper method provides general string conversion for all supported
