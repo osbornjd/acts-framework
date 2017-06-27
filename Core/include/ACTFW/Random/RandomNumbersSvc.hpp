@@ -82,8 +82,11 @@ public:
   param_type param() const { return m_cfg; }
   void param(const param_type& p) { m_cfg = p; }
 
-  /// A RandomNumberDistribution should provide a result type typedef
+  /// A RandomNumberDistribution should provide a result type typedef and some
+  /// bounds on the values that can be emitted as output
   using result_type = double;
+  result_type min() const { return -std::numeric_limits<double>::infinity(); }
+  result_type max() const { return std::numeric_limits<double>::infinity(); }
 
   /// Generate a random number following a Landau distribution
   template<typename Generator>
