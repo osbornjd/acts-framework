@@ -1,4 +1,4 @@
-image: gitlab-registry.cern.ch/acts/a-common-tracking-sw/centos7:latest
+image: gitlab-registry.cern.ch/acts/a-common-tracking-sw/slc6:latest
 
 stages:
     - build_acts
@@ -12,7 +12,7 @@ variables:
 before_script:
     # CI executor uses fail on error by default
     # setup scripts do not like that
-    - set +e && source CI/setup_lcgenv.sh; set -e
+    - set +e && source CI/setup_lxplus6.sh; set -e
 
 build_acts_default:
     stage: build_acts
