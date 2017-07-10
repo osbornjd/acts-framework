@@ -96,8 +96,6 @@ generic_extrapolation:
 
 reproducibility_generic_extrapolation:
     stage: test
-    # TODO requires Motif library on docker image
-    allow_failure: true
     tags:
         - cvmfs
     script:
