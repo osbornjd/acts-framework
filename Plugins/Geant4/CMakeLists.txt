@@ -1,3 +1,5 @@
+include(${Geant4_USE_FILE})
+
 file(GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
 
 add_library(ACTFWGeant4Plugin SHARED ${src_files})
@@ -7,7 +9,6 @@ target_include_directories(ACTFWGeant4Plugin PUBLIC ${ROOT_INCLUDE_DIRS})
 target_link_libraries(ACTFWGeant4Plugin PUBLIC ACTS::ACTSCore ACTS::ACTSMaterialPlugin ACTFramework)
 target_link_libraries(ACTFWGeant4Plugin PUBLIC ${Geant4_LIBRARIES})
 target_link_libraries(ACTFWGeant4Plugin PUBLIC ${ROOT_LIBRARIES})
-target_compile_options(ACTFWGeant4Plugin PUBLIC ${Geant4_DEFINITIONS})
 
 install(TARGETS ACTFWGeant4Plugin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

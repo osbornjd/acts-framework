@@ -7,10 +7,9 @@ target_include_directories(ACTFWDD4hepG4Plugin PUBLIC $<BUILD_INTERFACE:${CMAKE_
 target_include_directories(ACTFWDD4hepG4Plugin PUBLIC ${DD4hep_INCLUDE_DIRS})
 target_include_directories(ACTFWDD4hepG4Plugin PUBLIC ${ROOT_INCLUDE_DIRS})
 target_link_libraries(ACTFWDD4hepG4Plugin PUBLIC ACTFramework)
-target_link_libraries(ACTFWDD4hepG4Plugin PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ACTFWDD4hepG4Plugin PUBLIC ${DD4hep_LIBRARIES} ${DD4hep_DDG4_LIBRARY})
 target_link_libraries(ACTFWDD4hepG4Plugin PUBLIC ${Geant4_LIBRARIES})
-target_compile_options(ACTFWDD4hepG4Plugin PUBLIC ${Geant4_DEFINITIONS})
+target_link_libraries(ACTFWDD4hepG4Plugin PUBLIC ${ROOT_LIBRARIES})
 
 install(TARGETS ACTFWDD4hepG4Plugin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
