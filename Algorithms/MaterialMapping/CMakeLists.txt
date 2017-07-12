@@ -7,6 +7,5 @@ target_include_directories(ACTFWMaterialMapping PUBLIC $<BUILD_INTERFACE:${CMAKE
 target_link_libraries(ACTFWMaterialMapping PUBLIC ACTS::ACTSCore ACTS::ACTSMaterialPlugin)
 target_link_libraries(ACTFWMaterialMapping PUBLIC ACTFramework ACTFWGeant4Plugin)
 
-install(TARGETS ACTFWMaterialMapping LIBRARY DESTINATION lib)
-install(DIRECTORY include/ACTFW DESTINATION include)
-
+install(TARGETS ACTFWMaterialMapping LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

@@ -4,5 +4,4 @@ add_executable(ACTFWHelloWorldExample ${src_files})
 target_link_libraries(ACTFWHelloWorldExample PRIVATE ACTFramework)
 target_link_libraries(ACTFWHelloWorldExample PUBLIC ACTS::ACTSCore)
 
-install(TARGETS ACTFWHelloWorldExample RUNTIME DESTINATION bin)
-
+install(TARGETS ACTFWHelloWorldExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
