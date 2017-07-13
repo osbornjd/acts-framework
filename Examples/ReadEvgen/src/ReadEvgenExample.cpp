@@ -96,8 +96,7 @@ main(int argc, char* argv[])
   FW::Sequencer::Config seqConfig;
   // now create the sequencer
   FW::Sequencer sequencer(seqConfig);
-  sequencer.addServices(
-      {particleWriter, pileupNumbers, pileupVertexT, pileupVertexZ});
+  sequencer.addServices({particleWriter, randomNumbers});
   sequencer.addIOAlgorithms({readEvgen});
   sequencer.appendEventAlgorithms({});
 

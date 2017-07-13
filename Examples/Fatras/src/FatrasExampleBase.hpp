@@ -238,7 +238,7 @@ namespace ACTFWFatrasExample {
     FW::Sequencer::Config seqConfig;
     // now create the sequencer
     FW::Sequencer sequencer(seqConfig);
-    sequencer.addServices({rootEccWriter, stracksWriterObj, pileupNumbers, pileupVertexT, pileupVertexZ});
+    sequencer.addServices({rootEccWriter, stracksWriterObj, randomNumbers});
     sequencer.addIOAlgorithms({readEvgen, writeOutput});
     sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg});
   
