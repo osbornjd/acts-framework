@@ -22,6 +22,9 @@ FW::Sequencer::initializeEventLoop()
   ACTS_INFO("      -> " << m_cfg.ioAlgorithms.size() << " IO Algorithms");
   ACTS_INFO("      -> " << m_cfg.eventAlgorithms.size() << " Event Algorithms");
 
+  m_jobStore = std::make_shared<WhiteBoard>(
+      Acts::getDefaultLogger("JobStore", m_cfg.jobStoreLogLevel));
+
   // initialize the services
   for (auto& isvc : m_cfg.services) {
     if (isvc->initialize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
@@ -29,14 +32,14 @@ FW::Sequencer::initializeEventLoop()
 
   // initialize the i/o algorithms
   for (auto& ioalg : m_cfg.ioAlgorithms) {
-    if (ioalg->initialize(m_cfg.jobStore)
+    if (ioalg->initialize(m_jobStore)
         != ProcessCode::SUCCESS)
       return ProcessCode::ABORT;
   }
 
   // initialize the event algorithms
   for (auto& alg : m_cfg.eventAlgorithms) {
-    if (alg->initialize(m_cfg.jobStore)
+    if (alg->initialize(m_jobStore)
         != ProcessCode::SUCCESS)
       return ProcessCode::ABORT;
   }
@@ -52,8 +55,7 @@ FW::Sequencer::processEventLoop(size_t nEvents, size_t skipEvents)
   ACTS_INFO("Processing the event loop:");
   
   // Setup the job context
-  auto jobContext = std::make_shared<const JobContext>(
-    nEvents, m_cfg.jobStore );
+  auto jobContext = std::make_shared<const JobContext>(nEvents, m_jobStore);
 
   // skip the events if necessary
   if (skipEvents) {

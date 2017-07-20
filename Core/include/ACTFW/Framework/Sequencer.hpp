@@ -21,8 +21,6 @@
 
 namespace FW {
 
-class WhiteBoard;
-
 /// @class  Sequencer
 ///
 /// This is the backbone of the mini framework, it initializes all algorithms,
@@ -42,10 +40,10 @@ public:
     std::vector<std::shared_ptr<IOAlgorithm>> ioAlgorithms = {};
     /// algorithms
     std::vector<std::shared_ptr<IAlgorithm>> eventAlgorithms = {};
+    /// job store logging level
+    Acts::Logging::Level jobStoreLogLevel = Acts::Logging::INFO;
     /// event store logging level
     Acts::Logging::Level eventStoreLogLevel = Acts::Logging::INFO;
-    /// the job store
-    std::shared_ptr<WhiteBoard> jobStore = nullptr;
   };
 
   /// Constructor
@@ -97,6 +95,7 @@ public:
 private:
   Config                              m_cfg;
   std::unique_ptr<const Acts::Logger> m_logger;
+  std::shared_ptr<WhiteBoard>         m_jobStore;
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -168,6 +167,6 @@ Sequencer::appendEventAlgorithms(std::vector<std::shared_ptr<IAlgorithm>> ialgs)
   }
   return ProcessCode::SUCCESS;
 }
-}
+}  // namespace FW
 
 #endif  // ACTF_FRAMEWORK_SEQUENCER_H
