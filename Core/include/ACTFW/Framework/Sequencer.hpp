@@ -1,13 +1,11 @@
-//
-//  AlgorithmSequencer.h
-//  ACTFW
-//
-//  Created by Andreas Salzburger on 11/05/16.
-//
-//
+/// @file
+/// @date 2016-05-11 Initial version
+/// @date 2017-07-27 Clean up with simplified interfaces
+/// @author Andreas Salzburger
+/// @author Moritz Kiehn <msmk@cern.ch>
 
-#ifndef ACTF_FRAMEWORK_SEQUENCER_H
-#define ACTF_FRAMEWORK_SEQUENCER_H 1
+#ifndef ACTFW_SEQUENCER_H
+#define ACTFW_SEQUENCER_H
 
 #include <memory>
 #include <string>
@@ -80,22 +78,20 @@ public:
   ProcessCode
   appendEventAlgorithms(std::vector<std::shared_ptr<IAlgorithm>> ialgs);
 
-  /// Event loop initialization method
+  /// Run the event loop over the given number of events.
+  ///
+  /// @param events Number of events to process
+  /// @param skip Number of events to skip before processing
+  ///
+  /// This will first initialize all configured services and algorithms, then
+  /// run all configure algorithms for each event potentially parallelized, and
+  /// then finalize all algorithms and services in reverse order.
   ProcessCode
-  initializeEventLoop();
-
-  /// Event loop process method
-  ProcessCode
-  processEventLoop(size_t nEvents, size_t skipEvents = 0);
-
-  /// Event loop finalization method
-  ProcessCode
-  finalizeEventLoop();
+  run(size_t events, size_t skip = 0);
 
 private:
   Config                              m_cfg;
   std::unique_ptr<const Acts::Logger> m_logger;
-  std::shared_ptr<WhiteBoard>         m_jobStore;
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -169,4 +165,4 @@ Sequencer::appendEventAlgorithms(std::vector<std::shared_ptr<IAlgorithm>> ialgs)
 }
 }  // namespace FW
 
-#endif  // ACTF_FRAMEWORK_SEQUENCER_H
+#endif  // ACTFW_SEQUENCER_H
