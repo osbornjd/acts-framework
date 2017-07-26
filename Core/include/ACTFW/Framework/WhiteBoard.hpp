@@ -30,13 +30,6 @@ public:
              = Acts::getDefaultLogger("WhiteBoard", Acts::Logging::INFO));
   virtual ~WhiteBoard();
 
-  /// clear the white board
-  ///
-  /// @param name is the collection name that should be cleared
-  template <class T>
-  ProcessCode
-  clearT(const std::string& name);
-
   /// write to the white board
   ///
   /// @paramt coll is the collection to be written
@@ -57,7 +50,6 @@ private:
   std::unique_ptr<const Acts::Logger> m_logger;
   std::map<std::string, void*>        m_store;
 
-  /// Private access to the logging instance
   const Acts::Logger&
   logger() const
   {
@@ -69,28 +61,8 @@ private:
 
 template <class T>
 FW::ProcessCode
-FW::WhiteBoard::clearT(const std::string& name)
-{
-  // clear the event store again
-  auto sCol = m_store.find(name);
-  // return if nothing to do
-  if (sCol == m_store.end()) return ProcessCode::SUCCESS;
-  // static cast to the concrete type
-  T* coll = reinterpret_cast<T*>(sCol->second);
-  // erase from the map
-  m_store.erase(sCol);
-  // now delete the memory
-  delete coll;
-  // return success
-  return ProcessCode::SUCCESS;
-}
-
-template <class T>
-FW::ProcessCode
 FW::WhiteBoard::writeT(T* coll, const std::string& cname)
 {
-  // clear the entry in the event store
-  if (clearT<T>(cname) != ProcessCode::SUCCESS) return ProcessCode::ABORT;
   // record the new one
   if (coll == nullptr) {
     ACTS_FATAL("Could not write collection " << cname);
