@@ -1,17 +1,17 @@
-//
-//  WhiteBoard.h
-//  ACTFW
-//
-//  Created by Andreas Salzburger on 11/05/16.
-//
-//
+/// @file
+/// @date 2016-05-11 Initial version
+/// @date 2017-07-26 Rewrite with move semantics
+/// @author Andreas Salzburger
+/// @author Moritz Kiehn <msmk@cern.ch>
 
-#ifndef ACTFW_FRAMEWORK_WHITEBOARD_h
-#define ACTFW_FRAMEWORK_WHITEBOARD_h
+#ifndef ACTFW_WHITEBOARD_H
+#define ACTFW_WHITEBOARD_H
 
 #include <map>
 #include <memory>
 #include <string>
+#include <type_traits>
+#include <typeinfo>
 #include <vector>
 
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -19,36 +19,62 @@
 
 namespace FW {
 
-/// @class WhiteBoard
-/// Simple whit board class to read from and write to
+/// A container to store arbitrary objects with ownership transfer.
+///
+/// This is an append-only container that takes ownership of the objects
+/// added to it. Once an object has been added, it can only be read but not
+/// be modified. Trying to replace an existing object is considered an error.
+/// Its lifetime is bound to the liftime of the white board.
 class WhiteBoard
 {
 public:
-  /// Constructor
-  /// @param cfg is the config struct for this WhiteBoard
   WhiteBoard(std::unique_ptr<const Acts::Logger> logger
              = Acts::getDefaultLogger("WhiteBoard", Acts::Logging::INFO));
-  virtual ~WhiteBoard();
 
-  /// write to the white board
+  /// Store an object on the white board and transfer ownership.
   ///
-  /// @paramt coll is the collection to be written
-  /// @param cname is the collection to name
-  template <class T>
+  /// @param name Identifier to store it under
+  /// @param object Movable reference to the transferable object
+  /// @returns ProcessCode::SUCCESS if the object was stored successfully
+  template <typename T>
   ProcessCode
-  writeT(T* coll, const std::string& cname);
+  add(const std::string& name, T&& object);
 
-  /// read from the white board
+  /// Get access to a stored object.
   ///
-  /// @paramt coll is the collection to be written
-  /// @param cname is the collection to name
-  template <class T>
+  /// @param[in] name Identifier for the object
+  /// @param[out] object A pointer to the object or nullptr on error
+  /// @returns ProcessCode::SUCCESS if the object was found
+  template <typename T>
   ProcessCode
-  readT(T*& coll, const std::string& cname);
+  get(const std::string& name, const T*& object) const;
 
 private:
-  std::unique_ptr<const Acts::Logger> m_logger;
-  std::map<std::string, void*>        m_store;
+  // type-erased value holder for move-constructible types
+  struct Holder
+  {
+    virtual ~Holder() {}
+    virtual const std::type_info&
+    type() const = 0;
+  };
+  template <typename T,
+            typename
+            = std::enable_if_t<std::is_nothrow_move_constructible<T>::value>>
+  struct THolder : public Holder
+  {
+    T value;
+
+    THolder(T&& v) : value(std::move(v)) {}
+    ~THolder() {}
+    const std::type_info&
+    type() const
+    {
+      return typeid(T);
+    }
+  };
+
+  std::unique_ptr<const Acts::Logger>            m_logger;
+  std::map<std::string, std::unique_ptr<Holder>> m_store;
 
   const Acts::Logger&
   logger() const
@@ -59,33 +85,43 @@ private:
 
 }  // namespace FW
 
-template <class T>
-FW::ProcessCode
-FW::WhiteBoard::writeT(T* coll, const std::string& cname)
+inline FW::WhiteBoard::WhiteBoard(std::unique_ptr<const Acts::Logger> logger)
+  : m_logger(std::move(logger))
 {
-  // record the new one
-  if (coll == nullptr) {
-    ACTS_FATAL("Could not write collection " << cname);
+}
+
+template <typename T>
+inline FW::ProcessCode
+FW::WhiteBoard::add(const std::string& name, T&& object)
+{
+  if (0 < m_store.count(name)) {
+    ACTS_FATAL("Object '" << name << "' already exists");
     return ProcessCode::ABORT;
   }
-  ACTS_VERBOSE("Writing collection " << cname << " to board");
-  m_store[cname] = (void*)coll;
+  m_store.emplace(name, std::make_unique<THolder<T>>(std::forward<T>(object)));
+  ACTS_VERBOSE("Added object '" << name << "'");
   return ProcessCode::SUCCESS;
 }
 
-template <class T>
-FW::ProcessCode
-FW::WhiteBoard::readT(T*& coll, const std::string& cname)
+template <typename T>
+inline FW::ProcessCode
+FW::WhiteBoard::get(const std::string& name, const T*& object) const
 {
-  auto sCol = m_store.find(cname);
-  if (sCol == m_store.end()) {
-    ACTS_FATAL("Could not read collection " << cname);
+  auto it = m_store.find(name);
+  if (it == m_store.end()) {
+    object = nullptr;
+    ACTS_FATAL("Object '" << name << "' does not exists");
     return ProcessCode::ABORT;
   }
-  // now do the static_cast
-  coll = reinterpret_cast<T*>(sCol->second);
-  ACTS_VERBOSE("Reading collection " << cname << " from board");
+  const Holder* holder = it->second.get();
+  if (typeid(T) != holder->type()) {
+    object = nullptr;
+    ACTS_FATAL("Type missmatch for object '" << name << "'");
+    return ProcessCode::ABORT;
+  }
+  object = &(reinterpret_cast<const THolder<T>*>(holder)->value);
+  ACTS_VERBOSE("Retrieved object '" << name << "'");
   return ProcessCode::SUCCESS;
 }
 
-#endif  // ACTFW_FRAMEWORK_WHITEBOARD_h
+#endif  // ACTFW_WHITEBOARD_H
