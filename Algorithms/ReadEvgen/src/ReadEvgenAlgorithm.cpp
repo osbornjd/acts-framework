@@ -1,9 +1,9 @@
+#include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
 #include <iostream>
+#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
-#include "ACTFW/Framework/WhiteBoard.hpp"
 
 FWA::ReadEvgenAlgorithm::ReadEvgenAlgorithm(
     const Config&                       cfg,
@@ -16,13 +16,13 @@ FW::ProcessCode
 FWA::ReadEvgenAlgorithm::skip(size_t nEvents)
 {
   // there is a hard scatter evgen reader
-  std::vector<Acts::ParticleProperties> skipParticles;  
-  if (m_cfg.hardscatterParticleReader && 
-      m_cfg.hardscatterParticleReader->read(skipParticles, nEvents)
-      == FW::ProcessCode::ABORT){
+  std::vector<Acts::ParticleProperties> skipParticles;
+  if (m_cfg.hardscatterParticleReader
+      && m_cfg.hardscatterParticleReader->read(skipParticles, nEvents)
+          == FW::ProcessCode::ABORT) {
     // error and abort
     ACTS_ERROR("Could not skip " << nEvents << ". Aborting.");
-    return FW::ProcessCode::ABORT;    
+    return FW::ProcessCode::ABORT;
   }
   return FW::ProcessCode::SUCCESS;
 }
@@ -30,7 +30,6 @@ FWA::ReadEvgenAlgorithm::skip(size_t nEvents)
 FW::ProcessCode
 FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
 {
-
   // Retrieve relevant information from the execution context
   size_t eventNumber = context.eventContext->eventNumber;
   auto   eventStore  = context.eventContext->eventStore;
@@ -42,7 +41,7 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
 
   // Setup random number distributions for some quantities
   FW::PoissonDist pileupDist(m_cfg.pileupPoissonParameter);
-  FW::GaussDist vertexTDist(m_cfg.vertexTParameters[0],
+  FW::GaussDist   vertexTDist(m_cfg.vertexTParameters[0],
                             m_cfg.vertexTParameters[1]);
   FW::GaussDist vertexZDist(m_cfg.vertexZParameters[0],
                             m_cfg.vertexZParameters[1]);
@@ -53,19 +52,18 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
 
   // get the hard scatter if you have it
   std::vector<Acts::ParticleProperties> hardscatterParticles = {};
-  if (m_cfg.hardscatterParticleReader && 
-      m_cfg.hardscatterParticleReader->read(hardscatterParticles) 
-      == FW::ProcessCode::ABORT){
-      ACTS_ERROR("Could not read hard scatter event. Aborting.");
-      return FW::ProcessCode::ABORT;
+  if (m_cfg.hardscatterParticleReader
+      && m_cfg.hardscatterParticleReader->read(
+             hardscatterParticles, 0, &context)
+          == FW::ProcessCode::ABORT) {
+    ACTS_ERROR("Could not read hard scatter event. Aborting.");
+    return FW::ProcessCode::ABORT;
   }
   ACTS_VERBOSE("- [HS X] number of hard scatter particles   : "
                << (hardscatterParticles.size() > 0 ? 1 : 0));
 
   // generate the number of pileup events
-  size_t nPileUpEvents = m_cfg.randomNumbers
-      ? size_t(pileupDist(rng))
-      : 0;
+  size_t nPileUpEvents = m_cfg.randomNumbers ? size_t(pileupDist(rng)) : 0;
 
   ACTS_VERBOSE("- [PU X] number of in-time pileup events : " << nPileUpEvents);
 
@@ -85,7 +83,7 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
   for (auto& hsParticle : hardscatterParticles) {
     // shift the particle by the vertex
     hsParticle.shift(vertex);
-      hsParticle.assign(m_cfg.barcodeSvc->generate(0,pCounter++));
+    hsParticle.assign(m_cfg.barcodeSvc->generate(0, pCounter++));
     // now push-back
     eventParticles->push_back(hsParticle);
   }
@@ -99,11 +97,11 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
     Acts::Vector3D puVertex(puVertexX, puVertexY, puVertexZ);
     // get the vertices per pileup event
     std::vector<Acts::ParticleProperties> pileupPartiles = {};
-    if (m_cfg.pileupParticleReader && 
-          m_cfg.pileupParticleReader->read(pileupPartiles) 
-          == FW::ProcessCode::ABORT){
-          ACTS_ERROR("Could not read pile up event " << ipue << ". Aborting.");
-          return FW::ProcessCode::ABORT;
+    if (m_cfg.pileupParticleReader
+        && m_cfg.pileupParticleReader->read(pileupPartiles)
+            == FW::ProcessCode::ABORT) {
+      ACTS_ERROR("Could not read pile up event " << ipue << ". Aborting.");
+      return FW::ProcessCode::ABORT;
     }
     pCounter = 0;
     ACTS_VERBOSE("- [PU " << ipue << "] number of pile-up particles : "
@@ -114,7 +112,7 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
     for (auto& puParticle : pileupPartiles) {
       // shift to the pile-up vertex
       puParticle.shift(puVertex);
-      puParticle.assign(m_cfg.barcodeSvc->generate(ipue+1,pCounter++));
+      puParticle.assign(m_cfg.barcodeSvc->generate(ipue + 1, pCounter++));
       // now store the particle
       eventParticles->push_back(puParticle);
     }
@@ -124,8 +122,7 @@ FWA::ReadEvgenAlgorithm::read(const FW::AlgorithmContext context) const
   if (m_cfg.particleWriter
       && m_cfg.particleWriter->write(*eventParticles)
           == FW::ProcessCode::ABORT) {
-    ACTS_WARNING(
-        "Could not write colleciton of particles to file. Aborting.");
+    ACTS_WARNING("Could not write colleciton of particles to file. Aborting.");
     return FW::ProcessCode::ABORT;
   }
 

@@ -1,20 +1,19 @@
-#include "ACTS/Utilities/Units.hpp"
 #include "ACTFW/Plugins/Root/TPythia8Generator.hpp"
-#include "TSystem.h"
-#include "TPythia8.h"
-#include "TParticle.h"
-#include "TDatabasePDG.h"
+#include "ACTS/Utilities/Units.hpp"
 #include "TClonesArray.h"
+#include "TDatabasePDG.h"
+#include "TParticle.h"
+#include "TPythia8.h"
+#include "TSystem.h"
 
 FWRoot::TPythia8Generator::TPythia8Generator(
     const FWRoot::TPythia8Generator::Config& cfg,
     std::unique_ptr<const Acts::Logger>      mlogger)
-  : FW::IReaderT< std::vector<Acts::ParticleProperties> >()
+  : FW::IReaderT<std::vector<Acts::ParticleProperties>>()
   , m_cfg(cfg)
   , m_pythia8(nullptr)
   , m_logger(std::move(mlogger))
 {
-
   // loading the libraries
   gSystem->Load("$PYTHIA8/lib/libpythia8");
   gSystem->Load("libEG");
@@ -50,24 +49,24 @@ FWRoot::TPythia8Generator::~TPythia8Generator()
 
 FW::ProcessCode
 FWRoot::TPythia8Generator::read(
-  std::vector<Acts::ParticleProperties>& particleProperties, size_t skip) 
+    std::vector<Acts::ParticleProperties>& particleProperties,
+    size_t                                 skip,
+    const FW::AlgorithmContext*            context)
 {
-  
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_read_mutex);
-  
+
   /// the pythia particles
   TClonesArray* particles = new TClonesArray("TParticle", 1000);
 
   // skip if needed
-  if (skip){
-    for (size_t is = 0; is < skip; ++is)
-         m_pythia8->GenerateEvent();
+  if (skip) {
+    for (size_t is = 0; is < skip; ++is) m_pythia8->GenerateEvent();
     return FW::ProcessCode::SUCCESS;
   }
   // the actual event
   m_pythia8->GenerateEvent();
-  
+
   // what is that ?
   // pythia8->EventListing();
 
@@ -82,16 +81,15 @@ FWRoot::TPythia8Generator::read(
     // Positive codes are final particles.
     if (ist <= 0) continue;
     /// get parameters
-    Int_t   pdg    = part->GetPdgCode();
-    // pythia returns charge in units of 1/3 
-    Float_t charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+    Int_t pdg = part->GetPdgCode();
+    // pythia returns charge in units of 1/3
+    Float_t charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge() / 3.;
     Float_t mass   = part->GetMass();
     // and now create a particle
     Acts::Vector3D vertex(part->Vx(), part->Vy(), part->Vz());
-    // make th nuit nicer ... 
-    Acts::Vector3D momentum(part->Px()*1000.,
-                            part->Py()*1000.,
-                            part->Pz()*1000.);
+    // make th nuit nicer ...
+    Acts::Vector3D momentum(
+        part->Px() * 1000., part->Py() * 1000., part->Pz() * 1000.);
     // the particle should be ready now
     particleProperties.push_back(
         Acts::ParticleProperties(vertex, momentum, mass, charge, pdg));

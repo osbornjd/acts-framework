@@ -11,12 +11,13 @@
 #include <memory>
 #include <string>
 #include "ACTFW/Framework/AlgorithmContext.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/IOAlgorithm.hpp"
+#include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
+#include "ACTS/Utilities/Logger.hpp"
 
 namespace FW {
 class WhiteBoard;
@@ -24,62 +25,55 @@ class RandomNumbersSvc;
 class BarcodeSvc;
 }
 
-
 namespace FWA {
 
 /// @class ReadEvgenAlgorithm
 ///
 /// ReadEvgenAlgorithm to read EvGen from some input
-/// Allows for pile-up reading as well 
+/// Allows for pile-up reading as well
 class ReadEvgenAlgorithm : public FW::IOAlgorithm
 {
-
 public:
   /// @struct Config
   /// configuration struct for this Algorithm
-  struct Config {
-    
+  struct Config
+  {
     /// name of the output collection
-    std::string evgenParticlesCollection  = "EvgenParticles";
+    std::string evgenParticlesCollection = "EvgenParticles";
     /// the hard scatter reader
-    std::shared_ptr< FW::IReaderT< std::vector<Acts::ParticleProperties > > > 
+    std::shared_ptr<FW::IReaderT<std::vector<Acts::ParticleProperties>>>
         hardscatterParticleReader = nullptr;
-    /// the pileup reader       
-    std::shared_ptr< FW::IReaderT< std::vector<Acts::ParticleProperties> > > 
+    /// the pileup reader
+    std::shared_ptr<FW::IReaderT<std::vector<Acts::ParticleProperties>>>
         pileupParticleReader = nullptr;
     /// the random number service
-    std::shared_ptr<FW::RandomNumbersSvc>  randomNumbers = nullptr;
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     /// the Poisson parameter for pileup generation
     int pileupPoissonParameter = 40;
     /// the Gaussian parameters for transverse and axial vertex generation
-    std::array<double, 2> vertexTParameters = {{ 0., 1. }};
-    std::array<double, 2> vertexZParameters = {{ 0., 1. }};
+    std::array<double, 2> vertexTParameters = {{0., 1.}};
+    std::array<double, 2> vertexZParameters = {{0., 1.}};
     /// the BarcodeSvc
-    std::shared_ptr<FW::BarcodeSvc>        barcodeSvc = nullptr;
+    std::shared_ptr<FW::BarcodeSvc> barcodeSvc = nullptr;
     /// output writer
-    std::shared_ptr<FW::IWriterT< std::vector<Acts::ParticleProperties> > > 
-        particleWriter    = nullptr;
+    std::shared_ptr<FW::IWriterT<std::vector<Acts::ParticleProperties>>>
+        particleWriter = nullptr;
     /// the job WhiteBoard
-    std::shared_ptr<FW::WhiteBoard>        jBoard = nullptr;
+    std::shared_ptr<FW::WhiteBoard> jBoard = nullptr;
     /// the name of the algorithm
     std::string name = "Algorithm";
-      
-    Config()
-    {
-    }
-    
+
+    Config() {}
   };
 
   /// Constructor
-  ReadEvgenAlgorithm(
-      const Config&                       cnf,
-      std::unique_ptr<const Acts::Logger> logger
-      = Acts::getDefaultLogger("ReadEvgenAlgorithm",
-                               Acts::Logging::INFO));
+  ReadEvgenAlgorithm(const Config&                       cnf,
+                     std::unique_ptr<const Acts::Logger> logger
+                     = Acts::getDefaultLogger("ReadEvgenAlgorithm",
+                                              Acts::Logging::INFO));
 
   /// Virtual destructor
   virtual ~ReadEvgenAlgorithm() {}
-  
   /// Framework intialize method
   FW::ProcessCode
   initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr);
@@ -107,7 +101,7 @@ public:
   /// return the jobStore - things that live for the full job
   virtual std::shared_ptr<FW::WhiteBoard>
   jobStore() const;
-  
+
 protected:
   Config                              m_cfg;
   std::unique_ptr<const Acts::Logger> m_logger;
@@ -118,8 +112,6 @@ protected:
   {
     return *m_logger;
   }
-  
-  
 };
 
 inline FW::ProcessCode
@@ -139,7 +131,6 @@ ReadEvgenAlgorithm::name() const
 {
   return m_cfg.name;
 }
-
 }
 
 #endif  /// ACTFW_EXAMPLES_READEVGENALGORITHM_H
