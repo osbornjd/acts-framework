@@ -50,14 +50,14 @@ namespace FWDD4hepG4 {
         /// Virtual destructor
         ~DD4hepToG4Svc();
         
+        /// Framework name() method
+        std::string name() const final;
+
         /// Framework intialize method
         FW::ProcessCode initialize() final;
         
         /// Framework finalize mehtod
         FW::ProcessCode finalize() final;
-        
-        /// Framework name() method
-        const std::string& name() const final;
         
         /// Interface method to access the geant4 geometry
         /// @return G4VUserDetectorConstruction from which the Geant4 geometry is constructed
@@ -79,8 +79,6 @@ namespace FWDD4hepG4 {
             return *m_cfg.logger;
         }
     };
-    
-    inline const std::string& DD4hepToG4Svc::name() const { return m_cfg.name; }
 
 }
 #endif // DD4HEP_DD4HEPTOG4SVC_H

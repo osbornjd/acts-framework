@@ -97,6 +97,10 @@ public:
   /// Virtual destructor
   ~GeometryService();
 
+  /// Framework name() method
+  std::string
+  name() const override final;
+
   /// Framework intialize method
   FW::ProcessCode
   initialize() override final;
@@ -104,10 +108,6 @@ public:
   /// Framework finalize mehtod
   FW::ProcessCode
   finalize() override final;
-
-  /// Framework name() method
-  const std::string&
-  name() const override final;
 
   /// Interface method to access the DD4hep geometry
   /// @return The world DD4hep DetElement
@@ -153,10 +153,6 @@ private:
   }
 };
 
-inline const std::string&
-GeometryService::name() const
-{
-  return m_cfg.name;
 }
-}
+
 #endif  // DD4HEP_GEOMETRYSERVICE_H
