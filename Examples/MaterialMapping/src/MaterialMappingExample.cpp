@@ -23,7 +23,7 @@ main()
   // --------------------------------------------------------------------------------
   // DD4Hep detector definition
   //
-  // set up the geometry service 
+  // set up the geometry service
   FWDD4hep::GeometryService::Config gsConfig("GeometryService",
                                                  Acts::Logging::INFO);
   gsConfig.xmlFileName
@@ -40,7 +40,7 @@ main()
   
   // --------------------------------------------------------------------------------
   // MaterialMapping Algorithm configruation:
-  // 
+  //
   // set up the writer for the surface material maps
   FWRoot::RootMaterialTrackReader::Config mtrReaderConfig("MaterialTrackReader",
                                                              Acts::Logging::DEBUG);
@@ -65,16 +65,16 @@ main()
   Acts::MaterialMapper::Config mapperConf;
   mapperConf.extrapolationEngine = extrapolationEngine;
   auto mtrMapper            = std::make_shared<Acts::MaterialMapper>(
-      mapperConf, Acts::getDefaultLogger("MaterialMapper", Acts::Logging::DEBUG));
+    mapperConf, Acts::getDefaultLogger("MaterialMapper", Acts::Logging::DEBUG));
 
   // create the mapped material writer
-  // set up the writer for 
+  // set up the writer for
   FWRoot::RootMaterialTrackWriter::Config mtrWriterConfig("MappedMaterialTrackWriter",
                                                             Acts::Logging::INFO);
   mtrWriterConfig.fileName = "MappedMaterialTracks.root";
   mtrWriterConfig.treeName = "MappedMaterialTracks";
   auto mtrWriter
-      = std::make_shared<FWRoot::RootMaterialTrackWriter>(mtrWriterConfig);  
+      = std::make_shared<FWRoot::RootMaterialTrackWriter>(mtrWriterConfig);
   
                                                          
   // create the material writer
@@ -95,7 +95,7 @@ main()
   mmConfig.trackingGeometry       = tGeometry;
   mmConfig.maximumTrackRecords    = 10000;
   auto materialMappingAlg = std::make_shared<FWA::MaterialMapping>(
-      mmConfig, Acts::getDefaultLogger("MaterialMapping", Acts::Logging::INFO));
+      mmConfig, Acts::Logging::INFO);
   
   // --------------------------------------------------------------------------------
   // Mapping job configruation
@@ -106,12 +106,5 @@ main()
   FW::Sequencer mappingSequencer(mapSeqConfig);
   mappingSequencer.addServices({mtrReader, mtrWriter, imaterialWriter});
   mappingSequencer.appendEventAlgorithms({materialMappingAlg});
-
-  // initialize loop
-  mappingSequencer.initializeEventLoop();
-  // run the loop
-  mappingSequencer.processEventLoop(nEvents);
-  // finalize loop
-  mappingSequencer.finalizeEventLoop();
-
+  mappingSequencer.run(nEvents);
 }

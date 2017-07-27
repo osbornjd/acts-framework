@@ -24,7 +24,7 @@ main()
   // --------------------------------------------------------------------------------
   // DD4Hep detector definition
   //
-  // set up the geometry service 
+  // set up the geometry service
   FWDD4hep::GeometryService::Config gsConfig("GeometryService",
                                               Acts::Logging::INFO);
   gsConfig.xmlFileName
@@ -42,13 +42,13 @@ main()
   // --------------------------------------------------------------------------------
   // Geant4 JOB:
   // --------------------------------------------------------------------------------
-  // set up the writer for 
+  // set up the writer for
   FWRoot::RootMaterialTrackWriter::Config g4WriterConfig("MaterialTrackWriter",
                                                             Acts::Logging::INFO);
   g4WriterConfig.fileName = "GeantMaterialTracks3.root";
   g4WriterConfig.treeName = "GeantMaterialTracks";
   auto g4TrackRecWriter
-      = std::make_shared<FWRoot::RootMaterialTrackWriter>(g4WriterConfig);  
+      = std::make_shared<FWRoot::RootMaterialTrackWriter>(g4WriterConfig);
   
   // set up the algorithm writing out the material map
   FWA::GeantinoRecording::Config g4rConfig;
@@ -70,12 +70,5 @@ main()
   // the writer is a service as it needs initialize, finalize
   g4Sequencer.addServices({g4TrackRecWriter});
   g4Sequencer.appendEventAlgorithms({g4rAlgorithm});
-  // initialize loop
-  g4Sequencer.initializeEventLoop();
-  // run the loop
-  g4Sequencer.processEventLoop(nEvents);
-  // finalize loop
-  g4Sequencer.finalizeEventLoop();
-  // --------------------------------------------------------------------------------
-  
+  g4Sequencer.run(nEvents);
 }

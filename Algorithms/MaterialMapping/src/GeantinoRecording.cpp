@@ -13,10 +13,10 @@
 
 FWA::GeantinoRecording::GeantinoRecording(
     const FWA::GeantinoRecording::Config& cnf,
-    std::unique_ptr<const Acts::Logger>   log)
-  : FW::Algorithm(cnf, std::move(log))
-  , m_cfg(cnf)
+    std::unique_ptr<const Acts::Logger> logger)
+  : m_cfg(cnf)
   , m_runManager(nullptr)
+  , m_logger(std::move(logger))
 {
 }
 
@@ -24,15 +24,15 @@ FWA::GeantinoRecording::~GeantinoRecording()
 {
 }
 
-FW::ProcessCode
-FWA::GeantinoRecording::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
+std::string
+FWA::GeantinoRecording::name() const
 {
-  // call the algorithm initialize for setting the stores
-  if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
-    ACTS_FATAL("Algorithm::initialize() did not succeed!");
-    return FW::ProcessCode::SUCCESS;
-  }
-  
+  return "GeantinoRecording";
+}
+
+FW::ProcessCode
+FWA::GeantinoRecording::initialize()
+{
   m_runManager = new G4RunManager;
   /// check if the geometry should be accessed over the geant4 service
   if (m_cfg.geant4Service) {
@@ -55,9 +55,9 @@ FWA::GeantinoRecording::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
   /// Now set up the Geant4 simulation
   m_runManager->SetUserInitialization(new FTFP_BERT);
   m_runManager->SetUserAction(
-    new FWG4::MMPrimaryGeneratorAction( "geantino", 
+    new FWG4::MMPrimaryGeneratorAction( "geantino",
                                         1000.,
-                                        m_cfg.seed1, 
+                                        m_cfg.seed1,
                                         m_cfg.seed2));
   FWG4::MMRunAction* runaction = new FWG4::MMRunAction();
   m_runManager->SetUserAction(runaction);
@@ -70,12 +70,12 @@ FWA::GeantinoRecording::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
 }
 
 FW::ProcessCode
-FWA::GeantinoRecording::execute(const FW::AlgorithmContext) const
+FWA::GeantinoRecording::execute(FW::AlgorithmContext) const
 {
   
-  /// Begin with the simulation 
+  /// Begin with the simulation
   m_runManager->BeamOn(m_cfg.tracksPerEvent);
-  ///   
+  ///
   std::vector<Acts::MaterialTrack> mtrecords
       = FWG4::MMEventAction::Instance()->MaterialTracks();
   ACTS_INFO(
@@ -94,7 +94,7 @@ FWA::GeantinoRecording::finalize()
 {
   // delete the run manager for this
   delete m_runManager;
-  // and finalize 
+  // and finalize
   ACTS_VERBOSE("finalize successful.");
   return FW::ProcessCode::SUCCESS;
 }
