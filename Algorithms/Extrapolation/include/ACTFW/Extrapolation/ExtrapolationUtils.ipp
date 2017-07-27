@@ -17,46 +17,44 @@
 
 template <class MagneticField>
 std::unique_ptr<Acts::IExtrapolationEngine>
-FW::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo,
-                     std::shared_ptr<MagneticField> magFieldSvc,
-                     Acts::Logging::Level           eLogLevel)
+FWA::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, std::shared_ptr<MagneticField> magFieldSvc, Acts::Logging::Level eLogLevel, std::shared_ptr<const Acts::IMaterialEffectsEngine>  matEffectsEngine)
 {
-  // EXTRAPOLATOR - set up the extrapolator
-
-  // (a) RungeKuttaPropagtator
-  using RKEngine = Acts::RungeKuttaEngine<MagneticField>;
-  typename RKEngine::Config propConfig;
-  propConfig.fieldService = magFieldSvc;
-  auto propEngine         = std::make_shared<RKEngine>(propConfig);
-  propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", eLogLevel));
-  // (b) MaterialEffectsEngine
-  Acts::MaterialEffectsEngine::Config matConfig;
-  auto                                materialEngine
-      = std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
-  materialEngine->setLogger(
-      Acts::getDefaultLogger("MaterialEffectsEngine", eLogLevel));
-  // (c) StaticNavigationEngine
-  Acts::StaticNavigationEngine::Config navConfig;
-  navConfig.propagationEngine     = propEngine;
-  navConfig.materialEffectsEngine = materialEngine;
-  navConfig.trackingGeometry      = geo;
-  auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
-  navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", eLogLevel));
-  // (d) the StaticEngine
-  Acts::StaticEngine::Config statConfig;
-  statConfig.propagationEngine     = propEngine;
-  statConfig.navigationEngine      = navEngine;
-  statConfig.materialEffectsEngine = materialEngine;
-  auto statEngine = std::make_shared<Acts::StaticEngine>(statConfig);
-  statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", eLogLevel));
-  // (e) the material engine
-  Acts::ExtrapolationEngine::Config exEngineConfig;
-  exEngineConfig.trackingGeometry     = geo;
-  exEngineConfig.propagationEngine    = propEngine;
-  exEngineConfig.navigationEngine     = navEngine;
-  exEngineConfig.extrapolationEngines = {statEngine};
-  auto exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
-  exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", eLogLevel));
-  //
-  return std::move(exEngine);
+    // EXTRAPOLATOR - set up the extrapolator
+    
+    // (a) RungeKuttaPropagtator
+    using RKEngine = Acts::RungeKuttaEngine<MagneticField>;
+    typename RKEngine::Config propConfig;
+    propConfig.fieldService = magFieldSvc;
+    auto propEngine         = std::make_shared<RKEngine>(propConfig);
+    propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", eLogLevel));
+    // (b) MaterialEffectsEngine if not given
+    std::shared_ptr<const Acts::IMaterialEffectsEngine> materialEngine = matEffectsEngine;
+    if (!materialEngine) {
+      auto matConfig          = Acts::MaterialEffectsEngine::Config();
+      materialEngine = std::make_shared<Acts::MaterialEffectsEngine>(matConfig,Acts::getDefaultLogger("MaterialEffectsEngine", eLogLevel));
+    }
+    // (c) StaticNavigationEngine
+    Acts::StaticNavigationEngine::Config navConfig;
+    navConfig.propagationEngine     = propEngine;
+    navConfig.materialEffectsEngine = materialEngine;
+    navConfig.trackingGeometry      = geo;
+    auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
+    navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", eLogLevel));
+    // (d) the StaticEngine
+    Acts::StaticEngine::Config statConfig;
+    statConfig.propagationEngine     = propEngine;
+    statConfig.navigationEngine      = navEngine;
+    statConfig.materialEffectsEngine = materialEngine;
+    auto statEngine                  = std::make_shared<Acts::StaticEngine>(statConfig);
+    statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", eLogLevel));
+    // (e) the material engine
+    Acts::ExtrapolationEngine::Config exEngineConfig;
+    exEngineConfig.trackingGeometry     = geo;
+    exEngineConfig.propagationEngine    = propEngine;
+    exEngineConfig.navigationEngine     = navEngine;
+    exEngineConfig.extrapolationEngines = {statEngine};
+    auto exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
+    exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", eLogLevel));
+    // return configured extrapolation engine
+    return std::move(exEngine);
 }
