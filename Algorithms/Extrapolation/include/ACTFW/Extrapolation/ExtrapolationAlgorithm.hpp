@@ -22,8 +22,10 @@
 #include "ACTS/EventData/NeutralParameters.hpp"
 #include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
+#include "ACTS/Extrapolation/IMaterialEffectsEngine.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
+#include "ACTS/Utilities/MaterialInteraction.hpp"
 
 namespace Acts {
 class IExtrapolationEngine;
@@ -38,15 +40,15 @@ class ExtrapolationAlgorithm : public BareAlgorithm
 public:
   struct Config
   {
-    /// the extrapolation engine
+    /// The extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
     /// the particles input collections
     std::string evgenCollection = "";
     /// the simulated particles output collection
-    std::string simulatedParticlesCollection = "";
+    std::string simulatedHitsCollection = "";
     /// the simulated hits output collection (optional)
     std::string simulatedHitsCollection = "";
-    /// the simulated charged excell collection (optional)
+    /// the simulated charged excell collection
     std::string simulatedChargedExCellCollection = "";
     /// the simulated neutral excell collection (optional)
     std::string simulatedNeutralExCellCollection = "";
@@ -54,8 +56,7 @@ public:
     /// @todo remove later and replace by particle selector
     double maxD0  = std::numeric_limits<double>::max();
     double maxEta = std::numeric_limits<double>::max();
-    ;
-    double minPt = 0.0;
+    double minPt  = 0.0;
     /// skip or process neutral particles
     bool skipNeutral = false;
     /// configuration: sensitive collection

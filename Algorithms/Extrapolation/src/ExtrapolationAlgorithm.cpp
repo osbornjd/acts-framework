@@ -18,7 +18,6 @@
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
 #include "ACTS/Layers/Layer.hpp"
 #include "ACTS/Surfaces/PerigeeSurface.hpp"
 #include "ACTS/Utilities/Definitions.hpp"
