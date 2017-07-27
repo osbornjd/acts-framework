@@ -10,8 +10,6 @@
 
 #include <memory>
 
-#include "ACTFW/Framework/JobContext.hpp"
-
 namespace FW {
 
 class WhiteBoard;
@@ -24,14 +22,11 @@ struct EventContext
 {
   size_t eventNumber;                            ///< Unique event identifier
   std::shared_ptr<WhiteBoard> eventStore;        ///< Storage for event-specific data
-  std::shared_ptr<const JobContext> jobContext;  ///< Link to the job context
   
   EventContext(size_t p_eventNumber,
-               std::shared_ptr<WhiteBoard> p_eventStore,
-               std::shared_ptr<const JobContext> p_jobContext)
+               std::shared_ptr<WhiteBoard> p_eventStore)
     : eventNumber{p_eventNumber}
     , eventStore{p_eventStore}
-    , jobContext{p_jobContext}
   {
   }
 };

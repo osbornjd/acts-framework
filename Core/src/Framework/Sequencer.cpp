@@ -90,11 +90,6 @@ FW::Sequencer::appendEventAlgorithms(
 FW::ProcessCode
 FW::Sequencer::run(size_t events, size_t skip)
 {
-  // automatically create a private job store
-  auto jobStore = std::make_shared<WhiteBoard>(
-      Acts::getDefaultLogger("JobStore", m_cfg.jobStoreLogLevel));
-  auto jobCtx = std::make_shared<JobContext>(events, jobStore);
-
   // initialize services and algorithms
   ACTS_INFO("Initialize the event loop for");
   ACTS_INFO("  -> " << m_cfg.services.size() << " services");
@@ -117,11 +112,10 @@ FW::Sequencer::run(size_t events, size_t skip)
       ACTS_INFO("start event " << event);
 
       // Setup the event and algorithm context
-      auto eventStore = std::make_shared<WhiteBoard>(Acts::getDefaultLogger(
+      auto   eventStore = std::make_shared<WhiteBoard>(Acts::getDefaultLogger(
           "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
-      auto eventCtx
-      = std::make_shared<const EventContext>(event, eventStore, jobCtx);
-      size_t ialg = 0;
+      auto   eventCtx = std::make_shared<const EventContext>(event, eventStore);
+      size_t ialg     = 0;
 
       // read everything in
       for (auto& rdr
