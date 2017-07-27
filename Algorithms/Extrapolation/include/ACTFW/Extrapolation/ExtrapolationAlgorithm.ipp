@@ -111,7 +111,6 @@ FW::ExtrapolationAlgorithm::executeTestT(
   }
   /// fill the ecc step into the container at the end
   eCells.push_back(std::move(ecc));
-
   // return success
   return FW::ProcessCode::SUCCESS;
 }
