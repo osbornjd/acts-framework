@@ -34,7 +34,7 @@ FW::Sequencer::run(size_t events, size_t skip)
       return ProcessCode::ABORT;
   }
   for (auto& alg : m_cfg.eventAlgorithms) {
-    if (alg->initialize(jobStore) != ProcessCode::SUCCESS)
+    if (alg->initialize() != ProcessCode::SUCCESS)
       return ProcessCode::ABORT;
   }
 
