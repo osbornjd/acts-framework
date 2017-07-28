@@ -73,13 +73,42 @@ setupWriters(FW::Sequencer&                  sequencer,
       = std::make_shared<FW::Obj::ObjSpacePointWriter<Acts::Vector3D>>(
           spWriterObjConfig);
 
+  // Write ROOT TTree
+  // ecc for charged particles
+  FW::Root::RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
+  reccWriterConfig.filePath       = "excells_charged.root";
+  reccWriterConfig.treeName       = "extrapolation_charged";
+  reccWriterConfig.collection     = "excells_charged";
+  reccWriterConfig.writeBoundary  = false;
+  reccWriterConfig.writeMaterial  = true;
+  reccWriterConfig.writeSensitive = true;
+  reccWriterConfig.writePassive   = true;
+  auto rootEccWriter
+      = std::make_shared<FW::Root::RootExCellWriter<Acts::TrackParameters>>(
+          reccWriterConfig);
+
+  // ecc for neutral particles
+  FW::Root::RootExCellWriter<Acts::NeutralParameters>::Config recnWriterConfig;
+  recnWriterConfig.filePath       = "excells_neutral.root";
+  recnWriterConfig.treeName       = "extrapolation_neutral";
+  recnWriterConfig.collection     = "excells_neutral";
+  recnWriterConfig.writeBoundary  = false;
+  recnWriterConfig.writeMaterial  = true;
+  recnWriterConfig.writeSensitive = true;
+  recnWriterConfig.writePassive   = true;
+  auto rootEcnWriter
+      = std::make_shared<FW::Root::RootExCellWriter<Acts::NeutralParameters>>(
+          recnWriterConfig);
+
   // add to sequencer
   if (sequencer.addWriters({pWriterCsv,
                             pWriterRoot,
                             clusterWriterCsv,
                             clusteWriterRoot,
                             spWriterJson,
-                            spWriterObj})
+                            spWriterObj,
+                            rootEccWriter,
+                            rootEcnWriter})
       != FW::ProcessCode::SUCCESS)
     return FW::ProcessCode::ABORT;
   return FW::ProcessCode::SUCCESS;
