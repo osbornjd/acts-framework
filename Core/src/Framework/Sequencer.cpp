@@ -114,25 +114,24 @@ FW::Sequencer::run(size_t events, size_t skip)
       // Setup the event and algorithm context
       auto   eventStore = std::make_shared<WhiteBoard>(Acts::getDefaultLogger(
           "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
-      auto   eventCtx = std::make_shared<const EventContext>(event, eventStore);
-      size_t ialg     = 0;
+      size_t ialg       = 0;
 
       // read everything in
       for (auto& rdr
            : m_cfg.readers) {
-        if (rdr->read({ialg++, eventCtx}) != ProcessCode::SUCCESS)
+        if (rdr->read({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
           ACTFW_PARALLEL_FOR_ABORT(ievent);
       }
       // process all algorithms
       for (auto& alg
            : m_cfg.algorithms) {
-        if (alg->execute({ialg++, eventCtx}) != ProcessCode::SUCCESS)
+        if (alg->execute({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
           ACTFW_PARALLEL_FOR_ABORT(ievent);
       }
       // write out results
       for (auto& wrt
            : m_cfg.writers) {
-        if (wrt->write({ialg++, eventCtx}) != ProcessCode::SUCCESS)
+        if (wrt->write({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
           ACTFW_PARALLEL_FOR_ABORT(ievent);
       }
 
