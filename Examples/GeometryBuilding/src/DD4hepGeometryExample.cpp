@@ -24,12 +24,11 @@ main(int argc, char* argv[])
   } else
     gsConfig.xmlFileName
         = "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml";
-  gsConfig.bTypePhi                 = Acts::equidistant;
-  gsConfig.bTypeR                   = Acts::equidistant;
-  gsConfig.bTypeZ                   = Acts::equidistant;
-  gsConfig.envelopeR                = 0.;
-  gsConfig.envelopeZ                = 0.;
-  //gsConfig.buildDigitizationModules = false;
+  gsConfig.bTypePhi  = Acts::equidistant;
+  gsConfig.bTypeR    = Acts::equidistant;
+  gsConfig.bTypeZ    = Acts::equidistant;
+  gsConfig.envelopeR = 0.;
+  gsConfig.envelopeZ = 0.;
 
   auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
   std::shared_ptr<const Acts::TrackingGeometry> dd4Geometry

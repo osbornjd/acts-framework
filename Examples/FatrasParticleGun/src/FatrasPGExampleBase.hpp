@@ -63,11 +63,12 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   particleGunConfig.nParticles    = 100;
   particleGunConfig.etaRange      = {{-5., 5.}};
   particleGunConfig.phiRange      = {{-M_PI, M_PI}};
-  particleGunConfig.ptRange       = {{100., 100000.}};
-  particleGunConfig.mass          = 105. * Acts::units::_MeV;
-  particleGunConfig.charge        = -1. * Acts::units::_e;
-  particleGunConfig.pID           = 13;
-  auto particleGun                = std::make_shared<FWE::ParticleGun>(
+  particleGunConfig.ptRange
+      = {{100. * Acts::units::_MeV, 100000. * Acts::units::_MeV}};
+  particleGunConfig.mass   = 105. * Acts::units::_MeV;
+  particleGunConfig.charge = -1. * Acts::units::_e;
+  particleGunConfig.pID    = 13;
+  auto particleGun         = std::make_shared<FWE::ParticleGun>(
       particleGunConfig, Acts::getDefaultLogger("ParticleGun", fLogLevel));
 
   // the barcode service
@@ -144,7 +145,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   eTestConfig.evgenParticlesCollection = readEvgenCfg.evgenParticlesCollection;
   eTestConfig.simulatedParticlesCollection = "FatrasParticles";
   eTestConfig.simulatedHitsCollection      = "FatrasHits";
-  eTestConfig.minPt                        = 500.;
+  eTestConfig.minPt                        = 500. * Acts::units::_MeV;
   eTestConfig.maxEta                       = 6.;
   eTestConfig.searchMode                   = 1;
   eTestConfig.extrapolationEngine          = extrapolationEngine;

@@ -64,6 +64,15 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
           "module",
           Box(x_module.width(), x_module.length(), x_module.thickness()),
           lcdd.material(x_module.materialStr()));
+
+      // create the Acts::DigitizationModule (needed to do geometric
+      // digitization) for all modules which have the same segmentation
+      auto digiModule
+          = Acts::rectangleDigiModule(x_module.length(),
+                                      x_module.width(),
+                                      x_module.thickness(),
+                                      sens.readout().segmentation());
+
       // Visualization
       mod_vol.setVisAttributes(lcdd, x_module.visStr());
       size_t module_num = 0;
@@ -82,6 +91,12 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
           // Set Sensitive Volmes sensitive
           if (x_module.isSensitive()) {
             mod_vol.setSensitiveDetector(sens);
+
+            // create and attach the extension with the shared digitzation
+            // module
+            Acts::ActsExtension* moduleExtension
+                = new Acts::ActsExtension(digiModule);
+            mod_det.addExtension<Acts::IActsExtension>(moduleExtension);
           }
           // Place Module Box Volumes in layer
           PlacedVolume placedmodule = layer_vol.placeVolume(
@@ -100,6 +115,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
     // hand over modules to ACTS
     Acts::ActsExtension::Config layConfig;
     layConfig.isLayer               = true;
+    layConfig.axes                  = "YxZ";
     layConfig.materialBins1         = 100;
     layConfig.materialBins2         = 100;
     layConfig.layerMaterialPosition = Acts::LayerMaterialPos::outer;
