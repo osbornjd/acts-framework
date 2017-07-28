@@ -19,8 +19,6 @@
 namespace Acts {
   class TrackingVolume;
 }
-
-
 namespace FW {
   class ISurfaceWriter;
 }
@@ -30,7 +28,7 @@ namespace FWObj {
 /// @class ObjTrackingGeometryWriter
 ///
 /// An Obj writer for the geometry
-/// It delegates the writing of surfaces to the surface writers  
+/// It delegates the writing of surfaces to the surface writers
   class ObjTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
 {
 public:
@@ -44,7 +42,7 @@ public:
     std::shared_ptr<const Acts::Logger>                          logger;
     /// the name of the writer
     std::string                                                  name = "";
-    /// surfaceWriters 
+    /// surfaceWriters
     std::vector< std::shared_ptr<FW::IWriterT<Acts::Surface> > > surfaceWriters;
     std::string                                                  filePrefix = "";
     std::string                                                  sensitiveGroupPrefix = "";
@@ -64,7 +62,12 @@ public:
 
   /// Destructor
   virtual ~ObjTrackingGeometryWriter();
-
+  
+  /// Framework name() method
+  /// @return the name of the tool
+  std::string
+  name() const final;
+  
   /// Framework intialize method
   /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
@@ -86,11 +89,6 @@ public:
   /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
   write(const std::string& sinfo) final override;
-  
-  /// Framework name() method
-  /// @return the name of the tool
-  const std::string&
-  name() const final;
 
 private:
   Config         m_cfg;         ///< the config class
@@ -107,12 +105,6 @@ private:
     return *m_cfg.logger;
   }
 };
-
-const std::string&
-ObjTrackingGeometryWriter::name() const
-{
-  return m_cfg.name;
-}
 
 FW::ProcessCode
 ObjTrackingGeometryWriter::write(const std::string&)

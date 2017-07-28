@@ -70,6 +70,10 @@ public:
 
   /// Destructor
   virtual ~ObjSurfaceWriter();
+  
+  /// Framework name() method
+  std::string
+  name() const final;
 
   /// Framework intialize method
   FW::ProcessCode
@@ -89,10 +93,6 @@ public:
   FW::ProcessCode
   write(const std::string& sinfo) final override;
 
-  /// Framework name() method
-  const std::string&
-  name() const final;
-
 private:
   Config                    m_cfg;        ///< the config class
   FWObjHelper::VtnCounter   m_vtnCounter; ///< vertex, texture, normal
@@ -106,12 +106,6 @@ private:
     return *m_cfg.logger;
   }
 };
-
-const std::string&
-ObjSurfaceWriter::name() const
-{
-  return m_cfg.name;
-}
 
 FW::ProcessCode
 ObjSurfaceWriter::write(const std::string& sinfo)
