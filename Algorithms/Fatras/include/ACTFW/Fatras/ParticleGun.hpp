@@ -29,8 +29,6 @@ public:
   class Config
   {
   public:
-    /// The name of the reader
-    std::string name = "ParticleGun";
     // FW random number service
     std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     /// number of particles
@@ -47,8 +45,6 @@ public:
     double charge = 0.;
     /// the pdg type of the particle
     pdg_type pID = 0.;
-
-    Config() {}
   };
 
   /// Constructor
@@ -70,6 +66,11 @@ public:
 
   /// Reads in a  list of paritlces
   /// @return is a process code indicateing if the reading succeeded
+  std::string
+  name() const override final;
+
+  /// Reads in a  list of paritlces
+  /// @return is a process code indicateing if the reading succeeded
   FW::ProcessCode
   initialize() override final;
 
@@ -77,11 +78,6 @@ public:
   /// @return is a process code indicateing if the reading succeeded
   FW::ProcessCode
   finalize() override final;
-
-  /// Reads in a  list of paritlces
-  /// @return is a process code indicateing if the reading succeeded
-  const std::string&
-  name() const override final;
 
 private:
   /// Private access to the logging instance
@@ -91,17 +87,10 @@ private:
     return (*m_logger);
   }
 
-  /// the configuration class
   Config m_cfg;
-  /// logger instance
   std::unique_ptr<const Acts::Logger> m_logger;
 };
 
-const std::string&
-ParticleGun::name() const
-{
-  return m_cfg.name;
-}
 }
 
 #endif  // ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
