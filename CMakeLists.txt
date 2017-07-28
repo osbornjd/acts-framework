@@ -2,8 +2,16 @@ cmake_minimum_required(VERSION 3.5)
 
 project(ACTFW VERSION 0.0.1 LANGUAGES CXX)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "DARWIN")
-  # CMake + FindOpenMP fail on OSX. Unclear why.
+# We normally want to build the framework with OpenMP-based multithreaded event
+# processing enabled, because we want ACTS developers to test their code with
+# multiple threads and every modern compiler supports OpenMP.
+#
+# However, Apple ship the OSX/macOS system compiler with OpenMP support disabled
+# and we don't want to force people to go through the trouble of using a
+# non-system compiler just because of this issue. So we make an exception for
+# Mac users relying on the Apple-provided version of Clang/LLVM.
+#
+if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
   set(USE_OPENMP_DEFAULT off)
 else()
   set(USE_OPENMP_DEFAULT on)
