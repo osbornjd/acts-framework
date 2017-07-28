@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // This file is part of the ACTS project.
 //
 // Copyright (C) 2017 ACTS project team
@@ -6,19 +7,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+=======
+>>>>>>> d46e8f9... Lock mutex of RootParticleWriter
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include <TFile.h>
 #include <TTree.h>
 #include <ios>
-#include <stdexcept>
-
-FW::Root::RootParticleWriter::RootParticleWriter(
-    const FW::Root::RootParticleWriter::Config& cfg,
-    Acts::Logging::Level                        level)
-  : Base(cfg.collection, "RootParticleWriter", level)
-  , m_cfg(cfg)
-  , m_outputFile(nullptr)
-  , m_outputTree(nullptr)
+#include <stdexcept> FW::Root::RootParticleWriter::RootParticleWriter(const FW::Root::RootParticleWriter::Config& cfg, Acts::Logging::Level level) : Base(cfg.collection, "RootParticleWriter", level), m_cfg(cfg), m_outputFile(nullptr), m_outputTree(nullptr)
 {
   // An input collection name and tree name must be specified
   if (m_cfg.collection.empty()) {
