@@ -64,7 +64,7 @@ public:
   finalize() override final;
 
   /// Framework name() method
-  const std::string&
+  std::string
   name() const override final;
 
   // clang-format off
@@ -95,11 +95,11 @@ private:
   }
 };
 
-inline const std::string&
+inline std::string
 RootMaterialTrackReader::name() const
 {
   return m_cfg.name;
 }
-}
+}  // namespace FWRoot
 
 #endif  // ACTFW_PLUGINS_ROOT_RootMaterialTrackReader_H

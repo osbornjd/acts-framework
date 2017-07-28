@@ -30,8 +30,8 @@ namespace FWRoot {
 ///
 /// Safe to use from multiple writer threads.
 ///
-template <class T> class RootExCellWriter 
-  : public FW::IWriterT<Acts::ExtrapolationCell<T> > 
+template <class T> class RootExCellWriter
+  : public FW::IWriterT<Acts::ExtrapolationCell<T> >
 {
 public:
   ///  @struct ExtrapolationStep
@@ -86,6 +86,11 @@ public:
   /// Destructor
   virtual ~RootExCellWriter();
 
+  /// Framework name() method
+  /// @return name of the tool
+  std::string
+  name() const override final;
+
   /// Framework intialize method
   /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
@@ -107,11 +112,6 @@ public:
   /// @return is a ProcessCode indicating return/failure
   FW::ProcessCode
   write(const std::string& sinfo) override final;
-
-  /// Framework name() method
-  /// @return name of the tool 
-  const std::string&
-  name() const override final;
 
 private:
   Config             m_cfg;               ///< the config class
@@ -154,7 +154,7 @@ private:
 };
 
 template <class T>
-const std::string&
+std::string
 RootExCellWriter<T>::name() const
 {
   return m_cfg.name;

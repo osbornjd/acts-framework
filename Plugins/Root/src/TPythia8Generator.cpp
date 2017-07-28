@@ -1,10 +1,12 @@
 #include "ACTFW/Plugins/Root/TPythia8Generator.hpp"
+
+#include <TClonesArray.h>
+#include <TDatabasePDG.h>
+#include <TParticle.h>
+#include <TPythia8.h>
+#include <TSystem.h>
+
 #include "ACTS/Utilities/Units.hpp"
-#include "TClonesArray.h"
-#include "TDatabasePDG.h"
-#include "TParticle.h"
-#include "TPythia8.h"
-#include "TSystem.h"
 
 FWRoot::TPythia8Generator::TPythia8Generator(
     const FWRoot::TPythia8Generator::Config& cfg,
@@ -45,6 +47,12 @@ FWRoot::TPythia8Generator::TPythia8Generator(
 FWRoot::TPythia8Generator::~TPythia8Generator()
 {
   delete m_pythia8;
+}
+
+std::string
+FWRoot::TPythia8Generator::name() const
+{
+  return m_cfg.name;
 }
 
 FW::ProcessCode

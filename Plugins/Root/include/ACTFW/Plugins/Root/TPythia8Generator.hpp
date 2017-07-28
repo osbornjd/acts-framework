@@ -12,6 +12,10 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
+#include "ACTFW/Readers/IReaderT.hpp"
+#include "ACTS/EventData/ParticleDefinitions.hpp"
+#include "ACTS/Utilities/Logger.hpp"
+
 class TPythia8;
 
 namespace FWRoot {
@@ -22,7 +26,7 @@ namespace FWRoot {
 /// proerties for feeding into the fast simulation
 ///
 class TPythia8Generator
-    : public FW::IReaderT<std::vector<Acts::ParticleProperties>>
+  : public FW::IReaderT<std::vector<Acts::ParticleProperties>>
 {
 public:
   /// @class Config
@@ -51,13 +55,16 @@ public:
   /// Destructor
   virtual ~TPythia8Generator();
 
+  std::string
+  name() const override final;
+
   // clang-format off
   /// @copydoc FW::IReaderT::read(std::vector<Acts::ParticleProperties>&,size_t,const FW::AlgorithmContext*)
   // clang-format on
   FW::ProcessCode
   read(std::vector<Acts::ParticleProperties>& pProperties,
-       size_t                                 skip    = 0,
-       const FW::AlgorithmContext*            context = nullptr) override final;
+       size_t                                 skip = 0,
+       const FW::AlgorithmContext* context = nullptr) override final;
 
   /// Reads in a  list of paritlces
   /// @return is a process code indicateing if the reading succeeded
@@ -68,11 +75,6 @@ public:
   /// @return is a process code indicateing if the reading succeeded
   FW::ProcessCode
   finalize() override final;
-
-  /// Reads in a  list of paritlces
-  /// @return is a process code indicateing if the reading succeeded
-  const std::string&
-  name() const override final;
 
 private:
   /// Private access to the logging instance
@@ -92,11 +94,6 @@ private:
   std::mutex m_read_mutex;
 };
 
-const std::string&
-TPythia8Generator::name() const
-{
-  return m_cfg.name;
-}
-}
+}  // namespace FWRoot
 
 #endif  // ACTFW_ROOTPYTHIA8_TPYTHIA8GENERATOR_H
