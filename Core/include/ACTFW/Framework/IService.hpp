@@ -1,13 +1,10 @@
-//
-//  IService.hpp
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
+/// @file
+/// @date 2016-05-23
+/// @author Andreas Salburger
+/// @author Moritz Kiehnn <msmk@cern.ch>
 
-#ifndef ACTFW_FRAMEWORK_ISERVICE_H
-#define ACTFW_FRAMEWORK_ISERVICE_H
+#ifndef ACTFW_ISERVICE_H
+#define ACTFW_ISERVICE_H
 
 #include <string>
 
@@ -15,12 +12,17 @@
 
 namespace FW {
 
-/// @class IService
+/// Interface for common services.
 class IService
 {
 public:
   /// Virutal Destructor
   virtual ~IService() {}
+
+  /// Framework name() method
+  virtual std::string
+  name() const = 0;
+
   /// Framework intialize method
   virtual ProcessCode
   initialize()
@@ -30,11 +32,8 @@ public:
   virtual ProcessCode
   finalize()
       = 0;
-
-  /// Framework name() method
-  virtual const std::string&
-  name() const = 0;
 };
-}
 
-#endif  // ACTFW_FRAMEWORK_ISERVICE_H
+}  // namespace FW
+
+#endif  // ACTFW_ISERVICE_H
