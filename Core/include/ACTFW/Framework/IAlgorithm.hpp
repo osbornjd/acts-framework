@@ -1,12 +1,10 @@
-//  IAlgorithm.h
-//  ACTFW
-//
-//  Created by Andreas Salzburger on 11/05/16.
-//
-//
+/// @file
+/// @date 2016-05-11 Initial version
+/// @author Andreas Salzburger
+/// @author Moritz Kiehn <msmk@cern.ch>
 
-#ifndef IAlgorithm_h
-#define IAlgorithm_h
+#ifndef ACTFW_IALGORITHM_H
+#define ACTFW_IALGORITHM_H
 
 #include <memory>
 #include <string>
@@ -24,7 +22,7 @@ public:
   virtual ~IAlgorithm() {}
 
   /// Framework name() method
-  virtual const std::string&
+  virtual std::string
   name() const = 0;
 
   /// Framework intialize method
@@ -32,16 +30,16 @@ public:
   initialize()
       = 0;
 
-  /// Framework execute method
-  virtual ProcessCode
-  execute(const AlgorithmContext context) const = 0;
-
   /// Framework finalize mehtod
   virtual ProcessCode
   finalize()
       = 0;
+
+  /// Framework execute method
+  virtual ProcessCode
+  execute(const AlgorithmContext context) const = 0;
 };
 
 }  // namespace FW
 
-#endif  // IAlgorithm_h
+#endif  // ACTFW_IALGORITHM_H
