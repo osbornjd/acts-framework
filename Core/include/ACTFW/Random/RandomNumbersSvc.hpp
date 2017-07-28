@@ -41,27 +41,20 @@ using RandomEngine = std::mt19937;  ///< Mersenne Twister
 class RandomNumbersSvc : public IService
 {
 public:
-  /// @class Config
-  ///
-  /// Nested Configuration class
   struct Config
   {
-    /// default logger
-    std::shared_ptr<const Acts::Logger> logger;
-    /// service name
-    std::string name;
-    /// random seed
-    unsigned int seed = 1234567890;
-
-    Config(const std::string&   lname = "RandomNumbersSvc",
-           Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger{Acts::getDefaultLogger(lname, lvl)}, name{lname}
-    {
-    }
+    unsigned int seed = 1234567890;  ///< random seed
   };
 
   /// Constructor
-  RandomNumbersSvc(const Config& cfg);
+  RandomNumbersSvc(const Config&                       cfg,
+                   std::unique_ptr<const Acts::Logger> logger
+                   = Acts::getDefaultLogger("RandomNumbersSvc",
+                                            Acts::Logging::INFO));
+
+  /// Framework name() method
+  std::string
+  name() const override final;
 
   // Framework initialize method
   FW::ProcessCode
@@ -86,26 +79,18 @@ public:
     return m_cfg.seed;
   }
 
-  /// Framework name() method
-  const std::string&
-  name() const override final;
-
 private:
-  Config    m_cfg;  ///< the configuration class
+  Config                              m_cfg;  ///< the configuration class
+  std::unique_ptr<const Acts::Logger> m_logger;
 
   /// Private access to the logging instance
   const Acts::Logger&
   logger() const
   {
-    return *m_cfg.logger;
+    return *m_logger;
   }
 };
 
-inline const std::string&
-RandomNumbersSvc::name() const
-{
-  return m_cfg.name;
-}
-}
+}  // namespace FW
 
 #endif  // ACTFW_RANDOM_RANDOMNUMBERSSVC_H

@@ -8,10 +8,17 @@
 
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
-
-FW::RandomNumbersSvc::RandomNumbersSvc(const Config& cfg)
-  : m_cfg(cfg)
+FW::RandomNumbersSvc::RandomNumbersSvc(
+    const Config&                       cfg,
+    std::unique_ptr<const Acts::Logger> logger)
+  : m_cfg(cfg), m_logger(std::move(logger))
 {
+}
+
+std::string
+FW::RandomNumbersSvc::name() const
+{
+  return "RandomNumbersSvc";
 }
 
 FW::ProcessCode
