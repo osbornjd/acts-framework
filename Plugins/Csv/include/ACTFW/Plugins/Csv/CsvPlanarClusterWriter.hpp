@@ -50,6 +50,10 @@ public:
   /// @param cfg is the configuration class
   CsvPlanarClusterWriter(const Config& cfg);
 
+  /// Framework name() method
+  std::string
+  name() const final;
+
   /// Destructor
   virtual ~CsvPlanarClusterWriter();
 
@@ -67,7 +71,7 @@ public:
   /// @param pClusters is the DetectorData of planar clusters
   /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  write(const FW::DetectorData<geo_id_value, 
+  write(const FW::DetectorData<geo_id_value,
         Acts::PlanarModuleCluster>& pClusters) override final;
 
   /// write a bit of string
@@ -75,10 +79,6 @@ public:
   /// @return is a ProcessCode indicating return/failure
   FW::ProcessCode
   write(const std::string& sinfo) override final;
-
-  /// Framework name() method
-  const std::string&
-  name() const final;
 
 private:
   Config        m_cfg;         ///< the config class
@@ -92,11 +92,6 @@ private:
   }
 };
 
-const std::string&
-CsvPlanarClusterWriter::name() const
-{
-  return m_cfg.name;
-}
 }
 
 #endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H
