@@ -2,9 +2,9 @@
 #define ACTFW_EXTRAPOLATION_EXAMPLEBASE_H
 
 #include <memory>
+
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
-#include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
@@ -56,10 +56,10 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   recnWriterConfig.writeMaterial  = true;
   recnWriterConfig.writeSensitive = true;
   recnWriterConfig.writePassive   = true;
-  std::
-      shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::NeutralParameters>>>
-          rootEcnWriter(new FWRoot::RootExCellWriter<Acts::NeutralParameters>(
-              recnWriterConfig));
+  std::shared_ptr<
+      FW::IWriterT<Acts::ExtrapolationCell<Acts::NeutralParameters>>>
+      rootEcnWriter(new FWRoot::RootExCellWriter<Acts::NeutralParameters>(
+          recnWriterConfig));
 
   // the Algorithm with its configurations
   FWA::ExtrapolationAlgorithm::Config eTestConfig;
@@ -83,10 +83,8 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   eTestConfig.sensitiveCurvilinear = false;
   eTestConfig.pathLimit            = -1.;
 
-  std::shared_ptr<FW::IAlgorithm> extrapolationAlg(
-      new FWA::ExtrapolationAlgorithm(
-          eTestConfig,
-          Acts::getDefaultLogger("ExtrapolationAlgorithm", eLogLevel)));
+  auto extrapolationAlg
+      = std::make_shared<FWA::ExtrapolationAlgorithm>(eTestConfig);
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
@@ -94,17 +92,10 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({rootEccWriter, rootEcnWriter, randomNumbers});
   sequencer.appendEventAlgorithms({extrapolationAlg});
+  sequencer.run(nEvents);
 
-  // initialize loop
-  sequencer.initializeEventLoop();
-  // run the loop
-  sequencer.processEventLoop(nEvents);
-  // finalize loop
-  sequencer.finalizeEventLoop();
-
-  // return
   return 0;
 }
-};
+};  // namespace ACTFWExtrapolationExample
 
 #endif  // ACTFW_EXTRAPOLATION_EXAMPLEBASE_H

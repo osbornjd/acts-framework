@@ -10,9 +10,10 @@
 
 #include <cmath>
 #include <memory>
+
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/Framework/Algorithm.hpp"
+#include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
@@ -26,34 +27,27 @@ namespace Acts {
 class IExtrapolationEngine;
 class TrackingGeometry;
 class TrackingVolume;
-}
-
-namespace FW {
-class WhiteBoard;
-}
+}  // namespace Acts
 
 namespace FWA {
 
-/// @class ExtrapolationAlgorithm
-class ExtrapolationAlgorithm : public FW::Algorithm
+class ExtrapolationAlgorithm : public FW::BareAlgorithm
 {
 public:
-  /// @class Config
-  struct Config : public FW::Algorithm::Config
+  struct Config
   {
     /// FW random number service
     std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     /// the extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
     /// output writer for charged particles
-    std::
-        shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters>>>
-            ecChargedWriter = nullptr;
+    std::shared_ptr<
+        FW::IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters>>>
+        ecChargedWriter = nullptr;
     /// output writer for charged particles
-    std::
-        shared_ptr<FW::IWriterT<Acts::
-                                    ExtrapolationCell<Acts::NeutralParameters>>>
-            ecNeutralWriter = nullptr;
+    std::shared_ptr<
+        FW::IWriterT<Acts::ExtrapolationCell<Acts::NeutralParameters>>>
+        ecNeutralWriter = nullptr;
     /// output writer for material
     std::shared_ptr<FW::IWriterT<Acts::MaterialTrack>> materialWriter = nullptr;
     /// the tracking geometry
@@ -98,30 +92,14 @@ public:
     int searchMode = 0;
     /// set the patch limit of the extrapolation
     double pathLimit = -1.;
-
-    Config() : FW::Algorithm::Config("ExtrapolationAlgorithm") {}
   };
 
   /// Constructor
-  ExtrapolationAlgorithm(const Config&                       cnf,
-                         std::unique_ptr<const Acts::Logger> logger
-                         = Acts::getDefaultLogger("ExtrapolationAlgorithm",
-                                                  Acts::Logging::INFO));
-
-  /// Destructor
-  ~ExtrapolationAlgorithm();
-
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) final override;
+  ExtrapolationAlgorithm(const Config& cnf);
 
   /// Framework execode method
   FW::ProcessCode
-  execute(const FW::AlgorithmContext context) const final override;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() final override;
+  execute(FW::AlgorithmContext context) const final override;
 
 private:
   Config m_cfg;  ///< the config class
@@ -137,7 +115,7 @@ private:
       std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<T>>> writer
       = nullptr) const;
 };
-}
+}  // namespace FWA
 #include "ExtrapolationAlgorithm.ipp"
 
 #endif  // ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H

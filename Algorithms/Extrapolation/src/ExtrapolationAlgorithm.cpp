@@ -1,6 +1,8 @@
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
+
 #include <iostream>
 #include <random>
+
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
@@ -15,43 +17,25 @@
 #include "ACTS/Utilities/Units.hpp"
 
 FWA::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
-    const FWA::ExtrapolationAlgorithm::Config& cfg,
-    std::unique_ptr<const Acts::Logger>        logger)
-  : FW::Algorithm(cfg, std::move(logger)), m_cfg(cfg)
+    const FWA::ExtrapolationAlgorithm::Config& cfg)
+  : FW::BareAlgorithm("ExtrapolationAlgorithm"), m_cfg(cfg)
 {
-}
-
-FWA::ExtrapolationAlgorithm::~ExtrapolationAlgorithm()
-{
-}
-
-/** Framework finalize mehtod */
-FW::ProcessCode
-FWA::ExtrapolationAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
-{
-  // call the algorithm initialize for setting the stores
-  if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
-    ACTS_FATAL("Algorithm::initialize() did not succeed!");
-    return FW::ProcessCode::SUCCESS;
-  }
-  ACTS_VERBOSE("initialize successful.");
-  return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWA::ExtrapolationAlgorithm::execute(const FW::AlgorithmContext context) const
+FWA::ExtrapolationAlgorithm::execute(FW::AlgorithmContext context) const
 {
   // we read from a collection
   // -> will be outsourced into a simulation algorithm
   if (m_cfg.evgenParticlesCollection != "") {
     // Retrieve relevant information from the execution context
-    auto eventStore = context.eventContext->eventStore;
+    auto eventStore = context.eventStore;
 
     // prepare the input vector
-    std::vector<Acts::ParticleProperties>* eventParticles = nullptr;
+    const std::vector<Acts::ParticleProperties>* eventParticles = nullptr;
     // read and go
     if (eventStore
-        && eventStore->readT(eventParticles, m_cfg.evgenParticlesCollection)
+        && eventStore->get(m_cfg.evgenParticlesCollection, eventParticles)
             == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
     // run over it
@@ -59,18 +43,10 @@ FWA::ExtrapolationAlgorithm::execute(const FW::AlgorithmContext context) const
                                                       << " particles");
 
     // create a new detector data hit container
-    typedef std::pair<std::unique_ptr<const Acts::TrackParameters>,
-                      barcode_type>
-        FatrasHit;
-    FW::DetectorData<geo_id_value, FatrasHit>* simulatedHits
-        = m_cfg.simulatedHitsCollection != ""
-        ? new FW::DetectorData<geo_id_value, FatrasHit>
-        : nullptr;
-    // prepare the output vector
-    std::vector<Acts::ParticleProperties>* simulatedParticles
-        = m_cfg.simulatedParticlesCollection != ""
-        ? new std::vector<Acts::ParticleProperties>
-        : nullptr;
+    using FatrasHit
+        = std::pair<std::unique_ptr<const Acts::TrackParameters>, barcode_type>;
+    FW::DetectorData<geo_id_value, FatrasHit> simulatedHits;
+    std::vector<Acts::ParticleProperties>*    simulatedParticles;
 
     // counters
     size_t pCounter = 0;
@@ -101,7 +77,7 @@ FWA::ExtrapolationAlgorithm::execute(const FW::AlgorithmContext context) const
             std::move(cov), std::move(pars), surface);
         if (executeTestT<Acts::TrackParameters>(startParameters,
                                                 eParticle.barcode(),
-                                                simulatedHits,
+                                                &simulatedHits,
                                                 m_cfg.ecChargedWriter)
             != FW::ProcessCode::SUCCESS)
           ACTS_VERBOSE("Test of parameter extrapolation did not succeed.");
@@ -111,50 +87,44 @@ FWA::ExtrapolationAlgorithm::execute(const FW::AlgorithmContext context) const
 
     ACTS_INFO("Number of simulated particles : " << pCounter);
     ACTS_INFO("Number of skipped   particles : " << sCounter);
-    if (eventStore && simulatedParticles
-        && eventStore->writeT(simulatedParticles,
-                              m_cfg.simulatedParticlesCollection)
+    if (eventStore
+        && eventStore->add(m_cfg.simulatedParticlesCollection,
+                           std::move(simulatedParticles))
             == FW::ProcessCode::ABORT) {
       ACTS_WARNING(
           "Could not write colleciton of simulated particles to event store.");
       return FW::ProcessCode::ABORT;
-    } else if (simulatedParticles)
-      ACTS_INFO("Truth information for "
-                << simulatedParticles->size()
-                << " particles written to EventStore.");
-
+    }
     // write to the EventStore
-    if (eventStore && simulatedHits
-        && eventStore->writeT(simulatedHits, m_cfg.simulatedHitsCollection)
+    if (eventStore
+        && eventStore->add(m_cfg.simulatedHitsCollection,
+                           std::move(simulatedHits))
             == FW::ProcessCode::ABORT) {
       ACTS_WARNING("Could not write colleciton of hits to event store.");
       return FW::ProcessCode::ABORT;
-    } else if (simulatedHits)
-      ACTS_INFO("Hit information for " << simulatedHits->size()
-                                       << " volumes written to EventStore.");
-
+    }
   } else {
     // Create a random number generator
     FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
 
     // Setup random number distributions for our parameters
-    FW::GaussDist d0Dist{ m_cfg.d0Defs.at(0), m_cfg.d0Defs.at(1) };
-    FW::GaussDist z0Dist{ m_cfg.z0Defs.at(0), m_cfg.z0Defs.at(1) };
-    FW::UniformDist phiDist{ m_cfg.phiRange.at(0), m_cfg.phiRange.at(1) };
-    FW::UniformDist etaDist{ m_cfg.etaRange.at(0), m_cfg.etaRange.at(1) };
-    FW::UniformDist ptDist{ m_cfg.ptRange.at(0), m_cfg.ptRange.at(1) };
+    FW::GaussDist   d0Dist{m_cfg.d0Defs.at(0), m_cfg.d0Defs.at(1)};
+    FW::GaussDist   z0Dist{m_cfg.z0Defs.at(0), m_cfg.z0Defs.at(1)};
+    FW::UniformDist phiDist{m_cfg.phiRange.at(0), m_cfg.phiRange.at(1)};
+    FW::UniformDist etaDist{m_cfg.etaRange.at(0), m_cfg.etaRange.at(1)};
+    FW::UniformDist ptDist{m_cfg.ptRange.at(0), m_cfg.ptRange.at(1)};
 
     // loop
     for (size_t iex = 0; iex < m_cfg.testsPerEvent; ++iex) {
       // gaussian d0 and z0
-      double d0 = d0Dist(rng);
-      double z0 = z0Dist(rng);
-      double phi = phiDist(rng);
-      double eta = etaDist(rng);
+      double d0    = d0Dist(rng);
+      double z0    = z0Dist(rng);
+      double phi   = phiDist(rng);
+      double eta   = etaDist(rng);
       double theta = 2. * atan(exp(-eta));
       double pt    = ptDist(rng);
-      double p = pt / sin(theta);
-      double q = std::generate_canonical<float, 1>(rng) > 0.5 ? 1. : -1.;
+      double p     = pt / sin(theta);
+      double q     = std::generate_canonical<float, 1>(rng) > 0.5 ? 1. : -1.;
 
       Acts::Vector3D momentum(
           p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta));
@@ -162,13 +132,9 @@ FWA::ExtrapolationAlgorithm::execute(const FW::AlgorithmContext context) const
       Acts::ActsVectorD<5>                     pars;
       pars << d0, z0, phi, theta, q / p;
       // perigee parameters
-      ACTS_VERBOSE("Building parameters from Perigee with (" << d0 << ", " << z0
-                                                             << ", "
-                                                             << phi
-                                                             << ", "
-                                                             << theta
-                                                             << ", "
-                                                             << q / p);
+      ACTS_VERBOSE("Building parameters from Perigee with ("
+                   << d0 << ", " << z0 << ", " << phi << ", " << theta << ", "
+                   << q / p);
       // charged extrapolation
       Acts::PerigeeSurface pSurface(Acts::Vector3D(0., 0., 0.));
 
@@ -197,12 +163,5 @@ FWA::ExtrapolationAlgorithm::execute(const FW::AlgorithmContext context) const
     }
   }
   // return SUCCESS to the frameword
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FWA::ExtrapolationAlgorithm::finalize()
-{
-  ACTS_VERBOSE("initialize successful.");
   return FW::ProcessCode::SUCCESS;
 }
