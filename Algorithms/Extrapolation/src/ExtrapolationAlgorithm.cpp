@@ -40,7 +40,6 @@ FW::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
 FW::ProcessCode
 FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
-
   ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);
   // read particles from input collection
   const std::vector<Acts::ProcessVertex>* evgen = nullptr;
