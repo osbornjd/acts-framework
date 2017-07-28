@@ -1,15 +1,13 @@
 #ifndef ACTFW_FATRASEXAMPLE_BASE
 #define ACTFW_FATRASEXAMPLE_BASE
-//
+
 #include <memory>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"  // to be replaced by simulation algorithm
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 #include "ACTFW/Fatras/FatrasWriteAlgorithm.hpp"
-#include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Plugins/Json/JsonSpacePointWriter.hpp"
@@ -40,10 +38,6 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // EXTRAPOLATOR - set up the extrapolator
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
       = FWA::initExtrapolator(tGeometry, magField, eLogLevel);
-
-  // creating the data stores
-  auto detectorStore = std::make_shared<FW::WhiteBoard>(
-      Acts::getDefaultLogger("DetectorStore", Acts::Logging::INFO));
 
   // create a pythia generator for the hard scatter
   // process: HardQCD for the moment
@@ -115,8 +109,6 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   readEvgenCfg.vertexZParameters      = {{0., 55.0 * Acts::units::_mm}};
   // attach the barcode service
   readEvgenCfg.barcodeSvc = barcodeSvc;
-  // the job WhiteBoard
-  readEvgenCfg.jBoard = detectorStore;
   // set the particle writer
   readEvgenCfg.particleWriter = nullptr;
   // create the read Algorithm
@@ -184,9 +176,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   digConfig.spacePointCollection    = "FatrasSpacePoints";
   digConfig.planarModuleStepper     = pmStepper;
 
-  std::shared_ptr<FW::IAlgorithm> digitzationAlg(new FWA::DigitizationAlgorithm(
-      digConfig,
-      Acts::getDefaultLogger("DigitizationAlgorithm", Acts::Logging::INFO)));
+  auto digitzationAlg = std::make_shared<FWA::DigitizationAlgorithm>(digConfig);
 
   // ----------- WRITER ----------------------------------------------------
   // write a Csv File for clusters and particles
@@ -240,15 +230,10 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // now create the sequencer
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({rootEccWriter, stracksWriterObj, randomNumbers});
-  sequencer.addIOAlgorithms({readEvgen, writeOutput});
+  sequencer.addReaders({readEvgen});
+  sequencer.addWriters({writeOutput});
   sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg});
-
-  // initialize loop
-  sequencer.initializeEventLoop();
-  // run the loop
-  sequencer.processEventLoop(nEvents);
-  // finalize loop
-  sequencer.finalizeEventLoop();
+  sequencer.run(nEvents);
 
   particleStream->close();
   hitStream->close();
