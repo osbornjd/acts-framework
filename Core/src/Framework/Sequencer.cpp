@@ -23,8 +23,8 @@ FW::Sequencer::addServices(std::vector<std::shared_ptr<FW::IService>> services)
       ACTS_FATAL("Trying to add empty service to sequencer");
       return ProcessCode::ABORT;
     }
-    m_cfg.services.push_back(std::move(svc));
-    ACTS_INFO("Added service " << m_cfg.services.back()->name());
+    m_services.push_back(std::move(svc));
+    ACTS_INFO("Added service " << m_services.back()->name());
   }
   return ProcessCode::SUCCESS;
 }
@@ -37,8 +37,8 @@ FW::Sequencer::addReaders(std::vector<std::shared_ptr<FW::IReader>> readers)
       ACTS_FATAL("Trying to add empty reader to sequencer");
       return ProcessCode::ABORT;
     }
-    m_cfg.readers.push_back(std::move(rdr));
-    ACTS_INFO("Added reader " << m_cfg.readers.back()->name());
+    m_readers.push_back(std::move(rdr));
+    ACTS_INFO("Added reader " << m_readers.back()->name());
   }
   return ProcessCode::SUCCESS;
 }
@@ -51,8 +51,8 @@ FW::Sequencer::addWriters(std::vector<std::shared_ptr<FW::IWriter>> writers)
       ACTS_FATAL("Trying to add empty writer to sequencer");
       return ProcessCode::ABORT;
     }
-    m_cfg.writers.push_back(std::move(wrt));
-    ACTS_INFO("Added writer " << m_cfg.writers.back()->name());
+    m_writers.push_back(std::move(wrt));
+    ACTS_INFO("Added writer " << m_writers.back()->name());
   }
   return ProcessCode::SUCCESS;
 }
@@ -66,8 +66,8 @@ FW::Sequencer::prependEventAlgorithms(
       ACTS_FATAL("Trying to prepend empty algorithm");
       return ProcessCode::ABORT;
     }
-    m_cfg.algorithms.insert(m_cfg.algorithms.begin(), std::move(alg));
-    ACTS_INFO("Prepended algorithm " << m_cfg.algorithms.front()->name());
+    m_algorithms.insert(m_algorithms.begin(), std::move(alg));
+    ACTS_INFO("Prepended algorithm " << m_algorithms.front()->name());
   }
   return ProcessCode::SUCCESS;
 }
@@ -81,8 +81,8 @@ FW::Sequencer::appendEventAlgorithms(
       ACTS_FATAL("Trying to append empty algorithm.");
       return ProcessCode::ABORT;
     }
-    m_cfg.algorithms.push_back(std::move(alg));
-    ACTS_INFO("Appended algorithm " << m_cfg.algorithms.back()->name());
+    m_algorithms.push_back(std::move(alg));
+    ACTS_INFO("Appended algorithm " << m_algorithms.back()->name());
   }
   return ProcessCode::SUCCESS;
 }
@@ -92,17 +92,17 @@ FW::Sequencer::run(size_t events, size_t skip)
 {
   // initialize services and algorithms
   ACTS_INFO("Initialize the event loop for");
-  ACTS_INFO("  -> " << m_cfg.services.size() << " services");
-  ACTS_INFO("  -> " << m_cfg.readers.size() << " readers");
-  ACTS_INFO("  -> " << m_cfg.writers.size() << " writers");
-  ACTS_INFO("  -> " << m_cfg.algorithms.size() << " algorithms");
-  for (auto& svc : m_cfg.services)
+  ACTS_INFO("  " << m_services.size() << " services");
+  ACTS_INFO("  " << m_readers.size() << " readers");
+  ACTS_INFO("  " << m_writers.size() << " writers");
+  ACTS_INFO("  " << m_algorithms.size() << " algorithms");
+  for (auto& svc : m_services)
     if (svc->initialize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& rdr : m_cfg.readers)
+  for (auto& rdr : m_readers)
     if (rdr->initialize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& wrt : m_cfg.writers)
+  for (auto& wrt : m_writers)
     if (wrt->initialize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& alg : m_cfg.algorithms)
+  for (auto& alg : m_algorithms)
     if (alg->initialize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
 
   // execute the event loop
@@ -118,19 +118,19 @@ FW::Sequencer::run(size_t events, size_t skip)
 
       // read everything in
       for (auto& rdr
-           : m_cfg.readers) {
+           : m_readers) {
         if (rdr->read({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
           ACTFW_PARALLEL_FOR_ABORT(ievent);
       }
       // process all algorithms
       for (auto& alg
-           : m_cfg.algorithms) {
+           : m_algorithms) {
         if (alg->execute({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
           ACTFW_PARALLEL_FOR_ABORT(ievent);
       }
       // write out results
       for (auto& wrt
-           : m_cfg.writers) {
+           : m_writers) {
         if (wrt->write({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
           ACTFW_PARALLEL_FOR_ABORT(ievent);
       }
@@ -139,16 +139,16 @@ FW::Sequencer::run(size_t events, size_t skip)
 
   // finalize algorithms and services in reverse order
   ACTS_INFO("Finalize the event loop for");
-  ACTS_INFO("  -> " << m_cfg.services.size() << " services");
-  ACTS_INFO("  -> " << m_cfg.readers.size() << " readers");
-  ACTS_INFO("  -> " << m_cfg.writers.size() << " writers");
-  ACTS_INFO("  -> " << m_cfg.algorithms.size() << " algorithms");
-  for (auto& alg : m_cfg.algorithms)
+  ACTS_INFO("  " << m_services.size() << " services");
+  ACTS_INFO("  " << m_readers.size() << " readers");
+  ACTS_INFO("  " << m_writers.size() << " writers");
+  ACTS_INFO("  " << m_algorithms.size() << " algorithms");
+  for (auto& alg : m_algorithms)
     if (alg->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& wrt : m_cfg.writers)
+  for (auto& wrt : m_writers)
     if (wrt->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& rdr : m_cfg.readers)
+  for (auto& rdr : m_readers)
     if (rdr->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& svc : m_cfg.services)
+  for (auto& svc : m_services)
     if (svc->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
 }

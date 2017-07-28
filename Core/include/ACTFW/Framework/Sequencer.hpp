@@ -30,14 +30,6 @@ class Sequencer
 public:
   struct Config
   {
-    /// the serivces
-    std::vector<std::shared_ptr<IService>> services = {};
-    /// reader algorithms
-    std::vector<std::shared_ptr<IReader>> readers = {};
-    /// writer algorithms
-    std::vector<std::shared_ptr<IWriter>> writers = {};
-    /// algorithms
-    std::vector<std::shared_ptr<IAlgorithm>> algorithms = {};
     /// job store logging level
     Acts::Logging::Level jobStoreLogLevel = Acts::Logging::INFO;
     /// event store logging level
@@ -94,8 +86,12 @@ public:
   run(size_t events, size_t skip = 0);
 
 private:
-  Config                              m_cfg;
-  std::unique_ptr<const Acts::Logger> m_logger;
+  std::vector<std::shared_ptr<IService>>   m_services;
+  std::vector<std::shared_ptr<IReader>>    m_readers;
+  std::vector<std::shared_ptr<IWriter>>    m_writers;
+  std::vector<std::shared_ptr<IAlgorithm>> m_algorithms;
+  Config                                   m_cfg;
+  std::unique_ptr<const Acts::Logger>      m_logger;
 
   const Acts::Logger&
   logger() const
