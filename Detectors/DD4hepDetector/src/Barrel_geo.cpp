@@ -62,7 +62,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
       // Create the module volume
       Volume mod_vol(
           "module",
-          Box(x_module.length(), x_module.width(), x_module.thickness()),
+          Box(x_module.width(), x_module.length(), x_module.thickness()),
           lcdd.material(x_module.materialStr()));
 
       // create the Acts::DigitizationModule (needed to do geometric
@@ -115,6 +115,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
     // hand over modules to ACTS
     Acts::ActsExtension::Config layConfig;
     layConfig.isLayer               = true;
+    layConfig.axes                  = "YxZ";
     layConfig.materialBins1         = 100;
     layConfig.materialBins2         = 100;
     layConfig.layerMaterialPosition = Acts::LayerMaterialPos::outer;
