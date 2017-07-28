@@ -5,69 +5,49 @@
 #include "DataClassTwo.hpp"
 #include "WhiteBoardAlgorithm.hpp"
 
-FWE::WhiteBoardAlgorithm::WhiteBoardAlgorithm(
-    const Config&                       cfg,
-    std::unique_ptr<const Acts::Logger> logger)
-  : FW::Algorithm(cfg, std::move(logger)), m_cfg(cfg)
+FWE::WhiteBoardAlgorithm::WhiteBoardAlgorithm(const Config& cfg)
+  : FW::BareAlgorithm("WhiteBoardAlgorithm"), m_cfg(cfg)
 {
 }
 
-FWE::WhiteBoardAlgorithm::~WhiteBoardAlgorithm()
-{
-}
-
-/** Framework finalize mehtod */
 FW::ProcessCode
-FWE::WhiteBoardAlgorithm::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
-{
-  // call the algorithm initialize for setting the stores
-  if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
-    ACTS_FATAL("Algorithm::initialize() did not succeed!");
-    return FW::ProcessCode::SUCCESS;
-  }
-  ACTS_VERBOSE("initialize successful.");
-  return FW::ProcessCode::SUCCESS;
-}
-
-/** Framework execode method */
-FW::ProcessCode
-FWE::WhiteBoardAlgorithm::execute(const FW::AlgorithmContext context) const
+FWE::WhiteBoardAlgorithm::execute(FW::AlgorithmContext context) const
 {
   // Retrieve relevant information from the execution context
-  size_t eventNumber = context.eventContext->eventNumber;
-  auto eventStore = context.eventContext->eventStore;
+  size_t eventNumber = context.eventNumber;
+  auto   eventStore  = context.eventStore;
 
   // -------- Reading -----------------------
   // Reading Class One
   if (!m_cfg.inputClassOneCollection.empty()) {
     ACTS_INFO("Reading ClassOneCollection " << m_cfg.inputClassOneCollection);
     // read in the collection
-    FWE::DataClassOneCollection* dcoCollIn = nullptr;
+    const FWE::DataClassOneCollection* dcoCollIn = nullptr;
     // write to the EventStore
     if (eventStore
-        && eventStore->readT(dcoCollIn, m_cfg.inputClassOneCollection)
+        && eventStore->get(m_cfg.inputClassOneCollection, dcoCollIn)
             == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
     // screen output
     ACTS_VERBOSE("Read DataClassOneCollection with size " << dcoCollIn->size());
     for (auto& idco : (*dcoCollIn))
-      ACTS_VERBOSE("Read in  DataClassOne object as " << idco->data());
+      ACTS_VERBOSE("Read in  DataClassOne object as " << idco.data());
   }
 
   // Reading Class Two
   if (!m_cfg.inputClassTwoCollection.empty()) {
     ACTS_INFO("Reading ClassTwoCollection " << m_cfg.inputClassTwoCollection);
     // read in the collection
-    FWE::DataClassTwoCollection* dctCollIn = nullptr;
+    const FWE::DataClassTwoCollection* dctCollIn = nullptr;
     // write to the EventStore
     if (eventStore
-        && eventStore->readT(dctCollIn, m_cfg.inputClassTwoCollection)
+        && eventStore->get(m_cfg.inputClassTwoCollection, dctCollIn)
             == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
     // screen output
     ACTS_VERBOSE("Read DataClassTwoCollection with size " << dctCollIn->size());
     for (auto& idct : (*dctCollIn))
-      ACTS_VERBOSE("Read in  DataClassTwo object as " << idct->data());
+      ACTS_VERBOSE("Read in  DataClassTwo object as " << idct.data());
   }
 
   // ---------- Writing -----------------------
@@ -75,14 +55,13 @@ FWE::WhiteBoardAlgorithm::execute(const FW::AlgorithmContext context) const
   if (!m_cfg.outputClassOneCollection.empty()) {
     ACTS_INFO("Writing ClassOneCollection " << m_cfg.outputClassOneCollection);
     // create a new collection
-    DataClassOneCollection*       dcoCollOut = new DataClassOneCollection;
-    std::unique_ptr<DataClassOne> dcoOut(new DataClassOne("One", eventNumber));
-    // screen output
-    ACTS_VERBOSE("Written out DataClassOne object as " << dcoOut->data());
-    dcoCollOut->push_back(std::move(dcoOut));
+    DataClassOneCollection dcoCollOut = {{"One", eventNumber}};
+    ACTS_VERBOSE("Written out DataClassOne object as "
+                 << dcoCollOut.back().data());
     // write to the EventStore
     if (eventStore
-        && eventStore->writeT(dcoCollOut, m_cfg.outputClassOneCollection)
+        && eventStore->add(m_cfg.outputClassOneCollection,
+                           std::move(dcoCollOut))
             == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
   }
@@ -91,26 +70,16 @@ FWE::WhiteBoardAlgorithm::execute(const FW::AlgorithmContext context) const
   if (!m_cfg.outputClassTwoCollection.empty()) {
     ACTS_INFO("Writing ClassTwoCollection " << m_cfg.outputClassTwoCollection);
     // create a new collection
-    DataClassTwoCollection*       dctCollOut = new DataClassTwoCollection;
-    std::unique_ptr<DataClassTwo> dctOut(new DataClassTwo("Two", eventNumber));
-    // screen output
-    ACTS_VERBOSE("Written out DataClassTwo object as " << dctOut->data());
-    dctCollOut->push_back(std::move(dctOut));
+    DataClassTwoCollection dctCollOut = {{"Two", double(eventNumber)}};
+    ACTS_VERBOSE("Written out DataClassTwo object as "
+                 << dctCollOut.back().data());
     // write to the EventStore
     if (eventStore
-        && eventStore->writeT(dctCollOut, m_cfg.outputClassTwoCollection)
+        && eventStore->add(m_cfg.outputClassTwoCollection,
+                           std::move(dctCollOut))
             == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
   }
   // Return with success
-  return FW::ProcessCode::SUCCESS;
-}
-
-/** Framework finalize mehtod */
-FW::ProcessCode
-FWE::WhiteBoardAlgorithm::finalize()
-{
-  // final screen output
-  ACTS_VERBOSE("finalize successful.");
   return FW::ProcessCode::SUCCESS;
 }
