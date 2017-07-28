@@ -16,6 +16,9 @@
 #include "ACTFW/Plugins/Obj/ObjSpacePointWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp"
+#include "Fatras/EnergyLossSampler.hpp"
+#include "Fatras/MaterialInteractionEngine.hpp"
+#include "Fatras/MultipleScatteringSamplerHighland.hpp"
 
 FW::ProcessCode
 setupWriters(FW::Sequencer&                  sequencer,
