@@ -15,7 +15,6 @@ FW::Root::RootExCellWriter<T>::writeT(
     const FW::AlgorithmContext&                    ctx,
     const std::vector<Acts::ExtrapolationCell<T>>& ecells)
 {
-
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
@@ -27,6 +26,26 @@ FW::Root::RootExCellWriter<T>::writeT(
     m_phi          = sMomentum.phi();
     m_materialX0   = eCell.materialX0;
     m_materialL0   = eCell.materialL0;
+
+    // Displacement, momentum difference and energy loss due to material effects
+    if (eCell.endParameters) {
+    Acts::Vector3D firstPosition = eCell.startParameters.position();
+    Acts::Vector3D lastPosition = (eCell.endParameters->position());
+    Acts::Vector3D lastMomentum = eCell.endParameters->momentum();
+    
+    m_r0 = firstPosition.perp();
+    m_r1 = lastPosition.perp();
+    m_pt0 = sMomentum.perp();
+    m_pt1 = lastMomentum.perp();
+    m_dx = fabs(firstPosition.x() - lastPosition.x());
+    m_dy = fabs(firstPosition.y() - lastPosition.y());
+    m_dz = fabs(firstPosition.z() - lastPosition.z());
+    m_dr = fabs(firstPosition.perp() - lastPosition.perp());
+    m_dPx = fabs(sMomentum.x() - lastMomentum.x());
+    m_dPy = fabs(sMomentum.y() - lastMomentum.y());
+    m_dPz = fabs(sMomentum.z() - lastMomentum.z());
+    m_dPt = fabs(sMomentum.perp() - lastMomentum.perp());
+    }
 
     // clear the vectors & reserve
     // - for main step information
@@ -71,8 +90,10 @@ FW::Root::RootExCellWriter<T>::writeT(
     // the number of sensitive hits per event
     m_hits = 0;
     // loop over extrapolation steps
+    size_t parameterFlag = false;
     for (auto& es : eCell.extrapolationSteps) {
       if (es.parameters) {
+          parameterFlag = true;
         /// step parameters
         const T& pars = (*es.parameters);
         /// type information
@@ -139,6 +160,12 @@ FW::Root::RootExCellWriter<T>::writeT(
     }
     m_outputTree->Fill();
   }
+    // write to
+    ///@todo currently in comment so that it writes out even if there are no sensitive surfaces
+ //   if (parameterFlag) {
+        m_outputTree->Fill();
+ //   }
+
   // return scuess
   return FW::ProcessCode::SUCCESS;
 }
@@ -207,12 +234,26 @@ FW::Root::RootExCellWriter<T>::RootExCellWriter(
 
   // Number of sensitive hits
   m_outputTree->Branch("hits", &m_hits);
-}
+    
+  // compare displacement due to material effects
+  m_outputTree->Branch("r0", &m_r0);
+  m_outputTree->Branch("r1", &m_r1);
+    
+  m_outputTree->Branch("pt0", &m_pt0);
+  m_outputTree->Branch("pt1", &m_pt1);
+    
+  m_outputTree->Branch("dx", &m_dx);
+  m_outputTree->Branch("dy", &m_dy);
+  m_outputTree->Branch("dz", &m_dz);
+  m_outputTree->Branch("dr", &m_dr);
+  // energy loss due to material effects
+  m_outputTree->Branch("dPx", &m_dPx);
+  m_outputTree->Branch("dPy", &m_dPy);
+  m_outputTree->Branch("dPz", &m_dPz);
+  m_outputTree->Branch("dPt", &m_dPt);
 
-template <class T>
-FW::Root::RootExCellWriter<T>::~RootExCellWriter()
-{
-  m_outputFile->Close();
+  return FW::ProcessCode::SUCCESS;
+
 }
 
 template <class T>
