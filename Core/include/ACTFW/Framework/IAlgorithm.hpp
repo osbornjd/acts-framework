@@ -37,7 +37,7 @@ public:
 
   /// Framework execute method
   virtual ProcessCode
-  execute(const AlgorithmContext context) const = 0;
+  execute(AlgorithmContext context) const = 0;
 };
 
 }  // namespace FW
