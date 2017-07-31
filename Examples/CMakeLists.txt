@@ -8,3 +8,5 @@ add_subdirectory(RandomNumbers)
 add_subdirectory_if(ReadEvgen USE_PYTHIA8)
 add_subdirectory(Propagation)
 add_subdirectory(WhiteBoard)
+add_subdirectory_if(FatrasValidation USE_DD4HEP AND USE_GEANT4)
+
