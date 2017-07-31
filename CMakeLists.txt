@@ -69,6 +69,7 @@ endif()
 if(USE_GEANT4)
   set(Geant4_CONFIG_DEBUG on)
   find_package(Geant4 REQUIRED gdml)
+
 endif()
 if(USE_OPENMP)
   find_package(OpenMP REQUIRED)
@@ -84,6 +85,9 @@ if(USE_PYTHIA8)
   if (NOT DEFINED PYTHIA8_LIBRARYDIR)
     message(FATAL_ERROR "Missing PYTHIA8_LIBRARYDIR")
   endif()
+endif()
+if(USE_FATRAS)
+  find_package(Fatras REQUIRED)
 endif()
 
 # simplify handling of optional components
