@@ -73,7 +73,7 @@ namespace Root {
                      Acts::Logging::Level level = Acts::Logging::INFO);
 
     /// Virtual destructor
-    ~RootExCellWriter() override;
+    ~RootExCellWriter() override = default;
 
     /// End-of-run hook
     ProcessCode
@@ -88,33 +88,77 @@ namespace Root {
         const FW::AlgorithmContext&                    ctx,
         const std::vector<Acts::ExtrapolationCell<T>>& ecells) final override;
 
-    Config             m_cfg;           ///< the config class
-    std::mutex         m_writeMutex;    ///< protect multi-threaded writes
-    TFile*             m_outputFile;    ///< the output file
-    TTree*             m_outputTree;    ///< the output tree
-    float              m_eta;           ///< global eta start
-    float              m_phi;           ///< global phi start
-    float              m_materialX0;    ///< material in X0
-    float              m_materialL0;    ///< material in L0
-    std::vector<float> m_s_positionX;   ///< global position x of the step
-    std::vector<float> m_s_positionY;   ///< global position y of the step
-    std::vector<float> m_s_positionZ;   ///< global position z of the step
-    std::vector<float> m_s_positionR;   ///< global position z of the step
-    std::vector<float> m_s_materialX0;  ///< step material X0
-    std::vector<float> m_s_materialL0;  ///< step material L0
-    std::vector<int>   m_s_material;    ///< type of the step: material
-    std::vector<int>   m_s_boundary;    ///< type of the step: boundary
-    std::vector<int>   m_s_sensitive;   ///< type of the step: sensitive
-    std::vector<int>   m_s_volumeID;    ///< volume identification
-    std::vector<int>   m_s_layerID;     ///< layer identification
-    std::vector<int>   m_s_surfaceID;   ///< surface identification
-    std::vector<float>
-        m_s_localposition0;  ///< local position - first coordinate
-    std::vector<float>
-        m_s_localposition1;  ///< local position - second coordinate
-    int m_hits;              ///< number of hits in sensitive material
+    /// The config class
+    Config m_cfg;
+    /// Protect multi-threaded writes
+    std::mutex m_writeMutex;
+    /// The output file
+    TFile* m_outputFile;
+    /// The output tree
+    TTree* m_outputTree;
+    /// Global eta start
+    float m_eta;
+    /// Global phi start
+    float m_phi;
+    /// Material in X0
+    float m_materialX0;
+    /// Material in L0
+    float m_materialL0;
+    /// Global position x of the step
+    std::vector<float> m_s_positionX;
+    /// Global position y of the step
+    std::vector<float> m_s_positionY;
+    /// Global position z of the step
+    std::vector<float> m_s_positionZ;
+    /// Global radial position of the step
+    std::vector<float> m_s_positionR;
+    /// Step material X0
+    std::vector<float> m_s_materialX0;
+    /// Step material L0
+    std::vector<float> m_s_materialL0;
+    /// Type of the step: material
+    std::vector<int> m_s_material;
+    /// Type of the step: boundary
+    std::vector<int> m_s_boundary;
+    /// type of the step: sensitive
+    std::vector<int> m_s_sensitive;
+    /// Volume identification
+    std::vector<int> m_s_volumeID;
+    /// Layer identification
+    std::vector<int> m_s_layerID;
+    /// Surface identification
+    std::vector<int> m_s_surfaceID;
+    /// Local position - first coordinate
+    std::vector<float> m_s_localposition0;
+    /// Local position - second coordinate
+    std::vector<float> m_s_localposition1;
+    /// Number of hits in sensitive material
+    int m_hits;
+    /// The radial position of the first particle properties
+    float m_r0;
+    /// The radial position of the second particle properties
+    float m_r1;
+    /// The transverse momentum of the first particle properties
+    float m_pt0;
+    /// The transverse momentum of the second particle properties
+    float m_pt1;
+    /// The displacement in x
+    float m_dx;
+    /// The displacement in y
+    float m_dy;
+    /// The displacment in z
+    float m_dz;
+    /// The radial displacement
+    float m_dr;
+    /// The difference of the x components of the momentum
+    float m_dPx;
+    // The difference of the y components of the momentum
+    float m_dPy;
+    // The difference of the z components of the momentum
+    float m_dPz;
+    // The difference of the transverse momenta
+    float m_dPt;
   };
-
 }  // namespace Root
 }  // namespace FW
 
