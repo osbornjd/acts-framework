@@ -11,9 +11,9 @@
 #include <stdexcept>
 #include "ACTFW/Plugins/Geant4/MMDetectorConstruction.hpp"
 #include "ACTFW/Plugins/Geant4/MMEventAction.hpp"
-#include "ACTFW/Plugins/Geant4/MMPrimaryGeneratorAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMRunAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
+#include "ACTFW/Plugins/Geant4/PrimaryGeneratorAction.hpp"
 #include "FTFP_BERT.hh"
 
 FW::GeantinoRecording::GeantinoRecording(
@@ -47,8 +47,8 @@ FW::GeantinoRecording::GeantinoRecording(
 
   /// Now set up the Geant4 simulation
   m_runManager->SetUserInitialization(new FTFP_BERT);
-  m_runManager->SetUserAction(new FW::G4::MMPrimaryGeneratorAction(
-      "geantino", 1000., m_cfg.seed1, m_cfg.seed2));
+  m_runManager->SetUserAction(
+      new FW::G4::PrimaryGeneratorAction(m_cfg.pgaConfig));
   FW::G4::MMRunAction* runaction = new FW::G4::MMRunAction();
   m_runManager->SetUserAction(runaction);
   m_runManager->SetUserAction(new FW::G4::MMEventAction());
@@ -58,7 +58,6 @@ FW::GeantinoRecording::GeantinoRecording(
 
 FW::ProcessCode FW::GeantinoRecording::execute(FW::AlgorithmContext) const
 {
-
   /// Begin with the simulation
   m_runManager->BeamOn(m_cfg.tracksPerEvent);
   ///
