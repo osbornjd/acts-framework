@@ -1,8 +1,8 @@
-
 #ifndef ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
-#define ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H 1
+#define ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H 
 
 #include <mutex>
+#include <array>
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
