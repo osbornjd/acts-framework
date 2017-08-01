@@ -6,10 +6,11 @@
 //
 //
 #ifndef ACTFW_EXAMPLES_READEVGENALGORITHM_H
-#define ACTFW_EXAMPLES_READEVGENALGORITHM_H 1
+#define ACTFW_EXAMPLES_READEVGENALGORITHM_H
 
 #include <memory>
 #include <string>
+#include <array>
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IOAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"

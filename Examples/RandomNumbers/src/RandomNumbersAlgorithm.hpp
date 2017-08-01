@@ -10,7 +10,7 @@
 #define ACTFW_EXAMPLES_RANDOMNUMBERSALGORITHM_H 1
 
 #include <memory>
-
+#include <array>
 #include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
