@@ -7,7 +7,7 @@
 //
 
 #ifndef ACTFW_EVENTDATA_DATACONTAINERS_H
-#define ACTFW_EVENTDATA_DATACONTAINERS_H 1
+#define ACTFW_EVENTDATA_DATACONTAINERS_H
 
 #include <vector>
 #include <map>
@@ -45,7 +45,7 @@ namespace FW {
        layerData = (volumeData->second).find(layerKey);
     }
     // find the module data
-    auto moduleData = (layerData->second).find(layerKey);
+    auto moduleData = (layerData->second).find(moduleKey);
     if (moduleData == (layerData->second).end()){
       // insert the module for this
       (layerData->second)[moduleKey] = FW::ModuleData<T>();
@@ -66,7 +66,7 @@ namespace FW {
     auto layerData = (volumeData->second).find(layerKey);
     if (layerData == (volumeData->second).end()) return nullptr;
     // find the module data
-    auto moduleData = (layerData->second).find(layerKey);
+    auto moduleData = (layerData->second).find(moduleKey);
     if (moduleData == (layerData->second).end()) return nullptr;
     // and now return as a pointer
     return (&(moduleData->second));
@@ -88,7 +88,6 @@ namespace FW {
   
   } // end of namespace Data
    
-
 }
 
 #endif  // ACTFW_EVENTDATA_DATACONTAINERS_H
