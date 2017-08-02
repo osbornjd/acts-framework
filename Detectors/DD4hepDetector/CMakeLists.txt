@@ -6,7 +6,12 @@ target_include_directories(ACTFWDD4hepDetector PUBLIC ${DD4hep_INCLUDE_DIRS})
 target_include_directories(ACTFWDD4hepDetector PUBLIC ${ROOT_INCLUDE_DIRS})
 target_link_libraries(ACTFWDD4hepDetector PRIVATE ACTFramework)
 target_link_libraries(ACTFWDD4hepDetector PUBLIC ACTS::ACTSCore ACTS::ACTSDD4hepPlugin)
+<<<<<<< HEAD
 target_link_libraries(ACTFWDD4hepDetector PUBLIC ${ROOT_LIBRARIES} ROOT::GenVector)
+=======
+target_link_libraries(ACTFWDD4hepDetector PUBLIC ${ROOT_LIBRARIES})
+target_link_libraries(ACTFWDD4hepDetector PUBLIC ${DD4hep_LIBRARIES})
+>>>>>>> 61bacee... DD4hep v. 1.00.01 changes to code
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
 dd4hep_set_version(ACTFWDD4hepDetector MAJOR 1 MINOR 0 PATCH 0)

@@ -50,7 +50,6 @@ if(USE_PYTHIA8)
   list(APPEND ROOT_COMPONENTS EG EGPythia8)
 endif()
 
-
 # required packages
 
 # Enable C++11 threading support, with a preference for pthread
@@ -59,9 +58,6 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 find_package(ROOT 6.10 REQUIRED COMPONENTS ${ROOT_COMPONENTS})
 find_package(ACTS REQUIRED COMPONENTS ${ACTS_COMPONENTS})
-
-message(STATUS "PYTHIA ALL :" ${ROOT_LIBRARIES} )
-
 
 # optional packages
 
