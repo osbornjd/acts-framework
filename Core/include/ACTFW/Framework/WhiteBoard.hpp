@@ -31,6 +31,12 @@ public:
   WhiteBoard(std::unique_ptr<const Acts::Logger> logger
              = Acts::getDefaultLogger("WhiteBoard", Acts::Logging::INFO));
 
+  // A WhiteBoard holds unique elements and can not be copied
+  WhiteBoard(const WhiteBoard& other) = delete;
+  WhiteBoard&
+  operator=(const WhiteBoard&)
+      = delete;
+
   /// Store an object on the white board and transfer ownership.
   ///
   /// @param name Identifier to store it under
