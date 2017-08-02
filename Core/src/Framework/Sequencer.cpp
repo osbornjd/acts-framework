@@ -112,9 +112,9 @@ FW::Sequencer::run(size_t events, size_t skip)
       ACTS_INFO("start event " << event);
 
       // Setup the event and algorithm context
-      auto   eventStore = std::make_shared<WhiteBoard>(Acts::getDefaultLogger(
+      WhiteBoard eventStore(Acts::getDefaultLogger(
           "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
-      size_t ialg       = 0;
+      size_t     ialg = 0;
 
       // read everything in
       for (auto& rdr

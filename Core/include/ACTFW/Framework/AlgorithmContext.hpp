@@ -15,9 +15,9 @@ class WhiteBoard;
 /// Aggregated information to run one algorithm over one event.
 struct AlgorithmContext
 {
-  size_t                      algorithmNumber;  ///< Unique algorithm identifier
-  size_t                      eventNumber;      ///< Unique event identifier
-  std::shared_ptr<WhiteBoard> eventStore;       ///< Per-event data store
+  size_t      algorithmNumber;  ///< Unique algorithm identifier
+  size_t      eventNumber;      ///< Unique event identifier
+  WhiteBoard& eventStore;       ///< Per-event data store
 };
 
 }  // namespace FW
