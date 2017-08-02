@@ -33,12 +33,8 @@ FWA::FatrasWriteAlgorithm::finalize()
 }
 
 FW::ProcessCode
-FWA::FatrasWriteAlgorithm::write(const FW::AlgorithmContext& context)
+FWA::FatrasWriteAlgorithm::write(const FW::AlgorithmContext& ctx)
 {
-  // Retrieve relevant information from the execution context
-  size_t eventNumber = context.eventNumber;
-  auto   eventStore  = context.eventStore;
-
   ACTS_INFO("Writing Fatras output to file(s).");
 
   // write the simulated Particles
@@ -46,10 +42,9 @@ FWA::FatrasWriteAlgorithm::write(const FW::AlgorithmContext& context)
     // retrieve it
     const std::vector<Acts::ParticleProperties>* simulatedParticles = nullptr;
     // read and go
-    if (eventStore
-        && eventStore->get(m_cfg.simulatedParticlesCollection,
+    if (ctx.eventStore.get(m_cfg.simulatedParticlesCollection,
                            simulatedParticles)
-            == FW::ProcessCode::ABORT) {
+        == FW::ProcessCode::ABORT) {
       ACTS_WARNING("Could not read colleciton of simulated particles.");
       return FW::ProcessCode::ABORT;
     }
@@ -69,9 +64,8 @@ FWA::FatrasWriteAlgorithm::write(const FW::AlgorithmContext& context)
         planarClusters
         = nullptr;
     // read and go
-    if (eventStore
-        && eventStore->get(m_cfg.planarClustersCollection, planarClusters)
-            == FW::ProcessCode::ABORT) {
+    if (ctx.eventStore.get(m_cfg.planarClustersCollection, planarClusters)
+        == FW::ProcessCode::ABORT) {
       ACTS_WARNING("Could not read colleciton of clusters.");
       return FW::ProcessCode::ABORT;
     }
@@ -88,9 +82,8 @@ FWA::FatrasWriteAlgorithm::write(const FW::AlgorithmContext& context)
     // retrieve the input data
     const FW::DetectorData<geo_id_value, Acts::Vector3D>* spacePoints = nullptr;
     // read and go
-    if (eventStore
-        && eventStore->get(m_cfg.spacePointCollection, spacePoints)
-            == FW::ProcessCode::ABORT) {
+    if (ctx.eventStore.get(m_cfg.spacePointCollection, spacePoints)
+        == FW::ProcessCode::ABORT) {
       ACTS_WARNING("Could not read colleciton of space points.");
       return FW::ProcessCode::ABORT;
     }

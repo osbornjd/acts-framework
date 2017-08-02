@@ -79,7 +79,7 @@ public:
 
   /// Write data to the output stream
   FW::ProcessCode
-  write(const FW::AlgorithmContext& context) final;
+  write(const FW::AlgorithmContext& ctx) final;
 
 private:
   Config                              m_cfg;
