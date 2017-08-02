@@ -7,10 +7,9 @@
 #ifndef ACTFW_JSON_PLUGINS_SPACEPOINTWRITER_H
 #define ACTFW_JSON_PLUGINS_SPACEPOINTWRITER_H 1
 
+#include <fstream>
 #include <mutex>
 
-#include <fstream>
-#include <iostream>
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -27,14 +26,10 @@ template <class T>
 class JsonSpacePointWriter : public FW::IEventDataWriterT<T>
 {
 public:
-  // @class Config
-  //
-  // The nested config class
-  class Config
+  struct Config
   {
-  public:
-    size_t                         outputPrecision = 4;
-    std::shared_ptr<std::ofstream> outputStream    = nullptr;
+    std::string outputPath;
+    size_t      outputPrecision = 4;
   };
 
   /// Constructor
@@ -66,6 +61,7 @@ public:
 private:
   Config                              m_cfg;  ///< the config class
   std::unique_ptr<const Acts::Logger> m_logger;
+  std::ofstream                       m_file;
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -94,6 +90,11 @@ template <class T>
 FW::ProcessCode
 JsonSpacePointWriter<T>::initialize()
 {
+  m_file.open(m_cfg.outputPath, std::ofstream::out | std::ofstream::trunc);
+  if (!m_file) {
+    ACTS_ERROR("Could not open file '" << m_cfg.outputPath << "'");
+    return FW::ProcessCode::ABORT;
+  }
   return FW::ProcessCode::SUCCESS;
 }
 
@@ -101,6 +102,7 @@ template <class T>
 FW::ProcessCode
 JsonSpacePointWriter<T>::finalize()
 {
+  m_file.close();
   return FW::ProcessCode::SUCCESS;
 }
 
@@ -108,31 +110,34 @@ template <class T>
 FW::ProcessCode
 JsonSpacePointWriter<T>::write(const FW::DetectorData<geo_id_value, T>& eData)
 {
-  if (!m_cfg.outputStream) return FW::ProcessCode::SUCCESS;
+  std::ostream& os = m_file;
 
-  (*(m_cfg.outputStream)) << std::endl;
-  (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
+  if (!os)
+    return FW::ProcessCode::ABORT;
+
+  os << std::endl;
+  os << std::setprecision(m_cfg.outputPrecision);
 
   // loop and fill the space point data
   for (auto& volumeData : eData) {
     // get the volume id for the naming
     geo_id_value volumeID = volumeData.first;
     //
-    (*(m_cfg.outputStream)) << "{ \"SpacePoints_" << volumeID << "\" : [";
+    os << "{ \"SpacePoints_" << volumeID << "\" : [";
     // initialize the virgule
     bool comma = false;
     for (auto& layerData : volumeData.second)
       for (auto& moduleData : layerData.second)
         for (auto& data : moduleData.second) {
           // set the virugle correctly
-          if (comma) (*(m_cfg.outputStream)) << ", ";
+          if (comma) os << ", ";
           comma = true;
           // write the space point
-          (*(m_cfg.outputStream))
+          os
               << "[" << data.x() << ", " << data.y() << ", " << data.z() << "]";
         }
 
-    (*(m_cfg.outputStream)) << "] }" << std::endl;
+    os << "] }" << std::endl;
   }
   // return success
   return FW::ProcessCode::SUCCESS;
