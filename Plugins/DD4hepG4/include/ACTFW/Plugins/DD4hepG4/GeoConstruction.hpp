@@ -9,6 +9,10 @@
 
 namespace dd4hep {
         class Detector;
+<<<<<<< HEAD
+=======
+    }
+>>>>>>> 0d6211b... replaced previously overlooked uses of the old DD4hep namespace
 }
 /// Temporary borrowed from FCCSW -> will be replaced later
 /** @class GeoConstruction DetectorDescription/DetDesServices/src/GeoConstruction.h GeoConstruction.h
@@ -38,7 +42,11 @@ namespace DD4hepG4 {
         /// Reference to geometry object
         dd4hep::Detector& m_lcdd;
     };
+<<<<<<< HEAD
 } // namespace DD4hepG4
 } // namespace FW
 
+=======
+}
+>>>>>>> 0d6211b... replaced previously overlooked uses of the old DD4hep namespace
 #endif /* DETDESSERVICES_GEOCONSTRUCTION_H */
