@@ -7,10 +7,8 @@
 // Geant4
 #include "G4VUserDetectorConstruction.hh"
 
-namespace DD4hep {
-    namespace Geometry {
-        class LCDD;
-    }
+namespace dd4hep {
+        class Detector;
 }
 /// Temporary borrowed from FCCSW -> will be replaced later
 /** @class GeoConstruction DetectorDescription/DetDesServices/src/GeoConstruction.h GeoConstruction.h
@@ -30,7 +28,7 @@ namespace DD4hepG4 {
     class GeoConstruction : public G4VUserDetectorConstruction {
     public:
         /// Constructor
-        GeoConstruction(DD4hep::Geometry::LCDD& lcdd);
+        GeoConstruction(dd4hep::Detector& lcdd);
         /// Default destructor
         virtual ~GeoConstruction();
         /// Geometry construction callback: Invoke the conversion to Geant4
@@ -38,7 +36,7 @@ namespace DD4hepG4 {
         virtual G4VPhysicalVolume* Construct() final;
     private:
         /// Reference to geometry object
-        DD4hep::Geometry::LCDD& m_lcdd;
+        dd4hep::Detector& m_lcdd;
     };
 } // namespace DD4hepG4
 } // namespace FW
