@@ -33,7 +33,6 @@ public:
   class Config
   {
   public:
-    std::string                    name;  ///< the name of the algorithm
     size_t                         outputPrecision = 4;
     std::shared_ptr<std::ofstream> outputStream    = nullptr;
   };
@@ -88,7 +87,7 @@ template <class T>
 std::string
 JsonSpacePointWriter<T>::name() const
 {
-  return m_cfg.name;
+  return "JsonSpacePointWriter";
 }
 
 template <class T>
