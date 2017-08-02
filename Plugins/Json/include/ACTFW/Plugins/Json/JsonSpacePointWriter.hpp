@@ -33,24 +33,18 @@ public:
   class Config
   {
   public:
-    std::shared_ptr<const Acts::Logger> logger;  ///< the default logger
-    std::string                         name;    ///< the name of the algorithm
-    size_t                              outputPrecision = 4;
-    std::shared_ptr<std::ofstream>      outputStream    = nullptr;
-
-    Config(const std::string&   lname = "JsonSpacePointWriter",
-           Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger(Acts::getDefaultLogger(lname, lvl)), name(lname)
-    {
-    }
+    std::string                    name;  ///< the name of the algorithm
+    size_t                         outputPrecision = 4;
+    std::shared_ptr<std::ofstream> outputStream    = nullptr;
   };
 
   /// Constructor
   ///
   /// @param cfg is the configuration class
-  JsonSpacePointWriter(const Config& cfg);
-
-  /// Destructor
+  JsonSpacePointWriter(const Config&                       cfg,
+                       std::unique_ptr<const Acts::Logger> logger
+                       = Acts::getDefaultLogger("JsonSpacePointWriter",
+                                                Acts::Logging::INFO));
   virtual ~JsonSpacePointWriter() = default;
 
   /// Framework name() method
@@ -71,28 +65,30 @@ public:
   write(const FW::DetectorData<geo_id_value, T>& eData) final;
 
 private:
-  Config m_cfg;  ///< the config class
+  Config                              m_cfg;  ///< the config class
+  std::unique_ptr<const Acts::Logger> m_logger;
 
   /// Private access to the logging instance
   const Acts::Logger&
   logger() const
   {
-    return *m_cfg.logger;
+    return *m_logger;
   }
 };
+
+template <class T>
+JsonSpacePointWriter<T>::JsonSpacePointWriter(
+    const FWJson::JsonSpacePointWriter<T>::Config& cfg,
+    std::unique_ptr<const Acts::Logger>            logger)
+  : FW::IEventDataWriterT<T>(), m_cfg(cfg), m_logger(std::move(logger))
+{
+}
 
 template <class T>
 std::string
 JsonSpacePointWriter<T>::name() const
 {
   return m_cfg.name;
-}
-
-template <class T>
-JsonSpacePointWriter<T>::JsonSpacePointWriter(
-    const FWJson::JsonSpacePointWriter<T>::Config& cfg)
-  : FW::IEventDataWriterT<T>(), m_cfg(cfg)
-{
 }
 
 template <class T>
