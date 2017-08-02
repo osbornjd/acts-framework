@@ -12,7 +12,8 @@
 #include "ACTFW/GeometryInterfaces/ITrackingGeometryService.hpp"
 #include "ACTS/Utilities/BinningType.hpp"
 #include "ACTS/Utilities/Logger.hpp"
-#include "DD4hep/LCDD.h"
+#include "DD4hep/DetElement.h"
+#include "DD4hep/Detector.h"
 #include "TGeoNode.h"
 
 namespace FW {
@@ -113,7 +114,7 @@ public:
 
   /// Interface method to access the DD4hep geometry
   /// @return The world DD4hep DetElement
-  DD4hep::Geometry::DetElement
+  dd4hep::DetElement
   dd4hepGeometry() override final;
 
   /// Interface method to Access the TGeo geometry
@@ -122,7 +123,7 @@ public:
   tgeoGeometry() override final;
 
   /// Interface method to access to the interface of the DD4hep geometry
-  DD4hep::Geometry::LCDD*
+  dd4hep::Detector*
   lcdd() override final;
 
   /// Interface method to access the ACTS TrackingGeometry
@@ -141,9 +142,9 @@ private:
   /// The config class
   Config m_cfg;
   /// Pointer to the interface to the DD4hep geometry
-  DD4hep::Geometry::LCDD* m_lcdd;
+  dd4hep::Detector* m_lcdd;
   /// The world DD4hep DetElement
-  DD4hep::Geometry::DetElement m_dd4hepGeometry;
+  dd4hep::DetElement m_dd4hepGeometry;
   /// The ACTS TrackingGeometry
   std::unique_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
 

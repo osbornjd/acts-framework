@@ -5,8 +5,8 @@ target_include_directories(ACTFWDD4hepPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CU
 target_include_directories(ACTFWDD4hepPlugin PUBLIC ${DD4hep_INCLUDE_DIRS})
 target_include_directories(ACTFWDD4hepPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
 target_link_libraries(ACTFWDD4hepPlugin PUBLIC ACTS::ACTSCore ACTS::ACTSDD4hepPlugin)
+target_link_libraries(ACTFWDD4hepPlugin PUBLIC ROOT::Geom)
 target_link_libraries(ACTFWDD4hepPlugin PUBLIC ${DD4hep_LIBRARIES})
-target_link_libraries(ACTFWDD4hepPlugin PUBLIC ${ROOT_CNS}Geom)
 target_link_libraries(ACTFWDD4hepPlugin PRIVATE ACTFramework)
 
 dd4hep_set_version(ACTFWDD4hepPlugin MAJOR 0 MINOR 1 PATCH 0)

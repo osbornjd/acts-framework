@@ -8,11 +8,9 @@
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
-namespace DD4hep {
-    namespace Geometry {
-        class DetElement;
-        class LCDD;
-    }
+namespace dd4hep {
+    class DetElement;
+    class Detector;
 }
 
 
@@ -30,9 +28,9 @@ namespace FW {
         virtual ~IDD4hepService() = default;
         /// Access to the DD4hep geometry
         /// @return The world DD4hep DetElement
-        virtual DD4hep::Geometry::DetElement dd4hepGeometry() = 0;
+        virtual dd4hep::DetElement dd4hepGeometry() = 0;
         /// Access to the interface of the DD4hep geometry
-        virtual DD4hep::Geometry::LCDD* lcdd() = 0;
+        virtual dd4hep::Detector* lcdd() = 0;
         
     };
 }

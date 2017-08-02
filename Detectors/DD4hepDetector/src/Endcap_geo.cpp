@@ -7,8 +7,7 @@
 #include "DD4hep/DetFactoryHelper.h"
 
 using namespace std;
-using namespace DD4hep;
-using namespace DD4hep::Geometry;
+using namespace dd4hep;
 
 /**
  Constructor for a disc like endcap volume, possibly containing layers and the
@@ -17,7 +16,7 @@ using namespace DD4hep::Geometry;
  */
 
 static Ref_t
-create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
+create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
 {
   xml_det_t x_det    = xml;
   string    det_name = x_det.nameStr();
@@ -29,7 +28,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
   Acts::ActsExtension* detvolume = new Acts::ActsExtension(volConfig);
   cylinderVolume.addExtension<Acts::IActsExtension>(detvolume);
   // make Volume
-  DD4hep::XML::Dimension x_det_dim(x_det.dimensions());
+  dd4hep::xml::Dimension x_det_dim(x_det.dimensions());
   Tube   tube_shape(x_det_dim.rmin(), x_det_dim.rmax(), x_det_dim.dz());
   Volume tube_vol(
       det_name, tube_shape, lcdd.air());  // air at the moment change later
@@ -44,7 +43,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
     double     l_rmax   = x_layer.outer_r();
     double     l_length = x_layer.dz();
     // Create Volume and DetElement for Layer
-    string layer_name = det_name + _toString(layer_num, "layer%d");
+    string layer_name = det_name + _toString((int)layer_num, "layer%d");
     Volume layer_vol(layer_name,
                      Tube(l_rmin, l_rmax, l_length),
                      lcdd.material(x_layer.materialStr()));
@@ -93,7 +92,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
           xml_comp_t x_comp = comp;
           // create the component volume
           string comp_name
-              = _toString(comp_num, "component%d") + x_comp.materialStr();
+              = _toString((int)comp_num, "component%d") + x_comp.materialStr();
           Volume comp_vol(comp_name,
                           Trapezoid(x_comp.x1(),
                                     x_comp.x2(),
@@ -125,11 +124,11 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
 
         // Place the Modules
         for (int k = 0; k < repeat; k++) {
-          string zname = _toString(k, "z%d");
+          string zname = _toString((int)k, "z%d");
 
           double phi         = deltaphi / dd4hep::rad * k;
           string module_name = zname
-              + _toString(repeat * module_num_num + module_num, "module%d");
+              + _toString((int)(repeat * module_num_num + module_num), "module%d");
           Position trans(radius * cos(phi), radius * sin(phi), slicedz);
           // Create the module DetElement
           DetElement mod_det(

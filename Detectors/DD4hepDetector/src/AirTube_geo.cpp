@@ -14,11 +14,10 @@
 #include "ACTS/Plugins/DD4hepPlugins/ActsExtension.hpp"
 #include "DD4hep/DetFactoryHelper.h"
 
-using namespace DD4hep;
-using namespace DD4hep::Geometry;
+using namespace dd4hep;
 
 static Ref_t
-create_element(LCDD& lcdd, xml_h e, SensitiveDetector /* sens */)
+create_element(Detector& lcdd, xml_h e, SensitiveDetector /* sens */)
 {
   xml_det_t   x_det = e;
   std::string name  = x_det.nameStr();

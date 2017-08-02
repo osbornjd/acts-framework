@@ -50,21 +50,19 @@ if(USE_PYTHIA8)
   list(APPEND ROOT_COMPONENTS EGPythia8)
 endif()
 
+MESSAGE(INFO ${ROOT_COMPONENTS})
+
+
 # required packages
 
 # Enable C++11 threading support, with a preference for pthread
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
+find_package(ROOT 6.10 REQUIRED COMPONENTS ${ROOT_COMPONENTS})
+find_package(ROOT 6.10 REQUIRED COMPONENTS Geom)
 find_package(ACTS REQUIRED COMPONENTS ${ACTS_COMPONENTS})
-find_package(ROOT 6.08 REQUIRED COMPONENTS ${ROOT_COMPONENTS})
-# ROOT namespace fix: 6.08 does not support ROOT CMake namespace
-# to be removed when minimum version > 6.09
-if(${ROOT_VERSION_MINOR} MATCHES "8")
-  set(ROOT_CNS "")
-else()
-  set(ROOT_CNS "ROOT::")
-endif()
+
 
 # optional packages
 

@@ -7,8 +7,7 @@
 #include "DD4hep/DetFactoryHelper.h"
 
 using namespace std;
-using namespace DD4hep;
-using namespace DD4hep::Geometry;
+using namespace dd4hep;
 
 /**
  Constructor for a cylindrical barrel volume, possibly containing layers and the
@@ -16,7 +15,7 @@ using namespace DD4hep::Geometry;
  */
 
 static Ref_t
-create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
+create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
 {
   xml_det_t x_det    = xml;
   string    det_name = x_det.nameStr();
@@ -28,7 +27,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
   Acts::ActsExtension* detvolume = new Acts::ActsExtension(volConfig);
   cylinderVolume.addExtension<Acts::IActsExtension>(detvolume);
   // make Volume
-  DD4hep::XML::Dimension x_det_dim(x_det.dimensions());
+  dd4hep::xml::Dimension x_det_dim(x_det.dimensions());
   Tube   tube_shape(x_det_dim.rmin(), x_det_dim.rmax(), x_det_dim.dz());
   Volume tube_vol(
       det_name, tube_shape, lcdd.air());  // air at the moment change later
@@ -41,7 +40,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
     double     l_rmin  = x_layer.inner_r();
     double     l_rmax  = x_layer.outer_r();
     // Create Volume for Layer
-    string layer_name = det_name + _toString(layer_num, "layer%d");
+    string layer_name = det_name + _toString((int)layer_num, "layer%d");
     Volume layer_vol(layer_name,
                      Tube(l_rmin, l_rmax, x_layer.z()),
                      lcdd.material(x_layer.materialStr()));
@@ -75,7 +74,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
       int                       comp_num = 0;
       // go through module components
       for (xml_coll_t comp(x_module, _U(module_component)); comp; ++comp) {
-        string     component_name = _toString(comp_num, "component%d");
+        string     component_name = _toString((int)comp_num, "component%d");
         xml_comp_t x_component    = comp;
         Volume     comp_vol(component_name,
                         Box(x_component.length(),
@@ -100,7 +99,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
         xml_comp_t x_sub          = x_module.child(_U(subtraction));
         xml_comp_t x_trd          = x_sub.child(_U(trd));
         xml_comp_t x_tubs         = x_sub.child(_U(tubs));
-        string     component_name = _toString(comp_num, "component%d");
+        string     component_name = _toString((int)comp_num, "component%d");
         // create the two shapes first
         Trapezoid trap_shape(x_trd.x1(),
                              x_trd.x2(),
@@ -126,7 +125,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
       // add posibble cooling pipe
       if (x_module.hasChild(_U(tubs))) {
         xml_comp_t x_tubs         = x_module.child(_U(tubs));
-        string     component_name = _toString(comp_num, "component%d");
+        string     component_name = _toString((int)comp_num, "component%d");
         Volume     pipe_vol("CoolingPipe",
                         Tube(x_tubs.rmin(), x_tubs.rmax(), x_tubs.dz()),
                         lcdd.material(x_tubs.materialStr()));
@@ -146,7 +145,7 @@ create_element(LCDD& lcdd, xml_h xml, SensitiveDetector sens)
         // Place the modules in phi
         for (int i = 0; i < repeat; ++i) {
           double   phi         = deltaphi / dd4hep::rad * i;
-          string   module_name = layer_name + _toString(module_num, "module%d");
+          string   module_name = layer_name + _toString((int)module_num, "module%d");
           Position trans(r * cos(phi), r * sin(phi), k * dz);
           // create detector element
           DetElement mod_det(lay_det, module_name, module_num);

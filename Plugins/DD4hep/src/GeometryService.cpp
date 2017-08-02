@@ -11,9 +11,9 @@
 FW::DD4hep::GeometryService::GeometryService(
     const FW::DD4hep::GeometryService::Config& cfg)
   : m_cfg(cfg)
-  , m_lcdd(nullptr)
-  , m_dd4hepGeometry(nullptr)
-  , m_trackingGeometry(nullptr)
+  , m_lcdd()
+  , m_dd4hepGeometry()
+  , m_trackingGeometry()
 {
 }
 
@@ -46,7 +46,7 @@ FW::ProcessCode
 FW::DD4hep::GeometryService::buildDD4hepGeometry()
 {
   if (!m_cfg.xmlFileName.empty()) {
-    m_lcdd = &(DD4hep::Geometry::LCDD::getInstance());
+    m_lcdd = &(dd4hep::Detector::getInstance());
     m_lcdd->fromCompact(m_cfg.xmlFileName.c_str());
     m_lcdd->volumeManager();
     m_lcdd->apply("DD4hepVolumeManager", 0, 0);
@@ -55,15 +55,15 @@ FW::DD4hep::GeometryService::buildDD4hepGeometry()
   return FW::ProcessCode::SUCCESS;
 }
 
-DD4hep::Geometry::DetElement
-FW::DD4hep::GeometryService::dd4hepGeometry()
+dd4hep::DetElement
+FWDD4hep::GeometryService::dd4hepGeometry()
 {
   if (!m_dd4hepGeometry) buildDD4hepGeometry();
   return m_dd4hepGeometry;
 }
 
-DD4hep::Geometry::LCDD*
-FW::DD4hep::GeometryService::GeometryService::lcdd()
+dd4hep::Detector*
+FWDD4hep::GeometryService::GeometryService::lcdd()
 {
   if (!m_lcdd) buildDD4hepGeometry();
   return m_lcdd;
