@@ -9,7 +9,7 @@
 
 namespace dd4hep {
         class Detector;
-}
+    }
 /// Temporary borrowed from FCCSW -> will be replaced later
 /** @class GeoConstruction DetectorDescription/DetDesServices/src/GeoConstruction.h GeoConstruction.h
  *
