@@ -40,7 +40,7 @@ public:
 
   /// Framework execode method
   FW::ProcessCode
-  execute(FW::AlgorithmContext context) const final override;
+  execute(FW::AlgorithmContext ctx) const final override;
 
 private:
   Config m_cfg;
