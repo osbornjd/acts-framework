@@ -23,20 +23,16 @@ FWA::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
 }
 
 FW::ProcessCode
-FWA::ExtrapolationAlgorithm::execute(FW::AlgorithmContext context) const
+FWA::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
   // we read from a collection
   // -> will be outsourced into a simulation algorithm
   if (m_cfg.evgenParticlesCollection != "") {
-    // Retrieve relevant information from the execution context
-    auto eventStore = context.eventStore;
-
     // prepare the input vector
     const std::vector<Acts::ParticleProperties>* eventParticles = nullptr;
     // read and go
-    if (eventStore
-        && eventStore->get(m_cfg.evgenParticlesCollection, eventParticles)
-            == FW::ProcessCode::ABORT)
+    if (ctx.eventStore.get(m_cfg.evgenParticlesCollection, eventParticles)
+        == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
     // run over it
     ACTS_INFO("Successfully read in collection with " << eventParticles->size()
@@ -87,25 +83,23 @@ FWA::ExtrapolationAlgorithm::execute(FW::AlgorithmContext context) const
 
     ACTS_INFO("Number of simulated particles : " << pCounter);
     ACTS_INFO("Number of skipped   particles : " << sCounter);
-    if (eventStore
-        && eventStore->add(m_cfg.simulatedParticlesCollection,
+    if (ctx.eventStore.add(m_cfg.simulatedParticlesCollection,
                            std::move(simulatedParticles))
-            == FW::ProcessCode::ABORT) {
+        == FW::ProcessCode::ABORT) {
       ACTS_WARNING(
           "Could not write colleciton of simulated particles to event store.");
       return FW::ProcessCode::ABORT;
     }
     // write to the EventStore
-    if (eventStore
-        && eventStore->add(m_cfg.simulatedHitsCollection,
+    if (ctx.eventStore.add(m_cfg.simulatedHitsCollection,
                            std::move(simulatedHits))
-            == FW::ProcessCode::ABORT) {
+        == FW::ProcessCode::ABORT) {
       ACTS_WARNING("Could not write colleciton of hits to event store.");
       return FW::ProcessCode::ABORT;
     }
   } else {
     // Create a random number generator
-    FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
+    FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
 
     // Setup random number distributions for our parameters
     FW::GaussDist   d0Dist{m_cfg.d0Defs.at(0), m_cfg.d0Defs.at(1)};
