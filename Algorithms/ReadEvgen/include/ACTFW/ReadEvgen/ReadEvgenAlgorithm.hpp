@@ -86,7 +86,7 @@ public:
 
   /// Read out data from the input stream
   FW::ProcessCode
-  read(FW::AlgorithmContext context) final;
+  read(FW::AlgorithmContext ctx) final;
 
 private:
   Config                              m_cfg;

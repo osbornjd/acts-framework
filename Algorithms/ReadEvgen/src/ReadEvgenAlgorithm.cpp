@@ -46,16 +46,13 @@ FWA::ReadEvgenAlgorithm::skip(size_t nEvents)
 }
 
 FW::ProcessCode
-FWA::ReadEvgenAlgorithm::read(FW::AlgorithmContext context)
+FWA::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
 {
-  // Retrieve relevant information from the execution context
-  size_t eventNumber = context.eventNumber;
-  auto   eventStore  = context.eventStore;
-
-  ACTS_DEBUG("Reading in genertated event info for event no. " << eventNumber);
+  ACTS_DEBUG("Reading in genertated event info for event no. "
+             << ctx.eventNumber);
 
   // Create a random number generator
-  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
+  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
 
   // Setup random number distributions for some quantities
   FW::PoissonDist pileupDist(m_cfg.pileupPoissonParameter);
@@ -142,10 +139,9 @@ FWA::ReadEvgenAlgorithm::read(FW::AlgorithmContext context)
   }
 
   // write to the EventStore
-  if (eventStore
-      && eventStore->add(m_cfg.evgenParticlesCollection,
+  if (ctx.eventStore.add(m_cfg.evgenParticlesCollection,
                          std::move(eventParticles))
-          == FW::ProcessCode::ABORT) {
+      == FW::ProcessCode::ABORT) {
     ACTS_WARNING(
         "Could not write colleciton of process vertices to event store.");
     return FW::ProcessCode::ABORT;
