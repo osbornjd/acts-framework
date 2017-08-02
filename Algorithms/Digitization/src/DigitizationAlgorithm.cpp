@@ -18,19 +18,18 @@
 
 FWA::DigitizationAlgorithm::DigitizationAlgorithm(
     const FWA::DigitizationAlgorithm::Config& cfg,
-    Acts::Logging::Level level)
+    Acts::Logging::Level                      level)
   : FW::BareAlgorithm("DigitizationAlgorithm", level), m_cfg(cfg)
 {
 }
 
 FW::ProcessCode
-FWA::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
+FWA::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
   // we read from a collection
   if (m_cfg.planarModuleStepper && m_cfg.clustersCollection != ""
       && m_cfg.simulatedHitsCollection != "") {
     // Retrieve relevant information from the execution context
-    auto eventStore = context.eventStore;
 
     ACTS_DEBUG("Retrieved event store from algorithm context.");
 
@@ -41,9 +40,8 @@ FWA::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
         hitData
         = nullptr;
     // read and go
-    if (eventStore
-        && eventStore->get(m_cfg.simulatedHitsCollection, hitData)
-            == FW::ProcessCode::ABORT)
+    if (ctx.eventStore.get(m_cfg.simulatedHitsCollection, hitData)
+        == FW::ProcessCode::ABORT)
       return FW::ProcessCode::ABORT;
 
     ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitsCollection
@@ -168,18 +166,16 @@ FWA::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
     }            // volume loop
 
     // write the SpacePoints to the EventStore
-    if (eventStore
-        && eventStore->add(m_cfg.spacePointCollection, std::move(spacePoints))
-            == FW::ProcessCode::ABORT) {
+    if (ctx.eventStore.add(m_cfg.spacePointCollection, std::move(spacePoints))
+        == FW::ProcessCode::ABORT) {
       ACTS_WARNING("Could not write collection " << m_cfg.spacePointCollection
                                                  << " to event store.");
       return FW::ProcessCode::ABORT;
     }
 
     // write the clusters to the EventStore
-    if (eventStore
-        && eventStore->add(m_cfg.clustersCollection, std::move(planarClusters))
-            == FW::ProcessCode::ABORT) {
+    if (ctx.eventStore.add(m_cfg.clustersCollection, std::move(planarClusters))
+        == FW::ProcessCode::ABORT) {
       ACTS_WARNING("Could not write collection " << m_cfg.clustersCollection
                                                  << " to event store.");
       return FW::ProcessCode::ABORT;
