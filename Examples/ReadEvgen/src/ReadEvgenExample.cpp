@@ -70,7 +70,7 @@ main(int argc, char* argv[])
       particleWriterConfig);
 
   // get the read-in algorithm
-  FWA::ReadEvgenAlgorithm::Config readEvgenCfg;
+  FW::ReadEvgenAlgorithm::Config readEvgenCfg;
 
   readEvgenCfg.evgenParticlesCollection = "EvgenParticles";
   // the hard scatter reader
@@ -85,7 +85,7 @@ main(int argc, char* argv[])
   // attach the barcode service
   readEvgenCfg.barcodeSvc          = barcodeSvc;
   // create the read Algorithm
-  auto readEvgen = std::make_shared<FWA::ReadEvgenAlgorithm>(
+  auto readEvgen = std::make_shared<FW::ReadEvgenAlgorithm>(
       readEvgenCfg,
       Acts::getDefaultLogger("ReadEvgenAlgorithm", Acts::Logging::INFO));
 

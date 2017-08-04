@@ -10,21 +10,17 @@
 
 #include <array>
 #include <memory>
-#include <string>
 
 #include "ACTFW/Framework/IReader.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace FW {
+
 class WhiteBoard;
 class RandomNumbersSvc;
 class BarcodeSvc;
-}  // namespace FW
-
-namespace FWA {
 
 /// @class ReadEvgenAlgorithm
 ///
@@ -40,10 +36,10 @@ public:
     /// name of the output collection
     std::string evgenParticlesCollection = "EvgenParticles";
     /// the hard scatter reader
-    std::shared_ptr<FW::IReaderT<std::vector<Acts::ParticleProperties>>>
+    std::shared_ptr<IReaderT<std::vector<Acts::ParticleProperties>>>
         hardscatterParticleReader = nullptr;
     /// the pileup reader
-    std::shared_ptr<FW::IReaderT<std::vector<Acts::ParticleProperties>>>
+    std::shared_ptr<IReaderT<std::vector<Acts::ParticleProperties>>>
         pileupParticleReader = nullptr;
     /// the Poisson parameter for pileup generation
     int pileupPoissonParameter = 40;
@@ -51,9 +47,9 @@ public:
     std::array<double, 2> vertexTParameters = {{0., 1.}};
     std::array<double, 2> vertexZParameters = {{0., 1.}};
     /// the BarcodeSvc
-    std::shared_ptr<FW::BarcodeSvc> barcodeSvc = nullptr;
+    std::shared_ptr<BarcodeSvc> barcodeSvc = nullptr;
     /// the random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    std::shared_ptr<RandomNumbersSvc> randomNumbers = nullptr;
   };
 
   /// Constructor

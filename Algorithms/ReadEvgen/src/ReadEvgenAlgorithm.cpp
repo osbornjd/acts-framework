@@ -7,7 +7,7 @@
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
-FWA::ReadEvgenAlgorithm::ReadEvgenAlgorithm(
+FW::ReadEvgenAlgorithm::ReadEvgenAlgorithm(
     const Config&                       cfg,
     std::unique_ptr<const Acts::Logger> logger)
   : m_cfg(cfg), m_logger(std::move(logger))
@@ -15,25 +15,25 @@ FWA::ReadEvgenAlgorithm::ReadEvgenAlgorithm(
 }
 
 std::string
-FWA::ReadEvgenAlgorithm::name() const
+FW::ReadEvgenAlgorithm::name() const
 {
   return "ReadEvgenAlgorithm";
 }
 
 FW::ProcessCode
-FWA::ReadEvgenAlgorithm::initialize()
+FW::ReadEvgenAlgorithm::initialize()
 {
   return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWA::ReadEvgenAlgorithm::finalize()
+FW::ReadEvgenAlgorithm::finalize()
 {
   return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWA::ReadEvgenAlgorithm::skip(size_t nEvents)
+FW::ReadEvgenAlgorithm::skip(size_t nEvents)
 {
   // there is a hard scatter evgen reader
   std::vector<Acts::ParticleProperties> skipParticles;
@@ -48,7 +48,7 @@ FWA::ReadEvgenAlgorithm::skip(size_t nEvents)
 }
 
 FW::ProcessCode
-FWA::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
+FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
 {
   ACTS_DEBUG("Reading in genertated event info for event no. "
              << ctx.eventNumber);
