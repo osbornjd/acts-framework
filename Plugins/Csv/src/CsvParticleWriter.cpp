@@ -1,16 +1,18 @@
-#include <iostream>
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 
+#include "ACTFW/Framework/WhiteBoard.hpp"
+
 FWCsv::CsvParticleWriter::CsvParticleWriter(
-    const FWCsv::CsvParticleWriter::Config& cfg)
-  : FW::IWriterT<std::vector<Acts::ParticleProperties> >()
-  , m_cfg(cfg)
-{}
+    const FWCsv::CsvParticleWriter::Config& cfg,
+    Acts::Logging::Level                    level)
+  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("CsvParticleWriter", level))
+{
+}
 
 std::string
 FWCsv::CsvParticleWriter::name() const
 {
-  return m_cfg.name;
+  return "CsvParticleWriter";
 }
 
 FW::ProcessCode
@@ -26,17 +28,22 @@ FWCsv::CsvParticleWriter::finalize()
 }
 
 FW::ProcessCode
-FWCsv::CsvParticleWriter::write(const std::vector<Acts::ParticleProperties>& particles)
+FWCsv::CsvParticleWriter::write(const FW::AlgorithmContext& ctx)
 {
   // abort if you have no stream
-  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
+  if (!m_cfg.outputStream) return FW::ProcessCode::ABORT;
+
+  const std::vector<Acts::ParticleProperties>* particles;
+  if (ctx.eventStore.get(m_cfg.collection, particles)
+      != FW::ProcessCode::SUCCESS)
+    return FW::ProcessCode::ABORT;
+
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
-    
   (*(m_cfg.outputStream)) << '\n';
   (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
   // loop and fill
-  for (auto& particle : particles ){
+  for (auto& particle : (*particles)) {
     // write out the information
     (*(m_cfg.outputStream)) << particle.barcode() << ", [";
     (*(m_cfg.outputStream)) << particle.vertex().x() << ", ";
@@ -49,17 +56,5 @@ FWCsv::CsvParticleWriter::write(const std::vector<Acts::ParticleProperties>& par
   }
   (*(m_cfg.outputStream)) << '\n';
 
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FWCsv::CsvParticleWriter::write(const std::string& sinfo)
-{
-  // abort if you have no stream
-  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
-  // lock the mutex
-  std::lock_guard<std::mutex> lock(m_write_mutex);
-  (*(m_cfg.outputStream)) << sinfo;
-  // now return success
   return FW::ProcessCode::SUCCESS;
 }

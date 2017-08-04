@@ -7,17 +7,14 @@
 #ifndef ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H
 #define ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H 1
 
-#include <mutex>
-#include <iostream>
 #include <fstream>
-#include "ACTFW/Framework/IService.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
+#include <memory>
+#include <mutex>
+
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
+#include "ACTFW/Framework/IWriter.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
-
-class TFile;
 
 namespace FWCsv {
 
@@ -25,44 +22,24 @@ namespace FWCsv {
 ///
 /// A root based implementation to write out particleproperties vector
 ///
-class CsvParticleWriter
-  : public FW::IWriterT<std::vector<Acts::ParticleProperties> >
+class CsvParticleWriter : public FW::IWriter
 {
 public:
-  // @class Config
-  //
-  // The nested config class
-  class Config
+  struct Config
   {
-  public:
-    /// the default logger
-    std::shared_ptr<const Acts::Logger> logger;
-    /// the name of the algorithm
-    std::string                         name;
+    /// which collection to write to disk
+    std::string collection;
     /// the precision
-    size_t                              outputPrecision = 4;
+    size_t outputPrecision = 4;
     /// the ofstream
-    std::shared_ptr<std::ofstream>      outputStream    = nullptr;
-        
-    std::shared_ptr<FW::BarcodeSvc>
-    barcodeSvc;  ///< the barcode service to decode
-
-    Config(const std::string&   lname = "CsvParticleWriter",
-           Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger(Acts::getDefaultLogger(lname, lvl))
-      , name(lname)
-      , barcodeSvc(nullptr)
-    {
-    }
-        
+    std::shared_ptr<std::ofstream> outputStream = nullptr;
+    /// the barcode service to decode
+    std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
   };
 
-  /// Constructor
-  /// @param cfg is the configuration class
-  CsvParticleWriter(const Config& cfg);
-
-  /// Destructor
-  virtual ~CsvParticleWriter() = default;
+  CsvParticleWriter(const Config&        cfg,
+                    Acts::Logging::Level level = Acts::Logging::INFO);
+  ~CsvParticleWriter() = default;
 
   /// Framework name() method
   /// @return the name of the tool
@@ -72,37 +49,32 @@ public:
   /// Framework intialize method
   /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  initialize() override final;
+  initialize() final;
 
   /// Framework finalize mehtod
   /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  finalize() override final;
+  finalize() final;
 
   /// The write interface
   /// @param pProperties is the vector of particle properties
   /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
-  write(const std::vector<Acts::ParticleProperties>& particles) override final;
-
-  /// The write interace for string
-  /// @param sinfo is some additional string info
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  write(const std::string& sinfo) override final;
+  write(const FW::AlgorithmContext& ctx) final;
 
 private:
-  Config        m_cfg;         ///< the config class
-  std::mutex    m_write_mutex; ///< mutex used to protect multi-threaded writes
-  
+  Config     m_cfg;          ///< the config class
+  std::mutex m_write_mutex;  ///< mutex used to protect multi-threaded writes
+  std::unique_ptr<const Acts::Logger> m_logger;
+
   /// Private access to the logging instance
   const Acts::Logger&
   logger() const
   {
-    return *m_cfg.logger;
+    return *m_logger;
   }
 };
 
-}
+}  // namespace FWCsv
 
 #endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H

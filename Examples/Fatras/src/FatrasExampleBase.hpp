@@ -211,7 +211,6 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // the simulated particles
   writeConfig.simulatedParticlesCollection
       = eTestConfig.simulatedParticlesCollection;
-  writeConfig.particleWriter = pWriterCsv;
   // the created clusters
   writeConfig.planarClustersCollection = digConfig.clustersCollection;
   writeConfig.planarClusterWriter      = clusterWriterCsv;
@@ -229,7 +228,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({rootEccWriter, stracksWriterObj, randomNumbers});
   sequencer.addReaders({readEvgen});
-  sequencer.addWriters({writeOutput});
+  sequencer.addWriters({pWriterCsv, writeOutput});
   sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg});
   sequencer.run(nEvents);
 
