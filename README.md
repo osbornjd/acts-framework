@@ -59,7 +59,7 @@ the following guidelines:
     processed. All computationally expensive one-time code should run in the
     `initialize` method and not already in the constructor. The `execute`
     method for each event may be called in parallel.
-*   Simple algorithms that have no internal state can use the `SimpleAlgorithm`
+*   Simple algorithms that have no internal state can use the `BaseAlgorithm`
     as a base class and only need to implement the `execute` method.
 *   Communication between different algorithms should only happen via the event
     store provided by the `AlgorithmContext`. Output collections or objects
