@@ -1,9 +1,6 @@
-#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
-
 #include <fstream>
-
+#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include <ACTS/Digitization/PlanarModuleCluster.hpp>
-
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
@@ -82,7 +79,6 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
                    << cell.data;
           }
           osHits << '\n';
-
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
           for (auto& barcode : cluster.barcodes()) {
