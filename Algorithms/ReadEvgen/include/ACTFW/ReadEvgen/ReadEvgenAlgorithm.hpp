@@ -10,6 +10,7 @@
 
 #include <array>
 #include <memory>
+#include <string>
 
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
