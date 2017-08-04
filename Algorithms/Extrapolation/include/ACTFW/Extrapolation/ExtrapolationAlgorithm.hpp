@@ -29,28 +29,25 @@ class TrackingGeometry;
 class TrackingVolume;
 }  // namespace Acts
 
-namespace FWA {
+namespace FW {
 
-class ExtrapolationAlgorithm : public FW::BareAlgorithm
+class ExtrapolationAlgorithm : public BareAlgorithm
 {
 public:
   struct Config
   {
     /// FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    std::shared_ptr<RandomNumbersSvc> randomNumbers = nullptr;
     /// the extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
     /// output writer for charged particles
-    std::
-        shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters>>>
-            ecChargedWriter = nullptr;
+    std::shared_ptr<IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters>>>
+        ecChargedWriter = nullptr;
     /// output writer for charged particles
-    std::
-        shared_ptr<FW::IWriterT<Acts::
-                                    ExtrapolationCell<Acts::NeutralParameters>>>
-            ecNeutralWriter = nullptr;
+    std::shared_ptr<IWriterT<Acts::ExtrapolationCell<Acts::NeutralParameters>>>
+        ecNeutralWriter = nullptr;
     /// output writer for material
-    std::shared_ptr<FW::IWriterT<Acts::MaterialTrack>> materialWriter = nullptr;
+    std::shared_ptr<IWriterT<Acts::MaterialTrack>> materialWriter = nullptr;
     /// the tracking geometry
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
     /// the particles input collections
@@ -84,19 +81,19 @@ public:
   ExtrapolationAlgorithm(const Config& cnf);
 
   /// Framework execode method
-  FW::ProcessCode
-  execute(FW::AlgorithmContext ctx) const final override;
+  ProcessCode
+  execute(AlgorithmContext ctx) const final override;
 
 private:
   Config m_cfg;  ///< the config class
 
   template <class T>
-  FW::ProcessCode
+  ProcessCode
   executeTestT(
       const T&     startParameters,
       barcode_type barcode = 0,
-      FW::DetectorData<geo_id_value,
-                       std::pair<std::unique_ptr<const T>, barcode_type>>* dData
+      DetectorData<geo_id_value,
+                   std::pair<std::unique_ptr<const T>, barcode_type>>* dData
       = nullptr,
       std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<T>>> writer
       = nullptr) const;

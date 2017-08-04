@@ -13,7 +13,7 @@
 
 template <class T>
 FW::ProcessCode
-FWA::ExtrapolationAlgorithm::executeTestT(
+FW::ExtrapolationAlgorithm::executeTestT(
     const T&     startParameters,
     barcode_type barcode,
     FW::DetectorData<geo_id_value,

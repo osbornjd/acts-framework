@@ -15,7 +15,7 @@ namespace Acts {
     class TrackingGeometry;
 }
 
-namespace FWA {
+namespace FW {
 
 /// Method to setup the Extrapolation Engines
 /// @param geo shared_ptr to the Acts::TrackingGeometry which should be used for the extrapolation

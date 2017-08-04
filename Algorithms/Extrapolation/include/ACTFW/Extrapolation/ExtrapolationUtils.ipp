@@ -10,7 +10,7 @@
 
 template <class MagneticField>
 std::unique_ptr<Acts::IExtrapolationEngine>
-FWA::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, std::shared_ptr<MagneticField> magFieldSvc, Acts::Logging::Level eLogLevel)
+FW::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, std::shared_ptr<MagneticField> magFieldSvc, Acts::Logging::Level eLogLevel)
 {
     // EXTRAPOLATOR - set up the extrapolator
     

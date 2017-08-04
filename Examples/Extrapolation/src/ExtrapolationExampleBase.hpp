@@ -28,7 +28,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // EXTRAPOLATOR - set up the extrapolator
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
-      = FWA::initExtrapolator(tGeometry, magField, eLogLevel);
+      = FW::initExtrapolator(tGeometry, magField, eLogLevel);
 
   // RANDOM NUMBERS - Create the random number engine
   FW::RandomNumbersSvc::Config          brConfig;
@@ -62,7 +62,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
           recnWriterConfig));
 
   // the Algorithm with its configurations
-  FWA::ExtrapolationAlgorithm::Config eTestConfig;
+  FW::ExtrapolationAlgorithm::Config eTestConfig;
   eTestConfig.searchMode          = 1;
   eTestConfig.extrapolationEngine = extrapolationEngine;
   eTestConfig.ecChargedWriter     = rootEccWriter;
@@ -76,7 +76,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   eTestConfig.pathLimit            = -1.;
 
   auto extrapolationAlg
-      = std::make_shared<FWA::ExtrapolationAlgorithm>(eTestConfig);
+      = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig);
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;

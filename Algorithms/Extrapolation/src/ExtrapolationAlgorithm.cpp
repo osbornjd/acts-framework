@@ -16,14 +16,14 @@
 #include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Utilities/Units.hpp"
 
-FWA::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
-    const FWA::ExtrapolationAlgorithm::Config& cfg)
+FW::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
+    const FW::ExtrapolationAlgorithm::Config& cfg)
   : FW::BareAlgorithm("ExtrapolationAlgorithm"), m_cfg(cfg)
 {
 }
 
 FW::ProcessCode
-FWA::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
+FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
   // read particles from input collection
   const std::vector<Acts::ParticleProperties>* particles = nullptr;
