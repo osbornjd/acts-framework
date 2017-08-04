@@ -142,7 +142,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // the Algorithm with its configurations
   FW::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.particlesCollection = readEvgenCfg.particlesCollection;
+  eTestConfig.particlesCollection          = readEvgenCfg.particlesCollection;
   eTestConfig.simulatedParticlesCollection = "FatrasParticles";
   eTestConfig.simulatedHitsCollection      = "FatrasHits";
   eTestConfig.minPt                        = 500. * Acts::units::_MeV;
@@ -183,10 +183,11 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   hitStream->open(hitOutputName);
 
   FW::Csv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
+  clusterWriterCsvConfig.collection = digConfig.clustersCollection;
   clusterWriterCsvConfig.outputPrecision = 6;
   clusterWriterCsvConfig.outputStream    = hitStream;
-  auto clusterWriterCsv
-      = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(clusterWriterCsvConfig);
+  auto clusterWriterCsv = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(
+      clusterWriterCsvConfig);
 
   // write out a Json file for
   auto spacePointStream    = std::shared_ptr<std::ofstream>(new std::ofstream);
@@ -213,7 +214,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
       = eTestConfig.simulatedParticlesCollection;
   // the created clusters
   writeConfig.planarClustersCollection = digConfig.clustersCollection;
-  writeConfig.planarClusterWriter      = clusterWriterCsv;
+  // writeConfig.planarClusterWriter      = clusterWriterCsv;
   // the created space points
   writeConfig.spacePointCollection = digConfig.spacePointsCollection;
   writeConfig.spacePointWriter     = spWriterObj;  // spWriterJson;
@@ -228,7 +229,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({rootEccWriter, stracksWriterObj, randomNumbers});
   sequencer.addReaders({readEvgen});
-  sequencer.addWriters({pWriterCsv, writeOutput});
+  sequencer.addWriters({pWriterCsv, clusterWriterCsv, writeOutput});
   sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg});
   sequencer.run(nEvents);
 
@@ -239,6 +240,6 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // return after successful run
   return 0;
 }
-};
+};  // namespace ACTFWFatrasExample
 
 #endif  // ACTFW_FATRASEXAMPLE_BASE

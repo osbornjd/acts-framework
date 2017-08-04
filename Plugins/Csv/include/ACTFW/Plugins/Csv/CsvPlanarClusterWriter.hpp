@@ -54,8 +54,7 @@ namespace Csv {
 
   private:
     Config m_cfg;
-  };
-
+};
 }  // namespace Csv
 }  // namespace FW
 
