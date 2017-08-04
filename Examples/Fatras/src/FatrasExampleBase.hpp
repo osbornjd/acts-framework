@@ -86,12 +86,12 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   std::string particleOutputName = "Particles.csv";
   particleStream->open(particleOutputName);
 
-  FWCsv::CsvParticleWriter::Config pWriterCsvConfig;
+  FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
   pWriterCsvConfig.outputPrecision = 6;
   pWriterCsvConfig.outputStream    = particleStream;
   pWriterCsvConfig.barcodeSvc      = barcodeSvc;
   auto pWriterCsv
-      = std::make_shared<FWCsv::CsvParticleWriter>(pWriterCsvConfig);
+      = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
 
   // ----------- EVGEN --------------------------------------------------
   // get the read-in algorithm
