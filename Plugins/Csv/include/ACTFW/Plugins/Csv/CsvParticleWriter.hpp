@@ -16,65 +16,67 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
-namespace FWCsv {
+namespace FW {
+namespace Csv {
 
-/// @class CsvParticleWriter
-///
-/// A root based implementation to write out particleproperties vector
-///
-class CsvParticleWriter : public FW::IWriter
-{
-public:
-  struct Config
+  /// @class CsvParticleWriter
+  ///
+  /// A root based implementation to write out particleproperties vector
+  ///
+  class CsvParticleWriter : public IWriter
   {
-    /// which collection to write to disk
-    std::string collection;
-    /// the precision
-    size_t outputPrecision = 4;
-    /// the ofstream
-    std::shared_ptr<std::ofstream> outputStream = nullptr;
-    /// the barcode service to decode
-    std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
+  public:
+    struct Config
+    {
+      /// which collection to write to disk
+      std::string collection;
+      /// the precision
+      size_t outputPrecision = 4;
+      /// the ofstream
+      std::shared_ptr<std::ofstream> outputStream = nullptr;
+      /// the barcode service to decode
+      std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
+    };
+
+    CsvParticleWriter(const Config&        cfg,
+                      Acts::Logging::Level level = Acts::Logging::INFO);
+    ~CsvParticleWriter() = default;
+
+    /// Framework name() method
+    /// @return the name of the tool
+    std::string
+    name() const final;
+
+    /// Framework intialize method
+    /// @return ProcessCode to indicate success/failure
+    ProcessCode
+    initialize() final;
+
+    /// Framework finalize mehtod
+    /// @return ProcessCode to indicate success/failure
+    ProcessCode
+    finalize() final;
+
+    /// The write interface
+    /// @param pProperties is the vector of particle properties
+    /// @return ProcessCode to indicate success/failure
+    ProcessCode
+    write(const FW::AlgorithmContext& ctx) final;
+
+  private:
+    Config     m_cfg;          ///< the config class
+    std::mutex m_write_mutex;  ///< mutex used to protect multi-threaded writes
+    std::unique_ptr<const Acts::Logger> m_logger;
+
+    /// Private access to the logging instance
+    const Acts::Logger&
+    logger() const
+    {
+      return *m_logger;
+    }
   };
 
-  CsvParticleWriter(const Config&        cfg,
-                    Acts::Logging::Level level = Acts::Logging::INFO);
-  ~CsvParticleWriter() = default;
-
-  /// Framework name() method
-  /// @return the name of the tool
-  std::string
-  name() const final;
-
-  /// Framework intialize method
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  initialize() final;
-
-  /// Framework finalize mehtod
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  finalize() final;
-
-  /// The write interface
-  /// @param pProperties is the vector of particle properties
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  write(const FW::AlgorithmContext& ctx) final;
-
-private:
-  Config     m_cfg;          ///< the config class
-  std::mutex m_write_mutex;  ///< mutex used to protect multi-threaded writes
-  std::unique_ptr<const Acts::Logger> m_logger;
-
-  /// Private access to the logging instance
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_logger;
-  }
-};
-
-}  // namespace FWCsv
+}  // namespace Csv
+}  // namespace FW
 
 #endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H
