@@ -11,9 +11,7 @@
 #include <memory>
 #include <mutex>
 
-#include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IEventDataWriterT.hpp"
+#include "ACTFW/Framework/IWriter.hpp"
 #include "ACTS/Digitization/PlanarModuleCluster.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -24,72 +22,45 @@ namespace Csv {
   ///
   /// A root based implementation to write out particleproperties vector
   ///
-  class CsvPlanarClusterWriter
-    : public FW::IEventDataWriterT<Acts::PlanarModuleCluster>
+  class CsvPlanarClusterWriter : public IWriter
   {
   public:
-    // @class Config
-    //
-    // The nested config class
-    class Config
+    struct Config
     {
-    public:
-      std::shared_ptr<const Acts::Logger> logger;  /// the default logger
-      std::string                         name;    /// the name of the algorithm
-      size_t                              outputPrecision = 4;
-      std::shared_ptr<std::ofstream>      outputStream    = nullptr;
-
-      Config(const std::string&   lname = "CsvPlanarClusterWriter",
-             Acts::Logging::Level lvl   = Acts::Logging::INFO)
-        : logger(Acts::getDefaultLogger(lname, lvl)), name(lname)
-      {
-      }
+      // input planar cluster collection
+      std::string                    collection;
+      size_t                         outputPrecision = 4;
+      std::shared_ptr<std::ofstream> outputStream    = nullptr;
     };
 
     /// Constructor
     ///
     /// @param cfg is the configuration class
-    CsvPlanarClusterWriter(const Config& cfg);
+    CsvPlanarClusterWriter(const Config&        cfg,
+                           Acts::Logging::Level level = Acts::Logging::INFO);
 
-    /// Framework name() method
     std::string
     name() const final;
 
-    /// Destructor
-    virtual ~CsvPlanarClusterWriter();
+    ProcessCode
+    initialize() final;
 
-    /// Framework intialize method
-    /// @return ProcessCode to indicate success/failure
-    FW::ProcessCode
-    initialize() override final;
+    ProcessCode
+    finalize() final;
 
-    /// Framework finalize mehtod
-    /// @return ProcessCode to indicate success/failure
-    FW::ProcessCode
-    finalize() override final;
-
-    /// The write interface
-    /// @param pClusters is the DetectorData of planar clusters
-    /// @return ProcessCode to indicate success/failure
-    FW::ProcessCode
-    write(const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
-              pClusters) override final;
-
-    /// write a bit of string
-    /// @param sinfo is some string info to be written
-    /// @return is a ProcessCode indicating return/failure
-    FW::ProcessCode
-    write(const std::string& sinfo) override final;
+    ProcessCode
+    write(const AlgorithmContext& ctx) final;
 
   private:
     Config     m_cfg;          ///< the config class
     std::mutex m_write_mutex;  ///< mutex used to protect multi-threaded writes
+    std::unique_ptr<const Acts::Logger> m_logger;
 
     /// Private access to the logging instance
     const Acts::Logger&
     logger() const
     {
-      return *m_cfg.logger;
+      return *m_logger;
     }
   };
 

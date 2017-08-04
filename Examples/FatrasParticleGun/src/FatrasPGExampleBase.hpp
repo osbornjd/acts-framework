@@ -162,6 +162,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   hitStream->open(hitOutputName);
 
   FW::Csv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
+  clusterWriterCsvConfig.collection = digConfig.clustersCollection;
   clusterWriterCsvConfig.outputPrecision = 6;
   clusterWriterCsvConfig.outputStream    = hitStream;
   auto clusterWriterCsv
@@ -192,7 +193,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
       = eTestConfig.simulatedParticlesCollection;
   // the created clusters
   writeConfig.planarClustersCollection = digConfig.clustersCollection;
-  writeConfig.planarClusterWriter      = clusterWriterCsv;
+  // writeConfig.planarClusterWriter      = clusterWriterCsv;
   // the created space points
   writeConfig.spacePointCollection = digConfig.spacePointsCollection;
   writeConfig.spacePointWriter     = spWriterObj;  // spWriterJson;
@@ -205,7 +206,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // now create the sequencer
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({rootEccWriter, stracksWriterObj});
-  sequencer.addWriters({pWriterCsv, writeOutput});
+  sequencer.addWriters({pWriterCsv, clusterWriterCsv, writeOutput});
   sequencer.appendEventAlgorithms({particleGun, extrapolationAlg, digitzationAlg});
   sequencer.run(nEvents);
 

@@ -1,41 +1,45 @@
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
-#include <iostream>
+
+#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTS/Digitization/PlanarModuleCluster.hpp"
 
 FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
-    const FW::Csv::CsvPlanarClusterWriter::Config& cfg)
-  : FW::IEventDataWriterT<Acts::PlanarModuleCluster>(), m_cfg(cfg)
-{
-}
-
-FW::Csv::CsvPlanarClusterWriter::~CsvPlanarClusterWriter()
+    const FW::Csv::CsvPlanarClusterWriter::Config& cfg,
+    Acts::Logging::Level                           level)
+  : m_cfg(cfg)
+  , m_logger(Acts::getDefaultLogger("CsvPlanarClusterWriter", level))
 {
 }
 
 std::string
 FW::Csv::CsvPlanarClusterWriter::name() const
 {
-  return m_cfg.name;
+  return "CsvPlanarClusterWriter";
 }
 
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterWriter::initialize()
 {
-  return FW::ProcessCode::SUCCESS;
+  return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterWriter::finalize()
 {
-  return FW::ProcessCode::SUCCESS;
+  return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FW::Csv::CsvPlanarClusterWriter::write(
-    const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& pClusters)
+FW::Csv::CsvPlanarClusterWriter::write(const AlgorithmContext& ctx)
 {
   // abort if you have no stream
   if (!m_cfg.outputStream) return FW::ProcessCode::ABORT;
+
+  const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>* clusters;
+  if (ctx.eventStore.get(m_cfg.collection, clusters) != ProcessCode::SUCCESS)
+    return ProcessCode::ABORT;
+
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
   // now write out
@@ -44,7 +48,7 @@ FW::Csv::CsvPlanarClusterWriter::write(
 
   size_t hitCounter = 0;
   // loop and fill
-  for (auto& volumeData : pClusters)
+  for (auto& volumeData : (*clusters))
     for (auto& layerData : volumeData.second)
       for (auto& moduleData : layerData.second)
         for (auto& cluster : moduleData.second) {
@@ -97,19 +101,6 @@ FW::Csv::CsvPlanarClusterWriter::write(
         }
   // add a new loine
   (*(m_cfg.outputStream)) << '\n';
-  // return success
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Csv::CsvPlanarClusterWriter::write(const std::string& sinfo)
-{
-  // abort if you have no stream
-  if (!m_cfg.outputStream) return FW::ProcessCode::ABORT;
-  // lock the mutex
-  std::lock_guard<std::mutex> lock(m_write_mutex);
-  // write
-  (*(m_cfg.outputStream)) << sinfo;
   // return success
   return FW::ProcessCode::SUCCESS;
 }
