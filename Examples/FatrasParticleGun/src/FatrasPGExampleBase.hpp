@@ -53,7 +53,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
       new FW::RandomNumbersSvc(brConfig));
 
   // set up the particle gun
-  FWE::ParticleGun::Config particleGunConfig;
+  FW::ParticleGun::Config particleGunConfig;
   particleGunConfig.randomNumbers = randomNumbers;
   particleGunConfig.nParticles    = 100;
   particleGunConfig.etaRange      = {{-5., 5.}};
@@ -63,7 +63,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   particleGunConfig.mass   = 105. * Acts::units::_MeV;
   particleGunConfig.charge = -1. * Acts::units::_e;
   particleGunConfig.pID    = 13;
-  auto particleGun         = std::make_shared<FWE::ParticleGun>(
+  auto particleGun         = std::make_shared<FW::ParticleGun>(
       particleGunConfig, Acts::getDefaultLogger("ParticleGun", fLogLevel));
 
   // the barcode service

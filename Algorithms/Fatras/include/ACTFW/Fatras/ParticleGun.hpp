@@ -2,9 +2,7 @@
 #define ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
 
 #include <array>
-
 #include <ACTS/Utilities/Units.hpp>
-
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
