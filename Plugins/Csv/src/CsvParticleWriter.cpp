@@ -7,8 +7,7 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
     const FW::Csv::CsvParticleWriter::Config& cfg,
     Acts::Logging::Level                      level)
   : Base(cfg.collection, "CsvParticleWriter", level), m_cfg(cfg)
-{
-}
+{}
 
 FW::ProcessCode
 FW::Csv::CsvParticleWriter::writeT(
@@ -42,6 +41,5 @@ FW::Csv::CsvParticleWriter::writeT(
     os << particle.momentum().z() << ",";
     os << particle.charge() << '\n';
   }
-
   return ProcessCode::SUCCESS;
 }
