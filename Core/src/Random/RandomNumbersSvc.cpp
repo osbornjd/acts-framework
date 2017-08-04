@@ -8,10 +8,17 @@
 
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
-
-FW::RandomNumbersSvc::RandomNumbersSvc(const Config& cfg)
-  : m_cfg(cfg)
+FW::RandomNumbersSvc::RandomNumbersSvc(
+    const Config&                       cfg,
+    std::unique_ptr<const Acts::Logger> logger)
+  : m_cfg(cfg), m_logger(std::move(logger))
 {
+}
+
+std::string
+FW::RandomNumbersSvc::name() const
+{
+  return "RandomNumbersSvc";
 }
 
 FW::ProcessCode
@@ -29,9 +36,11 @@ FW::RandomNumbersSvc::finalize()
 FW::RandomEngine
 FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext& context) const
 {
-  const auto         eventContext = context.eventContext;
-  const unsigned int generatorID
-      = context.algorithmNumber * eventContext->jobContext->eventCount
-      + eventContext->eventNumber;
-  return RandomEngine(m_cfg.seed + generatorID);
+  // use Cantor pairing function to generate a unique generator id from
+  // algorithm and event number to get a consistent seed
+  // see https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+  const unsigned int k1 = context.algorithmNumber;
+  const unsigned int k2 = context.eventNumber;
+  const unsigned int id = (k1 + k2) * (k1 + k2 + 1) / 2 + k2;
+  return RandomEngine(m_cfg.seed + id);
 }

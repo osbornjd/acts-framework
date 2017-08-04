@@ -16,18 +16,14 @@
 
 namespace FWE {
 
-/// @class Algorithm
 class DataClassTwo
 {
 public:
-  /// Constructor
   DataClassTwo(const std::string& stringData, double eventData)
     : m_dataString(stringData), m_dataDouble(eventData)
   {
   }
 
-  /// Destructor
-  ~DataClassTwo() {}
   /// the contained data : string
   const std::string
   data() const;
@@ -45,7 +41,8 @@ DataClassTwo::data() const
   return oss.str();
 }
 
-typedef std::vector<std::unique_ptr<DataClassTwo>> DataClassTwoCollection;
-}
+typedef std::vector<DataClassTwo> DataClassTwoCollection;
+
+}  // namespace FWE
 
 #endif

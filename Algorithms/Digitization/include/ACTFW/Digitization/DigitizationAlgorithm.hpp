@@ -12,68 +12,48 @@
 #include <cmath>
 #include <memory>
 
-#include "ACTFW/Framework/Algorithm.hpp"
+#include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace Acts {
-  class PlanarModuleStepper;
+class PlanarModuleStepper;
 }
-
 namespace FW {
 class WhiteBoard;
 class RandomNumbersSvc;
-}
+}  // namespace FW
 
 namespace FWA {
 
-/// @class Algorithm
-class DigitizationAlgorithm : public FW::Algorithm
+class DigitizationAlgorithm : public FW::BareAlgorithm
 {
 public:
-  /// @class Config
-  struct Config : public FW::Algorithm::Config
+  struct Config
   {
     /// FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc>      randomNumbers = nullptr;
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     /// input hit collection
-    std::string                                simulatedHitsCollection;
+    std::string simulatedHitsCollection;
     /// output space point collection
-    std::string                                spacePointCollection;
+    std::string spacePointCollection;
     /// output clusters collection
-    std::string                                clustersCollection; 
-    /// module stepper 
+    std::string clustersCollection;
+    /// module stepper
     std::shared_ptr<Acts::PlanarModuleStepper> planarModuleStepper = nullptr;
-
-    Config() : FW::Algorithm::Config("DigitizationAlgorithm") {}
   };
 
   /// Constructor
-  DigitizationAlgorithm(
-      const Config&                       cnf,
-      std::unique_ptr<const Acts::Logger> logger
-      = Acts::getDefaultLogger("DigitizationAlgorithm",
-                               Acts::Logging::INFO));
-
-  /// Destructor
-  ~DigitizationAlgorithm();
-
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) final override;
+  DigitizationAlgorithm(const Config&        cnf,
+                        Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execode method
   FW::ProcessCode
-  execute(const FW::AlgorithmContext context) const final override;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() final override;
+  execute(FW::AlgorithmContext ctx) const final override;
 
 private:
-  Config m_cfg;  //!< the config class
-
+  Config m_cfg;
 };
 
-}
+}  // namespace FWA
 
 #endif

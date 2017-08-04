@@ -54,32 +54,32 @@ namespace FWRoot {
         /// Destructor
         virtual ~RootIndexedMaterialWriter() = default;
         
+        /// Framework name() method
+        std::string name() const override final;
+        
         /// Framework intialize method
-        FW::ProcessCode 
+        FW::ProcessCode
         initialize() override final;
         
         /// Framework finalize method
-        FW::ProcessCode 
+        FW::ProcessCode
         finalize() override final;
         
         /// Interface method which writes out the MaterialTrack entities
         /// @param ism is the indexed surface material
-        FW::ProcessCode 
+        FW::ProcessCode
         write(const Acts::IndexedSurfaceMaterial& ism) override final;
 
         /// Interface method which writes out an additional string
         /// @param sinfo is some additional info that might be written
-        FW::ProcessCode 
+        FW::ProcessCode
         write(const std::string& sinfo) override final;
-        
-        /// Framework name() method
-        const std::string& name() const override final;
-        
+
     private:
         /// The config class
         Config                    m_cfg;
         /// mutex used to protect multi-threaded writes
-        std::mutex                m_write_mutex;       
+        std::mutex                m_write_mutex;
         /// The output file name
         TFile*                    m_outputFile;
         
@@ -91,9 +91,7 @@ namespace FWRoot {
         }
     };
     
-    inline const std::string& RootIndexedMaterialWriter::name() const { return m_cfg.name; }
-
-
+    inline std::string RootIndexedMaterialWriter::name() const { return m_cfg.name; }
 }
 
 #endif // ACTFW_PLUGINS_ROOT_INDEXEDMATERIALWRITER_H

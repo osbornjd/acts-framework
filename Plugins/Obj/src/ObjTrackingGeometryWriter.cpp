@@ -14,6 +14,12 @@ FWObj::ObjTrackingGeometryWriter::~ObjTrackingGeometryWriter()
 {
 }
 
+std::string
+FWObj::ObjTrackingGeometryWriter::name() const
+{
+  return m_cfg.name;
+}
+
 FW::ProcessCode
 FWObj::ObjTrackingGeometryWriter::initialize()
 {
@@ -32,7 +38,7 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
   ACTS_DEBUG(">>Obj: Writer for TrackingGeometry object called.");
   // get the world volume
   auto world = tGeometry.highestTrackingVolume();
-  if (world) 
+  if (world)
       write(*world);
   // return the success code
   return FW::ProcessCode::SUCCESS;
@@ -51,24 +57,24 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       // we jump navigation layers
       if (layer->layerType() == Acts::navigation) continue;
       // get the volume name
-      const std::string& volumeName = tVolume.volumeName();      
+      const std::string& volumeName = tVolume.volumeName();
       // find the right surfacewriter
       std::shared_ptr< FW::IWriterT<Acts::Surface> > surfaceWriter = nullptr;
       for (auto writer : m_cfg.surfaceWriters){
         // get name and writer
         auto writerName = writer->name();
         if (volumeName.find(writerName) != std::string::npos ){
-            // asign the writer           
+            // asign the writer
             surfaceWriter = writer;
             // and break
             break;
-        }        
+        }
       }
       // bail out if you have no surface writer
       if (!surfaceWriter) return;
       // layer prefix
       surfaceWriter->write(m_cfg.layerPrefix);
-      // try to write the material surface as well 
+      // try to write the material surface as well
       if (layer->surfaceRepresentation().associatedMaterial())
           surfaceWriter->write(layer->surfaceRepresentation());
       // the the approaching surfaces and check if they have material
@@ -84,14 +90,14 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
         surfaceWriter->write(m_cfg.sensitiveGroupPrefix);
         // loop over the surface
         for (auto surface : layer->surfaceArray()->arrayObjects()){
-          if (surface 
-              && (surfaceWriter->write(*surface)) == FW::ProcessCode::ABORT) 
+          if (surface
+              && (surfaceWriter->write(*surface)) == FW::ProcessCode::ABORT)
               return;
            }
         }
      }
  }
- // get the confined volumes and step down the hierarchy 
+ // get the confined volumes and step down the hierarchy
  if (tVolume.confinedVolumes()){
    // loop over the volumes and write what they have
    for (auto volume : tVolume.confinedVolumes()->arrayObjects()){
@@ -100,4 +106,3 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
  }
  
 }
-

@@ -25,7 +25,7 @@ namespace FWObj {
 /// Safe to use from multiple writer threads.
 ///
 template <class T> class ObjExCellWriter
-  : public FW::IWriterT<Acts::ExtrapolationCell<T> > 
+  : public FW::IWriterT<Acts::ExtrapolationCell<T> >
 {
 public:
 
@@ -62,6 +62,10 @@ public:
 
   /// Destructor
   virtual ~ObjExCellWriter() = default;
+  
+  /// Framework name() method
+  std::string
+  name() const final;
 
   /// Framework intialize method
   FW::ProcessCode
@@ -82,10 +86,6 @@ public:
   /// @return is a ProcessCode indicating return/failure
   FW::ProcessCode
   write(const std::string& sinfo) override final;
-  
-  /// Framework name() method
-  const std::string&
-  name() const final;
 
 private:
   Config             m_cfg;               ///< the config class
@@ -105,7 +105,7 @@ ObjExCellWriter<T>::ObjExCellWriter(
     const ObjExCellWriter<T>::Config& cfg)
   : FW::IWriterT<Acts::ExtrapolationCell<T> >()
   , m_cfg(cfg)
-  , m_vCounter(0)    
+  , m_vCounter(0)
 {}
 
 template <class T> FW::ProcessCode
@@ -122,7 +122,7 @@ ObjExCellWriter<T>::finalize()
 }
 
 template <class T>
-const std::string&
+std::string
 ObjExCellWriter<T>::name() const
 {
   return m_cfg.name;
@@ -146,21 +146,21 @@ ObjExCellWriter<T>::write(const Acts::ExtrapolationCell<T>& eCell)
   // the event paramters
   auto sPosition = eCell.startParameters.position();
   // write the space point
-  (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*sPosition.x() 
-                          << ", " << m_cfg.outputScalor*sPosition.y() 
+  (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*sPosition.x()
+                          << ", " << m_cfg.outputScalor*sPosition.y()
                           << ", " << m_cfg.outputScalor*sPosition.z() << '\n';
   
   // loop over extrapolation steps
   for (auto& es : eCell.extrapolationSteps) {
-    if (es.parameters) {      
+    if (es.parameters) {
       /// step parameters
       const T& pars  = (*es.parameters);
       auto tPosition = pars.position();
       // increase the counter
-      ++m_vCounter; 
+      ++m_vCounter;
       // write the space point
-      (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*tPosition.x() 
-                              << ", " << m_cfg.outputScalor*tPosition.y() 
+      (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*tPosition.x()
+                              << ", " << m_cfg.outputScalor*tPosition.y()
                               << ", " << m_cfg.outputScalor*tPosition.z() << '\n';
     }
   }
@@ -171,14 +171,14 @@ ObjExCellWriter<T>::write(const Acts::ExtrapolationCell<T>& eCell)
   (*(m_cfg.outputStream)) << '\n';
   // new line
   (*(m_cfg.outputStream)) << '\n';
-  // return success 
+  // return success
   return FW::ProcessCode::SUCCESS;
 }
 
 template <class T>
 FW::ProcessCode
 ObjExCellWriter<T>::write(const std::string& sinfo)
-{  
+{
   // abort if you don't have a stream
   if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
   // lock the mutex for writing

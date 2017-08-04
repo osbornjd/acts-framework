@@ -1,29 +1,25 @@
-//  AlgorithmContext.h
-//  ACTFW
-//
-//  Created by Hadrien Grasland on 26/10/16.
-//
-//
+/// @file
+/// @date 2016-10-26 Initial version
+/// @author Hadrien Grasland
+/// @author Moritz Kiehn <msmk@cern.ch>
 
-#ifndef ALGORITHMCONTEXT_H
-#define ALGORITHMCONTEXT_H
+#ifndef ACTFW_ALGORITHMCONTEXT_H
+#define ACTFW_ALGORITHMCONTEXT_H
 
 #include <memory>
 
-#include "ACTFW/Framework/EventContext.hpp"
-
 namespace FW {
 
-/// @class AlgorithmContext
-///
-/// Describes the properties of a test framework algorithm execution
-///
+class WhiteBoard;
+
+/// Aggregated information to run one algorithm over one event.
 struct AlgorithmContext
 {
-  size_t algorithmNumber;  ///< Unique identifier of an algorithm in the sequence
-  std::shared_ptr<const FW::EventContext> eventContext;  ///< Link to the event context
+  size_t      algorithmNumber;  ///< Unique algorithm identifier
+  size_t      eventNumber;      ///< Unique event identifier
+  WhiteBoard& eventStore;       ///< Per-event data store
 };
 
-}
+}  // namespace FW
 
-#endif  // ALGORITHMCONTEXT_H
+#endif  // ACTFW_ALGORITHMCONTEXT_H

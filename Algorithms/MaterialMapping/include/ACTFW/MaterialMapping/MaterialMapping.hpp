@@ -5,16 +5,17 @@
 #ifndef ACTFW_ALGORITHMS_MATERIALMAPPING_MATERIALMAPPING_H
 #define ACTFW_ALGORITHMS_MATERIALMAPPING_MATERIALMAPPING_H
 
-#include <memory>
 #include <climits>
-#include "ACTFW/Framework/Algorithm.hpp"
+#include <memory>
+
+#include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Layers/Layer.hpp"
 #include "ACTS/Material/SurfaceMaterial.hpp"
-#include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialMapper.hpp"
+#include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace FW {
@@ -22,7 +23,7 @@ class WhiteBoard;
 }
 
 namespace Acts {
-  class TrackingGeometry;
+class TrackingGeometry;
 }
 
 namespace FWA {
@@ -33,75 +34,50 @@ namespace FWA {
 ///
 /// The MaterialMapping reads in the MaterialTrack with a dedicated
 /// reader and uses the material mapper to project the material onto
-/// the tracking geometry 
+/// the tracking geometry
 ///
 /// In a final step, the material maps are written out for further usage
-  
-class MaterialMapping : public FW::Algorithm
+
+class MaterialMapping : public FW::BareAlgorithm
 {
 public:
-  /// @class nested Config class 
+  /// @class nested Config class
   /// of the MaterialMapping algorithm
-  struct Config : public FW::Algorithm::Config
+  struct Config
   {
   public:
     /// The reader to read in the MaterialTrack entities
-    std::shared_ptr< FW::IReaderT<Acts::MaterialTrack > >  
-        materialTrackReader;
+    std::shared_ptr<FW::IReaderT<Acts::MaterialTrack>> materialTrackReader
+        = nullptr;
     /// The ACTS material mapper
-    std::shared_ptr<Acts::MaterialMapper>  
-        materialMapper;
-    /// The validation writer of the material 
-    std::shared_ptr< FW::IWriterT<Acts::MaterialTrack> >
-      materialTrackWriter;
+    std::shared_ptr<Acts::MaterialMapper> materialMapper = nullptr;
+    /// The validation writer of the material
+    std::shared_ptr<FW::IWriterT<Acts::MaterialTrack>> materialTrackWriter
+        = nullptr;
     /// The writer of the material
-    std::shared_ptr<FW::IWriterT<Acts::IndexedSurfaceMaterial> > 
-        indexedMaterialWriter;
+    std::shared_ptr<FW::IWriterT<Acts::IndexedSurfaceMaterial>>
+        indexedMaterialWriter = nullptr;
     /// The TrackingGeometry to be mapped on
-    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
     /// mapping conditions
-    size_t                                        maximumTrackRecords;  
-
-    Config()
-      : FW::Algorithm::Config("MaterialMapping")
-      , materialTrackReader(nullptr)
-      , materialMapper(nullptr)
-      , materialTrackWriter(nullptr) 
-      , indexedMaterialWriter(nullptr)
-      , trackingGeometry(nullptr)
-      , maximumTrackRecords(std::numeric_limits<size_t>::infinity())    
-    {}
+    size_t maximumTrackRecords = std::numeric_limits<size_t>::infinity();
   };
 
   /// Constructor
-  MaterialMapping(const Config&                       cfg,
-                  std::unique_ptr<const Acts::Logger> logger
-                           = Acts::getDefaultLogger("MaterialMapping",
-                             Acts::Logging::INFO));
+  MaterialMapping(const Config&        cfg,
+                  Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Destructor
   ~MaterialMapping();
 
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) 
-  override final;
-
   /// Framework execute method
   FW::ProcessCode
-  execute(const FW::AlgorithmContext context) const 
-  override final;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() override final;
+  execute(FW::AlgorithmContext context) const final;
 
 private:
-  /// The config object
-  Config                        m_cfg;
-
+  Config m_cfg;
 };
 
-}
+}  // namespace FWA
 
-#endif // ACTFW_ALGORITHMS_MATERIALMAPPING_MATERIALMAPPING_H
+#endif  // ACTFW_ALGORITHMS_MATERIALMAPPING_MATERIALMAPPING_H

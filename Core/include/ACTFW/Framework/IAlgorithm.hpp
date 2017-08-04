@@ -1,12 +1,10 @@
-//  IAlgorithm.h
-//  ACTFW
-//
-//  Created by Andreas Salzburger on 11/05/16.
-//
-//
+/// @file
+/// @date 2016-05-11 Initial version
+/// @author Andreas Salzburger
+/// @author Moritz Kiehn <msmk@cern.ch>
 
-#ifndef IAlgorithm_h
-#define IAlgorithm_h
+#ifndef ACTFW_IALGORITHM_H
+#define ACTFW_IALGORITHM_H
 
 #include <memory>
 #include <string>
@@ -16,22 +14,20 @@
 
 namespace FW {
 
-class WhiteBoard;
-
-/// @class IAlgorithm
+/// Interface for event processing algorithms.
 class IAlgorithm
 {
 public:
-  /// Virutal Destructor
+  /// Virtual Destructor
   virtual ~IAlgorithm() {}
+
+  /// Framework name() method
+  virtual std::string
+  name() const = 0;
+
   /// Framework intialize method
   virtual ProcessCode
-  initialize(std::shared_ptr<WhiteBoard> jobStore   = nullptr)
-      = 0;
-
-  /// Framework execute method
-  virtual ProcessCode
-  execute(const AlgorithmContext context) const
+  initialize()
       = 0;
 
   /// Framework finalize mehtod
@@ -39,14 +35,11 @@ public:
   finalize()
       = 0;
 
-  /// Framework name() method
-  virtual const std::string&
-  name() const = 0;
-
-  /// return the jobStore - things that live for the full job
-  virtual std::shared_ptr<WhiteBoard>
-  jobStore() const = 0;
+  /// Framework execute method
+  virtual ProcessCode
+  execute(AlgorithmContext context) const = 0;
 };
-}
 
-#endif  // IAlgorithm_h
+}  // namespace FW
+
+#endif  // ACTFW_IALGORITHM_H

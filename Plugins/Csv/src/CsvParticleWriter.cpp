@@ -7,6 +7,12 @@ FWCsv::CsvParticleWriter::CsvParticleWriter(
   , m_cfg(cfg)
 {}
 
+std::string
+FWCsv::CsvParticleWriter::name() const
+{
+  return m_cfg.name;
+}
+
 FW::ProcessCode
 FWCsv::CsvParticleWriter::initialize()
 {
@@ -35,12 +41,12 @@ FWCsv::CsvParticleWriter::write(const std::vector<Acts::ParticleProperties>& par
     (*(m_cfg.outputStream)) << particle.barcode() << ", [";
     (*(m_cfg.outputStream)) << particle.vertex().x() << ", ";
     (*(m_cfg.outputStream)) << particle.vertex().y() << ", ";
-    (*(m_cfg.outputStream)) << particle.vertex().z() << "], [";  
-    (*(m_cfg.outputStream)) << particle.momentum().mag() << ", ";  
+    (*(m_cfg.outputStream)) << particle.vertex().z() << "], [";
+    (*(m_cfg.outputStream)) << particle.momentum().mag() << ", ";
     (*(m_cfg.outputStream)) << particle.momentum().theta() << ", ";
     (*(m_cfg.outputStream)) << particle.momentum().phi() << "], ";
     (*(m_cfg.outputStream)) << particle.charge() << '\n';
-  }  
+  }
   (*(m_cfg.outputStream)) << '\n';
 
   return FW::ProcessCode::SUCCESS;
@@ -54,7 +60,6 @@ FWCsv::CsvParticleWriter::write(const std::string& sinfo)
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
   (*(m_cfg.outputStream)) << sinfo;
-  // now return success 
+  // now return success
   return FW::ProcessCode::SUCCESS;
 }
-

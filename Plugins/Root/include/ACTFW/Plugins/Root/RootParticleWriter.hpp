@@ -11,9 +11,9 @@
 
 #include <TTree.h>
 
+#include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
@@ -26,8 +26,8 @@ namespace FWRoot {
 ///
 /// A root based implementation to write out particleproperties vector
 ///
-class RootParticleWriter 
-  : public FW::IWriterT< std::vector<Acts::ParticleProperties> >
+class RootParticleWriter
+  : public FW::IWriterT<std::vector<Acts::ParticleProperties>>
 {
 public:
   // @class Config
@@ -39,16 +39,16 @@ public:
     /// the default logger
     std::shared_ptr<const Acts::Logger> logger;
     /// the name of the output tree
-    std::string                         treeName;
+    std::string treeName;
     /// the name of the output file
-    std::string                         fileName;
+    std::string fileName;
     /// the file access mode (recreate by default)
-    std::string                         fileMode;
+    std::string fileMode;
     /// the name of the algorithm
-    std::string                         name;
-    
+    std::string name;
+
     std::shared_ptr<FW::BarcodeSvc>
-    barcodeSvc;  ///< the barcode service to decode
+        barcodeSvc;  ///< the barcode service to decode
 
     /// Constructor
     Config(const std::string&   lname = "RootParticleWriter",
@@ -61,7 +61,6 @@ public:
       , barcodeSvc(nullptr)
     {
     }
-    
   };
 
   /// Constructor
@@ -71,6 +70,11 @@ public:
 
   /// Destructor
   virtual ~RootParticleWriter();
+
+  /// Framework name() method
+  // @return the name of the tool
+  std::string
+  name() const final;
 
   /// Framework intialize method
   /// @return a ProcessCode to indicate success/failure
@@ -94,11 +98,6 @@ public:
   /// @return is a ProcessCode indicating return/failure
   FW::ProcessCode
   write(const std::string& sinfo) override final;
-  
-  /// Framework name() method
-  // @return the name of the tool      
-  const std::string&
-  name() const final;
 
 private:
   Config m_cfg;  ///< the config class
@@ -136,12 +135,6 @@ private:
   }
 };
 
-const std::string&
-RootParticleWriter::name() const
-{
-  return m_cfg.name;
-}
-
-}
+}  // namespace FWRoot
 
 #endif  // ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H

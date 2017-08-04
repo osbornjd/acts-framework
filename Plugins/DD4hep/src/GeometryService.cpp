@@ -22,6 +22,12 @@ FWDD4hep::GeometryService::~GeometryService()
   if (m_lcdd) m_lcdd->destroyInstance();
 }
 
+std::string
+FWDD4hep::GeometryService::name() const
+{
+  return m_cfg.name;
+}
+
 /** Framework intialize method */
 FW::ProcessCode
 FWDD4hep::GeometryService::initialize()

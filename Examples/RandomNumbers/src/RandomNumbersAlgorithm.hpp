@@ -9,62 +9,46 @@
 #ifndef ACTFW_EXAMPLES_RANDOMNUMBERSALGORITHM_H
 #define ACTFW_EXAMPLES_RANDOMNUMBERSALGORITHM_H 1
 
-#include <memory>
 #include <array>
-#include "ACTFW/Framework/Algorithm.hpp"
+#include <memory>
+
+#include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace FW {
 class WhiteBoard;
 class RandomNumbersSvc;
-}
+}  // namespace FW
 
 namespace FWE {
 
-/// @class Algorithm
-class RandomNumbersAlgorithm : public FW::Algorithm
+class RandomNumbersAlgorithm : public FW::BareAlgorithm
 {
 public:
-  /// @class Config
-  struct Config : public FW::Algorithm::Config
+  struct Config
   {
     std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
 
-    std::array<double, 2> gaussParameters = {{0., 1.}};
+    std::array<double, 2> gaussParameters   = {{0., 1.}};
     std::array<double, 2> uniformParameters = {{0., 1.}};
-    std::array<double, 2> landauParameters = {{0., 1.}};
-    std::array<double, 2> gammaParameters = {{0., 1.}};
-    int poissonParameter = 40;
-    
-    size_t                                drawsPerEvent = 0;
+    std::array<double, 2> landauParameters  = {{0., 1.}};
+    std::array<double, 2> gammaParameters   = {{0., 1.}};
+    int                   poissonParameter  = 40;
 
-    Config() : FW::Algorithm::Config("RandomNumbersAlgorithm") {}
+    size_t drawsPerEvent = 0;
   };
 
   /// Constructor
-  RandomNumbersAlgorithm(const Config&                       cnf,
-                         std::unique_ptr<const Acts::Logger> logger
-                         = Acts::getDefaultLogger("RandomNumbersAlgorithm",
-                                                  Acts::Logging::INFO));
-
-  /// Destructor
-  ~RandomNumbersAlgorithm();
-
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) final override;
+  RandomNumbersAlgorithm(const Config& cnf);
 
   /// Framework execode method
   FW::ProcessCode
-  execute(const FW::AlgorithmContext context) const final override;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() final override;
+  execute(FW::AlgorithmContext context) const final override;
 
 private:
-  Config m_cfg;  ///< the config class
+  Config m_cfg;
 };
-}
+
+}  // namespace FWE
 
 #endif  // ACTFW_EXAMPLES_RANDOMNUMBERSALGORITHM_H

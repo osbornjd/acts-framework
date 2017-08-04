@@ -10,7 +10,7 @@
 
 #include <memory>
 
-#include "ACTFW/Framework/Algorithm.hpp"
+#include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace FWE {
@@ -19,13 +19,13 @@ namespace FWE {
 ///
 /// Test algorithm for the WhiteBoard writing/reading
 ///
-class WhiteBoardAlgorithm : public FW::Algorithm
+class WhiteBoardAlgorithm : public FW::BareAlgorithm
 {
 public:
   /// @class Config
   /// Nested Configuration class for the WhiteBoardAlgorithm
   /// It extends the Algorithm::Config Class
-  struct Config : public FW::Algorithm::Config
+  struct Config
   {
     std::string inputClassOneCollection  = "";
     std::string outputClassOneCollection = "";
@@ -36,29 +36,16 @@ public:
   /// Constructor
   ///
   /// @param cfg is the configruation
-  WhiteBoardAlgorithm(const Config&                       cfg,
-                      std::unique_ptr<const Acts::Logger> logger
-                      = Acts::getDefaultLogger("WhiteBoardAlgorithm",
-                                               Acts::Logging::INFO));
-
-  /// Destructor
-  ~WhiteBoardAlgorithm();
-
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr) final override;
+  WhiteBoardAlgorithm(const Config& cfg);
 
   /// Framework execode method
   FW::ProcessCode
-  execute(const FW::AlgorithmContext context) const final override;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() final override;
+  execute(FW::AlgorithmContext ctx) const final override;
 
 private:
   Config m_cfg;
 };
-}
+
+}  // namespace FWE
 
 #endif

@@ -11,6 +11,11 @@ FWDD4hepG4::DD4hepToG4Svc::~DD4hepToG4Svc()
     //delete m_geant4Geometry;
 }
 
+std::string FWDD4hepG4::DD4hepToG4Svc::name() const
+{
+  return m_cfg.name;
+}
+
 FW::ProcessCode FWDD4hepG4::DD4hepToG4Svc::initialize()
 {
     return FW::ProcessCode::SUCCESS;
@@ -35,4 +40,3 @@ G4VUserDetectorConstruction*  FWDD4hepG4::DD4hepToG4Svc::geant4Geometry()
     if (!m_geant4Geometry) buildGeant4Geometry();
     return m_geant4Geometry;
 }
-

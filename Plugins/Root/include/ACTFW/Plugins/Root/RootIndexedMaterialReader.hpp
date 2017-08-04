@@ -26,7 +26,7 @@ namespace FWRoot {
 /// of a given root file. The input file and tree are set over the configuration
 /// object.
 class RootIndexedMaterialReader
-    : public FW::IReaderT<Acts::IndexedSurfaceMaterial>
+  : public FW::IReaderT<Acts::IndexedSurfaceMaterial>
 {
 public:
   /// @class Config
@@ -65,7 +65,7 @@ public:
   finalize() override final;
 
   /// Framework name() method
-  const std::string&
+  std::string
   name() const override final;
 
   // clang-format off
@@ -94,11 +94,12 @@ private:
   }
 };
 
-inline const std::string&
+inline std::string
 RootIndexedMaterialReader::name() const
 {
   return m_cfg.name;
 }
-}
+
+}  // namespace FWRoot
 
 #endif  // ACTFW_PLUGINS_ROOT_INDEXEDMATERIALREADER_H

@@ -17,10 +17,16 @@ FWObj::ObjSurfaceWriter::~ObjSurfaceWriter()
 {
 }
 
+std::string
+FWObj::ObjSurfaceWriter::name() const
+{
+  return m_cfg.name;
+}
+
 FW::ProcessCode
 FWObj::ObjSurfaceWriter::initialize()
 {
-  // write out the the file 
+  // write out the the file
   if (!(m_cfg.outputStream)) return FW::ProcessCode::SUCCESS;
   (*(m_cfg.outputStream)) << m_cfg.filePrefix << '\n';
   return FW::ProcessCode::SUCCESS;
@@ -48,7 +54,7 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
   auto sTransform = surface.transform();
   
   // dynamic_cast to PlanarBounds
-  const Acts::PlanarBounds* planarBounds = 
+  const Acts::PlanarBounds* planarBounds =
     dynamic_cast<const Acts::PlanarBounds*>(&surfaceBounds);
   // only continue if the cast worked
   if (planarBounds && m_cfg.outputSensitive){
@@ -64,7 +70,7 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     for (auto pv : planarVertices){
       // get the point in 3D
       Acts::Vector3D v3D(sTransform*Acts::Vector3D(pv.x(), pv.y(), 0.));
-      vertices.push_back(v3D);   
+      vertices.push_back(v3D);
     }
     // get the thickness and vertical faces
     double thickness = 0.;
@@ -85,8 +91,8 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
   }
 
  // check if you have layer and check what your have
- //dynamic cast to CylinderBounds work the same 
- const Acts::CylinderBounds* cylinderBounds = 
+ //dynamic cast to CylinderBounds work the same
+ const Acts::CylinderBounds* cylinderBounds =
    dynamic_cast<const Acts::CylinderBounds*>(&surfaceBounds);
  if (cylinderBounds && m_cfg.outputLayerSurface){
    ACTS_VERBOSE(">>Obj: Writing out a CylinderSurface with r = " << cylinderBounds->r());
@@ -105,8 +111,8 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
    (*(m_cfg.outputStream)) << '\n';
  }
  
- ////dynamic cast to RadialBounds or disc bounds work the same 
- const Acts::RadialBounds* radialBounds = 
+ ////dynamic cast to RadialBounds or disc bounds work the same
+ const Acts::RadialBounds* radialBounds =
    dynamic_cast<const Acts::RadialBounds*>(&surfaceBounds);
  if (radialBounds && m_cfg.outputLayerSurface){
    ACTS_VERBOSE(">>Obj: Writing out a DiskSurface at z = " << sTransform.translation().z());
@@ -129,8 +135,6 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
    (*(m_cfg.outputStream)) << '\n';
  }
 
-  // return success 
+  // return success
   return FW::ProcessCode::SUCCESS;
 }
-
-

@@ -55,32 +55,32 @@ namespace FWRoot {
         /// Destructor
         virtual ~RootMaterialTrackWriter() = default;
         
+        /// Framework name() method
+        std::string name() const override final;
+        
         /// Framework intialize method
-        FW::ProcessCode 
+        FW::ProcessCode
         initialize() override final;
         
         /// Framework finalize method
-        FW::ProcessCode 
+        FW::ProcessCode
         finalize() override final;
         
         /// Interface method which writes out the MaterialTrack entities
         /// @param mtrecord is the material track record to be written out
-        FW::ProcessCode 
+        FW::ProcessCode
         write(const Acts::MaterialTrack& mtrecord) override final;
 
         /// Interface method which writes out an additional string
         /// @param mtrecord is the material track record to be written out
-        FW::ProcessCode 
+        FW::ProcessCode
         write(const std::string& sinfo) override final;
-        
-        /// Framework name() method
-        const std::string& name() const override final;
-        
+
     private:
         /// The config class
         Config                    m_cfg;
         /// mutex used to protect multi-threaded writes
-        std::mutex                m_write_mutex;       
+        std::mutex                m_write_mutex;
         /// The output file name
         TFile*                    m_outputFile;
         /// The output tree name
@@ -96,7 +96,7 @@ namespace FWRoot {
         }
     };
     
-    inline const std::string& RootMaterialTrackWriter::name() const { return m_cfg.name; }
+    inline std::string RootMaterialTrackWriter::name() const { return m_cfg.name; }
 
 
 }

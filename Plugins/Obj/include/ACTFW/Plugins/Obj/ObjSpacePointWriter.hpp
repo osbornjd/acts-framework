@@ -55,6 +55,10 @@ public:
 
   /// Destructor
   virtual ~ObjSpacePointWriter() = default;
+  
+  /// Framework name() method
+  std::string
+  name() const override final;
 
   /// Framework intialize method
   FW::ProcessCode
@@ -75,17 +79,11 @@ public:
   /// @return is a ProcessCode indicating return/failure
   FW::ProcessCode
   write(const std::string& sinfo) override final;
-  
-  
-  /// Framework name() method
-  const std::string&
-  name() const override final;
 
 private:
   Config         m_cfg;         ///< the config class
   std::mutex     m_write_mutex; ///< mutex to protect multi-threaded writes
   
-
   /// Private access to the logging instance
   const Acts::Logger&
   logger() const
@@ -94,14 +92,14 @@ private:
   }
 };
 
-template <class T> 
-const std::string&
+template <class T>
+std::string
 ObjSpacePointWriter<T>::name() const
 {
   return m_cfg.name;
 }
 
-template <class T> 
+template <class T>
 ObjSpacePointWriter<T>::ObjSpacePointWriter(
     const ObjSpacePointWriter<T>::Config& cfg)
   : FW::IEventDataWriterT<T>()
@@ -109,21 +107,21 @@ ObjSpacePointWriter<T>::ObjSpacePointWriter(
 {}
 
 
-template <class T> 
+template <class T>
 FW::ProcessCode
 ObjSpacePointWriter<T>::initialize()
 {
   return FW::ProcessCode::SUCCESS;
 }
 
-template <class T> 
+template <class T>
 FW::ProcessCode
 ObjSpacePointWriter<T>::finalize()
 {
   return FW::ProcessCode::SUCCESS;
 }
 
-template <class T> 
+template <class T>
 FW::ProcessCode
 ObjSpacePointWriter<T>::write(const std::string& sinfo)
 {
@@ -151,12 +149,12 @@ ObjSpacePointWriter<T>::write(const FW::DetectorData<geo_id_value, T>& eData)
       for (auto& moduleData : layerData.second)
         for (auto& data : moduleData.second){
           // write the space point
-          (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*data.x() 
-                                  << ", " << m_cfg.outputScalor*data.y() 
+          (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*data.x()
+                                  << ", " << m_cfg.outputScalor*data.y()
                                   << ", " << m_cfg.outputScalor*data.z() << '\n';
           (*(m_cfg.outputStream)) << "p " << ++vertex <<'\n';
         }
- }    
+ }
  // return success
  return FW::ProcessCode::SUCCESS;
 }

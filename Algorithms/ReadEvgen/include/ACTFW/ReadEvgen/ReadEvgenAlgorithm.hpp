@@ -12,9 +12,8 @@
 #include <string>
 #include <array>
 #include "ACTFW/Framework/AlgorithmContext.hpp"
-#include "ACTFW/Framework/IOAlgorithm.hpp"
+#include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
@@ -24,7 +23,7 @@ namespace FW {
 class WhiteBoard;
 class RandomNumbersSvc;
 class BarcodeSvc;
-}
+}  // namespace FW
 
 namespace FWA {
 
@@ -32,7 +31,7 @@ namespace FWA {
 ///
 /// ReadEvgenAlgorithm to read EvGen from some input
 /// Allows for pile-up reading as well
-class ReadEvgenAlgorithm : public FW::IOAlgorithm
+class ReadEvgenAlgorithm : public FW::IReader
 {
 public:
   /// @struct Config
@@ -59,12 +58,6 @@ public:
     /// output writer
     std::shared_ptr<FW::IWriterT<std::vector<Acts::ParticleProperties>>>
         particleWriter = nullptr;
-    /// the job WhiteBoard
-    std::shared_ptr<FW::WhiteBoard> jBoard = nullptr;
-    /// the name of the algorithm
-    std::string name = "Algorithm";
-
-    Config() {}
   };
 
   /// Constructor
@@ -72,38 +65,30 @@ public:
                      std::unique_ptr<const Acts::Logger> logger
                      = Acts::getDefaultLogger("ReadEvgenAlgorithm",
                                               Acts::Logging::INFO));
-
   /// Virtual destructor
   virtual ~ReadEvgenAlgorithm() {}
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize(std::shared_ptr<FW::WhiteBoard> jobStore = nullptr);
-
-  /// Skip a few events in the IO stream
-  virtual FW::ProcessCode
-  skip(size_t nEvents = 1);
-
-  /// Read out data from the input stream
-  virtual FW::ProcessCode
-  read(const FW::AlgorithmContext context) const;
-
-  /// Write data to the output stream
-  virtual FW::ProcessCode
-  write(const FW::AlgorithmContext context) const;
-
-  /// Framework finalize mehtod
-  virtual FW::ProcessCode
-  finalize();
 
   /// Framework name() method
-  virtual const std::string&
-  name() const;
+  std::string
+  name() const final;
 
-  /// return the jobStore - things that live for the full job
-  virtual std::shared_ptr<FW::WhiteBoard>
-  jobStore() const;
+  /// Framework intialize method
+  FW::ProcessCode
+  initialize() final;
 
-protected:
+  /// Framework finalize mehtod
+  FW::ProcessCode
+  finalize() final;
+
+  /// Skip a few events in the IO stream
+  FW::ProcessCode
+  skip(size_t nEvents) final;
+
+  /// Read out data from the input stream
+  FW::ProcessCode
+  read(FW::AlgorithmContext ctx) final;
+
+private:
   Config                              m_cfg;
   std::unique_ptr<const Acts::Logger> m_logger;
 
@@ -115,23 +100,6 @@ protected:
   }
 };
 
-inline FW::ProcessCode
-ReadEvgenAlgorithm::write(const FW::AlgorithmContext) const
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-inline std::shared_ptr<FW::WhiteBoard>
-ReadEvgenAlgorithm::jobStore() const
-{
-  return m_cfg.jBoard;
-}
-
-inline const std::string&
-ReadEvgenAlgorithm::name() const
-{
-  return m_cfg.name;
-}
-}
+}  // namespace FWA
 
 #endif  /// ACTFW_EXAMPLES_READEVGENALGORITHM_H

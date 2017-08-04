@@ -4,8 +4,9 @@
 //
 //  Created by Andreas Salzburger on 11/05/16.
 //
+
 #include <memory>
-#include "ACTFW/Framework/Algorithm.hpp"
+
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
@@ -83,8 +84,6 @@ main(int argc, char* argv[])
   readEvgenCfg.vertexZParameters = {{0., 5.5}};
   // attach the barcode service
   readEvgenCfg.barcodeSvc          = barcodeSvc;
-  // the job WhiteBoard
-  readEvgenCfg.jBoard = detectorStore;
   // set the particle writer
   readEvgenCfg.particleWriter = particleWriter;
   // create the read Algorithm
@@ -97,13 +96,7 @@ main(int argc, char* argv[])
   // now create the sequencer
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({particleWriter, randomNumbers});
-  sequencer.addIOAlgorithms({readEvgen});
+  sequencer.addReaders({readEvgen});
   sequencer.appendEventAlgorithms({});
-
-  // initialize loop
-  sequencer.initializeEventLoop();
-  // run the loop
-  sequencer.processEventLoop(nEvents);
-  // finalize loop
-  sequencer.finalizeEventLoop();
+  sequencer.run(nEvents);
 }

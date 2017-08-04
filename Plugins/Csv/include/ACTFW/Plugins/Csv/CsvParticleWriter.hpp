@@ -25,8 +25,8 @@ namespace FWCsv {
 ///
 /// A root based implementation to write out particleproperties vector
 ///
-class CsvParticleWriter 
-  : public FW::IWriterT<std::vector<Acts::ParticleProperties> > 
+class CsvParticleWriter
+  : public FW::IWriterT<std::vector<Acts::ParticleProperties> >
 {
 public:
   // @class Config
@@ -64,6 +64,11 @@ public:
   /// Destructor
   virtual ~CsvParticleWriter() = default;
 
+  /// Framework name() method
+  /// @return the name of the tool
+  std::string
+  name() const final;
+
   /// Framework intialize method
   /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
@@ -86,11 +91,6 @@ public:
   FW::ProcessCode
   write(const std::string& sinfo) override final;
 
-  /// Framework name() method
-  /// @return the name of the tool
-  const std::string&
-  name() const final;
-
 private:
   Config        m_cfg;         ///< the config class
   std::mutex    m_write_mutex; ///< mutex used to protect multi-threaded writes
@@ -103,11 +103,6 @@ private:
   }
 };
 
-const std::string&
-CsvParticleWriter::name() const
-{
-  return m_cfg.name;
-}
 }
 
 #endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H

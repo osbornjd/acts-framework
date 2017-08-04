@@ -54,6 +54,10 @@ public:
   /// Destructor
   virtual ~JsonSpacePointWriter() = default;
 
+  /// Framework name() method
+  std::string
+  name() const final;
+
   /// Framework intialize method
   FW::ProcessCode
   initialize() final;
@@ -67,10 +71,6 @@ public:
   FW::ProcessCode
   write(const FW::DetectorData<geo_id_value, T>& eData) final;
 
-  /// Framework name() method
-  const std::string&
-  name() const final;
-
 private:
   Config   m_cfg; ///< the config class
 
@@ -82,7 +82,7 @@ private:
   }
 };
 
-template <class T> const std::string&
+template <class T> std::string
 JsonSpacePointWriter<T>::name() const
 {
   return m_cfg.name;
@@ -119,7 +119,7 @@ JsonSpacePointWriter<T>::write(const FW::DetectorData<geo_id_value, T>& eData)
   for (auto& volumeData : eData){
     // get the volume id for the naming
     geo_id_value volumeID = volumeData.first;
-    // 
+    //
     (*(m_cfg.outputStream)) << "{ \"SpacePoints_" << volumeID <<  "\" : [";
     // initialize the virgule
     bool comma = false;
@@ -134,7 +134,7 @@ JsonSpacePointWriter<T>::write(const FW::DetectorData<geo_id_value, T>& eData)
         }
         
     (*(m_cfg.outputStream)) << "] }" << std::endl;
-  }    
+  }
   // return success
   return FW::ProcessCode::SUCCESS;
 }

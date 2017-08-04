@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <memory>
 
-#include "ACTFW/Framework/Algorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "HelloWorldAlgorithm.hpp"
 
@@ -18,22 +17,13 @@ main(int argc, char* argv[])
 {
   size_t nEvents = 10;
 
-  // create the config object for the hello world algorithm
-  FW::Algorithm::Config hWorldConfig;
   // and now the hello world algorithm
-  std::shared_ptr<FW::IAlgorithm> hWorld(
-      new FWE::HelloWorldAlgorithm(hWorldConfig));
+  std::shared_ptr<FW::IAlgorithm> hWorld(new FWE::HelloWorldAlgorithm());
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
   // now create the sequencer
   FW::Sequencer sequencer(seqConfig);
   sequencer.appendEventAlgorithms({hWorld});
-
-  // initialize loop
-  sequencer.initializeEventLoop();
-  // run the loop
-  sequencer.processEventLoop(nEvents);
-  // finalize loop
-  sequencer.finalizeEventLoop();
+  sequencer.run(nEvents);
 }

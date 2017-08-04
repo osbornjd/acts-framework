@@ -1,10 +1,10 @@
-#include <iostream>
-#include <TFile.h>
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
+#include <TFile.h>
+#include <iostream>
 
 FWRoot::RootParticleWriter::RootParticleWriter(
     const FWRoot::RootParticleWriter::Config& cfg)
-  : FW::IWriterT< std::vector<Acts::ParticleProperties> >()
+  : FW::IWriterT<std::vector<Acts::ParticleProperties>>()
   , m_cfg(cfg)
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
@@ -13,6 +13,14 @@ FWRoot::RootParticleWriter::RootParticleWriter(
 
 FWRoot::RootParticleWriter::~RootParticleWriter()
 {
+}
+
+/// Framework name() method
+// @return the name of the tool
+std::string
+FWRoot::RootParticleWriter::name() const
+{
+  return m_cfg.name;
 }
 
 FW::ProcessCode
@@ -24,25 +32,25 @@ FWRoot::RootParticleWriter::initialize()
   m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
 
   // initial parameters
-  m_outputTree->Branch("eta",        &m_eta);
-  m_outputTree->Branch("phi",        &m_phi);
-  m_outputTree->Branch("vx",         &m_vx);
-  m_outputTree->Branch("vy",         &m_vy);
-  m_outputTree->Branch("vz",         &m_vz);
-  m_outputTree->Branch("px",         &m_px);
-  m_outputTree->Branch("py",         &m_py);
-  m_outputTree->Branch("pz",         &m_pz);
-  m_outputTree->Branch("pt",         &m_pT);
-  m_outputTree->Branch("charge",     &m_charge);
-  m_outputTree->Branch("mass",       &m_mass);
-  m_outputTree->Branch("pdg",        &m_pdgCode);
-  m_outputTree->Branch("barcode",    &m_barcode);
-  m_outputTree->Branch("vertex",     &m_vertex);
-  m_outputTree->Branch("primary",    &m_primary);
+  m_outputTree->Branch("eta", &m_eta);
+  m_outputTree->Branch("phi", &m_phi);
+  m_outputTree->Branch("vx", &m_vx);
+  m_outputTree->Branch("vy", &m_vy);
+  m_outputTree->Branch("vz", &m_vz);
+  m_outputTree->Branch("px", &m_px);
+  m_outputTree->Branch("py", &m_py);
+  m_outputTree->Branch("pz", &m_pz);
+  m_outputTree->Branch("pt", &m_pT);
+  m_outputTree->Branch("charge", &m_charge);
+  m_outputTree->Branch("mass", &m_mass);
+  m_outputTree->Branch("pdg", &m_pdgCode);
+  m_outputTree->Branch("barcode", &m_barcode);
+  m_outputTree->Branch("vertex", &m_vertex);
+  m_outputTree->Branch("primary", &m_primary);
   m_outputTree->Branch("generation", &m_generation);
-  m_outputTree->Branch("secondary",  &m_secondary);
-  m_outputTree->Branch("process",    &m_process);
-  
+  m_outputTree->Branch("secondary", &m_secondary);
+  m_outputTree->Branch("process", &m_process);
+
   return FW::ProcessCode::SUCCESS;
 }
 
@@ -58,12 +66,12 @@ FWRoot::RootParticleWriter::finalize()
 }
 
 FW::ProcessCode
-FWRoot::RootParticleWriter::write(const std::vector<Acts::ParticleProperties>& particles)
+FWRoot::RootParticleWriter::write(
+    const std::vector<Acts::ParticleProperties>& particles)
 {
-  
   // the number of particles
   size_t nParticles = particles.size();
-  // clear the branches    
+  // clear the branches
   m_eta.clear();
   m_phi.clear();
   m_vx.clear();
@@ -102,7 +110,7 @@ FWRoot::RootParticleWriter::write(const std::vector<Acts::ParticleProperties>& p
   m_secondary.reserve(nParticles);
   m_process.reserve(nParticles);
   // loop and fill
-  for ( auto& particle : particles){
+  for (auto& particle : particles) {
     /// collect the information
     m_vx.push_back(particle.vertex().x());
     m_vy.push_back(particle.vertex().y());
@@ -118,7 +126,7 @@ FWRoot::RootParticleWriter::write(const std::vector<Acts::ParticleProperties>& p
     m_pdgCode.push_back(particle.pdgID());
     m_barcode.push_back(particle.barcode());
     // decode using the barcode service
-    if (m_cfg.barcodeSvc){
+    if (m_cfg.barcodeSvc) {
       // the barcode service
       m_vertex.push_back(m_cfg.barcodeSvc->vertex(particle.barcode()));
       m_primary.push_back(m_cfg.barcodeSvc->primary(particle.barcode()));
@@ -128,16 +136,13 @@ FWRoot::RootParticleWriter::write(const std::vector<Acts::ParticleProperties>& p
     }
   }
   // fill the tree
-  if (m_outputTree)
-    m_outputTree->Fill();
-    
+  if (m_outputTree) m_outputTree->Fill();
+
   return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
 FWRoot::RootParticleWriter::write(const std::string& sinfo)
 {
-  return FW::ProcessCode::SUCCESS;  
+  return FW::ProcessCode::SUCCESS;
 }
-
-

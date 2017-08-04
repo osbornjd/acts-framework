@@ -16,18 +16,14 @@
 
 namespace FWE {
 
-/// @class Simple data class with
 class DataClassOne
 {
 public:
-  /// Constructor
   DataClassOne(const std::string& stringData, size_t eventData)
     : m_dataString(stringData), m_dataSizeT(eventData)
   {
   }
 
-  /// Destructor
-  ~DataClassOne() {}
   /// the contained data : string
   const std::string
   data() const;
@@ -45,7 +41,8 @@ DataClassOne::data() const
   return oss.str();
 }
 
-typedef std::vector<std::unique_ptr<DataClassOne>> DataClassOneCollection;
-}
+typedef std::vector<DataClassOne> DataClassOneCollection;
+
+}  // namespace FWE
 
 #endif

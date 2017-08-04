@@ -12,6 +12,12 @@ FWCsv::CsvPlanarClusterWriter::~CsvPlanarClusterWriter()
 {
 }
 
+std::string
+FWCsv::CsvPlanarClusterWriter::name() const
+{
+  return m_cfg.name;
+}
+
 FW::ProcessCode
 FWCsv::CsvPlanarClusterWriter::initialize()
 {
@@ -31,7 +37,7 @@ FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::
   if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
-  // now write out    
+  // now write out
   (*(m_cfg.outputStream)) << '\n';
   (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
   
@@ -42,7 +48,7 @@ FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::
       for (auto& moduleData : layerData.second)
         for (auto& cluster : moduleData.second){
           // get the global position
-          Acts::Vector3D pos(0.,0.,0.); 
+          Acts::Vector3D pos(0.,0.,0.);
           Acts::Vector3D mom(1.,1.,1.);
           auto parameters = cluster.parameters();
           double lx       = parameters[Acts::ParDef::eLOC_0];
@@ -50,7 +56,7 @@ FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::
           double ex       = 0.;
           double ey       = 0.;
           Acts::Vector2D local(lx,ly);
-          // get the surface                         
+          // get the surface
           const Acts::Surface& clusterSurface = cluster.referenceSurface();
           // transform global to local
           clusterSurface.localToGlobal(local, mom, pos);
@@ -69,7 +75,7 @@ FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::
             // pobal position
             (*(m_cfg.outputStream)) << "[ " << pos.x() << ", " << pos.y() << "," << pos.z() << "], ";
             // thickness of the cluster
-            double thickness = clusterSurface.associatedDetectorElement() ? 
+            double thickness = clusterSurface.associatedDetectorElement() ?
               clusterSurface.associatedDetectorElement()->thickness() : 0.;
             (*(m_cfg.outputStream)) << thickness << ",  [";
             // feature set
@@ -79,11 +85,11 @@ FWCsv::CsvPlanarClusterWriter::write(const FW::DetectorData<geo_id_value, Acts::
               (*(m_cfg.outputStream)) << "[ " << cell.channel0 << ", " << cell.channel1 << ", " << cell.data << "]";
               if (cellCounter < cluster.digitizationCells().size()-1 ) (*(m_cfg.outputStream)) << ", ";
               ++cellCounter;
-            }        
+            }
             (*(m_cfg.outputStream)) << "]" << '\n';
           }
         }
-  // add a new loine    
+  // add a new loine
   (*(m_cfg.outputStream)) << '\n';
   // return success
   return FW::ProcessCode::SUCCESS;

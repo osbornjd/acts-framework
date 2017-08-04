@@ -60,6 +60,12 @@ FWE::ParticleGun::read(
   return FW::ProcessCode::SUCCESS;
 }
 
+std::string
+FWE::ParticleGun::name() const
+{
+  return "ParticleGun";
+}
+
 FW::ProcessCode
 FWE::ParticleGun::initialize()
 {

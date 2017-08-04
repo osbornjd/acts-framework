@@ -1,17 +1,17 @@
-//
-//  WhiteBoard.h
-//  ACTFW
-//
-//  Created by Andreas Salzburger on 11/05/16.
-//
-//
+/// @file
+/// @date 2016-05-11 Initial version
+/// @date 2017-07-26 Rewrite with move semantics
+/// @author Andreas Salzburger
+/// @author Moritz Kiehn <msmk@cern.ch>
 
-#ifndef ACTFW_FRAMEWORK_WHITEBOARD_h
-#define ACTFW_FRAMEWORK_WHITEBOARD_h
+#ifndef ACTFW_WHITEBOARD_H
+#define ACTFW_WHITEBOARD_H
 
 #include <map>
 #include <memory>
 #include <string>
+#include <type_traits>
+#include <typeinfo>
 #include <vector>
 
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -19,93 +19,115 @@
 
 namespace FW {
 
-/// @class WhiteBoard
-/// Simple whit board class to read from and write to
+/// A container to store arbitrary objects with ownership transfer.
+///
+/// This is an append-only container that takes ownership of the objects
+/// added to it. Once an object has been added, it can only be read but not
+/// be modified. Trying to replace an existing object is considered an error.
+/// Its lifetime is bound to the liftime of the white board.
 class WhiteBoard
 {
 public:
-  /// Constructor
-  /// @param cfg is the config struct for this WhiteBoard
   WhiteBoard(std::unique_ptr<const Acts::Logger> logger
              = Acts::getDefaultLogger("WhiteBoard", Acts::Logging::INFO));
 
-  /// Destructor
-  virtual ~WhiteBoard();
+  // A WhiteBoard holds unique elements and can not be copied
+  WhiteBoard(const WhiteBoard& other) = delete;
+  WhiteBoard&
+  operator=(const WhiteBoard&)
+      = delete;
 
-  /// clear the white board
+  /// Store an object on the white board and transfer ownership.
   ///
-  /// @param name is the collection name that should be cleared
-  template <class T>
+  /// @param name Identifier to store it under
+  /// @param object Movable reference to the transferable object
+  /// @returns ProcessCode::SUCCESS if the object was stored successfully
+  template <typename T>
   ProcessCode
-  clearT(const std::string& name)
-  {
-    // clear the event store again
-    auto sCol = m_store.find(name);
-    // return if nothing to do
-    if (sCol == m_store.end()) return ProcessCode::SUCCESS;
-    // static cast to the concrete type
-    T* coll
-        = reinterpret_cast<T*>(sCol->second);
-    // erase from the map
-    m_store.erase(sCol);
-    // now delete the memory
-    delete coll;
-    // return success
-    return ProcessCode::SUCCESS;
-  }
+  add(const std::string& name, T&& object);
 
-  /// write to the white board
+  /// Get access to a stored object.
   ///
-  /// @paramt coll is the collection to be written
-  /// @param cname is the collection to name
-  template <class T>
+  /// @param[in] name Identifier for the object
+  /// @param[out] object A pointer to the object or nullptr on error
+  /// @returns ProcessCode::SUCCESS if the object was found
+  template <typename T>
   ProcessCode
-  writeT(T* coll, const std::string& cname)
-  {
-    // clear the entry in the event store
-    if (clearT<T>(cname) != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-    // record the new one
-    if (coll == nullptr) {
-      ACTS_FATAL("Could not write collection " << cname);
-      return ProcessCode::ABORT;
-    }
-    ACTS_VERBOSE("Writing collection " << cname << " to board");
-    m_store[cname] = (void*)coll;
-    return ProcessCode::SUCCESS;
-  }
-
-  /// read from the white board
-  ///
-  /// @paramt coll is the collection to be written
-  /// @param cname is the collection to name
-  template <class T>
-  ProcessCode
-  readT(T*& coll, const std::string& cname)
-  {
-    auto sCol = m_store.find(cname);
-    if (sCol == m_store.end()) {
-      ACTS_FATAL("Could not read collection " << cname);
-      return ProcessCode::ABORT;
-    }
-    // now do the static_cast
-    coll = reinterpret_cast<T*>(sCol->second);
-    ACTS_VERBOSE("Reading collection " << cname << " from board");
-    return ProcessCode::SUCCESS;
-  }
+  get(const std::string& name, const T*& object) const;
 
 private:
-  std::unique_ptr<const Acts::Logger> m_logger;
+  // type-erased value holder for move-constructible types
+  struct Holder
+  {
+    virtual ~Holder() {}
+    virtual const std::type_info&
+    type() const = 0;
+  };
+  template <typename T,
+            typename
+            = std::enable_if_t<std::is_nothrow_move_constructible<T>::value>>
+  struct THolder : public Holder
+  {
+    T value;
 
-  /// the internal store
-  std::map<std::string, void*> m_store;
+    THolder(T&& v) : value(std::move(v)) {}
+    ~THolder() {}
+    const std::type_info&
+    type() const
+    {
+      return typeid(T);
+    }
+  };
 
-  /// Private access to the logging instance
+  std::unique_ptr<const Acts::Logger>            m_logger;
+  std::map<std::string, std::unique_ptr<Holder>> m_store;
+
   const Acts::Logger&
   logger() const
   {
     return *m_logger;
   }
 };
+
+}  // namespace FW
+
+inline FW::WhiteBoard::WhiteBoard(std::unique_ptr<const Acts::Logger> logger)
+  : m_logger(std::move(logger))
+{
 }
 
-#endif  // ACTFW_FRAMEWORK_WHITEBOARD_h
+template <typename T>
+inline FW::ProcessCode
+FW::WhiteBoard::add(const std::string& name, T&& object)
+{
+  if (0 < m_store.count(name)) {
+    ACTS_FATAL("Object '" << name << "' already exists");
+    return ProcessCode::ABORT;
+  }
+  m_store.emplace(name, std::make_unique<THolder<T>>(std::forward<T>(object)));
+  ACTS_VERBOSE("Added object '" << name << "'");
+  return ProcessCode::SUCCESS;
+}
+
+template <typename T>
+inline FW::ProcessCode
+FW::WhiteBoard::get(const std::string& name, const T*& object) const
+{
+  auto it = m_store.find(name);
+  if (it == m_store.end()) {
+    object = nullptr;
+    ACTS_FATAL("Object '" << name << "' does not exists");
+    return ProcessCode::ABORT;
+  }
+  const Holder* holder = it->second.get();
+  if (typeid(T) != holder->type()) {
+    object = nullptr;
+    ACTS_FATAL("Type missmatch for object '" << name << "'");
+    return ProcessCode::ABORT;
+  }
+  object = &(reinterpret_cast<const THolder<T>*>(holder)->value);
+  ACTS_VERBOSE("Retrieved object '" << name << "'");
+  return ProcessCode::SUCCESS;
+}
+
+#endif  // ACTFW_WHITEBOARD_H
