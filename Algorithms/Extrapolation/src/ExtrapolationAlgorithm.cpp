@@ -31,7 +31,7 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
       == FW::ProcessCode::ABORT)
     return FW::ProcessCode::ABORT;
 
-  ACTS_INFO("read collection '" << m_cfg.particlesCollection << "' with"
+  ACTS_INFO("read collection '" << m_cfg.particlesCollection << "' with "
                                 << particles->size()
                                 << " particles");
 
