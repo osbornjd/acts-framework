@@ -72,12 +72,12 @@ main(int argc, char* argv[])
   // get the read-in algorithm
   FW::ReadEvgenAlgorithm::Config readEvgenCfg;
 
-  readEvgenCfg.evgenParticlesCollection = "EvgenParticles";
+  readEvgenCfg.particlesCollection = "EvgenParticles";
   // the hard scatter reader
   readEvgenCfg.hardscatterParticleReader = hsPythiaGenerator;
   // the pileup reader
   readEvgenCfg.pileupParticleReader = puPythiaGenerator;
-  // the number of pileup events
+  // the number of pileup eventst
   readEvgenCfg.randomNumbers = randomNumbers;
   readEvgenCfg.pileupPoissonParameter = 200;
   readEvgenCfg.vertexTParameters = {{0., 0.015}};

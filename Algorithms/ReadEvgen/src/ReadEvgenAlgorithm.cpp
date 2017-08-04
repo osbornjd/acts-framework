@@ -134,8 +134,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
   }
 
   // write to the EventStore
-  if (ctx.eventStore.add(m_cfg.evgenParticlesCollection,
-                         std::move(eventParticles))
+  if (ctx.eventStore.add(m_cfg.particlesCollection, std::move(eventParticles))
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }

@@ -94,7 +94,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // get the read-in algorithm
   FW::ReadEvgenAlgorithm::Config readEvgenCfg;
 
-  readEvgenCfg.evgenParticlesCollection = "ParticleGun";
+  readEvgenCfg.particlesCollection = "ParticleGun";
   // the hard scatter reader
   readEvgenCfg.hardscatterParticleReader = particleGun;
   // The random number service
@@ -133,7 +133,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // the Algorithm with its configurations
   FW::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.particlesCollection = readEvgenCfg.evgenParticlesCollection;
+  eTestConfig.particlesCollection = readEvgenCfg.particlesCollection;
   eTestConfig.simulatedParticlesCollection = "FatrasParticles";
   eTestConfig.simulatedHitsCollection      = "FatrasHits";
   eTestConfig.minPt                        = 500. * Acts::units::_MeV;

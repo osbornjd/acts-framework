@@ -33,14 +33,14 @@ public:
   /// configuration struct for this Algorithm
   struct Config
   {
-    /// name of the output collection
-    std::string evgenParticlesCollection = "EvgenParticles";
     /// the hard scatter reader
     std::shared_ptr<IReaderT<std::vector<Acts::ParticleProperties>>>
         hardscatterParticleReader = nullptr;
     /// the pileup reader
     std::shared_ptr<IReaderT<std::vector<Acts::ParticleProperties>>>
         pileupParticleReader = nullptr;
+    /// name of the output collection
+    std::string particlesCollection = "EvgenParticles";
     /// the Poisson parameter for pileup generation
     int pileupPoissonParameter = 40;
     /// the Gaussian parameters for transverse and axial vertex generation
