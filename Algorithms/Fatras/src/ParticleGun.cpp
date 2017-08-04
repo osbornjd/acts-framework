@@ -1,7 +1,5 @@
-#include "ACTFW/Fatras/ParticleGun.hpp"
-
 #include <cmath>
-
+#include "ACTFW/Fatras/ParticleGun.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"

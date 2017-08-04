@@ -54,6 +54,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // set up the particle gun
   FW::ParticleGun::Config particleGunConfig;
+  particleGunConfig.particlesCollection = "GeneratedParticles";
   particleGunConfig.randomNumbers = randomNumbers;
   particleGunConfig.nParticles    = 100;
   particleGunConfig.etaRange      = {{-5., 5.}};
@@ -64,7 +65,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   particleGunConfig.charge = -1. * Acts::units::_e;
   particleGunConfig.pID    = 13;
   auto particleGun         = std::make_shared<FW::ParticleGun>(
-      particleGunConfig, Acts::getDefaultLogger("ParticleGun", fLogLevel));
+      particleGunConfig, fLogLevel);
 
   // the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
@@ -89,21 +90,6 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   pWriterCsvConfig.barcodeSvc      = barcodeSvc;
   auto pWriterCsv
       = std::make_shared<FWCsv::CsvParticleWriter>(pWriterCsvConfig);
-
-  // ----------- EVGEN --------------------------------------------------
-  // get the read-in algorithm
-  FW::ReadEvgenAlgorithm::Config readEvgenCfg;
-
-  readEvgenCfg.particlesCollection = "ParticleGun";
-  // the hard scatter reader
-  readEvgenCfg.hardscatterParticleReader = particleGun;
-  // The random number service
-  readEvgenCfg.randomNumbers = randomNumbers;
-  // attach the barcode service
-  readEvgenCfg.barcodeSvc = barcodeSvc;
-  // create the read Algorithm
-  auto readEvgen = std::make_shared<FW::ReadEvgenAlgorithm>(
-      readEvgenCfg, Acts::getDefaultLogger("ReadEvgenAlgorithm", fLogLevel));
 
   // ----------- EXTRAPOLATION ----------------------------------------------
   // Write ROOT TTree
@@ -133,7 +119,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // the Algorithm with its configurations
   FW::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.particlesCollection = readEvgenCfg.particlesCollection;
+  eTestConfig.particlesCollection = particleGunConfig.particlesCollection;
   eTestConfig.simulatedParticlesCollection = "FatrasParticles";
   eTestConfig.simulatedHitsCollection      = "FatrasHits";
   eTestConfig.minPt                        = 500. * Acts::units::_MeV;
@@ -220,9 +206,8 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // now create the sequencer
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({rootEccWriter, stracksWriterObj});
-  sequencer.addReaders({readEvgen});
   sequencer.addWriters({writeOutput});
-  sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg});
+  sequencer.appendEventAlgorithms({particleGun, extrapolationAlg, digitzationAlg});
   sequencer.run(nEvents);
 
   particleStream->close();
