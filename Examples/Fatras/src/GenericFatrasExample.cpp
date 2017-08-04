@@ -6,7 +6,7 @@
 int
 main(int argc, char* argv[])
 {
-  size_t nEvents = 1000;
+  size_t nEvents = 1;
   
   // get the generic detector
   // DETECTOR:

@@ -30,7 +30,7 @@ public:
     /// input hit collection
     std::string simulatedHitsCollection;
     /// output space point collection
-    std::string spacePointCollection;
+    std::string spacePointsCollection;
     /// output clusters collection
     std::string clustersCollection;
     /// FW random number service

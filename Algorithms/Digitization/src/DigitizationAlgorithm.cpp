@@ -40,7 +40,7 @@ FW::DigitizationAlgorithm::initialize()
     ACTS_ERROR("missing input hits collection");
     return ProcessCode::ABORT;
   }
-  if (m_cfg.spacePointCollection.empty()) {
+  if (m_cfg.spacePointsCollection.empty()) {
     ACTS_ERROR("missing output space points collection");
     return ProcessCode::ABORT;
   }
@@ -191,17 +191,13 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
   }            // volume loop
 
   // write the SpacePoints to the EventStore
-  if (ctx.eventStore.add(m_cfg.spacePointCollection, std::move(spacePoints))
+  if (ctx.eventStore.add(m_cfg.spacePointsCollection, std::move(spacePoints))
       == FW::ProcessCode::ABORT) {
-    ACTS_WARNING("Could not write collection " << m_cfg.spacePointCollection
-                                               << " to event store.");
     return FW::ProcessCode::ABORT;
   }
   // write the clusters to the EventStore
   if (ctx.eventStore.add(m_cfg.clustersCollection, std::move(planarClusters))
       == FW::ProcessCode::ABORT) {
-    ACTS_WARNING("Could not write collection " << m_cfg.clustersCollection
-                                               << " to event store.");
     return FW::ProcessCode::ABORT;
   }
 
