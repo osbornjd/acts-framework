@@ -9,7 +9,6 @@
 #ifndef ACTFW_ALGORITHMS_DIGITIZATIONALGORITHM_H
 #define ACTFW_ALGORITHMS_DIGITIZATIONALGORITHM_H
 
-#include <cmath>
 #include <memory>
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"
@@ -19,25 +18,22 @@ namespace Acts {
 class PlanarModuleStepper;
 }
 namespace FW {
-class WhiteBoard;
-class RandomNumbersSvc;
-}  // namespace FW
 
-namespace FWA {
+class RandomNumbersSvc;
 
 class DigitizationAlgorithm : public FW::BareAlgorithm
 {
 public:
   struct Config
   {
-    /// FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     /// input hit collection
     std::string simulatedHitsCollection;
     /// output space point collection
     std::string spacePointCollection;
     /// output clusters collection
     std::string clustersCollection;
+    /// FW random number service
+    std::shared_ptr<RandomNumbersSvc> randomNumbers = nullptr;
     /// module stepper
     std::shared_ptr<Acts::PlanarModuleStepper> planarModuleStepper = nullptr;
   };
@@ -54,6 +50,6 @@ private:
   Config m_cfg;
 };
 
-}  // namespace FWA
+}  // namespace FW
 
 #endif

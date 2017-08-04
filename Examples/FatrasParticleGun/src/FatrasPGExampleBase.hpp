@@ -163,13 +163,13 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
       Acts::getDefaultLogger("PlanarModuleStepper", dLogLevel));
 
   // the configuration ofr the ditigisation algorithm
-  FWA::DigitizationAlgorithm::Config digConfig;
+  FW::DigitizationAlgorithm::Config digConfig;
   digConfig.simulatedHitsCollection = eTestConfig.simulatedHitsCollection;
   digConfig.clustersCollection      = "FatrasClusters";
   digConfig.spacePointCollection    = "FatrasSpacePoints";
   digConfig.planarModuleStepper     = pmStepper;
 
-  auto digitzationAlg = std::make_shared<FWA::DigitizationAlgorithm>(digConfig, dLogLevel);
+  auto digitzationAlg = std::make_shared<FW::DigitizationAlgorithm>(digConfig, dLogLevel);
 
   // ----------- WRITER ----------------------------------------------------
   // write a Csv File for clusters and particles

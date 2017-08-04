@@ -16,15 +16,15 @@
 #include "ACTS/Utilities/GeometryID.hpp"
 #include "ACTS/Utilities/ParameterDefinitions.hpp"
 
-FWA::DigitizationAlgorithm::DigitizationAlgorithm(
-    const FWA::DigitizationAlgorithm::Config& cfg,
-    Acts::Logging::Level                      level)
+FW::DigitizationAlgorithm::DigitizationAlgorithm(
+    const FW::DigitizationAlgorithm::Config& cfg,
+    Acts::Logging::Level                     level)
   : FW::BareAlgorithm("DigitizationAlgorithm", level), m_cfg(cfg)
 {
 }
 
 FW::ProcessCode
-FWA::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
+FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
   // we read from a collection
   if (m_cfg.planarModuleStepper && m_cfg.clustersCollection != ""
