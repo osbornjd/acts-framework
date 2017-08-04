@@ -161,11 +161,11 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   std::string hitOutputName = "Hits.csv";
   hitStream->open(hitOutputName);
 
-  FWCsv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
+  FW::Csv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
   clusterWriterCsvConfig.outputPrecision = 6;
   clusterWriterCsvConfig.outputStream    = hitStream;
   auto clusterWriterCsv
-      = std::make_shared<FWCsv::CsvPlanarClusterWriter>(clusterWriterCsvConfig);
+      = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(clusterWriterCsvConfig);
 
   // write out a Json file for
   auto spacePointStream    = std::shared_ptr<std::ofstream>(new std::ofstream);
