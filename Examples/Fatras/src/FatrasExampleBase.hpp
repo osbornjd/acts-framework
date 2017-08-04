@@ -144,7 +144,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // the Algorithm with its configurations
   FWA::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.evgenParticlesCollection = readEvgenCfg.evgenParticlesCollection;
+  eTestConfig.particlesCollection = readEvgenCfg.evgenParticlesCollection;
   eTestConfig.simulatedParticlesCollection = "FatrasParticles";
   eTestConfig.simulatedHitsCollection      = "FatrasHits";
   eTestConfig.minPt                        = 500. * Acts::units::_MeV;

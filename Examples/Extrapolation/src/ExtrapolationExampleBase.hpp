@@ -88,6 +88,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
       (recnWriterConfig);
 
   // the Algorithm with its configurations
+<<<<<<< HEAD
   FW::ExtrapolationAlgorithm::Config eTestConfig;
   eTestConfig.particlesCollection               = "Particles";
   eTestConfig.simulatedParticlesCollection      = "simulatedParticles";
@@ -103,6 +104,20 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   eTestConfig.collectMaterial                   = true;
   eTestConfig.sensitiveCurvilinear              = false;
   eTestConfig.pathLimit                         = -1.;
+=======
+  FWA::ExtrapolationAlgorithm::Config eTestConfig;
+  eTestConfig.searchMode          = 1;
+  eTestConfig.extrapolationEngine = extrapolationEngine;
+  eTestConfig.ecChargedWriter     = rootEccWriter;
+  eTestConfig.ecNeutralWriter     = rootEcnWriter;
+  eTestConfig.randomNumbers       = randomNumbers;
+  eTestConfig.collectSensitive     = true;
+  eTestConfig.collectPassive       = true;
+  eTestConfig.collectBoundary      = true;
+  eTestConfig.collectMaterial      = true;
+  eTestConfig.sensitiveCurvilinear = false;
+  eTestConfig.pathLimit            = -1.;
+>>>>>>> 36ad952... extrapolation: remove particle generator
 
   auto extrapolationAlg
       = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig);

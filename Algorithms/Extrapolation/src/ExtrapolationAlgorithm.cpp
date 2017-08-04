@@ -51,6 +51,7 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
   // propagate particles through the detector and generate hits
   using FatrasHit
       = std::pair<std::unique_ptr<const Acts::TrackParameters>, barcode_type>;
+
   // prepare the detector data dfoe qeirinf out
   FW::DetectorData<geo_id_value, FatrasHit> hits;
   

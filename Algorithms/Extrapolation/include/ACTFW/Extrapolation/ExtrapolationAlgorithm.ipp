@@ -49,6 +49,10 @@ FW::ExtrapolationAlgorithm::executeTestT(
   auto   sPosition = startParameters.position();
   double sTheta    = startParameters.momentum().theta();
   double sPhi      = startParameters.momentum().theta();
+  double tX0       = 0.;
+  double tL0       = 0.;
+  // material steps to be  filled
+  std::vector<Acts::MaterialStep> materialSteps;
 
   // call the extrapolation engine
   Acts::ExtrapolationCode eCode = m_cfg.extrapolationEngine->extrapolate(ecc);
