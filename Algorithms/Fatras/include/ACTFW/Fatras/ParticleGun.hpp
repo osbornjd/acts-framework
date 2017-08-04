@@ -1,8 +1,8 @@
 #ifndef ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
-#define ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H 
+#define ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
 
-#include <mutex>
 #include <array>
+#include <mutex>
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
@@ -11,7 +11,7 @@ namespace FW {
 class RandomNumbersSvc;
 }
 
-namespace FWE {
+namespace FW {
 
 /// @class ParticleGun
 ///
@@ -59,10 +59,10 @@ public:
   // clang-format off
   /// @copydoc FW::IReaderT::read(std::vector<Acts::ParticleProperties>&,size_t,const FW::AlgorithmContext*)
   // clang-format on
-  FW::ProcessCode
+  ProcessCode
   read(std::vector<Acts::ParticleProperties>& particleProperties,
        size_t                                 skip    = 0,
-       const FW::AlgorithmContext*            context = nullptr) override final;
+       const AlgorithmContext*                context = nullptr) override final;
 
   /// Reads in a  list of paritlces
   /// @return is a process code indicateing if the reading succeeded
@@ -71,12 +71,12 @@ public:
 
   /// Reads in a  list of paritlces
   /// @return is a process code indicateing if the reading succeeded
-  FW::ProcessCode
+  ProcessCode
   initialize() override final;
 
   /// Reads in a  list of paritlces
   /// @return is a process code indicateing if the reading succeeded
-  FW::ProcessCode
+  ProcessCode
   finalize() override final;
 
 private:
@@ -87,10 +87,10 @@ private:
     return (*m_logger);
   }
 
-  Config m_cfg;
+  Config                              m_cfg;
   std::unique_ptr<const Acts::Logger> m_logger;
 };
 
-}
+}  // namespace FW
 
 #endif  // ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H

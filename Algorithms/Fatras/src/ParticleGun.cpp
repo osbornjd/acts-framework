@@ -3,8 +3,8 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTS/Utilities/Units.hpp"
 
-FWE::ParticleGun::ParticleGun(const FWE::ParticleGun::Config&     cfg,
-                              std::unique_ptr<const Acts::Logger> mlogger)
+FW::ParticleGun::ParticleGun(const FW::ParticleGun::Config&      cfg,
+                             std::unique_ptr<const Acts::Logger> mlogger)
   : FW::IReaderT<std::vector<Acts::ParticleProperties>>()
   , m_cfg(cfg)
   , m_logger(std::move(mlogger))
@@ -15,15 +15,14 @@ FWE::ParticleGun::ParticleGun(const FWE::ParticleGun::Config&     cfg,
   }
 }
 
-FWE::ParticleGun::~ParticleGun()
+FW::ParticleGun::~ParticleGun()
 {
 }
 
 FW::ProcessCode
-FWE::ParticleGun::read(
-    std::vector<Acts::ParticleProperties>& particleProperties,
-    size_t                                 skip,
-    const FW::AlgorithmContext*            context)
+FW::ParticleGun::read(std::vector<Acts::ParticleProperties>& particleProperties,
+                      size_t                                 skip,
+                      const FW::AlgorithmContext*            context)
 {
   if (!context) {
     ACTS_FATAL("read() did not succeed! No AlgorithmContext "
@@ -61,19 +60,19 @@ FWE::ParticleGun::read(
 }
 
 std::string
-FWE::ParticleGun::name() const
+FW::ParticleGun::name() const
 {
   return "ParticleGun";
 }
 
 FW::ProcessCode
-FWE::ParticleGun::initialize()
+FW::ParticleGun::initialize()
 {
   return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWE::ParticleGun::finalize()
+FW::ParticleGun::finalize()
 {
   return FW::ProcessCode::SUCCESS;
 }
