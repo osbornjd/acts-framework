@@ -199,8 +199,6 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
   // write the clusters to the EventStore
   if (ctx.eventStore.add(m_cfg.clustersCollection, std::move(planarClusters))
       == FW::ProcessCode::ABORT) {
-    ACTS_WARNING("Could not write collection " << m_cfg.clustersCollection
-                                               << " to event store.");
     return FW::ProcessCode::ABORT;
   }
 

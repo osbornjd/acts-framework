@@ -164,7 +164,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   FW::DigitizationAlgorithm::Config digConfig;
   digConfig.simulatedHitsCollection = eTestConfig.simulatedHitsCollection;
   digConfig.clustersCollection      = "FatrasClusters";
-  digConfig.spacePointCollection    = "FatrasSpacePoints";
+  digConfig.spacePointsCollection   = "FatrasSpacePoints";
   digConfig.planarModuleStepper     = pmStepper;
 
   auto digitzationAlg = std::make_shared<FW::DigitizationAlgorithm>(digConfig, dLogLevel);
@@ -209,7 +209,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   writeConfig.planarClustersCollection = digConfig.clustersCollection;
   writeConfig.planarClusterWriter      = clusterWriterCsv;
   // the created space points
-  writeConfig.spacePointCollection = digConfig.spacePointCollection;
+  writeConfig.spacePointCollection = digConfig.spacePointsCollection;
   writeConfig.spacePointWriter     = spWriterObj;  // spWriterJson;
 
   auto writeOutput = std::make_shared<FWA::FatrasWriteAlgorithm>(
