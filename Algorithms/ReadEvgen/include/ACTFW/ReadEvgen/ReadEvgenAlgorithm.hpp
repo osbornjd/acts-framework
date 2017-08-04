@@ -8,14 +8,13 @@
 #ifndef ACTFW_EXAMPLES_READEVGENALGORITHM_H
 #define ACTFW_EXAMPLES_READEVGENALGORITHM_H
 
+#include <array>
 #include <memory>
 #include <string>
-#include <array>
-#include "ACTFW/Framework/AlgorithmContext.hpp"
+
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -46,8 +45,6 @@ public:
     /// the pileup reader
     std::shared_ptr<FW::IReaderT<std::vector<Acts::ParticleProperties>>>
         pileupParticleReader = nullptr;
-    /// the random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     /// the Poisson parameter for pileup generation
     int pileupPoissonParameter = 40;
     /// the Gaussian parameters for transverse and axial vertex generation
@@ -55,9 +52,8 @@ public:
     std::array<double, 2> vertexZParameters = {{0., 1.}};
     /// the BarcodeSvc
     std::shared_ptr<FW::BarcodeSvc> barcodeSvc = nullptr;
-    /// output writer
-    std::shared_ptr<FW::IWriterT<std::vector<Acts::ParticleProperties>>>
-        particleWriter = nullptr;
+    /// the random number service
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
   };
 
   /// Constructor

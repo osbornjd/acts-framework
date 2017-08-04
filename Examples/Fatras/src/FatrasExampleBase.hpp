@@ -109,8 +109,6 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   readEvgenCfg.vertexZParameters      = {{0., 55.0 * Acts::units::_mm}};
   // attach the barcode service
   readEvgenCfg.barcodeSvc = barcodeSvc;
-  // set the particle writer
-  readEvgenCfg.particleWriter = nullptr;
   // create the read Algorithm
   auto readEvgen = std::make_shared<FWA::ReadEvgenAlgorithm>(
       readEvgenCfg,

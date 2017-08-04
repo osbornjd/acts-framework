@@ -1,5 +1,7 @@
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
+
 #include <iostream>
+
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
@@ -58,7 +60,7 @@ FWA::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
   FW::PoissonDist pileupDist(m_cfg.pileupPoissonParameter);
   FW::GaussDist   vertexTDist(m_cfg.vertexTParameters[0],
                             m_cfg.vertexTParameters[1]);
-  FW::GaussDist   vertexZDist(m_cfg.vertexZParameters[0],
+  FW::GaussDist vertexZDist(m_cfg.vertexZParameters[0],
                             m_cfg.vertexZParameters[1]);
 
   // prepare the output vector
@@ -119,7 +121,8 @@ FWA::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
     pCounter = 0;
     ACTS_VERBOSE("- [PU " << ipue << "] number of pile-up particles : "
                           << pileupPartiles.size()
-                          << " - with z vertex position: " << puVertexZ);
+                          << " - with z vertex position: "
+                          << puVertexZ);
     // loop over pileupParicles
     for (auto& puParticle : pileupPartiles) {
       // shift to the pile-up vertex
@@ -130,20 +133,10 @@ FWA::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
     }
   }
 
-  // write to file if you have
-  if (m_cfg.particleWriter
-      && m_cfg.particleWriter->write(eventParticles)
-          == FW::ProcessCode::ABORT) {
-    ACTS_WARNING("Could not write colleciton of particles to file. Aborting.");
-    return FW::ProcessCode::ABORT;
-  }
-
   // write to the EventStore
   if (ctx.eventStore.add(m_cfg.evgenParticlesCollection,
                          std::move(eventParticles))
       == FW::ProcessCode::ABORT) {
-    ACTS_WARNING(
-        "Could not write colleciton of process vertices to event store.");
     return FW::ProcessCode::ABORT;
   }
 

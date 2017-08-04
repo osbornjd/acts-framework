@@ -84,8 +84,6 @@ main(int argc, char* argv[])
   readEvgenCfg.vertexZParameters = {{0., 5.5}};
   // attach the barcode service
   readEvgenCfg.barcodeSvc          = barcodeSvc;
-  // set the particle writer
-  readEvgenCfg.particleWriter = particleWriter;
   // create the read Algorithm
   auto readEvgen = std::make_shared<FWA::ReadEvgenAlgorithm>(
       readEvgenCfg,
