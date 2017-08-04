@@ -37,7 +37,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // EXTRAPOLATOR - set up the extrapolator
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
-      = FWA::initExtrapolator(tGeometry, magField, eLogLevel);
+      = FW::initExtrapolator(tGeometry, magField, eLogLevel);
 
   // create a pythia generator for the hard scatter
   // process: HardQCD for the moment
@@ -143,7 +143,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
           stracksWriterObjConfig));
 
   // the Algorithm with its configurations
-  FWA::ExtrapolationAlgorithm::Config eTestConfig;
+  FW::ExtrapolationAlgorithm::Config eTestConfig;
   eTestConfig.particlesCollection = readEvgenCfg.evgenParticlesCollection;
   eTestConfig.simulatedParticlesCollection = "FatrasParticles";
   eTestConfig.simulatedHitsCollection      = "FatrasHits";
@@ -160,7 +160,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   eTestConfig.pathLimit                    = -1.;
 
   std::shared_ptr<FW::IAlgorithm> extrapolationAlg(
-      new FWA::ExtrapolationAlgorithm(eTestConfig));
+      new FW::ExtrapolationAlgorithm(eTestConfig));
 
   // ----------- DIGITIZATION ----------------------------------------------
   // set up the planar module stepper

@@ -81,7 +81,6 @@ public:
 
   /// Framework execute method
   /// @param [in] the algorithm context for event consistency
-  ProcessCode
   execute(AlgorithmContext ctx) const final override;
 
 private:
@@ -100,7 +99,7 @@ private:
       std::vector< Acts::ExtrapolationCell< T> >& eCells,
       DetectorData<geo_id_value,
                    std::pair<std::unique_ptr<const T>, barcode_type>>* dData
-      = nullptr) const;
+                    = nullptr) const;
 };
 }  // namespace FW
 #include "ExtrapolationAlgorithm.ipp"
