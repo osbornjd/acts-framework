@@ -63,19 +63,11 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // the Algorithm with its configurations
   FWA::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.testsPerEvent       = 250;
-  eTestConfig.parameterType       = 1;
   eTestConfig.searchMode          = 1;
   eTestConfig.extrapolationEngine = extrapolationEngine;
   eTestConfig.ecChargedWriter     = rootEccWriter;
   eTestConfig.ecNeutralWriter     = rootEcnWriter;
   eTestConfig.randomNumbers       = randomNumbers;
-  eTestConfig.d0Defs              = {{0., 0.}};
-  eTestConfig.z0Defs              = {{0., 0.}};
-  eTestConfig.phiRange            = {{-M_PI, M_PI}};
-  eTestConfig.etaRange            = {{-3.75, 3.75}};
-  eTestConfig.ptRange = {{100. * Acts::units::_MeV, 1000. * Acts::units::_MeV}};
-  eTestConfig.particleType         = 3;
   eTestConfig.collectSensitive     = true;
   eTestConfig.collectPassive       = true;
   eTestConfig.collectBoundary      = true;
