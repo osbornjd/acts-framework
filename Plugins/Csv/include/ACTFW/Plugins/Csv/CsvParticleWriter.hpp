@@ -1,11 +1,11 @@
-//  IExtrapolationCellWriter.h
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
-#ifndef ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H
-#define ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H
+/// @file
+/// @date 2016-05-23 Initial version
+/// @date 2017-08-07 Rewrite with new interfaces
+/// @autor Andreas Salzburger
+/// @author Moritz Kiehnn <msmk@cern.ch>
+
+#ifndef ACTFW_CSVPARTICLERITER_H
+#define ACTFW_CSVPARTICLERITER_H
 
 #include <vector>
 
@@ -18,10 +18,16 @@
 namespace FW {
 namespace Csv {
 
-  /// @class CsvParticleWriter
+  /// Write out a particle collection in comma-separated-value format.
   ///
-  /// A root based implementation to write out particleproperties vector
+  /// This writes one file per event into the configured output directory. By
+  /// default it writes to the current working directory. Files are named
+  /// using the following schema
   ///
+  ///     event000000001-particles.csv
+  ///     event000000002-particles.csv
+  ///
+  /// and each line in the file corresponds to one particle.
   class CsvParticleWriter
     : public WriterT<std::vector<Acts::ParticleProperties>>
   {
@@ -31,7 +37,7 @@ namespace Csv {
     {
       std::string collection;           ///< which collection to write
       std::string outputDir;            ///< where to place output files
-      size_t      outputPrecision = 4;  ///< floating point precision
+      size_t      outputPrecision = 6;  ///< floating point precision
       /// the barcode service to decode
       std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
     };
@@ -52,4 +58,4 @@ namespace Csv {
 }  // namespace Csv
 }  // namespace FW
 
-#endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H
+#endif  // ACTFW_CSVPARTICLERITER_H
