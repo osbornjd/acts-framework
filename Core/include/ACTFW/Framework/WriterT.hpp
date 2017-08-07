@@ -40,7 +40,7 @@ public:
   WriterT(std::string          objectName,
           std::string          writerName,
           Acts::Logging::Level level);
-  /// deleted default destructor        
+  /// default destructor        
   ~WriterT() = default;
 
   std::string
