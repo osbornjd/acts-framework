@@ -37,15 +37,15 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
     return ProcessCode::ABORT;
   }
 
-  // write csv header
-  osHits << "hit_id, ";
-  osHits << "volume_id, ";
-  osHits << "layer_id, ";
-  osHits << "x, y, z, ex, ey, ez, ";
-  osHits << "phi, theta, ephi, etheta, ";
-  osHits << "fch0, fch1, fvalue\n";
+  // write csv hits header
+  osHits << "hit_id,";
+  osHits << "volume_id,layer_id,module_id,";
+  osHits << "x,y,z,ex,ey,ez,";
+  osHits << "phi,theta,ephi,etheta,";
+  osHits << "ncells,ch0,ch1,value\n";
   osHits << std::setprecision(m_cfg.outputPrecision);
-  osTruth << "barcode, hit_id\n";
+  // write csv truth headers
+  osTruth << "barcode,hit_id\n";
 
   size_t hitId = 0;
   for (auto& volumeData : clusters) {
@@ -66,17 +66,19 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           cluster.referenceSurface().localToGlobal(local, mom, pos);
 
           // write hit information
-          osHits << hitId << ", ";
-          osHits << volumeData.first << ", ";
-          osHits << layerData.first << ", ";
-          osHits << pos.x() << ", " << pos.y() << "," << pos.z() << ", ";
-          osHits << "-1.0, -1.0, -1.0, ";  // TODO ex, ey, ez
-          osHits << pos.phi() << ", " << pos.theta()
-                 << ", ";          // TODO phi, theta
-          osHits << "-1.0, -1.0";  // TODO ephi, etheta
+          osHits << hitId << ",";
+          osHits << volumeData.first << ",";
+          osHits << layerData.first << ",";
+          osHits << moduleData.first << ",";
+          osHits << pos.x() << "," << pos.y() << "," << pos.z() << ",";
+          osHits << "-1.0,-1.0,-1.0,";                       // TODO ex, ey, ez
+          osHits << pos.phi() << "," << pos.theta() << ",";  // TODO phi, theta
+          osHits << "-1.0,-1.0,";  // TODO ephi, etheta
           // append cell information
-          for (auto& cell : cluster.digitizationCells()) {
-            osHits << ", " << cell.channel0 << ", " << cell.channel1 << ", "
+          const auto& cells = cluster.digitizationCells();
+          osHits << cells.size();
+          for (auto& cell : cells) {
+            osHits << "," << cell.channel0 << "," << cell.channel1 << ","
                    << cell.data;
           }
           osHits << '\n';
@@ -84,7 +86,7 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
           for (auto& barcode : cluster.barcodes()) {
-            osTruth << barcode << ", " << hitId << '\n';
+            osTruth << barcode << "," << hitId << '\n';
           }
         }
       }
