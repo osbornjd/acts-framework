@@ -33,6 +33,11 @@ FW::Csv::CsvParticleWriter::finalize()
 FW::ProcessCode
 FW::Csv::CsvParticleWriter::write(const FW::AlgorithmContext& ctx)
 {
+  const std::vector<Acts::ParticleProperties>* particles;
+  if (ctx.eventStore.get(m_cfg.collection, particles) != ProcessCode::SUCCESS)
+    return ProcessCode::ABORT;
+
+  // open per-event file
   std::string path
       = perEventFilepath(m_cfg.outputDir, "particles.csv", ctx.eventNumber);
   std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
@@ -41,20 +46,22 @@ FW::Csv::CsvParticleWriter::write(const FW::AlgorithmContext& ctx)
     return ProcessCode::ABORT;
   }
 
-  const std::vector<Acts::ParticleProperties>* particles;
-  if (ctx.eventStore.get(m_cfg.collection, particles) != ProcessCode::SUCCESS)
-    return ProcessCode::ABORT;
+  // write csv header
+  os << "barcode, ";
+  os << "vx, vy, vz, ";
+  os << "phi, theta, ";
+  os << "p, q\n";
 
   // write one line per particle
   os << std::setprecision(m_cfg.outputPrecision);
   for (auto& particle : (*particles)) {
-    os << particle.barcode() << ", [";
+    os << particle.barcode() << ", ";
     os << particle.vertex().x() << ", ";
     os << particle.vertex().y() << ", ";
-    os << particle.vertex().z() << "], [";
-    os << particle.momentum().mag() << ", ";
+    os << particle.vertex().z() << ", ";
+    os << particle.momentum().phi() << ", ";
     os << particle.momentum().theta() << ", ";
-    os << particle.momentum().phi() << "], ";
+    os << particle.momentum().mag() << ", ";
     os << particle.charge() << '\n';
   }
 
