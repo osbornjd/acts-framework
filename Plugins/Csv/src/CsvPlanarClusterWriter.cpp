@@ -40,71 +40,79 @@ FW::Csv::CsvPlanarClusterWriter::write(const AlgorithmContext& ctx)
   if (ctx.eventStore.get(m_cfg.collection, clusters) != ProcessCode::SUCCESS)
     return ProcessCode::ABORT;
 
-  // open per-event file
-  std::string path
+  // open per-event hits file
+  std::string pathHits
       = perEventFilepath(m_cfg.outputDir, "hits.csv", ctx.eventNumber);
-  std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
-  if (!os) {
-    ACTS_ERROR("Could not open '" << path << "' to write");
+  std::ofstream osHits(pathHits, std::ofstream::out | std::ofstream::trunc);
+  if (!osHits) {
+    ACTS_ERROR("Could not open '" << pathHits << "' to write");
+    return ProcessCode::ABORT;
+  }
+  // open per-event truth file
+  std::string pathTruth
+      = perEventFilepath(m_cfg.outputDir, "truth.csv", ctx.eventNumber);
+  std::ofstream osTruth(pathTruth, std::ofstream::out | std::ofstream::trunc);
+  if (!osTruth) {
+    ACTS_ERROR("Could not open '" << pathTruth << "' to write");
     return ProcessCode::ABORT;
   }
 
-  // now write out
-  os << std::setprecision(m_cfg.outputPrecision);
+  // write csv header
+  osHits << "hit_id, ";
+  osHits << "volume_id, ";
+  osHits << "layer_id, ";
+  osHits << "x, y, z, ex, ey, ez, ";
+  osHits << "phi, theta, ephi, etheta, ";
+  osHits << "fch0, fch1, fvalue\n";
+  osHits << std::setprecision(m_cfg.outputPrecision);
+  osTruth << "barcode, hit_id\n";
 
-  size_t hitCounter = 0;
-  // loop and fill
-  for (auto& volumeData : (*clusters))
-    for (auto& layerData : volumeData.second)
-      for (auto& moduleData : layerData.second)
+  size_t hitId = 0;
+  for (auto& volumeData : (*clusters)) {
+    for (auto& layerData : volumeData.second) {
+      for (auto& moduleData : layerData.second) {
         for (auto& cluster : moduleData.second) {
-          // get the global position
-          Acts::Vector3D pos(0., 0., 0.);
-          Acts::Vector3D mom(1., 1., 1.);
+          // Identifier @todo replace by identifier
+          // (*(m_cfg.outputStream)) << cluster.identifier().value() << ", ";
+          hitId += 1;
+
+          // local cluster information
           auto           parameters = cluster.parameters();
-          double         lx         = parameters[Acts::ParDef::eLOC_0];
-          double         ly         = parameters[Acts::ParDef::eLOC_1];
-          double         ex         = 0.;
-          double         ey         = 0.;
-          Acts::Vector2D local(lx, ly);
-          // get the surface
-          const Acts::Surface& clusterSurface = cluster.referenceSurface();
-          // transform global to local
-          clusterSurface.localToGlobal(local, mom, pos);
-          // write one line per barcode
+          Acts::Vector2D local(parameters[Acts::ParDef::eLOC_0],
+                               parameters[Acts::ParDef::eLOC_1]);
+          Acts::Vector3D pos(0, 0, 0);
+          Acts::Vector3D mom(1, 1, 1);
+          // transform local into global position information
+          cluster.referenceSurface().localToGlobal(local, mom, pos);
+
+          // write hit information
+          osHits << hitId << ", ";
+          osHits << volumeData.first << ", ";
+          osHits << layerData.first << ", ";
+          osHits << pos.x() << ", " << pos.y() << "," << pos.z() << ", ";
+          osHits << "-1.0, -1.0, -1.0, ";  // TODO ex, ey, ez
+          osHits << pos.phi() << ", " << pos.theta()
+                 << ", ";          // TODO phi, theta
+          osHits << "-1.0, -1.0";  // TODO ephi, etheta
+          // append cell information
+          for (auto& cell : cluster.digitizationCells()) {
+            osHits << ", " << cell.channel0 << ", " << cell.channel1 << ", "
+                   << cell.data;
+          }
+          osHits << '\n';
+
+          // write hit-particle truth association
+          // each hit can have multiple particles, e.g. in a dense environment
           for (auto& barcode : cluster.barcodes()) {
-            // write out the data
-            // Identifier @todo replace by identifier
-            // (*(m_cfg.outputStream)) << cluster.identifier().value() << ", ";
-            os << ++hitCounter << ", ";
-            // contributing barcode
-            os << barcode << ", ";
-            // local position
-            os << "[ " << lx << ", " << ly << "], ";
-            // local error
-            os << "[ " << ex << ", " << ey << "],";
-            // pobal position
-            os << "[ " << pos.x() << ", " << pos.y() << "," << pos.z() << "], ";
-            // thickness of the cluster
-            double thickness = clusterSurface.associatedDetectorElement()
-                ? clusterSurface.associatedDetectorElement()->thickness()
-                : 0.;
-            os << thickness << ",  [";
-            // feature set
-            size_t cellCounter = 0;
-            for (auto& cell : cluster.digitizationCells()) {
-              // pobal position
-              os << "[ " << cell.channel0 << ", " << cell.channel1 << ", "
-                 << cell.data << "]";
-              if (cellCounter < cluster.digitizationCells().size() - 1)
-                os << ", ";
-              ++cellCounter;
-            }
-            os << "]" << '\n';
+            osTruth << barcode << ", " << hitId << '\n';
           }
         }
-  // add a new loine
-  os << '\n';
-  // return success
+      }
+    }
+  }
+
+  osHits.close();
+  osTruth.close();
+
   return FW::ProcessCode::SUCCESS;
 }

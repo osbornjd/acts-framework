@@ -34,6 +34,7 @@ namespace Csv {
     /// @param cfg is the configuration class
     CsvPlanarClusterWriter(const Config&        cfg,
                            Acts::Logging::Level level = Acts::Logging::INFO);
+    ~CsvPlanarClusterWriter() = default;
 
     std::string
     name() const final;
