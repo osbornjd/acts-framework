@@ -1,7 +1,10 @@
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 
+#include <fstream>
+
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 #include "ACTS/Digitization/PlanarModuleCluster.hpp"
 
 FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
@@ -33,18 +36,21 @@ FW::Csv::CsvPlanarClusterWriter::finalize()
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterWriter::write(const AlgorithmContext& ctx)
 {
-  // abort if you have no stream
-  if (!m_cfg.outputStream) return FW::ProcessCode::ABORT;
-
   const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>* clusters;
   if (ctx.eventStore.get(m_cfg.collection, clusters) != ProcessCode::SUCCESS)
     return ProcessCode::ABORT;
 
-  // lock the mutex
-  std::lock_guard<std::mutex> lock(m_write_mutex);
+  // open per-event file
+  std::string path
+      = perEventFilepath(m_cfg.outputDir, "hits.csv", ctx.eventNumber);
+  std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
+  if (!os) {
+    ACTS_ERROR("Could not open '" << path << "' to write");
+    return ProcessCode::ABORT;
+  }
+
   // now write out
-  (*(m_cfg.outputStream)) << '\n';
-  (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
+  os << std::setprecision(m_cfg.outputPrecision);
 
   size_t hitCounter = 0;
   // loop and fill
@@ -70,37 +76,35 @@ FW::Csv::CsvPlanarClusterWriter::write(const AlgorithmContext& ctx)
             // write out the data
             // Identifier @todo replace by identifier
             // (*(m_cfg.outputStream)) << cluster.identifier().value() << ", ";
-            (*(m_cfg.outputStream)) << ++hitCounter << ", ";
+            os << ++hitCounter << ", ";
             // contributing barcode
-            (*(m_cfg.outputStream)) << barcode << ", ";
+            os << barcode << ", ";
             // local position
-            (*(m_cfg.outputStream)) << "[ " << lx << ", " << ly << "], ";
+            os << "[ " << lx << ", " << ly << "], ";
             // local error
-            (*(m_cfg.outputStream)) << "[ " << ex << ", " << ey << "],";
+            os << "[ " << ex << ", " << ey << "],";
             // pobal position
-            (*(m_cfg.outputStream)) << "[ " << pos.x() << ", " << pos.y() << ","
-                                    << pos.z() << "], ";
+            os << "[ " << pos.x() << ", " << pos.y() << "," << pos.z() << "], ";
             // thickness of the cluster
             double thickness = clusterSurface.associatedDetectorElement()
                 ? clusterSurface.associatedDetectorElement()->thickness()
                 : 0.;
-            (*(m_cfg.outputStream)) << thickness << ",  [";
+            os << thickness << ",  [";
             // feature set
             size_t cellCounter = 0;
             for (auto& cell : cluster.digitizationCells()) {
               // pobal position
-              (*(m_cfg.outputStream))
-                  << "[ " << cell.channel0 << ", " << cell.channel1 << ", "
-                  << cell.data << "]";
+              os << "[ " << cell.channel0 << ", " << cell.channel1 << ", "
+                 << cell.data << "]";
               if (cellCounter < cluster.digitizationCells().size() - 1)
-                (*(m_cfg.outputStream)) << ", ";
+                os << ", ";
               ++cellCounter;
             }
-            (*(m_cfg.outputStream)) << "]" << '\n';
+            os << "]" << '\n';
           }
         }
   // add a new loine
-  (*(m_cfg.outputStream)) << '\n';
+  os << '\n';
   // return success
   return FW::ProcessCode::SUCCESS;
 }

@@ -7,12 +7,9 @@
 #ifndef ACTFW_CSV_PLUGINS_PLANARCLUSTERWRITER_H
 #define ACTFW_CSV_PLUGINS_PLANARCLUSTERWRITER_H
 
-#include <fstream>
 #include <memory>
-#include <mutex>
 
 #include "ACTFW/Framework/IWriter.hpp"
-#include "ACTS/Digitization/PlanarModuleCluster.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace FW {
@@ -27,10 +24,9 @@ namespace Csv {
   public:
     struct Config
     {
-      // input planar cluster collection
-      std::string                    collection;
-      size_t                         outputPrecision = 4;
-      std::shared_ptr<std::ofstream> outputStream    = nullptr;
+      std::string collection;           ///< which collection to write
+      std::string outputDir;            ///< where to place output files
+      size_t      outputPrecision = 4;  ///< floating point precision
     };
 
     /// Constructor
@@ -52,8 +48,7 @@ namespace Csv {
     write(const AlgorithmContext& ctx) final;
 
   private:
-    Config     m_cfg;          ///< the config class
-    std::mutex m_write_mutex;  ///< mutex used to protect multi-threaded writes
+    Config                              m_cfg;
     std::unique_ptr<const Acts::Logger> m_logger;
 
     /// Private access to the logging instance
