@@ -1,36 +1,26 @@
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include <TFile.h>
-#include <iostream>
 
-FWRoot::RootParticleWriter::RootParticleWriter(
-    const FWRoot::RootParticleWriter::Config& cfg)
-  : FW::IWriterT<std::vector<Acts::ParticleProperties>>()
+#include <TFile.h>
+#include <TTree.h>
+
+FW::Root::RootParticleWriter::RootParticleWriter(
+    const FW::Root::RootParticleWriter::Config& cfg,
+    Acts::Logging::Level                        level)
+  : Base(cfg.collection, "RootParticleWriter", level)
   , m_cfg(cfg)
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
 {
 }
 
-FWRoot::RootParticleWriter::~RootParticleWriter()
-{
-}
-
-/// Framework name() method
-// @return the name of the tool
-std::string
-FWRoot::RootParticleWriter::name() const
-{
-  return m_cfg.name;
-}
-
 FW::ProcessCode
-FWRoot::RootParticleWriter::initialize()
+FW::Root::RootParticleWriter::initialize()
 {
   ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
+
   // open the output file
   m_outputFile = new TFile(m_cfg.fileName.c_str(), m_cfg.fileMode.c_str());
   m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
-
   // initial parameters
   m_outputTree->Branch("eta", &m_eta);
   m_outputTree->Branch("phi", &m_phi);
@@ -51,11 +41,11 @@ FWRoot::RootParticleWriter::initialize()
   m_outputTree->Branch("secondary", &m_secondary);
   m_outputTree->Branch("process", &m_process);
 
-  return FW::ProcessCode::SUCCESS;
+  return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWRoot::RootParticleWriter::finalize()
+FW::Root::RootParticleWriter::finalize()
 {
   ACTS_INFO("Closing and Writing ROOT output File : " << m_cfg.fileName);
   m_outputFile->cd();
@@ -66,9 +56,18 @@ FWRoot::RootParticleWriter::finalize()
 }
 
 FW::ProcessCode
-FWRoot::RootParticleWriter::write(
+FW::Root::RootParticleWriter::writeT(
+    const AlgorithmContext&                      ctx,
     const std::vector<Acts::ParticleProperties>& particles)
 {
+  // we can not write anything w/o a tree
+  if (!m_outputTree) {
+    ACTS_WARNING("No output tree available");
+    return ProcessCode::SUCCESS;
+  }
+
+  // exclusive access to the tree
+  std::lock_guard<std::mutex> lock(m_writeMutex);
   // the number of particles
   size_t nParticles = particles.size();
   // clear the branches
@@ -135,14 +134,6 @@ FWRoot::RootParticleWriter::write(
       m_process.push_back(m_cfg.barcodeSvc->process(particle.barcode()));
     }
   }
-  // fill the tree
-  if (m_outputTree) m_outputTree->Fill();
-
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FWRoot::RootParticleWriter::write(const std::string& sinfo)
-{
-  return FW::ProcessCode::SUCCESS;
+  m_outputTree->Fill();
+  return ProcessCode::SUCCESS;
 }
