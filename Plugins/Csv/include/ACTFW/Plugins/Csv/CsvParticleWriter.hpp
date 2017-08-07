@@ -48,7 +48,6 @@ namespace Csv {
     ~CsvParticleWriter() = default;
 
   protected:
-    ///   
     ProcessCode
     writeT(const FW::AlgorithmContext&                  ctx,
            const std::vector<Acts::ParticleProperties>& particles) final;
