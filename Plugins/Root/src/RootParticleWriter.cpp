@@ -23,7 +23,6 @@ FW::Root::RootParticleWriter::initialize()
   }
   m_outputFile->cd();
   m_outputTree = new TTree(m_cfg.treeName.c_str(),
-                           "TTree from RootParticleWriter");
   // initial parameters
   m_outputTree->Branch("eta", &m_eta);
   m_outputTree->Branch("phi", &m_phi);
