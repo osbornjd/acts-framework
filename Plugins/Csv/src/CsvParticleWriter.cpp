@@ -15,12 +15,23 @@ FW::Csv::CsvParticleWriter::writeT(
     const std::vector<Acts::ParticleProperties>& particles)
 {
   // open per-event file
+  return ProcessCode::SUCCESS;
+}
+
+FW::ProcessCode
+FW::Csv::CsvParticleWriter::finalize()
+{
+  return ProcessCode::SUCCESS;
+}
+
+FW::ProcessCode
+FW::Csv::CsvParticleWriter::write(const FW::AlgorithmContext& ctx)
+{
   std::string path
       = perEventFilepath(m_cfg.outputDir, "particles.csv", ctx.eventNumber);
   std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
   if (!os) {
     ACTS_ERROR("Could not open '" << path << "' to write");
-    return ProcessCode::ABORT;
   }
 
   // write csv header

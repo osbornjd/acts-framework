@@ -6,7 +6,6 @@
 
 #ifndef ACTFW_CSVPARTICLERITER_H
 #define ACTFW_CSVPARTICLERITER_H
-
 #include <vector>
 #include <ACTS/EventData/ParticleDefinitions.hpp>
 #include <ACTS/Utilities/Logger.hpp>
