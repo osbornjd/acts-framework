@@ -1,13 +1,11 @@
-//  CsvPlanarClusterWriter.h
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
-#ifndef ACTFW_CSV_PLUGINS_PLANARCLUSTERWRITER_H
-#define ACTFW_CSV_PLUGINS_PLANARCLUSTERWRITER_H
+/// @file
+/// @date 2016-05-23 Initial version
+/// @date 2017-08-07 Rewrite with new interfaces
+/// @autor Andreas Salzburger
+/// @author Moritz Kiehnn <msmk@cern.ch>
 
-#include <memory>
+#ifndef ACTFW_CSVPLANARCLUSTERWRITER_H
+#define ACTFW_CSVPLANARCLUSTERWRITER_H
 
 #include <ACTS/Digitization/PlanarModuleCluster.hpp>
 
@@ -17,10 +15,16 @@
 namespace FW {
 namespace Csv {
 
-  /// @class CsvPlanarClusterWriter
+  /// Write out a planar cluster collection in comma-separated-value format.
   ///
-  /// A root based implementation to write out particleproperties vector
+  /// This writes one file per event into the configured output directory. By
+  /// default it writes to the current working directory. Files are named
+  /// using the following schema
   ///
+  ///     event000000001-hits.csv
+  ///     event000000002-hits.csv
+  ///
+  /// and each line in the file corresponds to one hit/cluster.
   class CsvPlanarClusterWriter
     : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
   {
@@ -30,12 +34,9 @@ namespace Csv {
     {
       std::string collection;           ///< which collection to write
       std::string outputDir;            ///< where to place output files
-      size_t      outputPrecision = 4;  ///< floating point precision
+      size_t      outputPrecision = 6;  ///< floating point precision
     };
 
-    /// Constructor
-    ///
-    /// @param cfg is the configuration class
     CsvPlanarClusterWriter(const Config&        cfg,
                            Acts::Logging::Level level = Acts::Logging::INFO);
     ~CsvPlanarClusterWriter() = default;
@@ -53,4 +54,4 @@ namespace Csv {
 }  // namespace Csv
 }  // namespace FW
 
-#endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H
+#endif  // ACTFW_CSVPLANARCLUSTERWRITER_H

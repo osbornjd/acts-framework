@@ -2,10 +2,11 @@
 
 #include <fstream>
 
+#include <ACTS/Digitization/PlanarModuleCluster.hpp>
+
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "ACTS/Digitization/PlanarModuleCluster.hpp"
 
 FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     const FW::Csv::CsvPlanarClusterWriter::Config& cfg,
