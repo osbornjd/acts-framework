@@ -16,10 +16,13 @@ FW::Root::RootParticleWriter::RootParticleWriter(
 FW::ProcessCode
 FW::Root::RootParticleWriter::initialize()
 {
-  ACTS_INFO("Registering new ROOT output File : " << m_cfg.filePath);
+  m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+  if (!m_outputFile) {
+    ACTS_ERROR("Could not open ROOT file'" << m_cfg.filePath << "' to write");
+    return ProcessCode::ABORT;
+  }
 
-  // open the output file
-  m_outputFile = new TFile(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+  m_outputFile->cd();
   m_outputTree = new TTree(m_cfg.treeName.c_str(), "");
   // initial parameters
   m_outputTree->Branch("eta", &m_eta);
@@ -47,12 +50,14 @@ FW::Root::RootParticleWriter::initialize()
 FW::ProcessCode
 FW::Root::RootParticleWriter::finalize()
 {
-  ACTS_INFO("Closing and Writing ROOT output File : " << m_cfg.filePath);
-  m_outputFile->cd();
-  m_outputTree->Write();
-  m_outputFile->Close();
-
-  return FW::ProcessCode::SUCCESS;
+  if (m_outputFile) {
+    m_outputFile->cd();
+    m_outputTree->Write();
+    m_outputFile->Close();
+    ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
+                                          << m_cfg.filePath << "'");
+  }
+  return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
