@@ -8,10 +8,6 @@
 #define ACTFW_CSVPLANARCLUSTERWRITER_H
 
 #include <ACTS/Digitization/PlanarModuleCluster.hpp>
-<<<<<<< HEAD
-=======
-
->>>>>>> 365b2f2... csv: convert cluster writer to WriterT
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 
@@ -24,13 +20,10 @@ namespace Csv {
   /// default it writes to the current working directory. Files are named
   /// using the following schema
   ///
-<<<<<<< HEAD
   ///     event000000001-hits.csv
   ///     event000000002-hits.csv
   ///
   /// and each line in the file corresponds to one hit/cluster.
-=======
->>>>>>> 365b2f2... csv: convert cluster writer to WriterT
   class CsvPlanarClusterWriter
     : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
   {
@@ -52,11 +45,8 @@ namespace Csv {
     ~CsvPlanarClusterWriter() = default;
 
   protected:
-<<<<<<< HEAD
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
-=======
->>>>>>> 365b2f2... csv: convert cluster writer to WriterT
     ProcessCode
     writeT(const AlgorithmContext& ctx,
            const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
@@ -64,12 +54,7 @@ namespace Csv {
 
   private:
     Config m_cfg;
-<<<<<<< HEAD
-};
-=======
   };
-
->>>>>>> 365b2f2... csv: convert cluster writer to WriterT
 }  // namespace Csv
 }  // namespace FW
 
