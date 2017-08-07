@@ -5,11 +5,9 @@
 //
 //
 #ifndef ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H
-#define ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H 1
+#define ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H
 
-#include <fstream>
 #include <memory>
-#include <mutex>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/IWriter.hpp"
@@ -28,12 +26,9 @@ namespace Csv {
   public:
     struct Config
     {
-      /// which collection to write to disk
-      std::string collection;
-      /// the precision
-      size_t outputPrecision = 4;
-      /// the ofstream
-      std::shared_ptr<std::ofstream> outputStream = nullptr;
+      std::string collection;           ///< which collection to write
+      std::string outputDir;            ///< where to place output files
+      size_t      outputPrecision = 4;  ///< floating point precision
       /// the barcode service to decode
       std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
     };
@@ -64,11 +59,9 @@ namespace Csv {
     write(const FW::AlgorithmContext& ctx) final;
 
   private:
-    Config     m_cfg;          ///< the config class
-    std::mutex m_write_mutex;  ///< mutex used to protect multi-threaded writes
+    Config                              m_cfg;
     std::unique_ptr<const Acts::Logger> m_logger;
 
-    /// Private access to the logging instance
     const Acts::Logger&
     logger() const
     {

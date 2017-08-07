@@ -1,6 +1,9 @@
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 
+#include <fstream>
+
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 
 FW::Csv::CsvParticleWriter::CsvParticleWriter(
     const FW::Csv::CsvParticleWriter::Config& cfg,
@@ -30,30 +33,30 @@ FW::Csv::CsvParticleWriter::finalize()
 FW::ProcessCode
 FW::Csv::CsvParticleWriter::write(const FW::AlgorithmContext& ctx)
 {
-  // abort if you have no stream
-  if (!m_cfg.outputStream) return ProcessCode::ABORT;
+  std::string path
+      = perEventFilepath(m_cfg.outputDir, "particles.csv", ctx.eventNumber);
+  std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
+  if (!os) {
+    ACTS_ERROR("Could not open '" << path << "' to write");
+    return ProcessCode::ABORT;
+  }
 
   const std::vector<Acts::ParticleProperties>* particles;
   if (ctx.eventStore.get(m_cfg.collection, particles) != ProcessCode::SUCCESS)
     return ProcessCode::ABORT;
 
-  // lock the mutex
-  std::lock_guard<std::mutex> lock(m_write_mutex);
-  (*(m_cfg.outputStream)) << '\n';
-  (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
-  // loop and fill
+  // write one line per particle
+  os << std::setprecision(m_cfg.outputPrecision);
   for (auto& particle : (*particles)) {
-    // write out the information
-    (*(m_cfg.outputStream)) << particle.barcode() << ", [";
-    (*(m_cfg.outputStream)) << particle.vertex().x() << ", ";
-    (*(m_cfg.outputStream)) << particle.vertex().y() << ", ";
-    (*(m_cfg.outputStream)) << particle.vertex().z() << "], [";
-    (*(m_cfg.outputStream)) << particle.momentum().mag() << ", ";
-    (*(m_cfg.outputStream)) << particle.momentum().theta() << ", ";
-    (*(m_cfg.outputStream)) << particle.momentum().phi() << "], ";
-    (*(m_cfg.outputStream)) << particle.charge() << '\n';
+    os << particle.barcode() << ", [";
+    os << particle.vertex().x() << ", ";
+    os << particle.vertex().y() << ", ";
+    os << particle.vertex().z() << "], [";
+    os << particle.momentum().mag() << ", ";
+    os << particle.momentum().theta() << ", ";
+    os << particle.momentum().phi() << "], ";
+    os << particle.charge() << '\n';
   }
-  (*(m_cfg.outputStream)) << '\n';
 
   return ProcessCode::SUCCESS;
 }
