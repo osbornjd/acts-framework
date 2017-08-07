@@ -8,35 +8,15 @@
 FW::Csv::CsvParticleWriter::CsvParticleWriter(
     const FW::Csv::CsvParticleWriter::Config& cfg,
     Acts::Logging::Level                      level)
-  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("CsvParticleWriter", level))
+  : Base(cfg.collection, "CsvParticleWriter", level), m_cfg(cfg)
 {
-}
-
-std::string
-FW::Csv::CsvParticleWriter::name() const
-{
-  return "CsvParticleWriter";
 }
 
 FW::ProcessCode
-FW::Csv::CsvParticleWriter::initialize()
+FW::Csv::CsvParticleWriter::writeT(
+    const FW::AlgorithmContext&                  ctx,
+    const std::vector<Acts::ParticleProperties>& particles)
 {
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Csv::CsvParticleWriter::finalize()
-{
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Csv::CsvParticleWriter::write(const FW::AlgorithmContext& ctx)
-{
-  const std::vector<Acts::ParticleProperties>* particles;
-  if (ctx.eventStore.get(m_cfg.collection, particles) != ProcessCode::SUCCESS)
-    return ProcessCode::ABORT;
-
   // open per-event file
   std::string path
       = perEventFilepath(m_cfg.outputDir, "particles.csv", ctx.eventNumber);
@@ -54,7 +34,7 @@ FW::Csv::CsvParticleWriter::write(const FW::AlgorithmContext& ctx)
 
   // write one line per particle
   os << std::setprecision(m_cfg.outputPrecision);
-  for (auto& particle : (*particles)) {
+  for (auto& particle : particles) {
     os << particle.barcode() << ", ";
     os << particle.vertex().x() << ", ";
     os << particle.vertex().y() << ", ";

@@ -7,12 +7,13 @@
 #ifndef ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H
 #define ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H
 
-#include <memory>
+#include <vector>
+
+#include <ACTS/EventData/ParticleDefinitions.hpp>
+#include <ACTS/Utilities/Logger.hpp>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Framework/IWriter.hpp"
-#include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "ACTFW/Framework/WriterT.hpp"
 
 namespace FW {
 namespace Csv {
@@ -21,9 +22,11 @@ namespace Csv {
   ///
   /// A root based implementation to write out particleproperties vector
   ///
-  class CsvParticleWriter : public IWriter
+  class CsvParticleWriter
+    : public WriterT<std::vector<Acts::ParticleProperties>>
   {
   public:
+    using Base = WriterT<std::vector<Acts::ParticleProperties>>;
     struct Config
     {
       std::string collection;           ///< which collection to write
@@ -37,36 +40,13 @@ namespace Csv {
                       Acts::Logging::Level level = Acts::Logging::INFO);
     ~CsvParticleWriter() = default;
 
-    /// Framework name() method
-    /// @return the name of the tool
-    std::string
-    name() const final;
-
-    /// Framework intialize method
-    /// @return ProcessCode to indicate success/failure
+  protected:
     ProcessCode
-    initialize() final;
-
-    /// Framework finalize mehtod
-    /// @return ProcessCode to indicate success/failure
-    ProcessCode
-    finalize() final;
-
-    /// The write interface
-    /// @param pProperties is the vector of particle properties
-    /// @return ProcessCode to indicate success/failure
-    ProcessCode
-    write(const FW::AlgorithmContext& ctx) final;
+    writeT(const FW::AlgorithmContext&                  ctx,
+           const std::vector<Acts::ParticleProperties>& particles) final;
 
   private:
-    Config                              m_cfg;
-    std::unique_ptr<const Acts::Logger> m_logger;
-
-    const Acts::Logger&
-    logger() const
-    {
-      return *m_logger;
-    }
+    Config m_cfg;
   };
 
 }  // namespace Csv
