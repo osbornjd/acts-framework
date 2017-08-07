@@ -1,9 +1,9 @@
-//  IExtrapolationCellWriter.h
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
+/// @file
+/// @date 2016-05-23 Initial version
+/// @date 2017-08-07 Rewrite with new interfaces
+/// @autor Andreas Salzburger
+/// @author Moritz Kiehnn <msmk@cern.ch>
+
 #ifndef ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
 #define ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
 
@@ -20,10 +20,9 @@ class TTree;
 namespace FW {
 namespace Root {
 
-  /// @class RootParticleWriter
+  /// Write out a particle collection in a ROOT TTree.
   ///
-  /// A root based implementation to write out particleproperties vector
-  ///
+  /// Each entry in the TTree corresponds to the particles in one event.
   class RootParticleWriter final
     : public WriterT<std::vector<Acts::ParticleProperties>>
   {
@@ -32,7 +31,7 @@ namespace Root {
     struct Config
     {
       std::string collection;              ///< particle collection to write
-      std::string fileName;                ///< name of the output file
+      std::string filePath;                ///< path of the output file
       std::string fileMode = "RECREATE";   ///< file access mode
       std::string treeName = "particles";  ///< name of the output tree
       std::shared_ptr<FW::BarcodeSvc>
