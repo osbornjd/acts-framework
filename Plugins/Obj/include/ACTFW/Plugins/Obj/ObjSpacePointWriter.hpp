@@ -1,9 +1,11 @@
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
-#ifndef ACTFW_OBJ_PLUGINS_SPACEPOINTWRITER_H
-#define ACTFW_OBJ_PLUGINS_SPACEPOINTWRITER_H
+/// @file
+/// @date 2016-05-23 Initial version
+/// @date 2017-08-07 Rewrite with new interfaces
+/// @autor Andreas Salzburger
+/// @author Moritz Kiehnn <msmk@cern.ch>
+
+#ifndef ACTFW_OBJSPACEPOINTWRITER_H
+#define ACTFW_OBJSPACEPOINTWRITER_H
 
 #include <fstream>
 
@@ -14,9 +16,14 @@
 namespace FW {
 namespace Obj {
 
-  /// @class ObjSpacePointWriter
+  /// Write out a space point collection in OBJ format.
   ///
-  /// An Obj writer for the geometry
+  /// This writes one file per event into the configured output directory. By
+  /// default it writes to the current working directory. Files are named
+  /// using the following schema
+  ///
+  ///     event000000001-spacepoints.obj
+  ///     event000000002-spacepoints.obj
   ///
   template <typename T>
   class ObjSpacePointWriter : public WriterT<DetectorData<geo_id_value, T>>
@@ -28,7 +35,7 @@ namespace Obj {
       std::string collection;             ///< which collection to write
       std::string outputDir;              ///< where to place output files
       double      outputScalor    = 1.0;  ///< scale output values
-      size_t      outputPrecision = 4;    ///< floating point precision
+      size_t      outputPrecision = 6;    ///< floating point precision
     };
 
     ObjSpacePointWriter(const Config&        cfg,
@@ -95,4 +102,4 @@ FW::Obj::ObjSpacePointWriter<T>::writeT(
   return ProcessCode::SUCCESS;
 }
 
-#endif  // ACTFW_OBJ_PLUGINS_SPACEPOINTWRITER_H
+#endif  // ACTFW_OBJSPACEPOINTWRITER_H
