@@ -1,44 +1,22 @@
 #include <fstream>
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
-<<<<<<< HEAD
 #include <ACTS/Digitization/PlanarModuleCluster.hpp>
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-=======
-
-#include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTS/Digitization/PlanarModuleCluster.hpp"
->>>>>>> 5477cb3... csv: convert cluster writer to IWriter
 
 FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     const FW::Csv::CsvPlanarClusterWriter::Config& cfg,
     Acts::Logging::Level                           level)
-<<<<<<< HEAD
   : Base(cfg.collection, "CsvPlanarClusterWriter", level), m_cfg(cfg)
 {
 }
 
-=======
-  : m_cfg(cfg)
-  , m_logger(Acts::getDefaultLogger("CsvPlanarClusterWriter", level))
-{
-}
-
-std::string
-FW::Csv::CsvPlanarClusterWriter::name() const
-{
-  return "CsvPlanarClusterWriter";
-}
-
->>>>>>> 5477cb3... csv: convert cluster writer to IWriter
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterWriter::writeT(
     const AlgorithmContext&                                          ctx,
     const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& clusters)
 {
-<<<<<<< HEAD
   // open per-event hits file
   std::string pathHits
       = perEventFilepath(m_cfg.outputDir, "hits.csv", ctx.eventNumber);
@@ -70,43 +48,9 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
   for (auto& volumeData : clusters) {
     for (auto& layerData : volumeData.second) {
       for (auto& moduleData : layerData.second) {
-=======
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Csv::CsvPlanarClusterWriter::finalize()
-{
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Csv::CsvPlanarClusterWriter::write(const AlgorithmContext& ctx)
-{
-  // abort if you have no stream
-  if (!m_cfg.outputStream) return FW::ProcessCode::ABORT;
-
-  const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>* clusters;
-  if (ctx.eventStore.get(m_cfg.collection, clusters) != ProcessCode::SUCCESS)
-    return ProcessCode::ABORT;
-
-  // lock the mutex
-  std::lock_guard<std::mutex> lock(m_write_mutex);
-  // now write out
-  (*(m_cfg.outputStream)) << '\n';
-  (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
-
-  size_t hitCounter = 0;
-  // loop and fill
-  for (auto& volumeData : (*clusters))
-    for (auto& layerData : volumeData.second)
-      for (auto& moduleData : layerData.second)
->>>>>>> 5477cb3... csv: convert cluster writer to IWriter
         for (auto& cluster : moduleData.second) {
-          // Identifier @todo replace by identifier
-          // (*(m_cfg.outputStream)) << cluster.identifier().value() << ", ";
-          hitId += 1;
 
+          hitId += 1;
           // local cluster information
           auto           parameters = cluster.parameters();
           Acts::Vector2D local(parameters[Acts::ParDef::eLOC_0],
@@ -139,14 +83,12 @@ FW::Csv::CsvPlanarClusterWriter::write(const AlgorithmContext& ctx)
             osTruth << barcode << "," << hitId << '\n';
           }
         }
-<<<<<<< HEAD
       }
     }
   }
-=======
-  // add a new loine
-  (*(m_cfg.outputStream)) << '\n';
-  // return success
->>>>>>> 5477cb3... csv: convert cluster writer to IWriter
+
+  osHits.close();
+  osTruth.close();
+
   return FW::ProcessCode::SUCCESS;
 }
