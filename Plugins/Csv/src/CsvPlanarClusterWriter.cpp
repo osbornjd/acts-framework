@@ -86,9 +86,5 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
       }
     }
   }
-
-  osHits.close();
-  osTruth.close();
-
   return FW::ProcessCode::SUCCESS;
 }
