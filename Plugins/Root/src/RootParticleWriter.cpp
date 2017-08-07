@@ -1,4 +1,5 @@
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
+
 #include <TFile.h>
 #include <TTree.h>
 
@@ -72,7 +73,6 @@ FW::Root::RootParticleWriter::writeT(
 
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);
-  
   // the number of particles
   size_t nParticles = particles.size();
   // clear the branches
