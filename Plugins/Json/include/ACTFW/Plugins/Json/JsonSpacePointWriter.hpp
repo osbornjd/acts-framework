@@ -1,11 +1,11 @@
-//  JsonSpacePointWriter.h
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
-#ifndef ACTFW_JSON_PLUGINS_SPACEPOINTWRITER_H
-#define ACTFW_JSON_PLUGINS_SPACEPOINTWRITER_H 1
+/// @file
+/// @date 2016-05-23 Initial version
+/// @date 2017-08-07 Rewrite with new interfaces
+/// @autor Andreas Salzburger
+/// @author Moritz Kiehnn <msmk@cern.ch>
+
+#ifndef ACTFW_JSONSPACEPOINTWRITER_H
+#define ACTFW_JSONSPACEPOINTWRITER_H
 
 #include <fstream>
 
@@ -16,9 +16,14 @@
 namespace FW {
 namespace Json {
 
-  /// @class JsonSpacePointWriter
+  /// Write out a space point collection in JSON format.
   ///
-  /// A Json based implementation
+  /// This writes one file per event into the configured output directory. By
+  /// default it writes to the current working directory. Files are named
+  /// using the following schema
+  ///
+  ///     event000000001-spacepoints.json
+  ///     event000000002-spacepoints.json
   ///
   template <class T>
   class JsonSpacePointWriter : public WriterT<DetectorData<geo_id_value, T>>
@@ -29,7 +34,7 @@ namespace Json {
     {
       std::string collection;           ///< which collection to write
       std::string outputDir;            ///< where to place output files
-      size_t      outputPrecision = 4;  ///< floating point precision
+      size_t      outputPrecision = 6;  ///< floating point precision
     };
 
     JsonSpacePointWriter(const Config&        cfg,
@@ -108,4 +113,4 @@ FW::Json::JsonSpacePointWriter<T>::writeT(
   return ProcessCode::SUCCESS;
 }
 
-#endif  // ACTFW_JSON_PLUGINS_SPACEPOINTWRITER_H
+#endif  // ACTFW_JSONSPACEPOINTWRITER_H
