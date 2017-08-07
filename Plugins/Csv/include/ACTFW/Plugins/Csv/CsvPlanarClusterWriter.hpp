@@ -9,8 +9,10 @@
 
 #include <memory>
 
-#include "ACTFW/Framework/IWriter.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include <ACTS/Digitization/PlanarModuleCluster.hpp>
+
+#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/Framework/WriterT.hpp"
 
 namespace FW {
 namespace Csv {
@@ -19,9 +21,11 @@ namespace Csv {
   ///
   /// A root based implementation to write out particleproperties vector
   ///
-  class CsvPlanarClusterWriter : public IWriter
+  class CsvPlanarClusterWriter
+    : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
   {
   public:
+    using Base = WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>;
     struct Config
     {
       std::string collection;           ///< which collection to write
@@ -36,28 +40,14 @@ namespace Csv {
                            Acts::Logging::Level level = Acts::Logging::INFO);
     ~CsvPlanarClusterWriter() = default;
 
-    std::string
-    name() const final;
-
+  protected:
     ProcessCode
-    initialize() final;
-
-    ProcessCode
-    finalize() final;
-
-    ProcessCode
-    write(const AlgorithmContext& ctx) final;
+    writeT(const AlgorithmContext& ctx,
+           const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
+               clusters) final;
 
   private:
-    Config                              m_cfg;
-    std::unique_ptr<const Acts::Logger> m_logger;
-
-    /// Private access to the logging instance
-    const Acts::Logger&
-    logger() const
-    {
-      return *m_logger;
-    }
+    Config m_cfg;
   };
 
 }  // namespace Csv

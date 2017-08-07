@@ -10,36 +10,15 @@
 FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     const FW::Csv::CsvPlanarClusterWriter::Config& cfg,
     Acts::Logging::Level                           level)
-  : m_cfg(cfg)
-  , m_logger(Acts::getDefaultLogger("CsvPlanarClusterWriter", level))
+  : Base(cfg.collection, "CsvPlanarClusterWriter", level), m_cfg(cfg)
 {
-}
-
-std::string
-FW::Csv::CsvPlanarClusterWriter::name() const
-{
-  return "CsvPlanarClusterWriter";
 }
 
 FW::ProcessCode
-FW::Csv::CsvPlanarClusterWriter::initialize()
+FW::Csv::CsvPlanarClusterWriter::writeT(
+    const AlgorithmContext&                                          ctx,
+    const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& clusters)
 {
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Csv::CsvPlanarClusterWriter::finalize()
-{
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Csv::CsvPlanarClusterWriter::write(const AlgorithmContext& ctx)
-{
-  const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>* clusters;
-  if (ctx.eventStore.get(m_cfg.collection, clusters) != ProcessCode::SUCCESS)
-    return ProcessCode::ABORT;
-
   // open per-event hits file
   std::string pathHits
       = perEventFilepath(m_cfg.outputDir, "hits.csv", ctx.eventNumber);
@@ -68,7 +47,7 @@ FW::Csv::CsvPlanarClusterWriter::write(const AlgorithmContext& ctx)
   osTruth << "barcode, hit_id\n";
 
   size_t hitId = 0;
-  for (auto& volumeData : (*clusters)) {
+  for (auto& volumeData : clusters) {
     for (auto& layerData : volumeData.second) {
       for (auto& moduleData : layerData.second) {
         for (auto& cluster : moduleData.second) {
@@ -110,9 +89,5 @@ FW::Csv::CsvPlanarClusterWriter::write(const AlgorithmContext& ctx)
       }
     }
   }
-
-  osHits.close();
-  osTruth.close();
-
   return FW::ProcessCode::SUCCESS;
 }
