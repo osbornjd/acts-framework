@@ -27,21 +27,21 @@ FW::Csv::CsvParticleWriter::writeT(
   }
 
   // write csv header
-  os << "barcode, ";
-  os << "vx, vy, vz, ";
-  os << "phi, theta, ";
-  os << "p, q\n";
+  os << "barcode,";
+  os << "vx,vy,vz,";
+  os << "px,py,pz,";
+  os << "q\n";
 
   // write one line per particle
   os << std::setprecision(m_cfg.outputPrecision);
   for (auto& particle : particles) {
-    os << particle.barcode() << ", ";
-    os << particle.vertex().x() << ", ";
-    os << particle.vertex().y() << ", ";
-    os << particle.vertex().z() << ", ";
-    os << particle.momentum().phi() << ", ";
-    os << particle.momentum().theta() << ", ";
-    os << particle.momentum().mag() << ", ";
+    os << particle.barcode() << ",";
+    os << particle.vertex().x() << ",";
+    os << particle.vertex().y() << ",";
+    os << particle.vertex().z() << ",";
+    os << particle.momentum().x() << ",";
+    os << particle.momentum().y() << ",";
+    os << particle.momentum().z() << ",";
     os << particle.charge() << '\n';
   }
 
