@@ -53,8 +53,8 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   particleGunConfig.etaRange            = {{-4., 4.}};
   particleGunConfig.ptRange             = {{100 * _MeV, 100 * _GeV}};
   particleGunConfig.mass                = 105 * _MeV;
-  particleGunConfig.charge              = 0.; // -1 * _e; // use 0 for 
-  particleGunConfig.pID                 = 999; // use 999 for geantinos, 13 for muons
+  particleGunConfig.charge              = -1 * _e;
+  particleGunConfig.pID                 = 13;
   particleGunConfig.randomNumbers       = randomNumbers;
   particleGunConfig.barcodes            = barcodes;
   auto particleGun
