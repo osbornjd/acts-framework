@@ -45,7 +45,7 @@ public:
   ///
   /// This function must be implemented by subclasses.
   virtual ProcessCode
-  execute(AlgorithmContext context) const = 0;
+  execute(AlgorithmContext context) const override = 0;
 
   /// Framework finalize mehtod
   ProcessCode
