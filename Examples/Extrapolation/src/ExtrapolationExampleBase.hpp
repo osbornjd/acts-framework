@@ -3,13 +3,15 @@
 
 #include <memory>
 
+#include <ACTS/MagneticField/ConstantBField.hpp>
+#include <ACTS/Utilities/Units.hpp>
+
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
+#include "ACTFW/Fatras/ParticleGun.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTS/MagneticField/ConstantBField.hpp"
-#include "ACTS/Utilities/Units.hpp"
 
 /// simple base for the extrapolation example
 namespace ACTFWExtrapolationExample {
@@ -17,6 +19,8 @@ namespace ACTFWExtrapolationExample {
 int
 run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
+  using namespace Acts::units;
+
   if (!tGeometry) return -9;
 
   // set extrapolation logging level
@@ -30,10 +34,31 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
       = FW::initExtrapolator(tGeometry, magField, eLogLevel);
 
+  // the barcode service
+  auto barcodes = std::make_shared<FW::BarcodeSvc>(
+      FW::BarcodeSvc::Config{},
+      Acts::getDefaultLogger("BarcodeSvc", eLogLevel));
+
   // RANDOM NUMBERS - Create the random number engine
   FW::RandomNumbersSvc::Config          brConfig;
   std::shared_ptr<FW::RandomNumbersSvc> randomNumbers(
       new FW::RandomNumbersSvc(brConfig));
+
+  // particle gun as generator
+  FW::ParticleGun::Config particleGunConfig;
+  particleGunConfig.particlesCollection = "Particles";
+  particleGunConfig.nParticles          = 100;
+  particleGunConfig.d0Range             = {{0, 1 * _mm}};
+  particleGunConfig.phiRange            = {{-M_PI, M_PI}};
+  particleGunConfig.etaRange            = {{-4., 4.}};
+  particleGunConfig.ptRange             = {{100 * _MeV, 100 * _GeV}};
+  particleGunConfig.mass                = 105 * _MeV;
+  particleGunConfig.charge              = -1 * _e;
+  particleGunConfig.pID                 = 13;
+  particleGunConfig.randomNumbers       = randomNumbers;
+  particleGunConfig.barcodes            = barcodes;
+  auto particleGun
+      = std::make_shared<FW::ParticleGun>(particleGunConfig, eLogLevel);
 
   // Write ROOT TTree
   // ecc for charged particles
@@ -63,17 +88,20 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // the Algorithm with its configurations
   FW::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.searchMode          = 1;
-  eTestConfig.extrapolationEngine = extrapolationEngine;
-  eTestConfig.ecChargedWriter     = rootEccWriter;
-  eTestConfig.ecNeutralWriter     = rootEcnWriter;
-  eTestConfig.randomNumbers       = randomNumbers;
-  eTestConfig.collectSensitive     = true;
-  eTestConfig.collectPassive       = true;
-  eTestConfig.collectBoundary      = true;
-  eTestConfig.collectMaterial      = true;
-  eTestConfig.sensitiveCurvilinear = false;
-  eTestConfig.pathLimit            = -1.;
+  eTestConfig.particlesCollection          = "Particles";
+  eTestConfig.simulatedParticlesCollection = "simulatedParticles";
+  eTestConfig.simulatedHitsCollection      = "simulatedHits";
+  eTestConfig.searchMode                   = 1;
+  eTestConfig.extrapolationEngine          = extrapolationEngine;
+  eTestConfig.ecChargedWriter              = rootEccWriter;
+  eTestConfig.ecNeutralWriter              = rootEcnWriter;
+  eTestConfig.randomNumbers                = randomNumbers;
+  eTestConfig.collectSensitive             = true;
+  eTestConfig.collectPassive               = true;
+  eTestConfig.collectBoundary              = true;
+  eTestConfig.collectMaterial              = true;
+  eTestConfig.sensitiveCurvilinear         = false;
+  eTestConfig.pathLimit                    = -1.;
 
   auto extrapolationAlg
       = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig);
@@ -83,7 +111,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // now create the sequencer
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({rootEccWriter, rootEcnWriter, randomNumbers});
-  sequencer.appendEventAlgorithms({extrapolationAlg});
+  sequencer.appendEventAlgorithms({particleGun, extrapolationAlg});
   sequencer.run(nEvents);
 
   return 0;
