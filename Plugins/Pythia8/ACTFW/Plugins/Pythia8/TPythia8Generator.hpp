@@ -85,7 +85,6 @@ namespace Pythia8 {
     /// mutex used to protect multi-threaded reads
     std::mutex m_read_mutex;
   };
-
 }  // namespace Pythia8
 }  // namespace FW
 
