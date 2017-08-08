@@ -12,11 +12,6 @@ set(srcs include/ACTFW/Plugins/Root/RootExCellWriter.hpp
          src/RootMaterialTrackReader.cpp
          src/RootMaterialTrackWriter.cpp
          src/RootParticleWriter.cpp)
-if(USE_PYTHIA8)
-  list(APPEND srcs include/ACTFW/Plugins/Root/TPythia8Generator.hpp
-                   src/TPythia8Generator.cpp)
-endif()
-
 # generate root dictionary for material mapping - needed to write this class to a root file
 root_generate_dictionary(
   G__Material
@@ -33,11 +28,6 @@ target_link_libraries(ACTFWRootPlugin PUBLIC ACTS::ACTSCore ACTS::ACTSMaterialPl
 target_link_libraries(ACTFWRootPlugin PUBLIC ACTFramework)
 target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_CNS}Core ${ROOT_CNS}Hist ${ROOT_CNS}Tree ${ROOT_CNS}TreePlayer)
 target_link_libraries(ACTFWRootPlugin PUBLIC Threads::Threads)
-if(USE_PYTHIA8)
-  target_include_directories(ACTFWRootPlugin PUBLIC ${PYTHIA8_INCLUDEDIR})
-  target_link_libraries(ACTFWRootPlugin PUBLIC -L${PYTHIA8_LIBRARYDIR})
-  target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_CNS}EGPythia8)
-endif()
 
 install(TARGETS ACTFWRootPlugin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
