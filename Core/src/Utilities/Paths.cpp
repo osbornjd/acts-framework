@@ -3,6 +3,16 @@
 #include <cstdio>
 
 std::string
+FW::joinPaths(const std::string& dir, const std::string& name)
+{
+  if (dir.empty()) {
+    return name;
+  } else {
+    return dir + '/' + name;
+  }
+}
+
+std::string
 FW::perEventFilepath(const std::string& dir,
                      const std::string& name,
                      size_t             event)
