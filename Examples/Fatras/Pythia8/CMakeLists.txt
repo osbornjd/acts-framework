@@ -1,0 +1,6 @@
+add_executable(ACTFWFatrasPythia8 FatrasPythia8.cpp)
+target_link_libraries(ACTFWFatrasPythia8 PUBLIC ACTFWFatrasCommon)
+target_link_libraries(ACTFWFatrasPythia8 PUBLIC ACTFWReadEvgen ACTFWPluginPythia8)
+target_link_libraries(ACTFWFatrasPythia8 PUBLIC ACTFWGenericDetector)
+
+install(TARGETS ACTFWFatrasPythia8 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -1,0 +1,6 @@
+add_executable(ACTFWFatrasPythia8DD4hep FatrasPythia8DD4hep.cpp)
+target_link_libraries(ACTFWFatrasPythia8DD4hep PUBLIC ACTFWFatrasCommon)
+target_link_libraries(ACTFWFatrasPythia8DD4hep PUBLIC ACTFWReadEvgen ACTFWPluginPythia8)
+target_link_libraries(ACTFWFatrasPythia8DD4hep PUBLIC ACTFWDD4hepPlugin ${DD4hep_LIBRARIES})
+
+install(TARGETS ACTFWFatrasPythia8DD4hep RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
