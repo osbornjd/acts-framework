@@ -9,6 +9,7 @@
 #define ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H
 
 #include <cmath>
+#include <limits>
 #include <memory>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
@@ -58,9 +59,9 @@ public:
     std::string simulatedHitsCollection;
     /// the cuts applied in this case
     /// @todo remove later and replace by particle selector
-    double maxD0  = 1.;
-    double maxEta = 3.;
-    double minPt  = 250.;
+    double maxD0  = std::numeric_limits<double>::max();
+    double maxEta = std::numeric_limits<double>::max();;
+    double minPt  = 0.0;
     /// configuration: sensitive collection
     bool collectSensitive = true;
     /// configuration: collect passive
@@ -98,7 +99,7 @@ private:
       std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<T>>> writer
       = nullptr) const;
 };
-}  // namespace FWA
+}  // namespace FW
 #include "ExtrapolationAlgorithm.ipp"
 
 #endif  // ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H
