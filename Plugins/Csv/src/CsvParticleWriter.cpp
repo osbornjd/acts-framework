@@ -1,65 +1,49 @@
-#include <iostream>
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 
-FWCsv::CsvParticleWriter::CsvParticleWriter(
-    const FWCsv::CsvParticleWriter::Config& cfg)
-  : FW::IWriterT<std::vector<Acts::ParticleProperties> >()
-  , m_cfg(cfg)
-{}
+#include <fstream>
 
-std::string
-FWCsv::CsvParticleWriter::name() const
+#include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
+
+FW::Csv::CsvParticleWriter::CsvParticleWriter(
+    const FW::Csv::CsvParticleWriter::Config& cfg,
+    Acts::Logging::Level                      level)
+  : Base(cfg.collection, "CsvParticleWriter", level), m_cfg(cfg)
 {
-  return m_cfg.name;
 }
 
 FW::ProcessCode
-FWCsv::CsvParticleWriter::initialize()
+FW::Csv::CsvParticleWriter::writeT(
+    const FW::AlgorithmContext&                  ctx,
+    const std::vector<Acts::ParticleProperties>& particles)
 {
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FWCsv::CsvParticleWriter::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FWCsv::CsvParticleWriter::write(const std::vector<Acts::ParticleProperties>& particles)
-{
-  // abort if you have no stream
-  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
-  // lock the mutex
-  std::lock_guard<std::mutex> lock(m_write_mutex);
-    
-  (*(m_cfg.outputStream)) << '\n';
-  (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
-  // loop and fill
-  for (auto& particle : particles ){
-    // write out the information
-    (*(m_cfg.outputStream)) << particle.barcode() << ", [";
-    (*(m_cfg.outputStream)) << particle.vertex().x() << ", ";
-    (*(m_cfg.outputStream)) << particle.vertex().y() << ", ";
-    (*(m_cfg.outputStream)) << particle.vertex().z() << "], [";
-    (*(m_cfg.outputStream)) << particle.momentum().mag() << ", ";
-    (*(m_cfg.outputStream)) << particle.momentum().theta() << ", ";
-    (*(m_cfg.outputStream)) << particle.momentum().phi() << "], ";
-    (*(m_cfg.outputStream)) << particle.charge() << '\n';
+  // open per-event file
+  std::string path
+      = perEventFilepath(m_cfg.outputDir, "particles.csv", ctx.eventNumber);
+  std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
+  if (!os) {
+    ACTS_ERROR("Could not open '" << path << "' to write");
+    return ProcessCode::ABORT;
   }
-  (*(m_cfg.outputStream)) << '\n';
 
-  return FW::ProcessCode::SUCCESS;
-}
+  // write csv header
+  os << "barcode,";
+  os << "vx,vy,vz,";
+  os << "px,py,pz,";
+  os << "q\n";
 
-FW::ProcessCode
-FWCsv::CsvParticleWriter::write(const std::string& sinfo)
-{
-  // abort if you have no stream
-  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
-  // lock the mutex
-  std::lock_guard<std::mutex> lock(m_write_mutex);
-  (*(m_cfg.outputStream)) << sinfo;
-  // now return success
-  return FW::ProcessCode::SUCCESS;
+  // write one line per particle
+  os << std::setprecision(m_cfg.outputPrecision);
+  for (auto& particle : particles) {
+    os << particle.barcode() << ",";
+    os << particle.vertex().x() << ",";
+    os << particle.vertex().y() << ",";
+    os << particle.vertex().z() << ",";
+    os << particle.momentum().x() << ",";
+    os << particle.momentum().y() << ",";
+    os << particle.momentum().z() << ",";
+    os << particle.charge() << '\n';
+  }
+
+  return ProcessCode::SUCCESS;
 }

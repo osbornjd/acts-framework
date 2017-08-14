@@ -9,51 +9,62 @@
 #ifndef ACTFW_ALGORITHMS_DIGITIZATIONALGORITHM_H
 #define ACTFW_ALGORITHMS_DIGITIZATIONALGORITHM_H
 
-#include <cmath>
 #include <memory>
 
-#include "ACTFW/Framework/BareAlgorithm.hpp"
+#include "ACTFW/Framework/IAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTS/Utilities/Logger.hpp"
 
 namespace Acts {
 class PlanarModuleStepper;
 }
 namespace FW {
-class WhiteBoard;
+
 class RandomNumbersSvc;
-}  // namespace FW
 
-namespace FWA {
-
-class DigitizationAlgorithm : public FW::BareAlgorithm
+class DigitizationAlgorithm : public FW::IAlgorithm
 {
 public:
   struct Config
   {
-    /// FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     /// input hit collection
     std::string simulatedHitsCollection;
     /// output space point collection
-    std::string spacePointCollection;
+    std::string spacePointsCollection;
     /// output clusters collection
     std::string clustersCollection;
+    /// FW random number service
+    std::shared_ptr<RandomNumbersSvc> randomNumbers = nullptr;
     /// module stepper
     std::shared_ptr<Acts::PlanarModuleStepper> planarModuleStepper = nullptr;
   };
 
-  /// Constructor
   DigitizationAlgorithm(const Config&        cnf,
                         Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Framework execode method
+  virtual std::string
+  name() const override final;
+
+  virtual ProcessCode
+  initialize() override final;
+
+  virtual ProcessCode
+  finalize() override final;
+
   FW::ProcessCode
-  execute(FW::AlgorithmContext ctx) const final override;
+  execute(FW::AlgorithmContext ctx) const override final;
 
 private:
-  Config m_cfg;
+  Config                              m_cfg;
+  std::unique_ptr<const Acts::Logger> m_logger;
+
+  const Acts::Logger&
+  logger() const
+  {
+    return *m_logger;
+  }
 };
 
-}  // namespace FWA
+}  // namespace FW
 
 #endif

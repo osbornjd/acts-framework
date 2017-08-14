@@ -1,164 +1,105 @@
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
-#ifndef ACTFW_OBJ_PLUGINS_SPACEPOINTWRITER_H
-#define ACTFW_OBJ_PLUGINS_SPACEPOINTWRITER_H
+/// @file
+/// @date 2016-05-23 Initial version
+/// @date 2017-08-07 Rewrite with new interfaces
+/// @autor Andreas Salzburger
+/// @author Moritz Kiehnn <msmk@cern.ch>
 
-#include <mutex>
-#include <iostream>
+#ifndef ACTFW_OBJSPACEPOINTWRITER_H
+#define ACTFW_OBJSPACEPOINTWRITER_H
+
 #include <fstream>
-#include "ACTFW/Framework/IService.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IEventDataWriterT.hpp"
-#include "ACTS/Utilities/Logger.hpp"
 
-namespace FWObj {
+#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/Framework/WriterT.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 
-/// @class ObjSpacePointWriter
-///
-/// An Obj writer for the geometry
-///
-template <class T> class ObjSpacePointWriter : public FW::IEventDataWriterT<T>
-{
-public:
-  // @class Config
-  //
-  // The nested config class
-  class Config
+namespace FW {
+namespace Obj {
+
+  /// Write out a space point collection in OBJ format.
+  ///
+  /// This writes one file per event into the configured output directory. By
+  /// default it writes to the current working directory. Files are named
+  /// using the following schema
+  ///
+  ///     event000000001-spacepoints.obj
+  ///     event000000002-spacepoints.obj
+  ///
+  template <typename T>
+  class ObjSpacePointWriter : public WriterT<DetectorData<geo_id_value, T>>
   {
   public:
-    /// the default logger
-    std::shared_ptr<const Acts::Logger> logger;
-    /// the name of the algorithm
-    std::string                         name;
-    /// output scalor
-    double                              outputScalor      = 1.;
-    /// precision for out
-    size_t                              outputPrecision   = 4;
-    /// the output stream
-    std::shared_ptr<std::ofstream>      outputStream      = nullptr;
-
-    Config(const std::string&   lname = "ObjSpacePointWriter",
-           Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger(Acts::getDefaultLogger(lname, lvl))
-      , name(lname)
+    using Base = WriterT<DetectorData<geo_id_value, T>>;
+    struct Config
     {
+      std::string collection;             ///< which collection to write
+      std::string outputDir;              ///< where to place output files
+      double      outputScalor    = 1.0;  ///< scale output values
+      size_t      outputPrecision = 6;    ///< floating point precision
+    };
+
+    ObjSpacePointWriter(const Config&        cfg,
+                        Acts::Logging::Level level = Acts::Logging::INFO);
+
+  protected:
+    ProcessCode
+    writeT(const AlgorithmContext&              ctx,
+           const DetectorData<geo_id_value, T>& spacePoints);
+
+  private:
+    Config m_cfg;
+    // required for C++ to find `logger()` with the default look-up
+    const Acts::Logger&
+    logger() const
+    {
+      return Base::logger();
     }
-        
   };
 
-  /// Constructor
-  ///
-  /// @param cfg is the configuration class
-  ObjSpacePointWriter(const Config& cfg);
+}  // namespace Obj
+}  // namespace FW
 
-  /// Destructor
-  virtual ~ObjSpacePointWriter() = default;
-  
-  /// Framework name() method
-  std::string
-  name() const override final;
+template <typename T>
+inline FW::Obj::ObjSpacePointWriter<T>::ObjSpacePointWriter(
+    const ObjSpacePointWriter<T>::Config& cfg,
+    Acts::Logging::Level                  level)
+  : Base(cfg.collection, "ObjSpacePointWriter", level), m_cfg(cfg)
+{
+}
 
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize() override final;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() override final;
-
-  /// The write interface
-  /// @param eData is the event data to be written out
-  FW::ProcessCode
-  write(const FW::DetectorData<geo_id_value, T>& eData) override final;
-  
-  
-  /// write a bit of string
-  /// @param sinfo is some string info to be written
-  /// @return is a ProcessCode indicating return/failure
-  FW::ProcessCode
-  write(const std::string& sinfo) override final;
-
-private:
-  Config         m_cfg;         ///< the config class
-  std::mutex     m_write_mutex; ///< mutex to protect multi-threaded writes
-  
-  /// Private access to the logging instance
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_cfg.logger;
+template <typename T>
+inline FW::ProcessCode
+FW::Obj::ObjSpacePointWriter<T>::writeT(
+    const FW::AlgorithmContext&              ctx,
+    const FW::DetectorData<geo_id_value, T>& spacePoints)
+{
+  // open per-event file
+  std::string path = FW::perEventFilepath(
+      m_cfg.outputDir, "spacepoints.obj", ctx.eventNumber);
+  std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
+  if (!os) {
+    ACTS_ERROR("Could not open '" << path << "' to write");
+    return ProcessCode::ABORT;
   }
-};
 
-template <class T>
-std::string
-ObjSpacePointWriter<T>::name() const
-{
-  return m_cfg.name;
-}
-
-template <class T>
-ObjSpacePointWriter<T>::ObjSpacePointWriter(
-    const ObjSpacePointWriter<T>::Config& cfg)
-  : FW::IEventDataWriterT<T>()
-  , m_cfg(cfg)
-{}
-
-
-template <class T>
-FW::ProcessCode
-ObjSpacePointWriter<T>::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-template <class T>
-FW::ProcessCode
-ObjSpacePointWriter<T>::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-template <class T>
-FW::ProcessCode
-ObjSpacePointWriter<T>::write(const std::string& sinfo)
-{
-  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
-  // write out the info to the stream
-  (*(m_cfg.outputStream)) << sinfo;
-  return FW::ProcessCode::SUCCESS;
-}
-
-template <class T> FW::ProcessCode
-ObjSpacePointWriter<T>::write(const FW::DetectorData<geo_id_value, T>& eData)
-{
-  // abort if you don't have a stream
- if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
- // lock the mutex for writing
- std::lock_guard<std::mutex> lock(m_write_mutex);
- 
- (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
- // count the vertex
- size_t vertex = 0;
- // loop and fill the space point data
- for (auto& volumeData : eData){
-    // initialize the virgule
-    for (auto& layerData : volumeData.second)
-      for (auto& moduleData : layerData.second)
-        for (auto& data : moduleData.second){
+  os << std::setprecision(m_cfg.outputPrecision);
+  // count the vertex
+  size_t vertex = 0;
+  // loop and fill the space point data
+  for (auto& volumeData : spacePoints) {
+    for (auto& layerData : volumeData.second) {
+      for (auto& moduleData : layerData.second) {
+        for (auto& data : moduleData.second) {
           // write the space point
-          (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*data.x()
-                                  << ", " << m_cfg.outputScalor*data.y()
-                                  << ", " << m_cfg.outputScalor*data.z() << '\n';
-          (*(m_cfg.outputStream)) << "p " << ++vertex <<'\n';
+          os << "v " << m_cfg.outputScalor * data.x() << ", "
+             << m_cfg.outputScalor * data.y() << ", "
+             << m_cfg.outputScalor * data.z() << '\n';
+          os << "p " << ++vertex << '\n';
         }
- }
- // return success
- return FW::ProcessCode::SUCCESS;
+      }
+    }
+  }
+  return ProcessCode::SUCCESS;
 }
 
-}
-
-#endif  // ACTFW_OBJ_PLUGINS_SPACEPOINTWRITER_H
+#endif  // ACTFW_OBJSPACEPOINTWRITER_H

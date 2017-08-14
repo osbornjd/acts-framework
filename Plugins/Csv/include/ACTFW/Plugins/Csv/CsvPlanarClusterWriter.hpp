@@ -1,97 +1,57 @@
-//  CsvPlanarClusterWriter.h
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
-#ifndef ACTFW_CSV_PLUGINS_PLANARCLUSTERWRITER_H
-#define ACTFW_CSV_PLUGINS_PLANARCLUSTERWRITER_H 1
+/// @file
+/// @date 2016-05-23 Initial version
+/// @date 2017-08-07 Rewrite with new interfaces
+/// @autor Andreas Salzburger
+/// @author Moritz Kiehnn <msmk@cern.ch>
 
-#include <mutex>
-#include <iostream>
-#include <fstream>
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IEventDataWriterT.hpp"
+#ifndef ACTFW_CSVPLANARCLUSTERWRITER_H
+#define ACTFW_CSVPLANARCLUSTERWRITER_H
+
+#include <ACTS/Digitization/PlanarModuleCluster.hpp>
+
 #include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTS/Digitization/PlanarModuleCluster.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "ACTFW/Framework/WriterT.hpp"
 
-namespace FWCsv {
+namespace FW {
+namespace Csv {
 
-/// @class CsvPlanarClusterWriter
-///
-/// A root based implementation to write out particleproperties vector
-///
-class CsvPlanarClusterWriter : public FW::IEventDataWriterT<Acts::PlanarModuleCluster>
-{
-public:
-  // @class Config
-  //
-  // The nested config class
-  class Config
+  /// Write out a planar cluster collection in comma-separated-value format.
+  ///
+  /// This writes one file per event into the configured output directory. By
+  /// default it writes to the current working directory. Files are named
+  /// using the following schema
+  ///
+  ///     event000000001-hits.csv
+  ///     event000000002-hits.csv
+  ///
+  /// and each line in the file corresponds to one hit/cluster.
+  class CsvPlanarClusterWriter
+    : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
   {
   public:
-    std::shared_ptr<const Acts::Logger> logger; /// the default logger
-    std::string                         name;   /// the name of the algorithm
-    size_t                              outputPrecision   = 4;
-    std::shared_ptr<std::ofstream>      outputStream      = nullptr;
-
-    Config(const std::string&   lname = "CsvPlanarClusterWriter",
-           Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger(Acts::getDefaultLogger(lname, lvl))
-      , name(lname)
+    using Base = WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>;
+    struct Config
     {
-    }
-        
+      std::string collection;           ///< which collection to write
+      std::string outputDir;            ///< where to place output files
+      size_t      outputPrecision = 6;  ///< floating point precision
+    };
+
+    CsvPlanarClusterWriter(const Config&        cfg,
+                           Acts::Logging::Level level = Acts::Logging::INFO);
+    ~CsvPlanarClusterWriter() = default;
+
+  protected:
+    ProcessCode
+    writeT(const AlgorithmContext& ctx,
+           const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
+               clusters) final;
+
+  private:
+    Config m_cfg;
   };
 
-  /// Constructor
-  ///
-  /// @param cfg is the configuration class
-  CsvPlanarClusterWriter(const Config& cfg);
+}  // namespace Csv
+}  // namespace FW
 
-  /// Framework name() method
-  std::string
-  name() const final;
-
-  /// Destructor
-  virtual ~CsvPlanarClusterWriter();
-
-  /// Framework intialize method
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  initialize() override final;
-
-  /// Framework finalize mehtod
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  finalize() override final;
-
-  /// The write interface
-  /// @param pClusters is the DetectorData of planar clusters
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  write(const FW::DetectorData<geo_id_value,
-        Acts::PlanarModuleCluster>& pClusters) override final;
-
-  /// write a bit of string
-  /// @param sinfo is some string info to be written
-  /// @return is a ProcessCode indicating return/failure
-  FW::ProcessCode
-  write(const std::string& sinfo) override final;
-
-private:
-  Config        m_cfg;         ///< the config class
-  std::mutex    m_write_mutex; ///< mutex used to protect multi-threaded writes
-
-  /// Private access to the logging instance
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_cfg.logger;
-  }
-};
-
-}
-
-#endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H
+#endif  // ACTFW_CSVPLANARCLUSTERWRITER_H

@@ -8,24 +8,19 @@
 #ifndef ACTFW_EXAMPLES_READEVGENALGORITHM_H
 #define ACTFW_EXAMPLES_READEVGENALGORITHM_H
 
-#include <memory>
-#include <string>
 #include <array>
-#include "ACTFW/Framework/AlgorithmContext.hpp"
+#include <memory>
+
 #include "ACTFW/Framework/IReader.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace FW {
+
 class WhiteBoard;
 class RandomNumbersSvc;
 class BarcodeSvc;
-}  // namespace FW
-
-namespace FWA {
 
 /// @class ReadEvgenAlgorithm
 ///
@@ -38,26 +33,23 @@ public:
   /// configuration struct for this Algorithm
   struct Config
   {
-    /// name of the output collection
-    std::string evgenParticlesCollection = "EvgenParticles";
     /// the hard scatter reader
-    std::shared_ptr<FW::IReaderT<std::vector<Acts::ParticleProperties>>>
+    std::shared_ptr<IReaderT<std::vector<Acts::ParticleProperties>>>
         hardscatterParticleReader = nullptr;
     /// the pileup reader
-    std::shared_ptr<FW::IReaderT<std::vector<Acts::ParticleProperties>>>
+    std::shared_ptr<IReaderT<std::vector<Acts::ParticleProperties>>>
         pileupParticleReader = nullptr;
-    /// the random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    /// name of the output collection
+    std::string particlesCollection = "EvgenParticles";
     /// the Poisson parameter for pileup generation
     int pileupPoissonParameter = 40;
     /// the Gaussian parameters for transverse and axial vertex generation
     std::array<double, 2> vertexTParameters = {{0., 1.}};
     std::array<double, 2> vertexZParameters = {{0., 1.}};
     /// the BarcodeSvc
-    std::shared_ptr<FW::BarcodeSvc> barcodeSvc = nullptr;
-    /// output writer
-    std::shared_ptr<FW::IWriterT<std::vector<Acts::ParticleProperties>>>
-        particleWriter = nullptr;
+    std::shared_ptr<BarcodeSvc> barcodeSvc = nullptr;
+    /// the random number service
+    std::shared_ptr<RandomNumbersSvc> randomNumbers = nullptr;
   };
 
   /// Constructor

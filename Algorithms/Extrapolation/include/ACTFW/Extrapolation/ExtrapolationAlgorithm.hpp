@@ -9,6 +9,7 @@
 #define ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H
 
 #include <cmath>
+#include <limits>
 #include <memory>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
@@ -29,55 +30,38 @@ class TrackingGeometry;
 class TrackingVolume;
 }  // namespace Acts
 
-namespace FWA {
+namespace FW {
 
-class ExtrapolationAlgorithm : public FW::BareAlgorithm
+class ExtrapolationAlgorithm : public BareAlgorithm
 {
 public:
   struct Config
   {
     /// FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    std::shared_ptr<RandomNumbersSvc> randomNumbers = nullptr;
     /// the extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
     /// output writer for charged particles
-    std::shared_ptr<
-        FW::IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters>>>
+    std::shared_ptr<IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters>>>
         ecChargedWriter = nullptr;
     /// output writer for charged particles
-    std::shared_ptr<
-        FW::IWriterT<Acts::ExtrapolationCell<Acts::NeutralParameters>>>
+    std::shared_ptr<IWriterT<Acts::ExtrapolationCell<Acts::NeutralParameters>>>
         ecNeutralWriter = nullptr;
     /// output writer for material
-    std::shared_ptr<FW::IWriterT<Acts::MaterialTrack>> materialWriter = nullptr;
+    std::shared_ptr<IWriterT<Acts::MaterialTrack>> materialWriter = nullptr;
     /// the tracking geometry
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
-    /// if this is set then the particles are taken from the collection
-    std::string evgenParticlesCollection = "";
-    /// if this is set then the particles are written to the event store
-    std::string simulatedParticlesCollection = "";
-    /// if this is set then the hit collection is written
-    std::string simulatedHitsCollection = "";
+    /// the particles input collections
+    std::string particlesCollection;
+    /// the simulated particles output collection
+    std::string simulatedParticlesCollection;
+    /// the simulated hits output collection
+    std::string simulatedHitsCollection;
     /// the cuts applied in this case
     /// @todo remove later and replace by particle selector
-    double maxEta = 3.;
-    double minPt  = 250.;
-    /// number of tests per event
-    size_t testsPerEvent = 1;
-    /// parameter type : 0 = neutral | 1 = charged
-    int parameterType = 1;
-    /// mean, sigma for d0 range
-    std::array<double, 2> d0Defs = {{0., 2.}};
-    /// mean, sigma for z0 range
-    std::array<double, 2> z0Defs = {{0., 50.}};
-    /// low, high for eta range
-    std::array<double, 2> etaRange = {{-3., 3.}};
-    /// low, high for phi range
-    std::array<double, 2> phiRange = {{-M_PI, M_PI}};
-    /// low, high for pt range
-    std::array<double, 2> ptRange = {{100., 10000.}};
-    /// particle type definition
-    bool particleType = true;
+    double maxD0  = std::numeric_limits<double>::max();
+    double maxEta = std::numeric_limits<double>::max();;
+    double minPt  = 0.0;
     /// configuration: sensitive collection
     bool collectSensitive = true;
     /// configuration: collect passive
@@ -98,24 +82,24 @@ public:
   ExtrapolationAlgorithm(const Config& cnf);
 
   /// Framework execode method
-  FW::ProcessCode
-  execute(FW::AlgorithmContext ctx) const final override;
+  ProcessCode
+  execute(AlgorithmContext ctx) const final override;
 
 private:
   Config m_cfg;  ///< the config class
 
   template <class T>
-  FW::ProcessCode
+  ProcessCode
   executeTestT(
       const T&     startParameters,
       barcode_type barcode = 0,
-      FW::DetectorData<geo_id_value,
-                       std::pair<std::unique_ptr<const T>, barcode_type>>* dData
+      DetectorData<geo_id_value,
+                   std::pair<std::unique_ptr<const T>, barcode_type>>* dData
       = nullptr,
       std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<T>>> writer
       = nullptr) const;
 };
-}  // namespace FWA
+}  // namespace FW
 #include "ExtrapolationAlgorithm.ipp"
 
 #endif  // ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H

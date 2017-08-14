@@ -1,4 +1,4 @@
-#include "ACTFW/Plugins/Root/TPythia8Generator.hpp"
+#include "ACTFW/Plugins/Pythia8/TPythia8Generator.hpp"
 
 #include <TClonesArray.h>
 #include <TDatabasePDG.h>
@@ -6,11 +6,11 @@
 #include <TPythia8.h>
 #include <TSystem.h>
 
-#include "ACTS/Utilities/Units.hpp"
+#include <ACTS/Utilities/Units.hpp>
 
-FWRoot::TPythia8Generator::TPythia8Generator(
-    const FWRoot::TPythia8Generator::Config& cfg,
-    std::unique_ptr<const Acts::Logger>      mlogger)
+FW::Pythia8::TPythia8Generator::TPythia8Generator(
+    const FW::Pythia8::TPythia8Generator::Config& cfg,
+    std::unique_ptr<const Acts::Logger>           mlogger)
   : FW::IReaderT<std::vector<Acts::ParticleProperties>>()
   , m_cfg(cfg)
   , m_pythia8(nullptr)
@@ -44,19 +44,19 @@ FWRoot::TPythia8Generator::TPythia8Generator(
                         m_cfg.cmsEnergy /* TeV */);
 }
 
-FWRoot::TPythia8Generator::~TPythia8Generator()
+FW::Pythia8::TPythia8Generator::~TPythia8Generator()
 {
   delete m_pythia8;
 }
 
 std::string
-FWRoot::TPythia8Generator::name() const
+FW::Pythia8::TPythia8Generator::name() const
 {
   return m_cfg.name;
 }
 
 FW::ProcessCode
-FWRoot::TPythia8Generator::read(
+FW::Pythia8::TPythia8Generator::read(
     std::vector<Acts::ParticleProperties>& particleProperties,
     size_t                                 skip,
     const FW::AlgorithmContext*            context)
@@ -109,13 +109,13 @@ FWRoot::TPythia8Generator::read(
 }
 
 FW::ProcessCode
-FWRoot::TPythia8Generator::initialize()
+FW::Pythia8::TPythia8Generator::initialize()
 {
   return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWRoot::TPythia8Generator::finalize()
+FW::Pythia8::TPythia8Generator::finalize()
 {
   return FW::ProcessCode::SUCCESS;
 }

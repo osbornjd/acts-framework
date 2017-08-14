@@ -22,12 +22,15 @@ option(USE_GEANT4 "Build Geant4-based code" off)
 option(USE_OPENMP "Build framework with OpenMP enabled" ${USE_OPENMP_DEFAULT})
 option(USE_PYTHIA8 "Build Pythia8-based code" off)
 
+# use install paths consistent w/ ACTS
+include(GNUInstallDirs)
+
 # require C++14 globally
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
-
-# use install paths consistent w/ ACTS
-include(GNUInstallDirs)
+# place build products in `build/bin` and `build/lib` for simple use
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 
 # determine build-flag dependent components
 

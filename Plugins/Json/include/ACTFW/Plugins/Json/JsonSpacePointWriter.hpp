@@ -1,144 +1,116 @@
-//  JsonSpacePointWriter.h
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
-#ifndef ACTFW_JSON_PLUGINS_SPACEPOINTWRITER_H
-#define ACTFW_JSON_PLUGINS_SPACEPOINTWRITER_H 1
+/// @file
+/// @date 2016-05-23 Initial version
+/// @date 2017-08-07 Rewrite with new interfaces
+/// @autor Andreas Salzburger
+/// @author Moritz Kiehnn <msmk@cern.ch>
 
-#include <mutex>
+#ifndef ACTFW_JSONSPACEPOINTWRITER_H
+#define ACTFW_JSONSPACEPOINTWRITER_H
 
-#include <iostream>
 #include <fstream>
-#include "ACTFW/Framework/IService.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IEventDataWriterT.hpp"
+
 #include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "ACTFW/Framework/WriterT.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 
-namespace FWJson {
+namespace FW {
+namespace Json {
 
-/// @class JsonSpacePointWriter
-///
-/// A Json based implementation
-///
-template <class T> class JsonSpacePointWriter : public FW::IEventDataWriterT<T>
-{
-public:
-  // @class Config
-  //
-  // The nested config class
-  class Config
+  /// Write out a space point collection in JSON format.
+  ///
+  /// This writes one file per event into the configured output directory. By
+  /// default it writes to the current working directory. Files are named
+  /// using the following schema
+  ///
+  ///     event000000001-spacepoints.json
+  ///     event000000002-spacepoints.json
+  ///
+  template <class T>
+  class JsonSpacePointWriter : public WriterT<DetectorData<geo_id_value, T>>
   {
   public:
-    std::shared_ptr<const Acts::Logger>  logger;            ///< the default logger
-    std::string                           name;             ///< the name of the algorithm
-    size_t                                outputPrecision   = 4;
-    std::shared_ptr<std::ofstream>        outputStream      = nullptr;
-
-    Config(const std::string&   lname = "JsonSpacePointWriter",
-           Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger(Acts::getDefaultLogger(lname, lvl))
-      , name(lname)
+    using Base = WriterT<DetectorData<geo_id_value, T>>;
+    struct Config
     {
+      std::string collection;           ///< which collection to write
+      std::string outputDir;            ///< where to place output files
+      size_t      outputPrecision = 6;  ///< floating point precision
+    };
+
+    JsonSpacePointWriter(const Config&        cfg,
+                         Acts::Logging::Level level = Acts::Logging::INFO);
+    ~JsonSpacePointWriter() = default;
+
+  protected:
+    FW::ProcessCode
+    writeT(const FW::AlgorithmContext&          ctx,
+           const DetectorData<geo_id_value, T>& spacePoints) final;
+
+  private:
+    Config m_cfg;
+    // required for C++ to find `logger()` with the default look-up
+    const Acts::Logger&
+    logger() const
+    {
+      return Base::logger();
     }
-        
   };
 
-  /// Constructor
-  ///
-  /// @param cfg is the configuration class
-  JsonSpacePointWriter(const Config& cfg);
+}  // namespace Json
+}  // namespace FW
 
-  /// Destructor
-  virtual ~JsonSpacePointWriter() = default;
+template <class T>
+FW::Json::JsonSpacePointWriter<T>::JsonSpacePointWriter(
+    const FW::Json::JsonSpacePointWriter<T>::Config& cfg,
+    Acts::Logging::Level                             level)
+  : Base(cfg.collection, "JsonSpacePointWriter", level), m_cfg(cfg)
+{
+}
 
-  /// Framework name() method
-  std::string
-  name() const final;
-
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize() final;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() final;
-
-  /// The write interface
-  /// @param eData is the DetectorData to be written out
-  FW::ProcessCode
-  write(const FW::DetectorData<geo_id_value, T>& eData) final;
-
-private:
-  Config   m_cfg; ///< the config class
-
-  /// Private access to the logging instance
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_cfg.logger;
+template <class T>
+FW::ProcessCode
+FW::Json::JsonSpacePointWriter<T>::writeT(
+    const FW::AlgorithmContext&          ctx,
+    const DetectorData<geo_id_value, T>& spacePoints)
+{
+  // open per-event file
+  std::string path
+      = perEventFilepath(m_cfg.outputDir, "spacepoints.json", ctx.eventNumber);
+  std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
+  if (!os) {
+    ACTS_ERROR("Could not open '" << path << "' to write");
+    return ProcessCode::ABORT;
   }
-};
 
-template <class T> std::string
-JsonSpacePointWriter<T>::name() const
-{
-  return m_cfg.name;
-}
+  os << std::setprecision(m_cfg.outputPrecision);
+  os << "{\n";
 
-template <class T> JsonSpacePointWriter<T>::JsonSpacePointWriter(
-    const FWJson::JsonSpacePointWriter<T>::Config& cfg)
-  : FW::IEventDataWriterT<T>()
-  , m_cfg(cfg)
-{}
-
-
-template <class T> FW::ProcessCode
-JsonSpacePointWriter<T>::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-template <class T> FW::ProcessCode
-JsonSpacePointWriter<T>::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-template <class T> FW::ProcessCode
-JsonSpacePointWriter<T>::write(const FW::DetectorData<geo_id_value, T>& eData)
-{
- if (!m_cfg.outputStream)   return FW::ProcessCode::SUCCESS;
-    
-  (*(m_cfg.outputStream)) << std::endl;
-  (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
-  
-  // loop and fill the space point data
-  for (auto& volumeData : eData){
-    // get the volume id for the naming
+  bool firstVolume = true;
+  for (auto& volumeData : spacePoints) {
     geo_id_value volumeID = volumeData.first;
-    //
-    (*(m_cfg.outputStream)) << "{ \"SpacePoints_" << volumeID <<  "\" : [";
-    // initialize the virgule
-    bool comma = false;
-    for (auto& layerData : volumeData.second)
-      for (auto& moduleData : layerData.second)
-        for (auto& data : moduleData.second){
+
+    if (!firstVolume) os << ",\n";
+    os << "  \"SpacePoints_" << volumeID << "\" : [\n";
+
+    bool firstPoint = true;
+    for (auto& layerData : volumeData.second) {
+      for (auto& moduleData : layerData.second) {
+        for (auto& data : moduleData.second) {
           // set the virugle correctly
-          if (comma) (*(m_cfg.outputStream)) << ", ";
-          comma = true;
+          if (!firstPoint) os << ",\n";
           // write the space point
-          (*(m_cfg.outputStream)) << "[" << data.x() << ", " << data.y() << ", " << data.z() << "]";
+          os << "    [" << data.x() << ", " << data.y() << ", " << data.z()
+             << "]";
+          firstPoint = false;
         }
-        
-    (*(m_cfg.outputStream)) << "] }" << std::endl;
+      }
+    }
+    os << "]";
+    firstVolume = false;
   }
-  // return success
-  return FW::ProcessCode::SUCCESS;
+  os << "\n}\n";
+
+  return ProcessCode::SUCCESS;
 }
 
-}
-
-#endif  // ACTFW_JSON_PLUGINS_SPACEPOINTWRITER_H
+#endif  // ACTFW_JSONSPACEPOINTWRITER_H

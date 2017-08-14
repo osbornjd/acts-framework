@@ -59,7 +59,7 @@ main()
       new Acts::ConstantBField{{0., 0., 0.002}});  // field is given in kT
   // EXTRAPOLATOR - set up the extrapolator
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
-      = FWA::initExtrapolator(tGeometry, magFieldSvc, Acts::Logging::INFO);
+      = FW::initExtrapolator(tGeometry, magFieldSvc, Acts::Logging::INFO);
 
   // create material mapping
   Acts::MaterialMapper::Config mapperConf;

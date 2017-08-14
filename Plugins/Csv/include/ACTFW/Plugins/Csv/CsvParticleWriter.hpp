@@ -1,108 +1,61 @@
-//  IExtrapolationCellWriter.h
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
-#ifndef ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H
-#define ACTFW_CSV_PLUGINS_PARTICLEPROPERTIESWRITER_H 1
+/// @file
+/// @date 2016-05-23 Initial version
+/// @date 2017-08-07 Rewrite with new interfaces
+/// @autor Andreas Salzburger
+/// @author Moritz Kiehnn <msmk@cern.ch>
 
-#include <mutex>
-#include <iostream>
-#include <fstream>
-#include "ACTFW/Framework/IService.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
+#ifndef ACTFW_CSVPARTICLERITER_H
+#define ACTFW_CSVPARTICLERITER_H
+
+#include <vector>
+
+#include <ACTS/EventData/ParticleDefinitions.hpp>
+#include <ACTS/Utilities/Logger.hpp>
+
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "ACTFW/Framework/WriterT.hpp"
 
-class TFile;
+namespace FW {
+namespace Csv {
 
-namespace FWCsv {
-
-/// @class CsvParticleWriter
-///
-/// A root based implementation to write out particleproperties vector
-///
-class CsvParticleWriter
-  : public FW::IWriterT<std::vector<Acts::ParticleProperties> >
-{
-public:
-  // @class Config
-  //
-  // The nested config class
-  class Config
+  /// Write out a particle collection in comma-separated-value format.
+  ///
+  /// This writes one file per event into the configured output directory. By
+  /// default it writes to the current working directory. Files are named
+  /// using the following schema
+  ///
+  ///     event000000001-particles.csv
+  ///     event000000002-particles.csv
+  ///
+  /// and each line in the file corresponds to one particle.
+  class CsvParticleWriter
+    : public WriterT<std::vector<Acts::ParticleProperties>>
   {
   public:
-    /// the default logger
-    std::shared_ptr<const Acts::Logger> logger;
-    /// the name of the algorithm
-    std::string                         name;
-    /// the precision
-    size_t                              outputPrecision = 4;
-    /// the ofstream
-    std::shared_ptr<std::ofstream>      outputStream    = nullptr;
-        
-    std::shared_ptr<FW::BarcodeSvc>
-    barcodeSvc;  ///< the barcode service to decode
-
-    Config(const std::string&   lname = "CsvParticleWriter",
-           Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger(Acts::getDefaultLogger(lname, lvl))
-      , name(lname)
-      , barcodeSvc(nullptr)
+    using Base = WriterT<std::vector<Acts::ParticleProperties>>;
+    struct Config
     {
-    }
-        
+      std::string collection;           ///< which collection to write
+      std::string outputDir;            ///< where to place output files
+      size_t      outputPrecision = 6;  ///< floating point precision
+      /// the barcode service to decode
+      std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
+    };
+
+    CsvParticleWriter(const Config&        cfg,
+                      Acts::Logging::Level level = Acts::Logging::INFO);
+    ~CsvParticleWriter() = default;
+
+  protected:
+    ProcessCode
+    writeT(const FW::AlgorithmContext&                  ctx,
+           const std::vector<Acts::ParticleProperties>& particles) final;
+
+  private:
+    Config m_cfg;
   };
 
-  /// Constructor
-  /// @param cfg is the configuration class
-  CsvParticleWriter(const Config& cfg);
+}  // namespace Csv
+}  // namespace FW
 
-  /// Destructor
-  virtual ~CsvParticleWriter() = default;
-
-  /// Framework name() method
-  /// @return the name of the tool
-  std::string
-  name() const final;
-
-  /// Framework intialize method
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  initialize() override final;
-
-  /// Framework finalize mehtod
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  finalize() override final;
-
-  /// The write interface
-  /// @param pProperties is the vector of particle properties
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  write(const std::vector<Acts::ParticleProperties>& particles) override final;
-
-  /// The write interace for string
-  /// @param sinfo is some additional string info
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  write(const std::string& sinfo) override final;
-
-private:
-  Config        m_cfg;         ///< the config class
-  std::mutex    m_write_mutex; ///< mutex used to protect multi-threaded writes
-  
-  /// Private access to the logging instance
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_cfg.logger;
-  }
-};
-
-}
-
-#endif  // ACTFW_PLUGINS_PARTICLEPROPERTIESWRITER_H
+#endif  // ACTFW_CSVPARTICLERITER_H

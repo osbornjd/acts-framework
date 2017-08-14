@@ -1,0 +1,10 @@
+add_library(ACTFWPluginPythia8 SHARED ACTFW/Plugins/Pythia8/TPythia8Generator.cpp)
+target_include_directories(ACTFWPluginPythia8 PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
+target_include_directories(ACTFWPluginPythia8 PUBLIC ${ROOT_INCLUDE_DIRS})
+target_include_directories(ACTFWPluginPythia8 PRIVATE ${PYTHIA8_INCLUDEDIR})
+target_link_libraries(ACTFWPluginPythia8 PUBLIC ACTS::ACTSCore ACTFramework)
+target_link_libraries(ACTFWPluginPythia8 PUBLIC ${ROOT_CNS}Core ${ROOT_CNS}Hist ${ROOT_CNS}Tree ${ROOT_CNS}TreePlayer ${ROOT_CNS}EGPythia8)
+target_link_libraries(ACTFWPluginPythia8 PRIVATE -L${PYTHIA8_LIBRARYDIR})
+
+install(TARGETS ACTFWPluginPythia8 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

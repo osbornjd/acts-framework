@@ -1,17 +1,18 @@
 #ifndef ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
-#define ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H 
+#define ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
 
-#include <mutex>
 #include <array>
-#include "ACTFW/Readers/IReaderT.hpp"
+
+#include <ACTS/Utilities/Units.hpp>
+
+#include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace FW {
-class RandomNumbersSvc;
-}
 
-namespace FWE {
+class BarcodeSvc;
+class RandomNumbersSvc;
 
 /// @class ParticleGun
 ///
@@ -21,76 +22,50 @@ namespace FWE {
 /// in a given range. It fills a vector of particle properties for feeding into
 /// fast simulation.
 ///
-class ParticleGun : public FW::IReaderT<std::vector<Acts::ParticleProperties>>
+class ParticleGun : public BareAlgorithm
 {
 public:
-  /// @class Config
-  /// configuration struct
-  class Config
+  struct Config
   {
-  public:
-    // FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    /// output collection for generated particles
+    std::string particlesCollection;
     /// number of particles
     size_t nParticles = 0;
-    /// low, high for eta range
-    std::array<double, 2> etaRange = {{-3., 3.}};
+    /// low, high for d0 range
+    std::array<double, 2> d0Range = {{0, 1 * Acts::units::_mm}};
+    /// low, high for z0 range
+    std::array<double, 2> z0Range
+        = {{-100 * Acts::units::_mm, 100 * Acts::units::_mm}};
     /// low, high for phi range
     std::array<double, 2> phiRange = {{-M_PI, M_PI}};
+    /// low, high for eta range
+    std::array<double, 2> etaRange = {{-3., 3.}};
     /// low, high for pt range
-    std::array<double, 2> ptRange = {{100., 10000.}};
+    std::array<double, 2> ptRange
+        = {{100 * Acts::units::_MeV, 10 * Acts::units::_GeV}};
     /// the mass of the particle
     double mass = 0.;
     /// the charge of the particle
     double charge = 0.;
     /// the pdg type of the particle
     pdg_type pID = 0.;
+    // FW random number service
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    std::shared_ptr<FW::BarcodeSvc> barcodes = nullptr;
   };
 
   /// Constructor
   /// @param cfg is the configuration class
-  ParticleGun(const Config&                       cfg,
-              std::unique_ptr<const Acts::Logger> logger
-              = Acts::getDefaultLogger("ParticleGun", Acts::Logging::INFO));
+  ParticleGun(const Config&        cfg,
+              Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Destructor
-  virtual ~ParticleGun();
-
-  // clang-format off
-  /// @copydoc FW::IReaderT::read(std::vector<Acts::ParticleProperties>&,size_t,const FW::AlgorithmContext*)
-  // clang-format on
-  FW::ProcessCode
-  read(std::vector<Acts::ParticleProperties>& particleProperties,
-       size_t                                 skip    = 0,
-       const FW::AlgorithmContext*            context = nullptr) override final;
-
-  /// Reads in a  list of paritlces
-  /// @return is a process code indicateing if the reading succeeded
-  std::string
-  name() const override final;
-
-  /// Reads in a  list of paritlces
-  /// @return is a process code indicateing if the reading succeeded
-  FW::ProcessCode
-  initialize() override final;
-
-  /// Reads in a  list of paritlces
-  /// @return is a process code indicateing if the reading succeeded
-  FW::ProcessCode
-  finalize() override final;
+  ProcessCode
+  execute(AlgorithmContext ctx) const;
 
 private:
-  /// Private access to the logging instance
-  const Acts::Logger&
-  logger() const
-  {
-    return (*m_logger);
-  }
-
   Config m_cfg;
-  std::unique_ptr<const Acts::Logger> m_logger;
 };
 
-}
+}  // namespace FW
 
 #endif  // ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H

@@ -1,79 +1,52 @@
 #include "ACTFW/Fatras/ParticleGun.hpp"
+
+#include <cmath>
+
+#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTS/Utilities/Units.hpp"
 
-FWE::ParticleGun::ParticleGun(const FWE::ParticleGun::Config&     cfg,
-                              std::unique_ptr<const Acts::Logger> mlogger)
-  : FW::IReaderT<std::vector<Acts::ParticleProperties>>()
-  , m_cfg(cfg)
-  , m_logger(std::move(mlogger))
-{
-  if (!m_cfg.randomNumbers) {
-    ACTS_FATAL("ParticleGun constructor did not succeed! No RandomNumbersSvc "
-               "handed over!");
-  }
-}
-
-FWE::ParticleGun::~ParticleGun()
+FW::ParticleGun::ParticleGun(const FW::ParticleGun::Config& cfg,
+                             Acts::Logging::Level           level)
+  : FW::BareAlgorithm("ParticleGun", level), m_cfg(cfg)
 {
 }
 
 FW::ProcessCode
-FWE::ParticleGun::read(
-    std::vector<Acts::ParticleProperties>& particleProperties,
-    size_t                                 skip,
-    const FW::AlgorithmContext*            context)
+FW::ParticleGun::execute(AlgorithmContext ctx) const
 {
-  if (!context) {
-    ACTS_FATAL("read() did not succeed! No AlgorithmContext "
-               "handed over!");
-    return FW::ProcessCode::ABORT;
-  }
+  std::vector<Acts::ParticleProperties> particles;
 
-  // Create a random number generator
-  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(*context);
+  RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
 
-  // Create distributions in given ranges
-  FW::UniformDist phiDist(m_cfg.phiRange.at(0), m_cfg.phiRange.at(1));
-  FW::UniformDist etaDist(m_cfg.etaRange.at(0), m_cfg.etaRange.at(1));
-  FW::UniformDist ptDist(m_cfg.ptRange.at(0), m_cfg.ptRange.at(1));
+  UniformDist d0Dist(m_cfg.d0Range.at(0), m_cfg.d0Range.at(1));
+  UniformDist z0Dist(m_cfg.z0Range.at(0), m_cfg.z0Range.at(1));
+  UniformDist phiDist(m_cfg.phiRange.at(0), m_cfg.phiRange.at(1));
+  UniformDist etaDist(m_cfg.etaRange.at(0), m_cfg.etaRange.at(1));
+  UniformDist ptDist(m_cfg.ptRange.at(0), m_cfg.ptRange.at(1));
 
-  // Particle loop
-  for (int ip = 0; ip < m_cfg.nParticles; ip++) {
+  for (size_t ip = 0; ip < m_cfg.nParticles; ip++) {
     // generate random parameters
-    double phi   = phiDist(rng);
-    double eta   = etaDist(rng);
-    double theta = 2. * atan(exp(-eta));
-    double pt    = ptDist(rng);
-    double p     = pt / sin(theta);
+    double d0  = d0Dist(rng);
+    double z0  = z0Dist(rng);
+    double phi = phiDist(rng);
+    double eta = etaDist(rng);
+    double pt  = ptDist(rng);
+    auto   bc  = m_cfg.barcodes->generate(ip);
+    // create vertex from random parameters
+    Acts::Vector3D vertex(d0 * std::sin(phi), d0 * -std::cos(phi), z0);
     // create momentum from random parameters
     Acts::Vector3D momentum(
-        p * sin(theta) * cos(phi), p * sin(theta) * sin(phi), p * cos(theta));
-    // create vertex from random parameters
-    Acts::Vector3D vertex(0., 0., 0.);
+        pt * std::cos(phi), pt * std::sin(phi), pt * std::sinh(eta));
     // the particle should be ready now
-    particleProperties.push_back(Acts::ParticleProperties(
-        vertex, momentum, m_cfg.mass, m_cfg.charge, m_cfg.pID));
+    particles.emplace_back(
+        vertex, momentum, m_cfg.mass, m_cfg.charge, m_cfg.pID, bc);
   }
-  // return
-  return FW::ProcessCode::SUCCESS;
-}
 
-std::string
-FWE::ParticleGun::name() const
-{
-  return "ParticleGun";
-}
-
-FW::ProcessCode
-FWE::ParticleGun::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FWE::ParticleGun::finalize()
-{
+  if (ctx.eventStore.add(m_cfg.particlesCollection, std::move(particles))
+      != ProcessCode::SUCCESS)
+    return ProcessCode::ABORT;
   return FW::ProcessCode::SUCCESS;
 }
