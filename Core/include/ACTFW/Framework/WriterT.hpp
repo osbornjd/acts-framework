@@ -40,6 +40,7 @@ public:
   WriterT(std::string          objectName,
           std::string          writerName,
           Acts::Logging::Level level);
+  /// deleted default destructor        
   ~WriterT() = default;
 
   std::string
@@ -56,6 +57,10 @@ public:
 
 protected:
   /// Type-specific write function implementation
+  /// this method is implemented in the user implementation
+  /// @param [in] ctx is the algorithm context that guarantees event
+  ///        consistency
+  /// @tparam [in] is the templeted collection to be written 
   virtual ProcessCode
   writeT(const AlgorithmContext& ctx, const T& t)
       = 0;
