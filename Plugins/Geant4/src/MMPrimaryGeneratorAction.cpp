@@ -7,9 +7,9 @@
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
 
-FWG4::MMPrimaryGeneratorAction* FWG4::MMPrimaryGeneratorAction::fgInstance = 0;
+FW::G4::MMPrimaryGeneratorAction* FW::G4::MMPrimaryGeneratorAction::fgInstance = 0;
 
-FWG4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
+FW::G4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
     const G4String& particleName,
     G4double        energy,
     G4int           randomSeed1,
@@ -31,14 +31,14 @@ FWG4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
   CLHEP::HepRandom::getTheEngine()->setSeed(randomSeed1,randomSeed2);
 }
 
-FWG4::MMPrimaryGeneratorAction::~MMPrimaryGeneratorAction()
+FW::G4::MMPrimaryGeneratorAction::~MMPrimaryGeneratorAction()
 {
   fgInstance = 0;
   delete fParticleGun;
 }
 
-FWG4::MMPrimaryGeneratorAction*
-FWG4::MMPrimaryGeneratorAction::Instance()
+FW::G4::MMPrimaryGeneratorAction*
+FW::G4::MMPrimaryGeneratorAction::Instance()
 {
   // Static acces function via G4RunManager
 
@@ -46,7 +46,7 @@ FWG4::MMPrimaryGeneratorAction::Instance()
 }
 
 void
-FWG4::MMPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
+FW::G4::MMPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   // this function is called at the begining of event
   G4double phi   = -M_PI + G4UniformRand() * 2. * M_PI;

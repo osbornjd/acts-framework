@@ -4,35 +4,35 @@
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 
-FWG4::MMEventAction* FWG4::MMEventAction::fgInstance = 0;
+FW::G4::MMEventAction* FW::G4::MMEventAction::fgInstance = 0;
 
-FWG4::MMEventAction*
-FWG4::MMEventAction::Instance()
+FW::G4::MMEventAction*
+FW::G4::MMEventAction::Instance()
 {
   // Static acces function via G4RunManager
 
   return fgInstance;
 }
 
-FWG4::MMEventAction::MMEventAction() : G4UserEventAction()
+FW::G4::MMEventAction::MMEventAction() : G4UserEventAction()
 {
   fgInstance = this;
 }
 
-FWG4::MMEventAction::~MMEventAction()
+FW::G4::MMEventAction::~MMEventAction()
 {
   fgInstance = 0;
 }
 
 void
-FWG4::MMEventAction::BeginOfEventAction(const G4Event* event)
+FW::G4::MMEventAction::BeginOfEventAction(const G4Event*)
 {
   // reset the collection of material steps
   MMSteppingAction::Instance()->Reset();
 }
 
 void
-FWG4::MMEventAction::EndOfEventAction(const G4Event* event)
+FW::G4::MMEventAction::EndOfEventAction(const G4Event* event)
 {
   Acts::MaterialStep::Position pos(event->GetPrimaryVertex()->GetX0(),
                                    event->GetPrimaryVertex()->GetY0(),
@@ -44,9 +44,9 @@ FWG4::MMEventAction::EndOfEventAction(const G4Event* event)
   // loop over the material steps and add up the material
   double tX0 = 0;
   double tL0 = 0;
-  for (auto& ms : MMSteppingAction::Instance()->materialSteps()){
-    tX0 += ms.materialProperties().thicknessInX0(); 
-    tL0 += ms.materialProperties().thicknessInL0();
+  for (auto& mstep : MMSteppingAction::Instance()->materialSteps()){
+    tX0 += mstep.materialProperties().thicknessInX0(); 
+    tL0 += mstep.materialProperties().thicknessInL0();
   }  
   // create the MaterialTrack
   Acts::MaterialTrack mtrecord(
@@ -59,6 +59,6 @@ FWG4::MMEventAction::EndOfEventAction(const G4Event* event)
 }
 
 void
-FWG4::MMEventAction::Reset()
+FW::G4::MMEventAction::Reset()
 {
 }

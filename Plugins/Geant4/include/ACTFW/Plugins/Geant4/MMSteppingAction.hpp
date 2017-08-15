@@ -11,7 +11,8 @@
 #include "ACTS/Plugins/MaterialPlugins/MaterialStep.hpp"
 #include <vector>
 
-namespace FWG4 {
+namespace FW {
+namespace G4 {
     
     /// @class MMSteppingAction
     ///
@@ -52,8 +53,9 @@ namespace FWG4 {
         /// The collected MaterialStep entities
         std::vector<Acts::MaterialStep> m_steps;
     };
-}
 
+} // namespace G4
+} // namespace FW
 
 #endif // ACTFW_PLUGINS_GEANT4_MMSTEPPINGACTION_H
 

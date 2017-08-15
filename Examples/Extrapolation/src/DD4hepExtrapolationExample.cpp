@@ -12,7 +12,7 @@ main(int argc, char* argv[])
   // get the DD4hep detector
   // DETECTOR:
   // --------------------------------------------------------------------------------
-  FWDD4hep::GeometryService::Config gsConfig("GeometryService",
+  FW::DD4hep::GeometryService::Config gsConfig("GeometryService",
                                              Acts::Logging::INFO);
 
   if (argc >1) {
@@ -29,7 +29,7 @@ main(int argc, char* argv[])
   gsConfig.envelopeZ                = 0.;
   //gsConfig.buildDigitizationModules = false;
 
-  auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
+  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(gsConfig);
   std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
       = geometrySvc->trackingGeometry();
 

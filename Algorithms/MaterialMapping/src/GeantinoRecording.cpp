@@ -41,8 +41,8 @@ FWA::GeantinoRecording::initialize()
     /// access the geometry from the gdml file
     ACTS_INFO(
         "received Geant4 geometry from GDML file: " << m_cfg.gdmlFile.c_str());
-    FWG4::MMDetectorConstruction* detConstruction
-        = new FWG4::MMDetectorConstruction();
+    FW::G4::MMDetectorConstruction* detConstruction
+        = new FW::G4::MMDetectorConstruction();
     detConstruction->setGdmlInput(m_cfg.gdmlFile.c_str());
     m_runManager->SetUserInitialization(
         detConstruction);  // constructs detector (calls Construct in
@@ -55,14 +55,14 @@ FWA::GeantinoRecording::initialize()
   /// Now set up the Geant4 simulation
   m_runManager->SetUserInitialization(new FTFP_BERT);
   m_runManager->SetUserAction(
-    new FWG4::MMPrimaryGeneratorAction( "geantino",
+    new FW::G4::MMPrimaryGeneratorAction( "geantino",
                                         1000.,
                                         m_cfg.seed1,
                                         m_cfg.seed2));
-  FWG4::MMRunAction* runaction = new FWG4::MMRunAction();
+  FW::G4::MMRunAction* runaction = new FW::G4::MMRunAction();
   m_runManager->SetUserAction(runaction);
-  m_runManager->SetUserAction(new FWG4::MMEventAction());
-  m_runManager->SetUserAction(new FWG4::MMSteppingAction());
+  m_runManager->SetUserAction(new FW::G4::MMEventAction());
+  m_runManager->SetUserAction(new FW::G4::MMSteppingAction());
   m_runManager->Initialize();
   
   ACTS_VERBOSE("initialize successful.");
@@ -77,7 +77,7 @@ FWA::GeantinoRecording::execute(FW::AlgorithmContext) const
   m_runManager->BeamOn(m_cfg.tracksPerEvent);
   ///
   std::vector<Acts::MaterialTrack> mtrecords
-      = FWG4::MMEventAction::Instance()->MaterialTracks();
+      = FW::G4::MMEventAction::Instance()->MaterialTracks();
   ACTS_INFO(
       "Received " << mtrecords.size()
                   << " MaterialTracks. Writing them now onto file...");

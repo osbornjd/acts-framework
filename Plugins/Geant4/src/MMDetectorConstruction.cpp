@@ -1,12 +1,8 @@
 #include "ACTFW/Plugins/Geant4/MMDetectorConstruction.hpp"
-// VGM demo
-//#include "Geant4GM/volumes/Factory.h"
-//#include "RootGM/volumes/Factory.h"
 #include "TGeoManager.h"
-// end VGM demo
 #include "G4GDMLParser.hh"
 
-FWG4::MMDetectorConstruction::MMDetectorConstruction():
+FW::G4::MMDetectorConstruction::MMDetectorConstruction():
 G4VUserDetectorConstruction(),
 m_tgeoNode(nullptr),
 m_gdmlFile(nullptr)
@@ -14,11 +10,11 @@ m_gdmlFile(nullptr)
 }
 
 
-FWG4::MMDetectorConstruction::~MMDetectorConstruction()
+FW::G4::MMDetectorConstruction::~MMDetectorConstruction()
 {
 }
 
-G4VPhysicalVolume* FWG4::MMDetectorConstruction::Construct()
+G4VPhysicalVolume* FW::G4::MMDetectorConstruction::Construct()
 {
     if (m_tgeoNode) {
         // Import geometry from Root to VGM
@@ -42,12 +38,12 @@ G4VPhysicalVolume* FWG4::MMDetectorConstruction::Construct()
     else return nullptr; // and error Message
 }
 
-void FWG4::MMDetectorConstruction::setTGeoGeometry(TGeoNode* tgeoNode)
+void FW::G4::MMDetectorConstruction::setTGeoGeometry(TGeoNode* tgeoNode)
 {
     m_tgeoNode = tgeoNode;
 }
 
-void FWG4::MMDetectorConstruction::setGdmlInput(std::string gdmlFile)
+void FW::G4::MMDetectorConstruction::setGdmlInput(std::string gdmlFile)
 {
     m_gdmlFile = new std::string(gdmlFile);
 }

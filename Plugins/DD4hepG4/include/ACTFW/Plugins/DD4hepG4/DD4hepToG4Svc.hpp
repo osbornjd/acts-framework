@@ -14,7 +14,9 @@
 #include "ACTS/Utilities/Logger.hpp"
 
 
-namespace FWDD4hepG4 {
+namespace FW {
+
+namespace DD4hepG4 {
     
     
     /// @class DD4hepToG4Svc
@@ -80,5 +82,7 @@ namespace FWDD4hepG4 {
         }
     };
 
-}
+} // namespace DD4hepG4
+} // namespace FW
+
 #endif // DD4HEP_DD4HEPTOG4SVC_H

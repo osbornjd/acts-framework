@@ -15,7 +15,9 @@
 #include "DD4hep/LCDD.h"
 #include "TGeoNode.h"
 
-namespace FWDD4hep {
+namespace FW {
+
+namespace DD4hep {
 
 /// @class GeometryService
 ///
@@ -153,6 +155,7 @@ private:
   }
 };
 
-}
+} // namespace DD4hep
+} // namespace FW
 
 #endif  // DD4HEP_GEOMETRYSERVICE_H

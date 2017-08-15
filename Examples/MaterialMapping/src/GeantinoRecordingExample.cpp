@@ -25,19 +25,19 @@ main()
   // DD4Hep detector definition
   //
   // set up the geometry service
-  FWDD4hep::GeometryService::Config gsConfig("GeometryService",
+  FW::DD4hep::GeometryService::Config gsConfig("GeometryService",
                                               Acts::Logging::INFO);
   gsConfig.xmlFileName
       = "file:Examples/DD4hepExample/DD4hepDetector/compact/FCCTracker.xml";
-  auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
+  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(gsConfig);
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
       = geometrySvc->trackingGeometry();
 
   // DD4Hep to Geant4 conversion
   //
-  FWDD4hepG4::DD4hepToG4Svc::Config dgConfig("DD4hepToG4", Acts::Logging::INFO);
+  FW::DD4hepG4::DD4hepToG4Svc::Config dgConfig("DD4hepToG4", Acts::Logging::INFO);
   dgConfig.dd4hepService = geometrySvc;
-  auto dd4hepToG4Svc     = std::make_shared<FWDD4hepG4::DD4hepToG4Svc>(dgConfig);
+  auto dd4hepToG4Svc     = std::make_shared<FW::DD4hepG4::DD4hepToG4Svc>(dgConfig);
   
   // --------------------------------------------------------------------------------
   // Geant4 JOB:

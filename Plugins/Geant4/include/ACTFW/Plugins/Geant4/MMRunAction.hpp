@@ -11,7 +11,8 @@
 
 class G4Run;
 
-namespace FWG4 {
+namespace FW {
+namespace G4 {
     
     /// @class MMRunAction
     ///
@@ -44,6 +45,7 @@ namespace FWG4 {
         /// Instance of the EventAction
         static MMRunAction* fgInstance;
     };
-}
+} // namespace G4
+} // namespace FW
 
 #endif // ACTFW_PLUGINS_GEANT4_MMRUNACTION_H

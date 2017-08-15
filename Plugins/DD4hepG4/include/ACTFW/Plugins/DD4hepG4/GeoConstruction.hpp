@@ -23,7 +23,10 @@ namespace DD4hep {
  *  @author Anna Zaborowska
  */
 
-namespace FWDD4hepG4 {
+namespace FW {
+
+namespace DD4hepG4 {
+
     class GeoConstruction : public G4VUserDetectorConstruction {
     public:
         /// Constructor
@@ -37,5 +40,7 @@ namespace FWDD4hepG4 {
         /// Reference to geometry object
         DD4hep::Geometry::LCDD& m_lcdd;
     };
-}
+} // namespace DD4hepG4
+} // namespace FW
+
 #endif /* DETDESSERVICES_GEOCONSTRUCTION_H */

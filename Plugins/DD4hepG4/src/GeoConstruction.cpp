@@ -4,7 +4,8 @@
 #include "DD4hep/Plugins.h"
 #include "DD4hep/LCDD.h"
 
-namespace FWDD4hepG4 {
+namespace FW {
+namespace DD4hepG4 {
     GeoConstruction::GeoConstruction(DD4hep::Geometry::LCDD& lcdd)
     : m_lcdd(lcdd) {}
     
@@ -24,4 +25,5 @@ namespace FWDD4hepG4 {
         g4map.volumeManager();
         return m_world;
     }
+  }
 }

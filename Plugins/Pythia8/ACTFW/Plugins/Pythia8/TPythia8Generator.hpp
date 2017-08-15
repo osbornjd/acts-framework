@@ -8,10 +8,8 @@
 #define ACTFW_PYTHIA8GENERATOR_H
 
 #include <mutex>
-
-#include <ACTS/EventData/ParticleDefinitions.hpp>
-#include <ACTS/Utilities/Logger.hpp>
-
+#include "ACTS/EventData/ParticleDefinitions.hpp"
+#include "ACTS/Utilities/Logger.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 
 class TPythia8;

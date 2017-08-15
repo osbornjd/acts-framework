@@ -56,7 +56,7 @@ main(int argc, char* argv[])
       = std::make_shared<FW::ParticleGun>(particleGunConfig, logLevel);
 
   // geometry from dd4hep
-  FWDD4hep::GeometryService::Config gsConfig("GeometryService", logLevel);
+  FW::DD4hep::GeometryService::Config gsConfig("GeometryService", logLevel);
   gsConfig.xmlFileName              = detectorPath;
   gsConfig.bTypePhi                 = Acts::equidistant;
   gsConfig.bTypeR                   = Acts::equidistant;
@@ -64,7 +64,7 @@ main(int argc, char* argv[])
   gsConfig.envelopeR                = 0.;
   gsConfig.envelopeZ                = 0.;
   gsConfig.buildDigitizationModules = false;
-  auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
+  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(gsConfig);
   std::shared_ptr<const Acts::TrackingGeometry> geom
       = geometrySvc->trackingGeometry();
 

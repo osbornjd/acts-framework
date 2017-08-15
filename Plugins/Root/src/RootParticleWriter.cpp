@@ -1,5 +1,4 @@
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-
 #include <TFile.h>
 #include <TTree.h>
 

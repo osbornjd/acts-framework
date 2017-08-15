@@ -8,9 +8,7 @@
 #define ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
 
 #include <mutex>
-
 #include <ACTS/EventData/ParticleDefinitions.hpp>
-
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 
