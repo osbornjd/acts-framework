@@ -43,12 +43,12 @@ main()
   // Geant4 JOB:
   // --------------------------------------------------------------------------------
   // set up the writer for
-  FWRoot::RootMaterialTrackWriter::Config g4WriterConfig("MaterialTrackWriter",
+  FW::Root::RootMaterialTrackWriter::Config g4WriterConfig("MaterialTrackWriter",
                                                             Acts::Logging::INFO);
   g4WriterConfig.fileName = "GeantMaterialTracks3.root";
   g4WriterConfig.treeName = "GeantMaterialTracks";
   auto g4TrackRecWriter
-      = std::make_shared<FWRoot::RootMaterialTrackWriter>(g4WriterConfig);
+      = std::make_shared<FW::Root::RootMaterialTrackWriter>(g4WriterConfig);
   
   // set up the algorithm writing out the material map
   FWA::GeantinoRecording::Config g4rConfig;

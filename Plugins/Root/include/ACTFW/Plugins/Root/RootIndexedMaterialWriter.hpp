@@ -13,8 +13,9 @@
 #include "ACTS/Utilities/Logger.hpp"
 #include "TFile.h"
 
-namespace FWRoot {
+namespace FW {
     
+namespace Root {
 
     /// @class RootMaterialTrackWriter
     ///
@@ -92,6 +93,8 @@ namespace FWRoot {
     };
     
     inline std::string RootIndexedMaterialWriter::name() const { return m_cfg.name; }
-}
+
+} // namespace Root
+} // namespace FW
 
 #endif // ACTFW_PLUGINS_ROOT_INDEXEDMATERIALWRITER_H

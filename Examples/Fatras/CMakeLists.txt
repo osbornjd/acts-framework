@@ -6,7 +6,7 @@ target_include_directories(ACTFWFatrasCommon PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(ACTFWFatrasGun FatrasGun.cpp)
 target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWFatrasCommon)
-target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWGenericDetector)
+target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWGenericDetector )
 
 install(TARGETS ACTFWFatrasGun RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

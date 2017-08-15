@@ -38,15 +38,20 @@ namespace Csv {
       std::string collection;           ///< which collection to write
       std::string outputDir;            ///< where to place output files
       size_t      outputPrecision = 6;  ///< floating point precision
-      /// the barcode service to decode
+      /// the barcode service to decode/endcode barcode 
       std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
     };
-
+    /// constructor 
+    /// @param cfg is the configuration object
+    /// @parm level is the output logging level
     CsvParticleWriter(const Config&        cfg,
                       Acts::Logging::Level level = Acts::Logging::INFO);
+                      
+    /// default destructor                  
     ~CsvParticleWriter() = default;
 
   protected:
+    ///   
     ProcessCode
     writeT(const FW::AlgorithmContext&                  ctx,
            const std::vector<Acts::ParticleProperties>& particles) final;

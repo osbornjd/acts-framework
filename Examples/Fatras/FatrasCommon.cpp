@@ -3,7 +3,6 @@
 #include <ACTS/Digitization/PlanarModuleStepper.hpp>
 #include <ACTS/MagneticField/ConstantBField.hpp>
 #include <ACTS/Utilities/Units.hpp>
-
 #include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
@@ -12,6 +11,7 @@
 #include "ACTFW/Plugins/Json/JsonSpacePointWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSpacePointWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
+#include "ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp"
 
 FW::ProcessCode
 setupSimulation(FW::Sequencer&                                sequencer,
@@ -32,8 +32,7 @@ setupSimulation(FW::Sequencer&                                sequencer,
   eTestConfig.searchMode                   = 1;
   eTestConfig.extrapolationEngine
       = FW::initExtrapolator(geometry, bfield, defaultLevel);
-  eTestConfig.ecChargedWriter      = nullptr;
-  eTestConfig.ecNeutralWriter      = nullptr;
+  eTestConfig.skipNeutral          = true; 
   eTestConfig.collectSensitive     = true;
   eTestConfig.collectPassive       = true;
   eTestConfig.collectBoundary      = true;
@@ -95,6 +94,13 @@ setupWriters(FW::Sequencer&                  sequencer,
   auto clusterWriterCsv = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(
       clusterWriterCsvConfig);
 
+  // clusters as root
+  FW::Root::RootPlanarClusterWriter::Config clusterWriterRootConfig;
+  clusterWriterRootConfig.collection = clusters;
+  clusterWriterRootConfig.filePath = FW::joinPaths(outputDir, "clusters.root");
+  auto clusteWriterRoot = std::make_shared<FW::Root::RootPlanarClusterWriter>(
+    clusterWriterRootConfig);
+
   // space points as json
   FW::Json::JsonSpacePointWriter<Acts::Vector3D>::Config spWriterJsonConfig;
   spWriterJsonConfig.collection = points;
@@ -115,6 +121,7 @@ setupWriters(FW::Sequencer&                  sequencer,
   if (sequencer.addWriters({pWriterCsv,
                             pWriterRoot,
                             clusterWriterCsv,
+                            clusteWriterRoot,
                             spWriterJson,
                             spWriterObj})
       != FW::ProcessCode::SUCCESS)

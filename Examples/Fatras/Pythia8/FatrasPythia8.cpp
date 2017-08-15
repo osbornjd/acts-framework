@@ -5,7 +5,6 @@
 
 #include <ACTS/Detector/TrackingGeometry.hpp>
 #include <ACTS/Utilities/Units.hpp>
-
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/Plugins/Pythia8/TPythia8Generator.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"

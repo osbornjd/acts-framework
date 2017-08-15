@@ -1,22 +1,21 @@
 template <class T>
 FW::ProcessCode
-FWRoot::RootExCellWriter<T>::write(const Acts::ExtrapolationCell<T>& eCell)
+FW::Root::RootExCellWriter<T>::writeT(const FW::AlgorithmContext&  ctx,
+       const std::vector< Acts::ExtrapolationCell<T> > & ecells)
 {
-  {
-    // lock the mutex
-    std::lock_guard<std::mutex> lock(m_write_mutex);
-    
-    ACTS_VERBOSE("Writing an eCell object with "
-                 << eCell.extrapolationSteps.size()
-                 << " steps.");
 
+  // exclusive access to the tree
+  std::lock_guard<std::mutex> lock(m_writeMutex);
+  
+  // loop over all the extrapolation cells
+  for (auto& eCell : ecells){
     // the event paramters
     auto sMomentum = eCell.startParameters.momentum();
     m_eta          = sMomentum.eta();
     m_phi          = sMomentum.phi();
     m_materialX0   = eCell.materialX0;
     m_materialL0   = eCell.materialL0;
-
+      
     // clear the vectors & reserve
     // - for main step information
     m_s_positionX.clear();
@@ -33,7 +32,7 @@ FWRoot::RootExCellWriter<T>::write(const Acts::ExtrapolationCell<T>& eCell)
     m_s_volumeID.reserve(MAXSTEPS);
     m_s_layerID.reserve(MAXSTEPS);
     m_s_surfaceID.reserve(MAXSTEPS);
-
+  
     // - for the sensitive
     if (m_cfg.writeSensitive) {
       m_s_sensitive.clear();
@@ -86,7 +85,7 @@ FWRoot::RootExCellWriter<T>::write(const Acts::ExtrapolationCell<T>& eCell)
             || (m_cfg.writeBoundary && boundary)
             || (m_cfg.writeMaterial && material)
             || (m_cfg.writePassive && passive)) {
-
+  
           // the material steps
           if (m_cfg.writeMaterial) {
             // the material is being written out
@@ -102,24 +101,22 @@ FWRoot::RootExCellWriter<T>::write(const Acts::ExtrapolationCell<T>& eCell)
             m_s_materialX0.push_back(materialStepX0);
             m_s_materialX0.push_back(materialStepL0);
           }
-
+  
           /// goblal position information
           m_s_positionX.push_back(pars.position().x());
           m_s_positionY.push_back(pars.position().y());
           m_s_positionZ.push_back(pars.position().z());
           m_s_positionR.push_back(pars.position().perp());
-
+  
           /// local position information - only makes sense for sensitive really
           if (m_cfg.writeSensitive) {
             m_s_localposition0.push_back(pars.parameters()[Acts::eLOC_X]);
             m_s_localposition1.push_back(pars.parameters()[Acts::eLOC_Y]);
           }
-
-          ///
+          /// volume, layer and surface ID
           m_s_volumeID.push_back(volumeID);
           m_s_layerID.push_back(layerID);
           m_s_surfaceID.push_back(surfaceID);
-
           /// indicate what hit you have
           m_s_material.push_back(material);
           m_s_boundary.push_back(boundary);
@@ -128,90 +125,84 @@ FWRoot::RootExCellWriter<T>::write(const Acts::ExtrapolationCell<T>& eCell)
         if (sensitive) m_hits++;
       }
     }
-    // write to
     m_outputTree->Fill();
   }
-
   // return scuess
   return FW::ProcessCode::SUCCESS;
 }
 
 template <class T> 
-FWRoot::RootExCellWriter<T>::RootExCellWriter(
-  const FWRoot::RootExCellWriter<T>::Config& cfg)
-  : FW::IWriterT<Acts::ExtrapolationCell<T> >()
+FW::Root::RootExCellWriter<T>::RootExCellWriter(
+  const FW::Root::RootExCellWriter<T>::Config& cfg,
+  Acts::Logging::Level level)
+  : FW::WriterT< std::vector<Acts::ExtrapolationCell<T> > >
+    (cfg.collection, "RootExCellWriter", level)
   , m_cfg(cfg)
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
-{
-}
+{}
 
-template <class T> 
-FWRoot::RootExCellWriter<T>::~RootExCellWriter()
-{
-}
-
-template <class T> 
+template <class T>
 FW::ProcessCode
-FWRoot::RootExCellWriter<T>::initialize()
+FW::Root::RootExCellWriter<T>::initialize()
 {
-  ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
-  // open the output file
-  m_outputFile = new TFile(m_cfg.fileName.c_str(), m_cfg.fileMode.c_str());
-  m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
-
+  m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+  if (!m_outputFile) {
+    //ACTS_ERROR("Could not open ROOT file'" << m_cfg.filePath << "' to write");
+    return ProcessCode::ABORT;
+  }
+  m_outputFile->cd();
+  m_outputTree = new TTree(m_cfg.treeName.c_str(), 
+                           "TTree from RootPlanarClusterWriter");
   // initial parameters
-  m_outputTree->Branch("Eta", &m_eta);
-  m_outputTree->Branch("Phi", &m_phi);
+  m_outputTree->Branch("eta", &m_eta);
+  m_outputTree->Branch("phi", &m_phi);
   
   // output the step information
-  m_outputTree->Branch("StepX", &m_s_positionX);
-  m_outputTree->Branch("StepY", &m_s_positionY);
-  m_outputTree->Branch("StepZ", &m_s_positionZ);
-  m_outputTree->Branch("StepR", &m_s_positionR);
+  m_outputTree->Branch("step_x", &m_s_positionX);
+  m_outputTree->Branch("step_y", &m_s_positionY);
+  m_outputTree->Branch("step_z", &m_s_positionZ);
+  m_outputTree->Branch("step_r", &m_s_positionR);
 
   // identification
-  m_outputTree->Branch("StepVolumeID",  &m_s_volumeID);
-  m_outputTree->Branch("StepLayerID",   &m_s_layerID);
-  m_outputTree->Branch("StepSurfaceID", &m_s_surfaceID);
+  m_outputTree->Branch("volumeID",  &m_s_volumeID);
+  m_outputTree->Branch("layerID",   &m_s_layerID);
+  m_outputTree->Branch("surfaceID", &m_s_surfaceID);
   // material section
   if (m_cfg.writeMaterial){
-    m_outputTree->Branch("MaterialX0",     &m_materialX0);
-    m_outputTree->Branch("MaterialL0",     &m_materialL0);
-    m_outputTree->Branch("StepMaterialX0", &m_s_materialX0);
-    m_outputTree->Branch("StepMaterialL0", &m_s_materialL0);
-    m_outputTree->Branch("MaterialStep",   &m_s_material);
+    m_outputTree->Branch("material_X0",      &m_materialX0);
+    m_outputTree->Branch("material_L0",      &m_materialL0);
+    m_outputTree->Branch("step_material_X0", &m_s_materialX0);
+    m_outputTree->Branch("step_material_L0", &m_s_materialL0);
+    m_outputTree->Branch("material",         &m_s_material);
   }
   // sensitive section
   if (m_cfg.writeSensitive){
-    m_outputTree->Branch("SensitiveStep", &m_s_sensitive);
-    m_outputTree->Branch("StepLocal0",    &m_s_localposition0);
-    m_outputTree->Branch("StepLocal1",    &m_s_localposition1);
+    m_outputTree->Branch("sensitive",  &m_s_sensitive);
+    m_outputTree->Branch("step_l0",    &m_s_localposition0);
+    m_outputTree->Branch("step_l1",    &m_s_localposition1);
   }
   // boundary section
   if (m_cfg.writeBoundary)
-    m_outputTree->Branch("BoundaryStep", &m_s_boundary);
+    m_outputTree->Branch("boundary", &m_s_boundary);
   // numer of sensitive hits
-  m_outputTree->Branch("nHits", &m_hits);
-
-  return FW::ProcessCode::SUCCESS;
-}
-
-template <class T> 
-FW::ProcessCode
-FWRoot::RootExCellWriter<T>::finalize()
-{
-  ACTS_INFO("Closing and Writing ROOT output File : " << m_cfg.fileName);
-  m_outputFile->cd();
-  m_outputTree->Write();
-  m_outputFile->Close();
-  return FW::ProcessCode::SUCCESS;
+  m_outputTree->Branch("hits", &m_hits);
+  
+  return ProcessCode::SUCCESS;
+  
 }
 
 template <class T>
 FW::ProcessCode
-FWRoot::RootExCellWriter<T>::write(const std::string&)
+FW::Root::RootExCellWriter<T>::finalize()
 {
-  return FW::ProcessCode::SUCCESS;
+  if (m_outputFile) {
+    m_outputFile->cd();
+    m_outputTree->Write();
+    m_outputFile->Close();
+    //ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
+    //                                      << m_cfg.filePath << "'");
+  }
+  return ProcessCode::SUCCESS;
 }
 

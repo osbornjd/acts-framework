@@ -53,8 +53,8 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   particleGunConfig.etaRange            = {{-4., 4.}};
   particleGunConfig.ptRange             = {{100 * _MeV, 100 * _GeV}};
   particleGunConfig.mass                = 105 * _MeV;
-  particleGunConfig.charge              = -1 * _e;
-  particleGunConfig.pID                 = 13;
+  particleGunConfig.charge              = 0.; // -1 * _e; // use 0 for 
+  particleGunConfig.pID                 = 999; // use 999 for geantinos, 13 for muons
   particleGunConfig.randomNumbers       = randomNumbers;
   particleGunConfig.barcodes            = barcodes;
   auto particleGun
@@ -62,46 +62,47 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // Write ROOT TTree
   // ecc for charged particles
-  FWRoot::RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
-  reccWriterConfig.fileName       = "$PWD/ExtrapolationChargedTest.root";
-  reccWriterConfig.treeName       = "ExtrapolationChargedTest";
+  FW::Root::RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
+  reccWriterConfig.filePath       = "excells_charged.root";
+  reccWriterConfig.treeName       = "extrapolation_charged";
+  reccWriterConfig.collection     = "excells_charged";  
   reccWriterConfig.writeBoundary  = false;
   reccWriterConfig.writeMaterial  = true;
   reccWriterConfig.writeSensitive = true;
   reccWriterConfig.writePassive   = true;
-  std::shared_ptr<FW::IWriterT<Acts::ExtrapolationCell<Acts::TrackParameters>>>
-      rootEccWriter(new FWRoot::RootExCellWriter<Acts::TrackParameters>(
-          reccWriterConfig));
+  auto rootEccWriter 
+     = std::make_shared<FW::Root::RootExCellWriter<Acts::TrackParameters > >
+       (reccWriterConfig);
 
   // ecc for neutral particles
-  FWRoot::RootExCellWriter<Acts::NeutralParameters>::Config recnWriterConfig;
-  recnWriterConfig.fileName       = "$PWD/ExtrapolationNeutralTest.root";
-  recnWriterConfig.treeName       = "ExtrapolationNeutralTest";
+  FW::Root::RootExCellWriter<Acts::NeutralParameters>::Config recnWriterConfig;
+  recnWriterConfig.filePath       = "excells_neutral.root";
+  recnWriterConfig.treeName       = "extrapolation_neutral";
+  recnWriterConfig.collection     = "excells_neutral";  
   recnWriterConfig.writeBoundary  = false;
   recnWriterConfig.writeMaterial  = true;
   recnWriterConfig.writeSensitive = true;
   recnWriterConfig.writePassive   = true;
-  std::shared_ptr<
-      FW::IWriterT<Acts::ExtrapolationCell<Acts::NeutralParameters>>>
-      rootEcnWriter(new FWRoot::RootExCellWriter<Acts::NeutralParameters>(
-          recnWriterConfig));
+  auto rootEcnWriter  
+    = std::make_shared<FW::Root::RootExCellWriter<Acts::NeutralParameters > >
+      (recnWriterConfig);
 
   // the Algorithm with its configurations
   FW::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.particlesCollection          = "Particles";
-  eTestConfig.simulatedParticlesCollection = "simulatedParticles";
-  eTestConfig.simulatedHitsCollection      = "simulatedHits";
-  eTestConfig.searchMode                   = 1;
-  eTestConfig.extrapolationEngine          = extrapolationEngine;
-  eTestConfig.ecChargedWriter              = rootEccWriter;
-  eTestConfig.ecNeutralWriter              = rootEcnWriter;
-  eTestConfig.randomNumbers                = randomNumbers;
-  eTestConfig.collectSensitive             = true;
-  eTestConfig.collectPassive               = true;
-  eTestConfig.collectBoundary              = true;
-  eTestConfig.collectMaterial              = true;
-  eTestConfig.sensitiveCurvilinear         = false;
-  eTestConfig.pathLimit                    = -1.;
+  eTestConfig.particlesCollection               = "Particles";
+  eTestConfig.simulatedParticlesCollection      = "simulatedParticles";
+  eTestConfig.simulatedChargedExCellCollection  = reccWriterConfig.collection;
+  eTestConfig.simulatedNeutralExCellCollection  = recnWriterConfig.collection;
+  eTestConfig.simulatedHitsCollection           = "simulatedHits";
+  eTestConfig.searchMode                        = 1;
+  eTestConfig.extrapolationEngine               = extrapolationEngine;
+  eTestConfig.randomNumbers                     = randomNumbers;
+  eTestConfig.collectSensitive                  = true;
+  eTestConfig.collectPassive                    = true;
+  eTestConfig.collectBoundary                   = true;
+  eTestConfig.collectMaterial                   = true;
+  eTestConfig.sensitiveCurvilinear              = false;
+  eTestConfig.pathLimit                         = -1.;
 
   auto extrapolationAlg
       = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig);
@@ -109,8 +110,9 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
   // now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-  sequencer.addServices({rootEccWriter, rootEcnWriter, randomNumbers});
+  FW::Sequencer sequencer(seqConfig);  
+  sequencer.addServices( {randomNumbers} );
+  sequencer.addWriters( {rootEccWriter, rootEcnWriter} );
   sequencer.appendEventAlgorithms({particleGun, extrapolationAlg});
   sequencer.run(nEvents);
 

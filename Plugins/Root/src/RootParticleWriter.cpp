@@ -21,9 +21,9 @@ FW::Root::RootParticleWriter::initialize()
     ACTS_ERROR("Could not open ROOT file'" << m_cfg.filePath << "' to write");
     return ProcessCode::ABORT;
   }
-
   m_outputFile->cd();
-  m_outputTree = new TTree(m_cfg.treeName.c_str(), "");
+  m_outputTree = new TTree(m_cfg.treeName.c_str(),
+                           "TTree from RootParticleWriter");
   // initial parameters
   m_outputTree->Branch("eta", &m_eta);
   m_outputTree->Branch("phi", &m_phi);
@@ -73,6 +73,7 @@ FW::Root::RootParticleWriter::writeT(
 
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);
+  
   // the number of particles
   size_t nParticles = particles.size();
   // clear the branches

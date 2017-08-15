@@ -15,7 +15,9 @@
 
 class TChain;
 
-namespace FWRoot {
+namespace FW {
+  
+namespace Root {
 
 /// @class RootMaterialTrackReader
 ///
@@ -100,6 +102,8 @@ RootMaterialTrackReader::name() const
 {
   return m_cfg.name;
 }
-}  // namespace FWRoot
+
+}  // namespace Root
+}  // namespace FW
 
 #endif  // ACTFW_PLUGINS_ROOT_RootMaterialTrackReader_H

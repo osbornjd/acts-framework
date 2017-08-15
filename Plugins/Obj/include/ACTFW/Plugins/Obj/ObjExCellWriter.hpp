@@ -4,7 +4,6 @@
 //  Created by Andreas Salzburger on 23/05/16.
 //
 //
-
 #ifndef ACTFW_PLUGINS_OBJEXCELLWRITER_H
 #define ACTFW_PLUGINS_OBJEXCELLWRITER_H
 
@@ -16,88 +15,54 @@
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
-namespace FWObj {
+namespace FW {
+
+namespace Obj {
 
 /// @class ExtrapolationCellWriter
 ///
-/// A root based implementation to write out extrapolation steps.
+/// A obj based implementation to write out extrapolation steps
+/// it is used to write obj representations of tracks for displaying
 ///
 /// Safe to use from multiple writer threads.
 ///
 template <class T> class ObjExCellWriter
-  : public FW::IWriterT<Acts::ExtrapolationCell<T> >
+  : public WriterT<std::vector<Acts::ExtrapolationCell<T>>
 {
 public:
 
-  // @class Config
-  //
-  // The nested configuration class
-  class Config
+  // The nested configuration struct
+  struct Config
   {
   public:
-    /// the default logger
-    std::shared_ptr<const Acts::Logger> logger;
-    /// the name of the algorithm
-    std::string                         name;
     /// output scalor
     double                              outputScalor      = 1.;
     /// precision for out
     size_t                              outputPrecision   = 4;
     /// the output stream
     std::shared_ptr<std::ofstream>      outputStream      = nullptr;
-
-    Config(const std::string&   lname = "ObjExCellWriter",
-           Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger(Acts::getDefaultLogger(lname, lvl))
-      , name(lname)
-    {
-    }
-        
   };
 
   /// Constructor
   ///
-  /// @param cfg is the configuration class
-  ObjExCellWriter(const Config& cfg);
+  /// @param cfg is the configuration object
+  /// @parm level is the output logging level
+  ObjExCellWriter(const Config& cfg,
+    Acts::Logging::Level lvl   = Acts::Logging::INFO);
 
-  /// Destructor
+  /// defualt desctrubtor
   virtual ~ObjExCellWriter() = default;
   
-  /// Framework name() method
-  std::string
-  name() const final;
-
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize() override final;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() override final;
-
-  /// The write interface
-  /// @param eCell is the extrapolation cell that is parsed and written
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  write(const Acts::ExtrapolationCell<T>& eCell) override final;
-
-  /// write a bit of string
-  /// @param sinfo is some string info to be written
-  /// @return is a ProcessCode indicating return/failure
-  FW::ProcessCode
-  write(const std::string& sinfo) override final;
+protected:
+  /// The protected writeT method, called by the WriterT base
+  /// @param ctx is the algorithm context for event consistency   
+  ProcessCode
+  writeT(const FW::AlgorithmContext&                  ctx,
+         const std::vector<Acts::ExtrapolationCell> & ecells) final;
 
 private:
-  Config             m_cfg;               ///< the config class
-  size_t             m_vCounter;          ///< the vertex counter
-  std::mutex         m_write_mutex;       ///< mutex used to protect multi-threaded writes
-
-  /// Private access to the logging instance
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_cfg.logger;
-  }
+  Config m_cfg;
+  
 };
 
 template <class T>
@@ -108,86 +73,55 @@ ObjExCellWriter<T>::ObjExCellWriter(
   , m_vCounter(0)
 {}
 
-template <class T> FW::ProcessCode
-ObjExCellWriter<T>::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
 
 template <class T>
 FW::ProcessCode
-ObjExCellWriter<T>::finalize()
+ObjExCellWriter<T>::write(const FW::AlgorithmContext&                  ctx,
+                          const std::vector< const Acts::ExtrapolationCell<T> >& ecells)
 {
-  return FW::ProcessCode::SUCCESS;
-}
-
-template <class T>
-std::string
-ObjExCellWriter<T>::name() const
-{
-  return m_cfg.name;
-}
-
-template <class T>
-FW::ProcessCode
-ObjExCellWriter<T>::write(const Acts::ExtrapolationCell<T>& eCell)
-{
-  
    // abort if you don't have a stream
   if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
-  // lock the mutex for writing
-  std::lock_guard<std::mutex> lock(m_write_mutex);
-  
-  // remember the first counter
-  size_t fCounter = m_vCounter;
-  
-  // increase the vertex counter
-  ++m_vCounter;
-  // the event paramters
-  auto sPosition = eCell.startParameters.position();
-  // write the space point
-  (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*sPosition.x()
-                          << ", " << m_cfg.outputScalor*sPosition.y()
-                          << ", " << m_cfg.outputScalor*sPosition.z() << '\n';
-  
-  // loop over extrapolation steps
-  for (auto& es : eCell.extrapolationSteps) {
-    if (es.parameters) {
-      /// step parameters
-      const T& pars  = (*es.parameters);
-      auto tPosition = pars.position();
-      // increase the counter
-      ++m_vCounter;
-      // write the space point
-      (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*tPosition.x()
-                              << ", " << m_cfg.outputScalor*tPosition.y()
-                              << ", " << m_cfg.outputScalor*tPosition.z() << '\n';
+   // loop over the cells    
+   for (auto& eCell : ecells) 
+    // remember the first counter
+    size_t fCounter = m_vCounter;
+    
+    // increase the vertex counter
+    ++m_vCounter;
+    // the event paramters
+    auto sPosition = eCell.startParameters.position();
+    // write the space point
+    (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*sPosition.x()
+                            << ", " << m_cfg.outputScalor*sPosition.y()
+                            << ", " << m_cfg.outputScalor*sPosition.z() << '\n';
+    
+    // loop over extrapolation steps
+    for (auto& es : eCell.extrapolationSteps) {
+      if (es.parameters) {
+        /// step parameters
+        const T& pars  = (*es.parameters);
+        auto tPosition = pars.position();
+        // increase the counter
+        ++m_vCounter;
+        // write the space point
+        (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor*tPosition.x()
+                                << ", " << m_cfg.outputScalor*tPosition.y()
+                                << ", " << m_cfg.outputScalor*tPosition.z() << '\n';
+      }
     }
+    // write out the line
+    (*(m_cfg.outputStream)) << "l ";
+    for (size_t iv = fCounter; iv < m_vCounter; ++iv)
+      (*(m_cfg.outputStream)) << iv << " ";
+    (*(m_cfg.outputStream)) << '\n';
+    // new line
+    (*(m_cfg.outputStream)) << '\n';
   }
-  // write out the line
-  (*(m_cfg.outputStream)) << "l ";
-  for (size_t iv = fCounter; iv < m_vCounter; ++iv)
-    (*(m_cfg.outputStream)) << iv << " ";
-  (*(m_cfg.outputStream)) << '\n';
-  // new line
-  (*(m_cfg.outputStream)) << '\n';
   // return success
   return FW::ProcessCode::SUCCESS;
 }
 
-template <class T>
-FW::ProcessCode
-ObjExCellWriter<T>::write(const std::string& sinfo)
-{
-  // abort if you don't have a stream
-  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
-  // lock the mutex for writing
-  std::lock_guard<std::mutex> lock(m_write_mutex);
-  
-  (*(m_cfg.outputStream)) << sinfo;
-  return FW::ProcessCode::SUCCESS;
-}
-
-} // end of namespace
+} // namespace Obj
+} // namespace FW
 
 #endif  // ACTFW_PLUGINS_OBJEXCELLWRITER_H

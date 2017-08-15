@@ -5,8 +5,8 @@
 
 #include "TFile.h"
 
-FWRoot::RootMaterialTrackWriter::RootMaterialTrackWriter(
-    const FWRoot::RootMaterialTrackWriter::Config& cfg)
+FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
+    const FW::Root::RootMaterialTrackWriter::Config& cfg)
   : FW::IWriterT<Acts::MaterialTrack>()
   , m_cfg(cfg)
   , m_outputFile(nullptr)
@@ -16,7 +16,7 @@ FWRoot::RootMaterialTrackWriter::RootMaterialTrackWriter(
 }
 
 FW::ProcessCode
-FWRoot::RootMaterialTrackWriter::initialize()
+FW::Root::RootMaterialTrackWriter::initialize()
 {
   
   ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
@@ -30,7 +30,7 @@ FWRoot::RootMaterialTrackWriter::initialize()
 }
 
 FW::ProcessCode
-FWRoot::RootMaterialTrackWriter::finalize()
+FW::Root::RootMaterialTrackWriter::finalize()
 {
   // write the tree and close the file
   ACTS_INFO("Closing and Writing ROOT output File : " << m_cfg.fileName);
@@ -42,7 +42,7 @@ FWRoot::RootMaterialTrackWriter::finalize()
 }
 
 FW::ProcessCode
-FWRoot::RootMaterialTrackWriter::write(
+FW::Root::RootMaterialTrackWriter::write(
     const Acts::MaterialTrack& mtrecord)
 {
   
@@ -61,7 +61,7 @@ FWRoot::RootMaterialTrackWriter::write(
 
  
 FW::ProcessCode
-FWRoot::RootMaterialTrackWriter::write(const std::string&) 
+FW::Root::RootMaterialTrackWriter::write(const std::string&) 
 { 
   return FW::ProcessCode::SUCCESS;
 }

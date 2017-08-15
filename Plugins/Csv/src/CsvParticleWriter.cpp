@@ -1,7 +1,5 @@
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
-
 #include <fstream>
-
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 

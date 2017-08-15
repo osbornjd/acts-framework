@@ -13,7 +13,7 @@
 #include <TFile.h>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
+#include "ACTFW/Framework/WriterT.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -23,7 +23,10 @@ class TFile;
 #define MAXSTEPS 100
 #endif
 
-namespace FWRoot {
+namespace FW {
+
+namespace Root {
+
 /// @class ExtrapolationCellWriter
 ///
 /// A root based implementation to write out extrapolation steps.
@@ -31,9 +34,12 @@ namespace FWRoot {
 /// Safe to use from multiple writer threads.
 ///
 template <class T> class RootExCellWriter
-  : public FW::IWriterT<Acts::ExtrapolationCell<T> >
+  : public FW::WriterT< std::vector< Acts::ExtrapolationCell<T> > >
 {
 public:
+  
+  using Base = FW::WriterT< std::vector< Acts::ExtrapolationCell<T> > >;
+  
   ///  @struct ExtrapolationStep
   ///  this holds the information to be written out
   struct ExtrapolationStep
@@ -43,88 +49,49 @@ public:
     float type;        ///< type of the step
   };
 
-  // @class Config
+  // @struct Config
   //
   // The nested config class
-  class Config
+  struct Config
   {
   public:
-    /// the default logger
-    std::shared_ptr<const Acts::Logger> logger;
-    /// the name of the output tree
-    std::string                         treeName;
-    /// the name of the output file
-    std::string                         fileName;
-    /// the name of the algorithm
-    std::string                         name;
-    /// recreating the file
-    std::string                         fileMode = "recreate";
-
+    std::string collection;                        ///< particle collection to write
+    std::string filePath;                          ///< path of the output file
+    std::string fileMode = "RECREATE";             ///< file access mode
+    std::string treeName = "extrapolation_cells";  ///< name of the output tree
     bool writeSensitive;
     bool writeMaterial;
     bool writePassive;
     bool writeBoundary;
 
-    Config(const std::string&   lname = "RootExCellWriter",
-           Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger(Acts::getDefaultLogger(lname, lvl))
-      , treeName("TTree")
-      , fileName("TFile.root")
-      , name(lname)
-      , writeSensitive(true)
-      , writeMaterial(true)
-      , writePassive(true)
-      , writeBoundary(true)
-    {
-    }
   };
 
   /// Constructor
   /// @param cfg is the configuration class
-  RootExCellWriter(const Config& cfg);
+  RootExCellWriter(const Config& cfg,
+                   Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Destructor
-  virtual ~RootExCellWriter();
+  virtual ~RootExCellWriter() = default ;
 
-  /// Framework name() method
-  /// @return name of the tool
-  std::string
-  name() const override final;
+  ProcessCode
+  initialize() final;
 
-  /// Framework intialize method
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  initialize() override final;
+  ProcessCode
+  finalize() final;
 
-  /// Framework finalize mehtod
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  finalize() override final;
-
-  /// The write interface
-  /// @param eCell is the extrapolation cell that is parsed and written
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  write(const Acts::ExtrapolationCell<T>& eCell) override final;
-
-  /// write a bit of string
-  /// @param sinfo is some string info to be written
-  /// @return is a ProcessCode indicating return/failure
-  FW::ProcessCode
-  write(const std::string& sinfo) override final;
-
-private:
-  Config             m_cfg;               ///< the config class
-
-  std::mutex         m_write_mutex;       ///< mutex used to protect multi-threaded writes
-    
-  TFile*             m_outputFile;        ///< the output file name
+protected:
+  /// The protected writeT method, called by the WriterT base
+  /// @param [in] ctx is the algorithm context for event consistency
+  /// @param [in] ecells are the celss to be written out 
+  ProcessCode
+  writeT(const FW::AlgorithmContext&  ctx,
+         const std::vector< Acts::ExtrapolationCell<T> > & ecells) final;
   
-  // this is the steering tree
-  TTree*             m_steeringTree;
-    
-  // this is the main tree for outputting
-  TTree*             m_outputTree;        ///< the output tree name
+  Config             m_cfg;               ///< the config class
+  std::mutex         m_writeMutex;        ///< protect multi-threaded writes
+  TFile*             m_outputFile;        ///< the output file 
+  TTree*             m_outputTree;        ///< the output tree 
   float              m_eta;               ///< global eta start
   float              m_phi;               ///< global phi start
   float              m_materialX0;        ///< material in X0
@@ -145,22 +112,10 @@ private:
   std::vector<float> m_s_localposition1;  ///< local position - second coordinate
   int                m_hits;              ///< number of hits in sensitive material
 
-  /// Private access to the logging instance
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_cfg.logger;
-  }
 };
 
-template <class T>
-std::string
-RootExCellWriter<T>::name() const
-{
-  return m_cfg.name;
-}
-
-}
+} // namespace Root
+} // namespace FW
 
 #include "RootExCellWriter.ipp"
 
