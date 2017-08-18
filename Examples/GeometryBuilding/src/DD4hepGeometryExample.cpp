@@ -36,7 +36,7 @@ main(int argc, char* argv[])
 
   // the detectors
   std::vector<std::string> subDetectors
-      = {"FCChhBeampipe", "FCChhInner0", "FCChhInner", "FCChhOuter"};
+      = {"beampipe", "FCChhInner0", "FCChhInner", "FCChhOuter", "FCChhForwardHelper", "FCChhForward"};
   // the writers
   std::vector<std::shared_ptr<FW::IWriterT<Acts::Surface>>> subWriters;
   std::vector<std::shared_ptr<std::ofstream>>               subStreams;
