@@ -13,8 +13,8 @@ main()
     // DETECTOR:
     // --------------------------------------------------------------------------------
     // set geometry building logging level
-    Acts::Logging::Level surfaceLogLevel = Acts::Logging::DEBUG;
-    Acts::Logging::Level layerLogLevel   = Acts::Logging::DEBUG;
+    Acts::Logging::Level surfaceLogLevel = Acts::Logging::VERBOSE;
+    Acts::Logging::Level layerLogLevel   = Acts::Logging::VERBOSE;
     Acts::Logging::Level volumeLogLevel  = Acts::Logging::VERBOSE;
     
     // create the tracking geometry as a shared pointer
