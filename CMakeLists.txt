@@ -50,9 +50,6 @@ if(USE_PYTHIA8)
   list(APPEND ROOT_COMPONENTS EG EGPythia8)
 endif()
 
-MESSAGE(INFO ${ROOT_COMPONENTS})
-
-
 # required packages
 
 # Enable C++11 threading support, with a preference for pthread
