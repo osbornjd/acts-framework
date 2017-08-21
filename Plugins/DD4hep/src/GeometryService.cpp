@@ -14,8 +14,7 @@ FW::DD4hep::GeometryService::GeometryService(
   , m_lcdd()
   , m_dd4hepGeometry()
   , m_trackingGeometry()
-{
-}
+{}
 
 FW::DD4hep::GeometryService::~GeometryService()
 {
@@ -56,22 +55,14 @@ FW::DD4hep::GeometryService::buildDD4hepGeometry()
 }
 
 dd4hep::DetElement
-<<<<<<< HEAD
 FW::DD4hep::GeometryService::dd4hepGeometry()
-=======
-FWDD4hep::GeometryService::dd4hepGeometry()
->>>>>>> 6df828c... DD4hep v. 1.00.01 changes to code
 {
   if (!m_dd4hepGeometry) buildDD4hepGeometry();
   return m_dd4hepGeometry;
 }
 
 dd4hep::Detector*
-<<<<<<< HEAD
 FW::DD4hep::GeometryService::GeometryService::lcdd()
-=======
-FWDD4hep::GeometryService::GeometryService::lcdd()
->>>>>>> 6df828c... DD4hep v. 1.00.01 changes to code
 {
   if (!m_lcdd) buildDD4hepGeometry();
   return m_lcdd;

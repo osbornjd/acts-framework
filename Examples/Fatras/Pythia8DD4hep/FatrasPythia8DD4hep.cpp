@@ -9,6 +9,8 @@
 
 #include "ACTFW/Fatras/ParticleGun.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
+#include "ACTFW/Plugins/Pythia8/TPythia8Generator.hpp"
+#include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
 
 #include "FatrasCommon.hpp"
 

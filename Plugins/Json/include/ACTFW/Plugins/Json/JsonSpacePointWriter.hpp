@@ -64,9 +64,7 @@ FW::Json::JsonSpacePointWriter<T>::JsonSpacePointWriter(
     const FW::Json::JsonSpacePointWriter<T>::Config& cfg,
     Acts::Logging::Level                             level)
   : Base(cfg.collection, "JsonSpacePointWriter", level), m_cfg(cfg)
-{
-  return "JsonSpacePointWriter";
-}
+{}
 
 template <class T>
 FW::ProcessCode

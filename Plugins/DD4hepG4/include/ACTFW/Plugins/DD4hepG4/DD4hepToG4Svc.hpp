@@ -24,7 +24,6 @@ namespace DD4hepG4 {
     /// The DD4hepToG4Svc provides the Geant4 geometry from DD4hep input.
     /// @TODO This class should only be temporary - later it should be replaced by TGeoToGeant4
     
-    
     class DD4hepToG4Svc : public FW::IGeant4Service {
         
     public:

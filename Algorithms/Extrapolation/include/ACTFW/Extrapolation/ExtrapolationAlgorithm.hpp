@@ -81,6 +81,7 @@ public:
 
   /// Framework execute method
   /// @param [in] the algorithm context for event consistency
+  FW::ProcessCode
   execute(AlgorithmContext ctx) const final override;
 
 private:
