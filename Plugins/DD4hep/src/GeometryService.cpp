@@ -56,14 +56,14 @@ FW::DD4hep::GeometryService::buildDD4hepGeometry()
 }
 
 dd4hep::DetElement
-FWDD4hep::GeometryService::dd4hepGeometry()
+FW::DD4hep::GeometryService::dd4hepGeometry()
 {
   if (!m_dd4hepGeometry) buildDD4hepGeometry();
   return m_dd4hepGeometry;
 }
 
 dd4hep::Detector*
-FWDD4hep::GeometryService::GeometryService::lcdd()
+FW::DD4hep::GeometryService::GeometryService::lcdd()
 {
   if (!m_lcdd) buildDD4hepGeometry();
   return m_lcdd;

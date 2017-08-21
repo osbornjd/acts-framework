@@ -6,7 +6,7 @@
 
 namespace FW {
 namespace DD4hepG4 {
-    GeoConstruction::GeoConstruction(DD4hep::Geometry::LCDD& lcdd)
+    GeoConstruction::GeoConstruction(dd4hep::Detector& lcdd)
     : m_lcdd(lcdd) {}
     
     GeoConstruction::~GeoConstruction() {}

@@ -44,13 +44,11 @@ if(USE_GEANT4)
 endif()
 set(ROOT_COMPONENTS Core GenVector Hist Tree TreePlayer)
 if(USE_DD4HEP)
-  list(APPEND ROOT_COMPONENTS Geom GenVector)
+  list(APPEND ROOT_COMPONENTS Geom)
 endif()
 if(USE_PYTHIA8)
-  list(APPEND ROOT_COMPONENTS EGPythia8)
+  list(APPEND ROOT_COMPONENTS EG EGPythia8)
 endif()
-
-MESSAGE(INFO ${ROOT_COMPONENTS})
 
 
 # required packages
@@ -60,8 +58,9 @@ set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 find_package(ROOT 6.10 REQUIRED COMPONENTS ${ROOT_COMPONENTS})
-find_package(ROOT 6.10 REQUIRED COMPONENTS Geom)
 find_package(ACTS REQUIRED COMPONENTS ${ACTS_COMPONENTS})
+
+message(STATUS "PYTHIA ALL :" ${ROOT_LIBRARIES} )
 
 
 # optional packages
