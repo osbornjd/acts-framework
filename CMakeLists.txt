@@ -58,6 +58,7 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 find_package(ROOT 6.10 REQUIRED COMPONENTS ${ROOT_COMPONENTS})
 find_package(ACTS REQUIRED COMPONENTS ${ACTS_COMPONENTS})
+find_package (Boost ${ACTS_BOOST_VERSION} COMPONENTS program_options REQUIRED)
 
 # optional packages
 
