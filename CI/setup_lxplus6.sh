@@ -3,7 +3,7 @@
 # setup requirements on lxplus6
 
 platform=x86_64-slc6-gcc62-opt
-view=/cvmfs/sft.cern.ch/lcg/views/LCG_89/${platform}
+view=/cvmfs/sft.cern.ch/lcg/views/LCG_90a/${platform}
 
 source ${view}/setup.sh
 # additional variables that are not set automatically
