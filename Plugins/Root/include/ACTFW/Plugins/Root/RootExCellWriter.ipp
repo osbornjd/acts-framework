@@ -10,7 +10,7 @@ FW::Root::RootExCellWriter<T>::writeT(const FW::AlgorithmContext&  ctx,
   // loop over all the extrapolation cells
   for (auto& eCell : ecells){
     // the event paramters
-    auto sMomentum = eCell.startParameters.momentum();
+    auto sMomentum = eCell.startParameters->momentum();
     m_eta          = sMomentum.eta();
     m_phi          = sMomentum.phi();
     m_materialX0   = eCell.materialX0;
