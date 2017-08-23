@@ -101,4 +101,4 @@ reproducibility_generic_extrapolation:
     script:
         - source install_default/bin/setup.sh
         - cd scripts
-        - ./testReproducibility.sh GenericExtrapolation ExtrapolationCharged ExtrapolationNeutral
+        - ./testReproducibility.sh GenericExtrapolation excells_charged
