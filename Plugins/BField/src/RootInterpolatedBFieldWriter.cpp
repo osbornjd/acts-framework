@@ -5,7 +5,7 @@
 #include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
 #include "TFile.h"
 
-FW::RootInterpolatedBFieldWriter::RootInterpolatedBFieldWriter(
+FW::BField::RootInterpolatedBFieldWriter::RootInterpolatedBFieldWriter(
     const Config&                       cfg,
     std::unique_ptr<const Acts::Logger> logger)
   : m_cfg(cfg)
@@ -16,13 +16,13 @@ FW::RootInterpolatedBFieldWriter::RootInterpolatedBFieldWriter(
 }
 
 std::string
-FW::RootInterpolatedBFieldWriter::name() const
+FW::BField::RootInterpolatedBFieldWriter::name() const
 {
   return "RootInterpolatedBFieldWriter";
 }
 
 FW::ProcessCode
-FW::RootInterpolatedBFieldWriter::initialize()
+FW::BField::RootInterpolatedBFieldWriter::initialize()
 {
   if (!m_cfg.bField) {
     ACTS_ERROR("No magnetic field to be written out handed over!");
@@ -48,7 +48,7 @@ FW::RootInterpolatedBFieldWriter::initialize()
 }
 
 FW::ProcessCode
-FW::RootInterpolatedBFieldWriter::finalize()
+FW::BField::RootInterpolatedBFieldWriter::finalize()
 {
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);

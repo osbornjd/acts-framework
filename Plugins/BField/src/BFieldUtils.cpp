@@ -7,7 +7,7 @@
 #include "TROOT.h"
 #include "TTree.h"
 
-Acts::InterpolatedBFieldMap::FieldMapper<2, 2> FWBField::txt::fieldMapperRZ(
+Acts::InterpolatedBFieldMap::FieldMapper<2, 2> FW::BField::txt::fieldMapperRZ(
     std::function<size_t(std::array<size_t, 2> binsRZ,
                          std::array<size_t, 2> nBinsRZ)> localToGlobalBin,
     std::string fieldMapFile,
@@ -53,7 +53,7 @@ Acts::InterpolatedBFieldMap::FieldMapper<2, 2> FWBField::txt::fieldMapperRZ(
                              firstQuadrant);
 }
 
-Acts::InterpolatedBFieldMap::FieldMapper<3, 3> FWBField::txt::fieldMapperXYZ(
+Acts::InterpolatedBFieldMap::FieldMapper<3, 3> FW::BField::txt::fieldMapperXYZ(
     std::function<size_t(std::array<size_t, 3> binsXYZ,
                          std::array<size_t, 3> nBinsXYZ)> localToGlobalBin,
     std::string fieldMapFile,
@@ -103,7 +103,7 @@ Acts::InterpolatedBFieldMap::FieldMapper<3, 3> FWBField::txt::fieldMapperXYZ(
                               firstOctant);
 }
 
-Acts::InterpolatedBFieldMap::FieldMapper<2, 2> FWBField::root::fieldMapperRZ(
+Acts::InterpolatedBFieldMap::FieldMapper<2, 2> FW::BField::root::fieldMapperRZ(
     std::function<size_t(std::array<size_t, 2> binsRZ,
                          std::array<size_t, 2> nBinsRZ)> localToGlobalBin,
     std::string fieldMapFile,
@@ -154,7 +154,7 @@ Acts::InterpolatedBFieldMap::FieldMapper<2, 2> FWBField::root::fieldMapperRZ(
                              firstQuadrant);
 }
 
-Acts::InterpolatedBFieldMap::FieldMapper<3, 3> FWBField::root::fieldMapperXYZ(
+Acts::InterpolatedBFieldMap::FieldMapper<3, 3> FW::BField::root::fieldMapperXYZ(
     std::function<size_t(std::array<size_t, 3> binsXYZ,
                          std::array<size_t, 3> nBinsXYZ)> localToGlobalBin,
     std::string fieldMapFile,

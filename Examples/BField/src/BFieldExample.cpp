@@ -128,7 +128,7 @@ main(int argc, char* argv[])
   // set the mapper
   if (vm["root"].as<bool>()) {
     if (vm["rz"].as<bool>()) {
-      mapper = FWBField::root::fieldMapperRZ(
+      mapper = FW::BField::root::fieldMapperRZ(
           [](std::array<size_t, 2> binsRZ, std::array<size_t, 2> nBinsRZ) {
             return (binsRZ.at(1) * nBinsRZ.at(0) + binsRZ.at(0));
           },
@@ -138,7 +138,7 @@ main(int argc, char* argv[])
           BFieldUnit,
           vm["firstOctant"].as<bool>());
     } else {
-      mapper = FWBField::root::fieldMapperXYZ(
+      mapper = FW::BField::root::fieldMapperXYZ(
           [](std::array<size_t, 3> binsXYZ, std::array<size_t, 3> nBinsXYZ) {
             return (binsXYZ.at(0) * (nBinsXYZ.at(1) * nBinsXYZ.at(2))
                     + binsXYZ.at(1) * nBinsXYZ.at(2)
@@ -152,7 +152,7 @@ main(int argc, char* argv[])
     }
   } else {
     if (vm["rz"].as<bool>()) {
-      mapper = FWBField::txt::fieldMapperRZ(
+      mapper = FW::BField::txt::fieldMapperRZ(
           [](std::array<size_t, 2> binsRZ, std::array<size_t, 2> nBinsRZ) {
             return (binsRZ.at(1) * nBinsRZ.at(0) + binsRZ.at(0));
           },
@@ -162,7 +162,7 @@ main(int argc, char* argv[])
           vm["nPoints"].as<size_t>(),
           vm["firstOctant"].as<bool>());
     } else {
-      mapper = FWBField::txt::fieldMapperXYZ(
+      mapper = FW::BField::txt::fieldMapperXYZ(
           [](std::array<size_t, 3> binsXYZ, std::array<size_t, 3> nBinsXYZ) {
             return (binsXYZ.at(0) * (nBinsXYZ.at(1) * nBinsXYZ.at(2))
                     + binsXYZ.at(1) * nBinsXYZ.at(2)
@@ -183,17 +183,18 @@ main(int argc, char* argv[])
       = std::make_shared<const Acts::InterpolatedBFieldMap>(std::move(config));
 
   // Create the InterpolatedBFieldWriter
-  FW::RootInterpolatedBFieldWriter::Config writerConfig;
+  FW::BField::RootInterpolatedBFieldWriter::Config writerConfig;
   if (vm["rz"].as<bool>())
-    writerConfig.gridType = FW::GridType::rz;
+    writerConfig.gridType = FW::BField::GridType::rz;
   else
-    writerConfig.gridType = FW::GridType::xyz;
+    writerConfig.gridType = FW::BField::GridType::xyz;
   writerConfig.treeName   = "bField";
   writerConfig.fileName   = vm["out"].as<std::string>();
 
   writerConfig.bField = bField;
   auto bFieldWriter
-      = std::make_shared<FW::RootInterpolatedBFieldWriter>(writerConfig);
+      = std::make_shared<FW::BField::RootInterpolatedBFieldWriter>(
+          writerConfig);
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
