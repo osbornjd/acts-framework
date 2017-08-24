@@ -50,7 +50,6 @@ FW::RootInterpolatedBFieldWriter::initialize()
 FW::ProcessCode
 FW::RootInterpolatedBFieldWriter::finalize()
 {
-  std::cout << "BFieldWriter!" << std::endl;
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
   // Get the underlying mapper of the InterpolatedBFieldMap
