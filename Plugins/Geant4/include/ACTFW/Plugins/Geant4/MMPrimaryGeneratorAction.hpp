@@ -13,7 +13,8 @@
 class G4ParticleGun;
 class G4Event;
 
-namespace FWG4 {
+namespace FW {
+namespace G4 {
     
     /// @class MMPrimaryGeneratorAction
     ///
@@ -61,6 +62,7 @@ namespace FWG4 {
   
     };
 
-}
+} // namespace G4
+} // namespace FW
 
 #endif //GEANT4MATERIALMAPPING_MMPRIMARYGENERATORACTION_H

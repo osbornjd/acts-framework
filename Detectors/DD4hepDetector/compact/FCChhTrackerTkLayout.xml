@@ -14,7 +14,7 @@
     <constant name="world_y" value="world_size"/>
     <constant name="world_z" value="world_size"/>
     <!-- BEAM PIPE -->
-    <constant name="CentralBeamTube_dz" value="800.0*mm"/>
+    <constant name="CentralBeamTube_dz" value="1600.0*cm"/>
     <constant name="CentralBeamTube_rmax" value="2.1*cm"/>
     <constant name="CentralBeamTube_rmin" value="2.*cm"/>
 
@@ -144,9 +144,6 @@
     </readouts>
     <include ref="FCChh_Option3_Definitions.xml"/>
     <detectors>
-        <detector id="0" name="beampipe" type="FCChhBeampipe">
-            <dimensions rmin="15*mm" rmax="18*mm" z="CentralBeamTube_dz" material="Beryllium" vis="violet"/>
-        </detector>
         <detector id="100" name="FCChhInner0" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
             <composite name="InnerBRL_0"/>
         </detector>
@@ -159,6 +156,17 @@
             <composite name="OuterBRL"/>
             <composite name="OuterECAPpos"/>
             <composite name="OuterECAPneg"/>
+        </detector>
+        <detector id="103" name="FCChhForwardHelper"  type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
+            <composite name="FwdHelpECAPneg"/>
+            <composite name="FwdHelpECAPpos"/>
+        </detector>
+        <detector id="104" name="FCChhForward" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
+            <composite name="FwdECAPneg"/>
+            <composite name="FwdECAPpos"/>
+        </detector>
+        <detector id="105" name="beampipe" type="FCChhBeampipe">
+            <dimensions rmin="15*mm" rmax="18*mm" z="CentralBeamTube_dz" material="Beryllium" vis="violet"/>
         </detector>
     </detectors>
 </lccdd>

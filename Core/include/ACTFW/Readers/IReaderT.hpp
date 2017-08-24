@@ -12,8 +12,6 @@
 
 namespace FW {
 
-class AlgorithmContext;
-
 /// @class IWriterT
 ///
 /// Interface to readin an object

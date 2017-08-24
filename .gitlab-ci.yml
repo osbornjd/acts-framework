@@ -65,7 +65,7 @@ build_testfw_full:
         - mkdir build_testfw_full
         - cd build_testfw_full
         # TODO USE_PYTHIA8=on requires a custom ROOT build
-        - cmake -GNinja -DUSE_DD4HEP=on -DUSE_GEANT4=on -DCMAKE_PREFIX_PATH=../install_full -DCMAKE_INSTALL_PREFIX=../install_full -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+        - cmake -GNinja -DUSE_DD4HEP=on -DUSE_GEANT4=off -DCMAKE_PREFIX_PATH=../install_full -DCMAKE_INSTALL_PREFIX=../install_full -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
         - cmake --build . -- install
     artifacts:
         paths:
@@ -101,4 +101,4 @@ reproducibility_generic_extrapolation:
     script:
         - source install_default/bin/setup.sh
         - cd scripts
-        - ./testReproducibility.sh GenericExtrapolation ExtrapolationCharged ExtrapolationNeutral
+        - ./testReproducibility.sh GenericExtrapolation excells_charged

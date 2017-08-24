@@ -9,7 +9,8 @@
 class G4VPhysicalVolume;
 class TGeoNode;
 
-namespace FWG4 {
+namespace FW {
+namespace G4 {
     
     /// @class MMDetectorConstruction
     ///
@@ -45,6 +46,7 @@ namespace FWG4 {
       TGeoNode*       m_tgeoNode;
       std::string*    m_gdmlFile;
     };
-}
+} // namespace G4
+} // namespace FW
 
 #endif //ACTFW_PLUGINS_GEANT4_MMDETECTORCONSTRUCTION_H

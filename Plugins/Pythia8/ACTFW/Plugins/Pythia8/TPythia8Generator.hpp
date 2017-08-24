@@ -8,10 +8,8 @@
 #define ACTFW_PYTHIA8GENERATOR_H
 
 #include <mutex>
-
-#include <ACTS/EventData/ParticleDefinitions.hpp>
-#include <ACTS/Utilities/Logger.hpp>
-
+#include "ACTS/EventData/ParticleDefinitions.hpp"
+#include "ACTS/Utilities/Logger.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 
 class TPythia8;
@@ -87,7 +85,6 @@ namespace Pythia8 {
     /// mutex used to protect multi-threaded reads
     std::mutex m_read_mutex;
   };
-
 }  // namespace Pythia8
 }  // namespace FW
 

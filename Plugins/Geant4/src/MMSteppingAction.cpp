@@ -3,29 +3,29 @@
 #include "G4Material.hh"
 #include "G4Step.hh"
 
-FWG4::MMSteppingAction* FWG4::MMSteppingAction::fgInstance = 0;
+FW::G4::MMSteppingAction* FW::G4::MMSteppingAction::fgInstance = 0;
 
-FWG4::MMSteppingAction*
-FWG4::MMSteppingAction::Instance()
+FW::G4::MMSteppingAction*
+FW::G4::MMSteppingAction::Instance()
 {
   // Static acces function via G4RunManager
 
   return fgInstance;
 }
 
-FWG4::MMSteppingAction::MMSteppingAction() : G4UserSteppingAction(), m_steps()
+FW::G4::MMSteppingAction::MMSteppingAction() : G4UserSteppingAction(), m_steps()
 // m_volMgr(MaterialRunAction::Instance()->getGeant4VolumeManager())
 {
   fgInstance = this;
 }
 
-FWG4::MMSteppingAction::~MMSteppingAction()
+FW::G4::MMSteppingAction::~MMSteppingAction()
 {
   fgInstance = 0;
 }
 
 void
-FWG4::MMSteppingAction::UserSteppingAction(const G4Step* step)
+FW::G4::MMSteppingAction::UserSteppingAction(const G4Step* step)
 {
   // get the material
   G4Material* material = step->GetPreStepPoint()->GetMaterial();
@@ -77,7 +77,7 @@ FWG4::MMSteppingAction::UserSteppingAction(const G4Step* step)
 }
 
 void
-FWG4::MMSteppingAction::Reset()
+FW::G4::MMSteppingAction::Reset()
 {
   m_steps.clear();
 }

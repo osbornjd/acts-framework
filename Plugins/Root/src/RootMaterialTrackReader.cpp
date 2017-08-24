@@ -3,8 +3,8 @@
 #include "TChain.h"
 #include "TFile.h"
 
-FWRoot::RootMaterialTrackReader::RootMaterialTrackReader(
-    const FWRoot::RootMaterialTrackReader::Config& cfg)
+FW::Root::RootMaterialTrackReader::RootMaterialTrackReader(
+    const FW::Root::RootMaterialTrackReader::Config& cfg)
   : FW::IReaderT<Acts::MaterialTrack>()
   , m_cfg(cfg)
   , m_inputChain(nullptr)
@@ -14,7 +14,7 @@ FWRoot::RootMaterialTrackReader::RootMaterialTrackReader(
 }
 
 FW::ProcessCode
-FWRoot::RootMaterialTrackReader::initialize()
+FW::Root::RootMaterialTrackReader::initialize()
 {
   m_trackRecord = new Acts::MaterialTrack;
 
@@ -22,14 +22,14 @@ FWRoot::RootMaterialTrackReader::initialize()
 }
 
 FW::ProcessCode
-FWRoot::RootMaterialTrackReader::finalize()
+FW::Root::RootMaterialTrackReader::finalize()
 {
   delete m_trackRecord;
   return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWRoot::RootMaterialTrackReader::read(Acts::MaterialTrack&        mtrc,
+FW::Root::RootMaterialTrackReader::read(Acts::MaterialTrack&        mtrc,
                                       size_t                      skip,
                                       const FW::AlgorithmContext* context)
 {

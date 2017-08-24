@@ -5,8 +5,8 @@
 #include "TFile.h"
 #include "TH2F.h"
 
-FWRoot::RootIndexedMaterialWriter::RootIndexedMaterialWriter(
-    const FWRoot::RootIndexedMaterialWriter::Config& cfg)
+FW::Root::RootIndexedMaterialWriter::RootIndexedMaterialWriter(
+    const FW::Root::RootIndexedMaterialWriter::Config& cfg)
   : FW::IWriterT<Acts::IndexedSurfaceMaterial>()
   , m_cfg(cfg)
   , m_outputFile(nullptr)
@@ -14,7 +14,7 @@ FWRoot::RootIndexedMaterialWriter::RootIndexedMaterialWriter(
 }
 
 FW::ProcessCode
-FWRoot::RootIndexedMaterialWriter::initialize()
+FW::Root::RootIndexedMaterialWriter::initialize()
 {
   
   ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
@@ -25,7 +25,7 @@ FWRoot::RootIndexedMaterialWriter::initialize()
 }
 
 FW::ProcessCode
-FWRoot::RootIndexedMaterialWriter::finalize()
+FW::Root::RootIndexedMaterialWriter::finalize()
 {
   // write the tree and close the file
   ACTS_INFO("Closing and Writing ROOT output File : " << m_cfg.fileName);
@@ -35,7 +35,7 @@ FWRoot::RootIndexedMaterialWriter::finalize()
 }
 
 FW::ProcessCode
-FWRoot::RootIndexedMaterialWriter::write(
+FW::Root::RootIndexedMaterialWriter::write(
     const Acts::IndexedSurfaceMaterial& ism)
 {
   
@@ -111,7 +111,7 @@ FWRoot::RootIndexedMaterialWriter::write(
 
  
 FW::ProcessCode
-FWRoot::RootIndexedMaterialWriter::write(const std::string&) 
+FW::Root::RootIndexedMaterialWriter::write(const std::string&) 
 { 
   return FW::ProcessCode::SUCCESS;
 }

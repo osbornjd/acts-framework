@@ -1,5 +1,4 @@
 #include "ACTFW/Utilities/Paths.hpp"
-
 #include <cstdio>
 
 std::string

@@ -19,7 +19,8 @@
 FW::DigitizationAlgorithm::DigitizationAlgorithm(
     const FW::DigitizationAlgorithm::Config& cfg,
     Acts::Logging::Level                     level)
-  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("DigitizationAlgorithm", level))
+  : m_cfg(cfg)
+  , m_logger(Acts::getDefaultLogger("DigitizationAlgorithm", level))
 {
 }
 

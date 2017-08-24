@@ -6,12 +6,9 @@
 
 #ifndef ACTFW_CSVPARTICLERITER_H
 #define ACTFW_CSVPARTICLERITER_H
-
 #include <vector>
-
 #include <ACTS/EventData/ParticleDefinitions.hpp>
 #include <ACTS/Utilities/Logger.hpp>
-
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 
@@ -38,12 +35,16 @@ namespace Csv {
       std::string collection;           ///< which collection to write
       std::string outputDir;            ///< where to place output files
       size_t      outputPrecision = 6;  ///< floating point precision
-      /// the barcode service to decode
+      /// the barcode service to decode/endcode barcode 
       std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
     };
-
+    /// constructor 
+    /// @param cfg is the configuration object
+    /// @parm level is the output logging level
     CsvParticleWriter(const Config&        cfg,
                       Acts::Logging::Level level = Acts::Logging::INFO);
+                      
+    /// default destructor                  
     ~CsvParticleWriter() = default;
 
   protected:

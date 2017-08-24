@@ -15,8 +15,10 @@
 #include "TTree.h"
 
 
-namespace FWRoot {
-    
+namespace FW {
+
+namespace Root {
+      
     /// @class RootMaterialTrackWriter
     ///
     /// @brief Writes out MaterialTrack entities from a root file
@@ -97,8 +99,8 @@ namespace FWRoot {
     };
     
     inline std::string RootMaterialTrackWriter::name() const { return m_cfg.name; }
-
-
-}
+  
+} // namespace Root
+} // namespace FW
 
 #endif // ACTFW_PLUGINS_ROOT_RootMaterialTrackWriter_H

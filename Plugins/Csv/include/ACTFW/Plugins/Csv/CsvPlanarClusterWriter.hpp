@@ -8,7 +8,6 @@
 #define ACTFW_CSVPLANARCLUSTERWRITER_H
 
 #include <ACTS/Digitization/PlanarModuleCluster.hpp>
-
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 
@@ -37,11 +36,17 @@ namespace Csv {
       size_t      outputPrecision = 6;  ///< floating point precision
     };
 
+    /// Constructor with
+    /// @param cfg configuration struct 
+    /// @param output logging level
     CsvPlanarClusterWriter(const Config&        cfg,
                            Acts::Logging::Level level = Acts::Logging::INFO);
+    /// default destructor                       
     ~CsvPlanarClusterWriter() = default;
 
   protected:
+    /// This implementation holds the actual writing method
+    /// and is called by the WriterT<>::write interface
     ProcessCode
     writeT(const AlgorithmContext& ctx,
            const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
@@ -50,7 +55,6 @@ namespace Csv {
   private:
     Config m_cfg;
   };
-
 }  // namespace Csv
 }  // namespace FW
 

@@ -151,4 +151,5 @@ FW::Sequencer::run(size_t events, size_t skip)
     if (rdr->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
   for (auto& svc : m_services)
     if (svc->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
+  return ProcessCode::SUCCESS;
 }

@@ -1,7 +1,5 @@
-#include "ACTFW/Fatras/ParticleGun.hpp"
-
 #include <cmath>
-
+#include "ACTFW/Fatras/ParticleGun.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
@@ -11,8 +9,7 @@
 FW::ParticleGun::ParticleGun(const FW::ParticleGun::Config& cfg,
                              Acts::Logging::Level           level)
   : FW::BareAlgorithm("ParticleGun", level), m_cfg(cfg)
-{
-}
+{}
 
 FW::ProcessCode
 FW::ParticleGun::execute(AlgorithmContext ctx) const

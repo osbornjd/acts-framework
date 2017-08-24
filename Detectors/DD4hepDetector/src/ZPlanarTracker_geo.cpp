@@ -17,8 +17,7 @@
 //#include "DDRec/DetectorData.h"
 //#include "DDRec/Surface.h"
 
-using namespace DD4hep;
-using namespace DD4hep::Geometry;
+using namespace dd4hep;
 // using namespace DD4hep::DDRec;
 // using namespace DDSurfaces;
 
@@ -27,7 +26,7 @@ using namespace DD4hep::Geometry;
 #include "ACTS/Utilities/Units.hpp"
 
 static Ref_t
-create_element(LCDD& lcdd, xml_h e, SensitiveDetector sens)
+create_element(Detector& lcdd, xml_h e, SensitiveDetector sens)
 {
   xml_det_t   x_det = e;
   std::string name  = x_det.nameStr();

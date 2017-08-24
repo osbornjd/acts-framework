@@ -4,8 +4,8 @@
 #include "TFile.h"
 #include "TH2F.h"
 
-FWRoot::RootIndexedMaterialReader::RootIndexedMaterialReader(
-    const FWRoot::RootIndexedMaterialReader::Config& cfg)
+FW::Root::RootIndexedMaterialReader::RootIndexedMaterialReader(
+    const FW::Root::RootIndexedMaterialReader::Config& cfg)
   : FW::IReaderT<Acts::IndexedSurfaceMaterial>()
   , m_cfg(cfg)
   , m_inputFile(nullptr)
@@ -13,7 +13,7 @@ FWRoot::RootIndexedMaterialReader::RootIndexedMaterialReader(
 }
 
 FW::ProcessCode
-FWRoot::RootIndexedMaterialReader::initialize()
+FW::Root::RootIndexedMaterialReader::initialize()
 {
   // open the file name
   m_inputFile = TFile::Open(m_cfg.fileName.c_str());
@@ -21,14 +21,14 @@ FWRoot::RootIndexedMaterialReader::initialize()
 }
 
 FW::ProcessCode
-FWRoot::RootIndexedMaterialReader::finalize()
+FW::Root::RootIndexedMaterialReader::finalize()
 {
   m_inputFile->Close();
   return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWRoot::RootIndexedMaterialReader::read(Acts::IndexedSurfaceMaterial& ism,
+FW::Root::RootIndexedMaterialReader::read(Acts::IndexedSurfaceMaterial& ism,
                                         size_t                        skip,
                                         const FW::AlgorithmContext*   context)
 {

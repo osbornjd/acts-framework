@@ -1,9 +1,6 @@
-#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
-
 #include <fstream>
-
+#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include <ACTS/Digitization/PlanarModuleCluster.hpp>
-
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
@@ -52,10 +49,8 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
     for (auto& layerData : volumeData.second) {
       for (auto& moduleData : layerData.second) {
         for (auto& cluster : moduleData.second) {
-          // Identifier @todo replace by identifier
-          // (*(m_cfg.outputStream)) << cluster.identifier().value() << ", ";
-          hitId += 1;
 
+          hitId += 1;
           // local cluster information
           auto           parameters = cluster.parameters();
           Acts::Vector2D local(parameters[Acts::ParDef::eLOC_0],
@@ -82,7 +77,6 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
                    << cell.data;
           }
           osHits << '\n';
-
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
           for (auto& barcode : cluster.barcodes()) {

@@ -15,7 +15,7 @@ main(int argc, char* argv[])
   // DD4Hep detector definition
   //
   // set up the geometry service
-  FWDD4hep::GeometryService::Config gsConfig("GeometryService",
+  FW::DD4hep::GeometryService::Config gsConfig("GeometryService",
                                              Acts::Logging::INFO);
   if (argc > 1) {
     std::cout << "Creating detector from xml-file: '" << argv[1] << "'!"
@@ -30,13 +30,13 @@ main(int argc, char* argv[])
   gsConfig.envelopeR = 0.;
   gsConfig.envelopeZ = 0.;
 
-  auto geometrySvc = std::make_shared<FWDD4hep::GeometryService>(gsConfig);
+  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(gsConfig);
   std::shared_ptr<const Acts::TrackingGeometry> dd4Geometry
       = geometrySvc->trackingGeometry();
 
   // the detectors
   std::vector<std::string> subDetectors
-      = {"FCChhBeampipe", "FCChhInner0", "FCChhInner", "FCChhOuter"};
+      = {"beampipe", "FCChhInner0", "FCChhInner", "FCChhOuter", "FCChhForwardHelper", "FCChhForward"};
   // the writers
   std::vector<std::shared_ptr<FW::IWriterT<Acts::Surface>>> subWriters;
   std::vector<std::shared_ptr<std::ofstream>>               subStreams;

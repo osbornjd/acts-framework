@@ -10,8 +10,9 @@
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 
-/// @namespace G4MM Namespace for geant4 material mapping
-namespace FWG4 {
+/// @namespace FW::G4:: Namespace for geant4 material mapping
+namespace FW {
+namespace G4 {
 
 class MMSteppingAction;
 
@@ -72,7 +73,7 @@ MMEventAction::MaterialTracks()
   m_records.clear();
   return rrecords;
 }
-
-}
+} // namespace G4
+} // namespace FW
 
 #endif  // ACTFW_PLUGINS_GEANT4_MMEVENTACTION_H

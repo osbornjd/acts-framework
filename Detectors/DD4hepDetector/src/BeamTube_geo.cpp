@@ -6,11 +6,10 @@
 #include "DD4hep/DetFactoryHelper.h"
 
 using namespace std;
-using namespace DD4hep;
-using namespace DD4hep::Geometry;
+using namespace dd4hep;
 
 static Ref_t
-create_element(LCDD& lcdd, xml_h e, SensitiveDetector sens)
+create_element(Detector& lcdd, xml_h e, SensitiveDetector sens)
 {
   xml_det_t x_det    = e;
   string    det_name = x_det.nameStr();
@@ -26,7 +25,7 @@ create_element(LCDD& lcdd, xml_h e, SensitiveDetector sens)
   int        status   = x_status.id();
   // add Extension to Detlement for the RecoGeometry
   // @TODO
-  DD4hep::XML::Dimension x_det_dim(x_det.dimensions());
+  dd4hep::xml::Dimension x_det_dim(x_det.dimensions());
   Tube   tube_shape(x_det_dim.rmin(), x_det_dim.rmax(), x_det_dim.z());
   Volume tube_vol(
       det_name, tube_shape, lcdd.air());  // air at the moment change later
