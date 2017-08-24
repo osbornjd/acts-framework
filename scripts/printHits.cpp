@@ -43,18 +43,18 @@ printHits(std::string inFile,
   std::vector<float>* mat    = new std::vector<float>;
   std::vector<float>* bounds = new std::vector<float>;
 
-  tree->SetBranchAddress("StepX", &x);
-  tree->SetBranchAddress("StepY", &y);
-  tree->SetBranchAddress("StepZ", &z);
-  tree->SetBranchAddress("SensitiveStep", &sens);
+  tree->SetBranchAddress("step_x", &x);
+  tree->SetBranchAddress("step_y", &y);
+  tree->SetBranchAddress("step_z", &z);
+  tree->SetBranchAddress("sensitive", &sens);
 
-  if (tree->FindBranch("BoundaryStep")) {
+  if (tree->FindBranch("boundary")) {
     std::cout << "No BoundarySteps are given." << std::endl;
-    tree->SetBranchAddress("BoundaryStep", &bounds);
+    tree->SetBranchAddress("boundary", &bounds);
   }
-  if (tree->FindBranch("MaterialStep")) {
+  if (tree->FindBranch("material")) {
     std::cout << "No MaterialSteps are given." << std::endl;
-    tree->SetBranchAddress("MaterialStep", &mat);
+    tree->SetBranchAddress("material", &mat);
   }
   Int_t entries = tree->GetEntries();
   std::cout << "Creating new output file: " << outFile
@@ -136,7 +136,7 @@ printHits(std::string inFile,
       Full_zr->Fill(z->at(j), sqrt(x->at(j) * x->at(j) + y->at(j) * y->at(j)));
 
       // boundaries
-      if (tree->FindBranch("BoundaryStep")) {
+      if (tree->FindBranch("boundary")) {
         if (z->at(j) >= zmin && z->at(j) <= zmax)
           Bounds_xy->Fill(x->at(j), y->at(j), bounds->at(j));
         Bounds_zx->Fill(z->at(j), x->at(j), bounds->at(j));
@@ -146,7 +146,7 @@ printHits(std::string inFile,
                         bounds->at(j));
       }
       // material
-      if (tree->FindBranch("MaterialStep")) {
+      if (tree->FindBranch("material")) {
         if (z->at(j) >= zmin && z->at(j) <= zmax)
           Mat_xy->Fill(x->at(j), y->at(j), mat->at(j));
         Mat_zx->Fill(z->at(j), x->at(j), mat->at(j));

@@ -12,7 +12,7 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
     Acts::Logging::Level                           level)
   : Base(cfg.collection, "RootPlanarClusterWriter", level)
   , m_cfg(cfg)
-{  }
+{}
 
 
 FW::ProcessCode
@@ -28,9 +28,9 @@ FW::Root::RootPlanarClusterWriter::initialize()
                            "TTree from RootPlanarClusterWriter");
   // set the branches
   m_outputTree->Branch("event_nr",      &m_eventNr);    
-  m_outputTree->Branch("volume_ID",     &m_volumeID);   
-  m_outputTree->Branch("layer_ID",      &m_layerID);    
-  m_outputTree->Branch("surface_ID",    &m_surfaceID);  
+  m_outputTree->Branch("volumeID",      &m_volumeID);   
+  m_outputTree->Branch("layerID",       &m_layerID);    
+  m_outputTree->Branch("surfaceID",     &m_surfaceID);  
   m_outputTree->Branch("g_x",           &m_x);          
   m_outputTree->Branch("g_y",           &m_y);          
   m_outputTree->Branch("g_z",           &m_z);          
