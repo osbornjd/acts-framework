@@ -26,6 +26,14 @@ main(int argc, char* argv[])
       "map,m",
       po::value<std::string>(),
       "Set the string to the magnetic field map to be read in")(
+      "root",
+      po::value<bool>()->default_value(false),
+      "Please set this flag to true, if your file format is root. "
+      "The default is is txt/csv.")(
+      "treeName",
+      po::value<std::string>()->default_value("bField"),
+      "In case your field map file is given in root format, please specify the "
+      "name of the TTree.")(
       "out,o",
       po::value<std::string>()->default_value("bField.root"),
       "Set the name of the root output file. Default is bField.root")(
@@ -72,6 +80,14 @@ main(int argc, char* argv[])
     return -1;
   }
 
+  if (vm["root"].as<bool>()) {
+    std::cout << "BField map is given in root file format." << std::endl;
+    if (vm.count("treeName"))
+      std::cout << "The TTree name is: " << vm["treeName"].as<std::string>()
+                << std::endl;
+  } else
+    std::cout << "BField map is given in txt/csv file format." << std::endl;
+
   if (vm.count("out")) {
     std::cout << "Output file is set to: " << vm["out"].as<std::string>()
               << std::endl;
@@ -92,11 +108,12 @@ main(int argc, char* argv[])
               << std::endl;
   }
 
-  if (vm.count("rz")) {
+  if (vm["rz"].as<bool>())
     std::cout << "BField map is given in 'rz' coordiantes." << std::endl;
-  }
+  else
+    std::cout << "BField map is given in 'xyz' coordiantes." << std::endl;
 
-  if (vm.count("firstOctant")) {
+  if (vm["firstOctant"].as<bool>()) {
     std::cout << "Only the first octant/quadrant is given, bField map will be "
                  "symmetrically created for all other octants/quadrants"
               << std::endl;
@@ -109,28 +126,54 @@ main(int argc, char* argv[])
   double BFieldUnit = vm["bScalor"].as<double>() * Acts::units::_T;
 
   // set the mapper
-  if (vm["rz"].as<bool>()) {
-    mapper = FWBField::txt::fieldMapperRZ(
-        [](std::array<size_t, 2> binsRZ, std::array<size_t, 2> nBinsRZ) {
-          return (binsRZ.at(1) * nBinsRZ.at(0) + binsRZ.at(0));
-        },
-        vm["map"].as<std::string>(),
-        lengthUnit,
-        BFieldUnit,
-        vm["nPoints"].as<size_t>(),
-        vm["firstOctant"].as<bool>());
+  if (vm["root"].as<bool>()) {
+    if (vm["rz"].as<bool>()) {
+      mapper = FWBField::root::fieldMapperRZ(
+          [](std::array<size_t, 2> binsRZ, std::array<size_t, 2> nBinsRZ) {
+            return (binsRZ.at(1) * nBinsRZ.at(0) + binsRZ.at(0));
+          },
+          vm["map"].as<std::string>(),
+          vm["treeName"].as<std::string>(),
+          lengthUnit,
+          BFieldUnit,
+          vm["firstOctant"].as<bool>());
+    } else {
+      mapper = FWBField::root::fieldMapperXYZ(
+          [](std::array<size_t, 3> binsXYZ, std::array<size_t, 3> nBinsXYZ) {
+            return (binsXYZ.at(0) * (nBinsXYZ.at(1) * nBinsXYZ.at(2))
+                    + binsXYZ.at(1) * nBinsXYZ.at(2)
+                    + binsXYZ.at(2));
+          },
+          vm["map"].as<std::string>(),
+          vm["treeName"].as<std::string>(),
+          lengthUnit,
+          BFieldUnit,
+          vm["firstOctant"].as<bool>());
+    }
   } else {
-    mapper = FWBField::txt::fieldMapperXYZ(
-        [](std::array<size_t, 3> binsXYZ, std::array<size_t, 3> nBinsXYZ) {
-          return (binsXYZ.at(0) * (nBinsXYZ.at(1) * nBinsXYZ.at(2))
-                  + binsXYZ.at(1) * nBinsXYZ.at(2)
-                  + binsXYZ.at(2));
-        },
-        vm["map"].as<std::string>(),
-        lengthUnit,
-        BFieldUnit,
-        vm["nPoints"].as<size_t>(),
-        vm["firstOctant"].as<bool>());
+    if (vm["rz"].as<bool>()) {
+      mapper = FWBField::txt::fieldMapperRZ(
+          [](std::array<size_t, 2> binsRZ, std::array<size_t, 2> nBinsRZ) {
+            return (binsRZ.at(1) * nBinsRZ.at(0) + binsRZ.at(0));
+          },
+          vm["map"].as<std::string>(),
+          lengthUnit,
+          BFieldUnit,
+          vm["nPoints"].as<size_t>(),
+          vm["firstOctant"].as<bool>());
+    } else {
+      mapper = FWBField::txt::fieldMapperXYZ(
+          [](std::array<size_t, 3> binsXYZ, std::array<size_t, 3> nBinsXYZ) {
+            return (binsXYZ.at(0) * (nBinsXYZ.at(1) * nBinsXYZ.at(2))
+                    + binsXYZ.at(1) * nBinsXYZ.at(2)
+                    + binsXYZ.at(2));
+          },
+          vm["map"].as<std::string>(),
+          lengthUnit,
+          BFieldUnit,
+          vm["nPoints"].as<size_t>(),
+          vm["firstOctant"].as<bool>());
+    }
   }
   Acts::InterpolatedBFieldMap::Config config;
   config.scale  = 1.;
