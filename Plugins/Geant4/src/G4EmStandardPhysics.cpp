@@ -115,7 +115,6 @@ FW::G4::G4EmStandardPhysics::~G4EmStandardPhysics()
 void
 FW::G4::G4EmStandardPhysics::ConstructParticle()
 {
-  std::cout << "G4EmStandardPhysics::ConstructParticle()" << std::endl;
   // gamma
   G4Gamma::Gamma();
 
@@ -141,10 +140,6 @@ FW::G4::G4EmStandardPhysics::ConstructParticle()
   G4He3::He3();
   G4Alpha::Alpha();
   G4GenericIon::GenericIonDefinition();
-
-  // dna
-  G4EmModelActivator mact;
-  mact.ConstructParticle();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -327,9 +322,6 @@ FW::G4::G4EmStandardPhysics::ConstructProcess()
   //
   G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
   G4LossTableManager::Instance()->SetAtomDeexcitation(de);
-
-  G4EmModelActivator mact;
-  mact.ConstructProcess();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

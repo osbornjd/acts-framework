@@ -14,6 +14,7 @@
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Plugins/Json/JsonSpacePointWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSpacePointWriter.hpp"
+#include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp"
 #include "Fatras/EnergyLossSampler.hpp"

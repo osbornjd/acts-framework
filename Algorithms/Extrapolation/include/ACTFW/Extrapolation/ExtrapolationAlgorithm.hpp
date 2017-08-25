@@ -40,15 +40,15 @@ class ExtrapolationAlgorithm : public BareAlgorithm
 public:
   struct Config
   {
-    /// The extrapolation engine
+    /// the extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
     /// the particles input collections
     std::string evgenCollection = "";
     /// the simulated particles output collection
-    std::string simulatedHitsCollection = "";
+    std::string simulatedParticlesCollection = "";
     /// the simulated hits output collection (optional)
     std::string simulatedHitsCollection = "";
-    /// the simulated charged excell collection
+    /// the simulated charged excell collection (optional)
     std::string simulatedChargedExCellCollection = "";
     /// the simulated neutral excell collection (optional)
     std::string simulatedNeutralExCellCollection = "";
@@ -56,7 +56,8 @@ public:
     /// @todo remove later and replace by particle selector
     double maxD0  = std::numeric_limits<double>::max();
     double maxEta = std::numeric_limits<double>::max();
-    double minPt  = 0.0;
+    ;
+    double minPt = 0.0;
     /// skip or process neutral particles
     bool skipNeutral = false;
     /// configuration: sensitive collection

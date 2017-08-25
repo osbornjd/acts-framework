@@ -1,7 +1,6 @@
 add_subdirectory(BField)
 add_subdirectory(Extrapolation)
-add_subdirectory(Fatras)
-add_subdirectory_if(FatrasParticleGun USE_FATRAS)
+add_subdirectory_if(Fatras USE_FATRAS)
 add_subdirectory(GeometryBuilding)
 add_subdirectory(HelloWorld)
 add_subdirectory_if(MaterialMapping USE_DD4HEP AND USE_GEANT4)

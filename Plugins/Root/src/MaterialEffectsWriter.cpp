@@ -2,8 +2,8 @@
 #include <TFile.h>
 #include <iostream>
 
-FWRoot::MaterialEffectsWriter::MaterialEffectsWriter(
-    const FWRoot::MaterialEffectsWriter::Config& cfg)
+FW::Root::MaterialEffectsWriter::MaterialEffectsWriter(
+    const FW::Root::MaterialEffectsWriter::Config& cfg)
   : FW::IWriterT<std::pair<Acts::ParticleProperties,
                            Acts::ParticleProperties>>()
   , m_cfg(cfg)
@@ -12,14 +12,13 @@ FWRoot::MaterialEffectsWriter::MaterialEffectsWriter(
 {
 }
 
-FWRoot::MaterialEffectsWriter::~MaterialEffectsWriter()
+FW::Root::MaterialEffectsWriter::~MaterialEffectsWriter()
 {
 }
 
 FW::ProcessCode
-FWRoot::MaterialEffectsWriter::initialize()
+FW::Root::MaterialEffectsWriter::initialize()
 {
-  ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
   // open the output file
   m_outputFile = new TFile(m_cfg.fileName.c_str(), m_cfg.fileMode.c_str());
   m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
@@ -43,9 +42,8 @@ FWRoot::MaterialEffectsWriter::initialize()
 }
 
 FW::ProcessCode
-FWRoot::MaterialEffectsWriter::finalize()
+FW::Root::MaterialEffectsWriter::finalize()
 {
-  ACTS_INFO("Closing and Writing ROOT output File : " << m_cfg.fileName);
   m_outputFile->cd();
   m_outputTree->Write();
   m_outputFile->Close();
@@ -54,7 +52,7 @@ FWRoot::MaterialEffectsWriter::finalize()
 }
 
 FW::ProcessCode
-FWRoot::MaterialEffectsWriter::write(
+FW::Root::MaterialEffectsWriter::write(
     const std::pair<Acts::ParticleProperties, Acts::ParticleProperties>&
         pProperties)
 {
@@ -90,7 +88,7 @@ FWRoot::MaterialEffectsWriter::write(
 }
 
 FW::ProcessCode
-FWRoot::MaterialEffectsWriter::write(const std::string&)
+FW::Root::MaterialEffectsWriter::write(const std::string&)
 {
   return FW::ProcessCode::SUCCESS;
 }
