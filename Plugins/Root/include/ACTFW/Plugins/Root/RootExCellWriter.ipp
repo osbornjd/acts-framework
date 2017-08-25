@@ -29,8 +29,8 @@ FW::Root::RootExCellWriter<T>::writeT(
 
     // Displacement, momentum difference and energy loss due to material effects
     if (eCell.endParameters) {
-    Acts::Vector3D firstPosition = eCell.startParameters.position();
-    Acts::Vector3D lastPosition = (eCell.endParameters->position());
+    Acts::Vector3D firstPosition = eCell.startParameters->position();
+    Acts::Vector3D lastPosition = eCell.endParameters->position();
     Acts::Vector3D lastMomentum = eCell.endParameters->momentum();
     
     m_r0 = firstPosition.perp();

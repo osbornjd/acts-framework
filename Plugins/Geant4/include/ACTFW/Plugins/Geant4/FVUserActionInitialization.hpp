@@ -17,9 +17,9 @@ namespace G4 {
   /// Initializes all needed user action for validation of the Fatras
   /// simulation:
   ///
-  /// - FWG4::PrimaryGeneratorAction
-  /// - FWG4::FVRunAction
-  /// - FWG4::FVEventAction
+  /// - FW::G4::PrimaryGeneratorAction
+  /// - FW::G4::FVRunAction
+  /// - FW::G4::FVEventAction
   /// - FVSteppingAction(m_radialStepLimit
   ///
 
@@ -27,7 +27,7 @@ namespace G4 {
   {
   public:
     /// Constructor
-    FVUserActionInitialization(FWG4::PrimaryGeneratorAction::Config pgaConfig,
+    FVUserActionInitialization(FW::G4::PrimaryGeneratorAction::Config pgaConfig,
                                double radialStepLimit);
     /// Destructor
     virtual ~FVUserActionInitialization() = default;

@@ -13,7 +13,7 @@ namespace {
 G4Mutex myLowEPrimGenMutex = G4MUTEX_INITIALIZER;
 }
 
-FWG4::PrimaryGeneratorAction* FW::G4::PrimaryGeneratorAction::fgInstance = 0;
+FW::G4::PrimaryGeneratorAction* FW::G4::PrimaryGeneratorAction::fgInstance = 0;
 
 FW::G4::PrimaryGeneratorAction::PrimaryGeneratorAction(const Config& cfg)
   : G4VUserPrimaryGeneratorAction()

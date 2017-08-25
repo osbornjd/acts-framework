@@ -14,7 +14,7 @@ set(srcs include/ACTFW/Plugins/Root/RootExCellWriter.hpp
          src/RootMaterialTrackReader.cpp
          src/RootMaterialTrackWriter.cpp
          src/RootPlanarClusterWriter.cpp
-         src/RootParticleWriter.cpp)
+         src/RootParticleWriter.cpp
          src/MaterialEffectsWriter.cpp)
 # generate root dictionary for material mapping - needed to write this class to a root file
 root_generate_dictionary(
