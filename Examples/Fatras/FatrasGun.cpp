@@ -31,7 +31,7 @@ main(int argc, char* argv[])
 
   // particle gun as generator
   FW::ParticleGun::Config particleGunConfig;
-  particleGunConfig.particlesCollection = "Particles";
+  particleGunConfig.evgenCollection     = "EvgenParticles";
   particleGunConfig.nParticles          = 100;
   particleGunConfig.d0Range             = {{0, 1 * _mm}};
   particleGunConfig.phiRange            = {{-M_PI, M_PI}};
@@ -54,10 +54,10 @@ main(int argc, char* argv[])
   if (sequencer.prependEventAlgorithms({particleGun})
       != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
-  if (setupSimulation(sequencer, geom, random) != FW::ProcessCode::SUCCESS)
-    return EXIT_FAILURE;
-  if (setupWriters(sequencer, barcodes, outputDir) != FW::ProcessCode::SUCCESS)
-    return EXIT_FAILURE;
+  if (setupSimulation(sequencer, geom, random, logLevel) 
+    != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
+  if (setupWriters(sequencer, barcodes, outputDir, logLevel) 
+    != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
   if (sequencer.run(nEvents) != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
 
   return EXIT_SUCCESS;

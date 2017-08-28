@@ -46,7 +46,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // particle gun as generator
   FW::ParticleGun::Config particleGunConfig;
-  particleGunConfig.particlesCollection = "Particles";
+  particleGunConfig.evgenCollection     = "EvgenParticles";
   particleGunConfig.nParticles          = 100;
   particleGunConfig.d0Range             = {{0, 1 * _mm}};
   particleGunConfig.phiRange            = {{-M_PI, M_PI}};
@@ -89,7 +89,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // the Algorithm with its configurations
   FW::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.particlesCollection               = "Particles";
+  eTestConfig.evgenCollection                   = particleGunConfig.evgenCollection;
   eTestConfig.simulatedParticlesCollection      = "simulatedParticles";
   eTestConfig.simulatedChargedExCellCollection  = reccWriterConfig.collection;
   eTestConfig.simulatedNeutralExCellCollection  = recnWriterConfig.collection;
@@ -105,7 +105,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   eTestConfig.pathLimit                         = -1.;
 
   auto extrapolationAlg
-      = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig);
+      = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig, eLogLevel);
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;

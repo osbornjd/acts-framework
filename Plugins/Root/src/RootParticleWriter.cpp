@@ -62,7 +62,7 @@ FW::Root::RootParticleWriter::finalize()
 FW::ProcessCode
 FW::Root::RootParticleWriter::writeT(
     const AlgorithmContext&                      ctx,
-    const std::vector<Acts::ParticleProperties>& particles)
+    const std::vector<Acts::ProcessVertex>& vertices)
 {
   // we can not write anything w/o a tree
   if (!m_outputTree) {
@@ -72,8 +72,6 @@ FW::Root::RootParticleWriter::writeT(
 
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);
-  // the number of particles
-  size_t nParticles = particles.size();
   // clear the branches
   m_eta.clear();
   m_phi.clear();
@@ -93,49 +91,34 @@ FW::Root::RootParticleWriter::writeT(
   m_generation.clear();
   m_secondary.clear();
   m_process.clear();
-  // and reserve the appropriately
-  m_eta.reserve(nParticles);
-  m_phi.reserve(nParticles);
-  m_vx.reserve(nParticles);
-  m_vy.reserve(nParticles);
-  m_vz.reserve(nParticles);
-  m_px.reserve(nParticles);
-  m_py.reserve(nParticles);
-  m_pz.reserve(nParticles);
-  m_pT.reserve(nParticles);
-  m_charge.reserve(nParticles);
-  m_mass.reserve(nParticles);
-  m_barcode.reserve(nParticles);
-  m_pdgCode.reserve(nParticles);
-  m_vertex.reserve(nParticles);
-  m_primary.reserve(nParticles);
-  m_generation.reserve(nParticles);
-  m_secondary.reserve(nParticles);
-  m_process.reserve(nParticles);
-  // loop and fill
-  for (auto& particle : particles) {
-    /// collect the information
-    m_vx.push_back(particle.vertex().x());
-    m_vy.push_back(particle.vertex().y());
-    m_vz.push_back(particle.vertex().z());
-    m_eta.push_back(particle.momentum().eta());
-    m_phi.push_back(particle.momentum().phi());
-    m_px.push_back(particle.momentum().x());
-    m_py.push_back(particle.momentum().y());
-    m_pz.push_back(particle.momentum().z());
-    m_pT.push_back(particle.momentum().perp());
-    m_charge.push_back(particle.charge());
-    m_mass.push_back(particle.mass());
-    m_pdgCode.push_back(particle.pdgID());
-    m_barcode.push_back(particle.barcode());
-    // decode using the barcode service
-    if (m_cfg.barcodeSvc) {
-      // the barcode service
-      m_vertex.push_back(m_cfg.barcodeSvc->vertex(particle.barcode()));
-      m_primary.push_back(m_cfg.barcodeSvc->primary(particle.barcode()));
-      m_generation.push_back(m_cfg.barcodeSvc->generate(particle.barcode()));
-      m_secondary.push_back(m_cfg.barcodeSvc->secondary(particle.barcode()));
-      m_process.push_back(m_cfg.barcodeSvc->process(particle.barcode()));
+  
+  // loop over the process vertices
+  for (auto& vertex: vertices){
+    auto& vtx = vertex.position();
+    for (auto& particle : vertex.outgoingParticles()) {
+      /// collect the information
+      m_vx.push_back(vtx.x());
+      m_vy.push_back(vtx.y());
+      m_vz.push_back(vtx.z());
+      m_eta.push_back(particle.momentum().eta());
+      m_phi.push_back(particle.momentum().phi());
+      m_px.push_back(particle.momentum().x());
+      m_py.push_back(particle.momentum().y());
+      m_pz.push_back(particle.momentum().z());
+      m_pT.push_back(particle.momentum().perp());
+      m_charge.push_back(particle.charge());
+      m_mass.push_back(particle.mass());
+      m_pdgCode.push_back(particle.pdgID());
+      m_barcode.push_back(particle.barcode());
+      // decode using the barcode service
+      if (m_cfg.barcodeSvc) {
+        // the barcode service
+        m_vertex.push_back(m_cfg.barcodeSvc->vertex(particle.barcode()));
+        m_primary.push_back(m_cfg.barcodeSvc->primary(particle.barcode()));
+        m_generation.push_back(m_cfg.barcodeSvc->generate(particle.barcode()));
+        m_secondary.push_back(m_cfg.barcodeSvc->secondary(particle.barcode()));
+        m_process.push_back(m_cfg.barcodeSvc->process(particle.barcode()));
+      }
     }
   }
   m_outputTree->Fill();

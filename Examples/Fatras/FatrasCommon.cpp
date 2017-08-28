@@ -16,17 +16,17 @@
 FW::ProcessCode
 setupSimulation(FW::Sequencer&                                sequencer,
                 std::shared_ptr<const Acts::TrackingGeometry> geometry,
-                std::shared_ptr<FW::RandomNumbersSvc>         random)
+                std::shared_ptr<FW::RandomNumbersSvc>         random,
+                Acts::Logging::Level defaultLevel)
 {
-  Acts::Logging::Level defaultLevel = Acts::Logging::INFO;
-
+  
   // magnetic field
   auto bfield
       = std::make_shared<Acts::ConstantBField>(0., 0., 2. * Acts::units::_T);
 
   // extrapolation algorithm
   FW::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.particlesCollection          = "Particles";
+  eTestConfig.evgenCollection              = "EvgenParticles";
   eTestConfig.simulatedParticlesCollection = "FatrasParticles";
   eTestConfig.simulatedHitsCollection      = "FatrasHits";
   eTestConfig.searchMode                   = 1;
@@ -40,7 +40,7 @@ setupSimulation(FW::Sequencer&                                sequencer,
   eTestConfig.sensitiveCurvilinear = false;
   eTestConfig.pathLimit            = -1.;
   auto extrapolationAlg
-      = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig);
+    = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig, defaultLevel);
 
   // digitisation
   Acts::PlanarModuleStepper::Config pmStepperConfig;
@@ -53,7 +53,8 @@ setupSimulation(FW::Sequencer&                                sequencer,
   digConfig.clustersCollection      = "FatrasClusters";
   digConfig.spacePointsCollection   = "FatrasSpacePoints";
   digConfig.planarModuleStepper     = pmStepper;
-  auto digitzationAlg = std::make_shared<FW::DigitizationAlgorithm>(digConfig);
+  auto digitzationAlg 
+    = std::make_shared<FW::DigitizationAlgorithm>(digConfig, defaultLevel);
 
   // add algorithms to sequencer
   if (sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg})
@@ -65,7 +66,8 @@ setupSimulation(FW::Sequencer&                                sequencer,
 FW::ProcessCode
 setupWriters(FW::Sequencer&                  sequencer,
              std::shared_ptr<FW::BarcodeSvc> barcode,
-             std::string                     outputDir)
+             std::string                     outputDir,
+             Acts::Logging::Level defaultLevel)
 {
   const std::string particles = "FatrasParticles";
   const std::string clusters  = "FatrasClusters";

@@ -58,11 +58,11 @@ main(int argc, char* argv[])
   // get the read-in algorithm
   FW::ReadEvgenAlgorithm::Config readEvgenCfg;
 
-  readEvgenCfg.particlesCollection = "EvgenParticles";
+  readEvgenCfg.evgenCollection = "EvgenParticles";
   // the hard scatter reader
-  readEvgenCfg.hardscatterParticleReader = hsPythiaGenerator;
+  readEvgenCfg.hardscatterEventReader = hsPythiaGenerator;
   // the pileup reader
-  readEvgenCfg.pileupParticleReader = puPythiaGenerator;
+  readEvgenCfg.pileupEventReader = puPythiaGenerator;
   // the number of pileup eventst
   readEvgenCfg.randomNumbers          = randomNumbers;
   readEvgenCfg.pileupPoissonParameter = 200;
@@ -77,7 +77,7 @@ main(int argc, char* argv[])
 
   // Write ROOT TTree
   FW::Root::RootParticleWriter::Config particleWriterConfig;
-  particleWriterConfig.collection = readEvgenCfg.particlesCollection;
+  particleWriterConfig.collection = readEvgenCfg.evgenCollection;
   particleWriterConfig.filePath   = "EvgenParticles.root";
   particleWriterConfig.barcodeSvc = barcodeSvc;
   auto particleWriter

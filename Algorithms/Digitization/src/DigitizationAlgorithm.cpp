@@ -12,6 +12,7 @@
 #include "ACTS/Digitization/PlanarModuleStepper.hpp"
 #include "ACTS/Digitization/Segmentation.hpp"
 #include "ACTS/EventData/TrackParameters.hpp"
+#include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Surfaces/Surface.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 #include "ACTS/Utilities/ParameterDefinitions.hpp"
@@ -74,6 +75,9 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitsCollection
                                     << "' from event store.");
 
+  // the particle mass table 
+  Acts::ParticleMasses pMasses;
+
   // prepare the output data: Clusters
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
   // perpare the second output data : SpacePoints
@@ -106,11 +110,12 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
             if (hitDigitizationModule) {
               // parameters
               auto           pars = hitParameters->parameters();
+              auto position = hitParameters->position();
+              auto momentum = hitParameters->momentum();
               Acts::Vector2D localIntersection(pars[Acts::ParDef::eLOC_0],
                                                pars[Acts::ParDef::eLOC_1]);
               Acts::Vector3D localDirection(
-                  hitSurface.transform().inverse().linear()
-                  * hitParameters->momentum());
+                  hitSurface.transform().inverse().linear()*momentum);
               // position
               std::vector<Acts::DigitizationStep> dSteps
                   = m_cfg.planarModuleStepper->cellSteps(*hitDigitizationModule,
@@ -160,6 +165,14 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
               geoID.add(layerKey, Acts::GeometryID::layer_mask);
               geoID.add(moduleKey, Acts::GeometryID::sensitive_mask);
               geoID.add(binSerialized, Acts::GeometryID::channel_mask);
+              // create the truth for this - assume here muons
+              Acts::ParticleProperties pProperties(momentum,
+                                                   pMasses.mass[Acts::muon],
+                                                   1.,
+                                                   13,
+                                                   particleBarcode);
+              // the associated process vertex
+              Acts::ProcessVertex pVertex(position,0.,0,{pProperties},{});                                                                          
 
               // create the planar cluster
               Acts::PlanarModuleCluster pCluster(hitSurface,
@@ -168,7 +181,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
                                                  localX,
                                                  localY,
                                                  std::move(usedCells),
-                                                 {particleBarcode});
+                                                 {pVertex});
 
               // insert into the space point map
               FW::Data::insert(spacePoints,

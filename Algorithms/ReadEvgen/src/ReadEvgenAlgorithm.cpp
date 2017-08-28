@@ -36,9 +36,9 @@ FW::ProcessCode
 FW::ReadEvgenAlgorithm::skip(size_t nEvents)
 {
   // there is a hard scatter evgen reader
-  std::vector<Acts::ParticleProperties> skipParticles;
-  if (m_cfg.hardscatterParticleReader
-      && m_cfg.hardscatterParticleReader->read(skipParticles, nEvents)
+  std::vector<Acts::ProcessVertex> skipParticles;
+  if (m_cfg.hardscatterEventReader
+      && m_cfg.hardscatterEventReader->read(skipParticles, nEvents)
           == FW::ProcessCode::ABORT) {
     // error and abort
     ACTS_ERROR("Could not skip " << nEvents << ". Aborting.");
@@ -63,29 +63,23 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
   FW::GaussDist vertexZDist(m_cfg.vertexZParameters[0],
                             m_cfg.vertexZParameters[1]);
 
-  // prepare the output vector
-  std::vector<Acts::ParticleProperties> eventParticles;
+  // prepare the output collection
+  std::vector<Acts::ProcessVertex> evgen;
 
   // get the hard scatter if you have it
-  std::vector<Acts::ParticleProperties> hardscatterParticles = {};
-  if (m_cfg.hardscatterParticleReader
-      && m_cfg.hardscatterParticleReader->read(hardscatterParticles)
+  std::vector<Acts::ProcessVertex> hardscatterEvent = {};
+  if (m_cfg.hardscatterEventReader
+      && m_cfg.hardscatterEventReader->read(hardscatterEvent)
           == FW::ProcessCode::ABORT) {
     ACTS_ERROR("Could not read hard scatter event. Aborting.");
     return FW::ProcessCode::ABORT;
   }
-  ACTS_VERBOSE("- [HS X] number of hard scatter particles   : "
-               << (hardscatterParticles.size() > 0 ? 1 : 0));
 
   // generate the number of pileup events
   size_t nPileUpEvents = m_cfg.randomNumbers ? size_t(pileupDist(rng)) : 0;
 
   ACTS_VERBOSE("- [PU X] number of in-time pileup events : " << nPileUpEvents);
 
-  // reserve a lot
-  eventParticles.reserve((nPileUpEvents)*hardscatterParticles.size() * 2);
-
-  //
   // reserve quite a lot of space
   double vertexX = vertexTDist(rng);
   double vertexY = vertexTDist(rng);
@@ -95,12 +89,18 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
 
   // fill in the particles
   barcode_type pCounter = 0;
-  for (auto& hsParticle : hardscatterParticles) {
-    // shift the particle by the vertex
-    hsParticle.shift(vertex);
-    hsParticle.assign(m_cfg.barcodeSvc->generate(0, pCounter++));
-    // now push-back
-    eventParticles.push_back(hsParticle);
+  for (auto& hsVertex : hardscatterEvent) {
+    // shift the vertex
+    hsVertex.shift(vertex);
+    // assign barcodes 
+    for (auto& oparticle : hsVertex.outgoingParticles()){
+      // generate the new barcode, and assign it
+      Acts::ParticleProperties* hsp 
+          = const_cast<Acts::ParticleProperties*>(&oparticle); 
+      hsp->assign(m_cfg.barcodeSvc->generate(0, pCounter++));
+    }
+    // store the hard scatter vertices 
+    evgen.push_back(hsVertex);
   }
 
   // loop over the pile-up vertices
@@ -109,32 +109,33 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
     double         puVertexX = vertexTDist(rng);
     double         puVertexY = vertexTDist(rng);
     double         puVertexZ = vertexZDist(rng);
-    Acts::Vector3D puVertex(puVertexX, puVertexY, puVertexZ);
+    // create the pileup vertex
+    vertex = Acts::Vector3D(puVertexX, puVertexY, puVertexZ);
     // get the vertices per pileup event
-    std::vector<Acts::ParticleProperties> pileupPartiles = {};
-    if (m_cfg.pileupParticleReader
-        && m_cfg.pileupParticleReader->read(pileupPartiles)
+    std::vector<Acts::ProcessVertex> pileupEvent = {};
+    if (m_cfg.pileupEventReader
+        && m_cfg.pileupEventReader->read(pileupEvent)
             == FW::ProcessCode::ABORT) {
       ACTS_ERROR("Could not read pile up event " << ipue << ". Aborting.");
       return FW::ProcessCode::ABORT;
     }
     pCounter = 0;
-    ACTS_VERBOSE("- [PU " << ipue << "] number of pile-up particles : "
-                          << pileupPartiles.size()
-                          << " - with z vertex position: "
-                          << puVertexZ);
-    // loop over pileupParicles
-    for (auto& puParticle : pileupPartiles) {
+    // loop over pileup vertex per event
+    for (auto& puVertex : pileupEvent) {
       // shift to the pile-up vertex
-      puParticle.shift(puVertex);
-      puParticle.assign(m_cfg.barcodeSvc->generate(ipue + 1, pCounter++));
-      // now store the particle
-      eventParticles.push_back(puParticle);
+      puVertex.shift(vertex);
+      // assign barcodes 
+      for (auto& oparticle : puVertex.outgoingParticles()){
+        Acts::ParticleProperties* hsp 
+            = const_cast<Acts::ParticleProperties*>(&oparticle); 
+        hsp->assign(m_cfg.barcodeSvc->generate(ipue + 1, pCounter++));
+      }
+      evgen.push_back(puVertex);
     }
   }
 
   // write to the EventStore
-  if (ctx.eventStore.add(m_cfg.particlesCollection, std::move(eventParticles))
+  if (ctx.eventStore.add(m_cfg.evgenCollection, std::move(evgen))
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }

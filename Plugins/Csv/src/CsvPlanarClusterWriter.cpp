@@ -79,8 +79,9 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           osHits << '\n';
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
-          for (auto& barcode : cluster.barcodes()) {
-            osTruth << barcode << "," << hitId << '\n';
+          for (auto& tVertex : cluster.truthVertices()) {
+            for (auto& tIngoing : tVertex.ingoingParticles() )
+              osTruth << tIngoing.barcode() << "," << hitId << '\n';
           }
         }
       }

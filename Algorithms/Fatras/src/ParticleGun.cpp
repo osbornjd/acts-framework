@@ -14,8 +14,10 @@ FW::ParticleGun::ParticleGun(const FW::ParticleGun::Config& cfg,
 FW::ProcessCode
 FW::ParticleGun::execute(AlgorithmContext ctx) const
 {
-  std::vector<Acts::ParticleProperties> particles;
 
+  ACTS_DEBUG("::execute() called for event " << ctx.eventNumber );
+  // what's written out
+  std::vector<Acts::ProcessVertex> vertices;
   RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
 
   UniformDist d0Dist(m_cfg.d0Range.at(0), m_cfg.d0Range.at(1));
@@ -23,7 +25,9 @@ FW::ParticleGun::execute(AlgorithmContext ctx) const
   UniformDist phiDist(m_cfg.phiRange.at(0), m_cfg.phiRange.at(1));
   UniformDist etaDist(m_cfg.etaRange.at(0), m_cfg.etaRange.at(1));
   UniformDist ptDist(m_cfg.ptRange.at(0), m_cfg.ptRange.at(1));
-
+  
+  // the particles
+  std::vector<Acts::ParticleProperties> particles;
   for (size_t ip = 0; ip < m_cfg.nParticles; ip++) {
     // generate random parameters
     double d0  = d0Dist(rng);
@@ -38,11 +42,16 @@ FW::ParticleGun::execute(AlgorithmContext ctx) const
     Acts::Vector3D momentum(
         pt * std::cos(phi), pt * std::sin(phi), pt * std::sinh(eta));
     // the particle should be ready now
-    particles.emplace_back(
-        vertex, momentum, m_cfg.mass, m_cfg.charge, m_cfg.pID, bc);
+    particles.emplace_back(momentum, m_cfg.mass, m_cfg.charge, m_cfg.pID, bc);
   }
-
-  if (ctx.eventStore.add(m_cfg.particlesCollection, std::move(particles))
+  ACTS_DEBUG("Generated 1 vertex with " << particles.size() << " particles.");                                       
+  // the vertices
+  vertices.push_back(Acts::ProcessVertex(Acts::Vector3D(0.,0.,0.),
+                                         0.,
+                                         0,
+                                         {},
+                                         std::move(particles)));
+  if (ctx.eventStore.add(m_cfg.evgenCollection, std::move(vertices))
       != ProcessCode::SUCCESS)
     return ProcessCode::ABORT;
   return FW::ProcessCode::SUCCESS;

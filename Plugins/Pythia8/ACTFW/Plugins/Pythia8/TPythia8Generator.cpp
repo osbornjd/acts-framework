@@ -11,7 +11,7 @@
 FW::Pythia8::TPythia8Generator::TPythia8Generator(
     const FW::Pythia8::TPythia8Generator::Config& cfg,
     std::unique_ptr<const Acts::Logger>           mlogger)
-  : FW::IReaderT<std::vector<Acts::ParticleProperties>>()
+  : FW::IReaderT<std::vector<Acts::ProcessVertex>>()
   , m_cfg(cfg)
   , m_pythia8(nullptr)
   , m_logger(std::move(mlogger))
@@ -57,9 +57,9 @@ FW::Pythia8::TPythia8Generator::name() const
 
 FW::ProcessCode
 FW::Pythia8::TPythia8Generator::read(
-    std::vector<Acts::ParticleProperties>& particleProperties,
-    size_t                                 skip,
-    const FW::AlgorithmContext*            context)
+    std::vector<Acts::ProcessVertex>& processVertices,
+    size_t                            skip,
+    const FW::AlgorithmContext*       context)
 {
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_read_mutex);
@@ -81,6 +81,11 @@ FW::Pythia8::TPythia8Generator::read(
   m_pythia8->ImportParticles(particles, "All");
   // get the entries
   Int_t np = particles->GetEntriesFast();
+  // the last vertex
+  Acts::Vector3D lastVertex(0.,0.,0.);
+  std::vector<Acts::ParticleProperties> particlesOut;
+  // reserve the maximum amount
+  particlesOut.reserve(np);
   // Particle loop
   for (Int_t ip = 0; ip < np; ip++) {
     // loop through the particles
@@ -95,14 +100,31 @@ FW::Pythia8::TPythia8Generator::read(
     Float_t mass   = part->GetMass();
     // and now create a particle
     Acts::Vector3D vertex(part->Vx(), part->Vy(), part->Vz());
-    // make th nuit nicer ...
+    // flush if vertices are different
+    if (vertex != lastVertex && particlesOut.size()){
+      // create the process vertex, push it
+      Acts::ProcessVertex pVertex(lastVertex,0.,0.,{},particlesOut);
+      processVertices.push_back(pVertex);
+      // reset and reserve the particle vector
+      particlesOut.clear();
+      particlesOut.reserve(np);
+    }
+    // remember the vertex
+    lastVertex = vertex;    
+    // unit conversion - should be done with Acts::units
     Acts::Vector3D momentum(
         part->Px() * 1000., part->Py() * 1000., part->Pz() * 1000.);
     // the particle should be ready now
-    particleProperties.push_back(
-        Acts::ParticleProperties(vertex, momentum, mass, charge, pdg));
+    particlesOut.push_back(
+        Acts::ParticleProperties(momentum, mass, charge, pdg));
   }
-  // clear
+  // flush a second time
+  if (particlesOut.size()){
+    // create the process vertex, push it
+    Acts::ProcessVertex pVertex(lastVertex,0.,0.,{},particlesOut);
+    processVertices.push_back(pVertex);
+  }
+  // clear the particles vector
   delete particles;
   // return success
   return FW::ProcessCode::SUCCESS;

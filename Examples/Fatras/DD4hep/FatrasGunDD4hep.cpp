@@ -41,7 +41,7 @@ main(int argc, char* argv[])
 
   // particle gun as generator
   FW::ParticleGun::Config particleGunConfig;
-  particleGunConfig.particlesCollection = "Particles";
+  particleGunConfig.evgenCollection = "Particles";
   particleGunConfig.nParticles          = 100;
   particleGunConfig.d0Range             = {{0, 1 * _mm}};
   particleGunConfig.phiRange            = {{-M_PI, M_PI}};

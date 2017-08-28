@@ -64,9 +64,9 @@ main(int argc, char* argv[])
       Acts::getDefaultLogger("PileUpTPythia8Generator", logLevel));
   // combined event generator
   FW::ReadEvgenAlgorithm::Config readEvgenCfg;
-  readEvgenCfg.particlesCollection       = "Particles";
-  readEvgenCfg.hardscatterParticleReader = hsPythiaGenerator;
-  readEvgenCfg.pileupParticleReader      = puPythiaGenerator;
+  readEvgenCfg.evgenCollection           = "EvgenParticles";
+  readEvgenCfg.hardscatterEventReader    = hsPythiaGenerator;
+  readEvgenCfg.pileupEventReader         = puPythiaGenerator;
   readEvgenCfg.randomNumbers             = random;
   readEvgenCfg.pileupPoissonParameter    = 200;
   readEvgenCfg.vertexTParameters         = {{0., 0.015}};

@@ -44,7 +44,7 @@ public:
     /// the tracking geometry
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
     /// the particles input collections
-    std::string particlesCollection              = "";
+    std::string evgenCollection                  = "";
     /// the simulated particles output collection
     std::string simulatedParticlesCollection     = "";
     /// the simulated hits output collection
@@ -77,7 +77,10 @@ public:
   };
 
   /// Constructor
-  ExtrapolationAlgorithm(const Config& cnf);
+  /// @param [in] cnf is the configuration struct
+  /// @param [in] loglevel is the loggin level
+  ExtrapolationAlgorithm(const Config& cnf,
+                         Acts::Logging::Level loglevel);
 
   /// Framework execute method
   /// @param [in] the algorithm context for event consistency

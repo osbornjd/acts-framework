@@ -19,11 +19,11 @@ namespace Pythia8 {
 
   /// @class IParticleReader
   ///
-  /// Interface class that fills a vector of particle
+  /// Interface class that fills a vector of process vertices
   /// proerties for feeding into the fast simulation
   ///
   class TPythia8Generator
-    : public FW::IReaderT<std::vector<Acts::ParticleProperties>>
+    : public FW::IReaderT<std::vector<Acts::ProcessVertex>>
   {
   public:
     struct Config
@@ -51,10 +51,10 @@ namespace Pythia8 {
     name() const override final;
 
     // clang-format off
-  /// @copydoc FW::IReaderT::read(std::vector<Acts::ParticleProperties>&,size_t,const FW::AlgorithmContext*)
+    /// @copydoc FW::IReaderT::read(std::vector<Acts::ProcessVertex>&,size_t,const FW::AlgorithmContext*)
     // clang-format on
     FW::ProcessCode
-    read(std::vector<Acts::ParticleProperties>& pProperties,
+    read(std::vector<Acts::ProcessVertex>& pProperties,
          size_t                                 skip = 0,
          const FW::AlgorithmContext* context         = nullptr) override final;
 

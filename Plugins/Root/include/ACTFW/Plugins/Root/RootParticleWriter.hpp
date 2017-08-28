@@ -18,14 +18,14 @@ class TTree;
 namespace FW {
 namespace Root {
 
-  /// Write out a particle collection in a ROOT TTree.
+  /// Write out a particles associated to process vertices into a TTree
   ///
   /// Each entry in the TTree corresponds to the particles in one event.
   class RootParticleWriter final
-    : public WriterT<std::vector<Acts::ParticleProperties>>
+    : public WriterT<std::vector<Acts::ProcessVertex>>
   {
   public:
-    using Base = WriterT<std::vector<Acts::ParticleProperties>>;
+    using Base = WriterT<std::vector<Acts::ProcessVertex>>;
     struct Config
     {
       std::string collection;              ///< particle collection to write
@@ -42,13 +42,18 @@ namespace Root {
 
     ProcessCode
     initialize() final;
+    
     ProcessCode
     finalize() final;
 
   protected:
+    /// write method called by the base class
+    /// @param [in] ctx is the algorithm context for consistency
+    /// @param [in] vertices is the process vertex collection for the
+    /// particles to be attached
     ProcessCode
     writeT(const AlgorithmContext&                      ctx,
-           const std::vector<Acts::ParticleProperties>& particles) final;
+           const std::vector<Acts::ProcessVertex>& vertices) final;
 
   private:
     Config     m_cfg;         ///< the config class

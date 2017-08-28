@@ -26,7 +26,7 @@ public:
   struct Config
   {
     /// output collection for generated particles
-    std::string particlesCollection;
+    std::string evgenCollection;
     /// number of particles
     size_t nParticles = 0;
     /// low, high for d0 range

@@ -15,11 +15,12 @@
 
 /// Setup extrapolation and digitization.
 ///
-/// Expects a `Particles` object in the event store with the truth particles.
+/// Expects a `EvgenParticles` object in the event store with the truth particles.
 FW::ProcessCode
 setupSimulation(FW::Sequencer&                                sequencer,
                 std::shared_ptr<const Acts::TrackingGeometry> geometry,
-                std::shared_ptr<FW::RandomNumbersSvc>         random);
+                std::shared_ptr<FW::RandomNumbersSvc>         random,
+                Acts::Logging::Level loglevel = Acts::Logging::INFO);
 
 /// Setup writers to store simulation output
 ///
@@ -28,6 +29,7 @@ setupSimulation(FW::Sequencer&                                sequencer,
 FW::ProcessCode
 setupWriters(FW::Sequencer&                  sequencer,
              std::shared_ptr<FW::BarcodeSvc> barcode,
-             std::string                     outputDir);
+             std::string                     outputDir,
+             Acts::Logging::Level loglevel = Acts::Logging::INFO);
 
 #endif  // ACTFW_FATRASCOMMON_HPP

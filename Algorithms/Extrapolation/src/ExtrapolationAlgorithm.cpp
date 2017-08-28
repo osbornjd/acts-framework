@@ -16,93 +16,113 @@
 #include "ACTS/Utilities/Units.hpp"
 
 FW::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
-    const FW::ExtrapolationAlgorithm::Config& cfg)
-  : FW::BareAlgorithm("ExtrapolationAlgorithm"), m_cfg(cfg)
+    const FW::ExtrapolationAlgorithm::Config& cfg,
+    Acts::Logging::Level loglevel)
+  : FW::BareAlgorithm("ExtrapolationAlgorithm", loglevel)
+  , m_cfg(cfg)
 {
 }
 
 FW::ProcessCode
 FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
+  
+  ACTS_DEBUG("::execute() called for event " << ctx.eventNumber );
   // read particles from input collection
-  const std::vector<Acts::ParticleProperties>* particles = nullptr;
-  if (ctx.eventStore.get(m_cfg.particlesCollection, particles)
+  const std::vector<Acts::ProcessVertex>* evgen = nullptr;
+  if (ctx.eventStore.get(m_cfg.evgenCollection, evgen)
       == FW::ProcessCode::ABORT)
     return FW::ProcessCode::ABORT;
 
-  ACTS_DEBUG("read collection '" << m_cfg.particlesCollection << "' with "
-                                 << particles->size()
-                                 << " particles");
+  ACTS_DEBUG("read collection '" << m_cfg.evgenCollection << "' with "
+                                 << evgen->size()
+                                 << " vertices");
 
-  // selected particles that should be simulated
-  std::vector<Acts::ParticleProperties> simulated;
-  std::copy_if(particles->begin(),
-               particles->end(),
-               std::back_inserter(simulated),
-               [=](const auto& particle) {
-                 return (particle.charge() != 0. || !m_cfg.skipNeutral)
-                     && (particle.vertex().perp() < m_cfg.maxD0)
-                     && (std::abs(particle.momentum().eta()) < m_cfg.maxEta)
-                     && (m_cfg.minPt < particle.momentum().perp());
-               });
-  ACTS_DEBUG("Skipped   particles: " << particles->size() - simulated.size());
-  ACTS_DEBUG("Simulated particles: " << simulated.size());
-
-  // propagate particles through the detector and generate hits
+  // output: simulated particles attached to theiur process vertices 
+  std::vector<Acts::ProcessVertex> simulated;
+  // output: the extrapolation cell collections 
+  std::vector< Acts::ExtrapolationCell< Acts::TrackParameters > > cCells;
+  std::vector< Acts::ExtrapolationCell< Acts::NeutralParameters > > nCells;
+  // output: hits - in detector data container
   using FatrasHit
       = std::pair<std::unique_ptr<const Acts::TrackParameters>, barcode_type>;
-
-  // prepare the detector data dfoe qeirinf out
   FW::DetectorData<geo_id_value, FatrasHit> hits;
   
-  // the charged and neutral containers of the particles
-  std::vector< Acts::ExtrapolationCell< Acts::TrackParameters > > cCells;
-  cCells.reserve(simulated.size());
-  std::vector< Acts::ExtrapolationCell< Acts::NeutralParameters > > nCells;
-  nCells.reserve(simulated.size());
-
-  // loop over particles  
-  for (const auto& particle : simulated) {
-    // @todo, potentially update to better structure with Vertex-Particle tree
-    Acts::PerigeeSurface surface(particle.vertex());
-    double               d0    = 0.;
-    double               z0    = 0.;
-    double               phi   = particle.momentum().phi();
-    double               theta = particle.momentum().theta();
-    // treat differently for neutral particles
-    double               qop   = particle.charge() != 0 ? 
-                                 particle.charge() / particle.momentum().mag() : 
-                                 1. / particle.momentum().mag();
-    // parameters
-    Acts::ActsVectorD<5> pars;
-    pars << d0, z0, phi, theta, qop;
-    // some screen output
-    std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
-    // execute the test for charged particles
-    if (particle.charge()){
-      // charged extrapolation - with hit recording
-      Acts::BoundParameters startParameters(
-          std::move(cov), std::move(pars), surface);
-      if (executeTestT<Acts::TrackParameters>(startParameters, 
-                                              particle.barcode(),
-                                              cCells,
-                                              &hits)
-          != FW::ProcessCode::SUCCESS)
-          ACTS_VERBOSE("Test of charged parameter extrapolation did not succeed.");
-    } else {     
-      // neutral extrapolation
-      Acts::NeutralBoundParameters neutralParameters(
-            std::move(cov), std::move(pars), surface);
-        // prepare hits for charged neutral paramters - no hit recording
-        if (executeTestT<Acts::NeutralParameters>(neutralParameters,  
-                                                  particle.barcode(),
-                                                  nCells)
-            != FW::ProcessCode::SUCCESS)
-          ACTS_WARNING(
-              "Test of neutral parameter extrapolation did not succeed.");
-    }
+  // loop over the vertices 
+  size_t evertices = 0;
+  for (auto& evtx : (*evgen)){
+     ACTS_DEBUG("Processing event vertex no. " << evertices++);
+     // vertex is outside cut
+     if (evtx.position().perp() > m_cfg.maxD0) {
+       ACTS_VERBOSE("Process vertex is outside the transverse cut. Skipping.");
+       continue;
+     }
+     // the simulated particles associated to this vertex 
+     std::vector<Acts::ParticleProperties> sparticles;
+     // the generated particles
+     auto& gparticles = evtx.outgoingParticles(); 
+     
+     std::copy_if(gparticles.begin(),
+                  gparticles.end(),
+                  std::back_inserter(sparticles),
+                  [=](const auto& particle) {
+                    return (particle.charge() != 0. || !m_cfg.skipNeutral)
+                        && (std::abs(particle.momentum().eta()) < m_cfg.maxEta)
+                        && (m_cfg.minPt < particle.momentum().perp());
+                  });
+     ACTS_DEBUG("Skipped   particles: " << gparticles.size() - sparticles.size());
+     ACTS_DEBUG("Simulated particles: " << sparticles.size());
+     // create a new process vertex for the output collection
+     Acts::ProcessVertex svertex(evtx.position(), 
+                                 evtx.interactionTime(),
+                                 evtx.processType(),
+                                 {},
+                                 sparticles);
+     simulated.push_back(svertex);
+     
+     // the asspcoated perigee for this vertex
+     Acts::PerigeeSurface surface(evtx.position());
+     
+     // loop over particles  
+     for (const auto& particle : sparticles) {
+       double               d0    = 0.;
+       double               z0    = 0.;
+       double               phi   = particle.momentum().phi();
+       double               theta = particle.momentum().theta();
+       // treat differently for neutral particles
+       double               qop   = particle.charge() != 0 ? 
+                                    particle.charge() / particle.momentum().mag() : 
+                                    1. / particle.momentum().mag();
+       // parameters
+       Acts::ActsVectorD<5> pars;
+       pars << d0, z0, phi, theta, qop;
+       // some screen output
+       std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+       // execute the test for charged particles
+       if (particle.charge()){
+         // charged extrapolation - with hit recording
+         Acts::BoundParameters startParameters(
+             std::move(cov), std::move(pars), surface);
+         if (executeTestT<Acts::TrackParameters>(startParameters, 
+                                                 particle.barcode(),
+                                                 cCells,
+                                                 &hits)
+             != FW::ProcessCode::SUCCESS)
+             ACTS_VERBOSE("Test of charged parameter extrapolation did not succeed.");
+       } else {     
+         // neutral extrapolation
+         Acts::NeutralBoundParameters neutralParameters(
+               std::move(cov), std::move(pars), surface);
+           // prepare hits for charged neutral paramters - no hit recording
+           if (executeTestT<Acts::NeutralParameters>(neutralParameters,  
+                                                     particle.barcode(),
+                                                     nCells)
+               != FW::ProcessCode::SUCCESS)
+             ACTS_WARNING(
+                 "Test of neutral parameter extrapolation did not succeed.");
+       }
+     }
   }
-
   // write simulated data to the event store
   // - the particles
   if (ctx.eventStore.add(m_cfg.simulatedParticlesCollection,
