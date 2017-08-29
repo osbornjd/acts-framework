@@ -16,7 +16,7 @@ main(int argc, char* argv[])
 {
   using namespace Acts::units;
 
-  size_t               nEvents   = 2;
+  size_t               nEvents   = 1000;
   std::string          outputDir = ".";
   Acts::Logging::Level logLevel  = Acts::Logging::INFO;
 
@@ -41,6 +41,7 @@ main(int argc, char* argv[])
   particleGunConfig.charge              = -1 * _e;
   particleGunConfig.pID                 = 13;
   particleGunConfig.randomNumbers       = random;
+  particleGunConfig.randomCharge        = true;
   particleGunConfig.barcodes            = barcodes;
   auto particleGun
       = std::make_shared<FW::ParticleGun>(particleGunConfig, logLevel);

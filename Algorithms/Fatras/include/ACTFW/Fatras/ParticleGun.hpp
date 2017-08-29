@@ -47,6 +47,8 @@ public:
     double charge = 0.;
     /// the pdg type of the particle
     pdg_type pID = 0.;
+    // randomize the charge (indicates PID flip)
+    bool randomCharge = false;
     // FW random number service
     std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     std::shared_ptr<FW::BarcodeSvc> barcodes = nullptr;

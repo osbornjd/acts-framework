@@ -25,6 +25,8 @@ FW::ParticleGun::execute(AlgorithmContext ctx) const
   UniformDist phiDist(m_cfg.phiRange.at(0), m_cfg.phiRange.at(1));
   UniformDist etaDist(m_cfg.etaRange.at(0), m_cfg.etaRange.at(1));
   UniformDist ptDist(m_cfg.ptRange.at(0), m_cfg.ptRange.at(1));
+  UniformDist chargeDist(0.,1.);
+  
   
   // the particles
   std::vector<Acts::ParticleProperties> particles;
@@ -41,8 +43,14 @@ FW::ParticleGun::execute(AlgorithmContext ctx) const
     // create momentum from random parameters
     Acts::Vector3D momentum(
         pt * std::cos(phi), pt * std::sin(phi), pt * std::sinh(eta));
+    // flip charge and PID if asked for
+    int flip = (!m_cfg.randomCharge || chargeDist(rng) < 0.5) ? 1 : -1;
     // the particle should be ready now
-    particles.emplace_back(momentum, m_cfg.mass, m_cfg.charge, m_cfg.pID, bc);
+    particles.emplace_back(momentum, 
+                           m_cfg.mass, 
+                           flip*m_cfg.charge, 
+                           flip*m_cfg.pID, 
+                           bc);
   }
   ACTS_DEBUG("Generated 1 vertex with " << particles.size() << " particles.");                                       
   // the vertices
