@@ -108,6 +108,11 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
             // get the digitization module
             auto hitDigitizationModule = hitDetElement->digitizationModule();
             if (hitDigitizationModule) {
+              // get the lorentz angle
+              double lorentzAngle = hitDigitizationModule->lorentzAngle();  
+              double thickness    = hitDetElement->thickness();
+              double lorentzShift = thickness * tan(lorentzAngle); 
+              lorentzShift *= -(hitDigitizationModule->readoutDirection());      
               // parameters
               auto           pars = hitParameters->parameters();
               auto position = hitParameters->position();
@@ -143,6 +148,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
               }
               // divide by the total path
               localX /= totalPath;
+              localX += lorentzShift;
               localY /= totalPath;
 
               // get the segmentation & find the corresponding cell id
