@@ -2,10 +2,8 @@
 #define ACTFW_EXTRAPOLATION_EXAMPLEBASE_H
 
 #include <memory>
-
 #include <ACTS/MagneticField/ConstantBField.hpp>
 #include <ACTS/Utilities/Units.hpp>
-
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 #include "ACTFW/Fatras/ParticleGun.hpp"
@@ -16,24 +14,21 @@
 /// simple base for the extrapolation example
 namespace ACTFWExtrapolationExample {
 
+template <class MagneticField> 
 int
-run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
+run(size_t nEvents, 
+    MagneticField magField,
+    std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
+    Acts::Logging::Level eLogLevel = Acts::Logging::INFO)
 {
   using namespace Acts::units;
 
   if (!tGeometry) return -9;
 
-  // set extrapolation logging level
-  Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
-
-  // set up the magnetic field
-  std::shared_ptr<Acts::ConstantBField> magField(
-      new Acts::ConstantBField{{0., 0., 2. * Acts::units::_T}});
-
   // EXTRAPOLATOR - set up the extrapolator
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
       = FW::initExtrapolator(tGeometry, magField, eLogLevel);
-
+  
   // the barcode service
   auto barcodes = std::make_shared<FW::BarcodeSvc>(
       FW::BarcodeSvc::Config{},
@@ -90,10 +85,10 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   // the Algorithm with its configurations
   FW::ExtrapolationAlgorithm::Config eTestConfig;
   eTestConfig.evgenCollection                   = particleGunConfig.evgenCollection;
-  eTestConfig.simulatedParticlesCollection      = "simulatedParticles";
+  eTestConfig.simulatedParticlesCollection      = "SimulatedParticles";
   eTestConfig.simulatedChargedExCellCollection  = reccWriterConfig.collection;
   eTestConfig.simulatedNeutralExCellCollection  = recnWriterConfig.collection;
-  eTestConfig.simulatedHitsCollection           = "simulatedHits";
+  eTestConfig.simulatedHitsCollection           = "SimulatedHits";
   eTestConfig.searchMode                        = 1;
   eTestConfig.extrapolationEngine               = extrapolationEngine;
   eTestConfig.randomNumbers                     = randomNumbers;
@@ -109,6 +104,7 @@ run(size_t nEvents, std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
+  
   // now create the sequencer
   FW::Sequencer sequencer(seqConfig);  
   sequencer.addServices( {randomNumbers} );
