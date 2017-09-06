@@ -1,12 +1,12 @@
 #ifndef ACTFW_BFIELD_BFIELDEXAMPLE_H
 #define ACTFW_BFIELD_BFIELDEXAMPLE_H
 
-#include <boost/program_options.hpp>
 #include <string>
+#include <boost/program_options.hpp>
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Plugins/BField/BFieldFromFile.hpp"
+#include "ACTFW/Framework/StandardOptions.hpp"
+#include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/RootInterpolatedBFieldWriter.hpp"
-#include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
 
 /// The main executable
 ///
@@ -21,38 +21,33 @@ main(int argc, char* argv[])
 {
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  desc.add_options()("help", "Produce help message")(
-      "loglevel,l",
-      po::value<size_t>()->default_value(2),
-      "The output log level.");
-  FW::BField::bFieldOptions<po::options_description>(desc);    
-      
+  // add the standard options
+  FW::Options::addStandardOptions<po::options_description>(desc,1,2);
+  // add the bfield options
+  FW::Options::addBFieldOptions<po::options_description>(desc);          
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
-  
-  // output messages
+  // read the standard options
+  // print help if requested
   if (vm.count("help")) {
     std::cout << desc << std::endl;
     return 1;
   }
+  // now read the standard options options
+  auto standardOptions 
+    = FW::Options::readStandardOptions<po::variables_map>(vm);
+  auto nEvents = standardOptions.first;
+  auto logLevel = standardOptions.second;
   // create BField service
-  auto bField = FW::BField::bFieldFromFile<po::variables_map>(vm);
-  if (!bField) {
+  auto bField = FW::Options::readBField<po::variables_map>(vm);
+  if (!bField.first) {
     std::cout << "Bfield could not be set up. Exiting." << std::endl;
     return -1;
   }
-  // get the log level from input
-  Acts::Logging::Level logLevel  = Acts::Logging::INFO;  
-  if (vm.count("loglevel")) {
-    logLevel =   Acts::Logging::Level(vm["loglevel"].as<size_t>());    
-    std::cout << "- the output log level is set to " << logLevel << std::endl;
-  } else {
-    std::cout << "- default log level is " << logLevel << std::endl;
-  }
-  
+    
   // Create the InterpolatedBFieldWriter
   FW::BField::RootInterpolatedBFieldWriter::Config writerConfig;
   if (vm["rz"].as<bool>())
@@ -62,7 +57,7 @@ main(int argc, char* argv[])
   writerConfig.treeName   = "bField";
   writerConfig.fileName   = vm["out"].as<std::string>();
 
-  writerConfig.bField = bField;
+  writerConfig.bField = bField.first;
   auto bFieldWriter
       = std::make_shared<FW::BField::RootInterpolatedBFieldWriter>(
           writerConfig);

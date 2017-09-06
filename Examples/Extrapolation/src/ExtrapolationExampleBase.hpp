@@ -6,7 +6,7 @@
 #include <ACTS/Utilities/Units.hpp>
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
-#include "ACTFW/Fatras/ParticleGun.hpp"
+#include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"

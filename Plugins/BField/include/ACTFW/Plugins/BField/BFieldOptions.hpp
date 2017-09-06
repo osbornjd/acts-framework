@@ -2,26 +2,28 @@
 // TxtBFieldUtils.hpp
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ACTFW_BFIELD_BFIELDFROMFILE_HPP
-#define ACTFW_BFIELD_BFIELDFROMFILE_HPP
+#ifndef ACTFW_OPTIONS_BFIELDOPTIONS_HPP
+#define ACTFW_OPTIONS_BFIELDOPTIONS_HPP
 
+#include <utility>
+#include <iostream>
 #include "ACTFW/Plugins/BField/BFieldUtils.hpp"
 #include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
+#include "ACTS/MagneticField/ConstantBField.hpp"
 #include "ACTS/MagneticField/concept/AnyFieldLookup.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/Utilities/Units.hpp"
-#include <iostream>
 
 namespace po = boost::program_options;
 
 namespace FW {
 
-namespace BField {
+namespace Options {
 
-  // add the options related to the bfield
+  // common bfield options
   template <class AOPT>
   void
-  bFieldOptions(AOPT& opt){
+  addBFieldOptions(AOPT& opt){
     opt.add_options()(
         "bfieldmap",
         po::value<std::string>()->default_value(""),
@@ -56,11 +58,13 @@ namespace BField {
         "first octant/quadrant and should be symmetrically created for all other "
         "octants/quadrants.");
   }
-  
+
   // create the map  
   template <class AMAP> 
-  std::shared_ptr<Acts::InterpolatedBFieldMap>
-  bFieldFromFile(const AMAP& vm) {
+  std::pair<
+  std::shared_ptr<Acts::InterpolatedBFieldMap>,
+  std::shared_ptr<Acts::ConstantBField> >  
+  readBField(const AMAP& vm) {
     
     std::string bfieldmap = "constfield";
     int bfieldmaptype = 0;
@@ -78,12 +82,11 @@ namespace BField {
       } else {
         std::cout << "- magnetic field format could not be detected";
         std::cout << " use '.root', '.txt', or '.csv'." << std::endl;
-        return nullptr;
+        return std::pair<
+            std::shared_ptr<Acts::InterpolatedBFieldMap>,
+            std::shared_ptr<Acts::ConstantBField> >(nullptr,nullptr);
       }
-    } else {
-      std::cout << "- magnetic field map was not set at input." << std::endl;
-      return nullptr;
-    }
+    } 
     if (vm.count("gridpoints")) {
       std::cout << "- number of points set to: " 
                 << vm["gridpoints"].template as<size_t>()
@@ -168,10 +171,19 @@ namespace BField {
     Acts::InterpolatedBFieldMap::Config config;
     config.scale  = 1.;
     config.mapper = std::move(mapper);
-    // create BField service
-    return std::make_shared<Acts::InterpolatedBFieldMap>(std::move(config));
+    
+    std::shared_ptr<Acts::InterpolatedBFieldMap> bField
+     = std::make_shared<Acts::InterpolatedBFieldMap>(std::move(config));
+    
+    std::shared_ptr<Acts::ConstantBField> cField 
+      = std::make_shared<Acts::ConstantBField>(0.,0.,BFieldUnit);
+   
+    return std::pair<
+      std::shared_ptr<Acts::InterpolatedBFieldMap>,
+      std::shared_ptr<Acts::ConstantBField> >(bField,cField);
+    
   }
 }
 }
 
-#endif // ACTFW_BFIELD_TXTBFIELDUTILS_HPP
+#endif // ACTFW_OPTIONS_BFIELDOPTIONS_HPP

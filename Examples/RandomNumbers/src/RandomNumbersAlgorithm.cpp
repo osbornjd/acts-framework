@@ -1,19 +1,20 @@
 #include "RandomNumbersAlgorithm.hpp"
-
 #include <iostream>
-
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
-    const FWE::RandomNumbersAlgorithm::Config& cfg)
-  : FW::BareAlgorithm("RandomNumbersAlgorithm"), m_cfg(cfg)
+    const FWE::RandomNumbersAlgorithm::Config& cfg, 
+    Acts::Logging::Level level)
+  : FW::BareAlgorithm("RandomNumbersAlgorithm",level), m_cfg(cfg)
 {
 }
 
 FW::ProcessCode
 FWE::RandomNumbersAlgorithm::execute(FW::AlgorithmContext context) const
 {
+  
+  ACTS_INFO("Running random number generation");
   // Create a random number generator
   FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
 
@@ -25,6 +26,8 @@ FWE::RandomNumbersAlgorithm::execute(FW::AlgorithmContext context) const
                             m_cfg.landauParameters[1]);
   FW::GammaDist   gammaDist(m_cfg.gammaParameters[0], m_cfg.gammaParameters[1]);
   FW::PoissonDist poissonDist(m_cfg.poissonParameter);
+ 
+  ACTS_INFO(m_cfg.drawsPerEvent << " draws per event will be done");
 
   for (size_t idraw = 0; idraw < m_cfg.drawsPerEvent; ++idraw) {
     double gauss   = gaussDist(rng);

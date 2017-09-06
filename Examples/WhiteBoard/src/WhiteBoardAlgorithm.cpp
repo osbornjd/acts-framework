@@ -1,12 +1,12 @@
 #include <iostream>
-
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "DataClassOne.hpp"
 #include "DataClassTwo.hpp"
 #include "WhiteBoardAlgorithm.hpp"
 
-FWE::WhiteBoardAlgorithm::WhiteBoardAlgorithm(const Config& cfg)
-  : FW::BareAlgorithm("WhiteBoardAlgorithm"), m_cfg(cfg)
+FWE::WhiteBoardAlgorithm::WhiteBoardAlgorithm(const Config& cfg,
+  Acts::Logging::Level level)
+  : FW::BareAlgorithm("WhiteBoardAlgorithm",  level), m_cfg(cfg)
 {
 }
 

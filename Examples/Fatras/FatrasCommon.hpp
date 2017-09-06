@@ -6,14 +6,14 @@
 
 #include <memory>
 #include <string>
-#include <ACTS/Detector/TrackingGeometry.hpp>
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
-#include "ACTS/Digitization/PlanarModuleStepper.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
+#include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
+#include "ACTS/Digitization/PlanarModuleStepper.hpp"
+#include "ACTS/Detector/TrackingGeometry.hpp"
 
 /// Setup extrapolation and digitization.
 ///

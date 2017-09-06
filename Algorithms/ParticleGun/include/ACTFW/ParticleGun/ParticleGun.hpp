@@ -7,6 +7,8 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
+using range = std::vector<double>;
+
 namespace FW {
 
 class BarcodeSvc;
@@ -30,16 +32,16 @@ public:
     /// number of particles
     size_t nParticles = 0;
     /// low, high for d0 range
-    std::array<double, 2> d0Range = {{0, 1 * Acts::units::_mm}};
+    range d0Range = {{0., 1 * Acts::units::_mm}};
     /// low, high for z0 range
-    std::array<double, 2> z0Range
+    range z0Range
         = {{-100 * Acts::units::_mm, 100 * Acts::units::_mm}};
     /// low, high for phi range
-    std::array<double, 2> phiRange = {{-M_PI, M_PI}};
+    range phiRange = {{-M_PI, M_PI}};
     /// low, high for eta range
-    std::array<double, 2> etaRange = {{-3., 3.}};
+    range etaRange = {{-3., 3.}};
     /// low, high for pt range
-    std::array<double, 2> ptRange
+    range ptRange
         = {{100 * Acts::units::_MeV, 10 * Acts::units::_GeV}};
     /// the mass of the particle
     double mass = 0.;

@@ -13,9 +13,10 @@ class HelloWorldAlgorithm : public FW::BareAlgorithm
 {
 public:
   /// Constructor
-  HelloWorldAlgorithm();
+  HelloWorldAlgorithm(Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execode method
+  /// @param [in] context is the Algorithm context for event consistency
   FW::ProcessCode
   execute(FW::AlgorithmContext context) const final override;
 };

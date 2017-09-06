@@ -3,32 +3,53 @@
 
 #include <cstdlib>
 #include <iostream>
-
+#include <boost/program_options.hpp>
 #include <ACTS/Detector/TrackingGeometry.hpp>
 #include <ACTS/Utilities/Units.hpp>
-
-#include "ACTFW/Fatras/ParticleGun.hpp"
+#include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
-
+#include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/Framework/StandardOptions.hpp"
 #include "FatrasCommon.hpp"
+
+namespace po = boost::program_options;
 
 int
 main(int argc, char* argv[])
 {
   using namespace Acts::units;
 
-  size_t               nEvents = 1;
   std::string          detectorPath;
   std::string          outputDir = ".";
-  Acts::Logging::Level logLevel  = Acts::Logging::INFO;
-
-  if (1 < argc) {
-    detectorPath = argv[1];
-  } else {
-    detectorPath
-        = "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml";
+  // Declare the supported program options.
+  po::options_description desc("Allowed options");
+  desc.add_options()(
+      "input",
+      po::value<std::string>()->default_value(
+        "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml"),
+      "The location of the input DD4hep file, use 'file:foo.xml'");
+  // add the standard options
+  FW::Options::addStandardOptions<po::options_description>(desc,1,2);
+  // add the bfield options
+  FW::Options::addBFieldOptions<po::options_description>(desc);          
+  // map to store the given program options
+  po::variables_map vm;
+  // Get all options from contain line and store it into the map
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+  // read the standard options
+  // print help if requested
+  if (vm.count("help")) {
+    std::cout << desc << std::endl;
+    return 1;
   }
-  std::cout << "Creating detector from '" << detectorPath << "'" << std::endl;
+  // now read the standard options options
+  auto standardOptions 
+    = FW::Options::readStandardOptions<po::variables_map>(vm);
+  auto nEvents = standardOptions.first;
+  auto logLevel = standardOptions.second;
+  // create BField service
+  auto bField = FW::Options::readBField<po::variables_map>(vm);
 
   // the barcodes service
   auto barcodes = std::make_shared<FW::BarcodeSvc>(
@@ -57,13 +78,13 @@ main(int argc, char* argv[])
 
   // geometry from dd4hep
   FW::DD4hep::GeometryService::Config gsConfig("GeometryService", logLevel);
-  gsConfig.xmlFileName              = detectorPath;
+  gsConfig.xmlFileName              = vm["input"].as<std::string>();
   gsConfig.bTypePhi                 = Acts::equidistant;
   gsConfig.bTypeR                   = Acts::equidistant;
   gsConfig.bTypeZ                   = Acts::equidistant;
   gsConfig.envelopeR                = 0.;
   gsConfig.envelopeZ                = 0.;
-  gsConfig.buildDigitizationModules = false;
+  //gsConfig.buildDigitizationModules = false;
   auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(gsConfig);
   std::shared_ptr<const Acts::TrackingGeometry> geom
       = geometrySvc->trackingGeometry();
@@ -73,10 +94,12 @@ main(int argc, char* argv[])
   if (sequencer.prependEventAlgorithms({particleGun})
       != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
-  if (setupSimulation(sequencer, geom, random) != FW::ProcessCode::SUCCESS)
-    return EXIT_FAILURE;
-  if (setupWriters(sequencer, barcodes, outputDir) != FW::ProcessCode::SUCCESS)
-    return EXIT_FAILURE;
+  if (bField.first && setupSimulation(sequencer, geom, random, bField.first, logLevel) 
+    != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
+  else if (setupSimulation(sequencer, geom, random, bField.second, logLevel) 
+    != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
+  if (setupWriters(sequencer, barcodes, outputDir, logLevel) 
+    != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
   if (sequencer.run(nEvents) != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
 
   return EXIT_SUCCESS;

@@ -2,14 +2,37 @@
 // GenatinoRecording.cpp
 ///////////////////////////////////////////////////////////////////
 
+#include <boost/program_options.hpp>
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 
+namespace po = boost::program_options;
+
 int
 main(int argc, char* argv[])
 {
+  
+  // Declare the supported program options.
+  po::options_description desc("Allowed options");
+  desc.add_options()("help", "Produce help message")(
+      "input",
+      po::value<std::string>()->default_value(
+        "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml"),
+      "The location of the input DD4hep file, use 'file:foo.xml'");  
+
+  po::variables_map vm;
+  // Get all options from contain line and store it into the map
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+  // print help if needed
+  // output messages
+  if (vm.count("help")) {
+    std::cout << desc << std::endl;
+    return 1;
+  }
+  
   // DETECTOR:
   // --------------------------------------------------------------------------------
   // DD4Hep detector definition
@@ -17,13 +40,8 @@ main(int argc, char* argv[])
   // set up the geometry service
   FW::DD4hep::GeometryService::Config gsConfig("GeometryService",
                                              Acts::Logging::INFO);
-  if (argc > 1) {
-    std::cout << "Creating detector from xml-file: '" << argv[1] << "'!"
-              << std::endl;
-    gsConfig.xmlFileName = argv[1];
-  } else
-    gsConfig.xmlFileName
-        = "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml";
+
+  gsConfig.xmlFileName = vm["input"].as<std::string>();
   gsConfig.bTypePhi  = Acts::equidistant;
   gsConfig.bTypeR    = Acts::equidistant;
   gsConfig.bTypeZ    = Acts::equidistant;

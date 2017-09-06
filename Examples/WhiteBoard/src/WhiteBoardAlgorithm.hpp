@@ -36,7 +36,8 @@ public:
   /// Constructor
   ///
   /// @param cfg is the configruation
-  WhiteBoardAlgorithm(const Config& cfg);
+  WhiteBoardAlgorithm(const Config& cfg,
+  Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execode method
   FW::ProcessCode
