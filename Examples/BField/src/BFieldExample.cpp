@@ -24,7 +24,12 @@ main(int argc, char* argv[])
   // add the standard options
   FW::Options::addStandardOptions<po::options_description>(desc,1,2);
   // add the bfield options
-  FW::Options::addBFieldOptions<po::options_description>(desc);          
+  FW::Options::addBFieldOptions<po::options_description>(desc);
+  // add an output file
+  desc.add_options()("out", 
+          po::value<std::string>()->default_value("BFieldOut.root"),
+          "Set this name for an output root file.");
+            
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
