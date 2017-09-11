@@ -60,18 +60,19 @@ main(int argc, char* argv[])
 
   // particle gun as generator
   FW::ParticleGun::Config particleGunConfig;
-  particleGunConfig.evgenCollection     = "EvgenParticles";
-  particleGunConfig.nParticles          = vm["nparticles"].as<size_t>();
-  particleGunConfig.d0Range             = vm["d0range"].as<range>();
-  particleGunConfig.phiRange            = vm["phirange"].as<range>();
-  particleGunConfig.etaRange            = vm["etarange"].as<range>();
-  particleGunConfig.ptRange             = vm["ptrange"].as<range>();
-  particleGunConfig.mass                = vm["mass"].as<double>() * _MeV;
-  particleGunConfig.charge              = vm["charge"].as<double>() * _e;
-  particleGunConfig.pID                 = vm["pdg"].as<int>() * _MeV;
-  particleGunConfig.randomNumbers       = random;
-  particleGunConfig.randomCharge        = true;
-  particleGunConfig.barcodes            = barcodes;
+  particleGunConfig.evgenCollection = "EvgenParticles";
+  particleGunConfig.nParticles      = vm["nparticles"].as<size_t>();
+  particleGunConfig.d0Range         = vm["d0range"].as<range>();
+  particleGunConfig.z0Range         = vm["z0range"].as<range>();
+  particleGunConfig.phiRange        = vm["phirange"].as<range>();
+  particleGunConfig.etaRange        = vm["etarange"].as<range>();
+  particleGunConfig.ptRange         = vm["ptrange"].as<range>();
+  particleGunConfig.mass            = vm["mass"].as<double>() * _MeV;
+  particleGunConfig.charge          = vm["charge"].as<double>() * _e;
+  particleGunConfig.pID             = vm["pdg"].as<int>() * _MeV;
+  particleGunConfig.randomNumbers   = random;
+  particleGunConfig.randomCharge    = true;
+  particleGunConfig.barcodes        = barcodes;
   auto particleGun
       = std::make_shared<FW::ParticleGun>(particleGunConfig, logLevel);
 

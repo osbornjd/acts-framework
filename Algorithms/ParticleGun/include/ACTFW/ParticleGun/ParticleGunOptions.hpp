@@ -8,10 +8,13 @@
 #include <cstdlib>
 #include <iostream>
 #include <utility>
+#include "ACTS/Utilities/Units.hpp"
 
 namespace po = boost::program_options;
 
 using range = std::vector<double>;
+
+namespace au = Acts::units;
 
 namespace std
 {
@@ -42,7 +45,7 @@ namespace Options {
         "PDG number of the particle, "
         "will be adjusted for charge flip.")(
         "mass",
-        po::value<double>()->default_value(105.),
+        po::value<double>()->default_value(105.*au::_MeV),
         "mass of the particle in [MeV]")(
         "charge",
         po::value<double>()->default_value(-1.),
@@ -63,7 +66,8 @@ namespace Options {
         po::value<range>()->default_value({-4.,4.}),
         "range in which the eta parameter is simulated.")(
         "ptrange",
-        po::value<range>()->default_value({100.,1e5}),
+        po::value<range>()->default_value({100.*au::_MeV,
+                                           1e5*au::_MeV}),
         "range in which the pt in [MeV] parameter is simulated.");
   }
 }

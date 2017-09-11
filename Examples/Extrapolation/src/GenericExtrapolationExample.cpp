@@ -6,6 +6,7 @@
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 
 namespace po = boost::program_options;
@@ -17,9 +18,11 @@ main(int argc, char* argv[])
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc,1,2);
+  FW::Options::addStandardOptions<po::options_description>(desc,100,2);
   // add the bfield options
-  FW::Options::addBFieldOptions<po::options_description>(desc);          
+  FW::Options::addBFieldOptions<po::options_description>(desc); 
+  // add the particle gun options
+  FW::Options::addParticleGunOptions<po::options_description>(desc);                       
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -41,7 +44,7 @@ main(int argc, char* argv[])
   // particle gun as generator
   FW::ParticleGun::Config particleGunConfig;
   particleGunConfig.evgenCollection = "EvgenParticles";
-  particleGunConfig.nParticles    = vm["dparticles"].as<size_t>();
+  particleGunConfig.nParticles    = vm["nparticles"].as<size_t>();
   particleGunConfig.d0Range       = vm["d0range"].as<range>();
   particleGunConfig.z0Range       = vm["z0range"].as<range>();
   particleGunConfig.phiRange      = vm["phirange"].as<range>();
