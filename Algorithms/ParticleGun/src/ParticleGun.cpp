@@ -9,7 +9,19 @@
 FW::ParticleGun::ParticleGun(const FW::ParticleGun::Config& cfg,
                              Acts::Logging::Level           level)
   : FW::BareAlgorithm("ParticleGun", level), m_cfg(cfg)
-{}
+{
+  ACTS_DEBUG("Particle gun settings: ");
+  ACTS_VERBOSE("- d0  range: " << m_cfg.d0Range[0] 
+                               << ", " << m_cfg.d0Range[0]);
+  ACTS_VERBOSE("- z0  range: " << m_cfg.z0Range[0] 
+                               << ", " << m_cfg.z0Range[0]);
+  ACTS_VERBOSE("- phi range: " << m_cfg.phiRange[0] 
+                               << ", " << m_cfg.phiRange[0]);
+  ACTS_VERBOSE("- eta range: " << m_cfg.etaRange[0] 
+                               << ", " << m_cfg.etaRange[0]);
+  ACTS_VERBOSE("- pt  range: " << m_cfg.ptRange[0]
+                               << ", " << m_cfg.ptRange[0]);  
+}
 
 FW::ProcessCode
 FW::ParticleGun::execute(AlgorithmContext ctx) const
@@ -26,8 +38,7 @@ FW::ParticleGun::execute(AlgorithmContext ctx) const
   UniformDist etaDist(m_cfg.etaRange.at(0), m_cfg.etaRange.at(1));
   UniformDist ptDist(m_cfg.ptRange.at(0), m_cfg.ptRange.at(1));
   UniformDist chargeDist(0.,1.);
-  
-  
+    
   // the particles
   std::vector<Acts::ParticleProperties> particles;
   for (size_t ip = 0; ip < m_cfg.nParticles; ip++) {

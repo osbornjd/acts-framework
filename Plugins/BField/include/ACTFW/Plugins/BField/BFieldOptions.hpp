@@ -68,7 +68,7 @@ namespace Options {
     
     std::string bfieldmap = "constfield";
     int bfieldmaptype = 0;
-    if (vm.count("bfieldmap")) {
+    if (vm.count("bfieldmap") && vm["bfieldmap"].template as<std::string>() != "") {
       bfieldmap = vm["bfieldmap"].template as<std::string>();
       std::cout << "- read in magnetic field map: " 
                 << vm["bfieldmap"].template as<std::string>() << std::endl;
@@ -87,27 +87,27 @@ namespace Options {
             std::shared_ptr<Acts::ConstantBField> >(nullptr,nullptr);
       }
     } 
-    if (vm.count("gridpoints")) {
+    if (bfieldmaptype && vm.count("gridpoints")) {
       std::cout << "- number of points set to: " 
                 << vm["gridpoints"].template as<size_t>()
                 << std::endl;
     }
     double lscalor = 1.;
-    if (vm.count("lscalor")) {
+    if (bfieldmaptype && vm.count("lscalor")) {
       lscalor = vm["lscalor"].template as<double>();
       std::cout << "- length scalor to mm set to: " << lscalor << std::endl;
     }
     double bscalor = 1.;
     if (vm.count("bscalor")) {
       bscalor = vm["bscalor"].template as<double>();
-      std::cout << "- BField scalor to Tesla set to: " << bscalor << std::endl;
+      std::cout << "- BField (scalor to/in) Tesla set to: " << bscalor << std::endl;
     }
-    if (vm["rz"].template as<bool>())
+    if (bfieldmaptype && vm["rz"].template as<bool>())
       std::cout << "- BField map is given in 'rz' coordiantes." << std::endl;
-    else
+    else if (bfieldmaptype)
       std::cout << "- BField map is given in 'xyz' coordiantes." << std::endl;
     
-    if (vm["foctant"].template as<bool>()) {
+    if (bfieldmaptype && vm["foctant"].template as<bool>()) {
       std::cout << "- Only the first octant/quadrant is given, bField map will be "
                    "symmetrically created for all other octants/quadrants"
                 << std::endl;
@@ -143,7 +143,7 @@ namespace Options {
             BFieldUnit,
             vm["foctant"].template as<bool>());
       }
-    } else {
+    } else if (bfieldmaptype) {
       if (vm["rz"].template as<bool>()) {
         mapper = FW::BField::txt::fieldMapperRZ(
             [](std::array<size_t, 2> binsRZ, std::array<size_t, 2> nBinsRZ) {
@@ -172,8 +172,10 @@ namespace Options {
     config.scale  = 1.;
     config.mapper = std::move(mapper);
     
-    std::shared_ptr<Acts::InterpolatedBFieldMap> bField
-     = std::make_shared<Acts::InterpolatedBFieldMap>(std::move(config));
+    std::shared_ptr<Acts::InterpolatedBFieldMap> bField 
+     = bfieldmaptype ? 
+       std::make_shared<Acts::InterpolatedBFieldMap>(std::move(config))
+       : nullptr;
     
     std::shared_ptr<Acts::ConstantBField> cField 
       = std::make_shared<Acts::ConstantBField>(0.,0.,BFieldUnit);

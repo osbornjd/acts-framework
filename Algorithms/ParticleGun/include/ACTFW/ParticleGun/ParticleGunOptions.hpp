@@ -13,6 +13,18 @@ namespace po = boost::program_options;
 
 using range = std::vector<double>;
 
+namespace std
+{
+  std::ostream& operator<<(std::ostream &os, const range &vec) 
+  {    
+    for (auto item : vec) 
+    { 
+      os << item << " "; 
+    } 
+    return os; 
+  }
+} 
+
 namespace FW {
 
 namespace Options {
@@ -35,6 +47,9 @@ namespace Options {
         "charge",
         po::value<double>()->default_value(-1.),
         "charge of the particle in [e]")(
+        "chargeflip",
+        po::value<bool>()->default_value(true),
+        "flip the charge (and change PDG accordingly).")(
         "d0range",
         po::value<range>()->default_value({0.,0.}),
         "range in which the d0 parameter is simulated.")(

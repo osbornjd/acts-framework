@@ -6,6 +6,7 @@
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 
 namespace po = boost::program_options;
 
@@ -38,6 +39,20 @@ main(int argc, char* argv[])
   // create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
 
+  // particle gun as generator
+  FW::ParticleGun::Config particleGunConfig;
+  particleGunConfig.evgenCollection = "EvgenParticles";
+  particleGunConfig.nParticles    = vm["dparticles"].as<size_t>();
+  particleGunConfig.d0Range       = vm["d0range"].as<range>();
+  particleGunConfig.z0Range       = vm["z0range"].as<range>();
+  particleGunConfig.phiRange      = vm["phirange"].as<range>();
+  particleGunConfig.etaRange      = vm["etarange"].as<range>();
+  particleGunConfig.ptRange       = vm["ptrange"].as<range>();
+  particleGunConfig.mass          = vm["mass"].as<double>() * Acts::units::_MeV;
+  particleGunConfig.charge        = vm["charge"].as<double>() * Acts::units::_e;
+  particleGunConfig.randomCharge  = vm["chargeflip"].as<bool>();
+  particleGunConfig.pID           = vm["pdg"].as<int>() * Acts::units::_MeV;
+
   // get the generic detector
   // DETECTOR:
   // --------------------------------------------------------------------------------
@@ -47,6 +62,14 @@ main(int argc, char* argv[])
 
   // run the example
   return bField.first ? 
-    ACTFWExtrapolationExample::run(nEvents, bField.first, gtGeometry, logLevel):
-    ACTFWExtrapolationExample::run(nEvents, bField.second, gtGeometry, logLevel);
+    ACTFWExtrapolationExample::run(nEvents, 
+                                   bField.first, 
+                                   gtGeometry, 
+                                   particleGunConfig, 
+                                   logLevel):
+    ACTFWExtrapolationExample::run(nEvents, 
+                                   bField.second, 
+                                   gtGeometry, 
+                                   particleGunConfig, 
+                                   logLevel);
 }

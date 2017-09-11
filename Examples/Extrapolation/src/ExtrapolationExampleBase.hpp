@@ -19,6 +19,7 @@ int
 run(size_t nEvents, 
     MagneticField magField,
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
+    FW::ParticleGun::Config& particleGunConfig,
     Acts::Logging::Level eLogLevel = Acts::Logging::INFO)
 {
   using namespace Acts::units;
@@ -29,29 +30,20 @@ run(size_t nEvents,
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
       = FW::initExtrapolator(tGeometry, magField, eLogLevel);
   
-  // the barcode service
+  // THE BARCODE service
   auto barcodes = std::make_shared<FW::BarcodeSvc>(
       FW::BarcodeSvc::Config{},
       Acts::getDefaultLogger("BarcodeSvc", eLogLevel));
-
+  
   // RANDOM NUMBERS - Create the random number engine
   FW::RandomNumbersSvc::Config          brConfig;
   std::shared_ptr<FW::RandomNumbersSvc> randomNumbers(
       new FW::RandomNumbersSvc(brConfig));
 
-  // particle gun as generator
-  FW::ParticleGun::Config particleGunConfig;
-  particleGunConfig.evgenCollection     = "EvgenParticles";
-  particleGunConfig.nParticles          = 100;
-  particleGunConfig.d0Range             = {{0, 1 * _mm}};
-  particleGunConfig.phiRange            = {{-M_PI, M_PI}};
-  particleGunConfig.etaRange            = {{-4., 4.}};
-  particleGunConfig.ptRange             = {{100 * _MeV, 100 * _GeV}};
-  particleGunConfig.mass                = 105 * _MeV;
-  particleGunConfig.charge              = -1 * _e;
-  particleGunConfig.pID                 = 13;
-  particleGunConfig.randomNumbers       = randomNumbers;
-  particleGunConfig.barcodes            = barcodes;
+  // set the random 
+  particleGunConfig.randomNumbers = randomNumbers;
+  particleGunConfig.barcodes      = barcodes;
+
   auto particleGun
       = std::make_shared<FW::ParticleGun>(particleGunConfig, eLogLevel);
 
