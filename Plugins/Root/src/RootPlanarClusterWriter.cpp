@@ -124,7 +124,7 @@ FW::Root::RootPlanarClusterWriter::writeT(
           // get the truth parameters
           for (auto& tvertex : cluster.truthVertices()){
             auto& tposition = tvertex.position();
-            for (auto& tparticle : tvertex.ingoingParticles()){
+            for (auto& tparticle : tvertex.incomingParticles()){
               // truth global position
               m_t_gx.push_back(tposition.x());            
               m_t_gy.push_back(tposition.y());            
