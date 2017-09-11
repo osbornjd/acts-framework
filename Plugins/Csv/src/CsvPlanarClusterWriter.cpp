@@ -1,7 +1,9 @@
+#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
+
 #include <fstream>
 #include <ios>
 #include <stdexcept>
-#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
+
 #include <ACTS/Digitization/PlanarModuleCluster.hpp>
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -45,14 +47,14 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
   osHits << "ncells,ch0,ch1,value\n";
   osHits << std::setprecision(m_cfg.outputPrecision);
   // write csv truth headers
-  osTruth << "barcode,hit_id\n";
+  osTruth << "hit_id,";
+  osTruth << "particle_id\n";
 
   size_t hitId = 0;
   for (auto& volumeData : clusters) {
     for (auto& layerData : volumeData.second) {
       for (auto& moduleData : layerData.second) {
         for (auto& cluster : moduleData.second) {
-
           hitId += 1;
           // local cluster information
           auto           parameters = cluster.parameters();
@@ -83,8 +85,8 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
           for (auto& tVertex : cluster.truthVertices()) {
-            for (auto& tIngoing : tVertex.incomingParticles() )
-              osTruth << tIngoing.barcode() << "," << hitId << '\n';
+            for (auto& tIngoing : tVertex.incomingParticles())
+              osTruth << hitId << "," << tIngoing.barcode() << '\n';
           }
         }
       }
