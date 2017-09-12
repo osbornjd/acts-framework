@@ -1,3 +1,6 @@
 [submodule "acts"]
 	path = external/acts-core
 	url = ../a-common-tracking-sw.git
+[submodule "acts-fatras"]
+	path = external/acts-fatras
+	url = ../acts-fatras
