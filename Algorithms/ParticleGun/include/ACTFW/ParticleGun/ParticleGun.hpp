@@ -7,7 +7,7 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
-using range = std::vector<double>;
+using range = std::array<double, 2>;
 
 namespace FW {
 

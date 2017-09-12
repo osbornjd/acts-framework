@@ -14,19 +14,21 @@ namespace FW {
 
 namespace Options {
 
+
+
 // add standard options
 template < class AOPT>
 void 
 addStandardOptions(AOPT& opt, 
              size_t defaultEvents,
              size_t defaultValue){
-  opt.add_options()("help", "Produce help message")(
-      "events,n",
-      po::value<size_t>()->default_value(defaultEvents),
-      "The number of events to be processed")(
-      "loglevel,l",
-      po::value<size_t>()->default_value(defaultValue),
-      "The output log level.");  
+  opt.add_options()("help", "Produce help message")
+    ("events,n",
+     po::value<size_t>()->default_value(defaultEvents),
+     "The number of events to be processed")
+    ("loglevel,l",
+     po::value<size_t>()->default_value(defaultValue),
+     "The output log level.");  
 }
 
 // read standard options

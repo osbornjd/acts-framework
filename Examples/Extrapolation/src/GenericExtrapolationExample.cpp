@@ -7,6 +7,7 @@
 #include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
+#include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 
 namespace po = boost::program_options;
@@ -22,7 +23,9 @@ main(int argc, char* argv[])
   // add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc); 
   // add the particle gun options
-  FW::Options::addParticleGunOptions<po::options_description>(desc);                       
+  FW::Options::addParticleGunOptions<po::options_description>(desc);
+  // add the random number options
+  FW::Options::addRandomNumbersOptions<po::options_description>(desc);                
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -33,27 +36,20 @@ main(int argc, char* argv[])
     std::cout << desc << std::endl;
     return 1;
   }
-  // now read the standard options options
+  // now read the standard options
   auto standardOptions 
     = FW::Options::readStandardOptions<po::variables_map>(vm);
   auto nEvents = standardOptions.first;
   auto logLevel = standardOptions.second;
-  // create BField service
-  auto bField = FW::Options::readBField<po::variables_map>(vm);
-
-  // particle gun as generator
-  FW::ParticleGun::Config particleGunConfig;
-  particleGunConfig.evgenCollection = "EvgenParticles";
-  particleGunConfig.nParticles    = vm["nparticles"].as<size_t>();
-  particleGunConfig.d0Range       = vm["d0range"].as<range>();
-  particleGunConfig.z0Range       = vm["z0range"].as<range>();
-  particleGunConfig.phiRange      = vm["phirange"].as<range>();
-  particleGunConfig.etaRange      = vm["etarange"].as<range>();
-  particleGunConfig.ptRange       = vm["ptrange"].as<range>();
-  particleGunConfig.mass          = vm["mass"].as<double>() * Acts::units::_MeV;
-  particleGunConfig.charge        = vm["charge"].as<double>() * Acts::units::_e;
-  particleGunConfig.randomCharge  = vm["chargeflip"].as<bool>();
-  particleGunConfig.pID           = vm["pdg"].as<int>() * Acts::units::_MeV;
+  // read and create BField service
+  auto bField 
+    = FW::Options::readBField<po::variables_map>(vm);
+  // read and create  ParticleGunConfig
+  auto particleGunConfig 
+    = FW::Options::readParticleGunConfig<po::variables_map>(vm);
+  // read and create RandomNumbersConfig
+  auto randomNumbersConfig 
+    = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
 
   // get the generic detector
   // DETECTOR:
@@ -67,11 +63,13 @@ main(int argc, char* argv[])
     ACTFWExtrapolationExample::run(nEvents, 
                                    bField.first, 
                                    gtGeometry, 
-                                   particleGunConfig, 
+                                   particleGunConfig,
+                                   randomNumbersConfig, 
                                    logLevel):
     ACTFWExtrapolationExample::run(nEvents, 
                                    bField.second, 
                                    gtGeometry, 
                                    particleGunConfig, 
+                                   randomNumbersConfig, 
                                    logLevel);
 }

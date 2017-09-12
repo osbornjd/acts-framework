@@ -32,7 +32,7 @@ main(int argc, char* argv[])
     std::cout << desc << std::endl;
     return 1;
   }
-  // now read the standard options options
+  // now read the standard options
   auto standardOptions 
     = FW::Options::readStandardOptions<po::variables_map>(vm);
   auto nEvents = standardOptions.first;

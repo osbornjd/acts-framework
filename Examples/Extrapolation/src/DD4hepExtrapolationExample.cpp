@@ -7,6 +7,7 @@
 #include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
+#include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 
 namespace po = boost::program_options;
@@ -18,17 +19,19 @@ main(int argc, char* argv[])
 {
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  desc.add_options()(
-      "input",
-      po::value<std::string>()->default_value(
-        "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml"),
-      "The location of the input DD4hep file, use 'file:foo.xml'");
+  desc.add_options()
+    ("dd4hep-input",
+    po::value<std::string>()->default_value(
+    "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml"),
+    "The location of the input DD4hep file, use 'file:foo.xml'");
   // add the standard options
   FW::Options::addStandardOptions<po::options_description>(desc,100,2);
   // add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);   
   // add the particle gun options
-  FW::Options::addParticleGunOptions<po::options_description>(desc);            
+  FW::Options::addParticleGunOptions<po::options_description>(desc);  
+  // add the random number options
+  FW::Options::addRandomNumbersOptions<po::options_description>(desc);                            
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -40,34 +43,26 @@ main(int argc, char* argv[])
     std::cout << desc << std::endl;
     return 1;
   }
-  // now read the standard options options
+  // now read the standard options
   auto standardOptions 
     = FW::Options::readStandardOptions<po::variables_map>(vm);
   auto nEvents = standardOptions.first;
   auto logLevel = standardOptions.second;
   // create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
+  // read and create  ParticleGunConfig
+  auto particleGunConfig 
+    = FW::Options::readParticleGunConfig<po::variables_map>(vm);
+  // read and create RandomNumbersConfig
+  auto randomNumbersConfig 
+    = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   
-  // particle gun as generator
-  FW::ParticleGun::Config particleGunConfig;
-  particleGunConfig.evgenCollection = "EvgenParticles";
-  particleGunConfig.nParticles    = vm["nparticles"].as<size_t>();
-  particleGunConfig.d0Range       = vm["d0range"].as<range>();
-  particleGunConfig.z0Range       = vm["z0range"].as<range>();
-  particleGunConfig.phiRange      = vm["phirange"].as<range>();
-  particleGunConfig.etaRange      = vm["etarange"].as<range>();
-  particleGunConfig.ptRange       = vm["ptrange"].as<range>();
-  particleGunConfig.mass          = vm["mass"].as<double>() * Acts::units::_MeV;
-  particleGunConfig.charge        = vm["charge"].as<double>() * Acts::units::_e;
-  particleGunConfig.randomCharge  = vm["chargeflip"].as<bool>();
-  particleGunConfig.pID           = vm["pdg"].as<int>() * Acts::units::_MeV;
-
   // get the DD4hep detector
   // DETECTOR:
   // --------------------------------------------------------------------------------
   FW::DD4hep::GeometryService::Config gsConfig("GeometryService",
                                               logLevel);
-  gsConfig.xmlFileName              = vm["input"].as<std::string>();
+  gsConfig.xmlFileName              = vm["dd4hep-input"].as<std::string>();
   gsConfig.bTypePhi                 = Acts::equidistant;
   gsConfig.bTypeR                   = Acts::equidistant;
   gsConfig.bTypeZ                   = Acts::equidistant;
@@ -85,10 +80,12 @@ main(int argc, char* argv[])
                                    bField.first, 
                                    dd4tGeometry, 
                                    particleGunConfig, 
+                                   randomNumbersConfig,
                                    logLevel):
     ACTFWExtrapolationExample::run(nEvents, 
                                    bField.second, 
                                    dd4tGeometry, 
                                    particleGunConfig, 
+                                   randomNumbersConfig,
                                    logLevel);
 }

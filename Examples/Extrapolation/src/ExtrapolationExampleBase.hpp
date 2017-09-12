@@ -20,6 +20,7 @@ run(size_t nEvents,
     MagneticField magField,
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
     FW::ParticleGun::Config& particleGunConfig,
+    FW::RandomNumbersSvc::Config& randomNumbersConfig,
     Acts::Logging::Level eLogLevel = Acts::Logging::INFO)
 {
   using namespace Acts::units;
@@ -36,9 +37,8 @@ run(size_t nEvents,
       Acts::getDefaultLogger("BarcodeSvc", eLogLevel));
   
   // RANDOM NUMBERS - Create the random number engine
-  FW::RandomNumbersSvc::Config          brConfig;
   std::shared_ptr<FW::RandomNumbersSvc> randomNumbers(
-      new FW::RandomNumbersSvc(brConfig));
+      new FW::RandomNumbersSvc(randomNumbersConfig));
 
   // set the random 
   particleGunConfig.randomNumbers = randomNumbers;

@@ -7,10 +7,12 @@
 #include <ACTS/Utilities/Units.hpp>
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/Plugins/Pythia8/TPythia8Generator.hpp"
+#include "ACTFW/Plugins/Pythia8/TPythia8Options.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Framework/StandardOptions.hpp"
+#include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "FatrasCommon.hpp"
 
 namespace po = boost::program_options;
@@ -25,89 +27,74 @@ main(int argc, char* argv[])
   // add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);  
   // read the evgen options
-  FW::Options::addEvgenOptions<po::options_description>(desc);         
+  FW::Options::addEvgenOptions<po::options_description>(desc); 
+  // add the pythia 8 options
+  FW::Options::addPythia8Options<po::options_description>(desc); 
+  // add the random number options
+  FW::Options::addRandomNumbersOptions<po::options_description>(desc);       
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
-  // read the standard options
   // print help if requested
   if (vm.count("help")) {
     std::cout << desc << std::endl;
     return 1;
   }
-  
-  // now read the standard options options
+  // now read the standard options
   auto standardOptions 
     = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents = standardOptions.first;
+  auto nEvents  = standardOptions.first;
   auto logLevel = standardOptions.second;
-  // create BField service
+  // @todo add the output directory to the standard options 
+  std::string outputDir = "";
+  // read and create the magnetic field
   auto bField = FW::Options::readBField<po::variables_map>(vm);
-
-  // output directory
-  std::string          outputDir = ".";
-  
-  // the barcode service
-  auto barcode = std::make_shared<FW::BarcodeSvc>(
-      FW::BarcodeSvc::Config{}, Acts::getDefaultLogger("BarcodeSvc", logLevel));
-
-  // random numbers
-  FW::RandomNumbersSvc::Config brConfig;
-  brConfig.seed = 1234567890;
-  auto random   = std::make_shared<FW::RandomNumbersSvc>(brConfig);
-
-  // TODO create a single pythia8 event generator w/o the need for this manual
-  //      combination
-  FW::Pythia8::TPythia8Generator::Config hsPythiaConfig;
-  hsPythiaConfig.pdgBeam0       = vm["pdgBeam0"].as<int>();
-  hsPythiaConfig.pdgBeam1       = vm["pdgBeam1"].as<int>();
-  hsPythiaConfig.cmsEnergy      = vm["cmsEnergy"].as<double>();
-  hsPythiaConfig.processStrings = {vm["hsProcress"].as<std::string>()};
-  auto hsPythiaGenerator        = std::make_shared<FW::Pythia8::TPythia8Generator>(
-      hsPythiaConfig,
-      Acts::getDefaultLogger("HardScatterTPythia8Generator",
-                             logLevel));
-
-  // create a pythia generator for the pile-up
-  // MinBias with SD, DD and ND
-  FW::Pythia8::TPythia8Generator::Config puPythiaConfig;
-  puPythiaConfig.pdgBeam0       = vm["pdgBeam0"].as<int>();
-  puPythiaConfig.pdgBeam1       = vm["pdgBeam1"].as<int>();
-  puPythiaConfig.cmsEnergy      = vm["cmsEnergy"].as<double>();
-  puPythiaConfig.processStrings = {vm["puProcress"].as<std::string>()};
-  auto puPythiaGenerator = std::make_shared<FW::Pythia8::TPythia8Generator>(
-      puPythiaConfig,
-      Acts::getDefaultLogger("PileUpTPythia8Generator",
-                             logLevel));
-  // combined event generator
-  FW::ReadEvgenAlgorithm::Config readEvgenCfg;
-  readEvgenCfg.evgenCollection           = "EvgenParticles";
-  readEvgenCfg.hardscatterEventReader    = hsPythiaGenerator;
-  readEvgenCfg.pileupEventReader         = puPythiaGenerator;
-  readEvgenCfg.randomNumbers             = random;
-  readEvgenCfg.pileupPoissonParameter    = vm["pileup"].as<int>();
-  readEvgenCfg.vertexTParameters         = {{0., 0.015}};
-  readEvgenCfg.vertexZParameters         = {{0., 5.5}};
-  readEvgenCfg.barcodeSvc                = barcode;
-  
+  // now read the pythia8 configs
+  auto pythia8Configs 
+    = FW::Options::readPythia8Config<po::variables_map>(vm);
+  // the hard scatter generator
+  auto hsPythiaGenerator        
+    = std::make_shared<FW::Pythia8::TPythia8Generator>(pythia8Configs.first,
+      Acts::getDefaultLogger("HardScatterTPythia8Generator", logLevel));
+  // the pileup generator 
+  auto puPythiaGenerator 
+    = std::make_shared<FW::Pythia8::TPythia8Generator>(pythia8Configs.second,
+      Acts::getDefaultLogger("PileUpTPythia8Generator", logLevel));
+  // Create the random number engine
+  auto randomNumbersCfg =
+    FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
+  auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
+  // Create the barcode service
+  FW::BarcodeSvc::Config barcodeSvcCfg;
+  auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
+      barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
+  // now read the evgen config & set the missing parts
+  auto readEvgenCfg 
+    = FW::Options::readEvgenConfig(vm);
+  readEvgenCfg.hardscatterEventReader = hsPythiaGenerator;
+  readEvgenCfg.pileupEventReader      = puPythiaGenerator;
+  readEvgenCfg.randomNumbers          = randomNumbers;
+  readEvgenCfg.barcodeSvc             = barcodeSvc;
+  // create the read Algorithm
   auto readEvgen = std::make_shared<FW::ReadEvgenAlgorithm>(
-      readEvgenCfg, Acts::getDefaultLogger("Pythia8EventGenerator", logLevel));
+      readEvgenCfg,
+      Acts::getDefaultLogger("ReadEvgenAlgorithm", logLevel));
 
   // generic detector as geometry
-  std::shared_ptr<const Acts::TrackingGeometry> geom
+  std::shared_ptr<const Acts::TrackingGeometry> geometry
       = FWGen::buildGenericDetector(logLevel, logLevel, logLevel, 3);
 
   // setup event loop
   FW::Sequencer sequencer({});
   if (sequencer.addReaders({readEvgen}) != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
-  if (bField.first && setupSimulation(sequencer, geom, random, bField.first, logLevel) 
+  if (bField.first && setupSimulation(sequencer, geometry, randomNumbers, bField.first, logLevel) 
     != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
-  else if (setupSimulation(sequencer, geom, random, bField.second, logLevel) 
+  else if (setupSimulation(sequencer, geometry, randomNumbers, bField.second, logLevel) 
     != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
-  if (setupWriters(sequencer, barcode, outputDir) != FW::ProcessCode::SUCCESS)
+  if (setupWriters(sequencer, barcodeSvc, outputDir) != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
   if (sequencer.run(nEvents) != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
 

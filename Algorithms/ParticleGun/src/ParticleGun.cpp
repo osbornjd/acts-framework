@@ -12,15 +12,15 @@ FW::ParticleGun::ParticleGun(const FW::ParticleGun::Config& cfg,
 {
   ACTS_DEBUG("Particle gun settings: ");
   ACTS_VERBOSE("- d0  range: " << m_cfg.d0Range[0] 
-                               << ", " << m_cfg.d0Range[0]);
+                               << ", " << m_cfg.d0Range[1]);
   ACTS_VERBOSE("- z0  range: " << m_cfg.z0Range[0] 
-                               << ", " << m_cfg.z0Range[0]);
+                               << ", " << m_cfg.z0Range[1]);
   ACTS_VERBOSE("- phi range: " << m_cfg.phiRange[0] 
-                               << ", " << m_cfg.phiRange[0]);
+                               << ", " << m_cfg.phiRange[1]);
   ACTS_VERBOSE("- eta range: " << m_cfg.etaRange[0] 
-                               << ", " << m_cfg.etaRange[0]);
+                               << ", " << m_cfg.etaRange[1]);
   ACTS_VERBOSE("- pt  range: " << m_cfg.ptRange[0]
-                               << ", " << m_cfg.ptRange[0]);  
+                               << ", " << m_cfg.ptRange[1]);  
 }
 
 FW::ProcessCode
