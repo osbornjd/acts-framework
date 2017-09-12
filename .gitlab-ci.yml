@@ -2,7 +2,7 @@ image: gitlab-registry.cern.ch/acts/a-common-tracking-sw/slc6:latest
 
 stages:
     - build_core
-    - build_testfw
+    - build_framework
     - test
 
 variables:
@@ -27,15 +27,13 @@ build_core_default:
         paths:
             - install_default
 
-build_testfw_default:
-    stage: build_testfw
-    dependencies:
-        - build_core_default
+build_framework_default:
+    stage: build_framework
     tags:
         - cvmfs
     script:
-        - mkdir build_testfw_default
-        - cd build_testfw_default
+        - mkdir build_framework_default
+        - cd build_framework_default
         - cmake -GNinja -DCMAKE_PREFIX_PATH=../install_default -DCMAKE_INSTALL_PREFIX=../install_default -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
         - cmake --build . -- install
     artifacts:
@@ -55,15 +53,13 @@ build_core_full:
         paths:
             - install_full
 
-build_testfw_full:
-    stage: build_testfw
-    dependencies:
-        - build_core_full
+build_framework_full:
+    stage: build_framework
     tags:
         - cvmfs
     script:
-        - mkdir build_testfw_full
-        - cd build_testfw_full
+        - mkdir build_framework_full
+        - cd build_framework_full
         # TODO USE_PYTHIA8=on requires a custom ROOT build
         - cmake -GNinja -DUSE_DD4HEP=on -DUSE_GEANT4=off -DCMAKE_PREFIX_PATH=../install_full -DCMAKE_INSTALL_PREFIX=../install_full -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
         - cmake --build . -- install
