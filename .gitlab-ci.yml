@@ -14,7 +14,7 @@ before_script:
     # setup scripts do not like that
     - set +e && source CI/setup_lxplus6.sh; set -e
 
-build_core_default:
+core_default:
     stage: build_core
     tags:
         - cvmfs
@@ -27,20 +27,7 @@ build_core_default:
         paths:
             - install_default
 
-build_framework_default:
-    stage: build_framework
-    tags:
-        - cvmfs
-    script:
-        - mkdir build_framework_default
-        - cd build_framework_default
-        - cmake -GNinja -DCMAKE_PREFIX_PATH=../install_default -DCMAKE_INSTALL_PREFIX=../install_default -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
-        - cmake --build . -- install
-    artifacts:
-        paths:
-            - install_default
-
-build_core_full:
+core_full:
     stage: build_core
     tags:
         - cvmfs
@@ -53,7 +40,20 @@ build_core_full:
         paths:
             - install_full
 
-build_framework_full:
+framework_default:
+    stage: build_framework
+    tags:
+        - cvmfs
+    script:
+        - mkdir build_framework_default
+        - cd build_framework_default
+        - cmake -GNinja -DCMAKE_PREFIX_PATH=../install_default -DCMAKE_INSTALL_PREFIX=../install_default -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+        - cmake --build . -- install
+    artifacts:
+        paths:
+            - install_default
+
+framework_full:
     stage: build_framework
     tags:
         - cvmfs
