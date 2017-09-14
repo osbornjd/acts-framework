@@ -68,18 +68,21 @@ namespace Options {
   readBField(const AMAP& vm) {
     
     std::string bfieldmap = "constfield";
-    int bfieldmaptype = 0;
+    
+    enum BFieldMapType { constant = 0, root =1, text = 2 };
+    
+    int bfieldmaptype = constant;
     if (vm.count("bf-map") && vm["bf-map"].template as<std::string>() != "") {
       bfieldmap = vm["bf-map"].template as<std::string>();
       std::cout << "- read in magnetic field map: " 
                 << vm["bf-map"].template as<std::string>() << std::endl;
       if (bfieldmap.find(".root") != std::string::npos){
           std::cout << "- root format for magnetic field detected" << std::endl;
-          bfieldmaptype = 1; 
+          bfieldmaptype = root; 
       } else if (bfieldmap.find(".txt") != std::string::npos ||
                  bfieldmap.find(".csv") != std::string::npos){
         std::cout << "- txt format for magnetic field detected" << std::endl;
-        bfieldmaptype = 2; 
+        bfieldmaptype = text; 
       } else {
         std::cout << "- magnetic field format could not be detected";
         std::cout << " use '.root', '.txt', or '.csv'." << std::endl;
@@ -88,13 +91,13 @@ namespace Options {
             std::shared_ptr<Acts::ConstantBField> >(nullptr,nullptr);
       }
     } 
-    if (bfieldmaptype && vm.count("bf-gridpoints")) {
+    if (bfieldmaptype==text && vm.count("bf-gridpoints")) {
       std::cout << "- number of points set to: " 
                 << vm["bf-gridpoints"].template as<size_t>()
                 << std::endl;
     }
     double lscalor = 1.;
-    if (bfieldmaptype && vm.count("bf-lscalor")) {
+    if (bfieldmaptype != constant && vm.count("bf-lscalor")) {
       lscalor = vm["bf-lscalor"].template as<double>();
       std::cout << "- length scalor to mm set to: " << lscalor << std::endl;
     }
@@ -103,12 +106,12 @@ namespace Options {
       bscalor = vm["bf-bscalor"].template as<double>();
       std::cout << "- BField (scalor to/in) Tesla set to: " << bscalor << std::endl;
     }
-    if (bfieldmaptype && vm["bf-rz"].template as<bool>())
+    if (bfieldmaptype != constant && vm["bf-rz"].template as<bool>())
       std::cout << "- BField map is given in 'rz' coordiantes." << std::endl;
-    else if (bfieldmaptype)
+    else if (bfieldmaptype != constant)
       std::cout << "- BField map is given in 'xyz' coordiantes." << std::endl;
     
-    if (bfieldmaptype && vm["bf-foctant"].template as<bool>()) {
+    if (bfieldmaptype != constant && vm["bf-foctant"].template as<bool>()) {
       std::cout << "- Only the first octant/quadrant is given, bField map will be "
                    "symmetrically created for all other octants/quadrants"
                 << std::endl;
@@ -119,8 +122,8 @@ namespace Options {
     double lengthUnit = lscalor * Acts::units::_mm;
     double BFieldUnit = bscalor * Acts::units::_T;
     
-    // set the mapper
-    if (bfieldmaptype == 1) {
+    // set the mapper - foort
+    if (bfieldmaptype == root) {
       if (vm["bf-rz"].template as<bool>()) {
         mapper = FW::BField::root::fieldMapperRZ(
             [](std::array<size_t, 2> binsRZ, std::array<size_t, 2> nBinsRZ) {
@@ -144,7 +147,7 @@ namespace Options {
             BFieldUnit,
             vm["bf-foctant"].template as<bool>());
       }
-    } else if (bfieldmaptype) {
+    } else if (bfieldmaptype == text) {
       if (vm["bf-rz"].template as<bool>()) {
         mapper = FW::BField::txt::fieldMapperRZ(
             [](std::array<size_t, 2> binsRZ, std::array<size_t, 2> nBinsRZ) {
@@ -174,7 +177,7 @@ namespace Options {
     config.mapper = std::move(mapper);
     
     std::shared_ptr<Acts::InterpolatedBFieldMap> bField 
-     = bfieldmaptype ? 
+     = bfieldmaptype != constant ? 
        std::make_shared<Acts::InterpolatedBFieldMap>(std::move(config))
        : nullptr;
     
