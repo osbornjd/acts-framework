@@ -11,7 +11,6 @@
 #include "ACTS/Utilities/Units.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
-#include "ACTFW/ParticleGun/ParticleGun.hpp"
 
 namespace po = boost::program_options;
 
