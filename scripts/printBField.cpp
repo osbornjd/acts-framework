@@ -76,14 +76,10 @@ printBField(std::string inFile,
     tree->GetEvent(i);
 
     float bFieldValue = sqrt(Bx * Bx + By * By + Bz * Bz);
-    bField_rz->Fill(
-        z / 1000., r / 1000., bFieldValue / (1000. * 1.60217733e-19));
-    bField_xy->Fill(
-        x / 1000., y / 1000., bFieldValue / (1000. * 1.60217733e-19));
-    bField_yz->Fill(
-        z / 1000., y / 1000., bFieldValue / (1000. * 1.60217733e-19));
-    bField_xz->Fill(
-        z / 1000., x / 1000., bFieldValue / (1000. * 1.60217733e-19));
+    bField_rz->Fill(z / 1000., r / 1000., bFieldValue);
+    bField_xy->Fill(x / 1000., y / 1000., bFieldValue);
+    bField_yz->Fill(z / 1000., y / 1000., bFieldValue);
+    bField_xz->Fill(z / 1000., x / 1000., bFieldValue);
   }
   inputFile.Close();
 
