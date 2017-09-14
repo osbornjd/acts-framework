@@ -7,6 +7,7 @@
 #include <ACTS/Detector/TrackingGeometry.hpp>
 #include <ACTS/Utilities/Units.hpp>
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
+#include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
 #include "ACTFW/Plugins/Pythia8/TPythia8Generator.hpp"
 #include "ACTFW/Plugins/Pythia8/TPythia8Options.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
@@ -23,11 +24,6 @@ main(int argc, char* argv[])
 {
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  desc.add_options()(
-      "dd4hep-input",
-      po::value<std::string>()->default_value(
-        "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml"),
-      "The location of the input DD4hep file, use 'file:foo.xml'");
   // add the standard options
   FW::Options::addStandardOptions<po::options_description>(desc,1,2);
   // add the bfield options
@@ -37,7 +33,9 @@ main(int argc, char* argv[])
   // add the pythia 8 options
   FW::Options::addPythia8Options<po::options_description>(desc);
   // add the random number options
-  FW::Options::addRandomNumbersOptions<po::options_description>(desc);                     
+  FW::Options::addRandomNumbersOptions<po::options_description>(desc);  
+  // add the dd4hep detector options
+  FW::Options::addDD4hepOptions<po::options_description>(desc);                     
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -87,21 +85,10 @@ main(int argc, char* argv[])
   auto readEvgen = std::make_shared<FW::ReadEvgenAlgorithm>(
       readEvgenCfg,
       Acts::getDefaultLogger("ReadEvgenAlgorithm", logLevel));
-
-  // get the DD4hep detector
-  // DETECTOR:
-  // --------------------------------------------------------------------------------
-  FW::DD4hep::GeometryService::Config gsConfig("GeometryService",
-                                              logLevel);
-  gsConfig.xmlFileName              = vm["dd4hep-input"].as<std::string>();
-  gsConfig.bTypePhi                 = Acts::equidistant;
-  gsConfig.bTypeR                   = Acts::equidistant;
-  gsConfig.bTypeZ                   = Acts::equidistant;
-  gsConfig.envelopeR                = 0.;
-  gsConfig.envelopeZ                = 0.;
-  //gsConfig.buildDigitizationModules = false;
-  
-  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(gsConfig);
+  // read the detector config & dd4hep detector
+  auto dd4HepDetectorConfig
+     =  FW::Options::readDD4hepConfig<po::variables_map>(vm);
+  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(dd4HepDetectorConfig);
   std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
       = geometrySvc->trackingGeometry();
 

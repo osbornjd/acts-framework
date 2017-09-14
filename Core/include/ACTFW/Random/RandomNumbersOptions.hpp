@@ -24,14 +24,14 @@ namespace Options {
        "Seed of the random number engine.");
   }
   
-  /// read the particle gun options and return a Config file
+  /// read the random number options and return a Config object
   template <class AMAP> 
   FW::RandomNumbersSvc::Config 
   readRandomNumbersConfig(const AMAP& vm){
     
     FW::RandomNumbersSvc::Config randomConfig;
     randomConfig.seed 
-      = vm["evg-seed"].template as<int>();
+      = vm["rnd-seed"].template as<int>();
     // return the config
     return randomConfig;  
   }

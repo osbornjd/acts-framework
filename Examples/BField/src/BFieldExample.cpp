@@ -26,9 +26,13 @@ main(int argc, char* argv[])
   // add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
   // add an output file
-  desc.add_options()("out", 
-          po::value<std::string>()->default_value("BFieldOut.root"),
-          "Set this name for an output root file.");
+  desc.add_options()
+    ("bf-file-out", 
+     po::value<std::string>()->default_value("BFieldOut.root"),
+     "Set this name for an output root file.")
+    ("bf-map-out", 
+     po::value<std::string>()->default_value("bField"),
+     "Set this name for the tree in the out file.");
             
   // map to store the given program options
   po::variables_map vm;
@@ -55,12 +59,12 @@ main(int argc, char* argv[])
     
   // Create the InterpolatedBFieldWriter
   FW::BField::RootInterpolatedBFieldWriter::Config writerConfig;
-  if (vm["rz"].as<bool>())
+  if (vm["bf-rz"].as<bool>())
     writerConfig.gridType = FW::BField::GridType::rz;
   else
     writerConfig.gridType = FW::BField::GridType::xyz;
-  writerConfig.treeName   = "bField";
-  writerConfig.fileName   = vm["out"].as<std::string>();
+  writerConfig.treeName   = vm["bf-map-out"].as<std::string>();
+  writerConfig.fileName   = vm["bf-file-out"].as<std::string>();
 
   writerConfig.bField = bField.first;
   auto bFieldWriter

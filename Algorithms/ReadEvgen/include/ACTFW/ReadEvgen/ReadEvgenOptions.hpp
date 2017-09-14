@@ -32,10 +32,9 @@ namespace Options {
       ("evg-vertex-zrange",
        po::value<read_range>()->default_value({0., 5.5}),
        "transverse range of the vertex in z.");
-        
   }
   
-  /// read the particle gun options and return a Config file
+  /// read the evgen options and return a Config file
   template <class AMAP> 
   FW::ReadEvgenAlgorithm::Config 
   readEvgenConfig(const AMAP& vm){
@@ -47,7 +46,7 @@ namespace Options {
       = vm["evg-pileup"].template as<int>();
     // vertex parameters
     auto vtpars = vm["evg-vertex-xyrange"].template as<read_range>();
-    auto vzpars = vm["evg-vertex-xyrange"].template as<read_range>();
+    auto vzpars = vm["evg-vertex-zrange"].template as<read_range>();
     readEvgenConfig.vertexTParameters  = {{vtpars[0], vtpars[1]}};
     readEvgenConfig.vertexZParameters  = {{vzpars[0], vzpars[1]}};
     // return the config

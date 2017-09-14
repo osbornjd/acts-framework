@@ -2,6 +2,7 @@
 #include "ExtrapolationExampleBase.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
+#include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
 #include "ACTS/MagneticField/ConstantBField.hpp"
 #include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
 #include "ACTFW/Framework/StandardOptions.hpp"
@@ -19,11 +20,6 @@ main(int argc, char* argv[])
 {
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  desc.add_options()
-    ("dd4hep-input",
-    po::value<std::string>()->default_value(
-    "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml"),
-    "The location of the input DD4hep file, use 'file:foo.xml'");
   // add the standard options
   FW::Options::addStandardOptions<po::options_description>(desc,100,2);
   // add the bfield options
@@ -32,12 +28,13 @@ main(int argc, char* argv[])
   FW::Options::addParticleGunOptions<po::options_description>(desc);  
   // add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);                            
+  // add the dd4hep detector options
+  FW::Options::addDD4hepOptions<po::options_description>(desc);       
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
-  // read the standard options
   // print help if requested
   if (vm.count("help")) {
     std::cout << desc << std::endl;
@@ -46,7 +43,7 @@ main(int argc, char* argv[])
   // now read the standard options
   auto standardOptions 
     = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents = standardOptions.first;
+  auto nEvents  = standardOptions.first;
   auto logLevel = standardOptions.second;
   // create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
@@ -56,21 +53,10 @@ main(int argc, char* argv[])
   // read and create RandomNumbersConfig
   auto randomNumbersConfig 
     = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
-  
-  // get the DD4hep detector
-  // DETECTOR:
-  // --------------------------------------------------------------------------------
-  FW::DD4hep::GeometryService::Config gsConfig("GeometryService",
-                                              logLevel);
-  gsConfig.xmlFileName              = vm["dd4hep-input"].as<std::string>();
-  gsConfig.bTypePhi                 = Acts::equidistant;
-  gsConfig.bTypeR                   = Acts::equidistant;
-  gsConfig.bTypeZ                   = Acts::equidistant;
-  gsConfig.envelopeR                = 0.;
-  gsConfig.envelopeZ                = 0.;
-  //gsConfig.buildDigitizationModules = false;
-
-  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(gsConfig);
+  // read the detector config & dd4hep detector
+  auto dd4HepDetectorConfig
+     =  FW::Options::readDD4hepConfig<po::variables_map>(vm);
+  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(dd4HepDetectorConfig);
   std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
       = geometrySvc->trackingGeometry();
 
