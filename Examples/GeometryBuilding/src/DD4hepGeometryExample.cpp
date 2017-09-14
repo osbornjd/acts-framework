@@ -23,8 +23,7 @@ main(int argc, char* argv[])
   // Get all options from contain line and store it into the map
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
-  // print help if needed
-  // output messages
+  // print help if requested
   if (vm.count("help")) {
     std::cout << desc << std::endl;
     return 1;
