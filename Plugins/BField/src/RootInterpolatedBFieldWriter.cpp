@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////
 #include "ACTFW/Plugins/BField/RootInterpolatedBFieldWriter.hpp"
 #include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
+#include "ACTS/Utilities/Units.hpp"
 #include "TFile.h"
 
 FW::BField::RootInterpolatedBFieldWriter::RootInterpolatedBFieldWriter(
@@ -94,14 +95,14 @@ FW::BField::RootInterpolatedBFieldWriter::finalize()
           Acts::Vector3D position(x, y, z);
           auto           bField = m_cfg.bField->getField(position);
 
-          m_x  = x;
-          m_y  = y;
-          m_z  = z;
-          m_r  = position.perp();
-          m_Bx = bField.x();
-          m_By = bField.y();
-          m_Bz = bField.z();
-          m_Br = bField.perp();
+          m_x  = x / Acts::units::_mm;
+          m_y  = y / Acts::units::_mm;
+          m_z  = z / Acts::units::_mm;
+          m_r  = position.perp() / Acts::units::_mm;
+          m_Bx = bField.x() / Acts::units::_T;
+          m_By = bField.y() / Acts::units::_T;
+          m_Bz = bField.z() / Acts::units::_T;
+          m_Br = bField.perp() / Acts::units::_T;
 
           m_outputTree->Fill();
         }  // for z
@@ -138,14 +139,14 @@ FW::BField::RootInterpolatedBFieldWriter::finalize()
           double         z = minZ + k * stepZ;
           Acts::Vector3D position(r * cos(phi), r * sin(phi), z);
           auto           bField = m_cfg.bField->getField(position);
-          m_x                   = position.x();
-          m_y                   = position.y();
-          m_z                   = z;
-          m_r                   = r;
-          m_Bx                  = bField.x();
-          m_By                  = bField.y();
-          m_Bz                  = bField.z();
-          m_Br                  = bField.perp();
+          m_x                   = position.x() / Acts::units::_mm;
+          m_y                   = position.y() / Acts::units::_mm;
+          m_z                   = z / Acts::units::_mm;
+          m_r                   = r / Acts::units::_mm;
+          m_Bx                  = bField.x() / Acts::units::_T;
+          m_By                  = bField.y() / Acts::units::_T;
+          m_Bz                  = bField.z() / Acts::units::_T;
+          m_Br                  = bField.perp() / Acts::units::_T;
           m_outputTree->Fill();
         }
       }
