@@ -1,12 +1,16 @@
-add_library(ACTFWFatrasCommon STATIC FatrasCommon.cpp FatrasCommon.cpp)
-target_link_libraries(ACTFWFatrasCommon PUBLIC ACTS::ACTSCore)
-target_link_libraries(ACTFWFatrasCommon PUBLIC ACTFramework ACTFWExtrapolation ACTFWDigitization ACTFWFatras ACTFWCsvPlugin ACTFWJsonPlugin ACTFWObjPlugin ACTFWRootPlugin)
-target_include_directories(ACTFWFatrasCommon PUBLIC ${ROOT_INCLUDE_DIRS})
-target_include_directories(ACTFWFatrasCommon PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(ACTFWParticleGunCommon STATIC FatrasCommon.cpp FatrasCommon.cpp)
+
+target_include_directories(ACTFWParticleGunCommon PUBLIC ${ROOT_INCLUDE_DIRS})
+target_include_directories(ACTFWParticleGunCommon PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(ACTFWParticleGunCommon PUBLIC ACTS::ACTSCore)
+target_link_libraries(ACTFWParticleGunCommon PUBLIC ACTFramework ACTFWExtrapolation ACTFWDigitization ACTFWParticleGun)
+target_link_libraries(ACTFWParticleGunCommon PUBLIC ACTFWCsvPlugin ACTFWJsonPlugin ACTFWObjPlugin ACTFWRootPlugin ACTFWBFieldPlugin)
 
 add_executable(ACTFWFatrasGun FatrasGun.cpp)
-target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWFatrasCommon)
-target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWGenericDetector )
+target_include_directories(ACTFWFatrasGun PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWParticleGunCommon)
+target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWGenericDetector)
+target_link_libraries(ACTFWFatrasGun PRIVATE ${Boost_LIBRARIES})
 
 install(TARGETS ACTFWFatrasGun RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

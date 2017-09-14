@@ -39,7 +39,9 @@ public:
   };
 
   /// Constructor
-  RandomNumbersAlgorithm(const Config& cnf);
+  RandomNumbersAlgorithm(
+    const Config& cnf, 
+    Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execode method
   FW::ProcessCode

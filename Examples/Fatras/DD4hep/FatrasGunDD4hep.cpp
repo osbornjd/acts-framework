@@ -3,80 +3,88 @@
 
 #include <cstdlib>
 #include <iostream>
-
+#include <boost/program_options.hpp>
 #include <ACTS/Detector/TrackingGeometry.hpp>
 #include <ACTS/Utilities/Units.hpp>
-
-#include "ACTFW/Fatras/ParticleGun.hpp"
+#include "ACTFW/ParticleGun/ParticleGun.hpp"
+#include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
+#include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/Framework/StandardOptions.hpp"
+#include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
-
+#include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
 #include "FatrasCommon.hpp"
+
+namespace po = boost::program_options;
 
 int
 main(int argc, char* argv[])
 {
   using namespace Acts::units;
 
-  size_t               nEvents = 1;
   std::string          detectorPath;
   std::string          outputDir = ".";
-  Acts::Logging::Level logLevel  = Acts::Logging::INFO;
-
-  if (1 < argc) {
-    detectorPath = argv[1];
-  } else {
-    detectorPath
-        = "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml";
+  // Declare the supported program options.
+  po::options_description desc("Allowed options");
+  // add the standard options
+  FW::Options::addStandardOptions<po::options_description>(desc,1,2);
+  // add the bfield options
+  FW::Options::addBFieldOptions<po::options_description>(desc);          
+  // add the particle gun options
+  FW::Options::addParticleGunOptions<po::options_description>(desc);     
+  // add the random number options
+  FW::Options::addRandomNumbersOptions<po::options_description>(desc);  
+  // add the detector options
+  FW::Options::addDD4hepOptions<po::options_description>(desc);               
+  // map to store the given program options
+  po::variables_map vm;
+  // Get all options from contain line and store it into the map
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+  // print help if requested
+  if (vm.count("help")) {
+    std::cout << desc << std::endl;
+    return 1;
   }
-  std::cout << "Creating detector from '" << detectorPath << "'" << std::endl;
-
-  // the barcodes service
+  // now read the standard options
+  auto standardOptions 
+    = FW::Options::readStandardOptions<po::variables_map>(vm);
+  auto nEvents = standardOptions.first;
+  auto logLevel = standardOptions.second;
+  // create BField service
+  auto bField = FW::Options::readBField<po::variables_map>(vm);
+  // read and create  ParticleGunConfig
+  auto particleGunConfig 
+    = FW::Options::readParticleGunConfig<po::variables_map>(vm);
+  // Create The barcodes service
   auto barcodes = std::make_shared<FW::BarcodeSvc>(
       FW::BarcodeSvc::Config{}, Acts::getDefaultLogger("BarcodeSvc", logLevel));
-
-  // random numbers
-  FW::RandomNumbersSvc::Config brConfig;
-  brConfig.seed = 1234567890;
-  auto random   = std::make_shared<FW::RandomNumbersSvc>(brConfig);
-
-  // particle gun as generator
-  FW::ParticleGun::Config particleGunConfig;
-  particleGunConfig.particlesCollection = "Particles";
-  particleGunConfig.nParticles          = 100;
-  particleGunConfig.d0Range             = {{0, 1 * _mm}};
-  particleGunConfig.phiRange            = {{-M_PI, M_PI}};
-  particleGunConfig.etaRange            = {{-4., 4.}};
-  particleGunConfig.ptRange             = {{100 * _MeV, 100 * _GeV}};
-  particleGunConfig.mass                = 105 * _MeV;
-  particleGunConfig.charge              = -1 * _e;
-  particleGunConfig.pID                 = 13;
-  particleGunConfig.randomNumbers       = random;
+  // Create the random number engine
+  auto randomNumbersConfig =
+    FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
+  auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersConfig);
+  particleGunConfig.randomNumbers       = randomNumbers;
   particleGunConfig.barcodes            = barcodes;
   auto particleGun
       = std::make_shared<FW::ParticleGun>(particleGunConfig, logLevel);
-
-  // geometry from dd4hep
-  FW::DD4hep::GeometryService::Config gsConfig("GeometryService", logLevel);
-  gsConfig.xmlFileName              = detectorPath;
-  gsConfig.bTypePhi                 = Acts::equidistant;
-  gsConfig.bTypeR                   = Acts::equidistant;
-  gsConfig.bTypeZ                   = Acts::equidistant;
-  gsConfig.envelopeR                = 0.;
-  gsConfig.envelopeZ                = 0.;
-  gsConfig.buildDigitizationModules = false;
-  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(gsConfig);
-  std::shared_ptr<const Acts::TrackingGeometry> geom
+  // read the detector config & dd4hep detector
+  auto dd4HepDetectorConfig
+     =  FW::Options::readDD4hepConfig<po::variables_map>(vm);
+  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(dd4HepDetectorConfig);
+  std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
       = geometrySvc->trackingGeometry();
-
+  
   // setup event loop
   FW::Sequencer sequencer({});
   if (sequencer.prependEventAlgorithms({particleGun})
       != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
-  if (setupSimulation(sequencer, geom, random) != FW::ProcessCode::SUCCESS)
-    return EXIT_FAILURE;
-  if (setupWriters(sequencer, barcodes, outputDir) != FW::ProcessCode::SUCCESS)
-    return EXIT_FAILURE;
+  if (bField.first && setupSimulation(sequencer, dd4tGeometry, randomNumbers, bField.first, logLevel) 
+    != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
+  else if (setupSimulation(sequencer, dd4tGeometry, randomNumbers, bField.second, logLevel) 
+    != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
+  if (setupWriters(sequencer, barcodes, outputDir, logLevel) 
+    != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
   if (sequencer.run(nEvents) != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;
 
   return EXIT_SUCCESS;

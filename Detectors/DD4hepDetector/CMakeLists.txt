@@ -8,7 +8,7 @@ target_link_libraries(ACTFWDD4hepDetector PRIVATE ACTFramework)
 target_link_libraries(ACTFWDD4hepDetector PUBLIC ACTS::ACTSCore ACTS::ACTSDD4hepPlugin)
 target_link_libraries(ACTFWDD4hepDetector PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ACTFWDD4hepDetector PUBLIC ${DD4hep_LIBRARIES})
-
+ 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
 set_target_properties(ACTFWDD4hepDetector PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 dd4hep_set_version(ACTFWDD4hepDetector MAJOR 1 MINOR 0 PATCH 0)

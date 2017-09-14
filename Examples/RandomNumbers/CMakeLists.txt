@@ -1,7 +1,10 @@
 file (GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
 
 add_executable(ACTFWRandomNumberExample ${src_files})
+target_include_directories(ACTFWRandomNumberExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWRandomNumberExample PRIVATE ACTFramework)
 target_link_libraries(ACTFWRandomNumberExample PUBLIC ACTS::ACTSCore)
+target_link_libraries(ACTFWRandomNumberExample PRIVATE ${Boost_LIBRARIES})
+
 
 install(TARGETS ACTFWRandomNumberExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

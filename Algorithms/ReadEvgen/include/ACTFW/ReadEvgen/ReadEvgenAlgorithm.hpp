@@ -34,13 +34,13 @@ public:
   struct Config
   {
     /// the hard scatter reader
-    std::shared_ptr<IReaderT<std::vector<Acts::ParticleProperties>>>
-        hardscatterParticleReader = nullptr;
+    std::shared_ptr<IReaderT<std::vector<Acts::ProcessVertex>>>
+        hardscatterEventReader = nullptr;
     /// the pileup reader
-    std::shared_ptr<IReaderT<std::vector<Acts::ParticleProperties>>>
-        pileupParticleReader = nullptr;
+    std::shared_ptr<IReaderT<std::vector<Acts::ProcessVertex>>>
+        pileupEventReader = nullptr;
     /// name of the output collection
-    std::string particlesCollection = "EvgenParticles";
+    std::string evgenCollection = "EvgenParticles";
     /// the Poisson parameter for pileup generation
     int pileupPoissonParameter = 40;
     /// the Gaussian parameters for transverse and axial vertex generation
@@ -73,6 +73,7 @@ public:
   finalize() final;
 
   /// Skip a few events in the IO stream
+  /// @param [in] nEvents is the number of skipped events
   FW::ProcessCode
   skip(size_t nEvents) final;
 

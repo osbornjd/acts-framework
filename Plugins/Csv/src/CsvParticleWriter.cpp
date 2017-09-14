@@ -12,7 +12,7 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
 FW::ProcessCode
 FW::Csv::CsvParticleWriter::writeT(
     const FW::AlgorithmContext&                  ctx,
-    const std::vector<Acts::ParticleProperties>& particles)
+    const std::vector<Acts::ProcessVertex>& vertices)
 {
   std::string path
       = perEventFilepath(m_cfg.outputDir, "particles.csv", ctx.eventNumber);
@@ -29,15 +29,18 @@ FW::Csv::CsvParticleWriter::writeT(
 
   // write one line per particle
   os << std::setprecision(m_cfg.outputPrecision);
-  for (auto& particle : particles) {
-    os << particle.barcode() << ",";
-    os << particle.vertex().x() << ",";
-    os << particle.vertex().y() << ",";
-    os << particle.vertex().z() << ",";
-    os << particle.momentum().x() << ",";
-    os << particle.momentum().y() << ",";
-    os << particle.momentum().z() << ",";
-    os << particle.charge() << '\n';
+  for (auto& vertex: vertices){
+    auto& vtx = vertex.position();
+    for (auto& particle : vertex.outgoingParticles()) {
+      os << particle.barcode() << ",";
+      os << vtx.x() << ",";
+      os << vtx.y() << ",";
+      os << vtx.z() << ",";
+      os << particle.momentum().x() << ",";
+      os << particle.momentum().y() << ",";
+      os << particle.momentum().z() << ",";
+      os << particle.charge() << '\n';
+    }
   }
   return ProcessCode::SUCCESS;
 }

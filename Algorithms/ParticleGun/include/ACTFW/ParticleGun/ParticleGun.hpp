@@ -7,6 +7,8 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
+using range = std::array<double, 2>;
+
 namespace FW {
 
 class BarcodeSvc;
@@ -26,20 +28,20 @@ public:
   struct Config
   {
     /// output collection for generated particles
-    std::string particlesCollection;
+    std::string evgenCollection;
     /// number of particles
     size_t nParticles = 0;
     /// low, high for d0 range
-    std::array<double, 2> d0Range = {{0, 1 * Acts::units::_mm}};
+    range d0Range = {{0., 1 * Acts::units::_mm}};
     /// low, high for z0 range
-    std::array<double, 2> z0Range
+    range z0Range
         = {{-100 * Acts::units::_mm, 100 * Acts::units::_mm}};
     /// low, high for phi range
-    std::array<double, 2> phiRange = {{-M_PI, M_PI}};
+    range phiRange = {{-M_PI, M_PI}};
     /// low, high for eta range
-    std::array<double, 2> etaRange = {{-3., 3.}};
+    range etaRange = {{-3., 3.}};
     /// low, high for pt range
-    std::array<double, 2> ptRange
+    range ptRange
         = {{100 * Acts::units::_MeV, 10 * Acts::units::_GeV}};
     /// the mass of the particle
     double mass = 0.;
@@ -47,6 +49,8 @@ public:
     double charge = 0.;
     /// the pdg type of the particle
     pdg_type pID = 0.;
+    // randomize the charge (indicates PID flip)
+    bool randomCharge = false;
     // FW random number service
     std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     std::shared_ptr<FW::BarcodeSvc> barcodes = nullptr;

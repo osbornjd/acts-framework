@@ -35,7 +35,7 @@ FW::Root::RootPlanarClusterWriter::initialize()
   m_outputTree->Branch("g_y",           &m_y);          
   m_outputTree->Branch("g_z",           &m_z);          
   m_outputTree->Branch("l_x",           &m_lx);         
-  m_outputTree->Branch("l_y",           &m_lx);         
+  m_outputTree->Branch("l_y",           &m_ly);         
   m_outputTree->Branch("cov_l_x",       &m_cov_lx);      
   m_outputTree->Branch("cov_l_y",       &m_cov_ly);      
   m_outputTree->Branch("cell_ID_x",     &m_cell_IDx);    
@@ -121,18 +121,24 @@ FW::Root::RootPlanarClusterWriter::writeT(
               m_cell_ly.push_back(cellLocalPosition.y());
             }
           }
-          // the truth parameters - @todo update to new truth structure   
-          // m_g_t;            
-          // m_gty;            
-          // m_gtz;            
-          // m_g_lx;            
-          // m_g_ly;            
-          // m_barcode;        
-          // each hit can have multiple particles, e.g. in a dense environment
-          for (auto& barcode : cluster.barcodes()) {
-            m_t_barcode.push_back(barcode);
+          // get the truth parameters
+          for (auto& tvertex : cluster.truthVertices()){
+            auto& tposition = tvertex.position();
+            for (auto& tparticle : tvertex.incomingParticles()){
+              // truth global position
+              m_t_gx.push_back(tposition.x());            
+              m_t_gy.push_back(tposition.y());            
+              m_t_gz.push_back(tposition.z());
+              // local position
+              auto& tmomentum = tparticle.momentum();
+              Acts::Vector2D lposition;
+              clusterSurface.globalToLocal(tposition,tmomentum,lposition);
+              m_t_lx.push_back(lposition.x());            
+              m_t_ly.push_back(lposition.y());            
+              m_t_barcode.push_back(tparticle.barcode());              
+            }
           }
-          // one per cluster
+          // fill the tree 
           m_outputTree->Fill();
           // now reset 
           m_cell_IDx.clear();        
