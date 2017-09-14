@@ -28,7 +28,7 @@ namespace Options {
       ("bf-map",
        po::value<std::string>()->default_value(""),
        "Set this string to point to the bfield source file."
-       "That can either be a '.txt', a '.cvs' or a '.root' file. "
+       "That can either be a '.txt', a '.csv' or a '.root' file. "
        "Omit for a constant magnetic field.")
       ("bf-name",
        po::value<std::string>()->default_value("bField"),
@@ -36,7 +36,8 @@ namespace Options {
        "name of the TTree.")
       ("bf-gridpoints",
        po::value<size_t>()->default_value(100000),
-       "Estimate of number of grid points, needed for allocation.")
+       "Estimate of number of grid points, "
+       "needed for allocation, only for txt and csv files.")
       ("bf-lscalor",
        po::value<double>()->default_value(1.),
        "The default unit for the grid "

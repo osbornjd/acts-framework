@@ -38,7 +38,7 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
                                  << evgen->size()
                                  << " vertices");
 
-  // output: simulated particles attached to theiur process vertices 
+  // output: simulated particles attached to their process vertices 
   std::vector<Acts::ProcessVertex> simulated;
   // output: the extrapolation cell collections 
   std::vector< Acts::ExtrapolationCell< Acts::TrackParameters > > cCells;

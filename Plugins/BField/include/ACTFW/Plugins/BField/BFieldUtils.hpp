@@ -42,7 +42,7 @@ namespace BField {
     /// @note This information is only used as a hint for the required size of
     ///       the internal vectors. A correct value is not needed, but will help
     ///       to speed up the field map initialization process.
-    /// @param[in] firstQuadrant Flag if set to true indicating that only the
+    /// @param[in] firstOctant Flag if set to true indicating that only the
     /// first
     /// quadrant of the grid points and the BField values has been given and
     /// that
