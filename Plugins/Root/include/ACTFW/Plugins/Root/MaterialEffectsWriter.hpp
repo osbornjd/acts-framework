@@ -7,14 +7,12 @@
 #ifndef ACTFW_PLUGINS_MATERIALEFFECTSWRITER_H
 #define ACTFW_PLUGINS_MATERIALEFFECTSWRITER_H 1
 
-#include <mutex>
-
 #include <TTree.h>
-
+#include <mutex>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
+#include "ACTFW/Framework/WriterT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -30,11 +28,19 @@ namespace Root {
   /// writing out the displacement and the difference of the momentum and
   /// energy.
   ///
-  class MaterialEffectsWriter
-      : public FW::IWriterT<std::pair<Acts::ParticleProperties,
-                                      Acts::ParticleProperties>>
+  class MaterialEffectsWriter final
+      : public FW::
+            WriterT<std::vector<std::pair<std::pair<Acts::ParticleProperties,
+                                                    Acts::Vector3D>,
+                                          std::pair<Acts::ParticleProperties,
+                                                    Acts::Vector3D>>>>
   {
   public:
+    using Base
+        = WriterT<std::vector<std::pair<std::pair<Acts::ParticleProperties,
+                                                  Acts::Vector3D>,
+                                        std::pair<Acts::ParticleProperties,
+                                                  Acts::Vector3D>>>>;
     // @class Config
     //
     // The nested config class
@@ -44,18 +50,21 @@ namespace Root {
       /// The name of the output tree
       std::string treeName = "TTree";
       /// The name of the output file
-      std::string fileName = "TFile.root";
+      std::string filePath = "TFile.root";
       /// The mode of the file
       std::string fileMode = "RECREATE";
+      /// Particle collection to write
+      std::string collection;
     };
 
     /// Constructor
     ///
     /// @param cfg is the configuration class
-    MaterialEffectsWriter(const Config& cfg);
+    MaterialEffectsWriter(const Config&        cfg,
+                          Acts::Logging::Level level = Acts::Logging::INFO);
 
     /// Destructor
-    virtual ~MaterialEffectsWriter();
+    virtual ~MaterialEffectsWriter() = default;
 
     /// Framework intialize method
     FW::ProcessCode
@@ -69,14 +78,12 @@ namespace Root {
     /// @param pProperties is the vector of pairs of particle properties to be
     /// compared
     FW::ProcessCode
-    write(const std::pair<Acts::ParticleProperties, Acts::ParticleProperties>&
-              pProperties) override final;
-
-    /// write a bit of string
-    /// @param sinfo is some string info to be written
-    /// @return is a ProcessCode indicating return/failure
-    FW::ProcessCode
-    write(const std::string& sinfo) override final;
+    writeT(const AlgorithmContext& ctx,
+           const std::vector<std::pair<std::pair<Acts::ParticleProperties,
+                                                 Acts::Vector3D>,
+                                       std::pair<Acts::ParticleProperties,
+                                                 Acts::Vector3D>>>& pProperties)
+        override final;
 
   private:
     /// The config class
@@ -88,29 +95,29 @@ namespace Root {
     // This is the main tree for outputting
     TTree* m_outputTree;
     /// The radial position of the first particle properties
-    float m_r0;
+    std::vector<float> m_r0;
     /// The radial position of the second particle properties
-    float m_r1;
+    std::vector<float> m_r1;
     /// The transverse momentum of the first particle properties
-    float m_pt0;
+    std::vector<float> m_pt0;
     /// The transverse momentum of the second particle properties
-    float m_pt1;
+    std::vector<float> m_pt1;
     /// The displacement in x
-    float m_dx;
+    std::vector<float> m_dx;
     /// The displacement in y
-    float m_dy;
+    std::vector<float> m_dy;
     /// The displacment in z
-    float m_dz;
+    std::vector<float> m_dz;
     /// The radial displacement
-    float m_dr;
+    std::vector<float> m_dr;
     /// The difference of the x components of the momentum
-    float m_dPx;
+    std::vector<float> m_dPx;
     // The difference of the y components of the momentum
-    float m_dPy;
+    std::vector<float> m_dPy;
     // The difference of the z components of the momentum
-    float m_dPz;
+    std::vector<float> m_dPz;
     // The difference of the transverse momenta
-    float m_dPt;
+    std::vector<float> m_dPt;
   };
 }  // end of namespace Root
 }  // end of namespace Root

@@ -3,16 +3,12 @@
 #include <iostream>
 
 FW::Root::MaterialEffectsWriter::MaterialEffectsWriter(
-    const FW::Root::MaterialEffectsWriter::Config& cfg)
-  : FW::IWriterT<std::pair<Acts::ParticleProperties,
-                           Acts::ParticleProperties>>()
+    const FW::Root::MaterialEffectsWriter::Config& cfg,
+    Acts::Logging::Level                           level)
+  : Base(cfg.collection, "MaterialEffectsWriter", level)
   , m_cfg(cfg)
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
-{
-}
-
-FW::Root::MaterialEffectsWriter::~MaterialEffectsWriter()
 {
 }
 
@@ -20,8 +16,18 @@ FW::ProcessCode
 FW::Root::MaterialEffectsWriter::initialize()
 {
   // open the output file
-  m_outputFile = new TFile(m_cfg.fileName.c_str(), m_cfg.fileMode.c_str());
+  m_outputFile = new TFile(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+  if (!m_outputFile) {
+    ACTS_ERROR("Could not open ROOT file'" << m_cfg.filePath << "' to write");
+    return ProcessCode::ABORT;
+  }
+  m_outputFile->cd();
   m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
+  // we can not write anything w/o a tree
+  if (!m_outputTree) {
+    ACTS_WARNING("No output tree available");
+    return ProcessCode::SUCCESS;
+  }
 
   m_outputTree->Branch("r0", &m_r0);
   m_outputTree->Branch("r1", &m_r1);
@@ -52,43 +58,52 @@ FW::Root::MaterialEffectsWriter::finalize()
 }
 
 FW::ProcessCode
-FW::Root::MaterialEffectsWriter::write(
-    const std::pair<Acts::ParticleProperties, Acts::ParticleProperties>&
-        pProperties)
+FW::Root::MaterialEffectsWriter::writeT(
+    const AlgorithmContext& ctx,
+    const std::
+        vector<std::pair<std::pair<Acts::ParticleProperties, Acts::Vector3D>,
+                         std::pair<Acts::ParticleProperties, Acts::Vector3D>>>&
+            pProperties)
 {
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
 
-  // initial parameters
-  if (!m_outputTree) std::cout << "!Tree" << std::endl;
+  m_r0.clear();
+  m_r1.clear();
+  m_pt0.clear();
+  m_pt1.clear();
+  m_dx.clear();
+  m_dy.clear();
+  m_dz.clear();
+  m_dr.clear();
+  m_dPx.clear();
+  m_dPy.clear();
+  m_dPz.clear();
+  m_dPt.clear();
 
-  m_r0 = pProperties.first.vertex().perp();
-  m_r1 = pProperties.second.vertex().perp();
+  // loop over the collection
+  for (auto& prop : pProperties) {
+    m_r0.push_back(prop.first.second.perp());
+    m_r1.push_back(prop.second.second.perp());
 
-  m_pt0 = pProperties.first.momentum().perp();
-  m_pt1 = pProperties.second.momentum().perp();
+    m_pt0.push_back(prop.first.first.momentum().perp());
+    m_pt1.push_back(prop.second.first.momentum().perp());
 
-  m_dx = fabs(pProperties.first.vertex().x() - pProperties.second.vertex().x());
-  m_dy = fabs(pProperties.first.vertex().y() - pProperties.second.vertex().y());
-  m_dz = fabs(pProperties.first.vertex().z() - pProperties.second.vertex().z());
-  m_dr = fabs(m_r0 - m_r1);
+    m_dx.push_back(fabs(prop.first.second.x() - prop.second.second.x()));
+    m_dy.push_back(fabs(prop.first.second.y() - prop.second.second.y()));
+    m_dz.push_back(fabs(prop.first.second.z() - prop.second.second.z()));
+    m_dr.push_back(fabs(prop.first.second.perp() - prop.second.second.perp()));
 
-  m_dPx = fabs(pProperties.first.momentum().x()
-               - pProperties.second.momentum().x());
-  m_dPy = fabs(pProperties.first.momentum().y()
-               - pProperties.second.momentum().y());
-  m_dPz = fabs(pProperties.first.momentum().z()
-               - pProperties.second.momentum().z());
-  m_dPt = fabs(pProperties.first.momentum().perp()
-               - pProperties.second.momentum().perp());
-
+    m_dPx.push_back(fabs(prop.first.first.momentum().x()
+                         - prop.second.first.momentum().x()));
+    m_dPy.push_back(fabs(prop.first.first.momentum().y()
+                         - prop.second.first.momentum().y()));
+    m_dPz.push_back(fabs(prop.first.first.momentum().z()
+                         - prop.second.first.momentum().z()));
+    m_dPt.push_back(fabs(prop.first.first.momentum().perp()
+                         - prop.second.first.momentum().perp()));
+  }
   m_outputTree->Fill();
 
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Root::MaterialEffectsWriter::write(const std::string&)
-{
   return FW::ProcessCode::SUCCESS;
 }
