@@ -51,9 +51,10 @@ namespace G4 {
 
     /// @return A vector of all corresponding first and last
     /// Acts::ParticleProperties of this run
-    const std::vector<std::pair<Acts::ParticleProperties,
-                                Acts::ParticleProperties>>&
-    firstAndLastProperties()
+    const std::
+        vector<std::pair<std::pair<Acts::ParticleProperties, Acts::Vector3D>,
+                         std::pair<Acts::ParticleProperties, Acts::Vector3D>>>&
+        firstAndLastProperties()
     {
       return m_particleProperties;
     }
@@ -62,7 +63,8 @@ namespace G4 {
     /// Instance of the FVRunAction
     static FVRunAction* fgInstance;
     /// To collect the first and last particle properties
-    std::vector<std::pair<Acts::ParticleProperties, Acts::ParticleProperties>>
+    std::vector<std::pair<std::pair<Acts::ParticleProperties, Acts::Vector3D>,
+                          std::pair<Acts::ParticleProperties, Acts::Vector3D>>>
         m_particleProperties;
   };
 }  // end of namespace G4

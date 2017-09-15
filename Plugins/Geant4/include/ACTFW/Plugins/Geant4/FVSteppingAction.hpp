@@ -45,7 +45,7 @@ namespace G4 {
     Reset();
 
     /// @return The Acts::ParticleProperties at the given radial step limit
-    const Acts::ParticleProperties&
+    const std::pair<Acts::ParticleProperties, Acts::Vector3D>&
     particleAtStepLimit()
     {
       return m_particleAtStepLimit;
@@ -57,7 +57,7 @@ namespace G4 {
     /// The step Limit
     double m_radialStepLimit;
     /// The collected steps
-    Acts::ParticleProperties m_particleAtStepLimit;
+    std::pair<Acts::ParticleProperties, Acts::Vector3D> m_particleAtStepLimit;
     ///  Flag indicating if step limit was reached
     bool m_reachedStepLimit;
   };
