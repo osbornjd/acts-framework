@@ -36,9 +36,9 @@ void
 FW::G4::FVEventAction::EndOfEventAction(const G4Event* event)
 {
   // store particle properties of last and first particle
-  Acts::ParticleProperties lastProperties
+  auto lastProperties
       = FW::G4::FVSteppingAction::Instance()->particleAtStepLimit();
-  Acts::ParticleProperties primaryProperties
+  auto primaryProperties
       = FW::G4::PrimaryGeneratorAction::Instance()->primaryParticleProperties();
   m_particles.push_back(std::make_pair(primaryProperties, lastProperties));
   FW::G4::FVSteppingAction::Instance()->Reset();

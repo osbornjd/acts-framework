@@ -6,6 +6,7 @@
 #define ACTFW_PLUGINS_GEANT4_PRIMARYGENERATORACTION_H
 
 #include <array>
+#include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Utilities/Units.hpp"
 #include "G4SystemOfUnits.hh"
 #include "G4ThreeVector.hh"
@@ -85,7 +86,7 @@ namespace G4 {
     }
 
     /// Access method to primary particle properties
-    Acts::ParticleProperties
+    const std::pair<Acts::ParticleProperties, Acts::Vector3D>&
     primaryParticleProperties() const;
 
   private:

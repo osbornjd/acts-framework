@@ -16,8 +16,9 @@ FW::G4::FVSteppingAction::Instance()
 FW::G4::FVSteppingAction::FVSteppingAction(double radialStepLimit)
   : G4UserSteppingAction()
   , m_radialStepLimit(radialStepLimit)
-  , m_particleAtStepLimit(Acts::ParticleProperties(Acts::Vector3D(0., 0., 0.),
-                                                   Acts::Vector3D(0., 0., 0.)))
+  , m_particleAtStepLimit(
+        std::make_pair(Acts::ParticleProperties(Acts::Vector3D(0., 0., 0.)),
+                       Acts::Vector3D(0., 0., 0.)))
   , m_reachedStepLimit(false)
 {
   fgInstance = this;
@@ -34,9 +35,9 @@ FW::G4::FVSteppingAction::UserSteppingAction(const G4Step* step)
   // Get the first step reaching the step limit
   if (step->GetPostStepPoint()->GetPosition().r() >= m_radialStepLimit
       && !m_reachedStepLimit) {
-    Acts::Vector3D vertex(step->GetPostStepPoint()->GetPosition().x(),
-                          step->GetPostStepPoint()->GetPosition().y(),
-                          step->GetPostStepPoint()->GetPosition().z());
+    Acts::Vector3D position(step->GetPostStepPoint()->GetPosition().x(),
+                            step->GetPostStepPoint()->GetPosition().y(),
+                            step->GetPostStepPoint()->GetPosition().z());
     Acts::Vector3D momentum(step->GetPostStepPoint()->GetMomentum().x(),
                             step->GetPostStepPoint()->GetMomentum().y(),
                             step->GetPostStepPoint()->GetMomentum().z());
@@ -46,15 +47,16 @@ FW::G4::FVSteppingAction::UserSteppingAction(const G4Step* step)
 
     m_reachedStepLimit = true;
 
-    m_particleAtStepLimit
-        = Acts::ParticleProperties(vertex, momentum, mass, charge, 0., 0);
+    m_particleAtStepLimit = std::make_pair(
+        Acts::ParticleProperties(momentum, mass, charge), position);
   }
 }
 
 void
 FW::G4::FVSteppingAction::Reset()
 {
-  m_particleAtStepLimit = Acts::ParticleProperties(Acts::Vector3D(0., 0., 0.),
-                                                   Acts::Vector3D(0., 0., 0.));
+  m_particleAtStepLimit
+      = std::make_pair(Acts::ParticleProperties(Acts::Vector3D(0., 0., 0.)),
+                       Acts::Vector3D(0., 0., 0.));
   m_reachedStepLimit = false;
 }

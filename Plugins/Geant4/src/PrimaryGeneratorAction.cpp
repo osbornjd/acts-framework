@@ -45,10 +45,10 @@ FW::G4::PrimaryGeneratorAction::Instance()
   return fgInstance;
 }
 
-Acts::ParticleProperties
+const std::pair<Acts::ParticleProperties, Acts::Vector3D>&
 FW::G4::PrimaryGeneratorAction::primaryParticleProperties() const
 {
-  Acts::Vector3D vertex(m_position.x(), m_position.y(), m_position.z());
+  Acts::Vector3D position(m_position.x(), m_position.y(), m_position.z());
 
   G4ThreeVector g4momentum = m_particleGun->GetParticleMomentum()
       * m_particleGun->GetParticleMomentumDirection();
@@ -56,11 +56,11 @@ FW::G4::PrimaryGeneratorAction::primaryParticleProperties() const
 
   double mass   = m_particle->GetPDGMass();
   double charge = m_particle->GetPDGCharge();
-
   /// @todo translate particle type and barcode from ParticleDefition in
   /// geant4
   ///
-  return Acts::ParticleProperties(vertex, momentum, mass, charge, 0., 0);
+  return std::make_pair(Acts::ParticleProperties(momentum, mass, charge),
+                        position);
 }
 
 void
