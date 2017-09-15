@@ -187,9 +187,10 @@ FW::G4::G4EmStandardPhysics::ConstructProcess()
   G4double highEnergyLimit = 100 * MeV;
 
   // Add standard EM Processes
-  aParticleIterator->reset();
-  while ((*aParticleIterator)()) {
-    G4ParticleDefinition* particle     = aParticleIterator->value();
+  auto myParticleIterator = GetParticleIterator();
+  myParticleIterator->reset();
+  while ((*myParticleIterator)()) {
+    G4ParticleDefinition* particle     = myParticleIterator->value();
     G4String              particleName = particle->GetParticleName();
     std::cout << "ParticleName: " << particleName << std::endl;
 
