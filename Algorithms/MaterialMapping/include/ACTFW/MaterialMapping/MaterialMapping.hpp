@@ -26,7 +26,7 @@ namespace Acts {
 class TrackingGeometry;
 }
 
-namespace FWA {
+namespace FW {
 
 /// @class MaterialMapping
 ///
@@ -67,9 +67,6 @@ public:
   MaterialMapping(const Config&        cfg,
                   Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Destructor
-  ~MaterialMapping();
-
   /// Framework execute method
   FW::ProcessCode
   execute(FW::AlgorithmContext context) const final;
@@ -78,6 +75,6 @@ private:
   Config m_cfg;
 };
 
-}  // namespace FWA
+}  // namespace FW
 
 #endif  // ACTFW_ALGORITHMS_MATERIALMAPPING_MATERIALMAPPING_H

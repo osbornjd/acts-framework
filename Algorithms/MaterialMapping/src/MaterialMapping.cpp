@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <stdexcept>
 
 #include <TTree.h>
 
@@ -10,24 +11,26 @@
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "ACTS/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
 
-FWA::MaterialMapping::MaterialMapping(const FWA::MaterialMapping::Config& cnf,
-                                      Acts::Logging::Level                level)
+FW::MaterialMapping::MaterialMapping(const FW::MaterialMapping::Config& cnf,
+                                     Acts::Logging::Level                level)
   : FW::BareAlgorithm("MaterialMapping", level), m_cfg(cnf)
 {
-}
-
-FWA::MaterialMapping::~MaterialMapping()
-{
+  if (!m_cfg.materialTrackReader) {
+    throw std::invalid_argument("No material track reader given");
+  } else if (!m_cfg.materialMapper) {
+    throw std::invalid_argument("No material mapper given");
+  } else if (!m_cfg.materialTrackWriter) {
+    throw std::invalid_argument("No material track writer given");
+  } else if (!m_cfg.indexedMaterialWriter) {
+    throw std::invalid_argument("No indexed material writer given");
+  } else if (!m_cfg.trackingGeometry) {
+    throw std::invalid_argument("No tracking geometry given");
+  }
 }
 
 FW::ProcessCode
-    FWA::MaterialMapping::execute(FW::AlgorithmContext /*context*/) const
+    FW::MaterialMapping::execute(FW::AlgorithmContext /*context*/) const
 {
-  if (!m_cfg.materialMapper || !m_cfg.trackingGeometry) {
-    ACTS_INFO("MaterialMapper or TrackingGeometry not available. Aborting.");
-    return FW::ProcessCode::ABORT;
-  }
-
   // retrive a cache object
   Acts::MaterialMapper::Cache mCache
       = m_cfg.materialMapper->materialMappingCache(*m_cfg.trackingGeometry);
@@ -49,10 +52,9 @@ FW::ProcessCode
     // perform the mapping
     auto mappedTrack
         = m_cfg.materialMapper->mapMaterialTrack(mCache, inputTrack);
-    if (m_cfg.materialTrackWriter) {
-      // write out the material for validation purpose
-      m_cfg.materialTrackWriter->write(mappedTrack);
-    }
+
+    // write out the material for validation purpose
+    m_cfg.materialTrackWriter->write(mappedTrack);
 
     // break if configured
     if (m_cfg.maximumTrackRecords > 0 && itc > m_cfg.maximumTrackRecords) {
@@ -65,15 +67,12 @@ FW::ProcessCode
       = m_cfg.materialMapper->createSurfaceMaterial(mCache);
 
   //// write the maps out to a file
-  if (m_cfg.indexedMaterialWriter) {
-    // screen output
-    ACTS_INFO("Writing out the material maps for " << sMaterialMaps.size()
-                                                   << " material surfaces");
-    // loop over the material maps
-    for (auto& sMap : sMaterialMaps) {
-      // write out map by map
-      m_cfg.indexedMaterialWriter->write(sMap);
-    }
+  ACTS_INFO("Writing out the material maps for " << sMaterialMaps.size()
+                                                 << " material surfaces");
+  // loop over the material maps
+  for (auto& sMap : sMaterialMaps) {
+    // write out map by map
+    m_cfg.indexedMaterialWriter->write(sMap);
   }
 
   return FW::ProcessCode::SUCCESS;
