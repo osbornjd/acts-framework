@@ -1,3 +1,6 @@
+#include <ios>
+#include <stdexcept>
+
 template <class T>
 FW::ProcessCode
 FW::Root::RootExCellWriter<T>::writeT(const FW::AlgorithmContext&  ctx,
@@ -156,6 +159,7 @@ FW::Root::RootExCellWriter<T>::RootExCellWriter(
   m_outputFile->cd();
   m_outputTree = new TTree(m_cfg.treeName.c_str(), 
                            "TTree from RootPlanarClusterWriter");
+  if (!m_outputTree) throw std::bad_alloc();
 
   // Initial parameters
   m_outputTree->Branch("eta", &m_eta);
