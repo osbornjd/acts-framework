@@ -71,14 +71,9 @@ public:
   RootExCellWriter(const Config& cfg,
                    Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Destructor
-  virtual ~RootExCellWriter() = default ;
-
+  /// End-of-run hook
   ProcessCode
-  initialize() final;
-
-  ProcessCode
-  finalize() final;
+  endRun() final;
 
 protected:
   /// The protected writeT method, called by the WriterT base
