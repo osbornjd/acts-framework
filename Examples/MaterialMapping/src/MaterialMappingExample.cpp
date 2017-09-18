@@ -87,14 +87,14 @@ main()
   
   // set up the algorithm reading in the material map and mapping the material
   // onto the tracking geometry
-  FWA::MaterialMapping::Config mmConfig;
+  FW::MaterialMapping::Config mmConfig;
   mmConfig.materialTrackReader    = mtrReader;
   mmConfig.materialTrackWriter    = mtrWriter;
   mmConfig.materialMapper         = mtrMapper;
   mmConfig.indexedMaterialWriter  = imaterialWriter;
   mmConfig.trackingGeometry       = tGeometry;
   mmConfig.maximumTrackRecords    = 10000;
-  auto materialMappingAlg = std::make_shared<FWA::MaterialMapping>(
+  auto materialMappingAlg = std::make_shared<FW::MaterialMapping>(
       mmConfig, Acts::Logging::INFO);
   
   // --------------------------------------------------------------------------------

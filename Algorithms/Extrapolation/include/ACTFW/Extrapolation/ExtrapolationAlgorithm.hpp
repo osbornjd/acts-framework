@@ -37,21 +37,17 @@ class ExtrapolationAlgorithm : public BareAlgorithm
 public:
   struct Config
   {
-    /// FW random number service
-    std::shared_ptr<RandomNumbersSvc> randomNumbers = nullptr;
     /// the extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
-    /// the tracking geometry
-    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
     /// the particles input collections
     std::string evgenCollection                  = "";
     /// the simulated particles output collection
     std::string simulatedParticlesCollection     = "";
-    /// the simulated hits output collection
+    /// the simulated hits output collection (optional)
     std::string simulatedHitsCollection          = "";
-    /// the simulated charged excell collection
+    /// the simulated charged excell collection (optional)
     std::string simulatedChargedExCellCollection = "";
-    /// the simulated neutral excell collection
+    /// the simulated neutral excell collection (optional)
     std::string simulatedNeutralExCellCollection = "";
     /// the cuts applied in this case
     /// @todo remove later and replace by particle selector

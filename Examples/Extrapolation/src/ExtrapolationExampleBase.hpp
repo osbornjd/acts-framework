@@ -83,7 +83,6 @@ run(size_t nEvents,
   eTestConfig.simulatedHitsCollection           = "SimulatedHits";
   eTestConfig.searchMode                        = 1;
   eTestConfig.extrapolationEngine               = extrapolationEngine;
-  eTestConfig.randomNumbers                     = randomNumbers;
   eTestConfig.collectSensitive                  = true;
   eTestConfig.collectPassive                    = true;
   eTestConfig.collectBoundary                   = true;

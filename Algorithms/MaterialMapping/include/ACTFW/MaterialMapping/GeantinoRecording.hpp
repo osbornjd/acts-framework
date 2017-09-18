@@ -6,7 +6,7 @@
 #define ACTW_ALGORITHMS_MATERIALMAPPING_GEANTINORECORDING_H
 
 #include <memory>
-#include "ACTFW/Framework/IAlgorithm.hpp"
+#include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
@@ -18,7 +18,7 @@ namespace FW {
 class WhiteBoard;
 }
 
-namespace FWA {
+namespace FW {
 
 /// @class GeantinoRecording
 ///
@@ -30,7 +30,7 @@ namespace FWA {
 /// The input for the geant4 geometry can be either provided by a gdml file
 /// or an implementation of the IGeant4Service.
 
-class GeantinoRecording : public FW::IAlgorithm
+class GeantinoRecording : public FW::BareAlgorithm
 {
 public:
   /// @class Config
@@ -54,18 +54,7 @@ public:
 
   /// Constructor
   GeantinoRecording(const Config&        cnf,
-                    std::unique_ptr<const Acts::Logger> logger
-                    = Acts::getDefaultLogger("GeantinoRecording", Acts::Logging::INFO));
-  /// Destructor
-  ~GeantinoRecording();
-  
-  std::string name() const ;
-
-  FW::ProcessCode
-  initialize();
-
-  FW::ProcessCode
-  finalize();
+                    Acts::Logging::Level level = Acts::Logging::INFO);
 
   FW::ProcessCode
   execute(FW::AlgorithmContext context) const final;
@@ -74,14 +63,7 @@ private:
   /// The config object
   Config          m_cfg;
   /// G4 run manager
-  G4RunManager*   m_runManager;
-  std::unique_ptr<const Acts::Logger> m_logger;
-
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_logger;
-  }
+  std::unique_ptr<G4RunManager> m_runManager;
 };
 
 }

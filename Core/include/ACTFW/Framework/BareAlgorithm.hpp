@@ -31,25 +31,16 @@ public:
   /// @level The logging level for this algorithm
   BareAlgorithm(std::string          name,
                 Acts::Logging::Level level = Acts::Logging::INFO);
-  ~BareAlgorithm();
 
   /// Framework name() method
   std::string
   name() const final override;
-
-  /// Framework intialize method
-  ProcessCode
-  initialize() final override;
 
   /// Framework execute method
   ///
   /// This function must be implemented by subclasses.
   virtual ProcessCode
   execute(AlgorithmContext context) const override = 0;
-
-  /// Framework finalize mehtod
-  ProcessCode
-  finalize() final override;
 
 protected:
   const Acts::Logger&

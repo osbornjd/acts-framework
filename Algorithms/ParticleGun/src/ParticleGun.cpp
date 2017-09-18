@@ -1,4 +1,6 @@
 #include <cmath>
+#include <stdexcept>
+
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -10,6 +12,16 @@ FW::ParticleGun::ParticleGun(const FW::ParticleGun::Config& cfg,
                              Acts::Logging::Level           level)
   : FW::BareAlgorithm("ParticleGun", level), m_cfg(cfg)
 {
+  // Check that all mandatory configuration parameters are present
+  if (m_cfg.evgenCollection.empty()) {
+    throw std::invalid_argument("Missing output collection");
+  } else if (!m_cfg.randomNumbers) {
+    throw std::invalid_argument("Missing random numbers service");
+  } else if (!m_cfg.barcodes) {
+    throw std::invalid_argument("Missing barcode service");
+  }
+
+  // Print chosen configuration
   ACTS_DEBUG("Particle gun settings: ");
   ACTS_VERBOSE("- d0  range: " << m_cfg.d0Range[0] 
                                << ", " << m_cfg.d0Range[1]);

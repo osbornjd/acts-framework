@@ -5,24 +5,8 @@ FW::BareAlgorithm::BareAlgorithm(std::string name, Acts::Logging::Level level)
 {
 }
 
-FW::BareAlgorithm::~BareAlgorithm()
-{
-}
-
 std::string
 FW::BareAlgorithm::name() const
 {
   return m_name;
-}
-
-FW::ProcessCode
-FW::BareAlgorithm::initialize()
-{
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::BareAlgorithm::finalize()
-{
-  return ProcessCode::SUCCESS;
 }
