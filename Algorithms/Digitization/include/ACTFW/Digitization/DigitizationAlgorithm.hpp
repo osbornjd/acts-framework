@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include "ACTFW/Framework/IAlgorithm.hpp"
+#include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -22,7 +22,7 @@ namespace FW {
 
 class RandomNumbersSvc;
 
-class DigitizationAlgorithm : public FW::IAlgorithm
+class DigitizationAlgorithm : public FW::BareAlgorithm
 {
 public:
   struct Config
@@ -42,27 +42,11 @@ public:
   DigitizationAlgorithm(const Config&        cnf,
                         Acts::Logging::Level level = Acts::Logging::INFO);
 
-  virtual std::string
-  name() const override final;
-
-  virtual ProcessCode
-  initialize() override final;
-
-  virtual ProcessCode
-  finalize() override final;
-
   FW::ProcessCode
   execute(FW::AlgorithmContext ctx) const override final;
 
 private:
   Config                              m_cfg;
-  std::unique_ptr<const Acts::Logger> m_logger;
-
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_logger;
-  }
 };
 
 }  // namespace FW

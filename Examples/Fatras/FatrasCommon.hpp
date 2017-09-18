@@ -54,6 +54,7 @@ setupSimulation(FW::Sequencer&                                sequencer,
    digConfig.simulatedHitsCollection = eTestConfig.simulatedHitsCollection;
    digConfig.clustersCollection      = "FatrasClusters";
    digConfig.spacePointsCollection   = "FatrasSpacePoints";
+   digConfig.randomNumbers           = random;
    digConfig.planarModuleStepper     = pmStepper;
    auto digitzationAlg 
      = std::make_shared<FW::DigitizationAlgorithm>(digConfig, loglevel);
