@@ -16,21 +16,12 @@ namespace FW {
 class IWriter
 {
 public:
+  /// Virtual destructor
   virtual ~IWriter() {}
 
   /// Provide the name of the reader
   virtual std::string
   name() const = 0;
-
-  /// Initialize the reader, e.g. open files.
-  virtual ProcessCode
-  initialize()
-      = 0;
-
-  /// Finalize the reader, e.g. close files.
-  virtual ProcessCode
-  finalize()
-      = 0;
 
   /// Finish the run (e.g. aggregate statistics, write down output, close files)
   virtual ProcessCode

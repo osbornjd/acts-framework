@@ -57,20 +57,10 @@ public:
                      std::unique_ptr<const Acts::Logger> logger
                      = Acts::getDefaultLogger("ReadEvgenAlgorithm",
                                               Acts::Logging::INFO));
-  /// Virtual destructor
-  virtual ~ReadEvgenAlgorithm() {}
 
   /// Framework name() method
   std::string
   name() const final;
-
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize() final;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() final;
 
   /// Skip a few events in the IO stream
   /// @param [in] nEvents is the number of skipped events

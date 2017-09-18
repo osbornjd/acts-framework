@@ -17,7 +17,7 @@ namespace FW {
 class IAlgorithm
 {
 public:
-  /// Virtual Destructor
+  /// Virtual destructor
   virtual ~IAlgorithm() = default;
 
   /// Framework name() method

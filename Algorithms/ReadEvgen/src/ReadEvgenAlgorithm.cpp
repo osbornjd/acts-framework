@@ -28,18 +28,6 @@ FW::ReadEvgenAlgorithm::name() const
 }
 
 FW::ProcessCode
-FW::ReadEvgenAlgorithm::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::ReadEvgenAlgorithm::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
 FW::ReadEvgenAlgorithm::skip(size_t nEvents)
 {
   // there is a hard scatter evgen reader

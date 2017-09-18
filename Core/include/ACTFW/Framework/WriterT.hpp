@@ -47,12 +47,6 @@ public:
   name() const override final;
   /// No-op default implementation.
   ProcessCode
-  initialize() override;
-  /// No-op default implementation.
-  ProcessCode
-  finalize() override;
-  /// No-op default implementation.
-  ProcessCode
   endRun() override;
   /// Read the object and call the type-specific member function.
   ProcessCode
@@ -102,20 +96,6 @@ inline std::string
 FW::WriterT<T>::name() const
 {
   return m_writerName;
-}
-
-template <typename T>
-inline FW::ProcessCode
-FW::WriterT<T>::initialize()
-{
-  return ProcessCode::SUCCESS;
-}
-
-template <typename T>
-inline FW::ProcessCode
-FW::WriterT<T>::finalize()
-{
-  return ProcessCode::SUCCESS;
 }
 
 template <typename T>
