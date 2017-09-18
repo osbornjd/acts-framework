@@ -33,10 +33,10 @@ public:
   /// configuration struct for this Algorithm
   struct Config
   {
-    /// the hard scatter reader
+    /// the hard scatter reader (optional)
     std::shared_ptr<IReaderT<std::vector<Acts::ProcessVertex>>>
         hardscatterEventReader = nullptr;
-    /// the pileup reader
+    /// the pileup reader (optional)
     std::shared_ptr<IReaderT<std::vector<Acts::ProcessVertex>>>
         pileupEventReader = nullptr;
     /// name of the output collection
@@ -93,6 +93,6 @@ private:
   }
 };
 
-}  // namespace FWA
+}  // namespace FW
 
 #endif  /// ACTFW_EXAMPLES_READEVGENALGORITHM_H
