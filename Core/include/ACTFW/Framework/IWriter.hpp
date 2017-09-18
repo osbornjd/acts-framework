@@ -32,6 +32,11 @@ public:
   finalize()
       = 0;
 
+  /// Finish the run (e.g. aggregate statistics, write down output, close files)
+  virtual ProcessCode
+  endRun()
+      = 0;
+
   /// write data to the output stream
   virtual ProcessCode
   write(const AlgorithmContext& context)

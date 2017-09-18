@@ -51,6 +51,9 @@ public:
   /// No-op default implementation.
   ProcessCode
   finalize() override;
+  /// No-op default implementation.
+  ProcessCode
+  endRun() override;
   /// Read the object and call the type-specific member function.
   ProcessCode
   write(const AlgorithmContext& ctx) override final;
@@ -111,6 +114,13 @@ FW::WriterT<T>::initialize()
 template <typename T>
 inline FW::ProcessCode
 FW::WriterT<T>::finalize()
+{
+  return ProcessCode::SUCCESS;
+}
+
+template <typename T>
+inline FW::ProcessCode
+FW::WriterT<T>::endRun()
 {
   return ProcessCode::SUCCESS;
 }
