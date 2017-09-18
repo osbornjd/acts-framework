@@ -30,6 +30,7 @@ namespace Obj {
   {
   public:
     using Base = WriterT<DetectorData<geo_id_value, T>>;
+
     struct Config
     {
       std::string collection;             ///< which collection to write
@@ -65,6 +66,9 @@ inline FW::Obj::ObjSpacePointWriter<T>::ObjSpacePointWriter(
     Acts::Logging::Level                  level)
   : Base(cfg.collection, "ObjSpacePointWriter", level), m_cfg(cfg)
 {
+  if (m_cfg.collection.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  }
 }
 
 template <typename T>
@@ -78,8 +82,7 @@ FW::Obj::ObjSpacePointWriter<T>::writeT(
       m_cfg.outputDir, "spacepoints.obj", ctx.eventNumber);
   std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
   if (!os) {
-    ACTS_ERROR("Could not open '" << path << "' to write");
-    return ProcessCode::ABORT;
+    throw std::ios_base::failure("Could not open '" + path + "' to write");
   }
 
   os << std::setprecision(m_cfg.outputPrecision);

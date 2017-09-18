@@ -47,10 +47,7 @@ public:
   name() const override final;
   /// No-op default implementation.
   ProcessCode
-  initialize() override;
-  /// No-op default implementation.
-  ProcessCode
-  finalize() override;
+  endRun() override;
   /// Read the object and call the type-specific member function.
   ProcessCode
   write(const AlgorithmContext& ctx) override final;
@@ -87,6 +84,11 @@ FW::WriterT<T>::WriterT(std::string          objectName,
   , m_writerName(std::move(writerName))
   , m_logger(Acts::getDefaultLogger(m_writerName, level))
 {
+  if (m_objectName.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  } else if (m_writerName.empty()) {
+    throw std::invalid_argument("Missing writer name");
+  }
 }
 
 template <typename T>
@@ -98,14 +100,7 @@ FW::WriterT<T>::name() const
 
 template <typename T>
 inline FW::ProcessCode
-FW::WriterT<T>::initialize()
-{
-  return ProcessCode::SUCCESS;
-}
-
-template <typename T>
-inline FW::ProcessCode
-FW::WriterT<T>::finalize()
+FW::WriterT<T>::endRun()
 {
   return ProcessCode::SUCCESS;
 }

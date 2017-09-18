@@ -33,10 +33,10 @@ public:
   /// configuration struct for this Algorithm
   struct Config
   {
-    /// the hard scatter reader
+    /// the hard scatter reader (optional)
     std::shared_ptr<IReaderT<std::vector<Acts::ProcessVertex>>>
         hardscatterEventReader = nullptr;
-    /// the pileup reader
+    /// the pileup reader (optional)
     std::shared_ptr<IReaderT<std::vector<Acts::ProcessVertex>>>
         pileupEventReader = nullptr;
     /// name of the output collection
@@ -57,20 +57,10 @@ public:
                      std::unique_ptr<const Acts::Logger> logger
                      = Acts::getDefaultLogger("ReadEvgenAlgorithm",
                                               Acts::Logging::INFO));
-  /// Virtual destructor
-  virtual ~ReadEvgenAlgorithm() {}
 
   /// Framework name() method
   std::string
   name() const final;
-
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize() final;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() final;
 
   /// Skip a few events in the IO stream
   /// @param [in] nEvents is the number of skipped events
@@ -93,6 +83,6 @@ private:
   }
 };
 
-}  // namespace FWA
+}  // namespace FW
 
 #endif  /// ACTFW_EXAMPLES_READEVGENALGORITHM_H

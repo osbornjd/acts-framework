@@ -16,21 +16,12 @@ namespace FW {
 class IReader
 {
 public:
+  /// Virtual destructor
   virtual ~IReader() {}
 
   /// Provide the name of the reader
   virtual std::string
   name() const = 0;
-
-  /// Initialize the reader, e.g. open files.
-  virtual ProcessCode
-  initialize()
-      = 0;
-
-  /// Finalize the reader, e.g. close files.
-  virtual ProcessCode
-  finalize()
-      = 0;
 
   /// Skip the next n events.
   virtual ProcessCode

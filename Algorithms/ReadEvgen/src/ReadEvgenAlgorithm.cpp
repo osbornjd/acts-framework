@@ -12,24 +12,19 @@ FW::ReadEvgenAlgorithm::ReadEvgenAlgorithm(
     std::unique_ptr<const Acts::Logger> logger)
   : m_cfg(cfg), m_logger(std::move(logger))
 {
+  if (m_cfg.evgenCollection.empty()) {
+    throw std::invalid_argument("Missing output collection");
+  } else if (!m_cfg.barcodeSvc) {
+    throw std::invalid_argument("Missing barcode service");
+  } else if (!m_cfg.randomNumbers) {
+    throw std::invalid_argument("Missing random numbers service");
+  }
 }
 
 std::string
 FW::ReadEvgenAlgorithm::name() const
 {
   return "ReadEvgenAlgorithm";
-}
-
-FW::ProcessCode
-FW::ReadEvgenAlgorithm::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::ReadEvgenAlgorithm::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode

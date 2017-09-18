@@ -1,5 +1,7 @@
-#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include <fstream>
+#include <ios>
+#include <stdexcept>
+#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
@@ -7,7 +9,13 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
     const FW::Csv::CsvParticleWriter::Config& cfg,
     Acts::Logging::Level                      level)
   : Base(cfg.collection, "CsvParticleWriter", level), m_cfg(cfg)
-{}
+{
+  if (m_cfg.collection.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  } else if (!m_cfg.barcodeSvc) {
+    throw std::invalid_argument("Missing barcode service");
+  }
+}
 
 FW::ProcessCode
 FW::Csv::CsvParticleWriter::writeT(
@@ -18,7 +26,7 @@ FW::Csv::CsvParticleWriter::writeT(
       = perEventFilepath(m_cfg.outputDir, "particles.csv", ctx.eventNumber);
   std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
   if (!os) {
-    ACTS_ERROR("Could not open '" << path << "' to write");
+    throw std::ios_base::failure("Could not open '" + path + "' to write");
   }
 
   // write csv header

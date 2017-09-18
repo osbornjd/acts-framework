@@ -12,15 +12,14 @@ namespace FWObj {
 
 namespace FWObjHelper {  
   
-  /// this is the coutner struct for
-  /// keeping track of the vertices
+  /// This is the counter struct for keeping track of the vertices
   struct VtnCounter {
     unsigned int vcounter  = 0;
     unsigned int vtcounter = 0;
     unsigned int ncounter  = 0;
   };
     
-  /// this will write a vertex to the fstream
+  /// This will write a vertex to the fstream
   /// @param stream is the stream where to write to
   /// @param vertex is the vertex to be written out
   /// @param cvertex is the current vertex number
@@ -80,7 +79,7 @@ namespace FWObjHelper {
     }
   }
   
-  /// this will write planr face
+  /// This will write a planar face
   /// - normal is given by cross product
   ///
   /// @param stream is the stream where to write to
@@ -132,7 +131,7 @@ namespace FWObjHelper {
       constructVerticalFaces(stream,fvertex,vsides);
   }
   
-  /// this will write a cylindrical object
+  /// This will write a cylindrical object
   ///
   /// @param stream is the stream where to write to
   void writeTube(std::ofstream& stream,

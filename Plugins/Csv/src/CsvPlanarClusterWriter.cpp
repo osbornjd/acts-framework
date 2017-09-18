@@ -1,4 +1,6 @@
 #include <fstream>
+#include <ios>
+#include <stdexcept>
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include <ACTS/Digitization/PlanarModuleCluster.hpp>
 #include "ACTFW/EventData/DataContainers.hpp"
@@ -10,6 +12,9 @@ FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     Acts::Logging::Level                           level)
   : Base(cfg.collection, "CsvPlanarClusterWriter", level), m_cfg(cfg)
 {
+  if (m_cfg.collection.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  }
 }
 
 FW::ProcessCode
@@ -22,16 +27,14 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
       = perEventFilepath(m_cfg.outputDir, "hits.csv", ctx.eventNumber);
   std::ofstream osHits(pathHits, std::ofstream::out | std::ofstream::trunc);
   if (!osHits) {
-    ACTS_ERROR("Could not open '" << pathHits << "' to write");
-    return ProcessCode::ABORT;
+    throw std::ios_base::failure("Could not open '" + pathHits + "' to write");
   }
   // open per-event truth file
   std::string pathTruth
       = perEventFilepath(m_cfg.outputDir, "truth.csv", ctx.eventNumber);
   std::ofstream osTruth(pathTruth, std::ofstream::out | std::ofstream::trunc);
   if (!osTruth) {
-    ACTS_ERROR("Could not open '" << pathTruth << "' to write");
-    return ProcessCode::ABORT;
+    throw std::ios_base::failure("Could not open '" + pathTruth + "' to write");
   }
 
   // write csv hits header
