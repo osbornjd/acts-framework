@@ -38,7 +38,6 @@ namespace Root {
 
     RootParticleWriter(const Config&        cfg,
                        Acts::Logging::Level level = Acts::Logging::INFO);
-    virtual ~RootParticleWriter() = default;
 
     /// End-of-run hook
     ProcessCode

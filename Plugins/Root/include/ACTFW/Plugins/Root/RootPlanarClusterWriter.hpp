@@ -40,14 +40,10 @@ namespace Root {
     /// @param output logging level
     RootPlanarClusterWriter(const Config&        cfg,
                            Acts::Logging::Level level = Acts::Logging::INFO);
-    /// default destructor                       
-    ~RootPlanarClusterWriter() = default;
 
+    /// End-of-run hook
     ProcessCode
-    initialize() final;
-
-    ProcessCode
-    finalize() final;
+    endRun() final;
 
 
   protected:
