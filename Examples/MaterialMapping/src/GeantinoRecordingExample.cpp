@@ -51,15 +51,15 @@ main()
       = std::make_shared<FW::Root::RootMaterialTrackWriter>(g4WriterConfig);
   
   // set up the algorithm writing out the material map
-  FWA::GeantinoRecording::Config g4rConfig;
+  FW::GeantinoRecording::Config g4rConfig;
   g4rConfig.materialTrackWriter = g4TrackRecWriter;
   g4rConfig.geant4Service       = dd4hepToG4Svc;
   g4rConfig.tracksPerEvent      = nTracks;
   g4rConfig.seed1               = randomSeed1;
   g4rConfig.seed2               = randomSeed2;
   // create the geant4 algorithm
-  auto g4rAlgorithm    = std::make_shared<FWA::GeantinoRecording>(
-      g4rConfig, Acts::getDefaultLogger("GeantinoRecording", Acts::Logging::INFO));
+  auto g4rAlgorithm    = std::make_shared<FW::GeantinoRecording>(
+      g4rConfig, Acts::Logging::INFO);
   
   // Geant4 job - these can be many Geant4 jobs, indeed
   //
