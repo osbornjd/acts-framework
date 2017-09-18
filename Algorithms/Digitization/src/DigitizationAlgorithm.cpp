@@ -28,7 +28,7 @@ FW::DigitizationAlgorithm::DigitizationAlgorithm(
   } else if (m_cfg.spacePointsCollection.empty()) {
     throw std::invalid_argument("Missing output space points collection");
   } else if (m_cfg.clustersCollection.empty()) {
-    throw std::invalid_argument("missing output clusters collection");
+    throw std::invalid_argument("Missing output clusters collection");
   } else if (!m_cfg.randomNumbers) {
     throw std::invalid_argument("Missing random numbers service");
   } else if (!m_cfg.planarModuleStepper) {

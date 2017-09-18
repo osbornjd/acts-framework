@@ -16,15 +16,15 @@ FW::MaterialMapping::MaterialMapping(const FW::MaterialMapping::Config& cnf,
   : FW::BareAlgorithm("MaterialMapping", level), m_cfg(cnf)
 {
   if (!m_cfg.materialTrackReader) {
-    throw std::invalid_argument("No material track reader given");
+    throw std::invalid_argument("Missing material track reader");
   } else if (!m_cfg.materialMapper) {
-    throw std::invalid_argument("No material mapper given");
+    throw std::invalid_argument("Missing material mapper");
   } else if (!m_cfg.materialTrackWriter) {
-    throw std::invalid_argument("No material track writer given");
+    throw std::invalid_argument("Missing material track writer");
   } else if (!m_cfg.indexedMaterialWriter) {
-    throw std::invalid_argument("No indexed material writer given");
+    throw std::invalid_argument("Missing indexed material writer");
   } else if (!m_cfg.trackingGeometry) {
-    throw std::invalid_argument("No tracking geometry given");
+    throw std::invalid_argument("Missing tracking geometry");
   }
 }
 

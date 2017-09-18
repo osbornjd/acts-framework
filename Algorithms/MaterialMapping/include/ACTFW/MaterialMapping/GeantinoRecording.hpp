@@ -39,10 +39,10 @@ public:
     /// The writer writing out the MaterialTrack entities
     std::shared_ptr< FW::IWriterT<Acts::MaterialTrack> >
       materialTrackWriter = nullptr;
-    /// The service possibly providing the Geant4 geometry
-    /// @note if not set the geometry should be given by gdml file
+    /// The service possibly providing the Geant4 geometry (optional)
+    /// @note If this is not set, the geometry should be given by gdml file
     std::shared_ptr<FW::IGeant4Service> geant4Service = nullptr;
-    /// The possible gmdl input
+    /// The possible gmdl input (optional)
     std::string gdmlFile;
     /// The number of tracks per event
     size_t tracksPerEvent = 0;

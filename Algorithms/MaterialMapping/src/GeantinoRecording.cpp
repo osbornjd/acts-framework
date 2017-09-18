@@ -21,7 +21,7 @@ FW::GeantinoRecording::GeantinoRecording(
 {
   /// Make sure that a writer was provided in the configuration
   if (!m_cfg.materialTrackWriter) {
-    throw std::invalid_argument("No material track writer given");
+    throw std::invalid_argument("Missing material track writer");
   }
 
   /// Check if the geometry should be accessed over the geant4 service
@@ -38,7 +38,7 @@ FW::GeantinoRecording::GeantinoRecording(
         detConstruction);  // constructs detector (calls Construct in
                            // Geant4DetectorConstruction)
   } else {
-    throw std::invalid_argument("No geometry input for Geant4 given");
+    throw std::invalid_argument("Missing geometry input for Geant4");
   }
 
   /// Now set up the Geant4 simulation
