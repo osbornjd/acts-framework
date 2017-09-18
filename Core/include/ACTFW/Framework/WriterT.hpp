@@ -87,6 +87,11 @@ FW::WriterT<T>::WriterT(std::string          objectName,
   , m_writerName(std::move(writerName))
   , m_logger(Acts::getDefaultLogger(m_writerName, level))
 {
+  if (m_objectName.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  } else if (m_writerName.empty()) {
+    throw std::invalid_argument("Missing writer name");
+  }
 }
 
 template <typename T>
