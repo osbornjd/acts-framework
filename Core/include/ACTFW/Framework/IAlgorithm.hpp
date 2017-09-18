@@ -6,7 +6,6 @@
 #ifndef ACTFW_IALGORITHM_H
 #define ACTFW_IALGORITHM_H
 
-#include <memory>
 #include <string>
 
 #include "ACTFW/Framework/AlgorithmContext.hpp"
@@ -19,21 +18,11 @@ class IAlgorithm
 {
 public:
   /// Virtual Destructor
-  virtual ~IAlgorithm() {}
+  virtual ~IAlgorithm() = default;
 
   /// Framework name() method
   virtual std::string
   name() const = 0;
-
-  /// Framework intialize method
-  virtual ProcessCode
-  initialize()
-      = 0;
-
-  /// Framework finalize mehtod
-  virtual ProcessCode
-  finalize()
-      = 0;
 
   /// Framework execute method
   virtual ProcessCode
