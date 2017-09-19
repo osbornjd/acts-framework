@@ -16,15 +16,6 @@ std::string FW::DD4hepG4::DD4hepToG4Svc::name() const
   return m_cfg.name;
 }
 
-FW::ProcessCode FW::DD4hepG4::DD4hepToG4Svc::initialize()
-{
-    return FW::ProcessCode::SUCCESS;
-}
-FW::ProcessCode FW::DD4hepG4::DD4hepToG4Svc::finalize()
-{
-    return FW::ProcessCode::SUCCESS;
-}
-
 FW::ProcessCode FW::DD4hepG4::DD4hepToG4Svc::buildGeant4Geometry()
 {
     if(m_cfg.dd4hepService->lcdd()) {

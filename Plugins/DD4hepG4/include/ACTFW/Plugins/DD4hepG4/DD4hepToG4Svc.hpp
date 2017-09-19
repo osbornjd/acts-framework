@@ -53,12 +53,6 @@ namespace DD4hepG4 {
         
         /// Framework name() method
         std::string name() const final;
-
-        /// Framework intialize method
-        FW::ProcessCode initialize() final;
-        
-        /// Framework finalize mehtod
-        FW::ProcessCode finalize() final;
         
         /// Interface method to access the geant4 geometry
         /// @return G4VUserDetectorConstruction from which the Geant4 geometry is constructed
