@@ -53,14 +53,6 @@ public:
   std::string
   name() const final override;
 
-  /// Framework initialize method
-  FW::ProcessCode
-  initialize() final override;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() final override;
-
   /// generate a new barcode / encoding
   barcode_type
   generate(barcode_type vertex,
