@@ -56,14 +56,6 @@ public:
   std::string
   name() const override final;
 
-  // Framework initialize method
-  FW::ProcessCode
-  initialize() override final;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() override final;
-
   /// Spawn an algorithm-local random number generator. To avoid inefficiencies
   /// and multiple uses of a given RNG seed, this should only be done once per
   /// Algorithm invocation, after what the generator object should be reused.
