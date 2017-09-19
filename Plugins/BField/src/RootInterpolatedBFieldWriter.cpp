@@ -15,6 +15,7 @@ FW::BField::RootInterpolatedBFieldWriter::run(
   std::unique_ptr<const Acts::Logger> p_logger)
 {
   // Set up (local) logging
+  // @todo Remove dangerous using declaration once the logger macro tolerates it
   using namespace Acts;
   ACTS_LOCAL_LOGGER(p_logger)
 
