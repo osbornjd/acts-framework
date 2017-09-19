@@ -56,7 +56,7 @@ main(int argc, char* argv[])
     return -1;
   }
     
-  // Create the InterpolatedBFieldWriter
+  // Write the interpolated magnetic field
   FW::BField::RootInterpolatedBFieldWriter::Config writerConfig;
   if (vm["bf-rz"].as<bool>())
     writerConfig.gridType = FW::BField::GridType::rz;
@@ -66,16 +66,7 @@ main(int argc, char* argv[])
   writerConfig.fileName   = vm["bf-file-out"].as<std::string>();
 
   writerConfig.bField = bField.first;
-  auto bFieldWriter
-      = std::make_shared<FW::BField::RootInterpolatedBFieldWriter>(
-          writerConfig);
-
-  // create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
-  // now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-  sequencer.addServices({bFieldWriter});
-  sequencer.run(1);
+  FW::BField::RootInterpolatedBFieldWriter::run(writerConfig);
 }
 
 #endif  // ACTFW_BFIELD_BFIELDEXAMPLE_H
