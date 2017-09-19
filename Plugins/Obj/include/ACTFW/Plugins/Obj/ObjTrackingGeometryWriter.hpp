@@ -67,16 +67,6 @@ public:
   /// @return the name of the tool
   std::string
   name() const final;
-  
-  /// Framework intialize method
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  initialize() final;
-
-  /// Framework finalize mehtod
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  finalize() final;
 
   /// The write interface
   /// @param tGeometry is the geometry to be written out

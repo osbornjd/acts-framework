@@ -21,18 +21,6 @@ FWObj::ObjTrackingGeometryWriter::name() const
 }
 
 FW::ProcessCode
-FWObj::ObjTrackingGeometryWriter::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FWObj::ObjTrackingGeometryWriter::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
 FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingGeometry object called.");
