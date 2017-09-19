@@ -58,16 +58,6 @@ namespace Pythia8 {
          size_t                                 skip = 0,
          const FW::AlgorithmContext* context         = nullptr) override final;
 
-    /// Reads in a  list of paritlces
-    /// @return is a process code indicateing if the reading succeeded
-    FW::ProcessCode
-    initialize() override final;
-
-    /// Reads in a  list of paritlces
-    /// @return is a process code indicateing if the reading succeeded
-    FW::ProcessCode
-    finalize() override final;
-
   private:
     /// Private access to the logging instance
     const Acts::Logger&

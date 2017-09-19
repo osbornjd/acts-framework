@@ -129,15 +129,3 @@ FW::Pythia8::TPythia8Generator::read(
   // return success
   return FW::ProcessCode::SUCCESS;
 }
-
-FW::ProcessCode
-FW::Pythia8::TPythia8Generator::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Pythia8::TPythia8Generator::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
