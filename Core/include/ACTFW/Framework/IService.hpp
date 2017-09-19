@@ -13,6 +13,7 @@
 namespace FW {
 
 /// Interface for common services.
+/// @todo Remove once all initializers and finalizers are gone
 class IService
 {
 public:
@@ -24,14 +25,14 @@ public:
   name() const = 0;
 
   /// Framework intialize method
+  /// @todo Remove once all custom implementations are gone
   virtual ProcessCode
-  initialize()
-      = 0;
+  initialize() { return ProcessCode::SUCCESS; }
 
   /// Framework finalize mehtod
+  /// @todo Remove once all custom implementations are gone
   virtual ProcessCode
-  finalize()
-      = 0;
+  finalize() { return ProcessCode::SUCCESS; }
 };
 
 }  // namespace FW
