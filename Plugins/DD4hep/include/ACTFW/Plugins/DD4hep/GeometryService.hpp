@@ -104,14 +104,6 @@ public:
   std::string
   name() const override final;
 
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize() override final;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() override final;
-
   /// Interface method to access the DD4hep geometry
   /// @return The world DD4hep DetElement
   dd4hep::DetElement
