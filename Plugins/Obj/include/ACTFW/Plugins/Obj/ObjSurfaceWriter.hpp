@@ -96,7 +96,7 @@ private:
   }
 };
 
-FW::ProcessCode
+inline FW::ProcessCode
 ObjSurfaceWriter::write(const std::string& sinfo)
 {
   // lock the mutex for writing

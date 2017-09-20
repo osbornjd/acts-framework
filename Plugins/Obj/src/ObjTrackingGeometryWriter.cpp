@@ -43,7 +43,7 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       // get the volume name
       const std::string& volumeName = tVolume.volumeName();
       // find the right surfacewriter
-      std::shared_ptr< FW::IWriterT<Acts::Surface> > surfaceWriter = nullptr;
+      std::shared_ptr<ObjSurfaceWriter> surfaceWriter = nullptr;
       for (auto writer : m_cfg.surfaceWriters){
         // get name and writer
         auto writerName = writer->name();

@@ -11,7 +11,7 @@
 #include <fstream>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
+#include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/Surfaces/Surface.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
@@ -39,14 +39,14 @@ public:
   {
   public:
     /// the default logger
-    std::shared_ptr<const Acts::Logger>                          logger;
+    std::shared_ptr<const Acts::Logger>              logger;
     /// the name of the writer
-    std::string                                                  name = "";
+    std::string                                      name = "";
     /// surfaceWriters
-    std::vector< std::shared_ptr<FW::IWriterT<Acts::Surface> > > surfaceWriters;
-    std::string                                                  filePrefix = "";
-    std::string                                                  sensitiveGroupPrefix = "";
-    std::string                                                  layerPrefix = "";
+    std::vector< std::shared_ptr<ObjSurfaceWriter> > surfaceWriters;
+    std::string                                      filePrefix = "";
+    std::string                                      sensitiveGroupPrefix = "";
+    std::string                                      layerPrefix = "";
   
     Config(const std::string&   lname = "ObjTrackingGeometryWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
