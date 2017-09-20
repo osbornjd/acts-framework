@@ -24,10 +24,7 @@ namespace G4 {
     public:
       /// Constructor
       MMDetectorConstruction();
-      
-      /// Destructor 
-      virtual ~MMDetectorConstruction();
-      
+
       /// Construct method
       /// @return the world volume as G4VPhysicalVolume
       virtual G4VPhysicalVolume* Construct();

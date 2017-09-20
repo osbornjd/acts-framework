@@ -71,7 +71,7 @@ public:
   
   /// Framework name() method
   std::string
-  name() const final;
+  name() const final override;
 
   /// The write interface
   /// @param surface to be written out

@@ -63,7 +63,7 @@ public:
   /// Framework name() method
   /// @return the name of the tool
   std::string
-  name() const final;
+  name() const final override;
 
   /// The write interface
   /// @param tGeometry is the geometry to be written out

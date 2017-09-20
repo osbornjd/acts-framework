@@ -56,15 +56,15 @@ public:
 
   /// Framework intialize method
   FW::ProcessCode
-  initialize() override final;
+  initialize() final override;
 
   /// Framework finalize method
   FW::ProcessCode
-  finalize() override final;
+  finalize() final override;
 
   /// Framework name() method
   std::string
-  name() const override final;
+  name() const final override;
 
   // clang-format off
   /// @copydoc FW::IReaderT::read(std::vector<Acts::ParticleProperties>&,size_t,const FW::AlgorithmContext*)
@@ -72,7 +72,7 @@ public:
   FW::ProcessCode
   read(Acts::MaterialTrack&        mtrc,
        size_t                      skip    = 0,
-       const FW::AlgorithmContext* context = nullptr) override final;
+       const FW::AlgorithmContext* context = nullptr) final override;
 
 private:
   /// The config class

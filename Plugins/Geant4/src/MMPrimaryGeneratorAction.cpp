@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "ACTFW/Plugins/Geant4/MMPrimaryGeneratorAction.hpp"
 #include "G4Event.hh"
 #include "G4ParticleDefinition.hh"
@@ -7,7 +8,8 @@
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
 
-FW::G4::MMPrimaryGeneratorAction* FW::G4::MMPrimaryGeneratorAction::fgInstance = 0;
+FW::G4::MMPrimaryGeneratorAction*
+  FW::G4::MMPrimaryGeneratorAction::fgInstance = nullptr;
 
 FW::G4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
     const G4String& particleName,
@@ -18,30 +20,34 @@ FW::G4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
   , fParticleGun(0)
 {
   // configure the run
-  fgInstance         = this;
+  if(fgInstance) {
+    throw std::logic_error("Attempted to duplicate a singleton");
+  } else {
+    fgInstance = this;
+  }
   G4int nofParticles = 1;
-  fParticleGun       = new G4ParticleGun(nofParticles);
+  fParticleGun       = std::make_unique<G4ParticleGun>(nofParticles);
+
   // default particle kinematic
   G4ParticleTable*      particleTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
   fParticleGun->SetParticleDefinition(particle);
   fParticleGun->SetParticleEnergy(energy);
   G4UnitDefinition::PrintUnitsTable();
+
   // set the random seeds 
   CLHEP::HepRandom::getTheEngine()->setSeed(randomSeed1,randomSeed2);
 }
 
 FW::G4::MMPrimaryGeneratorAction::~MMPrimaryGeneratorAction()
 {
-  fgInstance = 0;
-  delete fParticleGun;
+  fgInstance = nullptr;
 }
 
 FW::G4::MMPrimaryGeneratorAction*
 FW::G4::MMPrimaryGeneratorAction::Instance()
 {
   // Static acces function via G4RunManager
-
   return fgInstance;
 }
 

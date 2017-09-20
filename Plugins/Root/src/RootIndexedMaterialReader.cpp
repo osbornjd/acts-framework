@@ -28,6 +28,11 @@ FW::Root::RootIndexedMaterialReader::RootIndexedMaterialReader(
   }
 }
 
+FW::Root::RootIndexedMaterialReader::~RootIndexedMaterialReader()
+{
+  m_inputFile->Close();
+}
+
 FW::ProcessCode
 FW::Root::RootIndexedMaterialReader::read(Acts::IndexedSurfaceMaterial& ism,
                                           size_t                        skip,
@@ -89,9 +94,4 @@ FW::Root::RootIndexedMaterialReader::read(Acts::IndexedSurfaceMaterial& ism,
 
   // Announce success
   return FW::ProcessCode::SUCCESS;
-}
-
-FW::Root::RootIndexedMaterialReader::~RootIndexedMaterialReader()
-{
-  m_inputFile->Close();
 }

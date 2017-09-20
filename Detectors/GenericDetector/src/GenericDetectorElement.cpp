@@ -55,7 +55,3 @@ FWGen::GenericDetectorElement::GenericDetectorElement(
   auto mutableSurface = std::const_pointer_cast<Acts::Surface>(m_elementSurface);
   mutableSurface->setAssociatedMaterial(material);
 }
-
-FWGen::GenericDetectorElement::~GenericDetectorElement()
-{
-}

@@ -54,7 +54,7 @@ public:
 
   /// Framework name() method
   std::string
-  name() const override final;
+  name() const final override;
 
   /// Spawn an algorithm-local random number generator. To avoid inefficiencies
   /// and multiple uses of a given RNG seed, this should only be done once per

@@ -57,7 +57,7 @@ public:
                     Acts::Logging::Level level = Acts::Logging::INFO);
 
   FW::ProcessCode
-  execute(FW::AlgorithmContext context) const final;
+  execute(FW::AlgorithmContext context) const final override;
 
 private:
   /// The config object

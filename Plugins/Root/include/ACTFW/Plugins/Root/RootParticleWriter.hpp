@@ -54,7 +54,7 @@ namespace Root {
     /// particles to be attached
     ProcessCode
     writeT(const AlgorithmContext&                      ctx,
-           const std::vector<Acts::ProcessVertex>& vertices) final;
+           const std::vector<Acts::ProcessVertex>& vertices) final override;
 
   private:
     Config     m_cfg;         ///< the config class

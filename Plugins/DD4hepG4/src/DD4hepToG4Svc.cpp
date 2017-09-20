@@ -8,7 +8,8 @@ m_geant4Geometry(nullptr)
 
 FW::DD4hepG4::DD4hepToG4Svc::~DD4hepToG4Svc()
 {
-    //delete m_geant4Geometry;
+  /// @todo Clarify why this code is commented out
+  // delete m_geant4Geometry;
 }
 
 std::string FW::DD4hepG4::DD4hepToG4Svc::name() const
@@ -18,12 +19,13 @@ std::string FW::DD4hepG4::DD4hepToG4Svc::name() const
 
 FW::ProcessCode FW::DD4hepG4::DD4hepToG4Svc::buildGeant4Geometry()
 {
-    if(m_cfg.dd4hepService->lcdd()) {
-        G4VUserDetectorConstruction* detector(new FW::DD4hepG4::GeoConstruction(*(m_cfg.dd4hepService->lcdd())));
-        m_geant4Geometry = detector;
-    }
- //   if (!m_geant4Geometry) FW::ProcessCode::ERROR;
-    return FW::ProcessCode::SUCCESS;
+  if(m_cfg.dd4hepService->lcdd()) {
+      G4VUserDetectorConstruction* detector(new FW::DD4hepG4::GeoConstruction(*(m_cfg.dd4hepService->lcdd())));
+      m_geant4Geometry = detector;
+  }
+  /// @todo Clarify why this code is commented out
+  // if (!m_geant4Geometry) FW::ProcessCode::ERROR;
+  return FW::ProcessCode::SUCCESS;
 }
 
 G4VUserDetectorConstruction*  FW::DD4hepG4::DD4hepToG4Svc::geant4Geometry()

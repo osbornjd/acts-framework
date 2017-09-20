@@ -9,11 +9,6 @@ m_gdmlFile(nullptr)
 {
 }
 
-
-FW::G4::MMDetectorConstruction::~MMDetectorConstruction()
-{
-}
-
 G4VPhysicalVolume* FW::G4::MMDetectorConstruction::Construct()
 {
     if (m_tgeoNode) {

@@ -30,7 +30,7 @@ FW::Pythia8::TPythia8Generator::TPythia8Generator(
   }
 
   // Create pythia8 object
-  m_pythia8 = new TPythia8();
+  m_pythia8 = std::make_unique<TPythia8>();
 
   // Configure
   for (auto& pString : m_cfg.processStrings) {
@@ -42,11 +42,6 @@ FW::Pythia8::TPythia8Generator::TPythia8Generator(
   m_pythia8->Initialize(m_cfg.pdgBeam0 /* beam0 */,
                         m_cfg.pdgBeam1 /* beam1 */,
                         m_cfg.cmsEnergy /* TeV */);
-}
-
-FW::Pythia8::TPythia8Generator::~TPythia8Generator()
-{
-  delete m_pythia8;
 }
 
 std::string

@@ -1,27 +1,31 @@
+#include <stdexcept>
 #include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
 #include "ACTS/Utilities/Units.hpp"
 #include "G4Material.hh"
 #include "G4Step.hh"
 
-FW::G4::MMSteppingAction* FW::G4::MMSteppingAction::fgInstance = 0;
+FW::G4::MMSteppingAction* FW::G4::MMSteppingAction::fgInstance = nullptr;
 
 FW::G4::MMSteppingAction*
 FW::G4::MMSteppingAction::Instance()
 {
   // Static acces function via G4RunManager
-
   return fgInstance;
 }
 
 FW::G4::MMSteppingAction::MMSteppingAction() : G4UserSteppingAction(), m_steps()
 // m_volMgr(MaterialRunAction::Instance()->getGeant4VolumeManager())
 {
-  fgInstance = this;
+  if(fgInstance) {
+    throw std::logic_error("Attempted to duplicate a singleton");
+  } else {
+    fgInstance = this;
+  }
 }
 
 FW::G4::MMSteppingAction::~MMSteppingAction()
 {
-  fgInstance = 0;
+  fgInstance = nullptr;
 }
 
 void

@@ -49,14 +49,14 @@ namespace DD4hepG4 {
         DD4hepToG4Svc(const Config& cfg);
         
         /// Virtual destructor
-        ~DD4hepToG4Svc();
+        ~DD4hepToG4Svc() override;
         
         /// Framework name() method
-        std::string name() const final;
+        std::string name() const final override;
         
         /// Interface method to access the geant4 geometry
         /// @return G4VUserDetectorConstruction from which the Geant4 geometry is constructed
-        virtual G4VUserDetectorConstruction* geant4Geometry() final;
+        virtual G4VUserDetectorConstruction* geant4Geometry() final override;
         
         
     private:

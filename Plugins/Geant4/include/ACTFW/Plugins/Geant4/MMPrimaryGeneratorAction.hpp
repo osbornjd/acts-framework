@@ -5,6 +5,7 @@
 #ifndef ACTFW_PLUGINS_GEANT4_MMPRIMARYGENERATORACTION_H
 #define ACTFW_PLUGINS_GEANT4_MMPRIMARYGENERATORACTION_H
 
+#include <memory>
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4ThreeVector.hh"
 #include "globals.hh"
@@ -34,7 +35,7 @@ namespace G4 {
                                  G4int randomSeed1 = 12345,
                                  G4int randomSeed2 = 23456);
         /// Destructor
-        ~MMPrimaryGeneratorAction();
+        ~MMPrimaryGeneratorAction() override;
         
         /// Static access method
         static MMPrimaryGeneratorAction* Instance();
@@ -53,7 +54,7 @@ namespace G4 {
         static MMPrimaryGeneratorAction* fgInstance;
         
         /// Pointer to the G4 particle gun
-        G4ParticleGun*  fParticleGun;
+        std::unique_ptr<G4ParticleGun>   fParticleGun;
         
         /// position to be returned 
         G4ThreeVector   m_position;

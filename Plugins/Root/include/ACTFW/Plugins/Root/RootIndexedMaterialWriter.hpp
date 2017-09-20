@@ -56,21 +56,21 @@ namespace Root {
         ~RootIndexedMaterialWriter() override;
         
         /// Framework name() method
-        std::string name() const override final;
+        std::string name() const final override;
         
         /// Framework intialize method
         FW::ProcessCode
-        initialize() override final;
+        initialize() final override;
         
         /// Interface method which writes out the MaterialTrack entities
         /// @param ism is the indexed surface material
         FW::ProcessCode
-        write(const Acts::IndexedSurfaceMaterial& ism) override final;
+        write(const Acts::IndexedSurfaceMaterial& ism) final override;
 
         /// Interface method which writes out an additional string
         /// @param sinfo is some additional info that might be written
         FW::ProcessCode
-        write(const std::string& sinfo) override final;
+        write(const std::string& sinfo) final override;
 
     private:
         /// The config class

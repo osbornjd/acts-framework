@@ -43,7 +43,7 @@ public:
 
   /// Provide the name of the writer
   std::string
-  name() const override final;
+  name() const final override;
 
   /// No-op default implementation.
   ProcessCode
@@ -51,7 +51,7 @@ public:
 
   /// Read the object and call the type-specific member function.
   ProcessCode
-  write(const AlgorithmContext& ctx) override final;
+  write(const AlgorithmContext& ctx) final override;
 
 protected:
   /// Type-specific write function implementation
