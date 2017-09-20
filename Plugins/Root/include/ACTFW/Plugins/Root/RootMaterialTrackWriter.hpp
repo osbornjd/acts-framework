@@ -62,11 +62,7 @@ namespace Root {
         
         /// Framework intialize method
         FW::ProcessCode
-        initialize() final override;
-        
-        /// Framework finalize method
-        FW::ProcessCode
-        finalize() final override;
+        endRun() final override;
         
         /// Interface method which writes out the MaterialTrack entities
         /// @param mtrecord is the material track record to be written out

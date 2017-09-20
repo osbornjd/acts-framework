@@ -1,7 +1,9 @@
 #include "ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 #include "ACTS/Material/BinnedSurfaceMaterial.hpp"
+#include <ios>
 #include <iostream>
+#include <stdexcept>
 #include "TFile.h"
 #include "TH2F.h"
 

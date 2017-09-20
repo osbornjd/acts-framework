@@ -54,13 +54,8 @@ public:
   /// Constructor
   RootMaterialTrackReader(const Config& cfg);
 
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize() final override;
-
-  /// Framework finalize method
-  FW::ProcessCode
-  finalize() final override;
+  /// Virtual destructor
+  ~RootMaterialTrackReader() override;
 
   /// Framework name() method
   std::string
@@ -81,7 +76,8 @@ private:
   std::mutex m_read_mutex;
   /// The input tree name
   TChain* m_inputChain;
-  // The MaterialTrack to be written out
+  /// The MaterialTrack to be written out.
+  /// @note Must use a raw pointer because of ROOT's weird ownership semantics
   Acts::MaterialTrack* m_trackRecord;
   /// the event
   int m_event;

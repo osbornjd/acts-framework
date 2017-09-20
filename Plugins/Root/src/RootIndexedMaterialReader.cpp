@@ -1,5 +1,7 @@
 #include "ACTFW/Plugins/Root/RootIndexedMaterialReader.hpp"
+#include <ios>
 #include <iostream>
+#include <stdexcept>
 #include "ACTS/Utilities/GeometryID.hpp"
 #include "TFile.h"
 #include "TH2F.h"

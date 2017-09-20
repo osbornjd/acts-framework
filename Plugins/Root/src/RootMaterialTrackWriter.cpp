@@ -1,7 +1,9 @@
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialStep.hpp"
 
+#include <ios>
 #include <iostream>
+#include <stdexcept>
 
 #include "TFile.h"
 
@@ -13,6 +15,28 @@ FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
   , m_outputTree(nullptr)
   , m_trackRecord()
 {
+  // An input collection name and tree name must be specified
+  if (m_cfg.treeName.empty()) {
+    throw std::invalid_argument("Missing tree name");
+  } else if (m_cfg.fileName.empty()) {
+    throw std::invalid_argument("Missing file name");
+  } else if (!m_cfg.logger) {
+    throw std::invalid_argument("Missing logger");
+  } else if (m_cfg.name.empty()) {
+    throw std::invalid_argument("Missing service name");
+  }
+
+  // Setup ROOT I/O
+  m_outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
+  if (!m_outputFile) {
+    throw std::ios_base::failure("Could not open '" + m_cfg.fileName);
+  }
+  m_outputFile->cd();
+  m_outputTree = new TTree(m_cfg.treeName.c_str(),m_cfg.treeName.c_str());
+  if (!m_outputTree) throw std::bad_alloc();
+
+  // Create a branch with the MaterialTrack entities
+  m_outputTree->Branch("MaterialTrack", &m_trackRecord);
 }
 
 FW::Root::RootMaterialTrackWriter::~RootMaterialTrackWriter()
@@ -21,27 +45,12 @@ FW::Root::RootMaterialTrackWriter::~RootMaterialTrackWriter()
 }
 
 FW::ProcessCode
-FW::Root::RootMaterialTrackWriter::initialize()
-{
-  
-  ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
-  // open the output file
-  m_outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
-  // create the output tree
-  m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
-  // create a branch with the MaterialTrack entities
-  m_outputTree->Branch("MaterialTrack", &m_trackRecord);
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Root::RootMaterialTrackWriter::finalize()
+FW::Root::RootMaterialTrackWriter::endRun()
 {
   // write the tree and close the file
   ACTS_INFO("Writing ROOT output File : " << m_cfg.fileName);
   m_outputFile->cd();
   m_outputTree->Write();
-  
   return FW::ProcessCode::SUCCESS;
 }
 
