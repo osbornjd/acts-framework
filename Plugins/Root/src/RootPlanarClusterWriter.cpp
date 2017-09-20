@@ -56,12 +56,16 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
   m_outputTree->Branch("truth_barcode", &m_t_barcode);
 }
 
+FW::Root::RootPlanarClusterWriter::~RootPlanarClusterWriter()
+{
+  m_outputFile->Close();
+}
+
 FW::ProcessCode
 FW::Root::RootPlanarClusterWriter::endRun()
 {
   m_outputFile->cd();
   m_outputTree->Write();
-  m_outputFile->Close();
   ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
                                         << m_cfg.filePath << "'");
   return ProcessCode::SUCCESS;

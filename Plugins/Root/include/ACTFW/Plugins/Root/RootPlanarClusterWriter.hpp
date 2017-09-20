@@ -39,11 +39,14 @@ namespace Root {
     /// @param cfg configuration struct 
     /// @param output logging level
     RootPlanarClusterWriter(const Config&        cfg,
-                           Acts::Logging::Level level = Acts::Logging::INFO);
+                            Acts::Logging::Level level = Acts::Logging::INFO);
+
+    /// Virtual destructor
+    ~RootPlanarClusterWriter() override;
 
     /// End-of-run hook
     ProcessCode
-    endRun() final;
+    endRun() final override;
 
 
   protected:
@@ -52,7 +55,7 @@ namespace Root {
     ProcessCode
     writeT(const AlgorithmContext& ctx,
            const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
-               clusters) final;
+               clusters) final override;
 
   private:
     Config             m_cfg;               ///< the configuration object

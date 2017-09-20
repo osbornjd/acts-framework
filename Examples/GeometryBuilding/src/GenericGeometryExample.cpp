@@ -50,7 +50,7 @@ main(int argc, char* argv[])
   // the detectors
   std::vector<std::string> subDetectors = { "BeamPipe", "Pix", "PST", "SStrip", "LStrip" };
   // the writers
-  std::vector< std::shared_ptr<FW::IWriterT<Acts::Surface> > > subWriters;
+  std::vector< std::shared_ptr<FWObj::ObjSurfaceWriter> > subWriters;
   std::vector< std::shared_ptr<std::ofstream> > subStreams;
   // loop and create
   for (auto sdet : subDetectors){
@@ -70,8 +70,6 @@ main(int argc, char* argv[])
     sdObjWriterConfig.outputStream       = sdStream;
     auto sdObjWriter
         = std::make_shared<FWObj::ObjSurfaceWriter>(sdObjWriterConfig);
-    // call initialize      
-    sdObjWriter->initialize();
     // push back
     subWriters.push_back(sdObjWriter);
     subStreams.push_back(sdStream);

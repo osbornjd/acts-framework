@@ -49,12 +49,16 @@ FW::Root::RootParticleWriter::RootParticleWriter(
   m_outputTree->Branch("process", &m_process);
 }
 
+FW::Root::RootParticleWriter::~RootParticleWriter()
+{
+  m_outputFile->Close();
+}
+
 FW::ProcessCode
 FW::Root::RootParticleWriter::endRun()
 {
   m_outputFile->cd();
   m_outputTree->Write();
-  m_outputFile->Close();
   ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
                                         << m_cfg.filePath << "'");
   return ProcessCode::SUCCESS;

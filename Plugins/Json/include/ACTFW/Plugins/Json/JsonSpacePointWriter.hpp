@@ -44,7 +44,7 @@ namespace Json {
   protected:
     FW::ProcessCode
     writeT(const FW::AlgorithmContext&          ctx,
-           const DetectorData<geo_id_value, T>& spacePoints) final;
+           const DetectorData<geo_id_value, T>& spacePoints) final override;
 
   private:
     Config m_cfg;

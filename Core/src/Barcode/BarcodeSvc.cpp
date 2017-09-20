@@ -18,15 +18,3 @@ FW::BarcodeSvc::name() const
 {
   return "BarcodeSvc";
 }
-
-FW::ProcessCode
-FW::BarcodeSvc::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::BarcodeSvc::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
-}

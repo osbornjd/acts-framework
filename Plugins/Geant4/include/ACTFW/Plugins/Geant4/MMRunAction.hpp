@@ -29,17 +29,17 @@ namespace G4 {
         MMRunAction();
         
         /// Destructor
-        virtual ~MMRunAction();
+        ~MMRunAction() override;
         
         /// Static access method
         static MMRunAction* Instance();
         
         /// Interface method at the begin of the run
         /// @note resets the event action
-        virtual void BeginOfRunAction(const G4Run*);
+        void BeginOfRunAction(const G4Run*) final override;
         
         /// Interface method at the end of the run
-        virtual void   EndOfRunAction(const G4Run*);
+        void EndOfRunAction(const G4Run*) final override;
         
     private:
         /// Instance of the EventAction

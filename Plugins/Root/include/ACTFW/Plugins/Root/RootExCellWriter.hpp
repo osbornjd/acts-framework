@@ -71,9 +71,12 @@ public:
   RootExCellWriter(const Config& cfg,
                    Acts::Logging::Level level = Acts::Logging::INFO);
 
+  /// Virtual destructor
+  ~RootExCellWriter() override;
+
   /// End-of-run hook
   ProcessCode
-  endRun() final;
+  endRun() final override;
 
 protected:
   /// The protected writeT method, called by the WriterT base
@@ -81,7 +84,8 @@ protected:
   /// @param [in] ecells are the celss to be written out 
   ProcessCode
   writeT(const FW::AlgorithmContext&  ctx,
-         const std::vector< Acts::ExtrapolationCell<T> > & ecells) final;
+         const std::vector< Acts::ExtrapolationCell<T> > & ecells)
+           final override;
   
   Config             m_cfg;               ///< the config class
   std::mutex         m_writeMutex;        ///< protect multi-threaded writes

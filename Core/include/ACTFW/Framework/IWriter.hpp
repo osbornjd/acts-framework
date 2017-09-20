@@ -17,21 +17,19 @@ class IWriter
 {
 public:
   /// Virtual destructor
-  virtual ~IWriter() {}
+  virtual ~IWriter() = default;
 
-  /// Provide the name of the reader
+  /// Provide the name of the writer
   virtual std::string
   name() const = 0;
 
   /// Finish the run (e.g. aggregate statistics, write down output, close files)
   virtual ProcessCode
-  endRun()
-      = 0;
+  endRun() = 0;
 
   /// write data to the output stream
   virtual ProcessCode
-  write(const AlgorithmContext& context)
-      = 0;
+  write(const AlgorithmContext& context) = 0;
 
 };
 

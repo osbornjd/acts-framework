@@ -42,7 +42,6 @@ public:
   Sequencer(const Config&                       cfg,
             std::unique_ptr<const Acts::Logger> logger
             = Acts::getDefaultLogger("Sequencer", Acts::Logging::INFO));
-  ~Sequencer();
 
   /// Add services
   ///
@@ -79,9 +78,8 @@ public:
   /// @param events Number of events to process
   /// @param skip Number of events to skip before processing
   ///
-  /// This will first initialize all configured services and algorithms, then
-  /// run all configure algorithms for each event potentially parallelized, and
-  /// then finalize all algorithms and services in reverse order.
+  /// This will run all configured algorithms for each event, potentially in
+  /// parall, then invoke the endRun hook of writers and services.
   ProcessCode
   run(size_t events, size_t skip = 0);
 

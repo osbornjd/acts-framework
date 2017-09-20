@@ -29,7 +29,7 @@ namespace G4 {
         MMSteppingAction();
         
         /// Destructor
-        virtual ~MMSteppingAction();
+        ~MMSteppingAction() override;
         
         /// Static access method
         static MMSteppingAction* Instance();
@@ -37,14 +37,14 @@ namespace G4 {
         /// Interface Method doing the step
         /// @note it creates and collects the MaterialStep entities
         /// @param step is teh Geant4 step of the particle  
-        virtual void UserSteppingAction(const G4Step* step);
+        void UserSteppingAction(const G4Step* step) final override;
         
         /// Interface reset method
         /// @note it clears the collected step vector
         void Reset();
         
         /// Access to the collected MaterialStep entities
-        std::vector<Acts::MaterialStep> materialSteps() {return m_steps;}
+        std::vector<Acts::MaterialStep> materialSteps() { return m_steps; }
         
     private:
         /// Instance of the SteppingAction

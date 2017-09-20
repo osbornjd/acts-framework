@@ -8,24 +8,14 @@ FW::Root::RootMaterialTrackReader::RootMaterialTrackReader(
   : FW::IReaderT<Acts::MaterialTrack>()
   , m_cfg(cfg)
   , m_inputChain(nullptr)
-  , m_trackRecord(nullptr)
+  , m_trackRecord(new Acts::MaterialTrack)
   , m_event(0)
 {
 }
 
-FW::ProcessCode
-FW::Root::RootMaterialTrackReader::initialize()
-{
-  m_trackRecord = new Acts::MaterialTrack;
-
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Root::RootMaterialTrackReader::finalize()
+FW::Root::RootMaterialTrackReader::~RootMaterialTrackReader()
 {
   delete m_trackRecord;
-  return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode

@@ -1,7 +1,9 @@
 #include "ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 #include "ACTS/Material/BinnedSurfaceMaterial.hpp"
+#include <ios>
 #include <iostream>
+#include <stdexcept>
 #include "TFile.h"
 #include "TH2F.h"
 
@@ -11,37 +13,35 @@ FW::Root::RootIndexedMaterialWriter::RootIndexedMaterialWriter(
   , m_cfg(cfg)
   , m_outputFile(nullptr)
 {
+  // Validate the configuration
+  if (m_cfg.folderNameBase.empty()) {
+    throw std::invalid_argument("Missing folder name base");
+  } else if (m_cfg.fileName.empty()) {
+    throw std::invalid_argument("Missing file name");
+  } else if (!m_cfg.logger) {
+    throw std::invalid_argument("Missing logger");
+  } else if (m_cfg.name.empty()) {
+    throw std::invalid_argument("Missing service name");
+  }
+
+  // Setup ROOT I/O
+  m_outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
+  if (!m_outputFile) {
+    throw std::ios_base::failure("Could not open '" + m_cfg.fileName);
+  }
 }
 
-FW::ProcessCode
-FW::Root::RootIndexedMaterialWriter::initialize()
+FW::Root::RootIndexedMaterialWriter::~RootIndexedMaterialWriter()
 {
-  
-  ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
-  // open the output file
-  m_outputFile = new TFile(m_cfg.fileName.c_str(), "recreate");
-  // file successfully opened
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Root::RootIndexedMaterialWriter::finalize()
-{
-  // write the tree and close the file
-  ACTS_INFO("Closing and Writing ROOT output File : " << m_cfg.fileName);
   m_outputFile->Close();
-  /// success 
-  return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
 FW::Root::RootIndexedMaterialWriter::write(
     const Acts::IndexedSurfaceMaterial& ism)
 {
-  
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
-  
   
   // get the geometry ID
   Acts::GeometryID geoID = ism.first;
@@ -105,14 +105,7 @@ FW::Root::RootIndexedMaterialWriter::write(
   A->Write();
   Z->Write();
   rho->Write();
+
   // return success
   return FW::ProcessCode::SUCCESS;
 }
-
- 
-FW::ProcessCode
-FW::Root::RootIndexedMaterialWriter::write(const std::string&) 
-{ 
-  return FW::ProcessCode::SUCCESS;
-}
- 

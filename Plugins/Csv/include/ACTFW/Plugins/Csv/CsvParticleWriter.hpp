@@ -53,7 +53,7 @@ namespace Csv {
   protected:
     ProcessCode
     writeT(const FW::AlgorithmContext& ctx,
-           const std::vector<Acts::ProcessVertex>& particles) final;
+           const std::vector<Acts::ProcessVertex>& particles) final override;
 
   private:
     Config m_cfg;

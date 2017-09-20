@@ -17,7 +17,7 @@ class IReader
 {
 public:
   /// Virtual destructor
-  virtual ~IReader() {}
+  virtual ~IReader() = default;
 
   /// Provide the name of the reader
   virtual std::string
@@ -25,13 +25,11 @@ public:
 
   /// Skip the next n events.
   virtual ProcessCode
-  skip(size_t skip)
-      = 0;
+  skip(size_t skip) = 0;
 
   /// Read the next event
   virtual ProcessCode
-  read(AlgorithmContext context)
-      = 0;
+  read(AlgorithmContext context) = 0;
 };
 
 }  // namespace FW

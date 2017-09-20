@@ -49,16 +49,13 @@ public:
   /// @parm level is the output logging level
   ObjExCellWriter(const Config& cfg,
     Acts::Logging::Level lvl   = Acts::Logging::INFO);
-
-  /// defualt desctrubtor
-  virtual ~ObjExCellWriter() = default;
   
 protected:
   /// The protected writeT method, called by the WriterT base
   /// @param ctx is the algorithm context for event consistency   
   ProcessCode
   writeT(const FW::AlgorithmContext&                  ctx,
-         const std::vector<Acts::ExtrapolationCell> & ecells) final;
+         const std::vector<Acts::ExtrapolationCell> & ecells) final override;
 
 private:
   Config m_cfg;

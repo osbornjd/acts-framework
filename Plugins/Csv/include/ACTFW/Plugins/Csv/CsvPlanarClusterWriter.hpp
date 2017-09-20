@@ -49,7 +49,7 @@ namespace Csv {
     ProcessCode
     writeT(const AlgorithmContext& ctx,
            const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
-               clusters) final;
+               clusters) final override;
 
   private:
     Config m_cfg;

@@ -69,7 +69,7 @@ public:
 
   /// Framework execute method
   FW::ProcessCode
-  execute(FW::AlgorithmContext context) const final;
+  execute(FW::AlgorithmContext context) const final override;
 
 private:
   Config m_cfg;

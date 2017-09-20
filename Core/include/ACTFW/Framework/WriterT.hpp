@@ -40,17 +40,18 @@ public:
   WriterT(std::string          objectName,
           std::string          writerName,
           Acts::Logging::Level level);
-  /// default destructor        
-  ~WriterT() = default;
 
+  /// Provide the name of the writer
   std::string
-  name() const override final;
+  name() const final override;
+
   /// No-op default implementation.
   ProcessCode
   endRun() override;
+
   /// Read the object and call the type-specific member function.
   ProcessCode
-  write(const AlgorithmContext& ctx) override final;
+  write(const AlgorithmContext& ctx) final override;
 
 protected:
   /// Type-specific write function implementation
@@ -59,8 +60,7 @@ protected:
   ///        consistency
   /// @tparam [in] is the templeted collection to be written 
   virtual ProcessCode
-  writeT(const AlgorithmContext& ctx, const T& t)
-      = 0;
+  writeT(const AlgorithmContext& ctx, const T& t) = 0;
 
   const Acts::Logger&
   logger() const

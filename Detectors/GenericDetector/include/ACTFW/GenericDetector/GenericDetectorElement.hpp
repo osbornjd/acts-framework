@@ -67,9 +67,6 @@ public:
                          std::shared_ptr<const Acts::SurfaceMaterial> material
                          = nullptr);
 
-  ///  Destructor
-  ~GenericDetectorElement();
-
   /// Identifier
   Identifier
   identify() const final override;
@@ -101,7 +98,7 @@ public:
   digitizationModule() const final override;
 
   /// Set the identifier after construction (sometimes needed)
-  virtual void
+  void
   assignIdentifier(const Identifier& identifier) final override;
 
   /// The maximal thickness of the detector element wrt normal axis

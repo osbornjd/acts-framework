@@ -27,7 +27,7 @@ namespace BField {
   /// Writes out the Acts::InterpolatedbFieldMap. Currently implemented for 'rz'
   /// and 'xyz' field maps.
 
-  class RootInterpolatedBFieldWriter : public IService
+  class RootInterpolatedBFieldWriter
   {
   public:
     struct Config
@@ -44,53 +44,13 @@ namespace BField {
       GridType gridType = xyz;
     };
 
-    /// Constructor
-    RootInterpolatedBFieldWriter(
-        const Config&                       cfg,
+    /// Write down an interpolated magnetic field map
+    static
+    void
+    run(const Config&                       cfg,
         std::unique_ptr<const Acts::Logger> logger
         = Acts::getDefaultLogger("RootInterpolatedBFieldWriter",
                                  Acts::Logging::INFO));
-
-    /// Framework name() method
-    std::string
-    name() const override final;
-
-    // Framework initialize method
-    FW::ProcessCode
-    initialize() override final;
-
-    /// Framework finalize mehtod
-    FW::ProcessCode
-    finalize() override final;
-
-  private:
-    /// The configuration class
-    Config m_cfg;
-    /// The loger object
-    std::unique_ptr<const Acts::Logger> m_logger;
-    /// Mutex used to protect multi-threaded writes
-    std::mutex m_write_mutex;
-    /// The root output file
-    TFile* m_outputFile;
-    /// The root output tree
-    TTree* m_outputTree;
-    /// The position values
-    double m_x;
-    double m_y;
-    double m_z;
-    double m_r;
-    /// The BField values
-    double m_Bx;
-    double m_By;
-    double m_Bz;
-    double m_Br;
-
-    /// Private access to the logging instance
-    const Acts::Logger&
-    logger() const
-    {
-      return *m_logger;
-    }
   };
 
 }  // end of namespace BField

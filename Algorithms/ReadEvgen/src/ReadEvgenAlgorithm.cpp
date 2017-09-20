@@ -62,7 +62,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
   std::vector<Acts::ProcessVertex> evgen;
 
   // get the hard scatter if you have it
-  std::vector<Acts::ProcessVertex> hardscatterEvent = {};
+  std::vector<Acts::ProcessVertex> hardscatterEvent;
   if (m_cfg.hardscatterEventReader
       && m_cfg.hardscatterEventReader->read(hardscatterEvent)
           == FW::ProcessCode::ABORT) {
@@ -88,7 +88,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
     // shift the vertex
     hsVertex.shift(vertex);
     // assign barcodes 
-    for (auto& oparticle : hsVertex.outgoingParticles()){
+    for (auto& oparticle : hsVertex.outgoingParticles()) {
       // generate the new barcode, and assign it
       Acts::ParticleProperties* hsp 
           = const_cast<Acts::ParticleProperties*>(&oparticle); 
@@ -107,7 +107,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
     // create the pileup vertex
     vertex = Acts::Vector3D(puVertexX, puVertexY, puVertexZ);
     // get the vertices per pileup event
-    std::vector<Acts::ProcessVertex> pileupEvent = {};
+    std::vector<Acts::ProcessVertex> pileupEvent;
     if (m_cfg.pileupEventReader
         && m_cfg.pileupEventReader->read(pileupEvent)
             == FW::ProcessCode::ABORT) {

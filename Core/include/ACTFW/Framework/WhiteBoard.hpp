@@ -57,21 +57,20 @@ public:
 
 private:
   // type-erased value holder for move-constructible types
-  struct Holder
+  struct IHolder
   {
-    virtual ~Holder() {}
+    virtual ~IHolder() = default;
     virtual const std::type_info&
     type() const = 0;
   };
   template <typename T,
             typename
             = std::enable_if_t<std::is_nothrow_move_constructible<T>::value>>
-  struct THolder : public Holder
+  struct HolderT : public IHolder
   {
     T value;
 
-    THolder(T&& v) : value(std::move(v)) {}
-    ~THolder() {}
+    HolderT(T&& v) : value(std::move(v)) {}
     const std::type_info&
     type() const
     {
@@ -80,7 +79,7 @@ private:
   };
 
   std::unique_ptr<const Acts::Logger>            m_logger;
-  std::map<std::string, std::unique_ptr<Holder>> m_store;
+  std::map<std::string, std::unique_ptr<IHolder>> m_store;
 
   const Acts::Logger&
   logger() const
@@ -104,7 +103,7 @@ FW::WhiteBoard::add(const std::string& name, T&& object)
     ACTS_FATAL("Object '" << name << "' already exists");
     return ProcessCode::ABORT;
   }
-  m_store.emplace(name, std::make_unique<THolder<T>>(std::forward<T>(object)));
+  m_store.emplace(name, std::make_unique<HolderT<T>>(std::forward<T>(object)));
   ACTS_VERBOSE("Added object '" << name << "'");
   return ProcessCode::SUCCESS;
 }
@@ -119,13 +118,13 @@ FW::WhiteBoard::get(const std::string& name, const T*& object) const
     ACTS_FATAL("Object '" << name << "' does not exists");
     return ProcessCode::ABORT;
   }
-  const Holder* holder = it->second.get();
+  const IHolder* holder = it->second.get();
   if (typeid(T) != holder->type()) {
     object = nullptr;
     ACTS_FATAL("Type missmatch for object '" << name << "'");
     return ProcessCode::ABORT;
   }
-  object = &(reinterpret_cast<const THolder<T>*>(holder)->value);
+  object = &(reinterpret_cast<const HolderT<T>*>(holder)->value);
   ACTS_VERBOSE("Retrieved object '" << name << "'");
   return ProcessCode::SUCCESS;
 }

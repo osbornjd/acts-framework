@@ -60,16 +60,16 @@ public:
 
   /// Framework name() method
   std::string
-  name() const final;
+  name() const final override;
 
   /// Skip a few events in the IO stream
   /// @param [in] nEvents is the number of skipped events
   FW::ProcessCode
-  skip(size_t nEvents) final;
+  skip(size_t nEvents) final override;
 
   /// Read out data from the input stream
   FW::ProcessCode
-  read(FW::AlgorithmContext ctx) final;
+  read(FW::AlgorithmContext ctx) final override;
 
 private:
   Config                              m_cfg;
