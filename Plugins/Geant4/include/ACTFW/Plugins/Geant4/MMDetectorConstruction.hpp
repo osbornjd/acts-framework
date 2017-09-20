@@ -27,7 +27,7 @@ namespace G4 {
 
       /// Construct method
       /// @return the world volume as G4VPhysicalVolume
-      virtual G4VPhysicalVolume* Construct();
+      G4VPhysicalVolume* Construct() final override;
       
       /// Set the world TGeoNode to be transformed into
       /// a Geant4 geometry

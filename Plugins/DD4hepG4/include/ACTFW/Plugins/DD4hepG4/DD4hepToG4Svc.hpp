@@ -56,7 +56,7 @@ namespace DD4hepG4 {
         
         /// Interface method to access the geant4 geometry
         /// @return G4VUserDetectorConstruction from which the Geant4 geometry is constructed
-        virtual G4VUserDetectorConstruction* geant4Geometry() final override;
+        G4VUserDetectorConstruction* geant4Geometry() final override;
         
         
     private:

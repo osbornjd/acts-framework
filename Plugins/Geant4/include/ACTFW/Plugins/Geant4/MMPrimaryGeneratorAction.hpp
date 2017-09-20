@@ -41,7 +41,7 @@ namespace G4 {
         static MMPrimaryGeneratorAction* Instance();
         
         /// Interface method to generate the primary
-        virtual void GeneratePrimaries(G4Event*);
+        void GeneratePrimaries(G4Event*) final override;
         
         /// Access method to get the initial direction
         G4ThreeVector direction() {return m_direction;}
