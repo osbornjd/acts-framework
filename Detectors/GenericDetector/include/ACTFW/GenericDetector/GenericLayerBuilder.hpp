@@ -148,19 +148,19 @@ public:
 
   /// LayerBuilder interface method - returning the layers at negative side
   const Acts::LayerVector
-  negativeLayers() const override;
+  negativeLayers() const final override;
 
   /// LayerBuilder interface method - returning the central layers
   const Acts::LayerVector
-  centralLayers() const override;
+  centralLayers() const final override;
 
   /// LayerBuilder interface method - returning the layers at negative side
   const Acts::LayerVector
-  positiveLayers() const override;
+  positiveLayers() const final override;
 
   /// ILayerBuilder method
   const std::string&
-  identification() const override
+  identification() const final override
   {
     return m_cfg.layerIdentification;
   }
