@@ -23,18 +23,16 @@ class IParticleReader
 public:
   /// Virtual Destructor
   virtual
-  ~IParticleReader() {}
+  ~IParticleReader() = default;
 
   /// returns the list of particles to be processed
   /// for the fast simulation 
   virtual std::vector< Acts::ParticleProperties > 
-  particles() const 
-    = 0;
+  particles() const = 0;
   
   /// skip some events
   virtual void
-  skip(size_t nEvents = 1) const 
-    = 0;
+  skip(size_t nEvents = 1) const = 0;
 
 };
 }

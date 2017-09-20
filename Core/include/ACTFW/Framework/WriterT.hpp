@@ -59,8 +59,7 @@ protected:
   ///        consistency
   /// @tparam [in] is the templeted collection to be written 
   virtual ProcessCode
-  writeT(const AlgorithmContext& ctx, const T& t)
-      = 0;
+  writeT(const AlgorithmContext& ctx, const T& t) = 0;
 
   const Acts::Logger&
   logger() const
