@@ -58,10 +58,6 @@ namespace Root {
         /// Framework name() method
         std::string name() const final override;
         
-        /// Framework intialize method
-        FW::ProcessCode
-        initialize() final override;
-        
         /// Interface method which writes out the MaterialTrack entities
         /// @param ism is the indexed surface material
         FW::ProcessCode

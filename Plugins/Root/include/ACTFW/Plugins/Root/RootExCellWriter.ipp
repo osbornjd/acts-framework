@@ -144,7 +144,7 @@ FW::Root::RootExCellWriter<T>::RootExCellWriter(
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
 {
-  // An input collection name and tree name must be specified
+  // Validate the configuration
   if (m_cfg.collection.empty()) {
     throw std::invalid_argument("Missing input collection");
   } else if (m_cfg.treeName.empty()) {

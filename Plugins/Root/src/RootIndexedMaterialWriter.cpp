@@ -11,22 +11,27 @@ FW::Root::RootIndexedMaterialWriter::RootIndexedMaterialWriter(
   , m_cfg(cfg)
   , m_outputFile(nullptr)
 {
+  // Validate the configuration
+  if (m_cfg.folderNameBase.empty()) {
+    throw std::invalid_argument("Missing folder name base");
+  } else if (m_cfg.fileName.empty()) {
+    throw std::invalid_argument("Missing file name");
+  } else if (!m_cfg.logger) {
+    throw std::invalid_argument("Missing logger");
+  } else if (m_cfg.name.empty()) {
+    throw std::invalid_argument("Missing service name");
+  }
+
+  // Setup ROOT I/O
+  m_outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
+  if (!m_outputFile) {
+    throw std::ios_base::failure("Could not open '" + m_cfg.fileName);
+  }
 }
 
 FW::Root::RootIndexedMaterialWriter::~RootIndexedMaterialWriter()
 {
   m_outputFile->Close();
-}
-
-FW::ProcessCode
-FW::Root::RootIndexedMaterialWriter::initialize()
-{
-  
-  ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
-  // open the output file
-  m_outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
-  // file successfully opened
-  return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
@@ -98,6 +103,7 @@ FW::Root::RootIndexedMaterialWriter::write(
   A->Write();
   Z->Write();
   rho->Write();
+
   // return success
   return FW::ProcessCode::SUCCESS;
 }
