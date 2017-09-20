@@ -48,7 +48,7 @@ namespace Pythia8 {
     virtual ~TPythia8Generator();
 
     std::string
-    name() const override final;
+    name() const final override;
 
     // clang-format off
     /// @copydoc FW::IReaderT::read(std::vector<Acts::ProcessVertex>&,size_t,const FW::AlgorithmContext*)
@@ -56,7 +56,7 @@ namespace Pythia8 {
     FW::ProcessCode
     read(std::vector<Acts::ProcessVertex>& pProperties,
          size_t                                 skip = 0,
-         const FW::AlgorithmContext* context         = nullptr) override final;
+         const FW::AlgorithmContext* context         = nullptr) final override;
 
   private:
     /// Private access to the logging instance

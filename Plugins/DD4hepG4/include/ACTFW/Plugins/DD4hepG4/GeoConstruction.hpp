@@ -33,7 +33,7 @@ namespace DD4hepG4 {
         virtual ~GeoConstruction() = default;
         /// Geometry construction callback: Invoke the conversion to Geant4
         /// All volumes (including world) are deleted in ~G4PhysicalVolumeStore()
-        virtual G4VPhysicalVolume* Construct() final;
+        virtual G4VPhysicalVolume* Construct() final override;
     private:
         /// Reference to geometry object
         dd4hep::Detector& m_lcdd;

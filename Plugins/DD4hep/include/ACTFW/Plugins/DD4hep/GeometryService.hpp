@@ -102,25 +102,25 @@ public:
 
   /// Framework name() method
   std::string
-  name() const override final;
+  name() const final override;
 
   /// Interface method to access the DD4hep geometry
   /// @return The world DD4hep DetElement
   dd4hep::DetElement
-  dd4hepGeometry() override final;
+  dd4hepGeometry() final override;
 
   /// Interface method to Access the TGeo geometry
   /// @return The world TGeoNode (physical volume)
   TGeoNode*
-  tgeoGeometry() override final;
+  tgeoGeometry() final override;
 
   /// Interface method to access to the interface of the DD4hep geometry
   dd4hep::Detector*
-  lcdd() override final;
+  lcdd() final override;
 
   /// Interface method to access the ACTS TrackingGeometry
   std::unique_ptr<const Acts::TrackingGeometry>
-  trackingGeometry() override final;
+  trackingGeometry() final override;
 
 private:
   /// Private method to initiate building of the DD4hep geometry

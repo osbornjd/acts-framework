@@ -42,7 +42,7 @@ namespace Root {
                             Acts::Logging::Level level = Acts::Logging::INFO);
 
     /// Virtual destructor
-    ~RootPlanarClusterWriter();
+    ~RootPlanarClusterWriter() override;
 
     /// End-of-run hook
     ProcessCode
@@ -55,7 +55,7 @@ namespace Root {
     ProcessCode
     writeT(const AlgorithmContext& ctx,
            const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
-               clusters) final;
+               clusters) final override;
 
   private:
     Config             m_cfg;               ///< the configuration object

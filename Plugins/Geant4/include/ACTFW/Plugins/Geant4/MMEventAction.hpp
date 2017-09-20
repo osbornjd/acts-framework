@@ -41,13 +41,13 @@ public:
   /// @param event is the G4Event to be processed
   /// @note resets the material step action
   void
-  BeginOfEventAction(const G4Event* event) override final;
+  BeginOfEventAction(const G4Event* event) final override;
   
   /// Interface method for end of event
   /// @param event is the G4Event to be processed
   /// @note this method is writing out the material track records
   void
-  EndOfEventAction(const G4Event* event) override final;
+  EndOfEventAction(const G4Event* event) final override;
   
   /// Interface method
   /// @note does nothing

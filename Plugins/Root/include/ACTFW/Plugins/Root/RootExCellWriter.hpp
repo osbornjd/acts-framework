@@ -84,7 +84,8 @@ protected:
   /// @param [in] ecells are the celss to be written out 
   ProcessCode
   writeT(const FW::AlgorithmContext&  ctx,
-         const std::vector< Acts::ExtrapolationCell<T> > & ecells) final;
+         const std::vector< Acts::ExtrapolationCell<T> > & ecells)
+           final override;
   
   Config             m_cfg;               ///< the config class
   std::mutex         m_writeMutex;        ///< protect multi-threaded writes
