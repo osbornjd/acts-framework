@@ -30,8 +30,8 @@ public:
   /// Constructor
   MMEventAction();
   
-  /// Destructor
-  virtual ~MMEventAction();
+  /// Virtual destructor
+  ~MMEventAction() override;
   
   /// Static access method
   static MMEventAction*

@@ -49,7 +49,7 @@ namespace DD4hepG4 {
         DD4hepToG4Svc(const Config& cfg);
         
         /// Virtual destructor
-        ~DD4hepToG4Svc();
+        ~DD4hepToG4Svc() override;
         
         /// Framework name() method
         std::string name() const final override;

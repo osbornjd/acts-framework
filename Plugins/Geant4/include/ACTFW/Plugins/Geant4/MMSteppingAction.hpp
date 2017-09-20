@@ -29,7 +29,7 @@ namespace G4 {
         MMSteppingAction();
         
         /// Destructor
-        virtual ~MMSteppingAction();
+        ~MMSteppingAction() override;
         
         /// Static access method
         static MMSteppingAction* Instance();

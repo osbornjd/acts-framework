@@ -29,7 +29,7 @@ namespace G4 {
         MMRunAction();
         
         /// Destructor
-        virtual ~MMRunAction();
+        ~MMRunAction() override;
         
         /// Static access method
         static MMRunAction* Instance();

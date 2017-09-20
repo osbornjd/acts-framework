@@ -98,7 +98,7 @@ public:
   GeometryService(const Config& cfg);
 
   /// Virtual destructor
-  ~GeometryService();
+  ~GeometryService() override;
 
   /// Framework name() method
   std::string
