@@ -33,6 +33,11 @@ public:
   /// @todo Remove once all custom implementations are gone
   virtual ProcessCode
   finalize() { return ProcessCode::SUCCESS; }
+
+  /// Finish the run (e.g. aggregate statistics, write down output, close files)
+  /// @todo Move to IWriterT once the Sequencer has been tuned for it
+  virtual ProcessCode
+  endRun() { return ProcessCode::SUCCESS; }
 };
 
 }  // namespace FW
