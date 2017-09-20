@@ -51,6 +51,9 @@ namespace Root {
         
         /// Constructor
         RootIndexedMaterialWriter(const Config& cfg);
+
+        /// Virtual destructor
+        ~RootIndexedMaterialWriter() override;
         
         /// Framework name() method
         std::string name() const override final;
@@ -58,10 +61,6 @@ namespace Root {
         /// Framework intialize method
         FW::ProcessCode
         initialize() override final;
-        
-        /// Framework finalize method
-        FW::ProcessCode
-        finalize() override final;
         
         /// Interface method which writes out the MaterialTrack entities
         /// @param ism is the indexed surface material

@@ -30,7 +30,7 @@ FW::BField::RootInterpolatedBFieldWriter::run(
 
   // Setup ROOT I/O
   ACTS_INFO("Registering new ROOT output File : " << cfg.fileName);
-  TFile* outputFile = new TFile(cfg.fileName.c_str(), cfg.fileMode.c_str());
+  TFile* outputFile = TFile::Open(cfg.fileName.c_str(), cfg.fileMode.c_str());
   if (!outputFile) {
     throw std::ios_base::failure("Could not open '" + cfg.fileName);
   }

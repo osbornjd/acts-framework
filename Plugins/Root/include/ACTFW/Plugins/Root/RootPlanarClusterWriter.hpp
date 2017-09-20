@@ -39,11 +39,14 @@ namespace Root {
     /// @param cfg configuration struct 
     /// @param output logging level
     RootPlanarClusterWriter(const Config&        cfg,
-                           Acts::Logging::Level level = Acts::Logging::INFO);
+                            Acts::Logging::Level level = Acts::Logging::INFO);
+
+    /// Virtual destructor
+    ~RootPlanarClusterWriter();
 
     /// End-of-run hook
     ProcessCode
-    endRun() final;
+    endRun() final override;
 
 
   protected:

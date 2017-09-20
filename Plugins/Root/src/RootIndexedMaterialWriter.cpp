@@ -13,24 +13,19 @@ FW::Root::RootIndexedMaterialWriter::RootIndexedMaterialWriter(
 {
 }
 
+FW::Root::RootIndexedMaterialWriter::~RootIndexedMaterialWriter()
+{
+  m_outputFile->Close();
+}
+
 FW::ProcessCode
 FW::Root::RootIndexedMaterialWriter::initialize()
 {
   
   ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
   // open the output file
-  m_outputFile = new TFile(m_cfg.fileName.c_str(), "recreate");
+  m_outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
   // file successfully opened
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Root::RootIndexedMaterialWriter::finalize()
-{
-  // write the tree and close the file
-  ACTS_INFO("Closing and Writing ROOT output File : " << m_cfg.fileName);
-  m_outputFile->Close();
-  /// success 
   return FW::ProcessCode::SUCCESS;
 }
 
@@ -38,10 +33,8 @@ FW::ProcessCode
 FW::Root::RootIndexedMaterialWriter::write(
     const Acts::IndexedSurfaceMaterial& ism)
 {
-  
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
-  
   
   // get the geometry ID
   Acts::GeometryID geoID = ism.first;

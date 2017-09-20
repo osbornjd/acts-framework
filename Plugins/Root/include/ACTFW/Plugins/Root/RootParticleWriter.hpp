@@ -36,12 +36,16 @@ namespace Root {
           barcodeSvc;  ///< the barcode service to decode (optional)
     };
 
+    /// Constructor
     RootParticleWriter(const Config&        cfg,
                        Acts::Logging::Level level = Acts::Logging::INFO);
 
+    /// Virtual destructor
+    ~RootParticleWriter() override;
+
     /// End-of-run hook
     ProcessCode
-    endRun() final;
+    endRun() final override;
 
   protected:
     /// write method called by the base class

@@ -119,9 +119,9 @@ Acts::InterpolatedBFieldMap::FieldMapper<2, 2> FW::BField::root::fieldMapperRZ(
   // components of magnetic field on grid points
   std::vector<Acts::Vector2D> bField;
   // [1] Read in file and fill values
-  TFile  inputFile(fieldMapFile.c_str());
-  TTree* tree    = (TTree*)inputFile.Get(treeName.c_str());
-  Int_t  entries = tree->GetEntries();
+  TFile* inputFile = TFile::Open(fieldMapFile.c_str());
+  TTree* tree      = (TTree*)inputFile->Get(treeName.c_str());
+  Int_t  entries   = tree->GetEntries();
 
   double r, z;
   double Br, Bz;
@@ -143,7 +143,7 @@ Acts::InterpolatedBFieldMap::FieldMapper<2, 2> FW::BField::root::fieldMapperRZ(
     zPos.push_back(z);
     bField.push_back(Acts::Vector2D(Br, Bz));
   }
-  inputFile.Close();
+  inputFile->Close();
   /// [2] use helper function in core
   return Acts::fieldMapperRZ(localToGlobalBin,
                              rPos,
@@ -171,9 +171,9 @@ Acts::InterpolatedBFieldMap::FieldMapper<3, 3> FW::BField::root::fieldMapperXYZ(
   // components of magnetic field on grid points
   std::vector<Acts::Vector3D> bField;
   // [1] Read in file and fill values
-  TFile  inputFile(fieldMapFile.c_str());
-  TTree* tree    = (TTree*)inputFile.Get(treeName.c_str());
-  Int_t  entries = tree->GetEntries();
+  TFile* inputFile = TFile::Open(fieldMapFile.c_str());
+  TTree* tree      = (TTree*)inputFile->Get(treeName.c_str());
+  Int_t  entries   = tree->GetEntries();
 
   double x, y, z;
   double Bx, By, Bz;
@@ -199,7 +199,7 @@ Acts::InterpolatedBFieldMap::FieldMapper<3, 3> FW::BField::root::fieldMapperXYZ(
     zPos.push_back(z);
     bField.push_back(Acts::Vector3D(Bx, By, Bz));
   }
-  inputFile.Close();
+  inputFile->Close();
 
   return Acts::fieldMapperXYZ(localToGlobalBin,
                               xPos,

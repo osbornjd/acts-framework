@@ -15,13 +15,18 @@ FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
 {
 }
 
+FW::Root::RootMaterialTrackWriter::~RootMaterialTrackWriter()
+{
+  m_outputFile->Close();
+}
+
 FW::ProcessCode
 FW::Root::RootMaterialTrackWriter::initialize()
 {
   
   ACTS_INFO("Registering new ROOT output File : " << m_cfg.fileName);
   // open the output file
-  m_outputFile = new TFile(m_cfg.fileName.c_str(), "recreate");
+  m_outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
   // create the output tree
   m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
   // create a branch with the MaterialTrack entities
@@ -33,10 +38,9 @@ FW::ProcessCode
 FW::Root::RootMaterialTrackWriter::finalize()
 {
   // write the tree and close the file
-  ACTS_INFO("Closing and Writing ROOT output File : " << m_cfg.fileName);
+  ACTS_INFO("Writing ROOT output File : " << m_cfg.fileName);
   m_outputFile->cd();
   m_outputTree->Write();
-  m_outputFile->Close();
   
   return FW::ProcessCode::SUCCESS;
 }
