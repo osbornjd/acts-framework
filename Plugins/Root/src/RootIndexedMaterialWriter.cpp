@@ -101,11 +101,3 @@ FW::Root::RootIndexedMaterialWriter::write(
   // return success
   return FW::ProcessCode::SUCCESS;
 }
-
- 
-FW::ProcessCode
-FW::Root::RootIndexedMaterialWriter::write(const std::string&) 
-{ 
-  return FW::ProcessCode::SUCCESS;
-}
- 

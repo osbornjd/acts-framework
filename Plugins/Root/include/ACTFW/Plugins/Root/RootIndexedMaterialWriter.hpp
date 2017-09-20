@@ -67,11 +67,6 @@ namespace Root {
         FW::ProcessCode
         write(const Acts::IndexedSurfaceMaterial& ism) final override;
 
-        /// Interface method which writes out an additional string
-        /// @param sinfo is some additional info that might be written
-        FW::ProcessCode
-        write(const std::string& sinfo) final override;
-
     private:
         /// The config class
         Config                    m_cfg;

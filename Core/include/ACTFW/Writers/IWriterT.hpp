@@ -31,12 +31,6 @@ public:
   virtual ProcessCode
   write(const T& object) = 0;
   
-  /// write a bit of string
-  /// @param sinfo is some string info to be written
-  /// @return is a ProcessCode indicating return/failure
-  virtual ProcessCode
-  write(const std::string& sinfo) = 0;
-  
 };
 
 }

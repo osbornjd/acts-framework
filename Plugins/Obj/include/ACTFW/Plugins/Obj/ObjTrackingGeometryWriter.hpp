@@ -70,12 +70,6 @@ public:
   /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
   write(const Acts::TrackingGeometry& tGeometry) final override;
-  
-  /// write a bit of string
-  /// @param is the string to be written out
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  write(const std::string& sinfo) final override;
 
 private:
   Config         m_cfg;         ///< the config class
@@ -92,12 +86,6 @@ private:
     return *m_cfg.logger;
   }
 };
-
-FW::ProcessCode
-ObjTrackingGeometryWriter::write(const std::string&)
-{
-  return FW::ProcessCode::SUCCESS;
-}
 
 }
 

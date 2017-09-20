@@ -26,13 +26,6 @@ public:
   /// @return is a ProcessCode indicating success/failure
   virtual ProcessCode
   write(const DetectorData<geo_id_value, T>& dd) = 0;
-
-  /// write a bit of string
-  /// @param sinfo is some string info to be written
-  /// @return is a ProcessCode indicating return/failure
-  virtual ProcessCode
-  write(const std::string& sinfo) = 0;
-  
 };
 
 }

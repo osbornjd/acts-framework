@@ -62,11 +62,3 @@ FW::Root::RootMaterialTrackWriter::write(
   // return success
   return FW::ProcessCode::SUCCESS;
 }
-
- 
-FW::ProcessCode
-FW::Root::RootMaterialTrackWriter::write(const std::string&) 
-{ 
-  return FW::ProcessCode::SUCCESS;
-}
- 

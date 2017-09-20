@@ -81,7 +81,7 @@ public:
   /// write a bit of string
   /// @param is the string to be written
   FW::ProcessCode
-  write(const std::string& sinfo) final override;
+  write(const std::string& sinfo);
 
 private:
   Config                    m_cfg;        ///< the config class

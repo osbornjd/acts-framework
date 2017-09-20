@@ -73,11 +73,6 @@ namespace Root {
         FW::ProcessCode
         write(const Acts::MaterialTrack& mtrecord) final override;
 
-        /// Interface method which writes out an additional string
-        /// @param mtrecord is the material track record to be written out
-        FW::ProcessCode
-        write(const std::string& sinfo) final override;
-
     private:
         /// The config class
         Config                    m_cfg;
