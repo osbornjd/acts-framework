@@ -7,6 +7,7 @@
 #ifndef ACTFW_PYTHIA8GENERATOR_H
 #define ACTFW_PYTHIA8GENERATOR_H
 
+#include <memory>
 #include <mutex>
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
@@ -44,9 +45,7 @@ namespace Pythia8 {
                       = Acts::getDefaultLogger("TPythia8Generator",
                                                Acts::Logging::INFO));
 
-    /// Destructor
-    virtual ~TPythia8Generator();
-
+    /// Framework name() method
     std::string
     name() const final override;
 
@@ -69,7 +68,7 @@ namespace Pythia8 {
     /// the configuration class
     Config m_cfg;
     /// the pythia object
-    TPythia8* m_pythia8;
+    std::unique_ptr<TPythia8> m_pythia8;
     /// logger instance
     std::unique_ptr<const Acts::Logger> m_logger;
     /// mutex used to protect multi-threaded reads

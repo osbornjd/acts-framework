@@ -1,27 +1,31 @@
+#include <stdexcept>
 #include "ACTFW/Plugins/Geant4/MMEventAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMPrimaryGeneratorAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 
-FW::G4::MMEventAction* FW::G4::MMEventAction::fgInstance = 0;
+FW::G4::MMEventAction* FW::G4::MMEventAction::fgInstance = nullptr;
 
 FW::G4::MMEventAction*
 FW::G4::MMEventAction::Instance()
 {
   // Static acces function via G4RunManager
-
   return fgInstance;
 }
 
 FW::G4::MMEventAction::MMEventAction() : G4UserEventAction()
 {
-  fgInstance = this;
+  if(fgInstance) {
+    throw std::logic_error("Attempted to duplicate a singleton");
+  } else {
+    fgInstance = this;
+  }
 }
 
 FW::G4::MMEventAction::~MMEventAction()
 {
-  fgInstance = 0;
+  fgInstance = nullptr;
 }
 
 void
