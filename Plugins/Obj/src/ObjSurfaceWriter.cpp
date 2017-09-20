@@ -67,7 +67,7 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     }
     // get the thickness and vertical faces
     double thickness = 0.;
-    std::vector<unsigned int> vfaces = {};
+    std::vector<unsigned int> vfaces;
     if (surface.associatedDetectorElement()){
       // get the thickness form the detector element
       thickness = surface.associatedDetectorElement()->thickness();
