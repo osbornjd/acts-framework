@@ -60,8 +60,6 @@ main(int argc, char* argv[])
     sdObjWriterConfig.outputStream       = sdStream;
     auto sdObjWriter
         = std::make_shared<FWObj::ObjSurfaceWriter>(sdObjWriterConfig);
-    // call initialize
-    sdObjWriter->initialize();
     // push back
     subWriters.push_back(sdObjWriter);
     subStreams.push_back(sdStream);

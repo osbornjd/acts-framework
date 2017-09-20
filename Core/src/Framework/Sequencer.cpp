@@ -92,8 +92,6 @@ FW::Sequencer::run(size_t events, size_t skip)
   ACTS_INFO("  " << m_readers.size() << " readers");
   ACTS_INFO("  " << m_writers.size() << " writers");
   ACTS_INFO("  " << m_algorithms.size() << " algorithms");
-  for (auto& svc : m_services)
-    if (svc->initialize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
 
   // execute the event loop
   ACTS_INFO("Run the event loop");
@@ -135,9 +133,7 @@ FW::Sequencer::run(size_t events, size_t skip)
   ACTS_INFO("  " << m_algorithms.size() << " algorithms");
   for (auto& wrt : m_writers)
     if (wrt->endRun() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& svc : m_services) {
-    if (svc->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
+  for (auto& svc : m_services)
     if (svc->endRun() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  }
   return ProcessCode::SUCCESS;
 }

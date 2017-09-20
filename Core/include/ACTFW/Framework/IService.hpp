@@ -24,16 +24,6 @@ public:
   virtual std::string
   name() const = 0;
 
-  /// Framework intialize method
-  /// @todo Remove once all custom implementations are gone
-  virtual ProcessCode
-  initialize() { return ProcessCode::SUCCESS; }
-
-  /// Framework finalize method
-  /// @todo Remove once all custom implementations are gone
-  virtual ProcessCode
-  finalize() { return ProcessCode::SUCCESS; }
-
   /// Finish the run (e.g. aggregate statistics, write down output, close files)
   /// @todo Move to IWriterT once the Sequencer has been tuned for it
   virtual ProcessCode
