@@ -58,6 +58,7 @@ void
 FWGen::GenericLayerBuilder::setLogger(std::unique_ptr<const Acts::Logger> newLogger)
 {
   m_logger = std::move(newLogger);
+}
 
 void
 FWGen::GenericLayerBuilder::constructLayers()
