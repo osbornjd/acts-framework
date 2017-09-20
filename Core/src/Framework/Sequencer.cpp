@@ -11,10 +11,6 @@ FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
 {
 }
 
-FW::Sequencer::~Sequencer()
-{
-}
-
 FW::ProcessCode
 FW::Sequencer::addServices(std::vector<std::shared_ptr<FW::IService>> services)
 {

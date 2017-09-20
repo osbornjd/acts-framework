@@ -67,9 +67,6 @@ public:
                          std::shared_ptr<const Acts::SurfaceMaterial> material
                          = nullptr);
 
-  ///  Destructor
-  ~GenericDetectorElement();
-
   /// Identifier
   Identifier
   identify() const final override;

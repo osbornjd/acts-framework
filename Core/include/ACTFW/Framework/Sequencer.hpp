@@ -42,7 +42,6 @@ public:
   Sequencer(const Config&                       cfg,
             std::unique_ptr<const Acts::Logger> logger
             = Acts::getDefaultLogger("Sequencer", Acts::Logging::INFO));
-  ~Sequencer();
 
   /// Add services
   ///

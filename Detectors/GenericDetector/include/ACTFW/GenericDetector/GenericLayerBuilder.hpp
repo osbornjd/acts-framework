@@ -143,9 +143,6 @@ public:
                       std::unique_ptr<const Acts::Logger> logger
                       = Acts::getDefaultLogger("GenericLayerBuilder", Acts::Logging::INFO));
 
-  /// Destructor
-  ~GenericLayerBuilder();
-
   /// LayerBuilder interface method - returning the layers at negative side
   const Acts::LayerVector
   negativeLayers() const final override;
