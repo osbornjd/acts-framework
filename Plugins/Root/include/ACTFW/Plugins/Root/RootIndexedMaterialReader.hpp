@@ -55,17 +55,12 @@ public:
   /// Constructor
   RootIndexedMaterialReader(const Config& cfg);
 
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize() override final;
-
-  /// Framework finalize method
-  FW::ProcessCode
-  finalize() override final;
+  /// Virtual destructor
+  ~RootIndexedMaterialReader() override;
 
   /// Framework name() method
   std::string
-  name() const override final;
+  name() const final override;
 
   // clang-format off
   /// @copydoc FW::IReaderT::read(std::vector<Acts::ParticleProperties>&,size_t,const FW::AlgorithmContext*)
@@ -73,7 +68,7 @@ public:
   FW::ProcessCode
   read(Acts::IndexedSurfaceMaterial& mtrc,
        size_t                        skip    = 0,
-       const FW::AlgorithmContext*   context = nullptr) override final;
+       const FW::AlgorithmContext*   context = nullptr) final override;
 
 private:
   /// The config class
