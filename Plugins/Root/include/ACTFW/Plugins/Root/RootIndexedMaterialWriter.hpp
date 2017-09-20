@@ -52,9 +52,6 @@ namespace Root {
         /// Constructor
         RootIndexedMaterialWriter(const Config& cfg);
         
-        /// Destructor
-        virtual ~RootIndexedMaterialWriter() = default;
-        
         /// Framework name() method
         std::string name() const override final;
         

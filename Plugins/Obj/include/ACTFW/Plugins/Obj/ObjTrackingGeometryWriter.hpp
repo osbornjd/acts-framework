@@ -59,9 +59,6 @@ public:
   /// Constructor
   /// @param cfg is the configuration class
   ObjTrackingGeometryWriter(const Config& cfg);
-
-  /// Destructor
-  virtual ~ObjTrackingGeometryWriter();
   
   /// Framework name() method
   /// @return the name of the tool

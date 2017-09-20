@@ -54,9 +54,6 @@ namespace Root {
         /// Constructor
         RootMaterialTrackWriter(const Config& cfg);
         
-        /// Destructor
-        virtual ~RootMaterialTrackWriter() = default;
-        
         /// Framework name() method
         std::string name() const override final;
         

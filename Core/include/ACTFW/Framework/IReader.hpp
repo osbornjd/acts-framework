@@ -17,7 +17,7 @@ class IReader
 {
 public:
   /// Virtual destructor
-  virtual ~IReader() {}
+  virtual ~IReader() = default;
 
   /// Provide the name of the reader
   virtual std::string

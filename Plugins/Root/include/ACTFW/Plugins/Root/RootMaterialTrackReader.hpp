@@ -54,9 +54,6 @@ public:
   /// Constructor
   RootMaterialTrackReader(const Config& cfg);
 
-  /// Destructor
-  virtual ~RootMaterialTrackReader() = default;
-
   /// Framework intialize method
   FW::ProcessCode
   initialize() override final;

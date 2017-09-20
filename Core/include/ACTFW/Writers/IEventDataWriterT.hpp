@@ -21,9 +21,6 @@ namespace FW {
 template <class T> class IEventDataWriterT : public IService
 {
 public:
-  /// Virtual Destructor
-  virtual ~IEventDataWriterT() {}
-
   /// The write interface
   /// @param dd is the detector data in the dedicated container
   /// @return is a ProcessCode indicating success/failure

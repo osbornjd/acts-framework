@@ -10,10 +10,6 @@ FWObj::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
   , m_cfg(cfg)
 {}
 
-FWObj::ObjTrackingGeometryWriter::~ObjTrackingGeometryWriter()
-{
-}
-
 std::string
 FWObj::ObjTrackingGeometryWriter::name() const
 {

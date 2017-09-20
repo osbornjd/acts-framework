@@ -46,9 +46,6 @@ public:
              std::unique_ptr<const Acts::Logger> logger
              = Acts::getDefaultLogger("BarcodeSvc", Acts::Logging::INFO));
 
-  /// Destructor
-  ~BarcodeSvc() {}
-
   /// Framework name() method
   std::string
   name() const final override;

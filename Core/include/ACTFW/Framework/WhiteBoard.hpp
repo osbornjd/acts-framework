@@ -59,7 +59,7 @@ private:
   // type-erased value holder for move-constructible types
   struct Holder
   {
-    virtual ~Holder() {}
+    virtual ~Holder() = default;
     virtual const std::type_info&
     type() const = 0;
   };
@@ -71,7 +71,6 @@ private:
     T value;
 
     THolder(T&& v) : value(std::move(v)) {}
-    ~THolder() {}
     const std::type_info&
     type() const
     {

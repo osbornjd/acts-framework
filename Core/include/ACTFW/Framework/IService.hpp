@@ -17,8 +17,8 @@ namespace FW {
 class IService
 {
 public:
-  /// Virutal Destructor
-  virtual ~IService() {}
+  /// Virtual Destructor
+  virtual ~IService() = default;
 
   /// Framework name() method
   virtual std::string
@@ -29,7 +29,7 @@ public:
   virtual ProcessCode
   initialize() { return ProcessCode::SUCCESS; }
 
-  /// Framework finalize mehtod
+  /// Framework finalize method
   /// @todo Remove once all custom implementations are gone
   virtual ProcessCode
   finalize() { return ProcessCode::SUCCESS; }

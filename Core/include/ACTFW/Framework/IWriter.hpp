@@ -17,9 +17,9 @@ class IWriter
 {
 public:
   /// Virtual destructor
-  virtual ~IWriter() {}
+  virtual ~IWriter() = default;
 
-  /// Provide the name of the reader
+  /// Provide the name of the writer
   virtual std::string
   name() const = 0;
 

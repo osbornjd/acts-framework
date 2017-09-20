@@ -55,9 +55,6 @@ public:
   /// Constructor
   RootIndexedMaterialReader(const Config& cfg);
 
-  /// Destructor
-  virtual ~RootIndexedMaterialReader() = default;
-
   /// Framework intialize method
   FW::ProcessCode
   initialize() override final;

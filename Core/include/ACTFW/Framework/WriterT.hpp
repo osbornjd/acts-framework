@@ -40,14 +40,15 @@ public:
   WriterT(std::string          objectName,
           std::string          writerName,
           Acts::Logging::Level level);
-  /// default destructor        
-  ~WriterT() = default;
 
+  /// Provide the name of the writer
   std::string
   name() const override final;
+
   /// No-op default implementation.
   ProcessCode
   endRun() override;
+
   /// Read the object and call the type-specific member function.
   ProcessCode
   write(const AlgorithmContext& ctx) override final;
