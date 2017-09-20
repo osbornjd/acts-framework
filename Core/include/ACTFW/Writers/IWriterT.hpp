@@ -18,10 +18,13 @@ namespace FW {
 /// @class IWriterT
 ///
 /// Interface to write out the single objects
+///
+/// @note Use of this interface is deprecated, all event data writers should be
+///       turned into descendents of the WriterT class in the long run
+///
 template <class T> class IWriterT : public IService
 {
 public:
-  
   /// Virtual destructor
   virtual ~IWriterT() = default;
 
@@ -30,7 +33,6 @@ public:
   /// @return is a ProcessCode indicating return/failure
   virtual ProcessCode
   write(const T& object) = 0;
-  
 };
 
 }

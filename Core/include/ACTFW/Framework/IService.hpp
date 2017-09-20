@@ -13,7 +13,14 @@
 namespace FW {
 
 /// Interface for common services.
-/// @todo Remove once all initializers and finalizers are gone
+///
+/// @warning Use of this interface is **DEPRECATED**. Its only remaining use
+///          case is to support legacy writers based on the IWriterT subclass,
+///          which should eventually be turned into descendents of the
+///          IWriter/WriterT classes. At this point, IService will be removed.
+///
+/// @todo Remove once all writers have been migrated to IWriter and WriterT
+///
 class IService
 {
 public:
@@ -24,8 +31,8 @@ public:
   virtual std::string
   name() const = 0;
 
-  /// Finish the run (e.g. aggregate statistics, write down output, close files)
-  /// @todo Move to IWriterT once the Sequencer has been tuned for it
+  /// Interface hook to run some code to be executed once all events of a job
+  /// have been processed, typically used for commiting writes to a file
   virtual ProcessCode
   endRun() { return ProcessCode::SUCCESS; }
 };
