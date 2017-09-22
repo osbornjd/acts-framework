@@ -79,7 +79,7 @@ public:
   /// @param skip Number of events to skip before processing
   ///
   /// This will run all configured algorithms for each event, potentially in
-  /// parall, then invoke the endRun hook of writers and services.
+  /// parallel, then invoke the endRun hook of writers and services.
   ProcessCode
   run(size_t events, size_t skip = 0);
 
