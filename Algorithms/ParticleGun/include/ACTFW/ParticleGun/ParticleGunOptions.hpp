@@ -32,7 +32,7 @@ namespace Options {
         po::value<int>()->default_value(13),
         "PDG number of the particle, will be adjusted for charge flip.")(
         "pg-mass",
-        po::value<double>()->default_value(105. * au::_MeV),
+        po::value<double>()->default_value(105.),
         "mass of the particle in [MeV]")(
         "pg-charge",
         po::value<double>()->default_value(-1.),
@@ -53,8 +53,7 @@ namespace Options {
         po::value<read_range>()->default_value({-4., 4.}),
         "range in which the eta parameter is simulated.")(
         "pg-ptrange",
-        po::value<read_range>()->default_value(
-            {100. * au::_MeV, 1e5 * au::_MeV}),
+        po::value<read_range>()->default_value({100., 1e5}),
         "range in which the pt in [MeV] parameter is simulated.");
   }
 
