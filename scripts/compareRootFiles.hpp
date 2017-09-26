@@ -376,11 +376,11 @@ private:
 
     // Setup event data readout
     result.m_eventLoaderPtr.reset(
-      new EventLoader<T>{ treeMetadata.tree1Reader,
-                          treeMetadata.tree2Reader,
-                          branchName,
-                          tree1Data,
-                          tree2Data }
+      new EventLoaderT<T>{ treeMetadata.tree1Reader,
+                           treeMetadata.tree2Reader,
+                           branchName,
+                           tree1Data,
+                           tree2Data }
     );
 
     // Setup event comparison and swapping for each tree
@@ -429,23 +429,23 @@ private:
   // movable (for moving it into a lambda), or even just virtually destructible
   // (for moving a unique_ptr into the lambda), loadEventData can only be
   // implemented through lots of unpleasant C++98-ish boilerplate.
-  class EventLoaderBase
+  class IEventLoader
   {
   public:
-    virtual ~EventLoaderBase() = default;
+    virtual ~IEventLoader() = default;
     virtual void operator()() = 0;
   };
   
   template<typename T>
-  class EventLoader: public EventLoaderBase
+  class EventLoaderT: public IEventLoader
   {
   public:
 
-    EventLoader(      TTreeReader    & tree1Reader,
-                      TTreeReader    & tree2Reader,
-                const std::string    & branchName,
-                      std::vector<T> & tree1Data,
-                      std::vector<T> & tree2Data)
+    EventLoaderT(      TTreeReader    & tree1Reader,
+                       TTreeReader    & tree2Reader,
+                 const std::string    & branchName,
+                       std::vector<T> & tree1Data,
+                       std::vector<T> & tree2Data)
       : branch1Reader{ tree1Reader, branchName.c_str() }
       , branch2Reader{ tree2Reader, branchName.c_str() }
       , branch1Data(tree1Data)
@@ -467,7 +467,7 @@ private:
 
   };
   
-  std::unique_ptr<EventLoaderBase> m_eventLoaderPtr;
+  std::unique_ptr<IEventLoader> m_eventLoaderPtr;
 
 
   // This helper factory helps building branches associated with std::vectors

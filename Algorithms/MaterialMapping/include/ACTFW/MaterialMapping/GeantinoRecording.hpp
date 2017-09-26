@@ -6,7 +6,7 @@
 #define ACTW_ALGORITHMS_MATERIALMAPPING_GEANTINORECORDING_H
 
 #include <memory>
-#include "ACTFW/Framework/IAlgorithm.hpp"
+#include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
@@ -18,7 +18,7 @@ namespace FW {
 class WhiteBoard;
 }
 
-namespace FWA {
+namespace FW {
 
 /// @class GeantinoRecording
 ///
@@ -30,7 +30,7 @@ namespace FWA {
 /// The input for the geant4 geometry can be either provided by a gdml file
 /// or an implementation of the IGeant4Service.
 
-class GeantinoRecording : public FW::IAlgorithm
+class GeantinoRecording : public FW::BareAlgorithm
 {
 public:
   /// @class Config
@@ -39,10 +39,10 @@ public:
     /// The writer writing out the MaterialTrack entities
     std::shared_ptr< FW::IWriterT<Acts::MaterialTrack> >
       materialTrackWriter = nullptr;
-    /// The service possibly providing the Geant4 geometry
-    /// @note if not set the geometry should be given by gdml file
+    /// The service possibly providing the Geant4 geometry (optional)
+    /// @note If this is not set, the geometry should be given by gdml file
     std::shared_ptr<FW::IGeant4Service> geant4Service = nullptr;
-    /// The possible gmdl input
+    /// The possible gmdl input (optional)
     std::string gdmlFile;
     /// The number of tracks per event
     size_t tracksPerEvent = 0;
@@ -54,34 +54,16 @@ public:
 
   /// Constructor
   GeantinoRecording(const Config&        cnf,
-                    std::unique_ptr<const Acts::Logger> logger
-                    = Acts::getDefaultLogger("GeantinoRecording", Acts::Logging::INFO));
-  /// Destructor
-  ~GeantinoRecording();
-  
-  std::string name() const ;
+                    Acts::Logging::Level level = Acts::Logging::INFO);
 
   FW::ProcessCode
-  initialize();
-
-  FW::ProcessCode
-  finalize();
-
-  FW::ProcessCode
-  execute(FW::AlgorithmContext context) const final;
+  execute(FW::AlgorithmContext context) const final override;
 
 private:
   /// The config object
   Config          m_cfg;
   /// G4 run manager
-  G4RunManager*   m_runManager;
-  std::unique_ptr<const Acts::Logger> m_logger;
-
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_logger;
-  }
+  std::unique_ptr<G4RunManager> m_runManager;
 };
 
 }

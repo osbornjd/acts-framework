@@ -11,7 +11,7 @@
 #include <fstream>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
+#include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/Surfaces/Surface.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
@@ -39,14 +39,14 @@ public:
   {
   public:
     /// the default logger
-    std::shared_ptr<const Acts::Logger>                          logger;
+    std::shared_ptr<const Acts::Logger>              logger;
     /// the name of the writer
-    std::string                                                  name = "";
+    std::string                                      name = "";
     /// surfaceWriters
-    std::vector< std::shared_ptr<FW::IWriterT<Acts::Surface> > > surfaceWriters;
-    std::string                                                  filePrefix = "";
-    std::string                                                  sensitiveGroupPrefix = "";
-    std::string                                                  layerPrefix = "";
+    std::vector< std::shared_ptr<ObjSurfaceWriter> > surfaceWriters;
+    std::string                                      filePrefix = "";
+    std::string                                      sensitiveGroupPrefix = "";
+    std::string                                      layerPrefix = "";
   
     Config(const std::string&   lname = "ObjTrackingGeometryWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
@@ -59,36 +59,17 @@ public:
   /// Constructor
   /// @param cfg is the configuration class
   ObjTrackingGeometryWriter(const Config& cfg);
-
-  /// Destructor
-  virtual ~ObjTrackingGeometryWriter();
   
   /// Framework name() method
   /// @return the name of the tool
   std::string
-  name() const final;
-  
-  /// Framework intialize method
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  initialize() final;
-
-  /// Framework finalize mehtod
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  finalize() final;
+  name() const final override;
 
   /// The write interface
   /// @param tGeometry is the geometry to be written out
   /// @return ProcessCode to indicate success/failure
   FW::ProcessCode
   write(const Acts::TrackingGeometry& tGeometry) final override;
-  
-  /// write a bit of string
-  /// @param is the string to be written out
-  /// @return ProcessCode to indicate success/failure
-  FW::ProcessCode
-  write(const std::string& sinfo) final override;
 
 private:
   Config         m_cfg;         ///< the config class
@@ -105,12 +86,6 @@ private:
     return *m_cfg.logger;
   }
 };
-
-FW::ProcessCode
-ObjTrackingGeometryWriter::write(const std::string&)
-{
-  return FW::ProcessCode::SUCCESS;
-}
 
 }
 

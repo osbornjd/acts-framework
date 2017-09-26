@@ -54,20 +54,12 @@ public:
   /// Constructor
   RootMaterialTrackReader(const Config& cfg);
 
-  /// Destructor
-  virtual ~RootMaterialTrackReader() = default;
-
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize() override final;
-
-  /// Framework finalize method
-  FW::ProcessCode
-  finalize() override final;
+  /// Virtual destructor
+  ~RootMaterialTrackReader() override;
 
   /// Framework name() method
   std::string
-  name() const override final;
+  name() const final override;
 
   // clang-format off
   /// @copydoc FW::IReaderT::read(std::vector<Acts::ParticleProperties>&,size_t,const FW::AlgorithmContext*)
@@ -75,7 +67,7 @@ public:
   FW::ProcessCode
   read(Acts::MaterialTrack&        mtrc,
        size_t                      skip    = 0,
-       const FW::AlgorithmContext* context = nullptr) override final;
+       const FW::AlgorithmContext* context = nullptr) final override;
 
 private:
   /// The config class
@@ -84,7 +76,8 @@ private:
   std::mutex m_read_mutex;
   /// The input tree name
   TChain* m_inputChain;
-  // The MaterialTrack to be written out
+  /// The MaterialTrack to be written out.
+  /// @note Must use a raw pointer because of ROOT's weird ownership semantics
   Acts::MaterialTrack* m_trackRecord;
   /// the event
   int m_event;

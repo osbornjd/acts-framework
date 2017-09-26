@@ -8,6 +8,9 @@ FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
     Acts::Logging::Level level)
   : FW::BareAlgorithm("RandomNumbersAlgorithm",level), m_cfg(cfg)
 {
+  if (!m_cfg.randomNumbers) {
+    throw std::invalid_argument("Missing random number service");
+  }
 }
 
 FW::ProcessCode

@@ -1,4 +1,6 @@
+#include <ios>
 #include <iostream>
+#include <stdexcept>
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTS/Surfaces/SurfaceBounds.hpp"
 #include "ACTS/Surfaces/CylinderBounds.hpp"
@@ -11,10 +13,18 @@ FWObj::ObjSurfaceWriter::ObjSurfaceWriter(
     const FWObj::ObjSurfaceWriter::Config& cfg)
   : FW::IWriterT<Acts::Surface>()
   , m_cfg(cfg)
-{}
-
-FWObj::ObjSurfaceWriter::~ObjSurfaceWriter()
 {
+  // Validate the configuration
+  if (!m_cfg.logger) {
+    throw std::invalid_argument("Missing logger");
+  } else if (m_cfg.name.empty()) {
+    throw std::invalid_argument("Missing algorithm name");
+  } else if (!m_cfg.outputStream) {
+    throw std::invalid_argument("Missing output stream");
+  }
+
+  // Write down the file prefix
+  (*(m_cfg.outputStream)) << m_cfg.filePrefix << '\n';
 }
 
 std::string
@@ -24,28 +34,11 @@ FWObj::ObjSurfaceWriter::name() const
 }
 
 FW::ProcessCode
-FWObj::ObjSurfaceWriter::initialize()
-{
-  // write out the the file
-  if (!(m_cfg.outputStream)) return FW::ProcessCode::SUCCESS;
-  (*(m_cfg.outputStream)) << m_cfg.filePrefix << '\n';
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FWObj::ObjSurfaceWriter::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
 FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
 {
-
   std::lock_guard<std::mutex> lock(m_write_mutex);
   
   // check
-  if (!(m_cfg.outputStream)) return FW::ProcessCode::SUCCESS;
   ACTS_DEBUG(">>Obj: Writer for Surface object called.");
 
   auto  scalor = m_cfg.outputScalor;
@@ -74,7 +67,7 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     }
     // get the thickness and vertical faces
     double thickness = 0.;
-    std::vector<unsigned int> vfaces = {};
+    std::vector<unsigned int> vfaces;
     if (surface.associatedDetectorElement()){
       // get the thickness form the detector element
       thickness = surface.associatedDetectorElement()->thickness();

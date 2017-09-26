@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <random>
+#include <stdexcept>
 
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
@@ -21,6 +22,13 @@ FW::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
   : FW::BareAlgorithm("ExtrapolationAlgorithm", loglevel)
   , m_cfg(cfg)
 {
+  if (!m_cfg.extrapolationEngine) {
+    throw std::invalid_argument("Missing extrapolation engine");
+  } else if (m_cfg.evgenCollection.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  } else if (m_cfg.simulatedParticlesCollection.empty()) {
+    throw std::invalid_argument("Missing simulated particles collection");
+  }
 }
 
 FW::ProcessCode

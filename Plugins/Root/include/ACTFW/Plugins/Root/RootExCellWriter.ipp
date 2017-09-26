@@ -1,3 +1,6 @@
+#include <ios>
+#include <stdexcept>
+
 template <class T>
 FW::ProcessCode
 FW::Root::RootExCellWriter<T>::writeT(const FW::AlgorithmContext&  ctx,
@@ -140,69 +143,76 @@ FW::Root::RootExCellWriter<T>::RootExCellWriter(
   , m_cfg(cfg)
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
-{}
-
-template <class T>
-FW::ProcessCode
-FW::Root::RootExCellWriter<T>::initialize()
 {
+  // Validate the configuration
+  if (m_cfg.collection.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  } else if (m_cfg.treeName.empty()) {
+    throw std::invalid_argument("Missing tree name");
+  }
+
+  // Setup ROOT I/O
   m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
   if (!m_outputFile) {
-    //ACTS_ERROR("Could not open ROOT file'" << m_cfg.filePath << "' to write");
-    return ProcessCode::ABORT;
+    throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
   }
   m_outputFile->cd();
   m_outputTree = new TTree(m_cfg.treeName.c_str(), 
                            "TTree from RootPlanarClusterWriter");
-  // initial parameters
+  if (!m_outputTree) throw std::bad_alloc();
+
+  // Initial parameters
   m_outputTree->Branch("eta", &m_eta);
   m_outputTree->Branch("phi", &m_phi);
   
-  // output the step information
+  // Output the step information
   m_outputTree->Branch("step_x", &m_s_positionX);
   m_outputTree->Branch("step_y", &m_s_positionY);
   m_outputTree->Branch("step_z", &m_s_positionZ);
   m_outputTree->Branch("step_r", &m_s_positionR);
 
-  // identification
+  // Identification
   m_outputTree->Branch("volumeID",  &m_s_volumeID);
   m_outputTree->Branch("layerID",   &m_s_layerID);
   m_outputTree->Branch("surfaceID", &m_s_surfaceID);
-  // material section
-  if (m_cfg.writeMaterial){
+
+  // Material section
+  if (m_cfg.writeMaterial) {
     m_outputTree->Branch("material_X0",      &m_materialX0);
     m_outputTree->Branch("material_L0",      &m_materialL0);
     m_outputTree->Branch("step_material_X0", &m_s_materialX0);
     m_outputTree->Branch("step_material_L0", &m_s_materialL0);
     m_outputTree->Branch("material",         &m_s_material);
   }
-  // sensitive section
-  if (m_cfg.writeSensitive){
+
+  // Sensitive section
+  if (m_cfg.writeSensitive) {
     m_outputTree->Branch("sensitive",  &m_s_sensitive);
     m_outputTree->Branch("step_l0",    &m_s_localposition0);
     m_outputTree->Branch("step_l1",    &m_s_localposition1);
   }
-  // boundary section
+
+  // Boundary section
   if (m_cfg.writeBoundary)
     m_outputTree->Branch("boundary", &m_s_boundary);
-  // numer of sensitive hits
+
+  // Number of sensitive hits
   m_outputTree->Branch("hits", &m_hits);
-  
-  return ProcessCode::SUCCESS;
-  
+}
+
+template <class T>
+FW::Root::RootExCellWriter<T>::~RootExCellWriter()
+{
+  m_outputFile->Close();
 }
 
 template <class T>
 FW::ProcessCode
-FW::Root::RootExCellWriter<T>::finalize()
+FW::Root::RootExCellWriter<T>::endRun()
 {
-  if (m_outputFile) {
-    m_outputFile->cd();
-    m_outputTree->Write();
-    m_outputFile->Close();
-    //ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
-    //                                      << m_cfg.filePath << "'");
-  }
+  m_outputFile->cd();
+  m_outputTree->Write();
+  //ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
+  //                                      << m_cfg.filePath << "'");
   return ProcessCode::SUCCESS;
 }
-

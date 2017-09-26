@@ -33,18 +33,19 @@ namespace Root {
       std::string fileMode = "RECREATE";   ///< file access mode
       std::string treeName = "particles";  ///< name of the output tree
       std::shared_ptr<FW::BarcodeSvc>
-          barcodeSvc;  ///< the barcode service to decode
+          barcodeSvc;  ///< the barcode service to decode (optional)
     };
 
+    /// Constructor
     RootParticleWriter(const Config&        cfg,
                        Acts::Logging::Level level = Acts::Logging::INFO);
-    virtual ~RootParticleWriter() = default;
 
+    /// Virtual destructor
+    ~RootParticleWriter() override;
+
+    /// End-of-run hook
     ProcessCode
-    initialize() final;
-    
-    ProcessCode
-    finalize() final;
+    endRun() final override;
 
   protected:
     /// write method called by the base class
@@ -53,7 +54,7 @@ namespace Root {
     /// particles to be attached
     ProcessCode
     writeT(const AlgorithmContext&                      ctx,
-           const std::vector<Acts::ProcessVertex>& vertices) final;
+           const std::vector<Acts::ProcessVertex>& vertices) final override;
 
   private:
     Config     m_cfg;         ///< the config class

@@ -27,9 +27,13 @@ public:
   /// It extends the Algorithm::Config Class
   struct Config
   {
+    // Input collection of DataClassOne (optional)
     std::string inputClassOneCollection  = "";
+    // Output collection of DataClassOne (optional)
     std::string outputClassOneCollection = "";
+    // Input collection of DataClassTwo (optional)
     std::string inputClassTwoCollection  = "";
+    // Output collection of DataClassTwo (optional)
     std::string outputClassTwoCollection = "";
   };
 

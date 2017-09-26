@@ -49,6 +49,7 @@ public:
     /// file prefix to be written out
     std::string                          filePrefix         = "";
     /// prefixes
+    /// @todo These aren't used anywhere, should they be dropped?
     std::string                          planarPrefix       = "";
     std::string                          cylinderPrefix     = "";
     std::string                          diskPrefix         = "";
@@ -67,21 +68,10 @@ public:
   ///
   /// @param cfg is the configuration class
   ObjSurfaceWriter(const Config& cfg);
-
-  /// Destructor
-  virtual ~ObjSurfaceWriter();
   
   /// Framework name() method
   std::string
-  name() const final;
-
-  /// Framework intialize method
-  FW::ProcessCode
-  initialize() final;
-
-  /// Framework finalize mehtod
-  FW::ProcessCode
-  finalize() final;
+  name() const final override;
 
   /// The write interface
   /// @param surface to be written out
@@ -91,13 +81,12 @@ public:
   /// write a bit of string
   /// @param is the string to be written
   FW::ProcessCode
-  write(const std::string& sinfo) final override;
+  write(const std::string& sinfo);
 
 private:
   Config                    m_cfg;        ///< the config class
   FWObjHelper::VtnCounter   m_vtnCounter; ///< vertex, texture, normal
   std::mutex                m_write_mutex;///< mutex to protect multi-threaded writes
-  
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -107,12 +96,9 @@ private:
   }
 };
 
-FW::ProcessCode
+inline FW::ProcessCode
 ObjSurfaceWriter::write(const std::string& sinfo)
 {
-  
-  // abort if you don't have a stream
-  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
   // lock the mutex for writing
   std::lock_guard<std::mutex> lock(m_write_mutex);
   // and write

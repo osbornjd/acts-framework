@@ -1,4 +1,5 @@
-#include <fstream>
+#include <ios>
+#include <stdexcept>
 #include "ACTS/Digitization/PlanarModuleCluster.hpp"
 #include "ACTS/Digitization/DigitizationModule.hpp"
 #include "ACTS/Digitization/Segmentation.hpp"
@@ -12,57 +13,61 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
     Acts::Logging::Level                           level)
   : Base(cfg.collection, "RootPlanarClusterWriter", level)
   , m_cfg(cfg)
-{}
-
-
-FW::ProcessCode
-FW::Root::RootPlanarClusterWriter::initialize()
 {
+  // An input collection name and tree name must be specified
+  if (m_cfg.collection.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  } else if (m_cfg.treeName.empty()) {
+    throw std::invalid_argument("Missing tree name");
+  }
+
+  // Setup ROOT I/O
   m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
   if (!m_outputFile) {
-    ACTS_ERROR("Could not open ROOT file'" << m_cfg.filePath << "' to write");
-    return ProcessCode::ABORT;
+    throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
   }
   m_outputFile->cd();
   m_outputTree = new TTree(m_cfg.treeName.c_str(), 
                            "TTree from RootPlanarClusterWriter");
-  // set the branches
-  m_outputTree->Branch("event_nr",      &m_eventNr);    
-  m_outputTree->Branch("volumeID",      &m_volumeID);   
-  m_outputTree->Branch("layerID",       &m_layerID);    
-  m_outputTree->Branch("surfaceID",     &m_surfaceID);  
-  m_outputTree->Branch("g_x",           &m_x);          
-  m_outputTree->Branch("g_y",           &m_y);          
-  m_outputTree->Branch("g_z",           &m_z);          
-  m_outputTree->Branch("l_x",           &m_lx);         
-  m_outputTree->Branch("l_y",           &m_ly);         
-  m_outputTree->Branch("cov_l_x",       &m_cov_lx);      
-  m_outputTree->Branch("cov_l_y",       &m_cov_ly);      
-  m_outputTree->Branch("cell_ID_x",     &m_cell_IDx);    
-  m_outputTree->Branch("cell_ID_y",     &m_cell_IDy);    
-  m_outputTree->Branch("cell_l_x",      &m_cell_lx);     
-  m_outputTree->Branch("cell_l_y",      &m_cell_ly);     
+  if (!m_outputTree) throw std::bad_alloc();
+
+  // Set the branches
+  m_outputTree->Branch("event_nr",      &m_eventNr);
+  m_outputTree->Branch("volumeID",      &m_volumeID);
+  m_outputTree->Branch("layerID",       &m_layerID);
+  m_outputTree->Branch("surfaceID",     &m_surfaceID);
+  m_outputTree->Branch("g_x",           &m_x);
+  m_outputTree->Branch("g_y",           &m_y);
+  m_outputTree->Branch("g_z",           &m_z);
+  m_outputTree->Branch("l_x",           &m_lx);
+  m_outputTree->Branch("l_y",           &m_ly);
+  m_outputTree->Branch("cov_l_x",       &m_cov_lx);
+  m_outputTree->Branch("cov_l_y",       &m_cov_ly);
+  m_outputTree->Branch("cell_ID_x",     &m_cell_IDx);
+  m_outputTree->Branch("cell_ID_y",     &m_cell_IDy);
+  m_outputTree->Branch("cell_l_x",      &m_cell_lx);
+  m_outputTree->Branch("cell_l_y",      &m_cell_ly);
   m_outputTree->Branch("cell_data",     &m_cell_data);
-  m_outputTree->Branch("truth_g_x",     &m_t_gx);        
-  m_outputTree->Branch("truth_g_y",     &m_t_gy);        
-  m_outputTree->Branch("truth_g_z",     &m_t_gz);        
-  m_outputTree->Branch("truth_l_x",     &m_t_lx);        
-  m_outputTree->Branch("truth_l_y",     &m_t_ly);        
-  m_outputTree->Branch("truth_barcode", &m_t_barcode); 
-  
-  return ProcessCode::SUCCESS;
+  m_outputTree->Branch("truth_g_x",     &m_t_gx);
+  m_outputTree->Branch("truth_g_y",     &m_t_gy);
+  m_outputTree->Branch("truth_g_z",     &m_t_gz);
+  m_outputTree->Branch("truth_l_x",     &m_t_lx);
+  m_outputTree->Branch("truth_l_y",     &m_t_ly);
+  m_outputTree->Branch("truth_barcode", &m_t_barcode);
+}
+
+FW::Root::RootPlanarClusterWriter::~RootPlanarClusterWriter()
+{
+  m_outputFile->Close();
 }
 
 FW::ProcessCode
-FW::Root::RootPlanarClusterWriter::finalize()
+FW::Root::RootPlanarClusterWriter::endRun()
 {
-  if (m_outputFile) {
-    m_outputFile->cd();
-    m_outputTree->Write();
-    m_outputFile->Close();
-    ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
-                                          << m_cfg.filePath << "'");
-  }
+  m_outputFile->cd();
+  m_outputTree->Write();
+  ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
+                                        << m_cfg.filePath << "'");
   return ProcessCode::SUCCESS;
 }
 

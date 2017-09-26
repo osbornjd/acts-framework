@@ -40,20 +40,18 @@ public:
   WriterT(std::string          objectName,
           std::string          writerName,
           Acts::Logging::Level level);
-  /// default destructor        
-  ~WriterT() = default;
 
+  /// Provide the name of the writer
   std::string
-  name() const override final;
+  name() const final override;
+
   /// No-op default implementation.
   ProcessCode
-  initialize() override;
-  /// No-op default implementation.
-  ProcessCode
-  finalize() override;
+  endRun() override;
+
   /// Read the object and call the type-specific member function.
   ProcessCode
-  write(const AlgorithmContext& ctx) override final;
+  write(const AlgorithmContext& ctx) final override;
 
 protected:
   /// Type-specific write function implementation
@@ -62,8 +60,7 @@ protected:
   ///        consistency
   /// @tparam [in] is the templeted collection to be written 
   virtual ProcessCode
-  writeT(const AlgorithmContext& ctx, const T& t)
-      = 0;
+  writeT(const AlgorithmContext& ctx, const T& t) = 0;
 
   const Acts::Logger&
   logger() const
@@ -87,6 +84,11 @@ FW::WriterT<T>::WriterT(std::string          objectName,
   , m_writerName(std::move(writerName))
   , m_logger(Acts::getDefaultLogger(m_writerName, level))
 {
+  if (m_objectName.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  } else if (m_writerName.empty()) {
+    throw std::invalid_argument("Missing writer name");
+  }
 }
 
 template <typename T>
@@ -98,14 +100,7 @@ FW::WriterT<T>::name() const
 
 template <typename T>
 inline FW::ProcessCode
-FW::WriterT<T>::initialize()
-{
-  return ProcessCode::SUCCESS;
-}
-
-template <typename T>
-inline FW::ProcessCode
-FW::WriterT<T>::finalize()
+FW::WriterT<T>::endRun()
 {
   return ProcessCode::SUCCESS;
 }

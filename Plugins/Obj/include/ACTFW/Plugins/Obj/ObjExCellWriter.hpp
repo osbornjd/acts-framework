@@ -49,16 +49,13 @@ public:
   /// @parm level is the output logging level
   ObjExCellWriter(const Config& cfg,
     Acts::Logging::Level lvl   = Acts::Logging::INFO);
-
-  /// defualt desctrubtor
-  virtual ~ObjExCellWriter() = default;
   
 protected:
   /// The protected writeT method, called by the WriterT base
   /// @param ctx is the algorithm context for event consistency   
   ProcessCode
   writeT(const FW::AlgorithmContext&                  ctx,
-         const std::vector<Acts::ExtrapolationCell> & ecells) final;
+         const std::vector<Acts::ExtrapolationCell> & ecells) final override;
 
 private:
   Config m_cfg;
@@ -71,7 +68,11 @@ ObjExCellWriter<T>::ObjExCellWriter(
   : FW::IWriterT<Acts::ExtrapolationCell<T> >()
   , m_cfg(cfg)
   , m_vCounter(0)
-{}
+{
+  if (!m_cfg.outputStream) {
+    throw std::invalid_argument("Missing output stream");
+  }
+}
 
 
 template <class T>
@@ -79,10 +80,8 @@ FW::ProcessCode
 ObjExCellWriter<T>::write(const FW::AlgorithmContext&                  ctx,
                           const std::vector< const Acts::ExtrapolationCell<T> >& ecells)
 {
-   // abort if you don't have a stream
-  if (!m_cfg.outputStream)   return FW::ProcessCode::ABORT;
-   // loop over the cells    
-   for (auto& eCell : ecells) 
+  // loop over the cells
+  for (auto& eCell : ecells)
     // remember the first counter
     size_t fCounter = m_vCounter;
     

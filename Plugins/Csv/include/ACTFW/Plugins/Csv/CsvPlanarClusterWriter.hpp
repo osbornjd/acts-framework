@@ -29,6 +29,7 @@ namespace Csv {
   {
   public:
     using Base = WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>;
+
     struct Config
     {
       std::string collection;           ///< which collection to write
@@ -41,8 +42,6 @@ namespace Csv {
     /// @param output logging level
     CsvPlanarClusterWriter(const Config&        cfg,
                            Acts::Logging::Level level = Acts::Logging::INFO);
-    /// default destructor                       
-    ~CsvPlanarClusterWriter() = default;
 
   protected:
     /// This implementation holds the actual writing method
@@ -50,7 +49,7 @@ namespace Csv {
     ProcessCode
     writeT(const AlgorithmContext& ctx,
            const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
-               clusters) final;
+               clusters) final override;
 
   private:
     Config m_cfg;

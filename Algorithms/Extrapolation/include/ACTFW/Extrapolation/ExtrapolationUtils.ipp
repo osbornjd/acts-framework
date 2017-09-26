@@ -16,30 +16,30 @@ FW::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo, s
     
     // (a) RungeKuttaPropagtator
     using RKEngine = Acts::RungeKuttaEngine<MagneticField>;
-    typename RKEngine::Config propConfig{};
+    typename RKEngine::Config propConfig;
     propConfig.fieldService = magFieldSvc;
     auto propEngine         = std::make_shared<RKEngine>(propConfig);
     propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", eLogLevel));
     // (b) MaterialEffectsEngine
-    auto matConfig          = Acts::MaterialEffectsEngine::Config();
+    Acts::MaterialEffectsEngine::Config matConfig;
     auto materialEngine = std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
     materialEngine->setLogger(Acts::getDefaultLogger("MaterialEffectsEngine", eLogLevel));
     // (c) StaticNavigationEngine
-    auto navConfig                  = Acts::StaticNavigationEngine::Config();
+    Acts::StaticNavigationEngine::Config navConfig;
     navConfig.propagationEngine     = propEngine;
     navConfig.materialEffectsEngine = materialEngine;
     navConfig.trackingGeometry      = geo;
     auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
     navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", eLogLevel));
     // (d) the StaticEngine
-    auto statConfig                  = Acts::StaticEngine::Config();
+    Acts::StaticEngine::Config statConfig;
     statConfig.propagationEngine     = propEngine;
     statConfig.navigationEngine      = navEngine;
     statConfig.materialEffectsEngine = materialEngine;
     auto statEngine                  = std::make_shared<Acts::StaticEngine>(statConfig);
     statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", eLogLevel));
     // (e) the material engine
-    auto exEngineConfig                 = Acts::ExtrapolationEngine::Config();
+    Acts::ExtrapolationEngine::Config exEngineConfig;
     exEngineConfig.trackingGeometry     = geo;
     exEngineConfig.propagationEngine    = propEngine;
     exEngineConfig.navigationEngine     = navEngine;

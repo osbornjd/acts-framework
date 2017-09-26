@@ -27,20 +27,6 @@ FW::DD4hep::GeometryService::name() const
   return m_cfg.name;
 }
 
-/** Framework intialize method */
-FW::ProcessCode
-FW::DD4hep::GeometryService::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-/** Framework finalize mehtod */
-FW::ProcessCode
-FW::DD4hep::GeometryService::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
 FW::ProcessCode
 FW::DD4hep::GeometryService::buildDD4hepGeometry()
 {

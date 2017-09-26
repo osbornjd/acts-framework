@@ -21,18 +21,6 @@ FW::RandomNumbersSvc::name() const
   return "RandomNumbersSvc";
 }
 
-FW::ProcessCode
-FW::RandomNumbersSvc::initialize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::RandomNumbersSvc::finalize()
-{
-  return FW::ProcessCode::SUCCESS;
-}
-
 FW::RandomEngine
 FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext& context) const
 {

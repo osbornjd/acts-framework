@@ -1,6 +1,7 @@
 #include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
 
 #include <iostream>
+#include <stdexcept>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
@@ -20,43 +21,19 @@
 FW::DigitizationAlgorithm::DigitizationAlgorithm(
     const FW::DigitizationAlgorithm::Config& cfg,
     Acts::Logging::Level                     level)
-  : m_cfg(cfg)
-  , m_logger(Acts::getDefaultLogger("DigitizationAlgorithm", level))
+  : FW::BareAlgorithm("DigitizationAlgorithm", level), m_cfg(cfg)
 {
-}
-
-std::string
-FW::DigitizationAlgorithm::name() const
-{
-  return "DigitizationAlgorithm";
-}
-
-FW::ProcessCode
-FW::DigitizationAlgorithm::initialize()
-{
-  if (!m_cfg.planarModuleStepper) {
-    ACTS_ERROR("missing planar module stepper");
-    return ProcessCode::ABORT;
-  }
   if (m_cfg.simulatedHitsCollection.empty()) {
-    ACTS_ERROR("missing input hits collection");
-    return ProcessCode::ABORT;
+    throw std::invalid_argument("Missing input hits collection");
+  } else if (m_cfg.spacePointsCollection.empty()) {
+    throw std::invalid_argument("Missing output space points collection");
+  } else if (m_cfg.clustersCollection.empty()) {
+    throw std::invalid_argument("Missing output clusters collection");
+  } else if (!m_cfg.randomNumbers) {
+    throw std::invalid_argument("Missing random numbers service");
+  } else if (!m_cfg.planarModuleStepper) {
+    throw std::invalid_argument("Missing planar module stepper");
   }
-  if (m_cfg.spacePointsCollection.empty()) {
-    ACTS_ERROR("missing output space points collection");
-    return ProcessCode::ABORT;
-  }
-  if (m_cfg.clustersCollection.empty()) {
-    ACTS_ERROR("missing output clusters collection");
-    return ProcessCode::ABORT;
-  }
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::DigitizationAlgorithm::finalize()
-{
-  return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode

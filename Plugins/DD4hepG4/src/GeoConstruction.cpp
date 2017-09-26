@@ -9,8 +9,6 @@ namespace DD4hepG4 {
     GeoConstruction::GeoConstruction(dd4hep::Detector& lcdd)
     : m_lcdd(lcdd) {}
     
-    GeoConstruction::~GeoConstruction() {}
-    
     // method borrowed from DD4hep::Simulation::Geant4DetectorConstruction::Construct()
     G4VPhysicalVolume* GeoConstruction::Construct() {
         dd4hep::sim::Geant4Mapping& g4map = dd4hep::sim::Geant4Mapping::instance();

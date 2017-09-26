@@ -30,6 +30,7 @@ namespace Json {
   {
   public:
     using Base = WriterT<DetectorData<geo_id_value, T>>;
+
     struct Config
     {
       std::string collection;           ///< which collection to write
@@ -39,12 +40,11 @@ namespace Json {
 
     JsonSpacePointWriter(const Config&        cfg,
                          Acts::Logging::Level level = Acts::Logging::INFO);
-    ~JsonSpacePointWriter() = default;
 
   protected:
     FW::ProcessCode
     writeT(const FW::AlgorithmContext&          ctx,
-           const DetectorData<geo_id_value, T>& spacePoints) final;
+           const DetectorData<geo_id_value, T>& spacePoints) final override;
 
   private:
     Config m_cfg;
@@ -64,7 +64,11 @@ FW::Json::JsonSpacePointWriter<T>::JsonSpacePointWriter(
     const FW::Json::JsonSpacePointWriter<T>::Config& cfg,
     Acts::Logging::Level                             level)
   : Base(cfg.collection, "JsonSpacePointWriter", level), m_cfg(cfg)
-{}
+{
+  if (m_cfg.collection.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  }
+}
 
 template <class T>
 FW::ProcessCode
@@ -77,8 +81,7 @@ FW::Json::JsonSpacePointWriter<T>::writeT(
       = perEventFilepath(m_cfg.outputDir, "spacepoints.json", ctx.eventNumber);
   std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
   if (!os) {
-    ACTS_ERROR("Could not open '" << path << "' to write");
-    return ProcessCode::ABORT;
+    throw std::ios_base::failure("Could not open '" + path + "' to write");
   }
 
   os << std::setprecision(m_cfg.outputPrecision);
@@ -95,7 +98,7 @@ FW::Json::JsonSpacePointWriter<T>::writeT(
     for (auto& layerData : volumeData.second) {
       for (auto& moduleData : layerData.second) {
         for (auto& data : moduleData.second) {
-          // set the virugle correctly
+          // set the comma correctly
           if (!firstPoint) os << ",\n";
           // write the space point
           os << "    [" << data.x() << ", " << data.y() << ", " << data.z()

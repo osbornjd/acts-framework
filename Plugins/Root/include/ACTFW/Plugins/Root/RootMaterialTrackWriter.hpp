@@ -53,30 +53,21 @@ namespace Root {
         
         /// Constructor
         RootMaterialTrackWriter(const Config& cfg);
-        
-        /// Destructor
-        virtual ~RootMaterialTrackWriter() = default;
+
+        /// Virtual destructor
+        ~RootMaterialTrackWriter() override;
         
         /// Framework name() method
-        std::string name() const override final;
+        std::string name() const final override;
         
         /// Framework intialize method
         FW::ProcessCode
-        initialize() override final;
-        
-        /// Framework finalize method
-        FW::ProcessCode
-        finalize() override final;
+        endRun() final override;
         
         /// Interface method which writes out the MaterialTrack entities
         /// @param mtrecord is the material track record to be written out
         FW::ProcessCode
-        write(const Acts::MaterialTrack& mtrecord) override final;
-
-        /// Interface method which writes out an additional string
-        /// @param mtrecord is the material track record to be written out
-        FW::ProcessCode
-        write(const std::string& sinfo) override final;
+        write(const Acts::MaterialTrack& mtrecord) final override;
 
     private:
         /// The config class

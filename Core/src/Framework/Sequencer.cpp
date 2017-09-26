@@ -11,10 +11,6 @@ FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
 {
 }
 
-FW::Sequencer::~Sequencer()
-{
-}
-
 FW::ProcessCode
 FW::Sequencer::addServices(std::vector<std::shared_ptr<FW::IService>> services)
 {
@@ -90,22 +86,14 @@ FW::Sequencer::appendEventAlgorithms(
 FW::ProcessCode
 FW::Sequencer::run(size_t events, size_t skip)
 {
-  // initialize services and algorithms
-  ACTS_INFO("Initialize the event loop for");
+  // Print some introduction
+  ACTS_INFO("Starting event loop for");
   ACTS_INFO("  " << m_services.size() << " services");
   ACTS_INFO("  " << m_readers.size() << " readers");
   ACTS_INFO("  " << m_writers.size() << " writers");
   ACTS_INFO("  " << m_algorithms.size() << " algorithms");
-  for (auto& svc : m_services)
-    if (svc->initialize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& rdr : m_readers)
-    if (rdr->initialize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& wrt : m_writers)
-    if (wrt->initialize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& alg : m_algorithms)
-    if (alg->initialize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
 
-  // execute the event loop
+  // Execute the event loop
   ACTS_INFO("Run the event loop");
   ACTFW_PARALLEL_FOR(
       ievent, 0, events, const size_t event = skip + ievent;
@@ -137,19 +125,11 @@ FW::Sequencer::run(size_t events, size_t skip)
 
       ACTS_INFO("event " << event << " done");)
 
-  // finalize algorithms and services in reverse order
-  ACTS_INFO("Finalize the event loop for");
-  ACTS_INFO("  " << m_services.size() << " services");
-  ACTS_INFO("  " << m_readers.size() << " readers");
-  ACTS_INFO("  " << m_writers.size() << " writers");
-  ACTS_INFO("  " << m_algorithms.size() << " algorithms");
-  for (auto& alg : m_algorithms)
-    if (alg->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
+  // Call endRun() for writers and services
+  ACTS_INFO("Running end-of-run hooks of writers and services");
   for (auto& wrt : m_writers)
-    if (wrt->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& rdr : m_readers)
-    if (rdr->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
+    if (wrt->endRun() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
   for (auto& svc : m_services)
-    if (svc->finalize() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
+    if (svc->endRun() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
   return ProcessCode::SUCCESS;
 }

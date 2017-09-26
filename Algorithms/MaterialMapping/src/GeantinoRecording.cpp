@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <stdexcept>
 #include "ACTFW/MaterialMapping/GeantinoRecording.hpp"
 #include "ACTFW/Plugins/Geant4/MMDetectorConstruction.hpp"
 #include "ACTFW/Plugins/Geant4/MMEventAction.hpp"
@@ -11,34 +12,23 @@
 #include "ACTFW/Plugins/Geant4/MMRunAction.hpp"
 #include "FTFP_BERT.hh"
 
-FWA::GeantinoRecording::GeantinoRecording(
-    const FWA::GeantinoRecording::Config& cnf,
+FW::GeantinoRecording::GeantinoRecording(
+    const FW::GeantinoRecording::Config& cnf,
     std::unique_ptr<const Acts::Logger> logger)
-  : m_cfg(cnf)
-  , m_runManager(nullptr)
-  , m_logger(std::move(logger))
+  : FW::BareAlgorithm("GeantinoRecording", level),
+  , m_cfg(cnf)
+  , m_runManager(std::make_unique<G4RunManager>())
 {
-}
+  /// Make sure that a writer was provided in the configuration
+  if (!m_cfg.materialTrackWriter) {
+    throw std::invalid_argument("Missing material track writer");
+  }
 
-FWA::GeantinoRecording::~GeantinoRecording()
-{
-}
-
-std::string
-FWA::GeantinoRecording::name() const
-{
-  return "GeantinoRecording";
-}
-
-FW::ProcessCode
-FWA::GeantinoRecording::initialize()
-{
-  m_runManager = new G4RunManager;
-  /// check if the geometry should be accessed over the geant4 service
+  /// Check if the geometry should be accessed over the geant4 service
   if (m_cfg.geant4Service) {
     m_runManager->SetUserInitialization(m_cfg.geant4Service->geant4Geometry());
   } else if (!m_cfg.gdmlFile.empty()) {
-    /// access the geometry from the gdml file
+    /// Access the geometry from the gdml file
     ACTS_INFO(
         "received Geant4 geometry from GDML file: " << m_cfg.gdmlFile.c_str());
     FW::G4::MMDetectorConstruction* detConstruction
@@ -48,8 +38,7 @@ FWA::GeantinoRecording::initialize()
         detConstruction);  // constructs detector (calls Construct in
                            // Geant4DetectorConstruction)
   } else {
-    ACTS_FATAL("No geometry input for Geant4 given");
-    return FW::ProcessCode::ABORT;
+    throw std::invalid_argument("Missing geometry input for Geant4");
   }
 
   /// Now set up the Geant4 simulation
@@ -64,13 +53,10 @@ FWA::GeantinoRecording::initialize()
   m_runManager->SetUserAction(new FW::G4::MMEventAction());
   m_runManager->SetUserAction(new FW::G4::MMSteppingAction());
   m_runManager->Initialize();
-  
-  ACTS_VERBOSE("initialize successful.");
-  return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FWA::GeantinoRecording::execute(FW::AlgorithmContext) const
+FW::GeantinoRecording::execute(FW::AlgorithmContext) const
 {
   
   /// Begin with the simulation
@@ -86,15 +72,5 @@ FWA::GeantinoRecording::execute(FW::AlgorithmContext) const
     m_cfg.materialTrackWriter->write(record);
   }
 
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FWA::GeantinoRecording::finalize()
-{
-  // delete the run manager for this
-  delete m_runManager;
-  // and finalize
-  ACTS_VERBOSE("finalize successful.");
   return FW::ProcessCode::SUCCESS;
 }
