@@ -30,7 +30,7 @@ FW::Csv::CsvParticleWriter::writeT(
   }
 
   // write csv header
-  os << "barcode,";
+  os << "particle_id,";
   os << "vx,vy,vz,";
   os << "px,py,pz,";
   os << "q\n";
