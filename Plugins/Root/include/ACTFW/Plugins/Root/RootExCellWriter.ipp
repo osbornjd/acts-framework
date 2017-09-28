@@ -160,11 +160,6 @@ FW::Root::RootExCellWriter<T>::writeT(
     }
     m_outputTree->Fill();
   }
-    // write to
-    ///@todo currently in comment so that it writes out even if there are no sensitive surfaces
- //   if (parameterFlag) {
-        m_outputTree->Fill();
- //   }
 
   // return scuess
   return FW::ProcessCode::SUCCESS;
