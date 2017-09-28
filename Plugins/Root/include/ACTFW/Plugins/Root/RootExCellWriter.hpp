@@ -72,8 +72,8 @@ namespace Root {
     RootExCellWriter(const Config&        cfg,
                      Acts::Logging::Level level = Acts::Logging::INFO);
 
-    /// Virtual destructor
-    ~RootExCellWriter() override = default;
+    /// Destructor
+    virtual ~RootExCellWriter() = default;
 
     /// End-of-run hook
     ProcessCode
