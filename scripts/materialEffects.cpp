@@ -62,11 +62,16 @@ materialEffects(std::string inFile,
 
   for (int i = 0; i < entries; i++) {
     tree->GetEvent(i);
+
     dx_hist->Fill(dx);
     dy_hist->Fill(dy);
     dz_hist->Fill(dz);
+
+    // convert to MeV
+    double MeV = 0.001;
+
     float dE = sqrt(dPx * dPx + dPy * dPy + dPz * dPz);
-    dE_hist->Fill(dE);
+    dE_hist->Fill(dE / MeV);
   }
 
   dx_hist->GetXaxis()->SetTitle("dx");
