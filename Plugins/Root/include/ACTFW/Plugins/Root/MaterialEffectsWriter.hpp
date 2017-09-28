@@ -66,13 +66,9 @@ namespace Root {
     /// Destructor
     virtual ~MaterialEffectsWriter() = default;
 
-    /// Framework intialize method
-    FW::ProcessCode
-    initialize() override final;
-
-    /// Framework finalize mehtod
-    FW::ProcessCode
-    finalize() override final;
+    /// End-of-run hook
+    ProcessCode
+    endRun() final override;
 
     /// The write interface
     /// @param pProperties is the vector of pairs of particle properties to be

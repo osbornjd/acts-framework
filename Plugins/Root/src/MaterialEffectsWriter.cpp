@@ -10,23 +10,16 @@ FW::Root::MaterialEffectsWriter::MaterialEffectsWriter(
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
 {
-}
-
-FW::ProcessCode
-FW::Root::MaterialEffectsWriter::initialize()
-{
   // open the output file
   m_outputFile = new TFile(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
   if (!m_outputFile) {
     ACTS_ERROR("Could not open ROOT file'" << m_cfg.filePath << "' to write");
-    return ProcessCode::ABORT;
   }
   m_outputFile->cd();
   m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
   // we can not write anything w/o a tree
   if (!m_outputTree) {
-    ACTS_WARNING("No output tree available");
-    return ProcessCode::SUCCESS;
+    ACTS_ERROR("No output tree available");
   }
 
   m_outputTree->Branch("r0", &m_r0);
@@ -44,11 +37,10 @@ FW::Root::MaterialEffectsWriter::initialize()
   m_outputTree->Branch("dPy", &m_dPy);
   m_outputTree->Branch("dPz", &m_dPz);
   m_outputTree->Branch("dPt", &m_dPt);
-  return FW::ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FW::Root::MaterialEffectsWriter::finalize()
+FW::Root::MaterialEffectsWriter::endRun()
 {
   m_outputFile->cd();
   m_outputTree->Write();

@@ -247,8 +247,6 @@ FW::Root::RootExCellWriter<T>::RootExCellWriter(
   m_outputTree->Branch("dPz", &m_dPz);
   m_outputTree->Branch("dPt", &m_dPt);
 
-  return FW::ProcessCode::SUCCESS;
-
 }
 
 template <class T>
