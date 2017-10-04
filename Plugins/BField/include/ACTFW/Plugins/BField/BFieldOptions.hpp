@@ -195,11 +195,11 @@ namespace Options {
     // get the constant bField values
     auto bFieldValues = vm["bf-values"].template as<read_range>();
     if (bFieldValues.size() != 3) {
-      std::cout << "- The values handed over for the constant magnetic field "
-                   "have wrong dimension. Needs to have 3 dimension. Please "
-                   "hand over the coordinates in cartesian coordinates: "
-                   "{Bx,By,Bz} in Tesla."
-                << std::endl;
+      throw std::invalid_argument(
+          "- The values handed over for the constant magnetic field "
+          "have wrong dimension. Needs to have 3 dimension. Please "
+          "hand over the coordinates in cartesian coordinates: "
+          "{Bx,By,Bz} in Tesla.");
     }
     // Create the constant magnetic field
     std::shared_ptr<Acts::ConstantBField> cField
