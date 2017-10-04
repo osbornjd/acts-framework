@@ -15,9 +15,10 @@
 
 /// The main executable
 ///
-/// Creates an InterpolatedBFieldMap from a txt or csv file and writes out the
-/// grid points and values of the map into root format. The Field can then be
-/// displayed using the root script printBField.cpp
+/// Creates an InterpolatedBFieldMap from a txt or csv file 
+/// It then tests random versus stepwise access with the
+/// direct getField access and the cell.getField access
+/// with cell caching
 
 namespace po = boost::program_options;
 
