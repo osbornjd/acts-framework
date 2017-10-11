@@ -17,7 +17,7 @@ FW::G4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
     G4int           randomSeed1,
     G4int           randomSeed2)
   : G4VUserPrimaryGeneratorAction()
-  , fParticleGun(0)
+  , fParticleGun(nullptr)
 {
   // configure the run
   if(fgInstance) {

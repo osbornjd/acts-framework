@@ -1,9 +1,7 @@
 #include "ACTFW/Plugins/Pythia8/TPythia8Generator.hpp"
-
 #include <TClonesArray.h>
 #include <TDatabasePDG.h>
 #include <TParticle.h>
-#include <TPythia8.h>
 #include <TSystem.h>
 
 #include <ACTS/Utilities/Units.hpp>
