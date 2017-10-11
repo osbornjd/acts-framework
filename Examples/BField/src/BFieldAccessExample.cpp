@@ -11,6 +11,7 @@
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/RootInterpolatedBFieldWriter.hpp"
+#include "ACTS/MagneticField/concept/AnyFieldLookup.hpp"
 #include "ACTS/Utilities/Units.hpp"
 
 /// The main executable
@@ -25,10 +26,10 @@ namespace po = boost::program_options;
 using UniformDist  = std::uniform_real_distribution<double>; 
 using RandomEngine = std::mt19937;
 
-template <typename Field, typename Cell >
+template <typename Field>
 Acts::Vector3D 
 accessFieldCell(Field& bField,
-                Cell& cell,
+                Acts::concept::AnyFieldCell<>& cell,
                 size_t istep,
                 const Acts::Vector3D& position)
 {
@@ -76,9 +77,9 @@ accessStepWise(Field& bField,
         for (size_t istep = 0; istep < access_steps; ++istep){
           Acts::Vector3D position = currentStep * dir;
           // access the field directly
-          auto field_direct = accessFieldDirect(bField, position); 
+          auto field_direct = accessFieldDirect<Field>(bField, position); 
           // access the field with the cell
-          auto field_cell = accessFieldCell(bField, cell, istep, position);
+          auto field_cell = accessFieldCell<Field>(bField, cell, istep, position);
           // check
           if (!field_direct.isApprox(field_cell)){
              ++mismatched;
