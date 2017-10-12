@@ -63,7 +63,7 @@ namespace Options {
         "other "
         "octants/quadrants.")(
         "bf-values",
-        po::value<read_range>()->default_value({0., 0., 0.}),
+        po::value<read_range>()->multitoken()->default_value({0., 0., 0.}),
         "In case no magnetic field map is handed over. A constant magnetic "
         "field will be created automatically. The values can be set with this "
         "options. Please hand over the coordinates in cartesian coordinates: "

@@ -27,10 +27,10 @@ namespace Options {
        po::value<int>()->default_value(200),
        "Number of instantaneous pile-up events.")
       ("evg-vertex-xyrange",
-       po::value<read_range>()->default_value({0., 0.015}),
+       po::value<read_range>()->multitoken()->default_value({0., 0.015}),
        "transverse range of the vertex in xy.")
       ("evg-vertex-zrange",
-       po::value<read_range>()->default_value({0., 5.5}),
+       po::value<read_range>()->multitoken()->default_value({0., 5.5}),
        "transverse range of the vertex in z.");
   }
   

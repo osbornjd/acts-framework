@@ -41,19 +41,19 @@ namespace Options {
         po::value<bool>()->default_value(true),
         "flip the charge (and change PDG accordingly).")(
         "pg-d0range",
-        po::value<read_range>()->default_value({0., 0.}),
+        po::value<read_range>()->multitoken()->default_value({0., 0.}),
         "range in which the d0 parameter is simulated in [mm].")(
         "pg-z0range",
-        po::value<read_range>()->default_value({0., 0.}),
+        po::value<read_range>()->multitoken()->default_value({0., 0.}),
         "range in which the z0 parameter is simulated in [mm].")(
         "pg-phirange",
-        po::value<read_range>()->default_value({-M_PI, M_PI}),
+        po::value<read_range>()->multitoken()->default_value({-M_PI, M_PI}),
         "range in which the phi0 parameter is simulated.")(
         "pg-etarange",
-        po::value<read_range>()->default_value({-4., 4.}),
+        po::value<read_range>()->multitoken()->default_value({-4., 4.}),
         "range in which the eta parameter is simulated.")(
         "pg-ptrange",
-        po::value<read_range>()->default_value({100., 1e5}),
+        po::value<read_range>()->multitoken()->default_value({100., 1e5}),
         "range in which the pt in [MeV] parameter is simulated.");
   }
 
