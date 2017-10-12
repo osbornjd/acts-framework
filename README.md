@@ -72,5 +72,10 @@ the following guidelines:
     or read objects from the event store and write them to file. Again,
     names of the objects that are read/written should be configurable.
 
+## Guidelines for writing an algorithm
+
+Examples should be written in a modular way using the framework components,
+such as writers and the sequencer. Options are to be defined using the 
+boost::program_options syntax.
 
 [git-book-submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
