@@ -12,8 +12,7 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
-
-class TPythia8;
+#include <TPythia8.h>
 
 namespace FW {
 namespace Pythia8 {

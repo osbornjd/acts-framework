@@ -14,8 +14,8 @@
 
 FW::GeantinoRecording::GeantinoRecording(
     const FW::GeantinoRecording::Config& cnf,
-    std::unique_ptr<const Acts::Logger> logger)
-  : FW::BareAlgorithm("GeantinoRecording", level),
+    Acts::Logging::Level level)
+  : FW::BareAlgorithm("GeantinoRecording", level)
   , m_cfg(cnf)
   , m_runManager(std::make_unique<G4RunManager>())
 {
