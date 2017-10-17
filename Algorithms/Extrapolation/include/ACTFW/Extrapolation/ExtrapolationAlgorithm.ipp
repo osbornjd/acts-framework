@@ -78,8 +78,9 @@ FW::ExtrapolationAlgorithm::executeTestT(
           geo_id_value moduleID
               = sf.geoID().value(Acts::GeometryID::sensitive_mask);
           // search and/or insert - we need to clone as the ECC will be wrritten 
-          std::pair<std::unique_ptr<const T>, barcode_type> eHit(
-              std::move(es.parameters), barcode);
+          auto parcpptr = std::unique_ptr<const T>(es.parameters->clone());
+          std::pair<std::unique_ptr<const T>, barcode_type> eHit(std::move(parcpptr),
+                                                                 barcode);
           FW::Data::insert(*dData, volumeID, layerID, moduleID, std::move(eHit));
         }
       }
