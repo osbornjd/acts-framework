@@ -4,6 +4,7 @@ stages:
     - build_core
     - build_framework
     - test
+    - check
 
 variables:
     BUILD_TYPE: Release
@@ -98,3 +99,28 @@ reproducibility_generic_extrapolation:
         - source install_default/bin/setup.sh
         - cd scripts
         - ./testReproducibility.sh GenericExtrapolation excells_charged
+
+
+format:
+    stage: check
+    image: gitlab-registry.cern.ch/acts/machines/check:latest
+    variables:
+      GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
+    before_script: []
+    dependencies: []
+    script:
+        - CI/check_format .
+    artifacts:
+        paths:
+          - changed
+        when: on_failure
+
+license:
+    stage: check
+    image: python:alpine3.6
+    variables:
+      GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
+    before_script: []
+    dependencies: []
+    script:
+        - CI/check_license.py .
