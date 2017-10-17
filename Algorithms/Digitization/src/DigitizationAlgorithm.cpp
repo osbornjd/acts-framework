@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
 
 #include <iostream>
@@ -12,8 +20,8 @@
 #include "ACTS/Digitization/PlanarModuleCluster.hpp"
 #include "ACTS/Digitization/PlanarModuleStepper.hpp"
 #include "ACTS/Digitization/Segmentation.hpp"
-#include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
+#include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/Surfaces/Surface.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 #include "ACTS/Utilities/ParameterDefinitions.hpp"
@@ -52,7 +60,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitsCollection
                                     << "' from event store.");
 
-  // the particle mass table 
+  // the particle mass table
   Acts::ParticleMasses pMasses;
 
   // prepare the output data: Clusters
@@ -86,18 +94,18 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
             auto hitDigitizationModule = hitDetElement->digitizationModule();
             if (hitDigitizationModule) {
               // get the lorentz angle
-              double lorentzAngle = hitDigitizationModule->lorentzAngle();  
+              double lorentzAngle = hitDigitizationModule->lorentzAngle();
               double thickness    = hitDetElement->thickness();
-              double lorentzShift = thickness * tan(lorentzAngle); 
-              lorentzShift *= -(hitDigitizationModule->readoutDirection());      
+              double lorentzShift = thickness * tan(lorentzAngle);
+              lorentzShift *= -(hitDigitizationModule->readoutDirection());
               // parameters
-              auto           pars = hitParameters->parameters();
-              auto position = hitParameters->position();
-              auto momentum = hitParameters->momentum();
+              auto           pars     = hitParameters->parameters();
+              auto           position = hitParameters->position();
+              auto           momentum = hitParameters->momentum();
               Acts::Vector2D localIntersection(pars[Acts::ParDef::eLOC_0],
                                                pars[Acts::ParDef::eLOC_1]);
               Acts::Vector3D localDirection(
-                  hitSurface.transform().inverse().linear()*momentum);
+                  hitSurface.transform().inverse().linear() * momentum);
               // position
               std::vector<Acts::DigitizationStep> dSteps
                   = m_cfg.planarModuleStepper->cellSteps(*hitDigitizationModule,
@@ -149,13 +157,10 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
               geoID.add(moduleKey, Acts::GeometryID::sensitive_mask);
               geoID.add(binSerialized, Acts::GeometryID::channel_mask);
               // create the truth for this - assume here muons
-              Acts::ParticleProperties pProperties(momentum,
-                                                   pMasses.mass[Acts::muon],
-                                                   1.,
-                                                   13,
-                                                   particleBarcode);
+              Acts::ParticleProperties pProperties(
+                  momentum, pMasses.mass[Acts::muon], 1., 13, particleBarcode);
               // the associated process vertex
-              Acts::ProcessVertex pVertex(position,0.,0,{pProperties},{});                                                                          
+              Acts::ProcessVertex pVertex(position, 0., 0, {pProperties}, {});
 
               // create the planar cluster
               Acts::PlanarModuleCluster pCluster(hitSurface,

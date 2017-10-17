@@ -15,7 +15,7 @@
 #include "ACTS/Utilities/Logger.hpp"
 
 namespace Acts {
-  class TrackingGeometry;
+class TrackingGeometry;
 }
 
 namespace FWGen {
@@ -27,7 +27,7 @@ std::unique_ptr<const Acts::TrackingGeometry>
 buildGenericDetector(Acts::Logging::Level surfaceLLevel = Acts::Logging::INFO,
                      Acts::Logging::Level layerLLevel   = Acts::Logging::INFO,
                      Acts::Logging::Level volumeLLevel  = Acts::Logging::INFO,
-                     size_t         version       = 0);
+                     size_t               version       = 0);
 
 /// Helper method for positioning
 /// @param radius is the cylinder radius
@@ -66,7 +66,7 @@ modulePositionsRing(double z,
 /// @param outerRadius is the outer Radius for the disc
 /// @param discBinning is the binning setup in r, phi
 /// @param moduleHalfLength is pair of phibins and module length
-std::vector< std::vector<Acts::Vector3D> >
+std::vector<std::vector<Acts::Vector3D>>
 modulePositionsDisc(double                     z,
                     double                     ringStagger,
                     std::vector<double>        phiStagger,

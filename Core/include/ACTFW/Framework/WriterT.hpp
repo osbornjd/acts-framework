@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 /// @file
 /// @date 2017-08-07
 /// @author Moritz Kiehnn <msmk@cern.ch>
@@ -58,9 +66,10 @@ protected:
   /// this method is implemented in the user implementation
   /// @param [in] ctx is the algorithm context that guarantees event
   ///        consistency
-  /// @tparam [in] is the templeted collection to be written 
+  /// @tparam [in] is the templeted collection to be written
   virtual ProcessCode
-  writeT(const AlgorithmContext& ctx, const T& t) = 0;
+  writeT(const AlgorithmContext& ctx, const T& t)
+      = 0;
 
   const Acts::Logger&
   logger() const

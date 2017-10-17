@@ -1,3 +1,10 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetUtils.h"
@@ -13,8 +20,8 @@ using dd4hep::PlacedVolume;
 
 namespace det {
 static dd4hep::Ref_t
-createTkLayoutTrackerEndcap(dd4hep::Detector&             lcdd,
-                            dd4hep::xml::Handle_t               xmlElement,
+createTkLayoutTrackerEndcap(dd4hep::Detector&         lcdd,
+                            dd4hep::xml::Handle_t     xmlElement,
                             dd4hep::SensitiveDetector sensDet)
 {
   // shorthands
@@ -39,8 +46,8 @@ createTkLayoutTrackerEndcap(dd4hep::Detector&             lcdd,
   // envelope volume for one of the endcaps, either forward or backward
   double envelopeThickness = 0.5 * (dimensions.zmax() - dimensions.zmin());
   dd4hep::Tube envelopeShape(dimensions.rmin() - l_overlapMargin,
-                                       dimensions.rmax() + l_overlapMargin,
-                                       envelopeThickness + l_overlapMargin);
+                             dimensions.rmax() + l_overlapMargin,
+                             envelopeThickness + l_overlapMargin);
   Volume envelopeVolume(detName, envelopeShape, lcdd.air());
   envelopeVolume.setVisAttributes(lcdd.invisible());
 
@@ -50,10 +57,10 @@ createTkLayoutTrackerEndcap(dd4hep::Detector&             lcdd,
 
   // create disc volume
   l_overlapMargin *= 0.99;
-  double discThickness = 0.5 * (xFirstDisc.zmax() - xFirstDisc.zmin());
+  double       discThickness = 0.5 * (xFirstDisc.zmax() - xFirstDisc.zmin());
   dd4hep::Tube discShape(dimensions.rmin() - l_overlapMargin,
-                                   dimensions.rmax() + l_overlapMargin,
-                                   discThickness + l_overlapMargin);
+                         dimensions.rmax() + l_overlapMargin,
+                         discThickness + l_overlapMargin);
   Volume discVolume("disc", discShape, lcdd.air());
   discVolume.setVisAttributes(lcdd.invisible());
 
@@ -143,9 +150,8 @@ createTkLayoutTrackerEndcap(dd4hep::Detector&             lcdd,
           dd4hep::RotationY lRotation4(thetaTilt - M_PI * 0.5);
           dd4hep::RotationZ lRotation_PhiPos(phi);
           // position in  disk
-          dd4hep::Translation3D lTranslation(
-              lX, lY, lZ + componentOffset);
-          dd4hep::Transform3D myTrafo(
+          dd4hep::Translation3D lTranslation(lX, lY, lZ + componentOffset);
+          dd4hep::Transform3D   myTrafo(
               lRotation4 * lRotation3 * lRotation2 * lRotation1, lTranslation);
           PlacedVolume placedComponentVolume = discVolume.placeVolume(
               componentVolume, lRotation_PhiPos * myTrafo);
@@ -184,7 +190,7 @@ createTkLayoutTrackerEndcap(dd4hep::Detector&             lcdd,
   }
 
   // top of the hierarchy
-  Volume motherVol = lcdd.pickMotherVolume(worldDetElement);
+  Volume                motherVol = lcdd.pickMotherVolume(worldDetElement);
   dd4hep::Translation3D envelopeTranslation(
       0, 0, dimensions.zmin() + envelopeThickness);
   double envelopeNegRotAngle = 0;
@@ -192,7 +198,7 @@ createTkLayoutTrackerEndcap(dd4hep::Detector&             lcdd,
     envelopeNegRotAngle = dd4hep::pi;
   }
   dd4hep::RotationX envelopeNegRotation(envelopeNegRotAngle);
-  PlacedVolume                placedEnvelopeVolume = motherVol.placeVolume(
+  PlacedVolume      placedEnvelopeVolume = motherVol.placeVolume(
       envelopeVolume, envelopeNegRotation * envelopeTranslation);
   placedEnvelopeVolume.addPhysVolID("system", xmlDet.id());
   worldDetElement.setPlacement(placedEnvelopeVolume);

@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 //
 //  Created by Andreas Salzburger on 23/05/16.
 //
@@ -5,15 +13,15 @@
 #ifndef ACTFW_OBJ_PLUGINS_SURFACEWRITER_H
 #define ACTFW_OBJ_PLUGINS_SURFACEWRITER_H
 
-#include <mutex>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <mutex>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Utilities/Logger.hpp"
-#include "ACTS/Surfaces/Surface.hpp"
 #include "ACTFW/Plugins/Obj/ObjHelper.hpp"
+#include "ACTFW/Writers/IWriterT.hpp"
+#include "ACTS/Surfaces/Surface.hpp"
+#include "ACTS/Utilities/Logger.hpp"
 
 namespace FWObj {
 
@@ -31,44 +39,43 @@ public:
   {
   public:
     /// the default logger
-    std::shared_ptr<const Acts::Logger>  logger;
+    std::shared_ptr<const Acts::Logger> logger;
     /// the name of the algorithm
-    std::string                          name;
+    std::string name;
     /// approximate cyinders by that
-    unsigned int                         outputPhiSegemnts  = 72;
+    unsigned int outputPhiSegemnts = 72;
     /// write thickness if available
-    double                               outputThickness    = 2.;
+    double outputThickness = 2.;
     /// write sensitive surfaces
-    bool                                 outputSensitive    = true;
+    bool outputSensitive = true;
     /// write the layer surface out
-    bool                                 outputLayerSurface = true;
+    bool outputLayerSurface = true;
     /// output scalor
-    double                               outputScalor       = 1.;
+    double outputScalor = 1.;
     /// precision for out
-    unsigned int                         outputPrecision    = 6;
+    unsigned int outputPrecision = 6;
     /// file prefix to be written out
-    std::string                          filePrefix         = "";
+    std::string filePrefix = "";
     /// prefixes
     /// @todo These aren't used anywhere, should they be dropped?
-    std::string                          planarPrefix       = "";
-    std::string                          cylinderPrefix     = "";
-    std::string                          diskPrefix         = "";
+    std::string planarPrefix   = "";
+    std::string cylinderPrefix = "";
+    std::string diskPrefix     = "";
     /// the output stream
-    std::shared_ptr<std::ofstream>       outputStream       = nullptr;
+    std::shared_ptr<std::ofstream> outputStream = nullptr;
 
     Config(const std::string&   lname = "ObjSurfaceWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
-      : logger(Acts::getDefaultLogger(lname, lvl))
-      , name(lname)
-    {}
-        
+      : logger(Acts::getDefaultLogger(lname, lvl)), name(lname)
+    {
+    }
   };
 
   /// Constructor
   ///
   /// @param cfg is the configuration class
   ObjSurfaceWriter(const Config& cfg);
-  
+
   /// Framework name() method
   std::string
   name() const final override;
@@ -84,9 +91,9 @@ public:
   write(const std::string& sinfo);
 
 private:
-  Config                    m_cfg;        ///< the config class
-  FWObjHelper::VtnCounter   m_vtnCounter; ///< vertex, texture, normal
-  std::mutex                m_write_mutex;///< mutex to protect multi-threaded writes
+  Config                  m_cfg;         ///< the config class
+  FWObjHelper::VtnCounter m_vtnCounter;  ///< vertex, texture, normal
+  std::mutex m_write_mutex;  ///< mutex to protect multi-threaded writes
 
   /// Private access to the logging instance
   const Acts::Logger&
@@ -105,7 +112,6 @@ ObjSurfaceWriter::write(const std::string& sinfo)
   (*m_cfg.outputStream) << sinfo;
   return FW::ProcessCode::SUCCESS;
 }
-
 }
 
 #endif  // ACTFW_OBJ_PLUGINS_SURFACEWRITER_H

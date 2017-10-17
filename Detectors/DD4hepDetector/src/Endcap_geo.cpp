@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ///////////////////////////////////////////////////////////////////
 // Endcap_geo.cpp, ACTS project
 ///////////////////////////////////////////////////////////////////
@@ -126,9 +134,10 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
         for (int k = 0; k < repeat; k++) {
           string zname = _toString((int)k, "z%d");
 
-          double phi         = deltaphi / dd4hep::rad * k;
-          string module_name = zname
-              + _toString((int)(repeat * module_num_num + module_num), "module%d");
+          double phi = deltaphi / dd4hep::rad * k;
+          string module_name
+              = zname + _toString((int)(repeat * module_num_num + module_num),
+                                  "module%d");
           Position trans(radius * cos(phi), radius * sin(phi), slicedz);
           // Create the module DetElement
           DetElement mod_det(

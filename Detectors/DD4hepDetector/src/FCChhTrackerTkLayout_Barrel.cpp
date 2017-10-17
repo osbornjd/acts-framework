@@ -1,3 +1,10 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "DetUtils.h"
 
@@ -13,8 +20,8 @@ using dd4hep::PlacedVolume;
 
 namespace det {
 static dd4hep::Ref_t
-createTkLayoutTrackerBarrel(dd4hep::Detector&             lcdd,
-                            dd4hep::xml::Handle_t               xmlElement,
+createTkLayoutTrackerBarrel(dd4hep::Detector&         lcdd,
+                            dd4hep::xml::Handle_t     xmlElement,
                             dd4hep::SensitiveDetector sensDet)
 {
   // shorthands
@@ -34,11 +41,10 @@ createTkLayoutTrackerBarrel(dd4hep::Detector&             lcdd,
   volConfig.isBarrel               = true;
   Acts::ActsExtension* detWorldExt = new Acts::ActsExtension(volConfig);
   topDetElement.addExtension<Acts::IActsExtension>(detWorldExt);
-  double                 l_overlapMargin = 0.0001;
+  double       l_overlapMargin = 0.0001;
   dd4hep::Tube topVolumeShape(dimensions.rmin(),
-                                        dimensions.rmax() + l_overlapMargin,
-                                        (dimensions.zmax() - dimensions.zmin())
-                                            * 0.5);
+                              dimensions.rmax() + l_overlapMargin,
+                              (dimensions.zmax() - dimensions.zmin()) * 0.5);
   Volume topVolume(detectorName, topVolumeShape, lcdd.air());
   topVolume.setVisAttributes(lcdd.invisible());
 
@@ -62,7 +68,7 @@ createTkLayoutTrackerBarrel(dd4hep::Detector&             lcdd,
         = xRodOdd.child(_Unicode(moduleProperties));
     dd4hep::xml::Component xModulesOdd     = xRodOdd.child(_Unicode(modules));
     double                 l_overlapMargin = 0.0001;
-    dd4hep::Tube layerShape(
+    dd4hep::Tube           layerShape(
         xLayer.rmin(), xLayer.rmax() + l_overlapMargin, dimensions.zmax());
     Volume layerVolume("layer", layerShape, lcdd.material("Air"));
     layerVolume.setVisAttributes(lcdd.invisible());
@@ -87,13 +93,12 @@ createTkLayoutTrackerBarrel(dd4hep::Detector&             lcdd,
          ++xModuleComponentOddColl) {
       dd4hep::xml::Component xModuleComponentOdd
           = static_cast<dd4hep::xml::Component>(xModuleComponentOddColl);
-      moduleVolume
-          = Volume("module",
-                   dd4hep::Box(
-                       0.5 * xModulePropertiesOdd.attr<double>("modWidth"),
-                       0.5 * xModuleComponentOdd.thickness(),
-                       0.5 * xModulePropertiesOdd.attr<double>("modLength")),
-                   lcdd.material(xModuleComponentOdd.materialStr()));
+      moduleVolume = Volume(
+          "module",
+          dd4hep::Box(0.5 * xModulePropertiesOdd.attr<double>("modWidth"),
+                      0.5 * xModuleComponentOdd.thickness(),
+                      0.5 * xModulePropertiesOdd.attr<double>("modLength")),
+          lcdd.material(xModuleComponentOdd.materialStr()));
 
       // create the Acts::DigitizationModule (needed to do geometric
       // digitization) for all modules which have the same segmentation
@@ -128,10 +133,9 @@ createTkLayoutTrackerBarrel(dd4hep::Detector&             lcdd,
           lZ = xModule.Z();
           dd4hep::Translation3D moduleOffset(lX, lY, lZ);
           dd4hep::Transform3D   lTrafo(
-              dd4hep::RotationZ(atan2(lY, lX) + 0.5 * M_PI),
-              moduleOffset);
+              dd4hep::RotationZ(atan2(lY, lX) + 0.5 * M_PI), moduleOffset);
           dd4hep::RotationZ lRotation(phi);
-          PlacedVolume                placedModuleVolume
+          PlacedVolume      placedModuleVolume
               = layerVolume.placeVolume(moduleVolume, lRotation * lTrafo);
           if (xModuleComponentOdd.isSensitive()) {
             placedModuleVolume.addPhysVolID("module", moduleCounter);

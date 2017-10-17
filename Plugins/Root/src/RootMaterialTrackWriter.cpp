@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialStep.hpp"
 
@@ -32,7 +40,7 @@ FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
     throw std::ios_base::failure("Could not open '" + m_cfg.fileName);
   }
   m_outputFile->cd();
-  m_outputTree = new TTree(m_cfg.treeName.c_str(),m_cfg.treeName.c_str());
+  m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
   if (!m_outputTree) throw std::bad_alloc();
 
   // Create a branch with the MaterialTrack entities
@@ -55,13 +63,12 @@ FW::Root::RootMaterialTrackWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootMaterialTrackWriter::write(
-    const Acts::MaterialTrack& mtrecord)
+FW::Root::RootMaterialTrackWriter::write(const Acts::MaterialTrack& mtrecord)
 {
-  
+
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
-  
+
   // setting the parameters
   m_trackRecord = mtrecord;
 

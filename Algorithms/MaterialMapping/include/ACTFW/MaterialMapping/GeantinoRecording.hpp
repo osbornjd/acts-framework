@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ///////////////////////////////////////////////////////////////////
 // GeantinoRecording.hpp
 ///////////////////////////////////////////////////////////////////
@@ -10,8 +18,8 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "ACTS/Utilities/Logger.hpp"
 #include "G4RunManager.hh"
 
 namespace FW {
@@ -37,8 +45,8 @@ public:
   struct Config
   {
     /// The writer writing out the MaterialTrack entities
-    std::shared_ptr< FW::IWriterT<Acts::MaterialTrack> >
-      materialTrackWriter = nullptr;
+    std::shared_ptr<FW::IWriterT<Acts::MaterialTrack>> materialTrackWriter
+        = nullptr;
     /// The service possibly providing the Geant4 geometry (optional)
     /// @note If this is not set, the geometry should be given by gdml file
     std::shared_ptr<FW::IGeant4Service> geant4Service = nullptr;
@@ -61,11 +69,10 @@ public:
 
 private:
   /// The config object
-  Config          m_cfg;
+  Config m_cfg;
   /// G4 run manager
   std::unique_ptr<G4RunManager> m_runManager;
 };
-
 }
 
-#endif // ACTW_ALGORITHMS_GEANTINORECORDING_H
+#endif  // ACTW_ALGORITHMS_GEANTINORECORDING_H

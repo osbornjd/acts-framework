@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include "ACTFW/Framework/Sequencer.hpp"
 
 #include <algorithm>
@@ -102,7 +110,7 @@ FW::Sequencer::run(size_t events, size_t skip)
       // Setup the event and algorithm context
       WhiteBoard eventStore(Acts::getDefaultLogger(
           "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
-      size_t     ialg = 0;
+      size_t ialg = 0;
 
       // read everything in
       for (auto& rdr

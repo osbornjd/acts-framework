@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 /// @file
 /// @date 2016-05-23 Initial version
 /// @date 2017-08-07 Rewrite with new interfaces
@@ -6,9 +14,9 @@
 
 #ifndef ACTFW_CSVPARTICLERITER_H
 #define ACTFW_CSVPARTICLERITER_H
-#include <vector>
 #include <ACTS/EventData/ParticleDefinitions.hpp>
 #include <ACTS/Utilities/Logger.hpp>
+#include <vector>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 
@@ -22,15 +30,14 @@ namespace Csv {
   /// generated particle information.
   ///
   /// This writes one file per event into the configured output directory. By
-  /// default it writes to the current working directory. 
+  /// default it writes to the current working directory.
   /// Files are named using the following schema
   ///
   ///     event000000001-particles.csv
   ///     event000000002-particles.csv
   ///
   /// and each line in the file corresponds to one particle.
-  class CsvParticleWriter
-    : public WriterT<std::vector<Acts::ProcessVertex>>
+  class CsvParticleWriter : public WriterT<std::vector<Acts::ProcessVertex>>
   {
   public:
     using Base = WriterT<std::vector<Acts::ProcessVertex>>;
@@ -40,11 +47,11 @@ namespace Csv {
       std::string collection;           ///< which collection to write
       std::string outputDir;            ///< where to place output files
       size_t      outputPrecision = 6;  ///< floating point precision
-      /// the barcode service to decode/endcode barcode 
+      /// the barcode service to decode/endcode barcode
       std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
     };
 
-    /// constructor 
+    /// constructor
     /// @param cfg is the configuration object
     /// @parm level is the output logging level
     CsvParticleWriter(const Config&        cfg,
@@ -52,7 +59,7 @@ namespace Csv {
 
   protected:
     ProcessCode
-    writeT(const FW::AlgorithmContext& ctx,
+    writeT(const FW::AlgorithmContext&             ctx,
            const std::vector<Acts::ProcessVertex>& particles) final override;
 
   private:

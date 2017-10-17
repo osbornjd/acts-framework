@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include "FatrasCommon.hpp"
 
 #include <ACTS/MagneticField/ConstantBField.hpp>
@@ -13,7 +21,7 @@ FW::ProcessCode
 setupWriters(FW::Sequencer&                  sequencer,
              std::shared_ptr<FW::BarcodeSvc> barcode,
              std::string                     outputDir,
-             Acts::Logging::Level defaultLevel)
+             Acts::Logging::Level            defaultLevel)
 {
   const std::string particles = "FatrasParticles";
   const std::string clusters  = "FatrasClusters";
@@ -47,7 +55,7 @@ setupWriters(FW::Sequencer&                  sequencer,
   clusterWriterRootConfig.collection = clusters;
   clusterWriterRootConfig.filePath = FW::joinPaths(outputDir, "clusters.root");
   auto clusteWriterRoot = std::make_shared<FW::Root::RootPlanarClusterWriter>(
-    clusterWriterRootConfig);
+      clusterWriterRootConfig);
 
   // space points as json
   FW::Json::JsonSpacePointWriter<Acts::Vector3D>::Config spWriterJsonConfig;

@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef DD4HEPG4_GEOCONSTRUCTION_H
 #define DD4HEPG4_GEOCONSTRUCTION_H
 
@@ -8,10 +16,11 @@
 #include "G4VUserDetectorConstruction.hh"
 
 namespace dd4hep {
-        class Detector;
+class Detector;
 }
 /// Temporary borrowed from FCCSW -> will be replaced later
-/** @class GeoConstruction DetectorDescription/DetDesServices/src/GeoConstruction.h GeoConstruction.h
+/** @class GeoConstruction
+ * DetectorDescription/DetDesServices/src/GeoConstruction.h GeoConstruction.h
  *
  *  Class to create Geant4 detector geometry from TGeo representation
  *  On demand (ie. when calling "Construct") the DD4hep geometry is converted
@@ -25,20 +34,22 @@ namespace FW {
 
 namespace DD4hepG4 {
 
-    class GeoConstruction : public G4VUserDetectorConstruction {
-    public:
-        /// Constructor
-        GeoConstruction(dd4hep::Detector& lcdd);
+  class GeoConstruction : public G4VUserDetectorConstruction
+  {
+  public:
+    /// Constructor
+    GeoConstruction(dd4hep::Detector& lcdd);
 
-        /// Geometry construction callback: Invoke the conversion to Geant4
-        /// All volumes (including world) are deleted in ~G4PhysicalVolumeStore()
-        G4VPhysicalVolume* Construct() final override;
+    /// Geometry construction callback: Invoke the conversion to Geant4
+    /// All volumes (including world) are deleted in ~G4PhysicalVolumeStore()
+    G4VPhysicalVolume*
+    Construct() final override;
 
-    private:
-        /// Reference to geometry object
-        dd4hep::Detector& m_lcdd;
-    };
-} // namespace DD4hepG4
-} // namespace FW
+  private:
+    /// Reference to geometry object
+    dd4hep::Detector& m_lcdd;
+  };
+}  // namespace DD4hepG4
+}  // namespace FW
 
 #endif /* DETDESSERVICES_GEOCONSTRUCTION_H */

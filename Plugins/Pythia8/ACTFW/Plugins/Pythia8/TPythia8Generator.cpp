@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include "ACTFW/Plugins/Pythia8/TPythia8Generator.hpp"
 #include <TClonesArray.h>
 #include <TDatabasePDG.h>
@@ -75,7 +83,7 @@ FW::Pythia8::TPythia8Generator::read(
   // get the entries
   Int_t np = particles->GetEntriesFast();
   // the last vertex
-  Acts::Vector3D lastVertex(0.,0.,0.);
+  Acts::Vector3D                        lastVertex(0., 0., 0.);
   std::vector<Acts::ParticleProperties> particlesOut;
   // reserve the maximum amount
   particlesOut.reserve(np);
@@ -94,16 +102,16 @@ FW::Pythia8::TPythia8Generator::read(
     // and now create a particle
     Acts::Vector3D vertex(part->Vx(), part->Vy(), part->Vz());
     // flush if vertices are different
-    if (vertex != lastVertex && particlesOut.size()){
+    if (vertex != lastVertex && particlesOut.size()) {
       // create the process vertex, push it
-      Acts::ProcessVertex pVertex(lastVertex,0.,0.,{},particlesOut);
+      Acts::ProcessVertex pVertex(lastVertex, 0., 0., {}, particlesOut);
       processVertices.push_back(pVertex);
       // reset and reserve the particle vector
       particlesOut.clear();
       particlesOut.reserve(np);
     }
     // remember the vertex
-    lastVertex = vertex;    
+    lastVertex = vertex;
     // unit conversion - should be done with Acts::units
     Acts::Vector3D momentum(
         part->Px() * 1000., part->Py() * 1000., part->Pz() * 1000.);
@@ -112,9 +120,9 @@ FW::Pythia8::TPythia8Generator::read(
         Acts::ParticleProperties(momentum, mass, charge, pdg));
   }
   // flush a second time
-  if (particlesOut.size()){
+  if (particlesOut.size()) {
     // create the process vertex, push it
-    Acts::ProcessVertex pVertex(lastVertex,0.,0.,{},particlesOut);
+    Acts::ProcessVertex pVertex(lastVertex, 0., 0., {}, particlesOut);
     processVertices.push_back(pVertex);
   }
   // clear the particles vector

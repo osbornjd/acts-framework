@@ -30,7 +30,7 @@ std::unique_ptr<const Acts::TrackingGeometry>
 buildGenericDetector(Acts::Logging::Level surfaceLLevel,
                      Acts::Logging::Level layerLLevel,
                      Acts::Logging::Level volumeLLevel,
-                     size_t         stage)
+                     size_t               stage)
 {
   // configure surface array creator
   auto surfaceArrayCreator = std::make_shared<const Acts::SurfaceArrayCreator>(
@@ -44,14 +44,17 @@ buildGenericDetector(Acts::Logging::Level surfaceLLevel,
   auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
       Acts::getDefaultLogger("LayerArrayCreator", layerLLevel));
   // tracking volume array creator
-  auto tVolumeArrayCreator = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
-      Acts::getDefaultLogger("TrackingVolumeArrayCreator", volumeLLevel));
+  auto tVolumeArrayCreator
+      = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
+          Acts::getDefaultLogger("TrackingVolumeArrayCreator", volumeLLevel));
   // configure the cylinder volume helper
   Acts::CylinderVolumeHelper::Config cvhConfig;
   cvhConfig.layerArrayCreator          = layerArrayCreator;
   cvhConfig.trackingVolumeArrayCreator = tVolumeArrayCreator;
-  auto cylinderVolumeHelper = std::make_shared<const Acts::CylinderVolumeHelper>(
-      cvhConfig, Acts::getDefaultLogger("CylinderVolumeHelper", volumeLLevel));
+  auto cylinderVolumeHelper
+      = std::make_shared<const Acts::CylinderVolumeHelper>(
+          cvhConfig,
+          Acts::getDefaultLogger("CylinderVolumeHelper", volumeLLevel));
   //-------------------------------------------------------------------------------------
   // list the volume builders
   std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
@@ -66,7 +69,8 @@ buildGenericDetector(Acts::Logging::Level surfaceLLevel,
   tgConfig.trackingVolumeHelper   = cylinderVolumeHelper;
   auto cylinderGeometryBuilder
       = std::make_shared<const Acts::TrackingGeometryBuilder>(
-          tgConfig, Acts::getDefaultLogger("TrackerGeometryBuilder", volumeLLevel));
+          tgConfig,
+          Acts::getDefaultLogger("TrackerGeometryBuilder", volumeLLevel));
   // get the geometry
   auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry();
   /// return the tracking geometry

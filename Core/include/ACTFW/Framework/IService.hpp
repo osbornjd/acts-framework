@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 /// @file
 /// @date 2016-05-23
 /// @author Andreas Salburger
@@ -34,7 +42,10 @@ public:
   /// Interface hook to run some code to be executed once all events of a job
   /// have been processed, typically used for commiting writes to a file
   virtual ProcessCode
-  endRun() { return ProcessCode::SUCCESS; }
+  endRun()
+  {
+    return ProcessCode::SUCCESS;
+  }
 };
 
 }  // namespace FW

@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 //
 //  parallel_for.h
 //  ACTFW
@@ -41,29 +49,28 @@
 ///
 /// @param index must be unique within the enclosing scope.
 ///
-#define ACTFW_PARALLEL_FOR(index, start, end, ...)                  \
-  {                                                                 \
-    bool               actfw_parallel_break_##index = false;        \
-    bool               actfw_parallel_abort_##index = false;        \
-    std::exception_ptr actfw_parallel_exptr_##index;                \
-                                                                    \
-    ACTFW_PRAGMA(omp parallel for)                                  \
-    for(size_t index = (start); index < (end); ++index)             \
-    {                                                               \
-      try {                                                         \
-        ACTFW_PRAGMA(omp flush (actfw_parallel_break_##index))      \
-        if(actfw_parallel_break_##index) continue;                  \
-        __VA_ARGS__                                                 \
-      } catch(...) {                                                \
-        actfw_parallel_exptr_##index = std::current_exception();    \
-        ACTFW_PARALLEL_FOR_BREAK(index)                             \
-      }                                                             \
-    }                                                               \
-                                                                    \
-    if(actfw_parallel_abort_##index) return ProcessCode::ABORT;     \
-    if(actfw_parallel_exptr_##index) {                              \
-      std::rethrow_exception(actfw_parallel_exptr_##index);         \
-    }                                                               \
+#define ACTFW_PARALLEL_FOR(index, start, end, ...)                             \
+  {                                                                            \
+    bool               actfw_parallel_break_##index = false;                   \
+    bool               actfw_parallel_abort_##index = false;                   \
+    std::exception_ptr actfw_parallel_exptr_##index;                           \
+                                                                               \
+    ACTFW_PRAGMA(omp parallel for)                                             \
+    for (size_t index = (start); index < (end); ++index) {                     \
+      try {                                                                    \
+        ACTFW_PRAGMA(omp flush(actfw_parallel_break_##index))                  \
+        if (actfw_parallel_break_##index) continue;                            \
+        __VA_ARGS__                                                            \
+      } catch (...) {                                                          \
+        actfw_parallel_exptr_##index = std::current_exception();               \
+        ACTFW_PARALLEL_FOR_BREAK(index)                                        \
+      }                                                                        \
+    }                                                                          \
+                                                                               \
+    if (actfw_parallel_abort_##index) return ProcessCode::ABORT;               \
+    if (actfw_parallel_exptr_##index) {                                        \
+      std::rethrow_exception(actfw_parallel_exptr_##index);                    \
+    }                                                                          \
   }
 
 /// Abort an enclosing ACTFW_PARALLEL_FOR construct and return to the
@@ -71,11 +78,11 @@
 ///
 /// @param index must match the index parameter given for that loop.
 ///
-#define ACTFW_PARALLEL_FOR_BREAK(index)                             \
-  {                                                                 \
-    actfw_parallel_break_##index = true;                            \
-    ACTFW_PRAGMA(omp flush (actfw_parallel_break_##index))          \
-    continue;                                                       \
+#define ACTFW_PARALLEL_FOR_BREAK(index)                                        \
+  {                                                                            \
+    actfw_parallel_break_##index = true;                                       \
+    ACTFW_PRAGMA(omp flush(actfw_parallel_break_##index))                      \
+    continue;                                                                  \
   }
 
 /// Abort an enclosing ACTFW_PARALLEL_FOR and exit the host function by
@@ -83,10 +90,10 @@
 ///
 /// @param index must match the index parameter given for that loop.
 ///
-#define ACTFW_PARALLEL_FOR_ABORT(index)                             \
-  {                                                                 \
-    actfw_parallel_abort_##index = true;                            \
-    ACTFW_PARALLEL_FOR_BREAK(index)                                 \
+#define ACTFW_PARALLEL_FOR_ABORT(index)                                        \
+  {                                                                            \
+    actfw_parallel_abort_##index = true;                                       \
+    ACTFW_PARALLEL_FOR_BREAK(index)                                            \
   }
 
 // TODO: Once we can assume OpenMP 4.0 support from the host compiler,

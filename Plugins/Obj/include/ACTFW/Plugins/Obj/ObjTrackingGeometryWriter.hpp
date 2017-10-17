@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 //
 //  Created by Andreas Salzburger on 23/05/16.
 //
@@ -7,20 +15,20 @@
 
 #include <mutex>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
-#include "ACTS/Utilities/Logger.hpp"
-#include "ACTS/Surfaces/Surface.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
+#include "ACTS/Surfaces/Surface.hpp"
+#include "ACTS/Utilities/Logger.hpp"
 
 namespace Acts {
-  class TrackingVolume;
+class TrackingVolume;
 }
 namespace FW {
-  class ISurfaceWriter;
+class ISurfaceWriter;
 }
 
 namespace FWObj {
@@ -29,7 +37,7 @@ namespace FWObj {
 ///
 /// An Obj writer for the geometry
 /// It delegates the writing of surfaces to the surface writers
-  class ObjTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
+class ObjTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
 {
 public:
   // @class Config
@@ -39,27 +47,28 @@ public:
   {
   public:
     /// the default logger
-    std::shared_ptr<const Acts::Logger>              logger;
+    std::shared_ptr<const Acts::Logger> logger;
     /// the name of the writer
-    std::string                                      name = "";
+    std::string name = "";
     /// surfaceWriters
-    std::vector< std::shared_ptr<ObjSurfaceWriter> > surfaceWriters;
-    std::string                                      filePrefix = "";
-    std::string                                      sensitiveGroupPrefix = "";
-    std::string                                      layerPrefix = "";
-  
+    std::vector<std::shared_ptr<ObjSurfaceWriter>> surfaceWriters;
+    std::string                                    filePrefix           = "";
+    std::string                                    sensitiveGroupPrefix = "";
+    std::string                                    layerPrefix          = "";
+
     Config(const std::string&   lname = "ObjTrackingGeometryWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
       : logger(Acts::getDefaultLogger(lname, lvl))
       , name(lname)
       , surfaceWriters()
-    {}
+    {
+    }
   };
 
   /// Constructor
   /// @param cfg is the configuration class
   ObjTrackingGeometryWriter(const Config& cfg);
-  
+
   /// Framework name() method
   /// @return the name of the tool
   std::string
@@ -72,7 +81,7 @@ public:
   write(const Acts::TrackingGeometry& tGeometry) final override;
 
 private:
-  Config         m_cfg;         ///< the config class
+  Config m_cfg;  ///< the config class
 
   /// process this volume
   /// @param tVolume the volume to be processed
@@ -86,7 +95,6 @@ private:
     return *m_cfg.logger;
   }
 };
-
 }
 
 #endif  // ACTFW_OBJ_PLUGINS_TRACKINGGEOMETRYWRITER_H

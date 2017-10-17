@@ -1,5 +1,13 @@
-#include <stdexcept>
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
+#include <stdexcept>
 #include "ACTS/Utilities/Units.hpp"
 #include "G4Material.hh"
 #include "G4Step.hh"
@@ -16,7 +24,7 @@ FW::G4::MMSteppingAction::Instance()
 FW::G4::MMSteppingAction::MMSteppingAction() : G4UserSteppingAction(), m_steps()
 // m_volMgr(MaterialRunAction::Instance()->getGeant4VolumeManager())
 {
-  if(fgInstance) {
+  if (fgInstance) {
     throw std::logic_error("Attempted to duplicate a singleton");
   } else {
     fgInstance = this;

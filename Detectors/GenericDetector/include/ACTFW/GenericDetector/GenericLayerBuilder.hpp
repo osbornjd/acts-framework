@@ -25,11 +25,10 @@ namespace Acts {
 class ILayerCreator;
 class Surface;
 class DetecorElementBase;
-
 }
 
 namespace FWGen {
-  
+
 typedef std::pair<const Acts::Surface*, Acts::Vector3D> SurfacePosition;
 
 /// @class GenericLayerBuilder
@@ -132,16 +131,19 @@ public:
     /// helper tools: layer creator
     std::shared_ptr<const Acts::ILayerCreator> layerCreator = nullptr;
     /// helper tools: central passiva layer builder
-    std::shared_ptr<const Acts::ILayerBuilder> centralPassiveLayerBuilder = nullptr;
+    std::shared_ptr<const Acts::ILayerBuilder> centralPassiveLayerBuilder
+        = nullptr;
     /// helper tools: p/n passive layer builder
-    std::shared_ptr<const Acts::ILayerBuilder> posnegPassiveLayerBuilder = nullptr;
+    std::shared_ptr<const Acts::ILayerBuilder> posnegPassiveLayerBuilder
+        = nullptr;
   };
 
   /// Constructor
   /// @param glbConfig is the configuration class
-  GenericLayerBuilder(const Config&                 glbConfig,
+  GenericLayerBuilder(const Config&                       glbConfig,
                       std::unique_ptr<const Acts::Logger> logger
-                      = Acts::getDefaultLogger("GenericLayerBuilder", Acts::Logging::INFO));
+                      = Acts::getDefaultLogger("GenericLayerBuilder",
+                                               Acts::Logging::INFO));
 
   /// LayerBuilder interface method - returning the layers at negative side
   const Acts::LayerVector

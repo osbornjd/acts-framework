@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ///////////////////////////////////////////////////////////////////
 // IWriterT.h
 ///////////////////////////////////////////////////////////////////
@@ -10,7 +18,7 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace Acts {
-  class Surface;
+class Surface;
 }
 
 namespace FW {
@@ -22,7 +30,8 @@ namespace FW {
 /// @note Use of this interface is deprecated, all event data writers should be
 ///       turned into descendents of the WriterT class in the long run
 ///
-template <class T> class IWriterT : public IService
+template <class T>
+class IWriterT : public IService
 {
 public:
   /// Virtual destructor
@@ -32,8 +41,8 @@ public:
   /// @param object is the object to be written out
   /// @return is a ProcessCode indicating return/failure
   virtual ProcessCode
-  write(const T& object) = 0;
+  write(const T& object)
+      = 0;
 };
-
 }
 #endif  // ACTFW_WRITERS_IWRITERT_H

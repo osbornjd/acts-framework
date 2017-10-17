@@ -1,10 +1,18 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ///////////////////////////////////////////////////////////////////
 // GenatinoRecording.cpp
 ///////////////////////////////////////////////////////////////////
 
 #include <boost/program_options.hpp>
-#include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
+#include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
@@ -14,11 +22,11 @@ namespace po = boost::program_options;
 int
 main(int argc, char* argv[])
 {
-  
+
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // add the detector options
-  FW::Options::addDD4hepOptions<po::options_description>(desc);       
+  FW::Options::addDD4hepOptions<po::options_description>(desc);
   po::variables_map vm;
   // Get all options from contain line and store it into the map
   po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -30,17 +38,22 @@ main(int argc, char* argv[])
   }
   // read the detector config & dd4hep detector
   auto dd4HepDetectorConfig
-     =  FW::Options::readDD4hepConfig<po::variables_map>(vm);
-  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(dd4HepDetectorConfig);
+      = FW::Options::readDD4hepConfig<po::variables_map>(vm);
+  auto geometrySvc
+      = std::make_shared<FW::DD4hep::GeometryService>(dd4HepDetectorConfig);
   std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
       = geometrySvc->trackingGeometry();
 
   // the detectors
-  std::vector<std::string> subDetectors
-      = {"beampipe", "FCChhInner0", "FCChhInner", "FCChhOuter", "FCChhForwardHelper", "FCChhForward"};
+  std::vector<std::string> subDetectors = {"beampipe",
+                                           "FCChhInner0",
+                                           "FCChhInner",
+                                           "FCChhOuter",
+                                           "FCChhForwardHelper",
+                                           "FCChhForward"};
   // the writers
   std::vector<std::shared_ptr<FWObj::ObjSurfaceWriter>> subWriters;
-  std::vector<std::shared_ptr<std::ofstream>>               subStreams;
+  std::vector<std::shared_ptr<std::ofstream>>           subStreams;
   // loop and create
   for (auto sdet : subDetectors) {
     // sub detector stream

@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 /// @file
 /// @date 2016-05-23 Initial version
 /// @date 2017-08-07 Rewrite with new interfaces
@@ -25,7 +33,7 @@ namespace Csv {
   ///
   /// and each line in the file corresponds to one hit/cluster.
   class CsvPlanarClusterWriter
-    : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
+      : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
   {
   public:
     using Base = WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>;
@@ -38,7 +46,7 @@ namespace Csv {
     };
 
     /// Constructor with
-    /// @param cfg configuration struct 
+    /// @param cfg configuration struct
     /// @param output logging level
     CsvPlanarClusterWriter(const Config&        cfg,
                            Acts::Logging::Level level = Acts::Logging::INFO);

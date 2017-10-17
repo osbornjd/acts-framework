@@ -1,9 +1,17 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include <cmath>
 #include <stdexcept>
 
-#include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTS/Utilities/Units.hpp"
@@ -23,23 +31,20 @@ FW::ParticleGun::ParticleGun(const FW::ParticleGun::Config& cfg,
 
   // Print chosen configuration
   ACTS_DEBUG("Particle gun settings: ");
-  ACTS_VERBOSE("- d0  range: " << m_cfg.d0Range[0] 
-                               << ", " << m_cfg.d0Range[1]);
-  ACTS_VERBOSE("- z0  range: " << m_cfg.z0Range[0] 
-                               << ", " << m_cfg.z0Range[1]);
-  ACTS_VERBOSE("- phi range: " << m_cfg.phiRange[0] 
-                               << ", " << m_cfg.phiRange[1]);
-  ACTS_VERBOSE("- eta range: " << m_cfg.etaRange[0] 
-                               << ", " << m_cfg.etaRange[1]);
-  ACTS_VERBOSE("- pt  range: " << m_cfg.ptRange[0]
-                               << ", " << m_cfg.ptRange[1]);  
+  ACTS_VERBOSE("- d0  range: " << m_cfg.d0Range[0] << ", " << m_cfg.d0Range[1]);
+  ACTS_VERBOSE("- z0  range: " << m_cfg.z0Range[0] << ", " << m_cfg.z0Range[1]);
+  ACTS_VERBOSE("- phi range: " << m_cfg.phiRange[0] << ", "
+                               << m_cfg.phiRange[1]);
+  ACTS_VERBOSE("- eta range: " << m_cfg.etaRange[0] << ", "
+                               << m_cfg.etaRange[1]);
+  ACTS_VERBOSE("- pt  range: " << m_cfg.ptRange[0] << ", " << m_cfg.ptRange[1]);
 }
 
 FW::ProcessCode
 FW::ParticleGun::execute(AlgorithmContext ctx) const
 {
 
-  ACTS_DEBUG("::execute() called for event " << ctx.eventNumber );
+  ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);
   // what's written out
   std::vector<Acts::ProcessVertex> vertices;
   RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
@@ -49,8 +54,8 @@ FW::ParticleGun::execute(AlgorithmContext ctx) const
   UniformDist phiDist(m_cfg.phiRange.at(0), m_cfg.phiRange.at(1));
   UniformDist etaDist(m_cfg.etaRange.at(0), m_cfg.etaRange.at(1));
   UniformDist ptDist(m_cfg.ptRange.at(0), m_cfg.ptRange.at(1));
-  UniformDist chargeDist(0.,1.);
-    
+  UniformDist chargeDist(0., 1.);
+
   // the particles
   std::vector<Acts::ParticleProperties> particles;
   for (size_t ip = 0; ip < m_cfg.nParticles; ip++) {
@@ -69,19 +74,13 @@ FW::ParticleGun::execute(AlgorithmContext ctx) const
     // flip charge and PID if asked for
     int flip = (!m_cfg.randomCharge || chargeDist(rng) < 0.5) ? 1 : -1;
     // the particle should be ready now
-    particles.emplace_back(momentum, 
-                           m_cfg.mass, 
-                           flip*m_cfg.charge, 
-                           flip*m_cfg.pID, 
-                           bc);
+    particles.emplace_back(
+        momentum, m_cfg.mass, flip * m_cfg.charge, flip * m_cfg.pID, bc);
   }
-  ACTS_DEBUG("Generated 1 vertex with " << particles.size() << " particles.");                                       
+  ACTS_DEBUG("Generated 1 vertex with " << particles.size() << " particles.");
   // the vertices
-  vertices.push_back(Acts::ProcessVertex(Acts::Vector3D(0.,0.,0.),
-                                         0.,
-                                         0,
-                                         {},
-                                         std::move(particles)));
+  vertices.push_back(Acts::ProcessVertex(
+      Acts::Vector3D(0., 0., 0.), 0., 0, {}, std::move(particles)));
   if (ctx.eventStore.add(m_cfg.evgenCollection, std::move(vertices))
       != ProcessCode::SUCCESS)
     return ProcessCode::ABORT;

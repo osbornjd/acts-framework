@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ///////////////////////////////////////////////////////////////////
 // MaterialMapping.cpp
 ///////////////////////////////////////////////////////////////////
@@ -12,7 +20,7 @@
 #include "ACTS/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
 
 FW::MaterialMapping::MaterialMapping(const FW::MaterialMapping::Config& cnf,
-                                     Acts::Logging::Level                level)
+                                     Acts::Logging::Level               level)
   : FW::BareAlgorithm("MaterialMapping", level), m_cfg(cnf)
 {
   if (!m_cfg.materialTrackReader) {
@@ -47,7 +55,8 @@ FW::ProcessCode
 
     // some screen output to know what is going on
     ACTS_VERBOSE("These will be mapped onto "
-                 << mCache.surfaceMaterialRecords.size() << " surfaces.");
+                 << mCache.surfaceMaterialRecords.size()
+                 << " surfaces.");
 
     // perform the mapping
     auto mappedTrack

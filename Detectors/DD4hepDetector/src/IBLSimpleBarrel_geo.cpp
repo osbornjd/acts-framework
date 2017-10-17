@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ///////////////////////////////////////////////////////////////////
 // IBLSimpleBarrel_geo.cxx, ACTS project
 ///////////////////////////////////////////////////////////////////
@@ -144,8 +152,9 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
         if (k % 2 == 0) r += dr;
         // Place the modules in phi
         for (int i = 0; i < repeat; ++i) {
-          double   phi         = deltaphi / dd4hep::rad * i;
-          string   module_name = layer_name + _toString((int)module_num, "module%d");
+          double phi = deltaphi / dd4hep::rad * i;
+          string module_name
+              = layer_name + _toString((int)module_num, "module%d");
           Position trans(r * cos(phi), r * sin(phi), k * dz);
           // create detector element
           DetElement mod_det(lay_det, module_name, module_num);

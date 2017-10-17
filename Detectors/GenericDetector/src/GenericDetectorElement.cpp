@@ -17,10 +17,10 @@
 #include "ACTS/Surfaces/PlaneSurface.hpp"
 
 FWGen::GenericDetectorElement::GenericDetectorElement(
-    const Identifier                          identifier,
+    const Identifier                                identifier,
     std::shared_ptr<const Acts::Transform3D>        transform,
     std::shared_ptr<const Acts::PlanarBounds>       pBounds,
-    double                                    thickness,
+    double                                          thickness,
     std::shared_ptr<const Acts::SurfaceMaterial>    material,
     std::shared_ptr<const Acts::DigitizationModule> dModule)
   : Acts::DetectorElementBase()
@@ -33,16 +33,17 @@ FWGen::GenericDetectorElement::GenericDetectorElement(
   , m_elementDiscBounds(nullptr)
   , m_digitizationModule(dModule)
 {
-  auto mutableSurface = std::const_pointer_cast<Acts::Surface>(m_elementSurface);
+  auto mutableSurface
+      = std::const_pointer_cast<Acts::Surface>(m_elementSurface);
   mutableSurface->setAssociatedMaterial(material);
 }
 
 FWGen::GenericDetectorElement::GenericDetectorElement(
-    const Identifier                   identifier,
-    std::shared_ptr<const Acts::Transform3D> transform,
-    std::shared_ptr<const Acts::DiscBounds>  dBounds,
-    double                                   thickness,
-    std::shared_ptr<const Acts::SurfaceMaterial>   material)
+    const Identifier                             identifier,
+    std::shared_ptr<const Acts::Transform3D>     transform,
+    std::shared_ptr<const Acts::DiscBounds>      dBounds,
+    double                                       thickness,
+    std::shared_ptr<const Acts::SurfaceMaterial> material)
   : Acts::DetectorElementBase()
   , m_elementIdentifier(std::move(identifier))
   , m_elementTransform(std::move(transform))
@@ -52,6 +53,7 @@ FWGen::GenericDetectorElement::GenericDetectorElement(
   , m_elementPlanarBounds(nullptr)
   , m_elementDiscBounds(std::move(dBounds))
 {
-  auto mutableSurface = std::const_pointer_cast<Acts::Surface>(m_elementSurface);
+  auto mutableSurface
+      = std::const_pointer_cast<Acts::Surface>(m_elementSurface);
   mutableSurface->setAssociatedMaterial(material);
 }

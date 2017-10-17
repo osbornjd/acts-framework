@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 /*
  * fullMaterial.cxx
  *
@@ -43,8 +51,7 @@ fullMaterial(std::string inFile,
   // get the MaterialTrack entities
   std::vector<Acts::MaterialTrack> mrecords;
   std::cout << "Accessing Branch 'MaterialTracks'" << std::endl;
-  TTreeReaderValue<Acts::MaterialTrack> mtRecord(reader,
-                                                       "MaterialTracks");
+  TTreeReaderValue<Acts::MaterialTrack> mtRecord(reader, "MaterialTracks");
   while (reader.Next()) {
     mrecords.push_back(*mtRecord);
   }

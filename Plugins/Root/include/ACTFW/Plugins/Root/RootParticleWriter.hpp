@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 /// @file
 /// @date 2016-05-23 Initial version
 /// @date 2017-08-07 Rewrite with new interfaces
@@ -7,8 +15,8 @@
 #ifndef ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
 #define ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
 
-#include <mutex>
 #include <ACTS/EventData/ParticleDefinitions.hpp>
+#include <mutex>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 
@@ -22,7 +30,7 @@ namespace Root {
   ///
   /// Each entry in the TTree corresponds to the particles in one event.
   class RootParticleWriter final
-    : public WriterT<std::vector<Acts::ProcessVertex>>
+      : public WriterT<std::vector<Acts::ProcessVertex>>
   {
   public:
     using Base = WriterT<std::vector<Acts::ProcessVertex>>;
@@ -53,13 +61,13 @@ namespace Root {
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
-    writeT(const AlgorithmContext&                      ctx,
+    writeT(const AlgorithmContext&                 ctx,
            const std::vector<Acts::ProcessVertex>& vertices) final override;
 
   private:
     Config     m_cfg;         ///< the config class
     std::mutex m_writeMutex;  ///< mutex used to protect multi-threaded writes
-    TFile*     m_outputFile;  ///< the output file 
+    TFile*     m_outputFile;  ///< the output file
     TTree*     m_outputTree;  ///< the output tree
     std::vector<float> m_vx;
     std::vector<float> m_vy;

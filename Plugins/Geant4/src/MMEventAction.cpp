@@ -1,5 +1,13 @@
-#include <stdexcept>
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include "ACTFW/Plugins/Geant4/MMEventAction.hpp"
+#include <stdexcept>
 #include "ACTFW/Plugins/Geant4/MMPrimaryGeneratorAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
 #include "G4Event.hh"
@@ -16,7 +24,7 @@ FW::G4::MMEventAction::Instance()
 
 FW::G4::MMEventAction::MMEventAction() : G4UserEventAction()
 {
-  if(fgInstance) {
+  if (fgInstance) {
     throw std::logic_error("Attempted to duplicate a singleton");
   } else {
     fgInstance = this;
@@ -48,16 +56,13 @@ FW::G4::MMEventAction::EndOfEventAction(const G4Event* event)
   // loop over the material steps and add up the material
   double tX0 = 0;
   double tL0 = 0;
-  for (auto& mstep : MMSteppingAction::Instance()->materialSteps()){
-    tX0 += mstep.materialProperties().thicknessInX0(); 
+  for (auto& mstep : MMSteppingAction::Instance()->materialSteps()) {
+    tX0 += mstep.materialProperties().thicknessInX0();
     tL0 += mstep.materialProperties().thicknessInL0();
-  }  
+  }
   // create the MaterialTrack
   Acts::MaterialTrack mtrecord(
-      pos, 
-      theta, phi, 
-      MMSteppingAction::Instance()->materialSteps(),
-      tX0, tL0);
+      pos, theta, phi, MMSteppingAction::Instance()->materialSteps(), tX0, tL0);
   // write out the MaterialTrack of one event
   m_records.push_back(mtrecord);
 }

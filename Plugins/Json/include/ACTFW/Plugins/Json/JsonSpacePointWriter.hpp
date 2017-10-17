@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 /// @file
 /// @date 2016-05-23 Initial version
 /// @date 2017-08-07 Rewrite with new interfaces
@@ -43,7 +51,7 @@ namespace Json {
 
   protected:
     FW::ProcessCode
-    writeT(const FW::AlgorithmContext&          ctx,
+    writeT(const FW::AlgorithmContext& ctx,
            const DetectorData<geo_id_value, T>& spacePoints) final override;
 
   private:
@@ -73,7 +81,7 @@ FW::Json::JsonSpacePointWriter<T>::JsonSpacePointWriter(
 template <class T>
 FW::ProcessCode
 FW::Json::JsonSpacePointWriter<T>::writeT(
-    const FW::AlgorithmContext&          ctx,
+    const FW::AlgorithmContext& ctx,
     const DetectorData<geo_id_value, T>& spacePoints)
 {
   // open per-event file

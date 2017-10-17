@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 //
 //  WhiteBoardAlgorithm.h
 //  ACTFW
@@ -28,11 +36,11 @@ public:
   struct Config
   {
     // Input collection of DataClassOne (optional)
-    std::string inputClassOneCollection  = "";
+    std::string inputClassOneCollection = "";
     // Output collection of DataClassOne (optional)
     std::string outputClassOneCollection = "";
     // Input collection of DataClassTwo (optional)
-    std::string inputClassTwoCollection  = "";
+    std::string inputClassTwoCollection = "";
     // Output collection of DataClassTwo (optional)
     std::string outputClassTwoCollection = "";
   };
@@ -40,8 +48,8 @@ public:
   /// Constructor
   ///
   /// @param cfg is the configruation
-  WhiteBoardAlgorithm(const Config& cfg,
-  Acts::Logging::Level level = Acts::Logging::INFO);
+  WhiteBoardAlgorithm(const Config&        cfg,
+                      Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execode method
   FW::ProcessCode

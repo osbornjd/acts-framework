@@ -1,8 +1,16 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
 #define ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
 
-#include <array>
 #include <ACTS/Utilities/Units.hpp>
+#include <array>
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
@@ -34,15 +42,13 @@ public:
     /// low, high for d0 range
     range d0Range = {{0., 1 * Acts::units::_mm}};
     /// low, high for z0 range
-    range z0Range
-        = {{-100 * Acts::units::_mm, 100 * Acts::units::_mm}};
+    range z0Range = {{-100 * Acts::units::_mm, 100 * Acts::units::_mm}};
     /// low, high for phi range
     range phiRange = {{-M_PI, M_PI}};
     /// low, high for eta range
     range etaRange = {{-3., 3.}};
     /// low, high for pt range
-    range ptRange
-        = {{100 * Acts::units::_MeV, 10 * Acts::units::_GeV}};
+    range ptRange = {{100 * Acts::units::_MeV, 10 * Acts::units::_GeV}};
     /// the mass of the particle
     double mass = 0.;
     /// the charge of the particle
@@ -53,7 +59,7 @@ public:
     bool randomCharge = false;
     // FW random number service
     std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
-    std::shared_ptr<FW::BarcodeSvc> barcodes = nullptr;
+    std::shared_ptr<FW::BarcodeSvc>       barcodes      = nullptr;
   };
 
   /// Constructor

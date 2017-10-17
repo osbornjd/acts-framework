@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 //
 //  RandomNumbersAlgorithm.h
 //  ACTFW
@@ -33,15 +41,14 @@ public:
     std::array<double, 2> uniformParameters = {{0., 1.}};
     std::array<double, 2> landauParameters  = {{0., 1.}};
     std::array<double, 2> gammaParameters   = {{0., 1.}};
-    int                   poissonParameter  = 40;
+    int poissonParameter = 40;
 
     size_t drawsPerEvent = 0;
   };
 
   /// Constructor
-  RandomNumbersAlgorithm(
-    const Config& cnf, 
-    Acts::Logging::Level level = Acts::Logging::INFO);
+  RandomNumbersAlgorithm(const Config&        cnf,
+                         Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execode method
   FW::ProcessCode

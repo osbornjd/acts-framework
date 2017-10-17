@@ -1,8 +1,16 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef ACTFW_BFIELD_BFIELDEXAMPLE_H
 #define ACTFW_BFIELD_BFIELDEXAMPLE_H
 
-#include <string>
 #include <boost/program_options.hpp>
+#include <string>
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
@@ -22,18 +30,17 @@ main(int argc, char* argv[])
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc,1,2);
+  FW::Options::addStandardOptions<po::options_description>(desc, 1, 2);
   // add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
   // add an output file
-  desc.add_options()
-    ("bf-file-out", 
-     po::value<std::string>()->default_value("BFieldOut.root"),
-     "Set this name for an output root file.")
-    ("bf-map-out", 
-     po::value<std::string>()->default_value("bField"),
-     "Set this name for the tree in the out file.");
-            
+  desc.add_options()("bf-file-out",
+                     po::value<std::string>()->default_value("BFieldOut.root"),
+                     "Set this name for an output root file.")(
+      "bf-map-out",
+      po::value<std::string>()->default_value("bField"),
+      "Set this name for the tree in the out file.");
+
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -45,9 +52,9 @@ main(int argc, char* argv[])
     return 1;
   }
   // now read the standard options
-  auto standardOptions 
-    = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents = standardOptions.first;
+  auto standardOptions
+      = FW::Options::readStandardOptions<po::variables_map>(vm);
+  auto nEvents  = standardOptions.first;
   auto logLevel = standardOptions.second;
   // create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
@@ -55,7 +62,7 @@ main(int argc, char* argv[])
     std::cout << "Bfield could not be set up. Exiting." << std::endl;
     return -1;
   }
-    
+
   // Write the interpolated magnetic field
   FW::BField::RootInterpolatedBFieldWriter::Config writerConfig;
   if (vm["bf-rz"].as<bool>())

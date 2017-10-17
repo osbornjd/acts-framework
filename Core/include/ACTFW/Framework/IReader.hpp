@@ -1,3 +1,11 @@
+// This file is part of the ACTS project.
+//
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 /// @file
 /// @date 2017-07-25
 /// @author Moritz Kiehnn <msmk@cern.ch>
@@ -25,11 +33,13 @@ public:
 
   /// Skip the next n events.
   virtual ProcessCode
-  skip(size_t skip) = 0;
+  skip(size_t skip)
+      = 0;
 
   /// Read the next event
   virtual ProcessCode
-  read(AlgorithmContext context) = 0;
+  read(AlgorithmContext context)
+      = 0;
 };
 
 }  // namespace FW
