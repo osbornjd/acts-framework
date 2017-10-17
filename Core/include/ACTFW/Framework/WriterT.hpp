@@ -66,9 +66,10 @@ protected:
   /// this method is implemented in the user implementation
   /// @param [in] ctx is the algorithm context that guarantees event
   ///        consistency
-  /// @tparam [in] is the templeted collection to be written 
+  /// @tparam [in] is the templeted collection to be written
   virtual ProcessCode
-  writeT(const AlgorithmContext& ctx, const T& t) = 0;
+  writeT(const AlgorithmContext& ctx, const T& t)
+      = 0;
 
   const Acts::Logger&
   logger() const

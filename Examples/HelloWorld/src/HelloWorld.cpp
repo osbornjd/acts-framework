@@ -11,11 +11,11 @@
 //  ACTFW
 //
 //  Created by Andreas Salzburger on 11/05/16.
+#include <boost/program_options.hpp>
 #include <cstdlib>
 #include <memory>
-#include <boost/program_options.hpp>
-#include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Framework/StandardOptions.hpp"
 #include "HelloWorldAlgorithm.hpp"
 
 namespace po = boost::program_options;
@@ -27,7 +27,7 @@ main(int argc, char* argv[])
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc,10,2);
+  FW::Options::addStandardOptions<po::options_description>(desc, 10, 2);
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -39,12 +39,12 @@ main(int argc, char* argv[])
     return 1;
   }
   // now read the standard options
-  auto standardOptions 
-    = FW::Options::readStandardOptions<po::variables_map>(vm);
+  auto standardOptions
+      = FW::Options::readStandardOptions<po::variables_map>(vm);
 
   // and now the hello world algorithm
-  std::shared_ptr<FW::IAlgorithm> 
-    hWorld(new FWE::HelloWorldAlgorithm(standardOptions.second));
+  std::shared_ptr<FW::IAlgorithm> hWorld(
+      new FWE::HelloWorldAlgorithm(standardOptions.second));
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;

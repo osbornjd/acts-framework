@@ -22,11 +22,12 @@
 template <class T>
 FW::ProcessCode
 FW::ExtrapolationAlgorithm::executeTestT(
-    const T&     startParameters,
-    barcode_type barcode,
-    std::vector< Acts::ExtrapolationCell< T> >& eCells,
+    const T&                                 startParameters,
+    barcode_type                             barcode,
+    std::vector<Acts::ExtrapolationCell<T>>& eCells,
     FW::DetectorData<geo_id_value,
-                     std::pair<std::unique_ptr<const T>, barcode_type>>* dData) const
+                     std::pair<std::unique_ptr<const T>, barcode_type>>* dData)
+    const
 {
   // setup the extrapolation how you'd like it
   Acts::ExtrapolationCell<T> ecc(startParameters);
@@ -69,8 +70,8 @@ FW::ExtrapolationAlgorithm::executeTestT(
     return FW::ProcessCode::ABORT;
   }
 
-  // create the detector hits data 
-  if (dData && m_cfg.simulatedHitsCollection!= ""){
+  // create the detector hits data
+  if (dData && m_cfg.simulatedHitsCollection != "") {
     /// loop over steps and get the sensitive
     for (auto& es : ecc.extrapolationSteps) {
       // check if you have parameters
@@ -78,18 +79,21 @@ FW::ExtrapolationAlgorithm::executeTestT(
         // get the surface
         const Acts::Surface& sf = es.parameters->referenceSurface();
         // check if you have material
-        if (es.configuration.checkMode(Acts::ExtrapolationMode::CollectSensitive)
+        if (es.configuration.checkMode(
+                Acts::ExtrapolationMode::CollectSensitive)
             && dData) {
           // fill the appropriate vector
-          geo_id_value volumeID = sf.geoID().value(Acts::GeometryID::volume_mask);
-          geo_id_value layerID  = sf.geoID().value(Acts::GeometryID::layer_mask);
+          geo_id_value volumeID
+              = sf.geoID().value(Acts::GeometryID::volume_mask);
+          geo_id_value layerID = sf.geoID().value(Acts::GeometryID::layer_mask);
           geo_id_value moduleID
               = sf.geoID().value(Acts::GeometryID::sensitive_mask);
-          // search and/or insert - we need to clone as the ECC will be wrritten 
+          // search and/or insert - we need to clone as the ECC will be wrritten
           auto parcpptr = std::unique_ptr<const T>(es.parameters->clone());
-          std::pair<std::unique_ptr<const T>, barcode_type> eHit(std::move(parcpptr),
-                                                                 barcode);
-          FW::Data::insert(*dData, volumeID, layerID, moduleID, std::move(eHit));
+          std::pair<std::unique_ptr<const T>, barcode_type> eHit(
+              std::move(parcpptr), barcode);
+          FW::Data::insert(
+              *dData, volumeID, layerID, moduleID, std::move(eHit));
         }
       }
     }
@@ -100,8 +104,9 @@ FW::ExtrapolationAlgorithm::executeTestT(
       // check if sensitive
       if (esf.associatedDetectorElement()) {
         // fill the appropriate vector
-        geo_id_value volumeID = esf.geoID().value(Acts::GeometryID::volume_mask);
-        geo_id_value layerID  = esf.geoID().value(Acts::GeometryID::layer_mask);
+        geo_id_value volumeID
+            = esf.geoID().value(Acts::GeometryID::volume_mask);
+        geo_id_value layerID = esf.geoID().value(Acts::GeometryID::layer_mask);
         geo_id_value moduleID
             = esf.geoID().value(Acts::GeometryID::sensitive_mask);
         // search and/or insert
@@ -113,7 +118,7 @@ FW::ExtrapolationAlgorithm::executeTestT(
   }
   /// fill the ecc step into the container at the end
   eCells.push_back(std::move(ecc));
-  
+
   // return success
   return FW::ProcessCode::SUCCESS;
 }

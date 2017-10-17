@@ -13,18 +13,15 @@
 
 using read_range = std::vector<double>;
 
-namespace std
+namespace std {
+std::ostream&
+operator<<(std::ostream& os, const read_range& vec)
 {
-  std::ostream& operator<<(std::ostream &os, const read_range &vec) 
-  {    
-    for (auto item : vec) 
-    { 
-      os << item << " "; 
-    } 
-    return os; 
+  for (auto item : vec) {
+    os << item << " ";
   }
-} 
+  return os;
+}
+}
 
-
-#endif // ACTFW_OPTIONS_H
-
+#endif  // ACTFW_OPTIONS_H

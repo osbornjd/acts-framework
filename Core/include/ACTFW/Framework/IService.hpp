@@ -42,7 +42,10 @@ public:
   /// Interface hook to run some code to be executed once all events of a job
   /// have been processed, typically used for commiting writes to a file
   virtual ProcessCode
-  endRun() { return ProcessCode::SUCCESS; }
+  endRun()
+  {
+    return ProcessCode::SUCCESS;
+  }
 };
 
 }  // namespace FW

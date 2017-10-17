@@ -18,11 +18,9 @@
 #include "TDictionary.h"
 #include "TTreeReaderValue.h"
 
-
 // Pairs of elements of the same type
-template<typename T>
+template <typename T>
 using HomogeneousPair = std::pair<T, T>;
-
 
 // === TYPE ERASURE FOR CONCRETE DATA ===
 
@@ -31,41 +29,36 @@ using HomogeneousPair = std::pair<T, T>;
 class AnyVector
 {
 public:
-
   // Create a type-erased vector<T>, using proposed constructor arguments.
   // Returns a pair containing the type-erased vector and a pointer to the
   // underlying concrete vector.
-  template<typename T,
-           typename... Args>
-  static std::pair<AnyVector, std::vector<T>*> create(Args&&... args)
+  template <typename T, typename... Args>
+  static std::pair<AnyVector, std::vector<T>*>
+  create(Args&&... args)
   {
     std::vector<T>* vector = new std::vector<T>(std::forward<Args>(args)...);
-    std::function<void()> deleter = [vector]{ delete vector; };
+    std::function<void()> deleter = [vector] { delete vector; };
     return std::make_pair(
-      AnyVector{ static_cast<void*>(vector), std::move(deleter) },
-      vector
-    );
+        AnyVector{static_cast<void*>(vector), std::move(deleter)}, vector);
   }
 
   // Default-construct a null type-erased vector
-  AnyVector()
-    : m_vector{ nullptr }
-  {}
+  AnyVector() : m_vector{nullptr} {}
 
   // Move-construct a type-erased vector
   AnyVector(AnyVector&& other)
-    : m_vector{ other.m_vector }
-    , m_deleter{ std::move(other.m_deleter) }
+    : m_vector{other.m_vector}, m_deleter{std::move(other.m_deleter)}
   {
     other.m_vector = nullptr;
   }
 
   // Move-assign a type-erased vector
-  AnyVector& operator=(AnyVector&& other)
+  AnyVector&
+  operator=(AnyVector&& other)
   {
-    if(&other != this) {
-      m_vector = other.m_vector;
-      m_deleter = std::move(other.m_deleter);
+    if (&other != this) {
+      m_vector       = other.m_vector;
+      m_deleter      = std::move(other.m_deleter);
       other.m_vector = nullptr;
     }
     return *this;
@@ -73,24 +66,26 @@ public:
 
   // Forbid copies of type-erased vectors
   AnyVector(const AnyVector&) = delete;
-  AnyVector& operator=(const AnyVector&) = delete;
+  AnyVector&
+  operator=(const AnyVector&)
+      = delete;
 
   // Delete a type-erased vector
-  ~AnyVector() { if(m_vector) m_deleter(); }
+  ~AnyVector()
+  {
+    if (m_vector) m_deleter();
+  }
 
 private:
-
   // Construct a type-erased vector from a concrete vector
   AnyVector(void* vector, std::function<void()>&& deleter)
-    : m_vector{ vector }
-    , m_deleter{ std::move(deleter) }
-  {}
+    : m_vector{vector}, m_deleter{std::move(deleter)}
+  {
+  }
 
-  void* m_vector;                   // Casted std::vector<T>*
+  void*                 m_vector;   // Casted std::vector<T>*
   std::function<void()> m_deleter;  // Deletes the underlying vector
-
 };
-
 
 // === GENERIC DATA ORDERING ===
 
@@ -99,12 +94,13 @@ enum class Ordering { SMALLER, EQUAL, GREATER };
 
 // In general, any type which implements comparison operators that behave as a
 // mathematical total order can use this comparison function...
-template<typename T>
-Ordering compare(const T& x, const T& y)
+template <typename T>
+Ordering
+compare(const T& x, const T& y)
 {
-  if(x < y) {
+  if (x < y) {
     return Ordering::SMALLER;
-  } else if(x == y) {
+  } else if (x == y) {
     return Ordering::EQUAL;
   } else {
     return Ordering::GREATER;
@@ -112,12 +108,13 @@ Ordering compare(const T& x, const T& y)
 }
 
 // ...but we'll want to tweak that a little for floats, to handle NaNs better...
-template<>
-Ordering compare(const float& x, const float& y)
+template <>
+Ordering
+compare(const float& x, const float& y)
 {
-  if(std::isless(x, y)) {
+  if (std::isless(x, y)) {
     return Ordering::SMALLER;
-  } else if(std::isgreater(x, y)) {
+  } else if (std::isgreater(x, y)) {
     return Ordering::GREATER;
   } else {
     return Ordering::EQUAL;
@@ -126,24 +123,23 @@ Ordering compare(const float& x, const float& y)
 
 // ...and for vectors, where the default lexicographic comparison cannot
 // efficiently tell all of what we want in a single vector iteration pass.
-template<typename U>
-Ordering compare(const std::vector<U>& v1, const std::vector<U>& v2)
+template <typename U>
+Ordering
+compare(const std::vector<U>& v1, const std::vector<U>& v2)
 {
   // First try to order by size...
-  if(v1.size() < v2.size()) {
+  if (v1.size() < v2.size()) {
     return Ordering::SMALLER;
-  } else if(v1.size() > v2.size()) {
+  } else if (v1.size() > v2.size()) {
     return Ordering::GREATER;
   }
   // ...if the size is identical...
-  else
-  {
+  else {
     // ...then try to order by contents of increasing index...
-    for(std::size_t i = 0; i < v1.size(); ++i)
-    {
-      if(v1[i] < v2[i]) {
+    for (std::size_t i = 0; i < v1.size(); ++i) {
+      if (v1[i] < v2[i]) {
         return Ordering::SMALLER;
-      } else if(v1[i] > v2[i]) {
+      } else if (v1[i] > v2[i]) {
         return Ordering::GREATER;
       }
     }
@@ -153,48 +149,47 @@ Ordering compare(const std::vector<U>& v1, const std::vector<U>& v2)
   }
 }
 
-
 // === GENERIC SORTING MECHANISM ===
 
 // The following functions are generic implementations of sorting algorithms,
 // which require only a comparison operator, a swapping operator, and an
 // inclusive range of indices to be sorted in order to operate
 using IndexComparator = std::function<Ordering(std::size_t, std::size_t)>;
-using IndexSwapper = std::function<void(std::size_t, std::size_t)>;
+using IndexSwapper    = std::function<void(std::size_t, std::size_t)>;
 
 // Selection sort has pertty bad asymptotic scaling, but it is non-recursive
 // and in-place, which makes it a good choice for smaller inputs
-void selectionSort(const std::size_t       firstIndex,
-                   const std::size_t       lastIndex,
-                   const IndexComparator & compare,
-                   const IndexSwapper    & swap)
+void
+selectionSort(const std::size_t      firstIndex,
+              const std::size_t      lastIndex,
+              const IndexComparator& compare,
+              const IndexSwapper&    swap)
 {
   using namespace std;
-  for(size_t targetIndex = firstIndex; targetIndex < lastIndex; ++targetIndex)
-  {
+  for (size_t targetIndex = firstIndex; targetIndex < lastIndex;
+       ++targetIndex) {
     size_t minIndex = targetIndex;
-    for(std::size_t readIndex = targetIndex + 1;
-        readIndex <= lastIndex;
-        ++readIndex)
-    {
-      if(compare(readIndex, minIndex) == Ordering::SMALLER) {
+    for (std::size_t readIndex = targetIndex + 1; readIndex <= lastIndex;
+         ++readIndex) {
+      if (compare(readIndex, minIndex) == Ordering::SMALLER) {
         minIndex = readIndex;
       }
     }
-    if(minIndex != targetIndex) swap(minIndex, targetIndex);
+    if (minIndex != targetIndex) swap(minIndex, targetIndex);
   }
 }
 
 // Quick sort is used as the top-level sorting algorithm for our datasets
-void quickSort(const std::size_t       firstIndex,
-               const std::size_t       lastIndex,
-               const IndexComparator & compare,
-               const IndexSwapper    & swap)
+void
+quickSort(const std::size_t      firstIndex,
+          const std::size_t      lastIndex,
+          const IndexComparator& compare,
+          const IndexSwapper&    swap)
 {
   // We switch to non-recursive selection sort when the range becomes too small.
   // This optimization voids the need for detection of 0- and 1-element input.
   static const std::size_t NON_RECURSIVE_THRESHOLD = 25;
-  if(lastIndex - firstIndex < NON_RECURSIVE_THRESHOLD) {
+  if (lastIndex - firstIndex < NON_RECURSIVE_THRESHOLD) {
     selectionSort(firstIndex, lastIndex, compare, swap);
     return;
   }
@@ -202,7 +197,7 @@ void quickSort(const std::size_t       firstIndex,
   // We'll use the midpoint as a pivot. Later on, we can switch to more
   // elaborate pivot selection schemes if their usefulness for our use case
   // (pseudorandom events with thread-originated reordering) is demonstrated.
-  std::size_t pivotIndex = firstIndex + (lastIndex - firstIndex)/2;
+  std::size_t pivotIndex = firstIndex + (lastIndex - firstIndex) / 2;
 
   // Partition the data around the pivot using Hoare's scheme
   std::size_t splitIndex;
@@ -210,26 +205,30 @@ void quickSort(const std::size_t       firstIndex,
     // Start with two indices one step beyond each side of the array
     std::size_t i = firstIndex - 1;
     std::size_t j = lastIndex + 1;
-    while(true) {
+    while (true) {
       // Move left index forward at least once, and until an element which is
       // greater than or equal to the pivot is detected.
-      do { i = i+1; } while(compare(i, pivotIndex) == Ordering::SMALLER);
+      do {
+        i = i + 1;
+      } while (compare(i, pivotIndex) == Ordering::SMALLER);
 
       // Move right index backward at least once, and until an element which is
       // smaller than or equal to the pivot is detected
-      do { j = j-1; } while(compare(j, pivotIndex) == Ordering::GREATER);
+      do {
+        j = j - 1;
+      } while (compare(j, pivotIndex) == Ordering::GREATER);
 
       // By transitivity of inequality, the element at location i is greater
       // than or equal to the one at location j, and a swap could be required
-      if(i < j) {
+      if (i < j) {
         // These elements are in the wrong order, swap them
         swap(i, j);
 
         // Don't forget to keep track the pivot's index along the way, as this
         // is currently the only way by which we can refer to the pivot element.
-        if(i == pivotIndex) {
+        if (i == pivotIndex) {
           pivotIndex = j;
-        } else if(j == pivotIndex) {
+        } else if (j == pivotIndex) {
           pivotIndex = i;
         }
       } else {
@@ -243,15 +242,14 @@ void quickSort(const std::size_t       firstIndex,
   // Now, we'll recursively sort both partitions using quicksort. We should
   // recurse in the smaller range first, so as to leverage compiler tail call
   // optimization if available.
-  if(splitIndex-firstIndex <= lastIndex-splitIndex-1) {
+  if (splitIndex - firstIndex <= lastIndex - splitIndex - 1) {
     quickSort(firstIndex, splitIndex, compare, swap);
-    quickSort(splitIndex+1, lastIndex, compare, swap);
+    quickSort(splitIndex + 1, lastIndex, compare, swap);
   } else {
-    quickSort(splitIndex+1, lastIndex, compare, swap);
+    quickSort(splitIndex + 1, lastIndex, compare, swap);
     quickSort(firstIndex, splitIndex, compare, swap);
   }
 }
-
 
 // === GENERIC TTREE BRANCH MANIPULATION MECHANISM ===
 
@@ -270,7 +268,11 @@ struct BranchComparisonHarness
   // Function which loads the active event data for the current branch. This is
   // to be performed for each branch and combined with TTreeReader-based event
   // iteration on both trees.
-  void loadCurrentEvent() { (*m_eventLoaderPtr)(); }
+  void
+  loadCurrentEvent()
+  {
+    (*m_eventLoaderPtr)();
+  }
 
   // Functors which compare two events within a given tree and order them
   // with respect to one another, and which swap two events. By combining such
@@ -288,81 +290,73 @@ struct BranchComparisonHarness
   // two columns. This enables manual comparison during debugging.
   std::function<void()> dumpEventData;
 
-
   // General metadata about the tree which is identical for every branch
-  struct TreeMetadata {
-    TTreeReader& tree1Reader;
-    TTreeReader& tree2Reader;
+  struct TreeMetadata
+  {
+    TTreeReader&      tree1Reader;
+    TTreeReader&      tree2Reader;
     const std::size_t entryCount;
   };
 
   // This exception will be thrown if an unsupported branch type is encountered
-  class UnsupportedBranchType : public std::exception {};
+  class UnsupportedBranchType : public std::exception
+  {
+  };
 
   // Type-erased factory of branch comparison harnesses, taking ROOT run-time
   // type information as input in order to select an appropriate C++ constructor
-  static BranchComparisonHarness create(      TreeMetadata& treeMetadata,
-                                        const std::string&  branchName,
-                                        const EDataType     dataType,
-                                        const std::string&  className)
+  static BranchComparisonHarness
+  create(TreeMetadata&      treeMetadata,
+         const std::string& branchName,
+         const EDataType    dataType,
+         const std::string& className)
   {
-    switch(dataType) {
-      case kChar_t:
-        return BranchComparisonHarness::create<char>(treeMetadata,
-                                                     branchName);
-      case kUChar_t:
-        return BranchComparisonHarness::create<unsigned char>(treeMetadata,
-                                                              branchName);
-      case kShort_t:
-        return BranchComparisonHarness::create<short>(treeMetadata,
-                                                      branchName);
-      case kUShort_t:
-        return BranchComparisonHarness::create<unsigned short>(treeMetadata,
-                                                               branchName);
-      case kInt_t:
-        return BranchComparisonHarness::create<int>(treeMetadata,
-                                                    branchName);
-      case kUInt_t:
-        return BranchComparisonHarness::create<unsigned int>(treeMetadata,
+    switch (dataType) {
+    case kChar_t:
+      return BranchComparisonHarness::create<char>(treeMetadata, branchName);
+    case kUChar_t:
+      return BranchComparisonHarness::create<unsigned char>(treeMetadata,
+                                                            branchName);
+    case kShort_t:
+      return BranchComparisonHarness::create<short>(treeMetadata, branchName);
+    case kUShort_t:
+      return BranchComparisonHarness::create<unsigned short>(treeMetadata,
                                                              branchName);
-      case kLong_t:
-        return BranchComparisonHarness::create<long>(treeMetadata,
-                                                     branchName);
-      case kULong_t:
-        return BranchComparisonHarness::create<unsigned long>(treeMetadata,
-                                                              branchName);
-      case kFloat_t:
-        return BranchComparisonHarness::create<float>(treeMetadata,
-                                                      branchName);
-      case kDouble_t:
-        return BranchComparisonHarness::create<double>(treeMetadata,
-                                                       branchName);
-      case kBool_t:
-        return BranchComparisonHarness::create<bool>(treeMetadata,
-                                                     branchName);
-      case kOther_t:
-        if(className.substr(0, 6) == "vector") {
-          std::string elementType = className.substr(7, className.size()-8);
-          return BranchComparisonHarness::createVector(treeMetadata,
-                                                       branchName,
-                                                       std::move(elementType));
-        } else {
-          throw UnsupportedBranchType();
-        }
-      default:
+    case kInt_t:
+      return BranchComparisonHarness::create<int>(treeMetadata, branchName);
+    case kUInt_t:
+      return BranchComparisonHarness::create<unsigned int>(treeMetadata,
+                                                           branchName);
+    case kLong_t:
+      return BranchComparisonHarness::create<long>(treeMetadata, branchName);
+    case kULong_t:
+      return BranchComparisonHarness::create<unsigned long>(treeMetadata,
+                                                            branchName);
+    case kFloat_t:
+      return BranchComparisonHarness::create<float>(treeMetadata, branchName);
+    case kDouble_t:
+      return BranchComparisonHarness::create<double>(treeMetadata, branchName);
+    case kBool_t:
+      return BranchComparisonHarness::create<bool>(treeMetadata, branchName);
+    case kOther_t:
+      if (className.substr(0, 6) == "vector") {
+        std::string elementType = className.substr(7, className.size() - 8);
+        return BranchComparisonHarness::createVector(
+            treeMetadata, branchName, std::move(elementType));
+      } else {
         throw UnsupportedBranchType();
+      }
+    default:
+      throw UnsupportedBranchType();
     }
-    
   }
 
-
 private:
-
   // Under the hood, the top-level factory calls the following function
   // template, parametrized with the proper C++ data type
-  template<typename T>
-  static BranchComparisonHarness create(      TreeMetadata& treeMetadata,
-                                        const std::string&  branchName)
+  template <typename T>
+  static BranchComparisonHarness
+  create(TreeMetadata& treeMetadata, const std::string& branchName)
   {
     // Our result will eventually go there
     BranchComparisonHarness result;
@@ -373,7 +367,7 @@ private:
     // Setup type-erased event data storage
     auto tree1DataStorage = AnyVector::create<T>();
     auto tree2DataStorage = AnyVector::create<T>();
-    result.eventData = std::make_pair(std::move(tree1DataStorage.first),
+    result.eventData      = std::make_pair(std::move(tree1DataStorage.first),
                                       std::move(tree2DataStorage.first));
     std::vector<T>& tree1Data = *tree1DataStorage.second;
     std::vector<T>& tree2Data = *tree2DataStorage.second;
@@ -383,38 +377,34 @@ private:
     tree2Data.reserve(treeMetadata.entryCount);
 
     // Setup event data readout
-    result.m_eventLoaderPtr.reset(
-      new EventLoaderT<T>{ treeMetadata.tree1Reader,
-                           treeMetadata.tree2Reader,
-                           branchName,
-                           tree1Data,
-                           tree2Data }
-    );
+    result.m_eventLoaderPtr.reset(new EventLoaderT<T>{treeMetadata.tree1Reader,
+                                                      treeMetadata.tree2Reader,
+                                                      branchName,
+                                                      tree1Data,
+                                                      tree2Data});
 
     // Setup event comparison and swapping for each tree
     result.sortHarness = std::make_pair(
-      std::make_pair(
-        [&tree1Data](std::size_t i, std::size_t j) -> Ordering {
-          return compare(tree1Data[i], tree1Data[j]);
-        },
-        [&tree1Data](std::size_t i, std::size_t j) {
-          std::swap(tree1Data[i], tree1Data[j]);
-        }
-      ),
-      std::make_pair(
-        [&tree2Data](std::size_t i, std::size_t j) -> Ordering {
-          return compare(tree2Data[i], tree2Data[j]);
-        },
-        [&tree2Data](std::size_t i, std::size_t j) {
-          std::swap(tree2Data[i], tree2Data[j]);
-        }
-      )
-    );
+        std::make_pair(
+            [&tree1Data](std::size_t i, std::size_t j) -> Ordering {
+              return compare(tree1Data[i], tree1Data[j]);
+            },
+            [&tree1Data](std::size_t i, std::size_t j) {
+              std::swap(tree1Data[i], tree1Data[j]);
+            }),
+        std::make_pair(
+            [&tree2Data](std::size_t i, std::size_t j) -> Ordering {
+              return compare(tree2Data[i], tree2Data[j]);
+            },
+            [&tree2Data](std::size_t i, std::size_t j) {
+              std::swap(tree2Data[i], tree2Data[j]);
+            }));
 
     // Setup order-sensitive tree comparison
     result.eventDataEqual = [&tree1Data, &tree2Data]() -> bool {
       for (std::size_t i = 0; i < tree1Data.size(); ++i) {
-        if(compare(tree1Data[i], tree2Data[i]) != Ordering::EQUAL) return false;
+        if (compare(tree1Data[i], tree2Data[i]) != Ordering::EQUAL)
+          return false;
       }
       return true;
     };
@@ -432,7 +422,6 @@ private:
     return std::move(result);
   }
 
-
   // Because the people who created TTreeReaderValue could not bother to make it
   // movable (for moving it into a lambda), or even just virtually destructible
   // (for moving a unique_ptr into the lambda), loadEventData can only be
@@ -441,104 +430,82 @@ private:
   {
   public:
     virtual ~IEventLoader() = default;
-    virtual void operator()() = 0;
+    virtual void
+    operator()()
+        = 0;
   };
-  
-  template<typename T>
-  class EventLoaderT: public IEventLoader
+
+  template <typename T>
+  class EventLoaderT : public IEventLoader
   {
   public:
-
-    EventLoaderT(      TTreeReader    & tree1Reader,
-                       TTreeReader    & tree2Reader,
-                 const std::string    & branchName,
-                       std::vector<T> & tree1Data,
-                       std::vector<T> & tree2Data)
-      : branch1Reader{ tree1Reader, branchName.c_str() }
-      , branch2Reader{ tree2Reader, branchName.c_str() }
+    EventLoaderT(TTreeReader&       tree1Reader,
+                 TTreeReader&       tree2Reader,
+                 const std::string& branchName,
+                 std::vector<T>&    tree1Data,
+                 std::vector<T>&    tree2Data)
+      : branch1Reader{tree1Reader, branchName.c_str()}
+      , branch2Reader{tree2Reader, branchName.c_str()}
       , branch1Data(tree1Data)
       , branch2Data(tree2Data)
-    {}
+    {
+    }
 
-    void operator()() final override
+    void
+    operator()() final override
     {
       branch1Data.push_back(*branch1Reader);
       branch2Data.push_back(*branch2Reader);
     }
 
-
   private:
-  
     TTreeReaderValue<T> branch1Reader, branch2Reader;
-    std::vector<T>& branch1Data;
-    std::vector<T>& branch2Data;
-
+    std::vector<T>&     branch1Data;
+    std::vector<T>&     branch2Data;
   };
-  
-  std::unique_ptr<IEventLoader> m_eventLoaderPtr;
 
+  std::unique_ptr<IEventLoader> m_eventLoaderPtr;
 
   // This helper factory helps building branches associated with std::vectors
   // of data, which are the only STL collection that we support at the moment.
-  static BranchComparisonHarness createVector(      TreeMetadata& treeMetadata,
-                                              const std::string&  branchName,
-                                              const std::string   elemType)
+  static BranchComparisonHarness
+  createVector(TreeMetadata&      treeMetadata,
+               const std::string& branchName,
+               const std::string  elemType)
   {
-    if(elemType == "char") {
-      return BranchComparisonHarness::create<std::vector<char>>(
-        treeMetadata,
-        branchName
-      );
-    } else if(elemType == "unsigned char") {
+    if (elemType == "char") {
+      return BranchComparisonHarness::create<std::vector<char>>(treeMetadata,
+                                                                branchName);
+    } else if (elemType == "unsigned char") {
       return BranchComparisonHarness::create<std::vector<unsigned char>>(
-        treeMetadata,
-        branchName
-      );
-    } else if(elemType == "short") {
-      return BranchComparisonHarness::create<std::vector<short>>(
-        treeMetadata,
-        branchName
-      );
-    } else if(elemType == "unsigned short") {
+          treeMetadata, branchName);
+    } else if (elemType == "short") {
+      return BranchComparisonHarness::create<std::vector<short>>(treeMetadata,
+                                                                 branchName);
+    } else if (elemType == "unsigned short") {
       return BranchComparisonHarness::create<std::vector<unsigned short>>(
-        treeMetadata,
-        branchName
-      );
-    } else if(elemType == "int") {
-      return BranchComparisonHarness::create<std::vector<int>>(
-        treeMetadata,
-        branchName
-      );
-    } else if(elemType == "unsigned int") {
+          treeMetadata, branchName);
+    } else if (elemType == "int") {
+      return BranchComparisonHarness::create<std::vector<int>>(treeMetadata,
+                                                               branchName);
+    } else if (elemType == "unsigned int") {
       return BranchComparisonHarness::create<std::vector<unsigned int>>(
-        treeMetadata,
-        branchName
-      );
-    } else if(elemType == "long") {
-      return BranchComparisonHarness::create<std::vector<long>>(
-        treeMetadata,
-        branchName
-      );
-    } else if(elemType == "unsigned long") {
+          treeMetadata, branchName);
+    } else if (elemType == "long") {
+      return BranchComparisonHarness::create<std::vector<long>>(treeMetadata,
+                                                                branchName);
+    } else if (elemType == "unsigned long") {
       return BranchComparisonHarness::create<std::vector<unsigned long>>(
-        treeMetadata,
-        branchName
-      );
-    } else if(elemType == "float") {
-      return BranchComparisonHarness::create<std::vector<float>>(
-        treeMetadata,
-        branchName
-      );
-    } else if(elemType == "double") {
-      return BranchComparisonHarness::create<std::vector<double>>(
-        treeMetadata,
-        branchName
-      );
-    } else if(elemType == "bool") {
-      return BranchComparisonHarness::create<std::vector<bool>>(
-        treeMetadata,
-        branchName
-      );
+          treeMetadata, branchName);
+    } else if (elemType == "float") {
+      return BranchComparisonHarness::create<std::vector<float>>(treeMetadata,
+                                                                 branchName);
+    } else if (elemType == "double") {
+      return BranchComparisonHarness::create<std::vector<double>>(treeMetadata,
+                                                                  branchName);
+    } else if (elemType == "bool") {
+      return BranchComparisonHarness::create<std::vector<bool>>(treeMetadata,
+                                                                branchName);
     } else {
       throw UnsupportedBranchType();
     }
@@ -546,23 +513,26 @@ private:
 
   // This helper method provides general string conversion for all supported
   // branch event data types.
-  template<typename T>
-  static std::string toString(const T& data) {
+  template <typename T>
+  static std::string
+  toString(const T& data)
+  {
     std::ostringstream oss;
     oss << data;
     return oss.str();
   }
 
-  template<typename U>
-  static std::string toString(const std::vector<U>& vector) {
+  template <typename U>
+  static std::string
+  toString(const std::vector<U>& vector)
+  {
     std::ostringstream oss{"{ "};
-    for(const auto& data: vector) {
+    for (const auto& data : vector) {
       oss << data << "  \t";
     }
     oss << " }";
     return oss.str();
   }
-
 };
 
 #endif

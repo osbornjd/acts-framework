@@ -86,7 +86,7 @@ private:
     }
   };
 
-  std::unique_ptr<const Acts::Logger>            m_logger;
+  std::unique_ptr<const Acts::Logger> m_logger;
   std::map<std::string, std::unique_ptr<IHolder>> m_store;
 
   const Acts::Logger&

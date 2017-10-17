@@ -51,8 +51,7 @@ fullMaterial(std::string inFile,
   // get the MaterialTrack entities
   std::vector<Acts::MaterialTrack> mrecords;
   std::cout << "Accessing Branch 'MaterialTracks'" << std::endl;
-  TTreeReaderValue<Acts::MaterialTrack> mtRecord(reader,
-                                                       "MaterialTracks");
+  TTreeReaderValue<Acts::MaterialTrack> mtRecord(reader, "MaterialTracks");
   while (reader.Next()) {
     mrecords.push_back(*mtRecord);
   }

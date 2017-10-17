@@ -15,12 +15,12 @@
 #ifndef ACTFW_PYTHIA8GENERATOR_H
 #define ACTFW_PYTHIA8GENERATOR_H
 
+#include <TPythia8.h>
 #include <memory>
 #include <mutex>
+#include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
-#include "ACTFW/Readers/IReaderT.hpp"
-#include <TPythia8.h>
 
 namespace FW {
 namespace Pythia8 {
@@ -31,7 +31,7 @@ namespace Pythia8 {
   /// proerties for feeding into the fast simulation
   ///
   class TPythia8Generator
-    : public FW::IReaderT<std::vector<Acts::ProcessVertex>>
+      : public FW::IReaderT<std::vector<Acts::ProcessVertex>>
   {
   public:
     struct Config
@@ -61,8 +61,8 @@ namespace Pythia8 {
     // clang-format on
     FW::ProcessCode
     read(std::vector<Acts::ProcessVertex>& pProperties,
-         size_t                                 skip = 0,
-         const FW::AlgorithmContext* context         = nullptr) final override;
+         size_t                            skip    = 0,
+         const FW::AlgorithmContext*       context = nullptr) final override;
 
   private:
     /// Private access to the logging instance

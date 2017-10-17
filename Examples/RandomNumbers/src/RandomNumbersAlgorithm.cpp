@@ -12,9 +12,9 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
-    const FWE::RandomNumbersAlgorithm::Config& cfg, 
-    Acts::Logging::Level level)
-  : FW::BareAlgorithm("RandomNumbersAlgorithm",level), m_cfg(cfg)
+    const FWE::RandomNumbersAlgorithm::Config& cfg,
+    Acts::Logging::Level                       level)
+  : FW::BareAlgorithm("RandomNumbersAlgorithm", level), m_cfg(cfg)
 {
   if (!m_cfg.randomNumbers) {
     throw std::invalid_argument("Missing random number service");
@@ -24,7 +24,7 @@ FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
 FW::ProcessCode
 FWE::RandomNumbersAlgorithm::execute(FW::AlgorithmContext context) const
 {
-  
+
   ACTS_INFO("Running random number generation");
   // Create a random number generator
   FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
@@ -33,11 +33,11 @@ FWE::RandomNumbersAlgorithm::execute(FW::AlgorithmContext context) const
   FW::GaussDist   gaussDist(m_cfg.gaussParameters[0], m_cfg.gaussParameters[1]);
   FW::UniformDist uniformDist(m_cfg.uniformParameters[0],
                               m_cfg.uniformParameters[1]);
-  FW::LandauDist  landauDist(m_cfg.landauParameters[0],
+  FW::LandauDist landauDist(m_cfg.landauParameters[0],
                             m_cfg.landauParameters[1]);
   FW::GammaDist   gammaDist(m_cfg.gammaParameters[0], m_cfg.gammaParameters[1]);
   FW::PoissonDist poissonDist(m_cfg.poissonParameter);
- 
+
   ACTS_INFO(m_cfg.drawsPerEvent << " draws per event will be done");
 
   for (size_t idraw = 0; idraw < m_cfg.drawsPerEvent; ++idraw) {

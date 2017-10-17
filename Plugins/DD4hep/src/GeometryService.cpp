@@ -18,11 +18,9 @@
 
 FW::DD4hep::GeometryService::GeometryService(
     const FW::DD4hep::GeometryService::Config& cfg)
-  : m_cfg(cfg)
-  , m_lcdd()
-  , m_dd4hepGeometry()
-  , m_trackingGeometry()
-{}
+  : m_cfg(cfg), m_lcdd(), m_dd4hepGeometry(), m_trackingGeometry()
+{
+}
 
 FW::DD4hep::GeometryService::~GeometryService()
 {

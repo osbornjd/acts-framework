@@ -13,13 +13,13 @@
 //  Created by Andreas Salzburger on 11/05/16.
 //
 //
+#include <boost/program_options.hpp>
 #include <cstdlib>
 #include <memory>
-#include <boost/program_options.hpp>
-#include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "RandomNumbersAlgorithm.hpp"
 
 namespace po = boost::program_options;
@@ -31,9 +31,9 @@ main(int argc, char* argv[])
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc,10,2);
+  FW::Options::addStandardOptions<po::options_description>(desc, 10, 2);
   // add the random number options
-  FW::Options::addRandomNumbersOptions<po::options_description>(desc);                
+  FW::Options::addRandomNumbersOptions<po::options_description>(desc);
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -45,16 +45,16 @@ main(int argc, char* argv[])
     return 1;
   }
   // now read the standard options
-  auto standardOptions 
-    = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents = standardOptions.first;
+  auto standardOptions
+      = FW::Options::readStandardOptions<po::variables_map>(vm);
+  auto nEvents  = standardOptions.first;
   auto logLevel = standardOptions.second;
-    
+
   // Create the random number engine
-  auto randomNumbersCfg =
-    FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
+  auto randomNumbersCfg
+      = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
-  
+
   // create the config object for the hello world algorithm
   FWE::RandomNumbersAlgorithm::Config rNumbersConfig;
   rNumbersConfig.randomNumbers     = randomNumbers;
@@ -63,10 +63,10 @@ main(int argc, char* argv[])
   rNumbersConfig.landauParameters  = {{1., 7.}};
   rNumbersConfig.gammaParameters   = {{1., 1.}};
   rNumbersConfig.drawsPerEvent     = 5000;
-  
+
   // and now the hello world algorithm
   std::shared_ptr<FW::IAlgorithm> rNumbers(
-      new FWE::RandomNumbersAlgorithm(rNumbersConfig,logLevel));
+      new FWE::RandomNumbersAlgorithm(rNumbersConfig, logLevel));
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
   // now create the sequencer

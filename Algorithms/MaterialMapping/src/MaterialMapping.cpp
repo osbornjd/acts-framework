@@ -20,7 +20,7 @@
 #include "ACTS/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
 
 FW::MaterialMapping::MaterialMapping(const FW::MaterialMapping::Config& cnf,
-                                     Acts::Logging::Level                level)
+                                     Acts::Logging::Level               level)
   : FW::BareAlgorithm("MaterialMapping", level), m_cfg(cnf)
 {
   if (!m_cfg.materialTrackReader) {
@@ -55,7 +55,8 @@ FW::ProcessCode
 
     // some screen output to know what is going on
     ACTS_VERBOSE("These will be mapped onto "
-                 << mCache.surfaceMaterialRecords.size() << " surfaces.");
+                 << mCache.surfaceMaterialRecords.size()
+                 << " surfaces.");
 
     // perform the mapping
     auto mappedTrack

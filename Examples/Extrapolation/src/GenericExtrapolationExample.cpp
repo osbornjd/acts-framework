@@ -7,33 +7,33 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <boost/program_options.hpp>
-#include "ExtrapolationExampleBase.hpp"
+#include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
+#include "ACTFW/Framework/StandardOptions.hpp"
+#include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
+#include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
+#include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/MagneticField/ConstantBField.hpp"
 #include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
-#include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
-#include "ACTFW/Framework/StandardOptions.hpp"
-#include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
-#include "ACTFW/Random/RandomNumbersOptions.hpp"
-#include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
+#include "ExtrapolationExampleBase.hpp"
 
 namespace po = boost::program_options;
 
 // the main executable
 int
 main(int argc, char* argv[])
-{  
+{
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc,100,2);
+  FW::Options::addStandardOptions<po::options_description>(desc, 100, 2);
   // add the bfield options
-  FW::Options::addBFieldOptions<po::options_description>(desc); 
+  FW::Options::addBFieldOptions<po::options_description>(desc);
   // add the particle gun options
   FW::Options::addParticleGunOptions<po::options_description>(desc);
   // add the random number options
-  FW::Options::addRandomNumbersOptions<po::options_description>(desc);                
+  FW::Options::addRandomNumbersOptions<po::options_description>(desc);
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -45,19 +45,18 @@ main(int argc, char* argv[])
     return 1;
   }
   // now read the standard options
-  auto standardOptions 
-    = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents = standardOptions.first;
+  auto standardOptions
+      = FW::Options::readStandardOptions<po::variables_map>(vm);
+  auto nEvents  = standardOptions.first;
   auto logLevel = standardOptions.second;
   // read and create BField service
-  auto bField 
-    = FW::Options::readBField<po::variables_map>(vm);
+  auto bField = FW::Options::readBField<po::variables_map>(vm);
   // read and create  ParticleGunConfig
-  auto particleGunConfig 
-    = FW::Options::readParticleGunConfig<po::variables_map>(vm);
+  auto particleGunConfig
+      = FW::Options::readParticleGunConfig<po::variables_map>(vm);
   // read and create RandomNumbersConfig
-  auto randomNumbersConfig 
-    = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
+  auto randomNumbersConfig
+      = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
 
   // get the generic detector
   // DETECTOR:
@@ -67,17 +66,16 @@ main(int argc, char* argv[])
       = FWGen::buildGenericDetector(logLevel, logLevel, logLevel, 3);
 
   // run the example
-  return bField.first ? 
-    ACTFWExtrapolationExample::run(nEvents, 
-                                   bField.first, 
-                                   gtGeometry, 
-                                   particleGunConfig,
-                                   randomNumbersConfig, 
-                                   logLevel):
-    ACTFWExtrapolationExample::run(nEvents, 
-                                   bField.second, 
-                                   gtGeometry, 
-                                   particleGunConfig, 
-                                   randomNumbersConfig, 
-                                   logLevel);
+  return bField.first ? ACTFWExtrapolationExample::run(nEvents,
+                                                       bField.first,
+                                                       gtGeometry,
+                                                       particleGunConfig,
+                                                       randomNumbersConfig,
+                                                       logLevel)
+                      : ACTFWExtrapolationExample::run(nEvents,
+                                                       bField.second,
+                                                       gtGeometry,
+                                                       particleGunConfig,
+                                                       randomNumbersConfig,
+                                                       logLevel);
 }

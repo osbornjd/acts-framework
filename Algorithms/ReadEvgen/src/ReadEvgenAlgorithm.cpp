@@ -95,23 +95,23 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
   for (auto& hsVertex : hardscatterEvent) {
     // shift the vertex
     hsVertex.shift(vertex);
-    // assign barcodes 
+    // assign barcodes
     for (auto& oparticle : hsVertex.outgoingParticles()) {
       // generate the new barcode, and assign it
-      Acts::ParticleProperties* hsp 
-          = const_cast<Acts::ParticleProperties*>(&oparticle); 
+      Acts::ParticleProperties* hsp
+          = const_cast<Acts::ParticleProperties*>(&oparticle);
       hsp->assign(m_cfg.barcodeSvc->generate(0, pCounter++));
     }
-    // store the hard scatter vertices 
+    // store the hard scatter vertices
     evgen.push_back(hsVertex);
   }
 
   // loop over the pile-up vertices
   for (size_t ipue = 0; ipue < nPileUpEvents; ++ipue) {
     // reserve quite a lot of space
-    double         puVertexX = vertexTDist(rng);
-    double         puVertexY = vertexTDist(rng);
-    double         puVertexZ = vertexZDist(rng);
+    double puVertexX = vertexTDist(rng);
+    double puVertexY = vertexTDist(rng);
+    double puVertexZ = vertexZDist(rng);
     // create the pileup vertex
     vertex = Acts::Vector3D(puVertexX, puVertexY, puVertexZ);
     // get the vertices per pileup event
@@ -127,10 +127,10 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
     for (auto& puVertex : pileupEvent) {
       // shift to the pile-up vertex
       puVertex.shift(vertex);
-      // assign barcodes 
-      for (auto& oparticle : puVertex.outgoingParticles()){
-        Acts::ParticleProperties* hsp 
-            = const_cast<Acts::ParticleProperties*>(&oparticle); 
+      // assign barcodes
+      for (auto& oparticle : puVertex.outgoingParticles()) {
+        Acts::ParticleProperties* hsp
+            = const_cast<Acts::ParticleProperties*>(&oparticle);
         hsp->assign(m_cfg.barcodeSvc->generate(ipue + 1, pCounter++));
       }
       evgen.push_back(puVertex);

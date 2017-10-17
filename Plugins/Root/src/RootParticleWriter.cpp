@@ -6,11 +6,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <ios>
-#include <stdexcept>
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include <TFile.h>
 #include <TTree.h>
+#include <ios>
+#include <stdexcept>
 
 FW::Root::RootParticleWriter::RootParticleWriter(
     const FW::Root::RootParticleWriter::Config& cfg,
@@ -33,7 +33,7 @@ FW::Root::RootParticleWriter::RootParticleWriter(
     throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
   }
   m_outputFile->cd();
-  m_outputTree = new TTree(m_cfg.treeName.c_str(),m_cfg.treeName.c_str());
+  m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
   if (!m_outputTree) throw std::bad_alloc();
 
   // Initial parameters
@@ -68,13 +68,14 @@ FW::Root::RootParticleWriter::endRun()
   m_outputFile->cd();
   m_outputTree->Write();
   ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
-                                        << m_cfg.filePath << "'");
+                                        << m_cfg.filePath
+                                        << "'");
   return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
 FW::Root::RootParticleWriter::writeT(
-    const AlgorithmContext&                      ctx,
+    const AlgorithmContext&                 ctx,
     const std::vector<Acts::ProcessVertex>& vertices)
 {
   // exclusive access to the tree
@@ -99,9 +100,9 @@ FW::Root::RootParticleWriter::writeT(
   m_generation.clear();
   m_secondary.clear();
   m_process.clear();
-  
+
   // loop over the process vertices
-  for (auto& vertex: vertices){
+  for (auto& vertex : vertices) {
     auto& vtx = vertex.position();
     for (auto& particle : vertex.outgoingParticles()) {
       /// collect the information

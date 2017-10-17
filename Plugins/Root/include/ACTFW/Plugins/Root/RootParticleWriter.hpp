@@ -15,8 +15,8 @@
 #ifndef ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
 #define ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
 
-#include <mutex>
 #include <ACTS/EventData/ParticleDefinitions.hpp>
+#include <mutex>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 
@@ -30,7 +30,7 @@ namespace Root {
   ///
   /// Each entry in the TTree corresponds to the particles in one event.
   class RootParticleWriter final
-    : public WriterT<std::vector<Acts::ProcessVertex>>
+      : public WriterT<std::vector<Acts::ProcessVertex>>
   {
   public:
     using Base = WriterT<std::vector<Acts::ProcessVertex>>;
@@ -61,13 +61,13 @@ namespace Root {
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
-    writeT(const AlgorithmContext&                      ctx,
+    writeT(const AlgorithmContext&                 ctx,
            const std::vector<Acts::ProcessVertex>& vertices) final override;
 
   private:
     Config     m_cfg;         ///< the config class
     std::mutex m_writeMutex;  ///< mutex used to protect multi-threaded writes
-    TFile*     m_outputFile;  ///< the output file 
+    TFile*     m_outputFile;  ///< the output file
     TTree*     m_outputTree;  ///< the output tree
     std::vector<float> m_vx;
     std::vector<float> m_vy;

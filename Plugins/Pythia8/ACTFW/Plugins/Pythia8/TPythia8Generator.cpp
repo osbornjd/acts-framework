@@ -83,7 +83,7 @@ FW::Pythia8::TPythia8Generator::read(
   // get the entries
   Int_t np = particles->GetEntriesFast();
   // the last vertex
-  Acts::Vector3D lastVertex(0.,0.,0.);
+  Acts::Vector3D                        lastVertex(0., 0., 0.);
   std::vector<Acts::ParticleProperties> particlesOut;
   // reserve the maximum amount
   particlesOut.reserve(np);
@@ -102,16 +102,16 @@ FW::Pythia8::TPythia8Generator::read(
     // and now create a particle
     Acts::Vector3D vertex(part->Vx(), part->Vy(), part->Vz());
     // flush if vertices are different
-    if (vertex != lastVertex && particlesOut.size()){
+    if (vertex != lastVertex && particlesOut.size()) {
       // create the process vertex, push it
-      Acts::ProcessVertex pVertex(lastVertex,0.,0.,{},particlesOut);
+      Acts::ProcessVertex pVertex(lastVertex, 0., 0., {}, particlesOut);
       processVertices.push_back(pVertex);
       // reset and reserve the particle vector
       particlesOut.clear();
       particlesOut.reserve(np);
     }
     // remember the vertex
-    lastVertex = vertex;    
+    lastVertex = vertex;
     // unit conversion - should be done with Acts::units
     Acts::Vector3D momentum(
         part->Px() * 1000., part->Py() * 1000., part->Pz() * 1000.);
@@ -120,9 +120,9 @@ FW::Pythia8::TPythia8Generator::read(
         Acts::ParticleProperties(momentum, mass, charge, pdg));
   }
   // flush a second time
-  if (particlesOut.size()){
+  if (particlesOut.size()) {
     // create the process vertex, push it
-    Acts::ProcessVertex pVertex(lastVertex,0.,0.,{},particlesOut);
+    Acts::ProcessVertex pVertex(lastVertex, 0., 0., {}, particlesOut);
     processVertices.push_back(pVertex);
   }
   // clear the particles vector

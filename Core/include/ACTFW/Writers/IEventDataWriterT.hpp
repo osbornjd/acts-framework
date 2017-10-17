@@ -15,8 +15,8 @@
 #ifndef ACTFW_WRITERS_IEventDataWriterTT_H
 #define ACTFW_WRITERS_IEventDataWriterTT_H
 
-#include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/Framework/IService.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 
 namespace FW {
@@ -26,16 +26,17 @@ namespace FW {
 /// Interface class for writing EventData are ordered
 /// in DataContainers
 ///
-template <class T> class IEventDataWriterT : public IService
+template <class T>
+class IEventDataWriterT : public IService
 {
 public:
   /// The write interface
   /// @param dd is the detector data in the dedicated container
   /// @return is a ProcessCode indicating success/failure
   virtual ProcessCode
-  write(const DetectorData<geo_id_value, T>& dd) = 0;
+  write(const DetectorData<geo_id_value, T>& dd)
+      = 0;
 };
-
 }
 
 #endif  // ACTFW_WRITERS_IEventDataWriterTT_H

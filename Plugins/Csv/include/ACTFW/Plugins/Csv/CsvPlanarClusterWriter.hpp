@@ -33,7 +33,7 @@ namespace Csv {
   ///
   /// and each line in the file corresponds to one hit/cluster.
   class CsvPlanarClusterWriter
-    : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
+      : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
   {
   public:
     using Base = WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>;
@@ -46,7 +46,7 @@ namespace Csv {
     };
 
     /// Constructor with
-    /// @param cfg configuration struct 
+    /// @param cfg configuration struct
     /// @param output logging level
     CsvPlanarClusterWriter(const Config&        cfg,
                            Acts::Logging::Level level = Acts::Logging::INFO);

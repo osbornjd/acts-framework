@@ -40,7 +40,7 @@ FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
     throw std::ios_base::failure("Could not open '" + m_cfg.fileName);
   }
   m_outputFile->cd();
-  m_outputTree = new TTree(m_cfg.treeName.c_str(),m_cfg.treeName.c_str());
+  m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
   if (!m_outputTree) throw std::bad_alloc();
 
   // Create a branch with the MaterialTrack entities
@@ -63,13 +63,12 @@ FW::Root::RootMaterialTrackWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootMaterialTrackWriter::write(
-    const Acts::MaterialTrack& mtrecord)
+FW::Root::RootMaterialTrackWriter::write(const Acts::MaterialTrack& mtrecord)
 {
-  
+
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
-  
+
   // setting the parameters
   m_trackRecord = mtrecord;
 

@@ -12,10 +12,10 @@
 
 #include "ACTFW/GenericDetector/GenericLayerBuilder.hpp"
 #include <iostream>
+#include "ACTFW/GenericDetector/GenericDetectorElement.hpp"
 #include "ACTS/Detector/DetectorElementBase.hpp"
 #include "ACTS/Digitization/CartesianSegmentation.hpp"
 #include "ACTS/Digitization/DigitizationModule.hpp"
-#include "ACTFW/GenericDetector/GenericDetectorElement.hpp"
 #include "ACTS/Material/HomogeneousSurfaceMaterial.hpp"
 #include "ACTS/Material/Material.hpp"
 #include "ACTS/Material/MaterialProperties.hpp"
@@ -32,8 +32,8 @@
 
 FWGen::GenericLayerBuilder::GenericLayerBuilder(
     const FWGen::GenericLayerBuilder::Config& glbConfig,
-    std::unique_ptr<const Acts::Logger>  log)
-  : Acts::ILayerBuilder() 
+    std::unique_ptr<const Acts::Logger>       log)
+  : Acts::ILayerBuilder()
   , m_nLayers()
   , m_cLayers()
   , m_pLayers()
@@ -55,7 +55,8 @@ FWGen::GenericLayerBuilder::setConfiguration(
 }
 
 void
-FWGen::GenericLayerBuilder::setLogger(std::unique_ptr<const Acts::Logger> newLogger)
+FWGen::GenericLayerBuilder::setLogger(
+    std::unique_ptr<const Acts::Logger> newLogger)
 {
   m_logger = std::move(newLogger);
 }
@@ -108,7 +109,8 @@ FWGen::GenericLayerBuilder::constructLayers()
 
       // prepartion :
       // create digitizaiton module
-      std::shared_ptr<const Acts::DigitizationModule> moduleDigitizationPtr = nullptr;
+      std::shared_ptr<const Acts::DigitizationModule> moduleDigitizationPtr
+          = nullptr;
       if (m_cfg.centralModuleReadoutBinsX.size()) {
         // create the CartesianSegmentation
         std::shared_ptr<const Acts::Segmentation> moduleSegmentation
@@ -117,11 +119,12 @@ FWGen::GenericLayerBuilder::constructLayers()
                 m_cfg.centralModuleReadoutBinsX.at(icl),
                 m_cfg.centralModuleReadoutBinsY.at(icl));
         // now create the digitzation module
-        moduleDigitizationPtr = std::make_shared<const Acts::DigitizationModule>(
-            moduleSegmentation,
-            m_cfg.centralModuleThickness.at(icl),
-            m_cfg.centralModuleReadoutSide.at(icl),
-            m_cfg.centralModuleLorentzAngle.at(icl));
+        moduleDigitizationPtr
+            = std::make_shared<const Acts::DigitizationModule>(
+                moduleSegmentation,
+                m_cfg.centralModuleThickness.at(icl),
+                m_cfg.centralModuleReadoutSide.at(icl),
+                m_cfg.centralModuleLorentzAngle.at(icl));
       }
 
       // prepartation :
@@ -129,8 +132,9 @@ FWGen::GenericLayerBuilder::constructLayers()
       std::shared_ptr<const Acts::SurfaceMaterial> moduleMaterialPtr = nullptr;
       if (m_cfg.centralModuleMaterial.size()) {
         // get the sensor material from configuration
-        Acts::Material           moduleMaterial = m_cfg.centralModuleMaterial.at(icl);
-        Acts::MaterialProperties moduleMaterialProperties(moduleMaterial, moduleThickness);
+        Acts::Material moduleMaterial = m_cfg.centralModuleMaterial.at(icl);
+        Acts::MaterialProperties moduleMaterialProperties(moduleMaterial,
+                                                          moduleThickness);
         // create a new surface material
         moduleMaterialPtr = std::shared_ptr<const Acts::SurfaceMaterial>(
             new Acts::HomogeneousSurfaceMaterial(moduleMaterialProperties));
@@ -154,16 +158,17 @@ FWGen::GenericLayerBuilder::constructLayers()
         Acts::Vector3D moduleLocalY(0., 0., 1);
         // the local x axis the normal to local y,z
         Acts::Vector3D moduleLocalX(-sin(modulePhi + modulePhiTilt),
-                              cos(modulePhi + modulePhiTilt),
-                              0.);
+                                    cos(modulePhi + modulePhiTilt),
+                                    0.);
         // create the RotationMatrix
         Acts::RotationMatrix3D moduleRotation;
         moduleRotation.col(0) = moduleLocalX;
         moduleRotation.col(1) = moduleLocalY;
         moduleRotation.col(2) = moduleLocalZ;
         // get the moduleTransform
-        std::shared_ptr<Acts::Transform3D> mutableModuleTransform(new Acts::Transform3D(
-            Acts::getTransformFromRotTransl(moduleRotation, moduleCenter)));
+        std::shared_ptr<Acts::Transform3D> mutableModuleTransform(
+            new Acts::Transform3D(
+                Acts::getTransformFromRotTransl(moduleRotation, moduleCenter)));
         // stereo angle if necessary
         if (m_cfg.centralModuleFrontsideStereo.size()
             && m_cfg.centralModuleFrontsideStereo.at(icl) != 0.) {
@@ -201,8 +206,9 @@ FWGen::GenericLayerBuilder::constructLayers()
           moduleIdentifier = Identifier(Identifier::value_type(imodule));
           moduleCenter     = moduleCenter
               + m_cfg.centralModuleBacksideGap.at(icl) * moduleLocalZ;
-          mutableModuleTransform = std::shared_ptr<Acts::Transform3D>(new Acts::Transform3D(
-              Acts::getTransformFromRotTransl(moduleRotation, moduleCenter)));
+          mutableModuleTransform = std::shared_ptr<Acts::Transform3D>(
+              new Acts::Transform3D(Acts::getTransformFromRotTransl(
+                  moduleRotation, moduleCenter)));
           // apply the stereo
           if (m_cfg.centralModuleBacksideStereo.size()) {
             // twist by the stereo angle
@@ -223,7 +229,7 @@ FWGen::GenericLayerBuilder::constructLayers()
                                                   moduleDigitizationPtr);
           // register the backside as bin member
           std::vector<const Acts::DetectorElementBase*> bsbinmember = {module};
-          std::vector<const Acts::DetectorElementBase*> binmember   = {bsmodule};
+          std::vector<const Acts::DetectorElementBase*> binmember = {bsmodule};
           bsmodule->registerBinmembers(bsbinmember);
           module->registerBinmembers(binmember);
           // memory management - we need a detector store to hold them
@@ -339,15 +345,17 @@ FWGen::GenericLayerBuilder::constructLayers()
                   m_cfg.posnegModuleReadoutBinsX.at(ipnl).at(ipnR),
                   m_cfg.posnegModuleReadoutBinsY.at(ipnl).at(ipnR));
           // now create the digitzation module
-          moduleDigitizationPtr = std::make_shared<const Acts::DigitizationModule>(
-              moduleSegmentation,
-              moduleThickness,
-              m_cfg.posnegModuleReadoutSide.at(ipnl).at(ipnR),
-              m_cfg.posnegModuleLorentzAngle.at(ipnl).at(ipnR));
+          moduleDigitizationPtr
+              = std::make_shared<const Acts::DigitizationModule>(
+                  moduleSegmentation,
+                  moduleThickness,
+                  m_cfg.posnegModuleReadoutSide.at(ipnl).at(ipnR),
+                  m_cfg.posnegModuleLorentzAngle.at(ipnl).at(ipnR));
         }
         // (3) module material
         // create the Module material from input
-        std::shared_ptr<const Acts::SurfaceMaterial> moduleMaterialPtr = nullptr;
+        std::shared_ptr<const Acts::SurfaceMaterial> moduleMaterialPtr
+            = nullptr;
         if (m_cfg.posnegModuleMaterial.size()) {
           Acts::MaterialProperties moduleMaterialProperties(
               m_cfg.posnegModuleMaterial.at(ipnl).at(ipnR), moduleThickness);
@@ -385,10 +393,12 @@ FWGen::GenericLayerBuilder::constructLayers()
           pModuleRotation.col(1) = moduleLocalY;
           pModuleRotation.col(2) = pModuleLocalZ;
           // the transforms for the two modules
-          std::shared_ptr<const Acts::Transform3D> nModuleTransform(new Acts::Transform3D(
-              Acts::getTransformFromRotTransl(nModuleRotation, nModuleCenter)));
-          std::shared_ptr<const Acts::Transform3D> pModuleTransform(new Acts::Transform3D(
-              Acts::getTransformFromRotTransl(pModuleRotation, pModuleCenter)));
+          std::shared_ptr<const Acts::Transform3D> nModuleTransform(
+              new Acts::Transform3D(Acts::getTransformFromRotTransl(
+                  nModuleRotation, nModuleCenter)));
+          std::shared_ptr<const Acts::Transform3D> pModuleTransform(
+              new Acts::Transform3D(Acts::getTransformFromRotTransl(
+                  pModuleRotation, pModuleCenter)));
           // create the modules identifier @todo Idenfier service
           Identifier nModuleIdentifier
               = Identifier(Identifier::value_type(2 * imodule));
@@ -397,18 +407,18 @@ FWGen::GenericLayerBuilder::constructLayers()
           // create the module
           FWGen::GenericDetectorElement* nmodule
               = new FWGen::GenericDetectorElement(nModuleIdentifier,
-                                           nModuleTransform,
-                                           moduleBounds,
-                                           moduleThickness,
-                                           moduleMaterialPtr,
-                                           moduleDigitizationPtr);
+                                                  nModuleTransform,
+                                                  moduleBounds,
+                                                  moduleThickness,
+                                                  moduleMaterialPtr,
+                                                  moduleDigitizationPtr);
           FWGen::GenericDetectorElement* pmodule
               = new FWGen::GenericDetectorElement(pModuleIdentifier,
-                                           pModuleTransform,
-                                           moduleBounds,
-                                           moduleThickness,
-                                           moduleMaterialPtr,
-                                           moduleDigitizationPtr);
+                                                  pModuleTransform,
+                                                  moduleBounds,
+                                                  moduleThickness,
+                                                  moduleMaterialPtr,
+                                                  moduleDigitizationPtr);
           // memory management - we need a detector store to hold them somewhere
           // @todo add detector store facility
           m_posnegModule.push_back(nmodule);
@@ -426,21 +436,21 @@ FWGen::GenericLayerBuilder::constructLayers()
                 + m_cfg.posnegModuleBacksideGap.at(ipnl).at(ipnR)
                     * pModuleLocalZ;
             // the new transforms
-            auto mutableNModuleTransform
-                = std::shared_ptr<Acts::Transform3D>(new Acts::Transform3D(
-                    Acts::getTransformFromRotTransl(nModuleRotation, nModuleCenter)));
-            auto mutablePModuleTransform
-                = std::shared_ptr<Acts::Transform3D>(new Acts::Transform3D(
-                    Acts::getTransformFromRotTransl(pModuleRotation, pModuleCenter)));
+            auto mutableNModuleTransform = std::shared_ptr<Acts::Transform3D>(
+                new Acts::Transform3D(Acts::getTransformFromRotTransl(
+                    nModuleRotation, nModuleCenter)));
+            auto mutablePModuleTransform = std::shared_ptr<Acts::Transform3D>(
+                new Acts::Transform3D(Acts::getTransformFromRotTransl(
+                    pModuleRotation, pModuleCenter)));
             // apply the stereo
             if (m_cfg.posnegModuleBacksideStereo.size()) {
               // twist by the stereo angle
               double stereoBackSide
                   = m_cfg.posnegModuleBacksideStereo.at(ipnl).at(ipnR);
-              (*mutableNModuleTransform.get())
-                  *= Acts::AngleAxis3D(-stereoBackSide, Acts::Vector3D::UnitZ());
-              (*mutablePModuleTransform.get())
-                  *= Acts::AngleAxis3D(-stereoBackSide, Acts::Vector3D::UnitZ());
+              (*mutableNModuleTransform.get()) *= Acts::AngleAxis3D(
+                  -stereoBackSide, Acts::Vector3D::UnitZ());
+              (*mutablePModuleTransform.get()) *= Acts::AngleAxis3D(
+                  -stereoBackSide, Acts::Vector3D::UnitZ());
             }
             // Finalize the transform
             nModuleTransform = std::const_pointer_cast<const Acts::Transform3D>(
@@ -450,23 +460,27 @@ FWGen::GenericLayerBuilder::constructLayers()
             // everything is set for the next module
             FWGen::GenericDetectorElement* bsnmodule
                 = new FWGen::GenericDetectorElement(nModuleIdentifier,
-                                             nModuleTransform,
-                                             moduleBounds,
-                                             moduleThickness,
-                                             moduleMaterialPtr,
-                                             moduleDigitizationPtr);
+                                                    nModuleTransform,
+                                                    moduleBounds,
+                                                    moduleThickness,
+                                                    moduleMaterialPtr,
+                                                    moduleDigitizationPtr);
             FWGen::GenericDetectorElement* bspmodule
                 = new FWGen::GenericDetectorElement(pModuleIdentifier,
-                                             pModuleTransform,
-                                             moduleBounds,
-                                             moduleThickness,
-                                             moduleMaterialPtr,
-                                             moduleDigitizationPtr);
+                                                    pModuleTransform,
+                                                    moduleBounds,
+                                                    moduleThickness,
+                                                    moduleMaterialPtr,
+                                                    moduleDigitizationPtr);
             // register the backside of the binmembers
-            std::vector<const Acts::DetectorElementBase*> bspbinmember = {pmodule};
-            std::vector<const Acts::DetectorElementBase*> pbinmember   = {bspmodule};
-            std::vector<const Acts::DetectorElementBase*> bsnbinmember = {nmodule};
-            std::vector<const Acts::DetectorElementBase*> nbinmember   = {bsnmodule};
+            std::vector<const Acts::DetectorElementBase*> bspbinmember
+                = {pmodule};
+            std::vector<const Acts::DetectorElementBase*> pbinmember
+                = {bspmodule};
+            std::vector<const Acts::DetectorElementBase*> bsnbinmember
+                = {nmodule};
+            std::vector<const Acts::DetectorElementBase*> nbinmember
+                = {bsnmodule};
             bsnmodule->registerBinmembers(bsnbinmember);
             nmodule->registerBinmembers(nbinmember);
             bspmodule->registerBinmembers(bspbinmember);

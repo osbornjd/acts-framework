@@ -152,8 +152,9 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
         if (k % 2 == 0) r += dr;
         // Place the modules in phi
         for (int i = 0; i < repeat; ++i) {
-          double   phi         = deltaphi / dd4hep::rad * i;
-          string   module_name = layer_name + _toString((int)module_num, "module%d");
+          double phi = deltaphi / dd4hep::rad * i;
+          string module_name
+              = layer_name + _toString((int)module_num, "module%d");
           Position trans(r * cos(phi), r * sin(phi), k * dz);
           // create detector element
           DetElement mod_det(lay_det, module_name, module_num);

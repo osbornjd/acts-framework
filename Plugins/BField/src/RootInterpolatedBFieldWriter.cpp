@@ -9,18 +9,18 @@
 ///////////////////////////////////////////////////////////////////
 // RootInterpolatedBFieldWriter.cpp
 ///////////////////////////////////////////////////////////////////
+#include "ACTFW/Plugins/BField/RootInterpolatedBFieldWriter.hpp"
 #include <ios>
 #include <sstream>
 #include <stdexcept>
-#include "ACTFW/Plugins/BField/RootInterpolatedBFieldWriter.hpp"
 #include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
 #include "ACTS/Utilities/Units.hpp"
 #include "TFile.h"
 
 void
 FW::BField::RootInterpolatedBFieldWriter::run(
-  const Config&                       cfg,
-  std::unique_ptr<const Acts::Logger> p_logger)
+    const Config&                       cfg,
+    std::unique_ptr<const Acts::Logger> p_logger)
 {
   // Set up (local) logging
   // @todo Remove dangerous using declaration once the logger macro tolerates it
@@ -47,16 +47,24 @@ FW::BField::RootInterpolatedBFieldWriter::run(
   if (!outputTree) throw std::bad_alloc();
 
   // The position values
-  double x; outputTree->Branch("x", &x);
-  double y; outputTree->Branch("y", &y);
-  double z; outputTree->Branch("z", &z);
-  double r; outputTree->Branch("r", &r);
+  double x;
+  outputTree->Branch("x", &x);
+  double y;
+  outputTree->Branch("y", &y);
+  double z;
+  outputTree->Branch("z", &z);
+  double r;
+  outputTree->Branch("r", &r);
 
   // The BField values
-  double Bx; outputTree->Branch("Bx", &Bx);
-  double By; outputTree->Branch("By", &By);
-  double Bz; outputTree->Branch("Bz", &Bz);
-  double Br; outputTree->Branch("Br", &Br);
+  double Bx;
+  outputTree->Branch("Bx", &Bx);
+  double By;
+  outputTree->Branch("By", &By);
+  double Bz;
+  outputTree->Branch("Bz", &Bz);
+  double Br;
+  outputTree->Branch("Br", &Br);
 
   // Get the underlying mapper of the InterpolatedBFieldMap
   auto mapper = cfg.bField->getMapper();
@@ -75,8 +83,7 @@ FW::BField::RootInterpolatedBFieldWriter::run(
   if (cfg.gridType == GridType::xyz) {
     if (minima.size() != 3 || maxima.size() != 3) {
       std::ostringstream errorMsg;
-      errorMsg << "Wrong number of axes for given gridType: "
-               << minima.size()
+      errorMsg << "Wrong number of axes for given gridType: " << minima.size()
                << ", axes given - but 3 are required! Please check gridType, "
                   "current gridType(0 = rz, 1 = xyz) is : "
                << cfg.gridType;
@@ -120,8 +127,7 @@ FW::BField::RootInterpolatedBFieldWriter::run(
   } else {
     if (minima.size() != 2 || maxima.size() != 2) {
       std::ostringstream errorMsg;
-      errorMsg << "Wrong number of axes for given gridType: "
-               << minima.size()
+      errorMsg << "Wrong number of axes for given gridType: " << minima.size()
                << ", axes given - but 2 are required! Please check "
                   "gridType, current gridType(0 = rz, 1 = xyz) is : "
                << cfg.gridType;
@@ -148,14 +154,14 @@ FW::BField::RootInterpolatedBFieldWriter::run(
           double         raw_z = minZ + k * stepZ;
           Acts::Vector3D position(raw_r * cos(phi), raw_r * sin(phi), raw_z);
           auto           bField = cfg.bField->getField(position);
-          x                   = position.x() / Acts::units::_mm;
-          y                   = position.y() / Acts::units::_mm;
-          z                   = raw_z / Acts::units::_mm;
-          r                   = raw_r / Acts::units::_mm;
-          Bx                  = bField.x() / Acts::units::_T;
-          By                  = bField.y() / Acts::units::_T;
-          Bz                  = bField.z() / Acts::units::_T;
-          Br                  = bField.perp() / Acts::units::_T;
+          x                     = position.x() / Acts::units::_mm;
+          y                     = position.y() / Acts::units::_mm;
+          z                     = raw_z / Acts::units::_mm;
+          r                     = raw_r / Acts::units::_mm;
+          Bx                    = bField.x() / Acts::units::_T;
+          By                    = bField.y() / Acts::units::_T;
+          Bz                    = bField.z() / Acts::units::_T;
+          Br                    = bField.perp() / Acts::units::_T;
           outputTree->Fill();
         }
       }

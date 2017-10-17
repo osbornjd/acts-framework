@@ -80,9 +80,10 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
           string zname = _toString((int)k, "z%d");
           // Visualization
           mod_vol.setVisAttributes(lcdd, x_module.visStr());
-          double phi         = deltaphi / dd4hep::rad * k;
-          string module_name = zname
-              + _toString((int)(repeat * module_num_num + module_num), "module%d");
+          double phi = deltaphi / dd4hep::rad * k;
+          string module_name
+              = zname + _toString((int)(repeat * module_num_num + module_num),
+                                  "module%d");
           Position trans(radius * cos(phi), radius * sin(phi), slicedz);
           // Create the module DetElement
           DetElement mod_det(

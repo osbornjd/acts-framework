@@ -41,15 +41,14 @@ public:
     std::array<double, 2> uniformParameters = {{0., 1.}};
     std::array<double, 2> landauParameters  = {{0., 1.}};
     std::array<double, 2> gammaParameters   = {{0., 1.}};
-    int                   poissonParameter  = 40;
+    int poissonParameter = 40;
 
     size_t drawsPerEvent = 0;
   };
 
   /// Constructor
-  RandomNumbersAlgorithm(
-    const Config& cnf, 
-    Acts::Logging::Level level = Acts::Logging::INFO);
+  RandomNumbersAlgorithm(const Config&        cnf,
+                         Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execode method
   FW::ProcessCode

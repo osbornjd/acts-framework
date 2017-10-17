@@ -10,19 +10,19 @@
 // GeantinoRecording.cpp
 ///////////////////////////////////////////////////////////////////
 
+#include "ACTFW/MaterialMapping/GeantinoRecording.hpp"
 #include <iostream>
 #include <stdexcept>
-#include "ACTFW/MaterialMapping/GeantinoRecording.hpp"
 #include "ACTFW/Plugins/Geant4/MMDetectorConstruction.hpp"
 #include "ACTFW/Plugins/Geant4/MMEventAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMPrimaryGeneratorAction.hpp"
-#include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMRunAction.hpp"
+#include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
 #include "FTFP_BERT.hh"
 
 FW::GeantinoRecording::GeantinoRecording(
     const FW::GeantinoRecording::Config& cnf,
-    Acts::Logging::Level level)
+    Acts::Logging::Level                 level)
   : FW::BareAlgorithm("GeantinoRecording", level)
   , m_cfg(cnf)
   , m_runManager(std::make_unique<G4RunManager>())
@@ -51,11 +51,8 @@ FW::GeantinoRecording::GeantinoRecording(
 
   /// Now set up the Geant4 simulation
   m_runManager->SetUserInitialization(new FTFP_BERT);
-  m_runManager->SetUserAction(
-    new FW::G4::MMPrimaryGeneratorAction( "geantino",
-                                        1000.,
-                                        m_cfg.seed1,
-                                        m_cfg.seed2));
+  m_runManager->SetUserAction(new FW::G4::MMPrimaryGeneratorAction(
+      "geantino", 1000., m_cfg.seed1, m_cfg.seed2));
   FW::G4::MMRunAction* runaction = new FW::G4::MMRunAction();
   m_runManager->SetUserAction(runaction);
   m_runManager->SetUserAction(new FW::G4::MMEventAction());
@@ -63,18 +60,16 @@ FW::GeantinoRecording::GeantinoRecording(
   m_runManager->Initialize();
 }
 
-FW::ProcessCode
-FW::GeantinoRecording::execute(FW::AlgorithmContext) const
+FW::ProcessCode FW::GeantinoRecording::execute(FW::AlgorithmContext) const
 {
-  
+
   /// Begin with the simulation
   m_runManager->BeamOn(m_cfg.tracksPerEvent);
   ///
   std::vector<Acts::MaterialTrack> mtrecords
       = FW::G4::MMEventAction::Instance()->MaterialTracks();
-  ACTS_INFO(
-      "Received " << mtrecords.size()
-                  << " MaterialTracks. Writing them now onto file...");
+  ACTS_INFO("Received " << mtrecords.size()
+                        << " MaterialTracks. Writing them now onto file...");
   // write to the file
   for (auto& record : mtrecords) {
     m_cfg.materialTrackWriter->write(record);

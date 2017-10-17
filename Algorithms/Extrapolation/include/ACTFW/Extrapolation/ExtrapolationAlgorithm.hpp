@@ -48,11 +48,11 @@ public:
     /// the extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
     /// the particles input collections
-    std::string evgenCollection                  = "";
+    std::string evgenCollection = "";
     /// the simulated particles output collection
-    std::string simulatedParticlesCollection     = "";
+    std::string simulatedParticlesCollection = "";
     /// the simulated hits output collection (optional)
-    std::string simulatedHitsCollection          = "";
+    std::string simulatedHitsCollection = "";
     /// the simulated charged excell collection (optional)
     std::string simulatedChargedExCellCollection = "";
     /// the simulated neutral excell collection (optional)
@@ -60,31 +60,31 @@ public:
     /// the cuts applied in this case
     /// @todo remove later and replace by particle selector
     double maxD0  = std::numeric_limits<double>::max();
-    double maxEta = std::numeric_limits<double>::max();;
-    double minPt  = 0.0;
+    double maxEta = std::numeric_limits<double>::max();
+    ;
+    double minPt = 0.0;
     /// skip or process neutral particles
-    bool skipNeutral          = false;
+    bool skipNeutral = false;
     /// configuration: sensitive collection
-    bool collectSensitive     = true;
+    bool collectSensitive = true;
     /// configuration: collect passive
-    bool collectPassive       = true;
+    bool collectPassive = true;
     /// configuration: collect boundary
-    bool collectBoundary      = true;
+    bool collectBoundary = true;
     /// configuration: collect material
-    bool collectMaterial      = true;
+    bool collectMaterial = true;
     /// configuration: don't collapse
     bool sensitiveCurvilinear = false;
     /// define how robust the search mode is
-    int searchMode            = 0;
+    int searchMode = 0;
     /// set the patch limit of the extrapolation
-    double pathLimit          = -1.;
+    double pathLimit = -1.;
   };
 
   /// Constructor
   /// @param [in] cnf is the configuration struct
   /// @param [in] loglevel is the loggin level
-  ExtrapolationAlgorithm(const Config& cnf,
-                         Acts::Logging::Level loglevel);
+  ExtrapolationAlgorithm(const Config& cnf, Acts::Logging::Level loglevel);
 
   /// Framework execute method
   /// @param [in] the algorithm context for event consistency
@@ -94,20 +94,20 @@ public:
 private:
   Config m_cfg;  ///< the config class
 
-  /// the templated execute test method for 
-  /// charged and netural particles 
+  /// the templated execute test method for
+  /// charged and netural particles
   /// @param [in] the start parameters
   /// @param [in] the particle barcode
-  /// @param [in] the detector data container 
+  /// @param [in] the detector data container
   template <class T>
   ProcessCode
   executeTestT(
-      const T&     startParameters,
-      barcode_type barcode,
-      std::vector< Acts::ExtrapolationCell< T> >& eCells,
+      const T&                                 startParameters,
+      barcode_type                             barcode,
+      std::vector<Acts::ExtrapolationCell<T>>& eCells,
       DetectorData<geo_id_value,
                    std::pair<std::unique_ptr<const T>, barcode_type>>* dData
-                    = nullptr) const;
+      = nullptr) const;
 };
 }  // namespace FW
 #include "ExtrapolationAlgorithm.ipp"

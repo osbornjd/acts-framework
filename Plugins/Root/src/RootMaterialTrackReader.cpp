@@ -28,8 +28,8 @@ FW::Root::RootMaterialTrackReader::~RootMaterialTrackReader()
 
 FW::ProcessCode
 FW::Root::RootMaterialTrackReader::read(Acts::MaterialTrack&        mtrc,
-                                      size_t                      skip,
-                                      const FW::AlgorithmContext* context)
+                                        size_t                      skip,
+                                        const FW::AlgorithmContext* context)
 {
   // load the input chain
   if (!m_inputChain) {

@@ -25,26 +25,25 @@ namespace Options {
   // common evgen options, with an rnd prefix
   template <class AOPT>
   void
-  addRandomNumbersOptions(AOPT& opt){
-    opt.add_options()
-      ("rnd-seed",
-       po::value<int>()->default_value(1234567890),
-       "Seed of the random number engine.");
+  addRandomNumbersOptions(AOPT& opt)
+  {
+    opt.add_options()("rnd-seed",
+                      po::value<int>()->default_value(1234567890),
+                      "Seed of the random number engine.");
   }
-  
+
   /// read the random number options and return a Config object
-  template <class AMAP> 
-  FW::RandomNumbersSvc::Config 
-  readRandomNumbersConfig(const AMAP& vm){
-    
+  template <class AMAP>
+  FW::RandomNumbersSvc::Config
+  readRandomNumbersConfig(const AMAP& vm)
+  {
+
     FW::RandomNumbersSvc::Config randomConfig;
-    randomConfig.seed 
-      = vm["rnd-seed"].template as<int>();
+    randomConfig.seed = vm["rnd-seed"].template as<int>();
     // return the config
-    return randomConfig;  
+    return randomConfig;
   }
-    
 }
 }
 
-#endif // ACTFW_OPTIONS_RANDOMNUMBEROPTIONS_HPP
+#endif  // ACTFW_OPTIONS_RANDOMNUMBEROPTIONS_HPP

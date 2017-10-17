@@ -53,8 +53,7 @@ namespace BField {
     };
 
     /// Write down an interpolated magnetic field map
-    static
-    void
+    static void
     run(const Config&                       cfg,
         std::unique_ptr<const Acts::Logger> logger
         = Acts::getDefaultLogger("RootInterpolatedBFieldWriter",

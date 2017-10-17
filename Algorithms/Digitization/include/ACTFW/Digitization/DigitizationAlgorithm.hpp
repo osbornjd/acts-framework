@@ -54,7 +54,7 @@ public:
   execute(FW::AlgorithmContext ctx) const final override;
 
 private:
-  Config                              m_cfg;
+  Config m_cfg;
 };
 
 }  // namespace FW

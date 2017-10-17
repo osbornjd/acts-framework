@@ -36,11 +36,11 @@ public:
   struct Config
   {
     // Input collection of DataClassOne (optional)
-    std::string inputClassOneCollection  = "";
+    std::string inputClassOneCollection = "";
     // Output collection of DataClassOne (optional)
     std::string outputClassOneCollection = "";
     // Input collection of DataClassTwo (optional)
-    std::string inputClassTwoCollection  = "";
+    std::string inputClassTwoCollection = "";
     // Output collection of DataClassTwo (optional)
     std::string outputClassTwoCollection = "";
   };
@@ -48,8 +48,8 @@ public:
   /// Constructor
   ///
   /// @param cfg is the configruation
-  WhiteBoardAlgorithm(const Config& cfg,
-  Acts::Logging::Level level = Acts::Logging::INFO);
+  WhiteBoardAlgorithm(const Config&        cfg,
+                      Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execode method
   FW::ProcessCode

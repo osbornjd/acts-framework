@@ -21,7 +21,7 @@ FW::ProcessCode
 setupWriters(FW::Sequencer&                  sequencer,
              std::shared_ptr<FW::BarcodeSvc> barcode,
              std::string                     outputDir,
-             Acts::Logging::Level defaultLevel)
+             Acts::Logging::Level            defaultLevel)
 {
   const std::string particles = "FatrasParticles";
   const std::string clusters  = "FatrasClusters";
@@ -55,7 +55,7 @@ setupWriters(FW::Sequencer&                  sequencer,
   clusterWriterRootConfig.collection = clusters;
   clusterWriterRootConfig.filePath = FW::joinPaths(outputDir, "clusters.root");
   auto clusteWriterRoot = std::make_shared<FW::Root::RootPlanarClusterWriter>(
-    clusterWriterRootConfig);
+      clusterWriterRootConfig);
 
   // space points as json
   FW::Json::JsonSpacePointWriter<Acts::Vector3D>::Config spWriterJsonConfig;

@@ -18,8 +18,8 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace Acts {
-  class SurfaceMaterial;
-  class GeometryID;
+class SurfaceMaterial;
+class GeometryID;
 }
 
 namespace FW {
@@ -29,17 +29,18 @@ namespace FW {
 /// Interface class for writing out the material
 ///
 
-class ISurfaceMaterialWriter : public IService {
- public:
+class ISurfaceMaterialWriter : public IService
+{
+public:
   /// Virtual destructor
   virtual ~ISurfaceMaterialWriter() = default;
 
   /// Writes out the material map of the layer
-  virtual FW::ProcessCode write(
-      const Acts::SurfaceMaterial& material,
-      const Acts::GeometryID& geoID, 
-      const std::string& name) = 0;
+  virtual FW::ProcessCode
+  write(const Acts::SurfaceMaterial& material,
+        const Acts::GeometryID&      geoID,
+        const std::string&           name)
+      = 0;
 };
-
 }
 #endif  // ACTFW_WRITERS_IMATERIALWRITER_H

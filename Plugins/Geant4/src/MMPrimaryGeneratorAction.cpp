@@ -6,8 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <stdexcept>
 #include "ACTFW/Plugins/Geant4/MMPrimaryGeneratorAction.hpp"
+#include <stdexcept>
 #include "G4Event.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
@@ -16,19 +16,18 @@
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
 
-FW::G4::MMPrimaryGeneratorAction*
-  FW::G4::MMPrimaryGeneratorAction::fgInstance = nullptr;
+FW::G4::MMPrimaryGeneratorAction* FW::G4::MMPrimaryGeneratorAction::fgInstance
+    = nullptr;
 
 FW::G4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
     const G4String& particleName,
     G4double        energy,
     G4int           randomSeed1,
     G4int           randomSeed2)
-  : G4VUserPrimaryGeneratorAction()
-  , fParticleGun(nullptr)
+  : G4VUserPrimaryGeneratorAction(), fParticleGun(nullptr)
 {
   // configure the run
-  if(fgInstance) {
+  if (fgInstance) {
     throw std::logic_error("Attempted to duplicate a singleton");
   } else {
     fgInstance = this;
@@ -43,8 +42,8 @@ FW::G4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
   fParticleGun->SetParticleEnergy(energy);
   G4UnitDefinition::PrintUnitsTable();
 
-  // set the random seeds 
-  CLHEP::HepRandom::getTheEngine()->setSeed(randomSeed1,randomSeed2);
+  // set the random seeds
+  CLHEP::HepRandom::getTheEngine()->setSeed(randomSeed1, randomSeed2);
 }
 
 FW::G4::MMPrimaryGeneratorAction::~MMPrimaryGeneratorAction()
@@ -67,9 +66,10 @@ FW::G4::MMPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double theta = G4UniformRand() * M_PI;
   // build a direction
   m_direction
-    = G4ThreeVector(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
-  m_position = G4ThreeVector(0., 0., 0.); /// @todo make configurable G4RandGauss::shoot(0., 150.));
-  // set to the particle gun and 
+      = G4ThreeVector(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
+  m_position = G4ThreeVector(
+      0., 0., 0.);  /// @todo make configurable G4RandGauss::shoot(0., 150.));
+  // set to the particle gun and
   fParticleGun->SetParticleMomentumDirection(m_direction);
   fParticleGun->SetParticlePosition(m_position);
 
