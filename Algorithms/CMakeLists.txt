@@ -1,6 +1,7 @@
 add_subdirectory(Digitization)
 add_subdirectory(Extrapolation)
 add_subdirectory(ParticleGun)
+add_subdirectory(Propagation)
 add_subdirectory_if(MaterialMapping USE_GEANT4)
 add_subdirectory(ReadEvgen)
 
