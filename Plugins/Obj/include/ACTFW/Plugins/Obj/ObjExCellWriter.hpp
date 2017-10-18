@@ -88,10 +88,10 @@ namespace Obj {
     // the event paramters
     auto sPosition = eCell.startParameters.position();
     // write the space point
-    (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor * sPosition.x()
-                            << ", " << m_cfg.outputScalor * sPosition.y()
-                            << ", " << m_cfg.outputScalor * sPosition.z()
-                            << '\n';
+    (*(m_cfg.outputStream))
+        << "v " << m_cfg.outputScalor * sPosition.x() << ", "
+        << m_cfg.outputScalor * sPosition.y() << ", "
+        << m_cfg.outputScalor * sPosition.z() << '\n';
 
     // loop over extrapolation steps
     for (auto& es : eCell.extrapolationSteps) {
@@ -102,10 +102,10 @@ namespace Obj {
         // increase the counter
         ++m_vCounter;
         // write the space point
-        (*(m_cfg.outputStream)) << "v " << m_cfg.outputScalor * tPosition.x()
-                                << ", " << m_cfg.outputScalor * tPosition.y()
-                                << ", " << m_cfg.outputScalor * tPosition.z()
-                                << '\n';
+        (*(m_cfg.outputStream))
+            << "v " << m_cfg.outputScalor * tPosition.x() << ", "
+            << m_cfg.outputScalor * tPosition.y() << ", "
+            << m_cfg.outputScalor * tPosition.z() << '\n';
       }
     }
     // write out the line
