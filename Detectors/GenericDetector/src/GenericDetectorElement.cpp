@@ -6,10 +6,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-///////////////////////////////////////////////////////////////////
-// GenericDetectorElement.cxx, ACTS project, Generic Detector plugin
-///////////////////////////////////////////////////////////////////
-
 #include "ACTFW/GenericDetector/GenericDetectorElement.hpp"
 #include "ACTS/Surfaces/DiscBounds.hpp"
 #include "ACTS/Surfaces/DiscSurface.hpp"

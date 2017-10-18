@@ -6,10 +6,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-///////////////////////////////////////////////////////////////////
-// GenatinoRecording.cpp
-///////////////////////////////////////////////////////////////////
-
 #include <boost/program_options.hpp>
 #include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"

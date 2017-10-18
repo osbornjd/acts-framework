@@ -11,7 +11,6 @@
 #include "DDSegmentation/PolarGridRPhi.h"
 
 
-
 /** Given a xml element with several daughters with the same name, e.g.
  <detector> <layer name="1" /> <layer name="2"> </detector>
  this method returns the first daughter of type nodeName whose attribute has a given value

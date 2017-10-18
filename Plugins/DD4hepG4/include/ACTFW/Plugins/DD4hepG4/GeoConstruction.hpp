@@ -9,10 +9,7 @@
 #ifndef DD4HEPG4_GEOCONSTRUCTION_H
 #define DD4HEPG4_GEOCONSTRUCTION_H
 
-// DD4hep
 #include "DDG4/Geant4GeometryInfo.h"
-
-// Geant4
 #include "G4VUserDetectorConstruction.hh"
 
 namespace dd4hep {
