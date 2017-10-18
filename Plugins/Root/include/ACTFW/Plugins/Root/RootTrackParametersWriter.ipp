@@ -59,6 +59,26 @@ FW::Root::RootTrackParametersWriter<T>::writeT(const FW::AlgorithmContext&  ctx,
         m_momentumPhi.push_back(tp->momentum().phi()); 
         m_momentumEta.push_back(tp->momentum().eta()); 
         m_momentumPt.push_back(tp->momentum().perp());  
+        // let's fill the covariances
+        if (tp->covariance()){
+          // covariance 
+          const auto& cov = (*(tp->convariance()).get());
+          m_cov00.push_back(cov(0,0));
+          m_cov01.push_back(cov(0,1));
+          m_cov02.push_back(cov(0,2));
+          m_cov03.push_back(cov(0,3));
+          m_cov04.push_back(cov(0,4));
+          m_cov11.push_back(cov(1,1));
+          m_cov12.push_back(cov(1,2));
+          m_cov13.push_back(cov(1,3));
+          m_cov14.push_back(cov(1,4));
+          m_cov22.push_back(cov(2,2));
+          m_cov23.push_back(cov(2,3));
+          m_cov24.push_back(cov(2,4));
+          m_cov33.push_back(cov(3,3));
+          m_cov34.push_back(cov(3,4));
+          m_cov44.push_back(cov(4,4));
+        }
       }
     }
     m_outputTree->Fill();
