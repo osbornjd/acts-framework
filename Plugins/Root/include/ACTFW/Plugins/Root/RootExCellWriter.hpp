@@ -6,15 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-//  IExtrapolationCellWriter.h
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 23/05/16.
-//
-//
-
 #ifndef ACTFW_PLUGINS_ROOTEXCELLWRITER_H
-#define ACTFW_PLUGINS_ROOTEXCELLWRITER_H 1
+#define ACTFW_PLUGINS_ROOTEXCELLWRITER_H
 
 #include <TFile.h>
 #include <TTree.h>

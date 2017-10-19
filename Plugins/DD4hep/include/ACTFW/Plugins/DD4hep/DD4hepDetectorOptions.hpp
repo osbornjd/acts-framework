@@ -6,10 +6,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-///////////////////////////////////////////////////////////////////
-// DD4hepDetectorOptions.hpp
-///////////////////////////////////////////////////////////////////
-
 #ifndef ACTFW_OPTIONS_DD4HEPDETECTOROPTIONS_HPP
 #define ACTFW_OPTIONS_DD4HEPDETECTOROPTIONS_HPP
 

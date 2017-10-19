@@ -6,10 +6,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-///////////////////////////////////////////////////////////////////
-// GeometryService.hpp
-///////////////////////////////////////////////////////////////////
-
 #ifndef DD4HEP_GEOMETRYSERVICE_H
 #define DD4HEP_GEOMETRYSERVICE_H 1
 

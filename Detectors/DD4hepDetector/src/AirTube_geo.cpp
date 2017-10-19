@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// This DD4hep Constructor is borrowed from
+// This DD4hep Constructor is strongly inspired by (adds the ActsExtension)
 // https://github.com/AIDASoft/DD4hep/tree/master/examples/SimpleDetector
 
 // $Id: $

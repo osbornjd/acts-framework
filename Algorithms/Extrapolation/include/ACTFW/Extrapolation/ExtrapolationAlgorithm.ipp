@@ -6,13 +6,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-//
-//  ExtrapolationAlgorithm.ipp
-//  ACTS-Development
-//
-//  Created by Andreas Salzburger on 19/05/16.
-//
-//
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"

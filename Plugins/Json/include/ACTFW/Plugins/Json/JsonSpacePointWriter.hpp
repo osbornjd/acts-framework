@@ -9,8 +9,6 @@
 /// @file
 /// @date 2016-05-23 Initial version
 /// @date 2017-08-07 Rewrite with new interfaces
-/// @autor Andreas Salzburger
-/// @author Moritz Kiehnn <msmk@cern.ch>
 
 #ifndef ACTFW_JSONSPACEPOINTWRITER_H
 #define ACTFW_JSONSPACEPOINTWRITER_H

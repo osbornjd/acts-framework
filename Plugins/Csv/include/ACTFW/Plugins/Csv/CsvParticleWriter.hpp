@@ -9,8 +9,6 @@
 /// @file
 /// @date 2016-05-23 Initial version
 /// @date 2017-08-07 Rewrite with new interfaces
-/// @autor Andreas Salzburger
-/// @author Moritz Kiehn <msmk@cern.ch>
 
 #ifndef ACTFW_CSVPARTICLERITER_H
 #define ACTFW_CSVPARTICLERITER_H

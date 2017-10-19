@@ -8,8 +8,6 @@
 
 /// @file
 /// @date 2017-08-07 Rewrite with new interfaces
-/// @autor Andreas Salzburger based on the Csv writer
-/// @author Moritz Kiehnn <msmk@cern.ch>
 
 #ifndef ACTFW_ROOTPLANARCLUSTERWRITER_H
 #define ACTFW_ROOTPLANARCLUSTERWRITER_H
