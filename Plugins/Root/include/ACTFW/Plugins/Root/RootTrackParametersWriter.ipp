@@ -62,7 +62,7 @@ FW::Root::RootTrackParametersWriter<T>::writeT(const FW::AlgorithmContext&  ctx,
         // let's fill the covariances
         if (tp->covariance()){
           // covariance 
-          const auto& cov = (*(tp->convariance()).get());
+          const auto& cov = (*(tp->covariance()));
           m_cov00.push_back(cov(0,0));
           m_cov01.push_back(cov(0,1));
           m_cov02.push_back(cov(0,2));
