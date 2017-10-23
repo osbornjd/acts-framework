@@ -1,12 +1,3 @@
-#include <iostream>
-#include <random>
-#include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/EventData/TrackParameters.hpp"
-#include "ACTS/Extrapolation/ExtrapolationCell.hpp"
-#include "ACTS/Surfaces/PerigeeSurface.hpp"
-#include "ACTS/Utilities/Definitions.hpp"
-#include "ACTS/Utilities/Units.hpp"
 
 template <typename PropagatorA, typename PropagatorB, typename PropagatorE>
 std::unique_ptr<Acts::ActsSymMatrixD<5>>
