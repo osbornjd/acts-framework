@@ -1,12 +1,13 @@
+// This file is part of the ACTS project.
 //
-//  PropagationAlgorithm.h
-//  ACTFW
+// Copyright (C) 2017 ACTS project team
 //
-//  Created by Andreas Salzburger on 11/05/16.
-//
-//
-#ifndef ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H
-#define ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#ifndef ACTFW_ALGORITHMS_PROPAGATIONALGORITHM_H
+#define ACTFW_ALGORITHMS_PROPAGATIONALGORITHM_H
 
 #include <cmath>
 #include <limits>
@@ -154,4 +155,4 @@ private:
 
 }  // namespace FW
 
-#endif  // ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H
+#endif  // ACTFW_ALGORITHMS_PROPAGATIONALGORITHM_H
