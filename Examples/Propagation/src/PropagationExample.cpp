@@ -19,7 +19,7 @@
 #include "ACTS/Extrapolation/RungeKuttaEngine.hpp"
 #include "ACTS/MagneticField/ConstantBField.hpp"
 #include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
-#include "ACTS/MagneticField/SharedBField.hpp"
+#include "ACTS/MagneticField/SharedBFieldMap.hpp"
 #include "ACTS/Propagator/AtlasStepper.hpp"
 #include "ACTS/Propagator/EigenStepper.hpp"
 #include "ACTS/Propagator/Propagator.hpp"
