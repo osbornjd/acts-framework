@@ -111,6 +111,10 @@ FW::Root::RootTrackParametersWriter<T>::RootTrackParametersWriter(
   , m_outputTree(nullptr)
 {
   m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+  if (!m_outputFile) {
+    throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
+  }
+  
   m_outputFile->cd();
   m_outputTree
       = new TTree(m_cfg.treeName.c_str(), "TTree from TrackParametersWriter");
@@ -154,10 +158,8 @@ template <class T>
 FW::ProcessCode
 FW::Root::RootTrackParametersWriter<T>::endRun()
 {
-  if (m_outputFile) {
-    m_outputFile->cd();
-    m_outputTree->Write();
-    m_outputFile->Close();
-  }
+  m_outputFile->cd();
+  m_outputTree->Write();
+  m_outputFile->Close();
   return FW::ProcessCode::SUCCESS;
 }
