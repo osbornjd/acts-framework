@@ -114,7 +114,7 @@ FW::Root::RootTrackParametersWriter<T>::RootTrackParametersWriter(
   if (!m_outputFile) {
     throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
   }
-  
+
   m_outputFile->cd();
   m_outputTree
       = new TTree(m_cfg.treeName.c_str(), "TTree from TrackParametersWriter");
