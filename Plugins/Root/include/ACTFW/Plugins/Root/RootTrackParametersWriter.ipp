@@ -51,16 +51,17 @@ FW::Root::RootTrackParametersWriter<T>::writeT(
   for (auto& tpCollection : tParameterCollections) {
     int tag = 0;
     for (auto& tp : tpCollection) {
+      ++tag;
       if (tp) {
         // fill the tag
-        m_tag.push_back(tag++);
+        m_tag.push_back(tag);
         // get the parameters
         m_par0.push_back(tp->parameters()[Acts::eLOC_0]);
         m_par1.push_back(tp->parameters()[Acts::eLOC_1]);
         m_par2.push_back(tp->parameters()[Acts::ePHI]);
         m_par3.push_back(tp->parameters()[Acts::eTHETA]);
         m_par4.push_back(tp->parameters()[Acts::eQOP]);
-        // get the poistion
+        // get the position
         m_positionX.push_back(tp->position().x());
         m_positionY.push_back(tp->position().y());
         m_positionZ.push_back(tp->position().z());
@@ -147,4 +148,16 @@ FW::Root::RootTrackParametersWriter<T>::RootTrackParametersWriter(
   m_outputTree->Branch("momentumPhi", &m_momentumPhi);
   m_outputTree->Branch("momentumEta", &m_momentumEta);
   m_outputTree->Branch("momentumPt", &m_momentumPt);
+}
+
+template <class T>
+FW::ProcessCode
+FW::Root::RootTrackParametersWriter<T>::endRun()
+{
+  if (m_outputFile) {
+    m_outputFile->cd();
+    m_outputTree->Write();
+    m_outputFile->Close();
+  }
+  return FW::ProcessCode::SUCCESS;
 }

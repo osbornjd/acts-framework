@@ -52,14 +52,11 @@ namespace Root {
                               Acts::Logging::Level level = Acts::Logging::INFO);
 
     /// Destructor
-    virtual ~RootTrackParametersWriter()
-    {
-      if (m_outputFile) {
-        m_outputFile->cd();
-        m_outputTree->Write();
-        m_outputFile->Close();
-      }
-    };
+    virtual ~RootTrackParametersWriter(){};
+
+    /// End-of-run hook
+    ProcessCode
+    endRun() final override;
 
   protected:
     /// The protected writeT method, called by the WriterT base

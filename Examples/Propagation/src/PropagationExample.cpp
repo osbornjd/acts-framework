@@ -1,4 +1,4 @@
-// This file is part of the ACTS project.
+Algorithms/Propagation/include/ACTFW/Propagation/PropagationAlgorithm.ipp// This file is part of the ACTS project.
 //
 // Copyright (C) 2017 ACTS project team
 //
@@ -50,7 +50,7 @@ main(int argc, char* argv[])
       "Caching the mangetic field.")(
       "prop-testmode",
       po::value<size_t>()->default_value(0),
-      "Testmodes are 0 : path length, 1 : surface, >1: kalman.");
+      "Testmodes are 0 : path length, 1 : kalman.");
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -68,6 +68,12 @@ main(int argc, char* argv[])
   auto logLevel = standardOptions.second;
   // read and create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
+  // configuration check
+  if (!bField.first) {
+    std::cout << "Configuration error: no magnetic field ! " << std::endl;
+    return -9;
+  }
+
   // read and create RandomNumbersConfig
   auto randomNumbersConfig
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
@@ -135,7 +141,7 @@ main(int argc, char* argv[])
 
   // the magnetic field type
   size_t tMode = vm["prop-testmode"].as<size_t>();
-  if (tMode < 3)
+  if (tMode == 0)
     propConfig.testMode = (PropagationTest::TestMode)tMode;
   else
     propConfig.testMode = PropagationTest::kalman;
@@ -158,8 +164,8 @@ main(int argc, char* argv[])
   // propagtion algorithm
   auto propagationAlg = std::make_shared<PropagationTest>(propConfig, logLevel);
 
-  typedef std::unique_ptr<const Acts::TrackParameters> tp_ptr;
-  typedef std::vector<tp_ptr>                          tp_vector;
+  typedef std::unique_ptr<const Acts::TrackParameters> TrackParametersPtr;
+  typedef std::vector<TrackParametersPtr>              tp_vector;
 
   FW::Root::RootTrackParametersWriter<tp_vector>::Config tpWriterConfig;
   tpWriterConfig.filePath   = "track_parameters.root";

@@ -74,6 +74,10 @@ PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::execute(
 
   // loop over the vertices
   size_t evertices = 0;
+
+  // prepare the output collection
+  std::vector<std::vector<TrackParametersPtr>> tParametersCollection;
+
   for (auto& evtx : (*evgen)) {
     ACTS_DEBUG("Processing event vertex no. " << evertices++);
     // vertex is outside cut
@@ -97,46 +101,47 @@ PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::execute(
                    - sparticles.size());
     ACTS_DEBUG("Simulated particles: " << sparticles.size());
 
-    // the asspcoated perigee for this vertex
+    // the associated perigee for this vertex
     const auto& vertex = evtx.position();
-
-    // prepare the output collection
-    std::vector<std::vector<tp_ptr>> tParametersCollection;
-    tParametersCollection.reserve(sparticles.size());
 
     // loop over particles and run the test
     for (const auto& particle : sparticles) {
       // create the output collection
-      std::vector<tp_ptr> tParameters;
+      std::vector<TrackParametersPtr> tParameters;
       // this is the momentum
       const auto& momentum = particle.momentum();
       double      charge   = particle.charge();
       // execute the test for charged particles
       if (particle.charge()) {
-
-        // some screen output
+        // get a covaraince matrix for transport
         std::unique_ptr<Acts::ActsSymMatrixD<5>> cov
             = generateCovariance(rng, gauss);
         Acts::CurvilinearParameters sParameters(
             std::move(cov), vertex, momentum, charge);
         // record the start paramters
         auto sPars = sParameters.clone();
-        tParameters.push_back(std::move(tp_ptr(sPars)));
+        tParameters.push_back(std::move(TrackParametersPtr(sPars)));
         // the path length test
         if (m_cfg.testMode == pathLength) {
           ACTS_VERBOSE("Testing path length propagation ...");
           // the first propagation
           if (m_cfg.propagatorA)
-            propagateAB(
-                m_cfg.propagatorA, sParameters, m_optionsA, tParameters);
+            propagateAB(*m_cfg.propagatorA,
+                        m_optionsA,
+                        sParameters,
+                        nullptr,
+                        tParameters);
           // the second propagation
           if (m_cfg.propagatorB)
-            propagateAB(
-                m_cfg.propagatorB, sParameters, m_optionsB, tParameters);
+            propagateAB(*m_cfg.propagatorB,
+                        m_optionsB,
+                        sParameters,
+                        nullptr,
+                        tParameters);
           // the IPropagatorEngine - needs surface due to old design
           auto sf = m_surface.get();
           if (m_cfg.propagatorE)
-            propagateE(m_cfg.propagatorE, sParameters, *sf, tParameters);
+            propagateE(*m_cfg.propagatorE, sParameters, *sf, tParameters);
         }
 
         // the kalman filter test
@@ -153,18 +158,20 @@ PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::execute(
             size_t                           npars = tParameters.size();
             // loop over surfaces
             for (auto& surface : m_radialSurfaces) {
-              if (m_cfg.cacheCall)
-                propagateCacheAB(
-                    m_cfg.propagatorA,
-                    *parameters,
-                    *(surface.get()),
-                    cacheA,
-                    m_optionsA,
-                    tParameters) else propagateSfAB(m_cfg.propagatorA,
-                                                    *parameters,
-                                                    *(surface.get()),
-                                                    m_optionsA,
-                                                    tParameters);
+              if (m_cfg.cacheCall) {
+                propagateCacheAB(*m_cfg.propagatorA,
+                                 cacheA,
+                                 m_optionsA,
+                                 *parameters,
+                                 *(surface.get()),
+                                 tParameters);
+              } else {
+                propagateAB(*m_cfg.propagatorA,
+                            m_optionsA,
+                            *parameters,
+                            surface.get(),
+                            tParameters);
+              }
               // indicate success  ful propagation
               size_t cpars = tParameters.size();
               if (npars != cpars) {
@@ -175,11 +182,11 @@ PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::execute(
             }
             // start to end propagation
             if (lSurface)
-              propagateSfAB(m_cfg.propagatorA,
-                            sParameters,
-                            *lSurface,
-                            m_optionsA,
-                            tParameters);
+              propagateAB(*(m_cfg.propagatorA.get()),
+                          m_optionsA,
+                          sParameters,
+                          lSurface,
+                          tParameters);
           }
           //// the second propagtor to be tested
           // if (m_cfg.propagatorB){
@@ -227,7 +234,7 @@ PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::execute(
             size_t                       npars      = tParameters.size();
             // loop over surfaces
             for (auto& surface : m_radialSurfaces) {
-              propagateE(m_cfg.propagatorE,
+              propagateE(*m_cfg.propagatorE,
                          *parameters,
                          *(surface.get()),
                          tParameters);
@@ -241,22 +248,25 @@ PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::execute(
             }
             // start to end propagation
             if (lSurface)
-              propagateE(
-                  m_cfg.propagatorE, *parameters, *lSurface, tParameters);
+              propagateE(*(m_cfg.propagatorE.get()),
+                         *parameters,
+                         *lSurface,
+                         tParameters);
           }
         }
       }  // charged particle
       // write out collection
       tParametersCollection.push_back(std::move(tParameters));
     }  // loop over particles per vertex
+  }    // loop over event vertices
 
-    // - the extrapolation cells - charged - if configured
-    if (m_cfg.trackParametersCollection != ""
-        && ctx.eventStore.add(m_cfg.trackParametersCollection,
-                              std::move(tParametersCollection))
-            == ProcessCode::ABORT) {
-      return ProcessCode::ABORT;
-    }
-  }  // loop over event vertices
+  // - the extrapolation cells - charged - if configured
+  if (m_cfg.trackParametersCollection != ""
+      && ctx.eventStore.add(m_cfg.trackParametersCollection,
+                            std::move(tParametersCollection))
+          == ProcessCode::ABORT) {
+    return ProcessCode::ABORT;
+  }
+
   return ProcessCode::SUCCESS;
 }
