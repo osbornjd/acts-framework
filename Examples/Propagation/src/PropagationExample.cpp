@@ -1,4 +1,4 @@
-Algorithms/Propagation/include/ACTFW/Propagation/PropagationAlgorithm.ipp// This file is part of the ACTS project.
+// This file is part of the ACTS project.
 //
 // Copyright (C) 2017 ACTS project team
 //
@@ -71,6 +71,7 @@ main(int argc, char* argv[])
   // configuration check
   if (!bField.first) {
     std::cout << "Configuration error: no magnetic field ! " << std::endl;
+    std::cout << "A magnetic field map at input is required." << std::endl;
     return -9;
   }
 
