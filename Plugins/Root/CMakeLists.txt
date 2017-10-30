@@ -8,12 +8,14 @@ set(srcs include/ACTFW/Plugins/Root/RootExCellWriter.hpp
          include/ACTFW/Plugins/Root/RootMaterialTrackReader.hpp
          include/ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp
          include/ACTFW/Plugins/Root/RootParticleWriter.hpp
+         include/ACTFW/Plugins/Root/RootHitDistanceAnalysisWriter.hpp
          src/RootIndexedMaterialReader.cpp
          src/RootIndexedMaterialWriter.cpp
          src/RootMaterialTrackReader.cpp
          src/RootMaterialTrackWriter.cpp
          src/RootPlanarClusterWriter.cpp
-         src/RootParticleWriter.cpp)
+         src/RootParticleWriter.cpp
+         src/RootHitDistanceAnalysisWriter.cpp)
 # generate root dictionary for material mapping - needed to write this class to a root file
 root_generate_dictionary(
   G__Material
