@@ -21,6 +21,7 @@ option(USE_DD4HEP "Build DD4hep-based code" off)
 option(USE_GEANT4 "Build Geant4-based code" off)
 option(USE_OPENMP "Build framework with OpenMP enabled" ${USE_OPENMP_DEFAULT})
 option(USE_PYTHIA8 "Build Pythia8-based code" off)
+option(USE_FCCEDM "Build FCC EDM - based code" off)
 
 # determine build-flag dependent components
 set(DD4hep_COMPONENTS DDCore DDSegmentation)
@@ -33,6 +34,15 @@ if(USE_DD4HEP)
 endif()
 if(USE_PYTHIA8)
   list(APPEND ROOT_COMPONENTS EG)
+endif()
+if(USE_FCCEDM)
+  set (FCCEDM_INCLUDE_DIRS /cvmfs/fcc.cern.ch/sw/0.8.1/fcc-edm/0.5.1/x86_64-slc6-gcc62-opt/include)
+  set(FCCEDM_LIBRARIES /cvmfs/fcc.cern.ch/sw/0.8.1/fcc-edm/0.5.1/x86_64-slc6-gcc62-opt/lib/libdatamodelDict.so)
+  set(PODIO_INCLUDE_DIRS /cvmfs/fcc.cern.ch/sw/0.8.1/podio/0.7/x86_64-slc6-gcc62-opt/include)
+  set(PODIO_LIBRARIES /cvmfs/fcc.cern.ch/sw/0.8.1/podio/0.7/x86_64-slc6-gcc62-opt/lib/libpodio.so)
+  message(INFO " FCCEDM Plugin is turned on. Setting include directories and libraries of FCC edm and PODIO: ")
+  message(INFO " Setting FCCEDM_INCLUDE_DIRS to: '${FCCEDM_INCLUDE_DIRS}' and FCCEDM_LIBRARIES to: '${FCCEDM_LIBRARIES}'")
+  message(INFO " Setting PODIO_INCLUDE_DIRS to: '${PODIO_INCLUDE_DIRS}' and PODIO_LIBRARIES to: '${PODIO_LIBRARIES}'")
 endif()
 
 # use install paths consistent w/ ACTS
