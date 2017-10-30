@@ -4,4 +4,4 @@ add_subdirectory(ParticleGun)
 add_subdirectory(Propagation)
 add_subdirectory_if(MaterialMapping USE_GEANT4)
 add_subdirectory(ReadEvgen)
-
+add_subdirectory(HitAnalysis)
