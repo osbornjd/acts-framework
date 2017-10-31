@@ -6,6 +6,7 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Detector/TrackingVolume.hpp"
+#include "ACTS/Utilities/Units.hpp"
 #include "TChain.h"
 #include "TFile.h"
 
@@ -111,11 +112,12 @@ FW::FCCedm::fccTrackHitReader::measurement(
     Acts::Vector2D locPos(0., 0.);
     (*detElement)
         .second->surface()
-        .globalToLocal(Acts::Vector3D(fccTrackHit.position.x,
-                                      fccTrackHit.position.y,
-                                      fccTrackHit.position.z),
-                       Acts::Vector3D(0., 0., 0.),
-                       locPos);
+        .globalToLocal(
+            Acts::Vector3D(fccTrackHit.position.x * Acts::units::_mm,
+                           fccTrackHit.position.y * Acts::units::_mm,
+                           fccTrackHit.position.z * Acts::units::_mm),
+            Acts::Vector3D(0., 0., 0.),
+            locPos);
     // the covariance
     Acts::ActsSymMatrixD<2> cov;
 
