@@ -23,7 +23,7 @@ namespace Options {
         "thReader-input",
         po::value<std::vector<std::string>>()->multitoken(),
         "The location of the input file(s) of the positioned track "
-        "hits, use {'PATH_TO_FILE1/file1.root','PATH_TO_FILE2/file2.root'}")(
+        "hits. Please hand over by simply seperating the file paths by space")(
         "thReader-tree",
         po::value<std::string>()->default_value("events"),
         "The name of the tree to be read in.")(
