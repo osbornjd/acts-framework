@@ -144,6 +144,9 @@
     </readouts>
     <include ref="FCChh_Option3_Definitions.xml"/>
     <detectors>
+        <detector id="0" name="beampipe" type="FCChhBeampipe">
+            <dimensions rmin="15*mm" rmax="18*mm" z="CentralBeamTube_dz" material="Beryllium" vis="violet"/>
+        </detector>
         <detector id="100" name="FCChhInner0" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
             <composite name="InnerBRL_0"/>
         </detector>
@@ -164,9 +167,6 @@
         <detector id="104" name="FCChhForward" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
             <composite name="FwdECAPneg"/>
             <composite name="FwdECAPpos"/>
-        </detector>
-        <detector id="105" name="beampipe" type="FCChhBeampipe">
-            <dimensions rmin="15*mm" rmax="18*mm" z="CentralBeamTube_dz" material="Beryllium" vis="violet"/>
         </detector>
     </detectors>
 </lccdd>
