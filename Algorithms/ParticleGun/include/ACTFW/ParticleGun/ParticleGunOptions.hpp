@@ -46,19 +46,24 @@ namespace Options {
         "flip the charge (and change PDG accordingly).")(
         "pg-d0range",
         po::value<read_range>()->multitoken()->default_value({0., 0.}),
-        "range in which the d0 parameter is simulated in [mm].")(
+        "range in which the d0 parameter is simulated in [mm]. Please hand"
+        "over by simply seperating the values by space")(
         "pg-z0range",
         po::value<read_range>()->multitoken()->default_value({0., 0.}),
-        "range in which the z0 parameter is simulated in [mm].")(
+        "range in which the z0 parameter is simulated in [mm]. Please hand"
+        "over by simply seperating the values by space")(
         "pg-phirange",
         po::value<read_range>()->multitoken()->default_value({-M_PI, M_PI}),
-        "range in which the phi0 parameter is simulated.")(
+        "range in which the phi0 parameter is simulated. Please hand over by "
+        "simply seperating the values by space")(
         "pg-etarange",
         po::value<read_range>()->multitoken()->default_value({-4., 4.}),
-        "range in which the eta parameter is simulated.")(
+        "range in which the eta parameter is simulated. Please hand over by "
+        "simply seperating the values by space")(
         "pg-ptrange",
         po::value<read_range>()->multitoken()->default_value({100., 1e5}),
-        "range in which the pt in [MeV] parameter is simulated.");
+        "range in which the pt in [MeV] parameter is simulated. Please hand "
+        "over by simply seperating the values by space");
   }
 
   /// read the particle gun options and return a Config file
