@@ -92,7 +92,7 @@ FW::Sequencer::appendEventAlgorithms(
 }
 
 FW::ProcessCode
-FW::Sequencer::run(size_t events, size_t skip)
+FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 {
   // Print some introduction
   ACTS_INFO("Starting event loop for");
@@ -101,10 +101,59 @@ FW::Sequencer::run(size_t events, size_t skip)
   ACTS_INFO("  " << m_writers.size() << " writers");
   ACTS_INFO("  " << m_algorithms.size() << " algorithms");
 
+  // The number of events to be processed
+  size_t numEvents = 0;
+
+  // There are two possibilities how the event loop can be steered
+  // 1) By the number of given events
+  // 2) By the number of events given by the readers
+  // Calulate minimum and maximum of events to be read in
+  auto minmax = std::minmax_element(
+      m_readers.begin(), m_readers.end(), [](const auto& a, const auto& b) {
+        return (a->numEvents() < b->numEvents());
+      });
+  // Check if number of events is given by the reader(s)
+  if (!(*minmax.second)) {
+    // 1) In case there are no readers, no event should be skipped
+    if (skip != 0) {
+      ACTS_ERROR(
+          "Number of skipped events given although no readers present. Abort");
+      return ProcessCode::ABORT;
+    }
+    // Number of events is not given by readers, in this case the parameter
+    // 'events' must be specified - Abort, if this is not the case
+    if (!events) {
+      ACTS_ERROR("Number of events not specified. Abort");
+      return ProcessCode::ABORT;
+    }
+    // 'events' is specified, set 'numEvents'
+    numEvents = *events;
+  } else {
+    // 2) Number of events given by reader(s)
+    numEvents
+        = *((*minmax.second)->numEvents());  //(*(*minmax.second))->numEvents();
+    // Check if number of events are different for the readers
+    if (*minmax.first != *minmax.second) {
+      ACTS_ERROR(
+          "Number of events, to be read in, are differnt for readers. Abort");
+      return ProcessCode::ABORT;
+    }
+    // Check if the number of skipped events is smaller then the overall number
+    // if events
+    if (skip > numEvents) {
+      ACTS_ERROR("Number of events to be skipped > than total number of "
+                 "events. Abort");
+      return ProcessCode::ABORT;
+    }
+    // The total number of events is the maximum number of events minus the
+    // number of skipped evebts
+    numEvents -= skip;
+  }
+
   // Execute the event loop
   ACTS_INFO("Run the event loop");
   ACTFW_PARALLEL_FOR(
-      ievent, 0, events, const size_t event = skip + ievent;
+      ievent, 0, numEvents, const size_t event = skip + ievent;
       ACTS_INFO("start event " << event);
 
       // Setup the event and algorithm context

@@ -15,10 +15,10 @@
 #ifndef ACTFW_SEQUENCER_H
 #define ACTFW_SEQUENCER_H
 
+#include <boost/optional.hpp>
 #include <memory>
 #include <string>
 #include <vector>
-
 #include "ACTFW/Framework/IAlgorithm.hpp"
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/IService.hpp"
@@ -83,13 +83,15 @@ public:
 
   /// Run the event loop over the given number of events.
   ///
-  /// @param events Number of events to process
+  /// @param events (optional) Number of events to process
+  /// @note The event number is optional, for the case that a reader determines
+  /// the event number
   /// @param skip Number of events to skip before processing
   ///
   /// This will run all configured algorithms for each event, potentially in
   /// parallel, then invoke the endRun hook of writers and services.
   ProcessCode
-  run(size_t events, size_t skip = 0);
+  run(boost::optional<size_t> events, size_t skip = 0);
 
 private:
   std::vector<std::shared_ptr<IService>>   m_services;
