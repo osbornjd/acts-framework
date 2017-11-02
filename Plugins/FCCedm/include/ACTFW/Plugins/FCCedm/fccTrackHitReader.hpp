@@ -72,6 +72,11 @@ namespace FCCedm {
     FW::ProcessCode
     read(FW::AlgorithmContext ctx) final override;
 
+    /// The number of events to be read in
+    /// @return (optional) number of events
+    boost::optional<size_t>
+    numEvents() const final override;
+
   private:
     /// The configuration object
     Config m_cfg;
@@ -90,6 +95,8 @@ namespace FCCedm {
         m_positionedTrackHits;
     /// The Acts measurments which are written to the store
     std::vector<FW::Measurement2D> m_measurements;
+    /// The number of events, determined by the entries in the file
+    size_t m_nEvents;
 
     /// @todo remove later, just for debugging
     mutable std::vector<Identifier> m_notFound;
@@ -111,6 +118,12 @@ namespace FCCedm {
     const FW::Measurement2D*
     measurement(const fcc::PositionedTrackHitData& fccTrackHit) const;
   };
+
+  inline boost::optional<size_t>
+  fccTrackHitReader::numEvents() const
+  {
+    return m_nEvents;
+  }
 }  // namespace Root
 }  // namespace FW
 

@@ -26,6 +26,8 @@ FW::FCCedm::fccTrackHitReader::fccTrackHitReader(
   }
 
   m_treeReader = new TTreeReader(inputChain);
+  // set the number of entries
+  m_nEvents = m_treeReader->GetEntries(true);
 
   m_positionedTrackHits
       = TTreeReaderValue<std::vector<fcc::PositionedTrackHitData>>(

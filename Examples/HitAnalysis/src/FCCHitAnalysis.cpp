@@ -43,7 +43,6 @@ main(int argc, char* argv[])
   // now read the standard options
   auto standardOptions
       = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents  = standardOptions.first;
   auto logLevel = standardOptions.second;
 
   // read the detector config & dd4hep detector
@@ -88,7 +87,8 @@ main(int argc, char* argv[])
   sequencer.addReaders({hitReader});
   sequencer.appendEventAlgorithms({hitAlgorithm});
   sequencer.addWriters({writer});
-  sequencer.run(standardOptions.first);
+  // The reader determines the number of events
+  sequencer.run({});
 
   return 0;
 }
