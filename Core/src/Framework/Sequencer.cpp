@@ -130,8 +130,7 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
     numEvents = *events;
   } else {
     // 2) Number of events given by reader(s)
-    numEvents
-        = *((*minmax.second)->numEvents());  //(*(*minmax.second))->numEvents();
+    numEvents = ((*minmax.second)->numEvents());
     // Check if number of events are different for the readers
     if (*minmax.first != *minmax.second) {
       ACTS_ERROR(

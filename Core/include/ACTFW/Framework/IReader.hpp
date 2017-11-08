@@ -13,7 +13,6 @@
 #ifndef ACTFW_IREADER_H
 #define ACTFW_IREADER_H
 
-#include <boost/optional.hpp>
 #include <string>
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -42,8 +41,8 @@ public:
       = 0;
 
   /// The number of events to be read in
-  /// @return (optional) number of events
-  virtual boost::optional<size_t>
+  /// @return number of events
+  virtual size_t
   numEvents() const = 0;
 };
 
