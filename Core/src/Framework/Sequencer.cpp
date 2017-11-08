@@ -113,7 +113,7 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
         return (a->numEvents() < b->numEvents());
       });
   // Check if number of events is given by the reader(s)
-  if (!(*minmax.second)) {
+  if ((minmax.second) == m_readers.end()) {
     // 1) In case there are no readers, no event should be skipped
     if (skip != 0) {
       ACTS_ERROR(
