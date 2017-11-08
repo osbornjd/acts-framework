@@ -30,7 +30,7 @@ namespace Details {
 
   // A C++ for loop iteration may either run normally, break, continue, return,
   // or throw. Scenarios which do not emit data can be expressed via an enum...
-  enum class LoopFlow { NormalIteration, Continue, Break };
+  enum class LoopFlow { Normal, Continue, Break };
 
   // ...from which one can derive a Boost variant which covers the complete set
   // of look iteration outcomes, including early returns and exceptions.
@@ -73,7 +73,7 @@ namespace Details {
                                                                                \
         /* If control reaches this point, the loop iteration code */           \
         /* finished normally without continuing, breaking, or returning */     \
-        return FW::Details::LoopFlow::NormalIteration;                         \
+        return FW::Details::LoopFlow::Normal;                                  \
       } else {                                                                 \
         /* If control reaches this point, the loop iteration was skipped */    \
         /* using the "continue" control flow keyword */                        \
@@ -111,7 +111,7 @@ namespace Details {
     //       break out of the loop more efficiently using #pragma omp cancel
     //
     bool           exit_loop_early = false;
-    LoopOutcome<T> exit_reason     = LoopFlow::NormalIteration;
+    LoopOutcome<T> exit_reason     = LoopFlow::Normal;
 
 // Our parallel for loop is implemented using OpenMP
 #pragma omp parallel for
@@ -121,7 +121,7 @@ namespace Details {
       if (exit_loop_early) continue;
 
       // Run this loop iteration and record the outcome, exceptions included
-      LoopOutcome<T> outcome = LoopFlow::NormalIteration;
+      LoopOutcome<T> outcome = LoopFlow::Normal;
       try {
         outcome = iteration(index);
       } catch (...) {
@@ -159,7 +159,7 @@ namespace Details {
 /// The following macro is the out-of-order multithreaded equivalent of the
 /// following serial loop (macro arguments capitalized for emphasis):
 ///
-///   for(size_t INDEX = START; index < END; ++index) {
+///   for(size_t INDEX = START; INDEX < END; ++INDEX) {
 ///      ...
 ///   }
 ///
@@ -176,7 +176,7 @@ namespace Details {
   /* This dummy do-while asserts that the macro's output is a statement */     \
   do {                                                                         \
     /* Execute the parallel for loop */                                        \
-    auto optional_early_return                                                 \
+    auto _optional_early_return_##INDEX                                        \
         = FW::Details::parallel_for_impl<FW::ProcessCode>(                     \
             (START),                                                           \
             (END),                                                             \
@@ -184,8 +184,8 @@ namespace Details {
                 FW::ProcessCode, INDEX, __VA_ARGS__));                         \
                                                                                \
     /* Return early from the host function if asked to do so */                \
-    if (optional_early_return) {                                               \
-      return *optional_early_return;                                           \
+    if (_optional_early_return_##INDEX) {                                      \
+      return *_optional_early_return_##INDEX;                                  \
     }                                                                          \
   } while (false);
 }
