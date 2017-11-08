@@ -73,8 +73,8 @@ namespace FCCedm {
     read(FW::AlgorithmContext ctx) final override;
 
     /// The number of events to be read in
-    /// @return (optional) number of events
-    boost::optional<size_t>
+    /// @return number of events
+    size_t
     numEvents() const final override;
 
   private:
@@ -119,7 +119,7 @@ namespace FCCedm {
     measurement(const fcc::PositionedTrackHitData& fccTrackHit) const;
   };
 
-  inline boost::optional<size_t>
+  inline size_t
   fccTrackHitReader::numEvents() const
   {
     return m_nEvents;
