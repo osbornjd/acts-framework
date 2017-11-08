@@ -138,6 +138,8 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
           "Number of events, to be read in, are differnt for readers. Abort");
       return ProcessCode::ABORT;
     }
+    // Check if user wants to process less events than given by the reader
+    if (events && (*events) < numEvents) numEvents = *events;
     // Check if the number of skipped events is smaller then the overall number
     // if events
     if (skip > numEvents) {
