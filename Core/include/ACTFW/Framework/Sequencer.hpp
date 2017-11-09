@@ -84,8 +84,10 @@ public:
   /// Run the event loop over the given number of events.
   ///
   /// @param events (optional) Number of events to process
-  /// @note The event number is optional, for the case that a reader determines
-  /// the event number
+  /// @note This parameter is optional when input is read from a file. In this
+  /// scenario, leaving it unset will process events until the end of the file,
+  /// and setting it will put an upper bound on the number of events to be
+  /// processed.
   /// @param skip Number of events to skip before processing
   ///
   /// This will run all configured algorithms for each event, potentially in
