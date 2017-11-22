@@ -55,7 +55,7 @@ namespace Options {
     FW::DD4hep::GeometryService::Config gsConfig("GeometryService");
     gsConfig.xmlFileName = vm["dd4hep-input"].template as<std::string>();
     gsConfig.bTypePhi    = Acts::equidistant;
-    gsConfig.bTypeR      = Acts::equidistant;
+    gsConfig.bTypeR      = Acts::arbitrary;
     gsConfig.bTypeZ      = Acts::equidistant;
     gsConfig.envelopeR   = vm["dd4hep-envelopeR"].template as<double>();
     gsConfig.envelopeZ   = vm["dd4hep-envelopeZ"].template as<double>();
