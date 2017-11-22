@@ -108,12 +108,12 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
   // 1) By the number of given events
   // 2) By the number of events given by the readers
   // Calulate minimum and maximum of events to be read in
-  auto minmax = std::minmax_element(
+  auto min = std::min_element(
       m_readers.begin(), m_readers.end(), [](const auto& a, const auto& b) {
         return (a->numEvents() < b->numEvents());
       });
   // Check if number of events is given by the reader(s)
-  if ((minmax.second) == m_readers.end()) {
+  if (min == m_readers.end()) {
     // 1) In case there are no readers, no event should be skipped
     if (skip != 0) {
       ACTS_ERROR(
@@ -130,13 +130,7 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
     numEvents = *events;
   } else {
     // 2) Number of events given by reader(s)
-    numEvents = ((*minmax.second)->numEvents());
-    // Check if number of events are different for the readers
-    if (*minmax.first != *minmax.second) {
-      ACTS_ERROR(
-          "Number of events, to be read in, are differnt for readers. Abort");
-      return ProcessCode::ABORT;
-    }
+    numEvents = ((*min)->numEvents());
     // Check if the number of skipped events is smaller then the overall number
     // if events
     if (skip > numEvents) {
