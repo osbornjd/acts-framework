@@ -57,14 +57,8 @@ namespace Options {
   {
     Acts::Logging::Level logLevel
         = Acts::Logging::Level(vm["dd4hep-loglevel"].template as<size_t>());
-    if (vm.count("dd4hep-loglevel")) {
-      logLevel
-          = Acts::Logging::Level(vm["dd4hep-loglevel"].template as<size_t>());
-      std::cout << "- the geometry building output log level is set to "
-                << logLevel << std::endl;
-    } else {
-      std::cout << "- default log level is " << logLevel << std::endl;
-    }
+    std::cout << "- the geometry building output log level is set to "
+              << logLevel << std::endl;
     // DETECTOR configuration:
     // --------------------------------------------------------------------------------
     FW::DD4hep::GeometryService::Config gsConfig("GeometryService", logLevel);
