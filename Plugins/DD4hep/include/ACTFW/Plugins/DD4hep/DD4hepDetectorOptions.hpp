@@ -42,7 +42,12 @@ namespace Options {
         "The envelop cover in z for DD4hep volumes.")(
         "dd4hep-digitizationmodules",
         po::value<bool>()->default_value(false),
-        "The envelop cover in z for DD4hep volumes.");
+        "The envelop cover in z for DD4hep volumes.")(
+        "dd4hep-loglevel",
+        po::value<size_t>()->default_value(2),
+        "The output log level of the geometry building. Please set the wished "
+        "number (0 = VERBOSE, 1 = "
+        "DEBUG, 2 = INFO, 3 = WARNING, 4 = ERROR, 5 = FATAL).");
   }
 
   /// read the particle gun options and return a Config file
@@ -50,9 +55,13 @@ namespace Options {
   FW::DD4hep::GeometryService::Config
   readDD4hepConfig(const AMAP& vm)
   {
+    Acts::Logging::Level logLevel
+        = Acts::Logging::Level(vm["dd4hep-loglevel"].template as<size_t>());
+    std::cout << "- the geometry building output log level is set to "
+              << logLevel << std::endl;
     // DETECTOR configuration:
     // --------------------------------------------------------------------------------
-    FW::DD4hep::GeometryService::Config gsConfig("GeometryService");
+    FW::DD4hep::GeometryService::Config gsConfig("GeometryService", logLevel);
     gsConfig.xmlFileName = vm["dd4hep-input"].template as<std::string>();
     gsConfig.bTypePhi    = Acts::equidistant;
     gsConfig.bTypeR      = Acts::arbitrary;

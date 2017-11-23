@@ -33,7 +33,8 @@ namespace Options {
         "The number of events to be processed")(
         "loglevel,l",
         po::value<size_t>()->default_value(defaultValue),
-        "The output log level.");
+        "The output log level. Please set the wished number (0 = VERBOSE, 1 = "
+        "DEBUG, 2 = INFO, 3 = WARNING, 4 = ERROR, 5 = FATAL).");
   }
 
   // read standard options
@@ -43,12 +44,7 @@ namespace Options {
   {
 
     size_t nEvents = vm["events"].template as<size_t>();
-    if (vm.count("events")) {
-      nEvents = vm["events"].template as<size_t>();
-      std::cout << "- running " << nEvents << " events " << std::endl;
-    } else {
-      std::cout << "- using standard number of events " << nEvents << std::endl;
-    }
+    std::cout << "- running " << nEvents << " events " << std::endl;
     Acts::Logging::Level logLevel
         = Acts::Logging::Level(vm["loglevel"].template as<size_t>());
     if (vm.count("loglevel")) {

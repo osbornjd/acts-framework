@@ -32,10 +32,12 @@ namespace Options {
         "Number of instantaneous pile-up events.")(
         "evg-vertex-xyrange",
         po::value<read_range>()->multitoken()->default_value({0., 0.015}),
-        "transverse range of the vertex in xy.")(
+        "transverse range of the vertex in xy. Please hand over by simply "
+        "seperating the values by space")(
         "evg-vertex-zrange",
         po::value<read_range>()->multitoken()->default_value({0., 5.5}),
-        "transverse range of the vertex in z.");
+        "transverse range of the vertex in z.  Please hand over by simply "
+        "seperating the values by space");
   }
 
   /// read the evgen options and return a Config file
