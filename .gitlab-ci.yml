@@ -2,6 +2,7 @@ image: gitlab-registry.cern.ch/acts/machines/slc6:latest
 
 stages:
     - build_core
+    - build_fatras
     - build_framework
     - test
     - check
@@ -41,6 +42,19 @@ core_full:
         paths:
             - install_full
 
+fatras:
+    stage: build_fatras
+    tags:
+        - cvmfs
+    script:
+        - mkdir build_fatras
+        - cd build_fatras
+        - cmake -GNinja -DCMAKE_PREFIX_PATH=../install_full -DCMAKE_INSTALL_PREFIX=../install_full -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ../external/acts-fatras
+        - cmake --build . -- install
+    artifacts:
+        paths:
+        - install_full
+
 framework_default:
     stage: build_framework
     tags:
@@ -62,7 +76,7 @@ framework_full:
         - mkdir build_framework_full
         - cd build_framework_full
         # TODO USE_PYTHIA8=on requires a custom ROOT build
-        - cmake -GNinja -DUSE_DD4HEP=on -DUSE_GEANT4=off -DCMAKE_PREFIX_PATH=../install_full -DCMAKE_INSTALL_PREFIX=../install_full -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+        - cmake -GNinja -DUSE_DD4HEP=on -DUSE_GEANT4=off -DUSE_FATRAS=on -DCMAKE_PREFIX_PATH=../install_full -DCMAKE_INSTALL_PREFIX=../install_full -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
         - cmake --build . -- install
     artifacts:
         paths:
