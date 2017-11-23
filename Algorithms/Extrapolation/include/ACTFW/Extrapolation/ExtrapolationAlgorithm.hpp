@@ -22,10 +22,8 @@
 #include "ACTS/EventData/NeutralParameters.hpp"
 #include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
-#include "ACTS/Extrapolation/IMaterialEffectsEngine.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
-#include "ACTS/Utilities/MaterialInteraction.hpp"
 
 namespace Acts {
 class IExtrapolationEngine;
