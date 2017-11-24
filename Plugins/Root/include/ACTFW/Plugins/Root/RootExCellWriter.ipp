@@ -250,6 +250,13 @@ FW::Root::RootExCellWriter<T>::RootExCellWriter(
 }
 
 template <class T>
+FW::Root::RootExCellWriter<T>::~RootExCellWriter()
+{
+    m_outputFile->Close();
+}
+
+
+template <class T>
 FW::ProcessCode
 FW::Root::RootExCellWriter<T>::endRun()
 {
