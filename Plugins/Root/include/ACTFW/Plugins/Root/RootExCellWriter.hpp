@@ -73,7 +73,7 @@ namespace Root {
                      Acts::Logging::Level level = Acts::Logging::INFO);
 
     /// Destructor
-    virtual ~RootExCellWriter() = default;
+    virtual ~RootExCellWriter();
 
     /// End-of-run hook
     ProcessCode
