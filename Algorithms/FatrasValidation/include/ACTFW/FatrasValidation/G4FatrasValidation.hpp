@@ -1,6 +1,10 @@
+// This file is part of the ACTS project.
 //
-//  G4FatrasValidation.h
-//  ACTFW
+// Copyright (C) 2017 ACTS project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #ifndef ACTFW_GEANT4SIMULATION_G4FATRASVALIDATION_H
 #define ACTFW_GEANT4SIMULATION_G4FATRASVALIDATION_H 1
