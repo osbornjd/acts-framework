@@ -147,35 +147,33 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 
   // Execute the event loop
   ACTS_INFO("Run the event loop");
-  ACTFW_PARALLEL_FOR(
-      ievent, 0, numEvents, const size_t event = skip + ievent;
-      ACTS_INFO("start event " << event);
+  ACTFW_PARALLEL_FOR(ievent, 0, numEvents, {
+    const size_t event = skip + ievent;
+    ACTS_INFO("start event " << event);
 
-      // Setup the event and algorithm context
-      WhiteBoard eventStore(Acts::getDefaultLogger(
-          "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
-      size_t ialg = 0;
+    // Setup the event and algorithm context
+    WhiteBoard eventStore(Acts::getDefaultLogger(
+        "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
+    size_t ialg = 0;
 
-      // read everything in
-      for (auto& rdr
-           : m_readers) {
-        if (rdr->read({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
-          ACTFW_PARALLEL_FOR_ABORT(ievent);
-      }
-      // process all algorithms
-      for (auto& alg
-           : m_algorithms) {
-        if (alg->execute({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
-          ACTFW_PARALLEL_FOR_ABORT(ievent);
-      }
-      // write out results
-      for (auto& wrt
-           : m_writers) {
-        if (wrt->write({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
-          ACTFW_PARALLEL_FOR_ABORT(ievent);
-      }
+    // read everything in
+    for (auto& rdr : m_readers) {
+      if (rdr->read({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
+        return ProcessCode::ABORT;
+    }
+    // process all algorithms
+    for (auto& alg : m_algorithms) {
+      if (alg->execute({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
+        return ProcessCode::ABORT;
+    }
+    // write out results
+    for (auto& wrt : m_writers) {
+      if (wrt->write({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
+        return ProcessCode::ABORT;
+    }
 
-      ACTS_INFO("event " << event << " done");)
+    ACTS_INFO("event " << event << " done");
+  })
 
   // Call endRun() for writers and services
   ACTS_INFO("Running end-of-run hooks of writers and services");
