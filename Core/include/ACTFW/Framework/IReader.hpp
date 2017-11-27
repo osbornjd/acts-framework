@@ -14,7 +14,6 @@
 #define ACTFW_IREADER_H
 
 #include <string>
-
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
@@ -40,6 +39,11 @@ public:
   virtual ProcessCode
   read(AlgorithmContext context)
       = 0;
+
+  /// The number of events to be read in
+  /// @return number of events
+  virtual size_t
+  numEvents() const = 0;
 };
 
 }  // namespace FW
