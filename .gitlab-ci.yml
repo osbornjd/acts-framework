@@ -82,3 +82,4 @@ reproducibility_generic_extrapolation:
     - source install/bin/setup.sh
     - cd scripts
     - ./testReproducibility.sh GenericExtrapolation excells_charged
+
