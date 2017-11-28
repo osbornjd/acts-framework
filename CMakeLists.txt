@@ -87,7 +87,7 @@ if(USE_PYTHIA8)
   endif()
 endif()
 if(USE_FATRAS)
-  find_package(Fatras REQUIRED)
+  add_subdirectory(external/acts-fatras)
 endif()
 
 # simplify handling of optional components
