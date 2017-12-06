@@ -14,10 +14,15 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
+#include "TROOT.h"
 
 int
 main()
 {
+  // enable root thread safety in order to use root writers in multi threaded
+  // mode
+  ROOT::EnableThreadSafety();
+
   // job steering: the number of events
   size_t nEvents     = 1000;
   size_t nTracks     = 100;

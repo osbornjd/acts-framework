@@ -22,6 +22,7 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Digitization/PlanarModuleStepper.hpp"
+#include "TROOT.h"
 
 /// Setup extrapolation and digitization.
 ///
@@ -35,6 +36,10 @@ setupSimulation(FW::Sequencer&                                sequencer,
                 std::shared_ptr<MagneticField>                bfield,
                 Acts::Logging::Level loglevel = Acts::Logging::INFO)
 {
+  // enable root thread safety in order to use root writers in multi threaded
+  // mode
+  ROOT::EnableThreadSafety();
+
   // extrapolation algorithm
   FW::ExtrapolationAlgorithm::Config eTestConfig;
   eTestConfig.evgenCollection              = "EvgenParticles";

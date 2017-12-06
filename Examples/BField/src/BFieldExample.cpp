@@ -15,6 +15,7 @@
 #include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/RootInterpolatedBFieldWriter.hpp"
+#include "TROOT.h"
 
 /// The main executable
 ///
@@ -27,6 +28,10 @@ namespace po = boost::program_options;
 int
 main(int argc, char* argv[])
 {
+  // enable root thread safety in order to use root writers in multi threaded
+  // mode
+  ROOT::EnableThreadSafety();
+
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // add the standard options
