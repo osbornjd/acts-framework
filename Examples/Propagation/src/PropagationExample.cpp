@@ -24,6 +24,7 @@
 #include "ACTS/Propagator/EigenStepper.hpp"
 #include "ACTS/Propagator/Propagator.hpp"
 #include "ACTS/Utilities/Units.hpp"
+#include "TROOT.h"
 
 namespace po = boost::program_options;
 
@@ -31,6 +32,9 @@ namespace po = boost::program_options;
 int
 main(int argc, char* argv[])
 {
+  // enable root thread safety in order to use root writers in multi threaded
+  // mode
+  ROOT::EnableThreadSafety();
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // add the standard options
