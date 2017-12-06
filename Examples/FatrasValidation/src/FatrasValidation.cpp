@@ -15,6 +15,7 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Utilities/Units.hpp"
+#include "TROOT.h"
 
 /// This example initializes and processes the Geant4 simulation to validate
 /// Fatras simulation against Geant4. It writes out the particle properties of
@@ -24,6 +25,10 @@
 int
 main(int argc, char* argv[])
 {
+  // enable root thread safety in order to use root writers in multi threaded
+  // mode
+  ROOT::EnableThreadSafety();
+
   size_t               nEvents   = 10000;
   Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
 
