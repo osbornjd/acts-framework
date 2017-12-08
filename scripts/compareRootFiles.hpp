@@ -486,6 +486,8 @@ private:
                const std::string& branchName,
                const std::string  elemType)
   {
+    // clang-format off
+
     // We support vectors of different types by switching across type (strings)
     #define CREATE_VECTOR__HANDLE_TYPE(type_name)  \
     if(elemType == #type_name) {  \
@@ -515,6 +517,8 @@ private:
 
     // Throw an exception if the vector element type is not recognized
     else throw UnsupportedBranchType();
+
+    // clang-format on
   }
 
   // This helper method provides general string conversion for all supported
