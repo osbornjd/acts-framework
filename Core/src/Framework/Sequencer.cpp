@@ -7,16 +7,16 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Framework/Sequencer.hpp"
-
 #include <algorithm>
-
 #include "ACTFW/Concurrency/parallel_for.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "TROOT.h"
 
 FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
                          std::unique_ptr<const Acts::Logger> logger)
   : m_cfg(cfg), m_logger(std::move(logger))
 {
+  ROOT::EnableThreadSafety();
 }
 
 FW::ProcessCode
