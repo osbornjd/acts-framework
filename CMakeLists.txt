@@ -32,7 +32,7 @@ if(USE_DD4HEP)
   list(APPEND ROOT_COMPONENTS Geom GenVector)
 endif()
 if(USE_PYTHIA8)
-  list(APPEND ROOT_COMPONENTS EG EGPythia8)
+  list(APPEND ROOT_COMPONENTS EG)
 endif()
 
 # use install paths consistent w/ ACTS
@@ -43,6 +43,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED on)
 # place build products in `<build_dir>/bin` and `<build_dir>/lib` for simple use
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # required packages
 
@@ -70,17 +71,10 @@ if(USE_OPENMP)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 if(USE_PYTHIA8)
-  # TODO replace manual path checks w/ something like FindPythia8
-  if (NOT DEFINED PYTHIA8_INCLUDEDIR)
-    message(FATAL_ERROR "Missing PYTHIA8_INCLUDEDIR")
-  endif()
-  if (NOT DEFINED PYTHIA8_LIBRARYDIR)
-    message(FATAL_ERROR "Missing PYTHIA8_LIBRARYDIR")
-  endif()
+  find_package(Pythia8 REQUIRED)
 endif()
 
 # acts-core and acts-fatras are build as subprojects with fixed options
-
 set(ACTS_BUILD_DOC OFF CACHE BOOL "Build ACTS documentation")
 set(ACTS_BUILD_EXAMPLES OFF CACHE BOOL "Build ACTS examples")
 set(ACTS_BUILD_TESTS OFF CACHE BOOL "Build ACTS unit tests")

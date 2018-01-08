@@ -10,7 +10,7 @@
 #define ACTFW_PYTHIA8OPTIONS_H
 
 #include <iostream>
-#include "ACTFW/Plugins/Pythia8/TPythia8Generator.hpp"
+#include "ACTFW/Plugins/Pythia8/Generator.hpp"
 
 namespace po = boost::program_options;
 
@@ -42,13 +42,12 @@ namespace Options {
 
   /// read the particle gun options and return a Config file
   template <class AMAP>
-  std::pair<FW::Pythia8::TPythia8Generator::Config,
-            FW::Pythia8::TPythia8Generator::Config>
+  std::pair<FW::GPythia8::Generator::Config, FW::GPythia8::Generator::Config>
   readPythia8Config(const AMAP& vm)
   {
     // create a pythia generator for the hard scatter
     // process: HardQCD as default
-    FW::Pythia8::TPythia8Generator::Config hsPythiaConfig;
+    FW::GPythia8::Generator::Config hsPythiaConfig;
     hsPythiaConfig.pdgBeam0  = vm["evg-pdgBeam0"].template as<int>();
     hsPythiaConfig.pdgBeam1  = vm["evg-pdgBeam1"].template as<int>();
     hsPythiaConfig.cmsEnergy = vm["evg-cmsEnergy"].template as<double>();
@@ -57,16 +56,16 @@ namespace Options {
 
     // create a pythia generator for the pile-up
     // MinBias with SD, DD and ND
-    FW::Pythia8::TPythia8Generator::Config puPythiaConfig;
+    FW::GPythia8::Generator::Config puPythiaConfig;
     puPythiaConfig.pdgBeam0  = vm["evg-pdgBeam0"].template as<int>();
     puPythiaConfig.pdgBeam1  = vm["evg-pdgBeam1"].template as<int>();
     puPythiaConfig.cmsEnergy = vm["evg-cmsEnergy"].template as<double>();
     puPythiaConfig.processStrings
         = {vm["evg-puProcess"].template as<std::string>()};
     // return the poair of configs for the pythia generator
-    return std::pair<FW::Pythia8::TPythia8Generator::Config,
-                     FW::Pythia8::TPythia8Generator::Config>(hsPythiaConfig,
-                                                             puPythiaConfig);
+    return std::pair<FW::GPythia8::Generator::Config,
+                     FW::GPythia8::Generator::Config>(hsPythiaConfig,
+                                                      puPythiaConfig);
   }
 }
 }

@@ -9,23 +9,22 @@
 #ifndef ACTFW_PYTHIA8GENERATOR_H
 #define ACTFW_PYTHIA8GENERATOR_H
 
-#include <TPythia8.h>
 #include <memory>
 #include <mutex>
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Logger.hpp"
+#include "Pythia8/Pythia.h"
 
 namespace FW {
-namespace Pythia8 {
+namespace GPythia8 {
 
   /// @class IParticleReader
   ///
   /// Interface class that fills a vector of process vertices
   /// proerties for feeding into the fast simulation
   ///
-  class TPythia8Generator
-      : public FW::IReaderT<std::vector<Acts::ProcessVertex>>
+  class Generator : public FW::IReaderT<std::vector<Acts::ProcessVertex>>
   {
   public:
     struct Config
@@ -35,16 +34,15 @@ namespace Pythia8 {
       double cmsEnergy = 14000.;  ///< center of mass energy
       std::vector<std::string> processStrings
           = {{"HardQCD:all = on"}};  ///< pocesses
-      std::string name = "TPythia8Generator";
+      std::string name = "Generator";
     };
 
     /// Constructor
     /// @param cfg is the configuration class
     /// @param logger is the logger instance
-    TPythia8Generator(const Config&                       cfg,
-                      std::unique_ptr<const Acts::Logger> logger
-                      = Acts::getDefaultLogger("TPythia8Generator",
-                                               Acts::Logging::INFO));
+    Generator(const Config&                       cfg,
+              std::unique_ptr<const Acts::Logger> logger
+              = Acts::getDefaultLogger("Generator", Acts::Logging::INFO));
 
     /// Framework name() method
     std::string
@@ -69,7 +67,7 @@ namespace Pythia8 {
     /// the configuration class
     Config m_cfg;
     /// the pythia object
-    std::unique_ptr<TPythia8> m_pythia8;
+    std::unique_ptr<Pythia8::Pythia> m_pythia8;
     /// logger instance
     std::unique_ptr<const Acts::Logger> m_logger;
     /// mutex used to protect multi-threaded reads
