@@ -12,8 +12,8 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Plugins/Pythia8/TPythia8Generator.hpp"
-#include "ACTFW/Plugins/Pythia8/TPythia8Options.hpp"
+#include "ACTFW/Plugins/Pythia8/Generator.hpp"
+#include "ACTFW/Plugins/Pythia8/GeneratorOptions.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
@@ -54,13 +54,13 @@ main(int argc, char* argv[])
   // now read the pythia8 configs
   auto pythia8Configs = FW::Options::readPythia8Config<po::variables_map>(vm);
   // the hard scatter generator
-  auto hsPythiaGenerator = std::make_shared<FW::Pythia8::TPythia8Generator>(
+  auto hsPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
       pythia8Configs.first,
-      Acts::getDefaultLogger("HardScatterTPythia8Generator", logLevel));
+      Acts::getDefaultLogger("HardScatterPythia8Generator", logLevel));
   // the pileup generator
-  auto puPythiaGenerator = std::make_shared<FW::Pythia8::TPythia8Generator>(
+  auto puPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
       pythia8Configs.second,
-      Acts::getDefaultLogger("PileUpTPythia8Generator", logLevel));
+      Acts::getDefaultLogger("PileUpPythia8Generator", logLevel));
   // Create the random number engine
   auto randomNumbersCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
@@ -75,6 +75,8 @@ main(int argc, char* argv[])
   readEvgenCfg.pileupEventReader      = puPythiaGenerator;
   readEvgenCfg.randomNumbers          = randomNumbers;
   readEvgenCfg.barcodeSvc             = barcodeSvc;
+  readEvgenCfg.nEvents                = nEvents;
+
   // create the read Algorithm
   auto readEvgen = std::make_shared<FW::ReadEvgenAlgorithm>(
       readEvgenCfg, Acts::getDefaultLogger("ReadEvgenAlgorithm", logLevel));
