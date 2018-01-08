@@ -47,8 +47,10 @@ if(USE_DD4HEP)
   list(APPEND ROOT_COMPONENTS Geom GenVector)
 endif()
 if(USE_PYTHIA8)
-  list(APPEND ROOT_COMPONENTS EG EGPythia8)
+  list(APPEND ROOT_COMPONENTS EG)
 endif()
+
+list (APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # required packages
 
@@ -78,14 +80,17 @@ if(USE_OPENMP)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 if(USE_PYTHIA8)
-  # TODO replace manual path checks w/ something like FindPythia8
-  if (NOT DEFINED PYTHIA8_INCLUDEDIR)
-    message(FATAL_ERROR "Missing PYTHIA8_INCLUDEDIR")
-  endif()
-  if (NOT DEFINED PYTHIA8_LIBRARYDIR)
-    message(FATAL_ERROR "Missing PYTHIA8_LIBRARYDIR")
-  endif()
+ find_package(Pythia8 REQUIRED) 
 endif()
+   
+ ## TODO replace manual path checks w/ something like FindPythia8
+ #if (NOT DEFINED PYTHIA8_INCLUDEDIR)
+ #  message(FATAL_ERROR "Missing PYTHIA8_INCLUDEDIR")
+ #endif()
+ #if (NOT DEFINED PYTHIA8_LIBRARYDIR)
+ #  message(FATAL_ERROR "Missing PYTHIA8_LIBRARYDIR")
+ #endif()
+
 if(USE_FATRAS)
   add_subdirectory(external/acts-fatras)
 endif()
