@@ -13,6 +13,7 @@
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Plugins/Json/JsonSpacePointWriter.hpp"
+#include "ACTFW/Plugins/Obj/ObjExCellWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSpacePointWriter.hpp"
 #include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
@@ -77,6 +78,14 @@ setupWriters(FW::Sequencer&                  sequencer,
       = std::make_shared<FW::Obj::ObjSpacePointWriter<Acts::Vector3D>>(
           spWriterObjConfig);
 
+  // charged particles as obj
+  FW::Obj::ObjExCellWriter<Acts::TrackParameters>::Config trackWriterObjConfig;
+  trackWriterObjConfig.collection = "excells_charged";
+  trackWriterObjConfig.outputDir  = outputDir;
+  auto trackWriterObj
+      = std::make_shared<FW::Obj::ObjExCellWriter<Acts::TrackParameters>>(
+          trackWriterObjConfig);
+
   // Write ROOT TTree
   // ecc for charged particles
   FW::Root::RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
@@ -111,6 +120,7 @@ setupWriters(FW::Sequencer&                  sequencer,
                             clusteWriterRoot,
                             spWriterJson,
                             spWriterObj,
+                            trackWriterObj,
                             rootEccWriter,
                             rootEcnWriter})
       != FW::ProcessCode::SUCCESS)
