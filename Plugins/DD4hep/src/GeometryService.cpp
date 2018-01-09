@@ -36,13 +36,14 @@ FW::DD4hep::GeometryService::name() const
 FW::ProcessCode
 FW::DD4hep::GeometryService::buildDD4hepGeometry()
 {
-  if (!m_cfg.xmlFileName.empty()) {
-    m_lcdd = &(dd4hep::Detector::getInstance());
-    m_lcdd->fromCompact(m_cfg.xmlFileName.c_str());
-    m_lcdd->volumeManager();
-    m_lcdd->apply("DD4hepVolumeManager", 0, 0);
-    m_dd4hepGeometry = m_lcdd->world();
+  m_lcdd = &(dd4hep::Detector::getInstance());
+  for (auto& file : m_cfg.xmlFileNames) {
+    m_lcdd->fromCompact(file.c_str());
   }
+  m_lcdd->volumeManager();
+  m_lcdd->apply("DD4hepVolumeManager", 0, 0);
+  m_dd4hepGeometry = m_lcdd->world();
+
   return FW::ProcessCode::SUCCESS;
 }
 
