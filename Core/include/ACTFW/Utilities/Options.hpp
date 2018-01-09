@@ -11,11 +11,21 @@
 
 #include <string>
 
-using read_range = std::vector<double>;
+using read_range   = std::vector<double>;
+using read_strings = std::vector<std::string>;
 
 namespace std {
 std::ostream&
 operator<<(std::ostream& os, const read_range& vec)
+{
+  for (auto item : vec) {
+    os << item << " ";
+  }
+  return os;
+}
+
+std::ostream&
+operator<<(std::ostream& os, const read_strings& vec)
 {
   for (auto item : vec) {
     os << item << " ";
