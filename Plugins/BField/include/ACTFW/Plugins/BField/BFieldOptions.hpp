@@ -50,7 +50,7 @@ namespace Options {
         "The default unit for the grid "
         "points is mm. In case the grid points of your field map has another "
         "unit, please set  the scalor to mm.")(
-        "bs-bscalor",
+        "bf-bscalor",
         po::value<double>()->default_value(1.),
         "The default unit for the magnetic field values is Tesla. In case the "
         "grid points of your field map has another unit, please set  the "

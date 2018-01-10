@@ -24,6 +24,7 @@
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
+#include "ACTS/Utilities/Units.hpp"
 
 namespace Acts {
 class IExtrapolationEngine;
@@ -55,7 +56,7 @@ public:
     double maxD0  = std::numeric_limits<double>::max();
     double maxEta = std::numeric_limits<double>::max();
     ;
-    double minPt = 0.0;
+    double minPt = 0.100 * Acts::units::_GeV;
     /// skip or process neutral particles
     bool skipNeutral = false;
     /// configuration: sensitive collection

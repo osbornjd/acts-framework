@@ -96,14 +96,16 @@ main(int argc, char* argv[])
   FW::Sequencer sequencer({});
   if (sequencer.addReaders({readEvgen}) != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
-  if (bField.first
-      && setupSimulation(
-             sequencer, geometry, randomNumbers, bField.first, logLevel)
-          != FW::ProcessCode::SUCCESS)
-    return EXIT_FAILURE;
-  else if (setupSimulation(
-               sequencer, geometry, randomNumbers, bField.second, logLevel)
-           != FW::ProcessCode::SUCCESS)
+  // if a magnetic field map is defined - use it
+  if (bField.first) {
+    if (setupSimulation(
+            sequencer, geometry, randomNumbers, bField.first, logLevel)
+        != FW::ProcessCode::SUCCESS)
+      return EXIT_FAILURE;
+  } else if (bField.second  // use the constant field instead
+             && setupSimulation(
+                    sequencer, geometry, randomNumbers, bField.second, logLevel)
+                 != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
   if (setupWriters(sequencer, barcodeSvc, outputDir)
       != FW::ProcessCode::SUCCESS)
