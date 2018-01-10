@@ -155,7 +155,8 @@ namespace Obj {
             // write the actual point
             os << "v " << m_cfg.outputScalor * sPosition.x() << ", "
                << m_cfg.outputScalor * sPosition.y() << ", "
-               << m_cfg.outputScalor * sPosition.z() << '\n';
+               << m_cfg.outputScalor * sPosition.z() << " # initial point "
+               << '\n';
           }
           if (m_cfg.outputBezierSegment > 0.) {
             // construct P1 and P2
@@ -167,9 +168,9 @@ namespace Obj {
             // rescale
             nDist /= (double)segments;
             Acts::Vector3D p1
-                = lPosition + m_cfg.outputBezierSegment * 10. * lDirection;
+                = lPosition + m_cfg.outputBezierSegment * lDirection;
             Acts::Vector3D p2
-                = tPosition - m_cfg.outputBezierSegment * 10. * tDirection;
+                = tPosition - m_cfg.outputBezierSegment * tDirection;
             // loop over the bezier segments
             for (size_t ib = 1; ib <= size_t(segments - 1); ib++) {
               double t = ib / (double)segments;
@@ -188,7 +189,8 @@ namespace Obj {
           // write the actual point
           os << "v " << m_cfg.outputScalor * tPosition.x() << ", "
              << m_cfg.outputScalor * tPosition.y() << ", "
-             << m_cfg.outputScalor * tPosition.z() << '\n';
+             << m_cfg.outputScalor * tPosition.z() << " # excell point "
+             << '\n';
 
           // set for the next bezier loop
           lPosition  = tPosition;
