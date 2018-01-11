@@ -1,14 +1,13 @@
-image: gitlab-registry.cern.ch/acts/machines/slc6:latest
-
 stages:
     - check
-    - build_core
-    - build_framework
+    - build
     - test
 
 variables:
     BUILD_TYPE: Release
     GIT_SUBMODULE_STRATEGY: recursive
+
+image: gitlab-registry.cern.ch/acts/machines/slc6:latest
 
 before_script:
     # CI executor uses fail on error by default
@@ -39,87 +38,47 @@ license:
   script:
     - CI/check_license.py .
 
-core_default:
-    stage: build_core
-    tags:
-        - cvmfs
-    script:
-        - mkdir build_core_default
-        - cd build_core_default
-        - cmake -GNinja -DBUILD_TESTS=off -DBOOST_ROOT=${BOOST_ROOT} -DEIGEN_INCLUDE_DIR=${EIGEN_INCLUDE_DIR} -DCMAKE_INSTALL_PREFIX=../install_default -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ../external/acts-core
-        - cmake --build . -- install
-    artifacts:
-        paths:
-            - install_default
-
-core_full:
-    stage: build_core
-    tags:
-        - cvmfs
-    script:
-        - mkdir build_core_full
-        - cd build_core_full
-        - cmake -GNinja -DBUILD_TESTS=off -DBUILD_DD4HEP_PLUGIN=on -DBUILD_MATERIAL_PLUGIN=on -DBUILD_TGEO_PLUGIN=on -DBOOST_ROOT=${BOOST_ROOT} -DEIGEN_INCLUDE_DIR=${EIGEN_INCLUDE_DIR} -DCMAKE_INSTALL_PREFIX=../install_full -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ../external/acts-core
-        - cmake --build . -- install
-    artifacts:
-        paths:
-            - install_full
-
-framework_default:
-    stage: build_framework
-    tags:
-        - cvmfs
-    script:
-        - mkdir build_framework_default
-        - cd build_framework_default
-        - cmake -GNinja -DCMAKE_PREFIX_PATH=../install_default -DCMAKE_INSTALL_PREFIX=../install_default -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
-        - cmake --build . -- install
-    artifacts:
-        paths:
-            - install_default
-
-framework_full:
-    stage: build_framework
-    tags:
-        - cvmfs
-    script:
-        - mkdir build_framework_full
-        - cd build_framework_full
-        # TODO USE_PYTHIA8=on requires a custom ROOT build
-        - cmake -GNinja -DUSE_DD4HEP=on -DUSE_GEANT4=off -DCMAKE_PREFIX_PATH=../install_full -DCMAKE_INSTALL_PREFIX=../install_full -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
-        - cmake --build . -- install
-    artifacts:
-        paths:
-            - install_full
-
 versions:
-    stage: build_core
-    tags:
-        - cvmfs
-    script:
-        - ./CI/show_versions.sh
+  stage: check
+  tags:
+    - cvmfs
+  script:
+    - ./CI/show_versions.sh
+
+build:
+  stage: build
+  tags:
+    - cvmfs
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DBOOST_ROOT=${BOOST_ROOT} -DEIGEN_INCLUDE_DIR=${EIGEN_INCLUDE_DIR} -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+    - cmake --build . -- install
+  artifacts:
+    paths:
+      - install
 
 hello_world:
-    stage: test
-    tags:
-        - cvmfs
-    script:
-        - source install_default/bin/setup.sh
-        - install_default/bin/ACTFWHelloWorldExample
+  stage: test
+  tags:
+    - cvmfs
+  script:
+    - source install/bin/setup.sh
+    - ACTFWHelloWorldExample
 
 generic_extrapolation:
-    stage: test
-    tags:
-        - cvmfs
-    script:
-        - source install_default/bin/setup.sh
-        - install_default/bin/ACTFWGenericExtrapolationExample
+  stage: test
+  tags:
+    - cvmfs
+  script:
+    - source install_default/bin/setup.sh
+    - ACTFWGenericExtrapolationExample
 
 reproducibility_generic_extrapolation:
-    stage: test
-    tags:
-        - cvmfs
-    script:
-        - source install_default/bin/setup.sh
-        - cd scripts
-        - ./testReproducibility.sh GenericExtrapolation excells_charged
+  stage: test
+  tags:
+    - cvmfs
+  script:
+    - source install/bin/setup.sh
+    - cd scripts
+    - ./testReproducibility.sh GenericExtrapolation excells_charged
