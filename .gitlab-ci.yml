@@ -16,11 +16,10 @@ before_script:
 
 format:
   stage: check
-  image: gitlab-registry.cern.ch/acts/machines/check:latest
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
+  image: gitlab-registry.cern.ch/acts/machines/check:latest
   before_script: []
-  dependencies: []
   script:
     - CI/check_format .
   artifacts:
@@ -34,12 +33,13 @@ license:
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
   before_script: []
-  dependencies: []
   script:
     - CI/check_license.py .
 
 versions:
   stage: check
+  variables:
+    GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
   tags:
     - cvmfs
   script:
