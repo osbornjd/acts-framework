@@ -71,7 +71,7 @@ generic_extrapolation:
   tags:
     - cvmfs
   script:
-    - source install_default/bin/setup.sh
+    - source install/bin/setup.sh
     - ACTFWGenericExtrapolationExample
 
 reproducibility_generic_extrapolation:
