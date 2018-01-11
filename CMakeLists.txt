@@ -6,7 +6,7 @@ project(ActsFramework LANGUAGES CXX)
 # processing enabled, because we want ACTS developers to test their code with
 # multiple threads and every modern compiler supports OpenMP.
 #
-# However, Apple shisp the OSX/macOS system compiler with OpenMP support
+# However, Apple ships the OSX/macOS system compiler with OpenMP support
 # disabled and we don't want to force people to go through the trouble of using
 # a non-system compiler just because of this issue. So we make an exception for
 # Mac users relying on the Apple-provided version of Clang/LLVM.
@@ -22,17 +22,7 @@ option(USE_GEANT4 "Build Geant4-based code" off)
 option(USE_OPENMP "Build framework with OpenMP enabled" ${USE_OPENMP_DEFAULT})
 option(USE_PYTHIA8 "Build Pythia8-based code" off)
 
-# use install paths consistent w/ ACTS
-include(GNUInstallDirs)
-# require C++14 globally
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
-# place build products in `<build_dir>/bin` and `<build_dir>/lib` for simple use
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
-
 # determine build-flag dependent components
-
 set(DD4hep_COMPONENTS DDCore DDSegmentation)
 if(USE_GEANT4)
   list(APPEND DD4hep_COMPONENTS DDG4)
@@ -44,6 +34,15 @@ endif()
 if(USE_PYTHIA8)
   list(APPEND ROOT_COMPONENTS EG EGPythia8)
 endif()
+
+# use install paths consistent w/ ACTS
+include(GNUInstallDirs)
+# require C++14 globally
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
+# place build products in `<build_dir>/bin` and `<build_dir>/lib` for simple use
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
 
 # required packages
 
@@ -80,7 +79,7 @@ if(USE_PYTHIA8)
   endif()
 endif()
 
-# build acts-core as a subproject with fixed options
+# acts-core and acts-fatras are build as subprojects with fixed options
 
 set(ACTS_BUILD_DOC OFF CACHE BOOL "Build ACTS documentation")
 set(ACTS_BUILD_EXAMPLES OFF CACHE BOOL "Build ACTS examples")
@@ -90,6 +89,7 @@ set(ACTS_BUILD_DD4HEP_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build ACTS DD4HEP plugins
 set(ACTS_BUILD_MATERIAL_PLUGIN ON CACHE BOOL "Build ACTS Material plugins")
 set(ACTS_BUILD_TGEO_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build ACTS TGeo plugins")
 add_subdirectory(external/acts-core)
+add_subdirectory(external/acts-fatras)
 
 # simplify handling of optional components
 # all arguments after the path are evaluated in the if(...) context
