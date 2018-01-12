@@ -41,9 +41,10 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
   ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);
 
-  RandomEngine rng = m_cfg.randomNumbers ? 
-    m_cfg.randomNumbers->spawnGenerator(ctx) : RandomEngine();
-  UniformDist  udist(0., 1.);
+  RandomEngine rng = m_cfg.randomNumbers
+      ? m_cfg.randomNumbers->spawnGenerator(ctx)
+      : RandomEngine();
+  UniformDist udist(0., 1.);
 
   // read particles from input collection
   const std::vector<Acts::ProcessVertex>* evgen = nullptr;
