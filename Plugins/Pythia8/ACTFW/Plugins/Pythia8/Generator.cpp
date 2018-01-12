@@ -17,11 +17,15 @@ FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
   , m_pythia8(nullptr)
   , m_logger(std::move(mlogger))
 {
+  if (!m_cfg.randomNumbers) {
+    throw std::invalid_argument("Missing random numbers service");
+  }
+
   // Create pythia8 object
   m_pythia8 = std::make_unique<Pythia8::Pythia>();
 
   // Configure
-  for (auto& pString : m_cfg.processStrings) {
+  for (const auto& pString : m_cfg.processStrings) {
     ACTS_VERBOSE("Setting string " << pString << " to Pythia8");
     m_pythia8->readString(pString.c_str());
   }
@@ -37,7 +41,7 @@ FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
 std::string
 FW::GPythia8::Generator::name() const
 {
-  return m_cfg.name;
+  return "Pythia8Generator";
 }
 
 FW::ProcessCode
