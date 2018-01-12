@@ -16,8 +16,8 @@
 #include <ACTS/Utilities/Logger.hpp>
 #include <Pythia8/Pythia.h>
 
-#include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Readers/IReaderT.hpp"
 
 namespace FW {
 namespace GPythia8 {
@@ -69,10 +69,10 @@ namespace GPythia8 {
 
     /// the configuration class
     Config m_cfg;
-    /// the pythia object
-    std::unique_ptr<Pythia8::Pythia> m_pythia8;
     /// logger instance
     std::unique_ptr<const Acts::Logger> m_logger;
+    /// the pythia object
+    Pythia8::Pythia m_pythia8;
     /// mutex used to protect multi-threaded reads
     std::mutex m_read_mutex;
   };
