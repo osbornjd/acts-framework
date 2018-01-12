@@ -72,7 +72,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
   // get the hard scatter if you have it
   std::vector<Acts::ProcessVertex> hardscatterEvent;
   if (m_cfg.hardscatterEventReader
-      && m_cfg.hardscatterEventReader->read(hardscatterEvent)
+      && m_cfg.hardscatterEventReader->read(hardscatterEvent, 0, &ctx)
           == FW::ProcessCode::ABORT) {
     ACTS_ERROR("Could not read hard scatter event. Aborting.");
     return FW::ProcessCode::ABORT;
@@ -117,7 +117,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
     // get the vertices per pileup event
     std::vector<Acts::ProcessVertex> pileupEvent;
     if (m_cfg.pileupEventReader
-        && m_cfg.pileupEventReader->read(pileupEvent)
+        && m_cfg.pileupEventReader->read(pileupEvent, 0, &ctx)
             == FW::ProcessCode::ABORT) {
       ACTS_ERROR("Could not read pile up event " << ipue << ". Aborting.");
       return FW::ProcessCode::ABORT;
