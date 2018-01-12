@@ -36,28 +36,24 @@ FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
                                    std::unique_ptr<const Acts::Logger> mlogger)
   : FW::IReaderT<std::vector<Acts::ProcessVertex>>()
   , m_cfg(cfg)
-  , m_pythia8(nullptr)
   , m_logger(std::move(mlogger))
 {
   if (!m_cfg.randomNumbers) {
     throw std::invalid_argument("Missing random numbers service");
   }
 
-  // Create pythia8 object
-  m_pythia8 = std::make_unique<Pythia8::Pythia>();
-
   // Configure
   for (const auto& pString : m_cfg.processStrings) {
     ACTS_VERBOSE("Setting string " << pString << " to Pythia8");
-    m_pythia8->readString(pString.c_str());
+    m_pythia8.readString(pString.c_str());
   }
 
   // Set arguments in Settings database.
-  m_pythia8->settings.mode("Beams:idA", m_cfg.pdgBeam0);
-  m_pythia8->settings.mode("Beams:idB", m_cfg.pdgBeam1);
-  m_pythia8->settings.mode("Beams:frameType", 1);
-  m_pythia8->settings.parm("Beams:eCM", m_cfg.cmsEnergy);
-  m_pythia8->init();
+  m_pythia8.settings.mode("Beams:idA", m_cfg.pdgBeam0);
+  m_pythia8.settings.mode("Beams:idB", m_cfg.pdgBeam1);
+  m_pythia8.settings.mode("Beams:frameType", 1);
+  m_pythia8.settings.parm("Beams:eCM", m_cfg.cmsEnergy);
+  m_pythia8.init();
 }
 
 std::string
@@ -81,17 +77,17 @@ FW::GPythia8::Generator::read(std::vector<Acts::ProcessVertex>& processVertices,
 
   // use per-event random number generator
   FrameworkRndmEngine rndm(m_cfg.randomNumbers->spawnGenerator(*context));
-  m_pythia8->setRndmEnginePtr(&rndm);
+  m_pythia8.setRndmEnginePtr(&rndm);
 
   // skip if needed
   if (skip) {
-    for (size_t is = 0; is < skip; ++is) m_pythia8->next();
+    for (size_t is = 0; is < skip; ++is) m_pythia8.next();
     return FW::ProcessCode::SUCCESS;
   }
 
   // the actual event
-  m_pythia8->next();
-  int np = m_pythia8->event.size() - 1;
+  m_pythia8.next();
+  int np = m_pythia8.event.size() - 1;
 
   // the last vertex
   Acts::Vector3D                        lastVertex(0., 0., 0.);
@@ -102,27 +98,27 @@ FW::GPythia8::Generator::read(std::vector<Acts::ProcessVertex>& processVertices,
   int i;
   int ioff = 0;
   // setting the offset for event it = 90
-  if (m_pythia8->event[0].id() == 90) {
+  if (m_pythia8.event[0].id() == 90) {
     ioff = -1;
   }
 
   // Particle loop
   for (int ip = 0; ip < np; ip++) {
-    if (m_pythia8->event[ip].id() == 90) continue;
-    if (m_pythia8->event[ip].isFinal()) {
+    if (m_pythia8.event[ip].id() == 90) continue;
+    if (m_pythia8.event[ip].isFinal()) {
       // get the pdg number
-      int pdg = m_pythia8->event[ip].id();
+      int pdg = m_pythia8.event[ip].id();
       // pythia returns charge in units of 1/3
       float charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge() / 3.;
       float mass   = TDatabasePDG::Instance()->GetParticle(pdg)->Mass();
       // get the momentum
-      double px = m_pythia8->event[ip].px();  // [GeV/c]
-      double py = m_pythia8->event[ip].py();  // [GeV/c]
-      double pz = m_pythia8->event[ip].pz();  // [GeV/c]
+      double px = m_pythia8.event[ip].px();  // [GeV/c]
+      double py = m_pythia8.event[ip].py();  // [GeV/c]
+      double pz = m_pythia8.event[ip].pz();  // [GeV/c]
       // get the vertex
-      double         vx = m_pythia8->event[ip].xProd();  // [mm]
-      double         vy = m_pythia8->event[ip].yProd();  // [mm]
-      double         vz = m_pythia8->event[ip].zProd();  // [mm]
+      double         vx = m_pythia8.event[ip].xProd();  // [mm]
+      double         vy = m_pythia8.event[ip].yProd();  // [mm]
+      double         vz = m_pythia8.event[ip].zProd();  // [mm]
       Acts::Vector3D vertex(vx, vy, vz);
       // flush if vertices are different
       if (vertex != lastVertex && particlesOut.size()) {
