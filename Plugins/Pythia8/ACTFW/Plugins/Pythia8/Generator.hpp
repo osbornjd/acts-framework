@@ -35,6 +35,8 @@ namespace GPythia8 {
       std::vector<std::string> processStrings
           = {{"HardQCD:all = on"}};  ///< pocesses
       std::string name = "Generator";
+
+      int seed = 123456789;  ///< the random seed
     };
 
     /// Constructor

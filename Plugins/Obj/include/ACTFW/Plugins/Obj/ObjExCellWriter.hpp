@@ -164,26 +164,27 @@ namespace Obj {
             double nDist = (tPosition - lPosition).mag();
             // calculate the number of segments
             size_t segments = size_t(nDist / m_cfg.outputBezierSegment);
-            if (segments < 2) continue;
-            // rescale
-            nDist /= (double)segments;
-            Acts::Vector3D p1
-                = lPosition + m_cfg.outputBezierSegment * lDirection;
-            Acts::Vector3D p2
-                = tPosition - m_cfg.outputBezierSegment * tDirection;
-            // loop over the bezier segments
-            for (size_t ib = 1; ib <= size_t(segments - 1); ib++) {
-              double t = ib / (double)segments;
-              auto   bPoint
-                  = calculateBezierPoint(t, lPosition, p1, p2, tPosition);
-              ++m_vCounter;
-              // write the space point
-              os << "v " << m_cfg.outputScalor * bPoint.x() << ", "
-                 << m_cfg.outputScalor * bPoint.y() << ", "
-                 << m_cfg.outputScalor * bPoint.z() << " # bezier point "
-                 << '\n';
-            }  // end of bezier segent writing
-          }    // end of bezier loop
+            if (segments > 1) {
+              // rescale
+              nDist /= (double)segments;
+              Acts::Vector3D p1
+                  = lPosition + m_cfg.outputBezierSegment * lDirection;
+              Acts::Vector3D p2
+                  = tPosition - m_cfg.outputBezierSegment * tDirection;
+              // loop over the bezier segments
+              for (size_t ib = 1; ib <= size_t(segments - 1); ib++) {
+                double t = ib / (double)segments;
+                auto   bPoint
+                    = calculateBezierPoint(t, lPosition, p1, p2, tPosition);
+                ++m_vCounter;
+                // write the space point
+                os << "v " << m_cfg.outputScalor * bPoint.x() << ", "
+                   << m_cfg.outputScalor * bPoint.y() << ", "
+                   << m_cfg.outputScalor * bPoint.z() << " # bezier point "
+                   << '\n';
+              }  // end of bezier segent writing
+            }    // protection against only one segment
+          }      // end of bezier condition
           // increase the counter
           ++m_vCounter;
           // write the actual point
