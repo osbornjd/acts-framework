@@ -11,10 +11,13 @@
 
 #include <memory>
 #include <mutex>
+
+#include <ACTS/EventData/ParticleDefinitions.hpp>
+#include <ACTS/Utilities/Logger.hpp>
+#include <Pythia8/Pythia.h>
+
 #include "ACTFW/Readers/IReaderT.hpp"
-#include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Utilities/Logger.hpp"
-#include "Pythia8/Pythia.h"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 namespace FW {
 namespace GPythia8 {
@@ -34,7 +37,7 @@ namespace GPythia8 {
       double cmsEnergy = 14000.;  ///< center of mass energy
       std::vector<std::string> processStrings
           = {{"HardQCD:all = on"}};  ///< pocesses
-      std::string name = "Generator";
+      std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     };
 
     /// Constructor
@@ -73,7 +76,7 @@ namespace GPythia8 {
     /// mutex used to protect multi-threaded reads
     std::mutex m_read_mutex;
   };
-}  // namespace Pythia8
+}  // namespace GPythia8
 }  // namespace FW
 
 #endif  // ACTFW_PYTHIA8GENERATOR_H
