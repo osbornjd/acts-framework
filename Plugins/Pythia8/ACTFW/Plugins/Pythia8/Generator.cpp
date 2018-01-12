@@ -49,11 +49,26 @@ FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
   }
 
   // Set arguments in Settings database.
+<<<<<<< HEAD
   m_pythia8.settings.mode("Beams:idA", m_cfg.pdgBeam0);
   m_pythia8.settings.mode("Beams:idB", m_cfg.pdgBeam1);
   m_pythia8.settings.mode("Beams:frameType", 1);
   m_pythia8.settings.parm("Beams:eCM", m_cfg.cmsEnergy);
   m_pythia8.init();
+=======
+  m_pythia8->settings.mode("Beams:idA", m_cfg.pdgBeam0);
+  m_pythia8->settings.mode("Beams:idB", m_cfg.pdgBeam1);
+  m_pythia8->settings.mode("Beams:frameType", 1);
+  m_pythia8->settings.parm("Beams:eCM", m_cfg.cmsEnergy);
+
+  // Set the random seed from configuration
+  m_pythia8->readString("Random:setSeed = on");
+  std::string seedString = "Random:seed = ";
+  seedString += std::to_string(m_cfg.seed);
+  m_pythia8->readString(seedString.c_str());
+
+  m_pythia8->init();
+>>>>>>> 758ae20... Prototype with hadronic interactions
 }
 
 std::string

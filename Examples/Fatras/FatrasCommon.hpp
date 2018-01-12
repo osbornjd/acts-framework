@@ -24,6 +24,7 @@
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Digitization/PlanarModuleStepper.hpp"
 #include "Fatras/EnergyLossSampler.hpp"
+#include "Fatras/HadronicInteractionParametricSampler.hpp"
 #include "Fatras/MaterialInteractionEngine.hpp"
 #include "Fatras/MultipleScatteringSamplerHighland.hpp"
 #include "TROOT.h"
@@ -58,12 +59,19 @@ setupSimulation(FW::Sequencer&                                sequencer,
   auto eLSampler          = std::make_shared<eLossSampler>(eLossConfig);
   eLSampler->setLogger(Acts::getDefaultLogger("ELoss", loglevel));
 
+  // Hadronic interaction sampler
+  using hadIntSampler
+      = Fatras::HadronicInteractionParametricSampler<FW::RandomEngine>;
+  auto hiConfig  = hadIntSampler::Config();
+  auto hiSampler = std::make_shared<hadIntSampler>(hiConfig);
+
   // MaterialInteractionEngine
   using MatIntEngine = Fatras::MaterialInteractionEngine<FW::RandomEngine>;
   auto matConfig     = MatIntEngine::Config();
-  matConfig.multipleScatteringSampler = mscSampler;
-  matConfig.energyLossSampler         = eLSampler;
-  matConfig.parametricScattering      = true;
+  matConfig.multipleScatteringSampler  = mscSampler;
+  matConfig.energyLossSampler          = eLSampler;
+  matConfig.parametricScattering       = true;
+  matConfig.hadronicInteractionSampler = hiSampler;
   auto materialEngine = std::make_shared<MatIntEngine>(matConfig);
   materialEngine->setLogger(Acts::getDefaultLogger("MaterialEngine", loglevel));
   // extrapolation algorithm
@@ -84,6 +92,7 @@ setupSimulation(FW::Sequencer&                                sequencer,
   eTestConfig.collectMaterial      = true;
   eTestConfig.sensitiveCurvilinear = false;
   eTestConfig.pathLimit            = -1.;
+  eTestConfig.randomNumbers        = random;
   // Set up the FatrasAlgorithm
   using FatrasAlg = FW::FatrasAlgorithm<MatIntEngine>;
   FatrasAlg::Config fatrasConfig;

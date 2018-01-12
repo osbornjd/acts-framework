@@ -38,6 +38,7 @@ namespace GPythia8 {
       std::vector<std::string> processStrings
           = {{"HardQCD:all = on"}};  ///< pocesses
       std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+      std::string name = "Generator";
     };
 
     /// Constructor

@@ -37,7 +37,13 @@ namespace Options {
         "The process string for the hard scatter event.")(
         "evg-puProcess",
         po::value<std::string>()->default_value("SoftQCD:all = on"),
-        "The process string for the pile-up events.");
+        "The process string for the pile-up events.")(
+        "evg-hsSeed",
+        po::value<int>()->default_value(123456789),
+        "The generator seed for the hard scatter event.")(
+        "evg-puSeed",
+        po::value<int>()->default_value(234567890),
+        "The generator seed for the pile-up events.");
   }
 
   /// read the particle gun options and return a Config file
@@ -53,6 +59,7 @@ namespace Options {
     hsPythiaConfig.cmsEnergy = vm["evg-cmsEnergy"].template as<double>();
     hsPythiaConfig.processStrings
         = {vm["evg-hsProcess"].template as<std::string>()};
+    hsPythiaConfig.seed = {vm["evg-hsSeed"].template as<int>()};
 
     // create a pythia generator for the pile-up
     // MinBias with SD, DD and ND
@@ -62,7 +69,9 @@ namespace Options {
     puPythiaConfig.cmsEnergy = vm["evg-cmsEnergy"].template as<double>();
     puPythiaConfig.processStrings
         = {vm["evg-puProcess"].template as<std::string>()};
-    // return the poair of configs for the pythia generator
+    puPythiaConfig.seed = {vm["evg-puSeed"].template as<int>()};
+
+    // return the pair of configs for the pythia generator
     return std::pair<FW::GPythia8::Generator::Config,
                      FW::GPythia8::Generator::Config>(hsPythiaConfig,
                                                       puPythiaConfig);
