@@ -7,8 +7,30 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
+
 #include <ACTS/Utilities/Units.hpp>
 #include <TDatabasePDG.h>
+
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
+
+// wrapper of framework RandomEngine in Pythia8 interface
+
+namespace {
+class FrameworkRndmEngine : public Pythia8::RndmEngine
+{
+public:
+  FrameworkRndmEngine(FW::RandomEngine engine) : m_engine(std::move(engine)) {}
+
+  double
+  flat()
+  {
+    return m_engine();
+  }
+
+private:
+  FW::RandomEngine m_engine;
+};
+}  // namespace
 
 FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
                                    std::unique_ptr<const Acts::Logger> mlogger)
@@ -49,8 +71,17 @@ FW::GPythia8::Generator::read(std::vector<Acts::ProcessVertex>& processVertices,
                               size_t                            skip,
                               const FW::AlgorithmContext*       context)
 {
-  // lock the mutex
+  if (!context) {
+    ACTS_FATAL("Missing AlgorithmContext for Pythia8 generator");
+    return ProcessCode::ABORT;
+  }
+
+  // pythia8 is not thread safe and needs to be protected
   std::lock_guard<std::mutex> lock(m_read_mutex);
+
+  // use per-event random number generator
+  FrameworkRndmEngine rndm(m_cfg.randomNumbers->spawnGenerator(*context));
+  m_pythia8->setRndmEnginePtr(&rndm);
 
   // skip if needed
   if (skip) {
