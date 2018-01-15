@@ -46,6 +46,10 @@ namespace FCCedm {
       std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
       /// The mask to decode cellID to volumeID
       unsigned long long mask = 0xffffffff;
+      /// @todo remove later, just for debugging
+      /// The output positions
+      std::string missedPositions = "missedPositions";
+      std::string foundPositions  = "foundPositions";
     };
 
     /// Constructor
@@ -99,8 +103,10 @@ namespace FCCedm {
     size_t m_nEvents;
 
     /// @todo remove later, just for debugging
-    mutable std::vector<Identifier> m_notFound;
-    mutable std::vector<Identifier> m_found;
+    mutable std::vector<Identifier>     m_notFound;
+    mutable std::vector<Identifier>     m_found;
+    mutable std::vector<Acts::Vector3D> m_missedPositions;
+    mutable std::vector<Acts::Vector3D> m_foundPositions;
 
     /// Private access to the logging instance
     const Acts::Logger&

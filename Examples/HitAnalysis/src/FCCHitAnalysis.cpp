@@ -12,6 +12,7 @@
 #include "ACTFW/Plugins/FCCedm/fccTrackHitReader.hpp"
 #include "ACTFW/Plugins/FCCedm/fccTrackHitReaderOptions.hpp"
 #include "ACTFW/Plugins/Root/RootHitDistanceAnalysisWriter.hpp"
+#include "ACTFW/Plugins/Root/RootPositionWriter.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 
 /// This example reads in a collection of fcc::PositionedTrackerHit creates
@@ -43,6 +44,7 @@ main(int argc, char* argv[])
   // now read the standard options
   auto standardOptions
       = FW::Options::readStandardOptions<po::variables_map>(vm);
+  auto nEvents  = standardOptions.first;
   auto logLevel = standardOptions.second;
 
   // read the detector config & dd4hep detector
@@ -60,6 +62,11 @@ main(int argc, char* argv[])
   hitReaderConfig.mask
       = 0xfffffff;  // In FCChh currently only the first 28 bits are used
   hitReaderConfig.collection = "measurements";
+  hitReaderConfig.treeName   = "events";
+  // hitReaderConfig.branchName      = "overlaidPositionedTrackHits";
+  hitReaderConfig.branchName      = "positionedHits";
+  hitReaderConfig.missedPositions = "missedPositions";
+  hitReaderConfig.foundPositions  = "foundPositions";
   auto hitReader
       = std::make_shared<FW::FCCedm::fccTrackHitReader>(hitReaderConfig);
 
@@ -79,6 +86,24 @@ main(int argc, char* argv[])
   auto writer
       = std::make_shared<FW::Root::RootHitDistanceAnalysisWriter>(writerConfig);
 
+  // @todo remove later
+  // Set up positions writer
+  FW::Root::RootPositionWriter::Config posWriterConfig;
+  posWriterConfig.positions = "missedPositions";
+  posWriterConfig.filePath  = "missedPositions.root";
+  posWriterConfig.fileMode  = "RECREATE";
+  posWriterConfig.treeName  = "positions";
+  auto posWriter
+      = std::make_shared<FW::Root::RootPositionWriter>(posWriterConfig);
+
+  FW::Root::RootPositionWriter::Config posWriterConfig1;
+  posWriterConfig1.positions = "foundPositions";
+  posWriterConfig1.filePath  = "foundPositions.root";
+  posWriterConfig1.fileMode  = "RECREATE";
+  posWriterConfig1.treeName  = "positions";
+  auto posWriter1
+      = std::make_shared<FW::Root::RootPositionWriter>(posWriterConfig1);
+
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
   // now create the sequencer
@@ -86,9 +111,9 @@ main(int argc, char* argv[])
   sequencer.addServices({});
   sequencer.addReaders({hitReader});
   sequencer.appendEventAlgorithms({hitAlgorithm});
-  sequencer.addWriters({writer});
+  sequencer.addWriters({writer, posWriter, posWriter1});
   // The reader determines the number of events
-  sequencer.run({});
+  sequencer.run(nEvents);
 
   return 0;
 }

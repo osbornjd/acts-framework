@@ -17,8 +17,14 @@ FW::FCCedm::fccTrackHitReader::fccTrackHitReader(
   , m_logger(std::move(logger))
   , m_treeReader(nullptr)
   , m_measurements()
+  , m_missedPositions()
+  , m_foundPositions()
+  , m_found()
+  , m_notFound()
 {
   auto inputChain = new TChain(m_cfg.treeName.c_str());
+  std::cout << "TreeName: " << m_cfg.treeName << std::endl;
+  std::cout << "BranchName: " << m_cfg.branchName << std::endl;
   // loop over the input files
   for (auto inputFile : m_cfg.fileList) {
     // add file to the input chain
@@ -63,9 +69,14 @@ FW::FCCedm::fccTrackHitReader::read(FW::AlgorithmContext ctx)
 
   ACTS_DEBUG("Reading in " << m_positionedTrackHits->size()
                            << " fcc positioned track hits");
-
+  m_measurements.clear();
   // reserve space
   m_measurements.reserve(m_positionedTrackHits->size());
+  // @todo remove
+  m_missedPositions.clear();
+  m_missedPositions.reserve(m_positionedTrackHits->size());
+  m_foundPositions.clear();
+  m_foundPositions.reserve(m_positionedTrackHits->size());
   // translate FCC edm PositionedTrackHits to Acts measurenents for
   // further processing
   for (auto& ptHit : *m_positionedTrackHits) {
@@ -81,19 +92,29 @@ FW::FCCedm::fccTrackHitReader::read(FW::AlgorithmContext ctx)
   }
 
   /// @todo remove
-  std::vector<Identifier> keys;
-  keys.reserve(m_positionedTrackHits->size());
   std::stable_sort(m_notFound.begin(), m_notFound.end());
-  std::unique_copy(begin(m_notFound), end(m_notFound), back_inserter(keys));
-  m_notFound = keys;
-  std::cout << "#Not Found Elements: " << keys.size() << std::endl;
+  auto end0 = std::unique(begin(m_notFound), end(m_notFound));
+  m_notFound.erase(end0, m_notFound.end());
+  std::cout << "#Not Found Elements: " << m_notFound.size() << std::endl;
 
-  std::vector<Identifier> keysF;
-  keysF.reserve(m_positionedTrackHits->size());
   std::stable_sort(m_found.begin(), m_found.end());
-  std::unique_copy(begin(m_found), end(m_found), back_inserter(keysF));
-  m_found = keysF;
-  std::cout << "#Found Elements: " << keysF.size() << std::endl;
+  auto end1 = std::unique(begin(m_found), end(m_found));
+  m_found.erase(end1, m_found.end());
+  std::cout << "#Found Elements: " << m_found.size() << std::endl;
+
+  if (ctx.eventStore.add(m_cfg.missedPositions, std::move(m_missedPositions))
+      == FW::ProcessCode::ABORT) {
+    ACTS_INFO("Could not add collection " << m_cfg.missedPositions
+                                          << " to event store. Abort.");
+    return FW::ProcessCode::ABORT;
+  }
+
+  if (ctx.eventStore.add(m_cfg.foundPositions, std::move(m_foundPositions))
+      == FW::ProcessCode::ABORT) {
+    ACTS_INFO("Could not add collection " << m_cfg.foundPositions
+                                          << " to event store. Abort.");
+    return FW::ProcessCode::ABORT;
+  }
 
   return ProcessCode::SUCCESS;
 }
@@ -125,6 +146,9 @@ FW::FCCedm::fccTrackHitReader::measurement(
 
     /// @todo remove later, just for debugging
     m_found.push_back(identifier);
+    m_foundPositions.push_back(Acts::Vector3D(fccTrackHit.position.x,
+                                              fccTrackHit.position.y,
+                                              fccTrackHit.position.z));
 
     return (new Measurement2D((*detElement).second->surface(),
                               identifier,
@@ -134,6 +158,8 @@ FW::FCCedm::fccTrackHitReader::measurement(
   }
   /// @todo remove later, just for debugging
   m_notFound.push_back(identifier);
+  m_missedPositions.push_back(Acts::Vector3D(
+      fccTrackHit.position.x, fccTrackHit.position.y, fccTrackHit.position.z));
   // @todo uncomment
   // throw std::runtime_error(
   //"No detector element exists for requested identifier: " << identifier);
