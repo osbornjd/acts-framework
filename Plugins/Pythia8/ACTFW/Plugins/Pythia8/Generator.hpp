@@ -9,23 +9,25 @@
 #ifndef ACTFW_PYTHIA8GENERATOR_H
 #define ACTFW_PYTHIA8GENERATOR_H
 
-#include <TPythia8.h>
 #include <memory>
 #include <mutex>
+
+#include <ACTS/EventData/ParticleDefinitions.hpp>
+#include <ACTS/Utilities/Logger.hpp>
+#include <Pythia8/Pythia.h>
+
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
-#include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Utilities/Logger.hpp"
 
 namespace FW {
-namespace Pythia8 {
+namespace GPythia8 {
 
   /// @class IParticleReader
   ///
   /// Interface class that fills a vector of process vertices
   /// proerties for feeding into the fast simulation
   ///
-  class TPythia8Generator
-      : public FW::IReaderT<std::vector<Acts::ProcessVertex>>
+  class Generator : public FW::IReaderT<std::vector<Acts::ProcessVertex>>
   {
   public:
     struct Config
@@ -35,16 +37,15 @@ namespace Pythia8 {
       double cmsEnergy = 14000.;  ///< center of mass energy
       std::vector<std::string> processStrings
           = {{"HardQCD:all = on"}};  ///< pocesses
-      std::string name = "TPythia8Generator";
+      std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     };
 
     /// Constructor
     /// @param cfg is the configuration class
     /// @param logger is the logger instance
-    TPythia8Generator(const Config&                       cfg,
-                      std::unique_ptr<const Acts::Logger> logger
-                      = Acts::getDefaultLogger("TPythia8Generator",
-                                               Acts::Logging::INFO));
+    Generator(const Config&                       cfg,
+              std::unique_ptr<const Acts::Logger> logger
+              = Acts::getDefaultLogger("Generator", Acts::Logging::INFO));
 
     /// Framework name() method
     std::string
@@ -68,14 +69,14 @@ namespace Pythia8 {
 
     /// the configuration class
     Config m_cfg;
-    /// the pythia object
-    std::unique_ptr<TPythia8> m_pythia8;
     /// logger instance
     std::unique_ptr<const Acts::Logger> m_logger;
+    /// the pythia object
+    Pythia8::Pythia m_pythia8;
     /// mutex used to protect multi-threaded reads
     std::mutex m_read_mutex;
   };
-}  // namespace Pythia8
+}  // namespace GPythia8
 }  // namespace FW
 
 #endif  // ACTFW_PYTHIA8GENERATOR_H
