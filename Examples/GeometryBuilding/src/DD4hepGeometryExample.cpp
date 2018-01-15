@@ -12,12 +12,16 @@
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
+#include "TROOT.h"
 
 namespace po = boost::program_options;
 
 int
 main(int argc, char* argv[])
 {
+  // enable root thread safety in order to use root writers in multi threaded
+  // mode
+  ROOT::EnableThreadSafety();
 
   // Declare the supported program options.
   po::options_description desc("Allowed options");

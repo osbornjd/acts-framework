@@ -18,10 +18,16 @@
 #include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
+#include "ACTFW/Fatras/FatrasAlgorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Digitization/PlanarModuleStepper.hpp"
+#include "Fatras/EnergyLossSampler.hpp"
+#include "Fatras/HadronicInteractionParametricSampler.hpp"
+#include "Fatras/MaterialInteractionEngine.hpp"
+#include "Fatras/MultipleScatteringSamplerHighland.hpp"
+#include "TROOT.h"
 
 /// Setup extrapolation and digitization.
 ///
@@ -33,16 +39,51 @@ setupSimulation(FW::Sequencer&                                sequencer,
                 std::shared_ptr<const Acts::TrackingGeometry> geometry,
                 std::shared_ptr<FW::RandomNumbersSvc>         random,
                 std::shared_ptr<MagneticField>                bfield,
-                Acts::Logging::Level loglevel = Acts::Logging::INFO)
+                Acts::Logging::Level loglevel = Acts::Logging::VERBOSE)
 {
+  // enable root thread safety in order to use root writers in multi threaded
+  // mode
+  ROOT::EnableThreadSafety();
+  // set up the fatras material effects
+  // MultipleScatteringSampler
+  using MSCSampler
+      = Fatras::MultipleScatteringSamplerHighland<FW::RandomEngine>;
+  auto mscConfig  = MSCSampler::Config();
+  auto mscSampler = std::make_shared<MSCSampler>(mscConfig);
+
+  // EnergyLossSampler
+  using eLossSampler      = Fatras::EnergyLossSampler<FW::RandomEngine>;
+  auto eLossConfig        = eLossSampler::Config();
+  eLossConfig.scalorMOP   = 0.745167;  // validated with geant4
+  eLossConfig.scalorSigma = 0.68925;   // validated with geant4
+  auto eLSampler          = std::make_shared<eLossSampler>(eLossConfig);
+  eLSampler->setLogger(Acts::getDefaultLogger("ELoss", loglevel));
+
+  // Hadronic interaction sampler
+  using hadIntSampler
+      = Fatras::HadronicInteractionParametricSampler<FW::RandomEngine>;
+  auto hiConfig  = hadIntSampler::Config();
+  auto hiSampler = std::make_shared<hadIntSampler>(hiConfig);
+
+  // MaterialInteractionEngine
+  using MatIntEngine = Fatras::MaterialInteractionEngine<FW::RandomEngine>;
+  auto matConfig     = MatIntEngine::Config();
+  matConfig.multipleScatteringSampler  = mscSampler;
+  matConfig.energyLossSampler          = eLSampler;
+  matConfig.parametricScattering       = true;
+  matConfig.hadronicInteractionSampler = hiSampler;
+  auto materialEngine = std::make_shared<MatIntEngine>(matConfig);
+  materialEngine->setLogger(Acts::getDefaultLogger("MaterialEngine", loglevel));
   // extrapolation algorithm
   FW::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.evgenCollection              = "EvgenParticles";
-  eTestConfig.simulatedParticlesCollection = "FatrasParticles";
-  eTestConfig.simulatedHitsCollection      = "FatrasHits";
-  eTestConfig.searchMode                   = 1;
+  eTestConfig.evgenCollection                  = "EvgenParticles";
+  eTestConfig.simulatedParticlesCollection     = "FatrasParticles";
+  eTestConfig.simulatedHitsCollection          = "FatrasHits";
+  eTestConfig.simulatedChargedExCellCollection = "excells_charged";
+  eTestConfig.simulatedNeutralExCellCollection = "excells_neutral";
+  eTestConfig.searchMode                       = 1;
   eTestConfig.extrapolationEngine
-      = FW::initExtrapolator(geometry, bfield, loglevel);
+      = FW::initExtrapolator(geometry, bfield, loglevel, materialEngine);
 
   eTestConfig.skipNeutral          = true;
   eTestConfig.collectSensitive     = true;
@@ -51,8 +92,14 @@ setupSimulation(FW::Sequencer&                                sequencer,
   eTestConfig.collectMaterial      = true;
   eTestConfig.sensitiveCurvilinear = false;
   eTestConfig.pathLimit            = -1.;
-  auto extrapolationAlg
-      = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig, loglevel);
+  eTestConfig.randomNumbers        = random;
+  // Set up the FatrasAlgorithm
+  using FatrasAlg = FW::FatrasAlgorithm<MatIntEngine>;
+  FatrasAlg::Config fatrasConfig;
+  fatrasConfig.exConfig                  = eTestConfig;
+  fatrasConfig.randomNumbers             = random;
+  fatrasConfig.materialInteractionEngine = materialEngine;
+  auto fatrasAlg = std::make_shared<FatrasAlg>(fatrasConfig, loglevel);
 
   // digitisation
   Acts::PlanarModuleStepper::Config pmStepperConfig;
@@ -69,7 +116,8 @@ setupSimulation(FW::Sequencer&                                sequencer,
       = std::make_shared<FW::DigitizationAlgorithm>(digConfig, loglevel);
 
   // add algorithms to sequencer
-  if (sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg})
+  //  if (sequencer.appendEventAlgorithms({fatrasAlg, digitzationAlg})
+  if (sequencer.appendEventAlgorithms({fatrasAlg, digitzationAlg})
       != FW::ProcessCode::SUCCESS)
     return FW::ProcessCode::ABORT;
   return FW::ProcessCode::SUCCESS;

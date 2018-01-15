@@ -10,20 +10,26 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
+#include "ACTS/Surfaces/PerigeeSurface.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
-template <class T>
+template <class T, class BoundT>
 FW::ProcessCode
 FW::ExtrapolationAlgorithm::executeTestT(
-    const T&                                 startParameters,
+    RandomEngine&                            rEngine,
+    UniformDist&                             uDist,
+    Acts::ExtrapolationCell<T>&              ecc,
     barcode_type                             barcode,
+    int                                      pdgcode,
     std::vector<Acts::ExtrapolationCell<T>>& eCells,
     FW::DetectorData<geo_id_value,
                      std::pair<std::unique_ptr<const T>, barcode_type>>* dData)
     const
 {
   // setup the extrapolation how you'd like it
-  Acts::ExtrapolationCell<T> ecc(startParameters);
+  // Acts::ExtrapolationCell<T> ecc(startParameters);
+  auto& startParameters = (*ecc.startParameters);
+
   // ecc.setParticleHypothesis(m_cfg.particleType);
   ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
   ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
@@ -38,6 +44,23 @@ FW::ExtrapolationAlgorithm::executeTestT(
   if (m_cfg.collectMaterial)
     ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
   if (m_cfg.sensitiveCurvilinear) ecc.sensitiveCurvilinear = true;
+
+  // we set the particle hypothesis depending od pdg
+  // currently, only elctrons, muons, pions are supported
+  if (abs(pdgcode) == 11) {
+    // electron
+    ecc.setParticleType(Acts::ParticleType::electron);
+  } else if (abs(pdgcode) == 13) {
+    // muon
+    ecc.setParticleType(Acts::ParticleType::muon);
+  } else if (m_cfg.randomNumbers) {
+    // pion
+    ecc.setParticleType(Acts::ParticleType::pion);
+    // sample free path in terms of nuclear interaction length
+    double al           = 1.;  // scaling here
+    ecc.materialLimitL0 = -log(uDist(rEngine)) * al;
+    ecc.addConfigurationMode(Acts::ExtrapolationMode::StopWithMaterialLimitL0);
+  }
 
   // force a stop in the extrapoaltion mode
   if (m_cfg.pathLimit > 0.) {
@@ -109,9 +132,48 @@ FW::ExtrapolationAlgorithm::executeTestT(
       }
     }
   }
+  // we allow for children
+  if (ecc.interactionVertices.size()) {
+    // loop over the vertices
+    for (auto& vtx : ecc.interactionVertices) {
+      ACTS_VERBOSE("Hadronic interaction vertex with "
+                   << vtx.outgoingParticles().size()
+                   << " ougoing particles");
+      // the asspcoated perigee for this vertex
+      Acts::PerigeeSurface surface(vtx.position());
+      // create only for
+      for (auto& op : vtx.outgoingParticles()) {
+        ACTS_VERBOSE("Particle with charge = " << op.charge());
+        double d0    = 0.;
+        double z0    = 0.;
+        double phi   = op.momentum().phi();
+        double theta = op.momentum().theta();
+
+        // ignore charged particles for the moment
+        if (op.charge() == 0. || op.momentum().eta() > m_cfg.maxEta
+            || op.momentum().perp() < m_cfg.minPt)
+          continue;
+
+        double qop = op.charge() / op.momentum().mag();
+        // parameters
+        Acts::ActsVectorD<5> pars;
+        pars << d0, z0, phi, theta, qop;
+        // some screen output
+        std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+        BoundT boundparameters(std::move(cov), std::move(pars), surface);
+        // prepare hits for charged neutral paramters - no hit recording
+        Acts::ExtrapolationCell<T> ecg(boundparameters);
+        if (executeTestT<T, BoundT>(
+                rEngine, uDist, ecg, op.barcode(), op.pdgID(), eCells)
+            != FW::ProcessCode::SUCCESS)
+          ACTS_WARNING(
+              "Test of neutral parameter extrapolation did not succeed.");
+      }
+    }
+  }
+
   /// fill the ecc step into the container at the end
   eCells.push_back(std::move(ecc));
-
   // return success
   return FW::ProcessCode::SUCCESS;
 }

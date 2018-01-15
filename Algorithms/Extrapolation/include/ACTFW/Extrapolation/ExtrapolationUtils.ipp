@@ -17,9 +17,11 @@
 
 template <class MagneticField>
 std::unique_ptr<Acts::IExtrapolationEngine>
-FW::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo,
-                     std::shared_ptr<MagneticField> magFieldSvc,
-                     Acts::Logging::Level           eLogLevel)
+FW::initExtrapolator(
+    const std::shared_ptr<const Acts::TrackingGeometry>& geo,
+    std::shared_ptr<MagneticField>                       magFieldSvc,
+    Acts::Logging::Level                                 eLogLevel,
+    std::shared_ptr<const Acts::IMaterialEffectsEngine>  matEffectsEngine)
 {
   // EXTRAPOLATOR - set up the extrapolator
 
@@ -29,12 +31,14 @@ FW::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo,
   propConfig.fieldService = magFieldSvc;
   auto propEngine         = std::make_shared<RKEngine>(propConfig);
   propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", eLogLevel));
-  // (b) MaterialEffectsEngine
-  Acts::MaterialEffectsEngine::Config matConfig;
-  auto                                materialEngine
-      = std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
-  materialEngine->setLogger(
-      Acts::getDefaultLogger("MaterialEffectsEngine", eLogLevel));
+  // (b) MaterialEffectsEngine if not given
+  std::shared_ptr<const Acts::IMaterialEffectsEngine> materialEngine
+      = matEffectsEngine;
+  if (!materialEngine) {
+    auto matConfig = Acts::MaterialEffectsEngine::Config();
+    materialEngine = std::make_shared<Acts::MaterialEffectsEngine>(
+        matConfig, Acts::getDefaultLogger("MaterialEffectsEngine", eLogLevel));
+  }
   // (c) StaticNavigationEngine
   Acts::StaticNavigationEngine::Config navConfig;
   navConfig.propagationEngine     = propEngine;
@@ -57,6 +61,6 @@ FW::initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo,
   exEngineConfig.extrapolationEngines = {statEngine};
   auto exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
   exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", eLogLevel));
-  //
+  // return configured extrapolation engine
   return std::move(exEngine);
 }

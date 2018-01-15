@@ -18,9 +18,7 @@
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
 #include "ACTS/Layers/Layer.hpp"
-#include "ACTS/Surfaces/PerigeeSurface.hpp"
 #include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Utilities/Units.hpp"
 
@@ -41,8 +39,13 @@ FW::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
 FW::ProcessCode
 FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
-
   ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);
+
+  RandomEngine rng = m_cfg.randomNumbers
+      ? m_cfg.randomNumbers->spawnGenerator(ctx)
+      : RandomEngine();
+  UniformDist udist(0., 1.);
+
   // read particles from input collection
   const std::vector<Acts::ProcessVertex>* evgen = nullptr;
   if (ctx.eventStore.get(m_cfg.evgenCollection, evgen)
@@ -83,7 +86,7 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
                  [=](const auto& particle) {
                    return (particle.charge() != 0. || !m_cfg.skipNeutral)
                        && (std::abs(particle.momentum().eta()) < m_cfg.maxEta)
-                       && (m_cfg.minPt < particle.momentum().perp());
+                       && (particle.momentum().perp() > m_cfg.minPt);
                  });
     ACTS_DEBUG("Skipped   particles: " << gparticles.size()
                    - sparticles.size());
@@ -119,8 +122,15 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
         // charged extrapolation - with hit recording
         Acts::BoundParameters startParameters(
             std::move(cov), std::move(pars), surface);
-        if (executeTestT<Acts::TrackParameters>(
-                startParameters, particle.barcode(), cCells, &hits)
+        Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
+        if (executeTestT<Acts::TrackParameters, Acts::BoundParameters>(
+                rng,
+                udist,
+                ecc,
+                particle.barcode(),
+                particle.pdgID(),
+                cCells,
+                &hits)
             != FW::ProcessCode::SUCCESS)
           ACTS_VERBOSE(
               "Test of charged parameter extrapolation did not succeed.");
@@ -129,8 +139,9 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
         Acts::NeutralBoundParameters neutralParameters(
             std::move(cov), std::move(pars), surface);
         // prepare hits for charged neutral paramters - no hit recording
-        if (executeTestT<Acts::NeutralParameters>(
-                neutralParameters, particle.barcode(), nCells)
+        Acts::ExtrapolationCell<Acts::NeutralParameters> ecn(neutralParameters);
+        if (executeTestT<Acts::NeutralParameters, Acts::NeutralBoundParameters>(
+                rng, udist, ecn, particle.barcode(), particle.pdgID(), nCells)
             != FW::ProcessCode::SUCCESS)
           ACTS_WARNING(
               "Test of neutral parameter extrapolation did not succeed.");

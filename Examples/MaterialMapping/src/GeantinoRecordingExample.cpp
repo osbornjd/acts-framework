@@ -10,14 +10,20 @@
 #include "ACTFW/MaterialMapping/GeantinoRecording.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
+#include "ACTFW/Plugins/Geant4/PrimaryGeneratorAction.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
+#include "TROOT.h"
 
 int
 main()
 {
+  // enable root thread safety in order to use root writers in multi threaded
+  // mode
+  ROOT::EnableThreadSafety();
+
   // job steering: the number of events
   size_t nEvents     = 1000;
   size_t nTracks     = 100;
@@ -50,18 +56,25 @@ main()
   // set up the writer for
   FW::Root::RootMaterialTrackWriter::Config g4WriterConfig(
       "MaterialTrackWriter", Acts::Logging::INFO);
-  g4WriterConfig.fileName = "GeantMaterialTracks3.root";
+  g4WriterConfig.fileName = "GeantMaterialTracks.root";
   g4WriterConfig.treeName = "GeantMaterialTracks";
   auto g4TrackRecWriter
       = std::make_shared<FW::Root::RootMaterialTrackWriter>(g4WriterConfig);
+
+  // The configuration of the PrimaryGeneratorAction
+  FW::G4::PrimaryGeneratorAction::Config pgaConfig;
+  pgaConfig.nParticles   = 1;
+  pgaConfig.particleName = "geantino";
+  pgaConfig.energy       = 105.;
+  pgaConfig.ptRange      = {1. * Acts::units::_GeV, 1. * Acts::units::_GeV};
+  pgaConfig.randomSeed   = randomSeed;
 
   // set up the algorithm writing out the material map
   FW::GeantinoRecording::Config g4rConfig;
   g4rConfig.materialTrackWriter = g4TrackRecWriter;
   g4rConfig.geant4Service       = dd4hepToG4Svc;
   g4rConfig.tracksPerEvent      = nTracks;
-  g4rConfig.seed1               = randomSeed1;
-  g4rConfig.seed2               = randomSeed2;
+  g4rConfig.pgaConfig           = pgaConfig;
   // create the geant4 algorithm
   auto g4rAlgorithm
       = std::make_shared<FW::GeantinoRecording>(g4rConfig, Acts::Logging::INFO);

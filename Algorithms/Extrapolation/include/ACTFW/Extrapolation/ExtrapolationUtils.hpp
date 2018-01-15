@@ -11,6 +11,7 @@
 
 #include <memory>
 
+#include "ACTS/Extrapolation/IMaterialEffectsEngine.hpp"
 #include "ACTS/MagneticField/ConstantBField.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
@@ -21,15 +22,20 @@ class TrackingGeometry;
 
 namespace FW {
 
-/// Method to setup the Extrapolation Engines
-/// @param geo shared_ptr to the Acts::TrackingGeometry which should be used for
-/// the extrapolation
+/// @param magField The magnetic field to be used
+/// @param eLogLevel The logging level of the extrapolation
+/// @param matEffectsEngine Possibility to hand over material effects engine
+/// (for fatras). If no material effects engine is set the
+/// Acts::MaterialEffectsEngine (for reconstruction) will be set as default.
 /// @return a fully initialized Acts::ExtrapoltionEngine
 template <class MagneticField = Acts::ConstantBField>
 std::unique_ptr<Acts::IExtrapolationEngine>
-initExtrapolator(const std::shared_ptr<const Acts::TrackingGeometry>& geo,
-                 std::shared_ptr<MagneticField>                       magField,
-                 Acts::Logging::Level eLogLevel);
+initExtrapolator(
+    const std::shared_ptr<const Acts::TrackingGeometry>& geo,
+    std::shared_ptr<MagneticField>                       magField,
+    Acts::Logging::Level                                 eLogLevel,
+    std::shared_ptr<const Acts::IMaterialEffectsEngine>  matEffectsEngine
+    = nullptr);
 }
 
 #include "ExtrapolationUtils.ipp"

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd xmlns:compact="http://www.lcsim.org/schemas/compact/1.0"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
+    
+    <includes>
+        <gdmlFile  ref="elements.xml"/>
+        <gdmlFile  ref="materials.xml"/>
+    </includes>
+    
+    <info name="FCCTracker"
+        title="A test tracker in FCC dimensions"
+        author="julia.hrdinka@cern.ch"
+        url="none"
+        status="development"
+        version="$Id:??$">
+        <comment>Dummy detector consisting of one cylindrical material layer and a measurement layer.</comment>
+    </info>
+    
+    <define>
+    <!--World-->
+        <constant name="world_size" value="1010.*mm"/>
+        <constant name="world_x" value="world_size"/>
+        <constant name="world_y" value="world_size"/>
+        <constant name="world_z" value="world_size"/>
+        
+        <constant name="MaterialTube_rmin" value="0.*mm"/>
+        <constant name="MaterialTube_rmax" value="1000.*mm"/>
+        <constant name="MaterialTube_length" value="10000.*mm"/>
+        
+        <constant name="Layer_rmin" value="10.*mm"/>
+        <constant name="Layer_rmax" value="10.32*mm"/>
+        <constant name="Layer_length" value="10000.*mm"/>
+        
+        <constant name="OutsideTube_rmin" value="50.*mm"/>
+        <constant name="OutsideTube_rmax" value="1000.*mm"/>
+        <constant name="OutsideTube_length" value="10000.*mm"/>
+        
+        <constant name="Layer1_rmin" value="998.*mm"/>
+        <constant name="Layer1_rmax" value="999.*mm"/>
+        <constant name="Layer1_length" value="10000.*mm"/>   
+    </define>
+    
+    <display>
+        <vis name="violet" r="0.4" g="0." b="0.4" alpha="1" showDaugthers="true" visible="true" drawingStyle="solid"/>
+        <vis name="red" r="0.6" g="0." b="0." alpha="1" showDaugthers="true" visible="true" drawingStyle="solid"/>
+        <vis name="orange" r="0.65" g="0.35" b="0." alpha="1" showDaugthers="true" visible="true" drawingStyle="solid"/>
+        <vis name="blue" r="0." g="0." b="0.5" alpha="1" showDaugthers="true" visible="true" drawingStyle="solid"/>
+        <vis name="green" r="0." g="0.5" b="0." alpha="1" showDaugthers="true" visible="true" drawingStyle="solid"/>
+        <vis name="BlueVisTrans" alpha="0.1" r="0.0" g="0.0" b="1.0" showDaughters="true" visible="false"/>
+    </display>
+    
+    <detectors>
+    <!--SimpleTube-->
+        <detector id="0" name="MaterialTube" type="ACTS_LayerBarrel">
+            <dimensions rmin="MaterialTube_rmin" rmax="MaterialTube_rmax" dz="MaterialTube_length" z="0.*mm" vis="invisible" material="Vacuum"/>
+            <layer id="0" inner_r="Layer_rmin" outer_r="Layer_rmax" z="Layer_length" material="Silicon" vis="orange"/>  
+            <layer id="1" inner_r="Layer1_rmin" outer_r="Layer1_rmax" z="Layer1_length" material="Vacuum" vis="orange"/>
+        </detector>
+    </detectors>
+</lccdd>

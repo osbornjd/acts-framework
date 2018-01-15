@@ -17,6 +17,7 @@
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/EventData/NeutralParameters.hpp"
@@ -24,14 +25,15 @@
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
+#include "ACTS/Utilities/Units.hpp"
 
 namespace Acts {
 class IExtrapolationEngine;
-class TrackingGeometry;
-class TrackingVolume;
 }  // namespace Acts
 
 namespace FW {
+
+class RandomNumbersSvc;
 
 class ExtrapolationAlgorithm : public BareAlgorithm
 {
@@ -54,8 +56,8 @@ public:
     /// @todo remove later and replace by particle selector
     double maxD0  = std::numeric_limits<double>::max();
     double maxEta = std::numeric_limits<double>::max();
-    ;
-    double minPt = 0.0;
+    // minimum pt for further simulation
+    double minPt = 0.100 * Acts::units::_GeV;
     /// skip or process neutral particles
     bool skipNeutral = false;
     /// configuration: sensitive collection
@@ -72,6 +74,8 @@ public:
     int searchMode = 0;
     /// set the patch limit of the extrapolation
     double pathLimit = -1.;
+    /// sample the path limit  for nuclear interaction
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
   };
 
   /// Constructor
@@ -92,11 +96,14 @@ private:
   /// @param [in] the start parameters
   /// @param [in] the particle barcode
   /// @param [in] the detector data container
-  template <class T>
+  template <class T, class BoundT>
   ProcessCode
   executeTestT(
-      const T&                                 startParameters,
+      RandomEngine&                            rEngine,
+      UniformDist&                             uDist,
+      Acts::ExtrapolationCell<T>&              ecc,
       barcode_type                             barcode,
+      int                                      pdgcode,
       std::vector<Acts::ExtrapolationCell<T>>& eCells,
       DetectorData<geo_id_value,
                    std::pair<std::unique_ptr<const T>, barcode_type>>* dData

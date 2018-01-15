@@ -62,7 +62,8 @@ namespace Options {
     puPythiaConfig.cmsEnergy = vm["evg-cmsEnergy"].template as<double>();
     puPythiaConfig.processStrings
         = {vm["evg-puProcess"].template as<std::string>()};
-    // return the poair of configs for the pythia generator
+
+    // return the pair of configs for the pythia generator
     return std::pair<FW::GPythia8::Generator::Config,
                      FW::GPythia8::Generator::Config>(hsPythiaConfig,
                                                       puPythiaConfig);

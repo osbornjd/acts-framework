@@ -8,8 +8,8 @@
 
 #include "ACTFW/Plugins/Geant4/MMEventAction.hpp"
 #include <stdexcept>
-#include "ACTFW/Plugins/Geant4/MMPrimaryGeneratorAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
+#include "ACTFW/Plugins/Geant4/PrimaryGeneratorAction.hpp"
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 
@@ -50,7 +50,8 @@ FW::G4::MMEventAction::EndOfEventAction(const G4Event* event)
                                    event->GetPrimaryVertex()->GetY0(),
                                    event->GetPrimaryVertex()->GetZ0());
   // access the initial direction of the track
-  G4ThreeVector dir   = MMPrimaryGeneratorAction::Instance()->direction();
+  // @todo is there another way?
+  G4ThreeVector dir   = PrimaryGeneratorAction::Instance()->direction();
   double        theta = dir.theta();
   double        phi   = dir.phi();
   // loop over the material steps and add up the material

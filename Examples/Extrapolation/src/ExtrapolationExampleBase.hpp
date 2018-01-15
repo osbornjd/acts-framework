@@ -18,6 +18,7 @@
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "TROOT.h"
 
 /// simple base for the extrapolation example
 namespace ACTFWExtrapolationExample {
@@ -100,6 +101,10 @@ run(size_t                                        nEvents,
 
   auto extrapolationAlg
       = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig, eLogLevel);
+
+  // enable root thread safety in order to use root writers in multi threaded
+  // mode
+  ROOT::EnableThreadSafety();
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
