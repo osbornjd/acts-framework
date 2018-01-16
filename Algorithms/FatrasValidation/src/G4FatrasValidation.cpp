@@ -19,71 +19,53 @@
 #include "FTFP_BERT.hh"
 #include "TGeoManager.h"
 
-FWG4::G4FatrasValidation::G4FatrasValidation(
-    const FWG4::G4FatrasValidation::Config& cfg,
-    std::unique_ptr<const Acts::Logger>     logger)
-  : FW::Algorithm(cfg, std::move(logger))
+FW::G4::G4FatrasValidation::G4FatrasValidation(
+    const FW::G4::G4FatrasValidation::Config& cfg,
+    Acts::Logging::Level                      loglevel)
+  : FW::BareAlgorithm("G4FatrasValidation", loglevel)
   , m_cfg(cfg)
   , m_runManager(new G4MTRunManager)
 {
-}
-
-FWG4::G4FatrasValidation::~G4FatrasValidation()
-{
-  delete m_runManager;
-}
-
-FW::ProcessCode
-FWG4::G4FatrasValidation::initialize(std::shared_ptr<FW::WhiteBoard> jStore)
-{
-  // random number generator
-  // call the algorithm initialize for setting the stores
-  if (FW::Algorithm::initialize(jStore) != FW::ProcessCode::SUCCESS) {
-    ACTS_FATAL("Algorithm::initialize() did not succeed!");
-    return FW::ProcessCode::ABORT;
-  }
   // receive the geant4 geometry
-  if (!m_cfg.geant4Service) {
-    ACTS_FATAL("No Geant4 Service handed over!");
-    return FW::ProcessCode::ABORT;
-  }
+  if (!m_cfg.geant4Service)
+    throw std::invalid_argument("No Geant4 Service handed over!");
 
-  // receive the geant4 geometry
-  if (!m_cfg.materialEffectsWriter) {
-    ACTS_FATAL("No particle properties writer handed over!");
+  // Validate the configuration
+  if (m_cfg.particlePropertiesCollection.empty()) {
+    throw std::invalid_argument("Missing input collection");
   }
 
   // initialize the runManager
   m_runManager->SetUserInitialization(m_cfg.geant4Service->geant4Geometry());
-  m_runManager->SetUserInitialization(new FWG4::PhysicsList());
-  m_runManager->SetUserInitialization(new FWG4::FVUserActionInitialization(
+  m_runManager->SetUserInitialization(new FW::G4::PhysicsList());
+  m_runManager->SetUserInitialization(new FW::G4::FVUserActionInitialization(
       m_cfg.pgaConfig, m_cfg.radialStepLimit));
   m_runManager->SetNumberOfThreads(1);
   m_runManager->Initialize();
 
   ACTS_VERBOSE("initialize successful.");
-  return FW::ProcessCode::SUCCESS;
+}
+
+FW::G4::G4FatrasValidation::~G4FatrasValidation()
+{
+  delete m_runManager;
 }
 
 FW::ProcessCode
-FWG4::G4FatrasValidation::execute(const FW::AlgorithmContext context) const
+FW::G4::G4FatrasValidation::execute(const FW::AlgorithmContext context) const
 {
   m_runManager->BeamOn(m_cfg.testsPerEvent);
 
   auto particleProperties
-      = FWG4::FVRunAction::Instance()->firstAndLastProperties();
+      = FW::G4::FVRunAction::Instance()->firstAndLastProperties();
 
-  if (m_cfg.materialEffectsWriter) {
-    for (auto& pProperties : particleProperties)
-      m_cfg.materialEffectsWriter->write(pProperties);
+  // write particle properties to event store
+  if (m_cfg.particlePropertiesCollection != ""
+      && context.eventStore.add(m_cfg.particlePropertiesCollection,
+                                std::move(particleProperties))
+          == FW::ProcessCode::ABORT) {
+    return FW::ProcessCode::ABORT;
   }
 
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FWG4::G4FatrasValidation::finalize()
-{
-  ACTS_VERBOSE("initialize successful.");
   return FW::ProcessCode::SUCCESS;
 }

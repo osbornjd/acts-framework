@@ -25,10 +25,9 @@ main()
   ROOT::EnableThreadSafety();
 
   // job steering: the number of events
-  size_t nEvents     = 1000;
-  size_t nTracks     = 100;
-  int    randomSeed1 = 536235167;
-  int    randomSeed2 = 729237523;
+  size_t nEvents    = 1000;
+  size_t nTracks    = 100;
+  int    randomSeed = 536235167;
 
   // DETECTOR:
   // --------------------------------------------------------------------------------

@@ -18,6 +18,11 @@ FW::Root::MaterialEffectsWriter::MaterialEffectsWriter(
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
 {
+  // Validate the configuration
+  if (m_cfg.collection.empty()) {
+    throw std::invalid_argument("Missing input collection");
+  }
+
   // open the output file
   m_outputFile = new TFile(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
   if (!m_outputFile) {

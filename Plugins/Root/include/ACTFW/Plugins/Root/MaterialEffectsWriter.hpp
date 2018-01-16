@@ -49,14 +49,14 @@ namespace Root {
     class Config
     {
     public:
+      /// particle properties collection to write
+      std::string collection;
       /// The name of the output tree
       std::string treeName = "TTree";
       /// The name of the output file
       std::string filePath = "TFile.root";
       /// The mode of the file
       std::string fileMode = "RECREATE";
-      /// Particle collection to write
-      std::string collection;
     };
 
     /// Constructor
