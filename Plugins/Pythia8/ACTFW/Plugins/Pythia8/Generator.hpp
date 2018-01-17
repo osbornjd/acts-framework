@@ -37,8 +37,11 @@ namespace GPythia8 {
       double cmsEnergy = 14000.;  ///< center of mass energy
       std::vector<std::string> processStrings
           = {{"HardQCD:all = on"}};  ///< pocesses
-      std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
-      std::string name = "Generator";
+      
+      std::string name = "Pythia8Generator";
+
+      int seed = 123456789;  ///< the random seed
+    
     };
 
     /// Constructor

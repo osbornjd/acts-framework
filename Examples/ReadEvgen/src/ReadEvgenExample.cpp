@@ -61,8 +61,6 @@ main(int argc, char* argv[])
   auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
   // now read the pythia8 configs
   auto pythia8Configs = FW::Options::readPythia8Config<po::variables_map>(vm);
-  pythia8Configs.first.randomNumbers  = randomNumbers;
-  pythia8Configs.second.randomNumbers = randomNumbers;
   // the hard scatter generator
   auto hsPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
       pythia8Configs.first,

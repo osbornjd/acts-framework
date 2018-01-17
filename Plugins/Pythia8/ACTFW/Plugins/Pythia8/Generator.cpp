@@ -7,30 +7,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
-
 #include <ACTS/Utilities/Units.hpp>
 #include <TDatabasePDG.h>
-
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
-
-// wrapper of framework RandomEngine in Pythia8 interface
-
-namespace {
-class FrameworkRndmEngine : public Pythia8::RndmEngine
-{
-public:
-  FrameworkRndmEngine(FW::RandomEngine engine) : m_engine(std::move(engine)) {}
-
-  double
-  flat()
-  {
-    return m_engine();
-  }
-
-private:
-  FW::RandomEngine m_engine;
-};
-}  // namespace
 
 FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
                                    std::unique_ptr<const Acts::Logger> mlogger)
@@ -38,9 +16,6 @@ FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
   , m_cfg(cfg)
   , m_logger(std::move(mlogger))
 {
-  if (!m_cfg.randomNumbers) {
-    throw std::invalid_argument("Missing random numbers service");
-  }
 
   // Configure
   for (const auto& pString : m_cfg.processStrings) {
@@ -53,31 +28,32 @@ FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
   m_pythia8.settings.mode("Beams:idB", m_cfg.pdgBeam1);
   m_pythia8.settings.mode("Beams:frameType", 1);
   m_pythia8.settings.parm("Beams:eCM", m_cfg.cmsEnergy);
+
+  // Set the random seed from configuration
+  m_pythia8.readString("Random:setSeed = on");
+  std::string seedString = "Random:seed = ";
+  seedString += std::to_string(m_cfg.seed);
+  m_pythia8.readString(seedString.c_str());
+
+  // initialize pythia
   m_pythia8.init();
+
 }
 
 std::string
 FW::GPythia8::Generator::name() const
 {
-  return "Pythia8Generator";
+  return m_cfg.name;
 }
 
 FW::ProcessCode
 FW::GPythia8::Generator::read(std::vector<Acts::ProcessVertex>& processVertices,
                               size_t                            skip,
-                              const FW::AlgorithmContext*       context)
+                              const FW::AlgorithmContext*)
 {
-  if (!context) {
-    ACTS_FATAL("Missing AlgorithmContext for Pythia8 generator");
-    return ProcessCode::ABORT;
-  }
 
   // pythia8 is not thread safe and needs to be protected
   std::lock_guard<std::mutex> lock(m_read_mutex);
-
-  // use per-event random number generator
-  FrameworkRndmEngine rndm(m_cfg.randomNumbers->spawnGenerator(*context));
-  m_pythia8.setRndmEnginePtr(&rndm);
 
   // skip if needed
   if (skip) {

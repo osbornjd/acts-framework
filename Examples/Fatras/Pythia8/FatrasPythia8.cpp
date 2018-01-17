@@ -59,6 +59,10 @@ main(int argc, char* argv[])
   std::string outputDir = "";
   // read and create the magnetic field
   auto bField = FW::Options::readBField<po::variables_map>(vm);
+  // Create the random number engine
+  auto randomNumbersCfg
+      = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
+  auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);  
   // now read the pythia8 configs
   auto pythia8Configs = FW::Options::readPythia8Config<po::variables_map>(vm);
   // the hard scatter generator
@@ -69,10 +73,6 @@ main(int argc, char* argv[])
   auto puPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
       pythia8Configs.second,
       Acts::getDefaultLogger("PileUpPythia8Generator", logLevel));
-  // Create the random number engine
-  auto randomNumbersCfg
-      = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
-  auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
   // Create the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
   auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
