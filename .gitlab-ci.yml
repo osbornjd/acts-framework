@@ -90,15 +90,15 @@ fatras_gun_dd4hep:
   script:
     - ACTFWFatrasGunDD4hep
 
-fatras_pythia8:
-  <<: *template_test
-  script:
-    - ACTFWFatrasPythia8
+#fatras_pythia8:
+#  <<: *template_test
+#  script:
+#    - ACTFWFatrasPythia8
 
-fatras_pythia8_dd4hep:
-  <<: *template_test
-  script:
-    - ACTFWFatrasPythia8DD4hep
+#fatras_pythia8_dd4hep:
+#  <<: *template_test
+#  script:
+#    - ACTFWFatrasPythia8DD4hep
 
 reproducibility_generic_extrapolation:
   <<: *template_test
