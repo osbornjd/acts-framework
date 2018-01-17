@@ -58,6 +58,7 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
 
   // output: simulated particles attached to their process vertices
   std::vector<Acts::ProcessVertex> simulated;
+
   // output: the extrapolation cell collections
   std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
   std::vector<Acts::ExtrapolationCell<Acts::NeutralParameters>> nCells;
@@ -71,8 +72,9 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
   for (auto& evtx : (*evgen)) {
     ACTS_DEBUG("Processing event vertex no. " << evertices++);
     // vertex is outside cut
-    if (evtx.position().perp() > m_cfg.maxD0) {
-      ACTS_VERBOSE("Process vertex is outside the transverse cut. Skipping.");
+    if (evtx.position().perp() > m_cfg.maxD0
+        || fabs(evtx.position().z()) > m_cfg.maxZ0) {
+      ACTS_VERBOSE("Process vertex is outside the IP cut. Skipping.");
       continue;
     }
     // the simulated particles associated to this vertex
@@ -130,6 +132,7 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
                 particle.barcode(),
                 particle.pdgID(),
                 cCells,
+                simulated,
                 &hits)
             != FW::ProcessCode::SUCCESS)
           ACTS_VERBOSE(
@@ -141,7 +144,13 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
         // prepare hits for charged neutral paramters - no hit recording
         Acts::ExtrapolationCell<Acts::NeutralParameters> ecn(neutralParameters);
         if (executeTestT<Acts::NeutralParameters, Acts::NeutralBoundParameters>(
-                rng, udist, ecn, particle.barcode(), particle.pdgID(), nCells)
+                rng,
+                udist,
+                ecn,
+                particle.barcode(),
+                particle.pdgID(),
+                nCells,
+                simulated)
             != FW::ProcessCode::SUCCESS)
           ACTS_WARNING(
               "Test of neutral parameter extrapolation did not succeed.");

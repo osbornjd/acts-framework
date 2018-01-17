@@ -34,6 +34,7 @@ class IExtrapolationEngine;
 namespace FW {
 
 class RandomNumbersSvc;
+class BarcodeSvc;
 
 class ExtrapolationAlgorithm : public BareAlgorithm
 {
@@ -55,6 +56,7 @@ public:
     /// the cuts applied in this case
     /// @todo remove later and replace by particle selector
     double maxD0  = std::numeric_limits<double>::max();
+    double maxZ0  = std::numeric_limits<double>::max();
     double maxEta = std::numeric_limits<double>::max();
     // minimum pt for further simulation
     double minPt = 0.100 * Acts::units::_GeV;
@@ -76,6 +78,8 @@ public:
     double pathLimit = -1.;
     /// sample the path limit  for nuclear interaction
     std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    /// the BarcodeSvc
+    std::shared_ptr<BarcodeSvc> barcodeSvc = nullptr;
   };
 
   /// Constructor
@@ -105,6 +109,7 @@ private:
       barcode_type                             barcode,
       int                                      pdgcode,
       std::vector<Acts::ExtrapolationCell<T>>& eCells,
+      std::vector<Acts::ProcessVertex>&        simulated,
       DetectorData<geo_id_value,
                    std::pair<std::unique_ptr<const T>, barcode_type>>* dData
       = nullptr) const;

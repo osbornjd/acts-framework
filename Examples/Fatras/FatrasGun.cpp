@@ -61,14 +61,14 @@ main(int argc, char* argv[])
   auto particleGunConfig
       = FW::Options::readParticleGunConfig<po::variables_map>(vm);
   // create the barcode service
-  auto barcodes = std::make_shared<FW::BarcodeSvc>(
+  auto barcodeSvc = std::make_shared<FW::BarcodeSvc>(
       FW::BarcodeSvc::Config{}, Acts::getDefaultLogger("BarcodeSvc", logLevel));
   // create the random number engine
   auto randomNumbersCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
   particleGunConfig.randomNumbers = randomNumbers;
-  particleGunConfig.barcodes      = barcodes;
+  particleGunConfig.barcodes      = barcodeSvc;
   auto particleGun
       = std::make_shared<FW::ParticleGun>(particleGunConfig, logLevel);
 
@@ -83,16 +83,24 @@ main(int argc, char* argv[])
     return EXIT_FAILURE;
   // if a magnetic field map is defined - use it
   if (bField.first) {
-    if (setupSimulation(
-            sequencer, geometry, randomNumbers, bField.first, logLevel)
+    if (setupSimulation(sequencer,
+                        geometry,
+                        randomNumbers,
+                        barcodeSvc,
+                        bField.first,
+                        logLevel)
         != FW::ProcessCode::SUCCESS)
       return EXIT_FAILURE;
   } else if (bField.second  // use the constant field instead
-             && setupSimulation(
-                    sequencer, geometry, randomNumbers, bField.second, logLevel)
+             && setupSimulation(sequencer,
+                                geometry,
+                                randomNumbers,
+                                barcodeSvc,
+                                bField.second,
+                                logLevel)
                  != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
-  if (setupWriters(sequencer, barcodes, outputDir, logLevel)
+  if (setupWriters(sequencer, barcodeSvc, outputDir, logLevel)
       != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
   if (sequencer.run(nEvents) != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;

@@ -65,7 +65,7 @@ main(int argc, char* argv[])
   auto particleGunConfig
       = FW::Options::readParticleGunConfig<po::variables_map>(vm);
   // Create The barcodes service
-  auto barcodes = std::make_shared<FW::BarcodeSvc>(
+  auto barcodeSvc = std::make_shared<FW::BarcodeSvc>(
       FW::BarcodeSvc::Config{}, Acts::getDefaultLogger("BarcodeSvc", logLevel));
   // Create the random number engine
   auto randomNumbersConfig
@@ -73,7 +73,7 @@ main(int argc, char* argv[])
   auto randomNumbers
       = std::make_shared<FW::RandomNumbersSvc>(randomNumbersConfig);
   particleGunConfig.randomNumbers = randomNumbers;
-  particleGunConfig.barcodes      = barcodes;
+  particleGunConfig.barcodes      = barcodeSvc;
   auto particleGun
       = std::make_shared<FW::ParticleGun>(particleGunConfig, logLevel);
   // read the detector config & dd4hep detector
@@ -91,19 +91,24 @@ main(int argc, char* argv[])
     return EXIT_FAILURE;
   // if a magnetic field map is defined - use it
   if (bField.first) {
-    if (setupSimulation(
-            sequencer, dd4tGeometry, randomNumbers, bField.first, logLevel)
+    if (setupSimulation(sequencer,
+                        dd4tGeometry,
+                        randomNumbers,
+                        barcodeSvc,
+                        bField.first,
+                        logLevel)
         != FW::ProcessCode::SUCCESS)
       return EXIT_FAILURE;
   } else if (bField.second  // use the constant field instead
              && setupSimulation(sequencer,
                                 dd4tGeometry,
                                 randomNumbers,
+                                barcodeSvc,
                                 bField.second,
                                 logLevel)
                  != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
-  if (setupWriters(sequencer, barcodes, outputDir, logLevel)
+  if (setupWriters(sequencer, barcodeSvc, outputDir, logLevel)
       != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
   if (sequencer.run(nEvents) != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;

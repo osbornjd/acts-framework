@@ -38,6 +38,7 @@ FW::ProcessCode
 setupSimulation(FW::Sequencer&                                sequencer,
                 std::shared_ptr<const Acts::TrackingGeometry> geometry,
                 std::shared_ptr<FW::RandomNumbersSvc>         random,
+                std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
                 std::shared_ptr<MagneticField>                bfield,
                 Acts::Logging::Level loglevel = Acts::Logging::VERBOSE)
 {
@@ -92,7 +93,10 @@ setupSimulation(FW::Sequencer&                                sequencer,
   eTestConfig.collectMaterial      = true;
   eTestConfig.sensitiveCurvilinear = false;
   eTestConfig.pathLimit            = -1.;
+  eTestConfig.maxD0                = 1000.;
+  eTestConfig.maxZ0                = 3000.;
   eTestConfig.randomNumbers        = random;
+  eTestConfig.barcodeSvc           = barcodeSvc;
   // Set up the FatrasAlgorithm
   using FatrasAlg = FW::FatrasAlgorithm<MatIntEngine>;
   FatrasAlg::Config fatrasConfig;

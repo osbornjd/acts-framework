@@ -106,14 +106,19 @@ main(int argc, char* argv[])
     return EXIT_FAILURE;
   // if a magnetic field map is defined - use it
   if (bField.first) {
-    if (setupSimulation(
-            sequencer, dd4tGeometry, randomNumbers, bField.first, logLevel)
+    if (setupSimulation(sequencer,
+                        dd4tGeometry,
+                        randomNumbers,
+                        barcodeSvc,
+                        bField.first,
+                        logLevel)
         != FW::ProcessCode::SUCCESS)
       return EXIT_FAILURE;
   } else if (bField.second  // use the constant field instead
              && setupSimulation(sequencer,
                                 dd4tGeometry,
                                 randomNumbers,
+                                barcodeSvc,
                                 bField.second,
                                 logLevel)
                  != FW::ProcessCode::SUCCESS)

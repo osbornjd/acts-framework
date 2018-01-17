@@ -6,6 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
@@ -22,10 +23,12 @@ FW::ExtrapolationAlgorithm::executeTestT(
     barcode_type                             barcode,
     int                                      pdgcode,
     std::vector<Acts::ExtrapolationCell<T>>& eCells,
+    std::vector<Acts::ProcessVertex>&        simulated,
     FW::DetectorData<geo_id_value,
                      std::pair<std::unique_ptr<const T>, barcode_type>>* dData)
     const
 {
+
   // setup the extrapolation how you'd like it
   // Acts::ExtrapolationCell<T> ecc(startParameters);
   auto& startParameters = (*ecc.startParameters);
@@ -139,8 +142,23 @@ FW::ExtrapolationAlgorithm::executeTestT(
       ACTS_VERBOSE("Hadronic interaction vertex with "
                    << vtx.outgoingParticles().size()
                    << " ougoing particles");
+
+      // vertex is outside cut
+      if (vtx.position().perp() > m_cfg.maxD0
+          || fabs(vtx.position().z()) > m_cfg.maxZ0) {
+        ACTS_VERBOSE("Process vertex is outside the IP cut. Skipping.");
+        continue;
+      }
+
       // the asspcoated perigee for this vertex
       Acts::PerigeeSurface surface(vtx.position());
+      // count the successful daughters
+      //
+      // Add children to the vector of children
+      int                                   daughter = 0;
+      std::vector<Acts::ParticleProperties> pIngoing = {};
+      std::vector<Acts::ParticleProperties> pOutgoing;
+
       // create only for
       for (auto& op : vtx.outgoingParticles()) {
         ACTS_VERBOSE("Particle with charge = " << op.charge());
@@ -154,6 +172,23 @@ FW::ExtrapolationAlgorithm::executeTestT(
             || op.momentum().perp() < m_cfg.minPt)
           continue;
 
+        // create a daughter barcode in relation to the mother
+        barcode_type daughterBc = op.barcode();
+        if (m_cfg.barcodeSvc) {
+          // get vertex, primary and generation
+          barcode_type vtx  = m_cfg.barcodeSvc->vertex(barcode);
+          barcode_type prim = m_cfg.barcodeSvc->primary(barcode);
+          barcode_type gen  = m_cfg.barcodeSvc->generation(barcode);
+          // increase the generation
+          ++gen;
+          // generate a new particle with a dummy process 211
+          // @todo update process after final Fatras integration
+          daughterBc
+              = m_cfg.barcodeSvc->generate(vtx, prim, gen, ++daughter, 1);
+          pOutgoing.push_back(Acts::ParticleProperties(
+              op.momentum(), op.mass(), op.charge(), op.pdgID(), daughterBc));
+        }
+
         double qop = op.charge() / op.momentum().mag();
         // parameters
         Acts::ActsVectorD<5> pars;
@@ -161,14 +196,27 @@ FW::ExtrapolationAlgorithm::executeTestT(
         // some screen output
         std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
         BoundT boundparameters(std::move(cov), std::move(pars), surface);
-        // prepare hits for charged neutral paramters - no hit recording
+
+        // prepare hits for charged  paramters
         Acts::ExtrapolationCell<T> ecg(boundparameters);
-        if (executeTestT<T, BoundT>(
-                rEngine, uDist, ecg, op.barcode(), op.pdgID(), eCells)
+        if (executeTestT<T, BoundT>(rEngine,
+                                    uDist,
+                                    ecg,
+                                    op.barcode(),
+                                    op.pdgID(),
+                                    eCells,
+                                    simulated,
+                                    dData)
             != FW::ProcessCode::SUCCESS)
           ACTS_WARNING(
               "Test of neutral parameter extrapolation did not succeed.");
       }
+      // add the vertex tot he simulated
+      simulated.push_back(Acts::ProcessVertex(vtx.position(),
+                                              vtx.interactionTime(),
+                                              vtx.processType(),
+                                              pIngoing,
+                                              pOutgoing));
     }
   }
 
