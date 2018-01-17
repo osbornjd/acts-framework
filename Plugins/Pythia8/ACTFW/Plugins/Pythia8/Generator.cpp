@@ -47,6 +47,10 @@ FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
     ACTS_VERBOSE("Setting string " << pString << " to Pythia8");
     m_pythia8.readString(pString.c_str());
   }
+  // fix seed
+  m_pythia8.readString("Random:setSeed = on");
+  m_pythia8.readString(
+      ("Random:seed = " + std::to_string(m_cfg.randomNumbers->seed())).c_str());
 
   // Set arguments in Settings database.
   m_pythia8.settings.mode("Beams:idA", m_cfg.pdgBeam0);
@@ -75,9 +79,10 @@ FW::GPythia8::Generator::read(std::vector<Acts::ProcessVertex>& processVertices,
   // pythia8 is not thread safe and needs to be protected
   std::lock_guard<std::mutex> lock(m_read_mutex);
 
+  // TODO 2018-01-18 msmk: does not work for unknown reason
   // use per-event random number generator
-  FrameworkRndmEngine rndm(m_cfg.randomNumbers->spawnGenerator(*context));
-  m_pythia8.setRndmEnginePtr(&rndm);
+  // FrameworkRndmEngine rndm(m_cfg.randomNumbers->spawnGenerator(*context));
+  // m_pythia8.setRndmEnginePtr(&rndm);
 
   // skip if needed
   if (skip) {
