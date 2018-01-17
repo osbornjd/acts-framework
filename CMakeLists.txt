@@ -63,7 +63,6 @@ endif()
 if(USE_GEANT4)
   set(Geant4_CONFIG_DEBUG on)
   find_package(Geant4 REQUIRED gdml)
-
 endif()
 if(USE_OPENMP)
   find_package(OpenMP REQUIRED)
@@ -73,9 +72,6 @@ if(USE_OPENMP)
 endif()
 if(USE_PYTHIA8)
   find_package(Pythia8 REQUIRED)
-endif()
-if(USE_FATRAS)
-  find_package(Fatras REQUIRED)
 endif()
 
 # acts-core and acts-fatras are build as subprojects with fixed options
