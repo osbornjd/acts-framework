@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(ACTFW VERSION 0.0.1 LANGUAGES CXX)
+project(ActsFramework LANGUAGES CXX)
 
 # We normally want to build the framework with OpenMP-based multithreaded event
 # processing enabled, because we want ACTS developers to test their code with
 # multiple threads and every modern compiler supports OpenMP.
 #
-# However, Apple ship the OSX/macOS system compiler with OpenMP support disabled
-# and we don't want to force people to go through the trouble of using a
-# non-system compiler just because of this issue. So we make an exception for
+# However, Apple ships the OSX/macOS system compiler with OpenMP support
+# disabled and we don't want to force people to go through the trouble of using
+# a non-system compiler just because of this issue. So we make an exception for
 # Mac users relying on the Apple-provided version of Clang/LLVM.
 #
 if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
@@ -22,22 +22,7 @@ option(USE_GEANT4 "Build Geant4-based code" off)
 option(USE_OPENMP "Build framework with OpenMP enabled" ${USE_OPENMP_DEFAULT})
 option(USE_PYTHIA8 "Build Pythia8-based code" off)
 
-# use install paths consistent w/ ACTS
-include(GNUInstallDirs)
-
-# require C++14 globally
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
-# place build products in `build/bin` and `build/lib` for simple use
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
-
 # determine build-flag dependent components
-
-set(ACTS_COMPONENTS Core MaterialPlugin)
-if(USE_DD4HEP)
-  list(APPEND ACTS_COMPONENTS TGeoPlugin DD4hepPlugin)
-endif()
 set(DD4hep_COMPONENTS DDCore DDSegmentation)
 if(USE_GEANT4)
   list(APPEND DD4hep_COMPONENTS DDG4)
@@ -50,15 +35,23 @@ if(USE_PYTHIA8)
   list(APPEND ROOT_COMPONENTS EG EGPythia8)
 endif()
 
+# use install paths consistent w/ ACTS
+include(GNUInstallDirs)
+# require C++14 globally
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
+# place build products in `<build_dir>/bin` and `<build_dir>/lib` for simple use
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
+
 # required packages
 
 # Enable C++11 threading support, with a preference for pthread
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
+find_package(Boost 1.64 REQUIRED COMPONENTS program_options)
 find_package(ROOT 6.10 REQUIRED COMPONENTS ${ROOT_COMPONENTS})
-find_package(ACTS REQUIRED COMPONENTS ${ACTS_COMPONENTS})
-find_package (Boost ${ACTS_BOOST_VERSION} COMPONENTS program_options REQUIRED)
 
 # optional packages
 
@@ -85,6 +78,18 @@ if(USE_PYTHIA8)
     message(FATAL_ERROR "Missing PYTHIA8_LIBRARYDIR")
   endif()
 endif()
+
+# acts-core and acts-fatras are build as subprojects with fixed options
+
+set(ACTS_BUILD_DOC OFF CACHE BOOL "Build ACTS documentation")
+set(ACTS_BUILD_EXAMPLES OFF CACHE BOOL "Build ACTS examples")
+set(ACTS_BUILD_TESTS OFF CACHE BOOL "Build ACTS unit tests")
+set(ACTS_BUILD_INTEGRATION_TESTS OFF CACHE BOOL "Build ACTS integration tests")
+set(ACTS_BUILD_DD4HEP_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build ACTS DD4HEP plugins")
+set(ACTS_BUILD_MATERIAL_PLUGIN ON CACHE BOOL "Build ACTS Material plugins")
+set(ACTS_BUILD_TGEO_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build ACTS TGeo plugins")
+add_subdirectory(external/acts-core)
+add_subdirectory(external/acts-fatras)
 
 # simplify handling of optional components
 # all arguments after the path are evaluated in the if(...) context

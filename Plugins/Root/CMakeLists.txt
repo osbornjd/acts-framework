@@ -17,16 +17,17 @@ set(srcs include/ACTFW/Plugins/Root/RootExCellWriter.hpp
 # generate root dictionary for material mapping - needed to write this class to a root file
 root_generate_dictionary(
   G__Material
-  ${ACTS_INCLUDE_DIR}/ACTS/Plugins/MaterialPlugins/MaterialStep.hpp
-  ${ACTS_INCLUDE_DIR}/ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp
-  ${ACTS_INCLUDE_DIR}/ACTS/Material/Material.hpp
+  ${PROJECT_SOURCE_DIR}/external/acts-core/Core/include/ACTS/Material/Material.hpp
+  ${PROJECT_SOURCE_DIR}/external/acts-core/Plugins/MaterialPlugin/include/ACTS/Plugins/MaterialPlugins/MaterialStep.hpp
+  ${PROJECT_SOURCE_DIR}/external/acts-core/Plugins/MaterialPlugin/include/ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp
   LINKDEF include/ACTFW/Plugins/Root/Material_LinkDef.h
-  OPTIONS -I/${ACTS_INCLUDE_DIR})
+  OPTIONS -I${PROJECT_SOURCE_DIR}/external/acts-core/Core/include
+          -I${PROJECT_SOURCE_DIR}/external/acts-core/Plugins/MaterialPlugin/include)
 
 add_library(ACTFWRootPlugin SHARED ${srcs} G__Material.cxx)
 target_include_directories(ACTFWRootPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(ACTFWRootPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
-target_link_libraries(ACTFWRootPlugin PUBLIC ACTS::ACTSCore ACTS::ACTSMaterialPlugin)
+target_link_libraries(ACTFWRootPlugin PUBLIC ACTSCore ACTSMaterialPlugin)
 target_link_libraries(ACTFWRootPlugin PUBLIC ACTFramework)
 target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ACTFWRootPlugin PUBLIC Threads::Threads)
