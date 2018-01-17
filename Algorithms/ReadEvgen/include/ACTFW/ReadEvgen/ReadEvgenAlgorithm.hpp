@@ -51,6 +51,8 @@ public:
     std::shared_ptr<BarcodeSvc> barcodeSvc = nullptr;
     /// the random number service
     std::shared_ptr<RandomNumbersSvc> randomNumbers = nullptr;
+    /// the number of events to be read in (needd for reader interface)
+    size_t nEvents = 0;
   };
 
   /// Constructor
@@ -72,6 +74,10 @@ public:
   FW::ProcessCode
   read(FW::AlgorithmContext ctx) final override;
 
+  /// Return the number of events
+  virtual size_t
+  numEvents() const;
+
 private:
   Config                              m_cfg;
   std::unique_ptr<const Acts::Logger> m_logger;
@@ -83,6 +89,13 @@ private:
     return *m_logger;
   }
 };
+
+/// Return of the number events
+inline size_t
+ReadEvgenAlgorithm::numEvents() const
+{
+  return m_cfg.nEvents;
+}
 
 }  // namespace FW
 
