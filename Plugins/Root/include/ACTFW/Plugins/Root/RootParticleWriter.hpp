@@ -67,6 +67,7 @@ namespace Root {
     std::mutex m_writeMutex;  ///< mutex used to protect multi-threaded writes
     TFile*     m_outputFile;  ///< the output file
     TTree*     m_outputTree;  ///< the output tree
+    std::vector<int>   m_event;
     std::vector<float> m_vx;
     std::vector<float> m_vy;
     std::vector<float> m_vz;

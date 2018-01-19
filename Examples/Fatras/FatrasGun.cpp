@@ -17,6 +17,7 @@
 #include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
+#include "ACTFW/Extrapolation/ExtrapolationOptions.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Utilities/Units.hpp"
 #include "FatrasCommon.hpp"
@@ -38,8 +39,10 @@ main(int argc, char* argv[])
   FW::Options::addBFieldOptions<po::options_description>(desc);
   // add the particle gun options
   FW::Options::addParticleGunOptions<po::options_description>(desc);
-  // the random number options
+  // add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
+  // add the extrapolation options
+  FW::Options::addExtrapolationOptions<po::options_description>(desc);
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -65,12 +68,15 @@ main(int argc, char* argv[])
       FW::BarcodeSvc::Config{}, Acts::getDefaultLogger("BarcodeSvc", logLevel));
   // create the random number engine
   auto randomNumbersCfg
-      = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
+    = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
   particleGunConfig.randomNumbers = randomNumbers;
   particleGunConfig.barcodes      = barcodeSvc;
   auto particleGun
       = std::make_shared<FW::ParticleGun>(particleGunConfig, logLevel);
+  // get the options for the extrapolation
+  auto exoptions 
+    = FW::Options::readExtrapolationOptions<po::variables_map>(vm);
 
   // generic detector as geometry
   std::shared_ptr<const Acts::TrackingGeometry> geometry
@@ -88,6 +94,7 @@ main(int argc, char* argv[])
                         randomNumbers,
                         barcodeSvc,
                         bField.first,
+                        exoptions,
                         logLevel)
         != FW::ProcessCode::SUCCESS)
       return EXIT_FAILURE;
@@ -97,6 +104,7 @@ main(int argc, char* argv[])
                                 randomNumbers,
                                 barcodeSvc,
                                 bField.second,
+                                exoptions,
                                 logLevel)
                  != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;

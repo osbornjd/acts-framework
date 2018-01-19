@@ -37,6 +37,7 @@ FW::Root::RootParticleWriter::RootParticleWriter(
   if (!m_outputTree) throw std::bad_alloc();
 
   // Initial parameters
+  m_outputTree->Branch("event", &m_event);
   m_outputTree->Branch("eta", &m_eta);
   m_outputTree->Branch("phi", &m_phi);
   m_outputTree->Branch("vx", &m_vx);
@@ -82,6 +83,7 @@ FW::Root::RootParticleWriter::writeT(
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // clear the branches
+  m_event.clear();
   m_eta.clear();
   m_phi.clear();
   m_vx.clear();
@@ -105,7 +107,8 @@ FW::Root::RootParticleWriter::writeT(
   for (auto& vertex : vertices) {
     auto& vtx = vertex.position();
     for (auto& particle : vertex.outgoingParticles()) {
-      /// collect the information
+      // particle information
+      m_event.push_back(ctx.eventNumber);
       m_vx.push_back(vtx.x());
       m_vy.push_back(vtx.y());
       m_vz.push_back(vtx.z());

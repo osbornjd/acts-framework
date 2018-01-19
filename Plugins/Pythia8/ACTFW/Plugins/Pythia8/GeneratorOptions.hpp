@@ -33,7 +33,7 @@ namespace Options {
         po::value<int>()->default_value(2212.),
         "PDG number of beam 1 particles.")(
         "evg-hsProcess",
-        po::value<std::string>()->default_value("HardQCD:all = on"),
+        po::value<std::string>()->default_value("Top:gg2ttbar = on"),
         "The process string for the hard scatter event.")(
         "evg-puProcess",
         po::value<std::string>()->default_value("SoftQCD:all = on"),

@@ -40,41 +40,50 @@ setupSimulation(FW::Sequencer&                                sequencer,
                 std::shared_ptr<FW::RandomNumbersSvc>         random,
                 std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
                 std::shared_ptr<MagneticField>                bfield,
+                std::array<bool, 4>&                          exoptions,
                 Acts::Logging::Level loglevel = Acts::Logging::VERBOSE)
 {
   // enable root thread safety in order to use root writers in multi threaded
   // mode
   ROOT::EnableThreadSafety();
-  // set up the fatras material effects
-  // MultipleScatteringSampler
-  using MSCSampler
-      = Fatras::MultipleScatteringSamplerHighland<FW::RandomEngine>;
-  auto mscConfig  = MSCSampler::Config();
-  auto mscSampler = std::make_shared<MSCSampler>(mscConfig);
-
-  // EnergyLossSampler
-  using eLossSampler      = Fatras::EnergyLossSampler<FW::RandomEngine>;
-  auto eLossConfig        = eLossSampler::Config();
-  eLossConfig.scalorMOP   = 0.745167;  // validated with geant4
-  eLossConfig.scalorSigma = 0.68925;   // validated with geant4
-  auto eLSampler          = std::make_shared<eLossSampler>(eLossConfig);
-  eLSampler->setLogger(Acts::getDefaultLogger("ELoss", loglevel));
-
-  // Hadronic interaction sampler
-  using hadIntSampler
-      = Fatras::HadronicInteractionParametricSampler<FW::RandomEngine>;
-  auto hiConfig  = hadIntSampler::Config();
-  auto hiSampler = std::make_shared<hadIntSampler>(hiConfig);
-
-  // MaterialInteractionEngine
+  
+  // set up the (potential) fatras material effects
   using MatIntEngine = Fatras::MaterialInteractionEngine<FW::RandomEngine>;
-  auto matConfig     = MatIntEngine::Config();
-  matConfig.multipleScatteringSampler  = mscSampler;
-  matConfig.energyLossSampler          = eLSampler;
-  matConfig.parametricScattering       = true;
-  matConfig.hadronicInteractionSampler = hiSampler;
-  auto materialEngine = std::make_shared<MatIntEngine>(matConfig);
-  materialEngine->setLogger(Acts::getDefaultLogger("MaterialEngine", loglevel));
+  std::shared_ptr<MatIntEngine> materialEngine = nullptr;
+    
+  // fatras is chosen 
+  if (exoptions[0]){
+    
+      // we need the msc sampler 
+      using MSCSampler
+          = Fatras::MultipleScatteringSamplerHighland<FW::RandomEngine>;
+      auto mscConfig  = MSCSampler::Config();
+      auto mscSampler = std::make_shared<MSCSampler>(mscConfig);
+      
+      // EnergyLossSampler
+      using eLossSampler      = Fatras::EnergyLossSampler<FW::RandomEngine>;
+      auto eLossConfig        = eLossSampler::Config();
+      eLossConfig.scalorMOP   = 0.745167;  // validated with geant4
+      eLossConfig.scalorSigma = 0.68925;   // validated with geant4
+      auto eLSampler          = std::make_shared<eLossSampler>(eLossConfig);
+      eLSampler->setLogger(Acts::getDefaultLogger("ELoss", loglevel));
+      
+      // Hadronic interaction sampler
+      using hadIntSampler
+          = Fatras::HadronicInteractionParametricSampler<FW::RandomEngine>;
+      auto hiConfig  = hadIntSampler::Config();
+      auto hiSampler = std::make_shared<hadIntSampler>(hiConfig);
+      
+      // MaterialInteractionEngine
+      auto matConfig     = MatIntEngine::Config();
+      matConfig.multipleScatteringSampler  = (exoptions[2] ? mscSampler : nullptr);
+      matConfig.energyLossSampler          = (exoptions[1] ? eLSampler : nullptr);
+      matConfig.parametricScattering       = true;
+      matConfig.hadronicInteractionSampler = (exoptions[3] ? hiSampler : nullptr);
+      materialEngine = std::make_shared<MatIntEngine>(matConfig);
+      materialEngine->setLogger(Acts::getDefaultLogger("MaterialEngine", loglevel));
+  }
+  
   // extrapolation algorithm
   FW::ExtrapolationAlgorithm::Config eTestConfig;
   eTestConfig.evgenCollection                  = "EvgenParticles";

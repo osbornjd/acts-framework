@@ -21,6 +21,7 @@
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
+#include "ACTFW/Extrapolation/ExtrapolationOptions.hpp"
 #include "FatrasCommon.hpp"
 
 namespace po = boost::program_options;
@@ -40,6 +41,8 @@ main(int argc, char* argv[])
   FW::Options::addPythia8Options<po::options_description>(desc);
   // add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
+  // add the extrapolation options
+  FW::Options::addExtrapolationOptions<po::options_description>(desc);
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -87,6 +90,9 @@ main(int argc, char* argv[])
   // create the read Algorithm
   auto readEvgen = std::make_shared<FW::ReadEvgenAlgorithm>(
       readEvgenCfg, Acts::getDefaultLogger("ReadEvgenAlgorithm", logLevel));
+  // get the options for the extrapolation
+  auto exoptions 
+    = FW::Options::readExtrapolationOptions<po::variables_map>(vm);
 
   // generic detector as geometry
   std::shared_ptr<const Acts::TrackingGeometry> geometry
@@ -103,6 +109,7 @@ main(int argc, char* argv[])
                         randomNumbers,
                         barcodeSvc,
                         bField.first,
+                        exoptions,
                         logLevel)
         != FW::ProcessCode::SUCCESS)
       return EXIT_FAILURE;
@@ -112,6 +119,7 @@ main(int argc, char* argv[])
                                 randomNumbers,
                                 barcodeSvc,
                                 bField.second,
+                                exoptions,
                                 logLevel)
                  != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;

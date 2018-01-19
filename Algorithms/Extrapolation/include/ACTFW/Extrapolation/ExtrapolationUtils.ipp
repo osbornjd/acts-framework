@@ -34,7 +34,7 @@ FW::initExtrapolator(
   // (b) MaterialEffectsEngine if not given
   std::shared_ptr<const Acts::IMaterialEffectsEngine> materialEngine
       = matEffectsEngine;
-  if (!materialEngine) {
+  if (!materialEngine) {    
     auto matConfig = Acts::MaterialEffectsEngine::Config();
     materialEngine = std::make_shared<Acts::MaterialEffectsEngine>(
         matConfig, Acts::getDefaultLogger("MaterialEffectsEngine", eLogLevel));

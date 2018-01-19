@@ -25,10 +25,12 @@ FW::ProcessCode
 FW::FatrasAlgorithm<MaterialEngine>::execute(
     const FW::AlgorithmContext context) const
 {
-  // Create an algorithm local random number generator
-  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
-  // Set the random generator of the material interaction
-  m_cfg.materialInteractionEngine->setRandomGenerator(rng);
+  if (m_cfg.materialInteractionEngine){
+    // Create an algorithm local random number generator
+    FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
+    // Set the random generator of the material interaction
+    m_cfg.materialInteractionEngine->setRandomGenerator(rng);
+  }
   // call the extrapolation algorithm
   m_exAlgorithm->execute(context);
 
