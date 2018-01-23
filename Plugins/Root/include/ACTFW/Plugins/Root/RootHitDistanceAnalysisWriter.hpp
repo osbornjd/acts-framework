@@ -20,20 +20,25 @@ namespace Root {
   ///
   /// @brief Writes out the result of the hit distance analysis
   ///
-  /// The RootHitDistanceAnalysisWriter writes out the the mean and the
-  /// extrema of the two local components (on each module surface) of the hit
-  /// distances per Acts::Layer. The layer is identified by its
-  /// Acts::GeometryID.
+  /// The RootHitDistanceAnalysisWriter writes out FW::AnalysisParameters for a
+  /// given geometry object (layer/surface) + two additional parameters which
+  /// can be used for e.g. position in r,z/eta,phi.
+  /// This writer is intended to be used with the output from
+  /// FW::HitDistanceAlgorithm.hpp .
   ///
   class RootHitDistanceAnalysisWriter
       : public FW::WriterT<std::map<Acts::GeometryID,
-                                    std::pair<FW::AnalysisParameters,
-                                              FW::AnalysisParameters>>>
+                                    std::tuple<FW::AnalysisParameters,
+                                               FW::AnalysisParameters,
+                                               double,
+                                               double>>>
   {
   public:
     using Base = FW::WriterT<std::map<Acts::GeometryID,
-                                      std::pair<FW::AnalysisParameters,
-                                                FW::AnalysisParameters>>>;
+                                      std::tuple<FW::AnalysisParameters,
+                                                 FW::AnalysisParameters,
+                                                 double,
+                                                 double>>>;
 
     // @struct Config
     //
@@ -42,13 +47,13 @@ namespace Root {
     {
     public:
       /// The input parameters of the distance analysis for component
-      std::string layerHitAnalysis = "layerHitAnalysis";
+      std::string hitAnalysis = "";
       /// The output file path
-      std::string filePath = "distance_analysis.root";
+      std::string filePath = "hitAnalysis.root";
       /// The file access mode
       std::string fileMode = "RECREATE";
       /// The name of the output tree
-      std::string treeName = "distance_analysis";
+      std::string treeName = "hitAnalysis";
     };
 
     /// Constructor
@@ -69,11 +74,13 @@ namespace Root {
     /// @param [in] ctx is the algorithm context for event consistency
     /// @param [in] params the analysis parameters to be written out
     ProcessCode
-    writeT(const FW::AlgorithmContext& ctx,
-           const std::map<Acts::GeometryID,
-                          std::pair<FW::AnalysisParameters,
-                                    FW::AnalysisParameters>>&
-               layerDistanceParams) final override;
+    writeT(
+        const FW::AlgorithmContext& ctx,
+        const std::map<Acts::GeometryID,
+                       std::tuple<FW::AnalysisParameters,
+                                  FW::AnalysisParameters,
+                                  double,
+                                  double>>& layerDistanceParams) final override;
 
     /// The config class
     Config m_cfg;
@@ -84,7 +91,11 @@ namespace Root {
     /// The output tree
     TTree* m_outputTree;
     /// The GeometryID of the layer
-    geo_id_value m_layerID;
+    unsigned long long m_layerID;
+    /// Optional parameter (e.g. for indicating position in r, eta)
+    float m_par0;
+    /// Optional parameter (e.g. for indicating position in z, phi)
+    float m_par1;
     /// Mean of component 0
     float m_mean0;
     /// Minimum of component 0

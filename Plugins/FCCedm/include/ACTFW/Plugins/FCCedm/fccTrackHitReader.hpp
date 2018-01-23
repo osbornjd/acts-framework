@@ -24,8 +24,9 @@ namespace FCCedm {
   ///
   /// The fccTrackHitReader reads in a collection of
   /// fcc::PositionedTrackHit per event from given root file(s). It translates
-  /// each fcc::PositionedTrackHit into a local Acts::Measurement (on a
-  /// Acts::Surface) and writes the measurements to the event store.
+  /// each fcc::PositionedTrackHit into a FW::fccMeasurement (local measurement
+  /// on a Acts::Surface) and writes the measurements per surface to the event
+  /// store.
 
   class fccTrackHitReader final : public FW::IReader
   {
@@ -36,9 +37,9 @@ namespace FCCedm {
       /// The names of the input files
       std::vector<std::string> fileList;
       /// The name of the input tree
-      std::string treeName = "TTree";
+      std::string treeName = "";
       /// The name of the input branch
-      std::string branchName = "TBranch";
+      std::string branchName = "";
       /// The positionedTrackHit collection to be stored in the event store
       std::string collection = "measurements";
       /// The tracking geometry (needed to assign the surfaces to the hits and
@@ -98,15 +99,9 @@ namespace FCCedm {
     TTreeReaderValue<std::vector<fcc::PositionedTrackHitData>>
         m_positionedTrackHits;
     /// The Acts measurments which are written to the store
-    std::vector<FW::Measurement2D> m_measurements;
+    std::vector<FW::fccMeasurement> m_measurements;
     /// The number of events, determined by the entries in the file
     size_t m_nEvents;
-
-    /// @todo remove later, just for debugging
-    mutable std::vector<Identifier>     m_notFound;
-    mutable std::vector<Identifier>     m_found;
-    mutable std::vector<Acts::Vector3D> m_missedPositions;
-    mutable std::vector<Acts::Vector3D> m_foundPositions;
 
     /// Private access to the logging instance
     const Acts::Logger&
@@ -118,10 +113,8 @@ namespace FCCedm {
     /// Private class which translates the FCC positioned track hit into an Acts
     /// measurement
     /// @param[in] fccTrackHit The inout fcc positioned track hit
-    /// @todo currently a pointer of a measurement is returned, this is because
-    /// not all detector elements are found yet. Later just a Measurment should
-    /// be returned.
-    const FW::Measurement2D*
+    /// @return The translated FW::fccMeasurement
+    const FW::fccMeasurement
     measurement(const fcc::PositionedTrackHitData& fccTrackHit) const;
   };
 

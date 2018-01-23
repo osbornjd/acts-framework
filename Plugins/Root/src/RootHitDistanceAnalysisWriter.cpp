@@ -8,20 +8,19 @@ FW::Root::RootHitDistanceAnalysisWriter::RootHitDistanceAnalysisWriter(
     const FW::Root::RootHitDistanceAnalysisWriter::Config& cfg,
     Acts::Logging::Level                                   level)
   : FW::WriterT<std::map<Acts::GeometryID,
-                         std::pair<FW::AnalysisParameters,
-                                   FW::AnalysisParameters>>>(
-        cfg.layerHitAnalysis,
-        "RootHitDistanceAnalysisWriter",
-        level)
+                         std::tuple<FW::AnalysisParameters,
+                                    FW::AnalysisParameters,
+                                    double,
+                                    double>>>(cfg.hitAnalysis,
+                                              "RootHitDistanceAnalysisWriter",
+                                              level)
   , m_cfg(cfg)
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)
 {
   // Validate the configuration
-  if (m_cfg.layerHitAnalysis.empty()) {
+  if (m_cfg.hitAnalysis.empty()) {
     throw std::invalid_argument("Missing input collection");
-  } else if (m_cfg.treeName.empty()) {
-    throw std::invalid_argument("Missing tree name");
   }
 
   // Setup ROOT I/O
@@ -36,11 +35,11 @@ FW::Root::RootHitDistanceAnalysisWriter::RootHitDistanceAnalysisWriter(
 
   // Initial parameters
   m_outputTree->Branch("layerID", &m_layerID);
-
+  m_outputTree->Branch("par0", &m_par0);
+  m_outputTree->Branch("par1", &m_par1);
   m_outputTree->Branch("mean0", &m_mean0);
   m_outputTree->Branch("min0", &m_min0);
   m_outputTree->Branch("max0", &m_max0);
-
   m_outputTree->Branch("mean1", &m_mean1);
   m_outputTree->Branch("min1", &m_min1);
   m_outputTree->Branch("max1", &m_max1);
@@ -55,17 +54,22 @@ FW::ProcessCode
 FW::Root::RootHitDistanceAnalysisWriter::writeT(
     const FW::AlgorithmContext& ctx,
     const std::map<Acts::GeometryID,
-                   std::pair<FW::AnalysisParameters, FW::AnalysisParameters>>&
-        layerDistanceParams)
+                   std::tuple<FW::AnalysisParameters,
+                              FW::AnalysisParameters,
+                              double,
+                              double>>& layerDistanceParams)
 {
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // loop over all layers
   for (auto& layer : layerDistanceParams) {
-    m_layerID                              = layer.first.value();
-    FW::AnalysisParameters distanceParams0 = layer.second.first;
-    FW::AnalysisParameters distanceParams1 = layer.second.second;
+    unsigned long long id                  = layer.first.value();
+    m_layerID                              = id;
+    m_par0                                 = std::get<2>(layer.second);
+    m_par1                                 = std::get<3>(layer.second);
+    FW::AnalysisParameters distanceParams0 = std::get<0>(layer.second);
+    FW::AnalysisParameters distanceParams1 = std::get<1>(layer.second);
     m_mean0                                = distanceParams0.mean();
     m_min0                                 = distanceParams0.min();
     m_max0                                 = distanceParams0.max();

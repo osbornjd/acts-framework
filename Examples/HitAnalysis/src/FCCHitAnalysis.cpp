@@ -59,8 +59,9 @@ main(int argc, char* argv[])
   auto hitReaderConfig
       = FW::Options::readFccTrackHitReaderConfig<po::variables_map>(vm);
   hitReaderConfig.trackingGeometry = dd4tGeometry;
-  hitReaderConfig.mask
-      = 0xfffffff;  // In FCChh currently only the first 28 bits are used
+  hitReaderConfig.mask             = 0x7ffffff;  // In FCChh currently
+                                                 // only the first 28
+                                                 // bits are used
   hitReaderConfig.collection = "measurements";
   hitReaderConfig.treeName   = "events";
   // hitReaderConfig.branchName      = "overlaidPositionedTrackHits";
@@ -72,37 +73,30 @@ main(int argc, char* argv[])
 
   // Set up the Hit Analysis algorithm calculating the distance
   FW::HitDistanceAlgorithm::Config hitAlgorithmConfig;
-  hitAlgorithmConfig.collection       = "measurements";
-  hitAlgorithmConfig.layerHitAnalysis = "layerHitAnalysis";
+  hitAlgorithmConfig.collection         = "measurements";
+  hitAlgorithmConfig.layerHitAnalysis   = "layerHitAnalysis";
+  hitAlgorithmConfig.surfaceHitAnalysis = "surfaceHitAnalysis";
   auto hitAlgorithm = std::make_shared<FW::HitDistanceAlgorithm>(
       hitAlgorithmConfig, logLevel);
 
   // Set up the writer
-  FW::Root::RootHitDistanceAnalysisWriter::Config writerConfig;
-  writerConfig.layerHitAnalysis = "layerHitAnalysis";
-  writerConfig.filePath         = "distance_analysis.root";
-  writerConfig.fileMode         = "RECREATE";
-  writerConfig.treeName         = "distance_analysis";
-  auto writer
-      = std::make_shared<FW::Root::RootHitDistanceAnalysisWriter>(writerConfig);
+  FW::Root::RootHitDistanceAnalysisWriter::Config layer_writerConfig;
+  layer_writerConfig.hitAnalysis = "layerHitAnalysis";
+  layer_writerConfig.filePath    = "layerHitAnalysis.root";
+  layer_writerConfig.fileMode    = "RECREATE";
+  layer_writerConfig.treeName    = "layerHitAnalysis";
+  auto layer_writer = std::make_shared<FW::Root::RootHitDistanceAnalysisWriter>(
+      layer_writerConfig);
 
-  // @todo remove later
-  // Set up positions writer
-  FW::Root::RootPositionWriter::Config posWriterConfig;
-  posWriterConfig.positions = "missedPositions";
-  posWriterConfig.filePath  = "missedPositions.root";
-  posWriterConfig.fileMode  = "RECREATE";
-  posWriterConfig.treeName  = "positions";
-  auto posWriter
-      = std::make_shared<FW::Root::RootPositionWriter>(posWriterConfig);
-
-  FW::Root::RootPositionWriter::Config posWriterConfig1;
-  posWriterConfig1.positions = "foundPositions";
-  posWriterConfig1.filePath  = "foundPositions.root";
-  posWriterConfig1.fileMode  = "RECREATE";
-  posWriterConfig1.treeName  = "positions";
-  auto posWriter1
-      = std::make_shared<FW::Root::RootPositionWriter>(posWriterConfig1);
+  // Set up the writer
+  FW::Root::RootHitDistanceAnalysisWriter::Config surface_writerConfig;
+  surface_writerConfig.hitAnalysis = "surfaceHitAnalysis";
+  surface_writerConfig.filePath    = "surfaceHitAnalysis.root";
+  surface_writerConfig.fileMode    = "RECREATE";
+  surface_writerConfig.treeName    = "surfaceHitAnalysis";
+  auto surface_writer
+      = std::make_shared<FW::Root::RootHitDistanceAnalysisWriter>(
+          surface_writerConfig);
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
@@ -111,7 +105,7 @@ main(int argc, char* argv[])
   sequencer.addServices({});
   sequencer.addReaders({hitReader});
   sequencer.appendEventAlgorithms({hitAlgorithm});
-  sequencer.addWriters({writer, posWriter, posWriter1});
+  sequencer.addWriters({layer_writer, surface_writer});
   // The reader determines the number of events
   sequencer.run(nEvents);
 
