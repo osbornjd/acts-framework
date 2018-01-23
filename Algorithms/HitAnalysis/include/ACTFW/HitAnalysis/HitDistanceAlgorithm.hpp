@@ -20,10 +20,19 @@ namespace FW {
 ///
 /// @brief Calculates hit distances per layer
 ///
-/// The HitDistanceAlgorithm receives a collection of measurements. It
-/// calculates the distances of all measurements on the same surface and then
-/// calculates the mean, the minimum and maximum per layer for both local
-/// components and writes them to the event store.
+/// The HitDistanceAlgorithm receives a map which containes a collection of
+/// measurements for each sensitive surface. It calculates the distances (for
+/// both local components) of all measurements coming from different particles
+/// on the same surface. Finally two different outputs for later analysis are
+/// provided:
+/// - surfaceHitAnalysis (1)
+/// - layerHitAnalysis   (2)
+/// (1) Calculates the minima, maxima and averages of the hit distances on each
+/// surface for a given event.
+/// (2) Calculates the minima, maxima and averages of the hit distances on each
+/// layer for a given event.
+/// The ouput can be written out using the
+/// FW::Root::RootHitDistanceAnalysisWriter.hpp
 ///
 class HitDistanceAlgorithm : public BareAlgorithm
 {
@@ -32,6 +41,8 @@ public:
   {
     /// the trackHits input collections
     std::string collection = "measurements";
+    /// The output parameters of the hit distance analysis for each surface
+    std::string surfaceHitAnalysis = "surfaceHitAnalysis";
     /// The output parameters of the hit distance analysis for each layer
     std::string layerHitAnalysis = "layerHitAnalysis";
   };
