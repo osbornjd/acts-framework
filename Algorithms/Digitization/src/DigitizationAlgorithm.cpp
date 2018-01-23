@@ -70,6 +70,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
 
   // now digitise
   for (auto& vData : (*hitData)) {
+    
     auto volumeKey = vData.first;
     ACTS_DEBUG("- Processing Volume Data collection for volume with ID "
                << volumeKey);
@@ -77,6 +78,31 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
       auto layerKey = lData.first;
       ACTS_DEBUG("-- Processing Layer Data collection for layer with ID "
                  << layerKey);
+      
+      // create the indetifier for the resolution file
+      // this only depends on volume and layer 
+      Acts::GeometryID resMapID(0);
+      resMapID.add(volumeKey, Acts::GeometryID::volume_mask);
+      resMapID.add(layerKey, Acts::GeometryID::layer_mask);
+      // resolution map
+      std::shared_ptr<Acts::LayerResolution> lResolutions = nullptr;
+      int lType = -1;
+      // check if you have resolution maps 
+      if (m_cfg.layerResolutions){
+        // try to find the map from the provided funtions
+        // @TODO change into a reader structure at initialize
+        auto rMap  = m_cfg.layerResolutions->find(resMapID);
+        auto rType = m_cfg.layerTypes.find(resMapID);
+          
+        if (rMap != m_cfg.layerResolutions->end()
+          && rType != m_cfg.layerTypes.end()){
+          // assign the layer Map  
+          lResolutions = rMap->second;
+          // assign the layer Type
+          lType = rType->second;
+        }
+      }
+      
       for (auto& sData : lData.second) {
         auto moduleKey = sData.first;
         ACTS_DEBUG("-- Processing Module Data collection for module with ID "
@@ -117,6 +143,9 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
               double localX    = 0.;
               double localY    = 0.;
               double totalPath = 0.;
+              // min max bins for the cluster size
+              std::vector<int> channels0;
+              std::vector<int> channels1;
               // the cells to be used
               std::vector<Acts::DigitizationCell> usedCells;
               usedCells.reserve(dSteps.size());
@@ -130,6 +159,9 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
                     std::move(Acts::DigitizationCell(dStep.stepCell.channel0,
                                                      dStep.stepCell.channel1,
                                                      dStep.stepLength)));
+                // recorod to get the min/max
+                channels0.push_back(dStep.stepCell.channel0);
+                channels1.push_back(dStep.stepCell.channel1);
               }
               // divide by the total path
               localX /= totalPath;
@@ -145,10 +177,36 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
               size_t bin0          = binUtility.bin(localPosition, 0);
               size_t bin1          = binUtility.bin(localPosition, 1);
               size_t binSerialized = binUtility.serialize({bin0, bin1, 0});
-
+              int    diff0 =  (*std::max_element(channels0.begin(),channels0.end()))
+                            -(*std::max_element(channels0.begin(),channels0.end()));
+              int    diff1 =  (*std::max_element(channels1.begin(),channels1.end()))
+                            -(*std::max_element(channels1.begin(),channels1.end()));
               // the covariance is currently set to 0.
               Acts::ActsSymMatrixD<2> cov;
-              cov << 0., 0., 0., 0.;
+              double resL0 = 0.;
+              double resL1 = 0.;
+              if (lResolutions){
+                // we need to get the position of the cluster, apply local2global
+                Acts::Vector3D globalPosition(0.,0.,0.);
+                hitSurface.localToGlobal(localPosition, 
+                                         Acts::Vector3D(1.,1.,0.),
+                                         globalPosition);
+                // z position / r position
+                double rz = lType > 0 ? globalPosition.z() : 
+                                        globalPosition.perp();
+                // the lookup                  
+                std::array<double,2> l0Lookup = { rz , diff0+0.5 };  
+                std::array<double,2> l1Lookup = { rz , diff1+0.5 };  
+                // the resolution maps for first and second coordinate                            
+                // @TODO solve later for ND coordinates                            
+                auto l0Resolution = lResolutions->first;
+                auto l1Resolution = lResolutions->second;
+                // get the resolutions
+                resL0 =  l0Resolution.at(l0Lookup);
+                resL1 =  l1Resolution.at(l1Lookup);
+              } 
+              // fill the covaraiance matrix 
+              cov << resL0*resL0, 0., resL1*resL1, 0;
 
               // create the indetifier
               Acts::GeometryID geoID(0);
