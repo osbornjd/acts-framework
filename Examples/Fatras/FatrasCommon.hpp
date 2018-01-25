@@ -21,13 +21,26 @@
 #include "ACTFW/Fatras/FatrasAlgorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Plugins/Root/RootGridUtils.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Digitization/PlanarModuleStepper.hpp"
 #include "Fatras/EnergyLossSampler.hpp"
 #include "Fatras/HadronicInteractionParametricSampler.hpp"
 #include "Fatras/MaterialInteractionEngine.hpp"
 #include "Fatras/MultipleScatteringSamplerHighland.hpp"
+#include "ACTS/Utilities/detail/Axis.hpp"
+#include "ACTS/Utilities/detail/Grid.hpp"
+
+namespace Acts {
+  typedef detail::Grid<double, detail::EquidistantAxis, detail::EquidistantAxis> ResolutionGrid;
+  typedef std::pair<ResolutionGrid,ResolutionGrid> LayerResolution;
+}
+
 #include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TH2F.h"
 
 /// Setup extrapolation and digitization.
 ///
@@ -41,7 +54,8 @@ setupSimulation(FW::Sequencer&                                sequencer,
                 std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
                 std::shared_ptr<MagneticField>                bfield,
                 std::array<bool, 4>&                          exoptions,
-                Acts::Logging::Level loglevel = Acts::Logging::VERBOSE)
+                Acts::Logging::Level loglevel = Acts::Logging::VERBOSE,
+                std::string resolutionFile = "")
 {
   // enable root thread safety in order to use root writers in multi threaded
   // mode
@@ -114,8 +128,10 @@ setupSimulation(FW::Sequencer&                                sequencer,
   fatrasConfig.materialInteractionEngine = materialEngine;
   auto fatrasAlg = std::make_shared<FatrasAlg>(fatrasConfig, loglevel);
 
+
   // digitisation
   Acts::PlanarModuleStepper::Config pmStepperConfig;
+  
   auto pmStepper = std::make_shared<Acts::PlanarModuleStepper>(
       pmStepperConfig, Acts::getDefaultLogger("PlanarModuleStepper", loglevel));
 
@@ -125,6 +141,97 @@ setupSimulation(FW::Sequencer&                                sequencer,
   digConfig.spacePointsCollection   = "FatrasSpacePoints";
   digConfig.randomNumbers           = random;
   digConfig.planarModuleStepper     = pmStepper;
+  
+  // load the resolutions
+  // @todo move reading into a IReaderT 
+  if (resolutionFile != ""){
+    // create the map
+    std::shared_ptr<Acts::ResolutionMap> lResolutions 
+      = std::shared_ptr<Acts::ResolutionMap>(new Acts::ResolutionMap);
+    // read the root file
+    TFile* rFile = TFile::Open(resolutionFile.c_str());
+    if (rFile){
+      TTree* tVids = dynamic_cast<TTree*>(rFile->Get("volumeIDs"));
+      // now get the list of vids and lids 
+      if (tVids){
+        // get the volume ids
+        std::vector<int>* b_vids = new std::vector<int>;
+        tVids->SetBranchAddress("volumeIDs", &b_vids);
+        tVids->GetEntry(0);
+        // now loop over the volume IDs
+        for (auto& vid : (*b_vids)){
+          // change into the dedicated directory
+          TString vidDir = "vid";
+          vidDir += vid;
+          // get the layer IDs 
+          TTree* tLids = dynamic_cast<TTree*>(rFile->Get(vidDir+"/layerIDs"));
+          if (tLids){
+            // get the layer ids
+            std::vector<int>* b_lids = new std::vector<int>;
+            tLids->SetBranchAddress("layerIDs", &b_lids);
+            tLids->GetEntry(0);
+            // loop over the layers
+            for (auto& lid: (*b_lids)){
+              // retrieve the summary histograms from the layers
+              TString hHistName = vidDir;
+              TString lidDir = "lid";
+              lidDir += lid;
+              hHistName += "/";
+              hHistName += lidDir;
+              hHistName += "/summary_res_l";
+              // l0 / l1 histogram retrievals
+              TString l0HistName = hHistName;
+              l0HistName += "0";
+              l0HistName += "_"+vidDir;
+              l0HistName += "_"+lidDir;
+              TString l1HistName = hHistName;
+              l1HistName += "1";
+              l1HistName += "_"+vidDir;
+              l1HistName += "_"+lidDir;              
+              TH2F* l0Hist = dynamic_cast<TH2F*>(rFile->Get(l0HistName));
+              TH2F* l1Hist = dynamic_cast<TH2F*>(rFile->Get(l1HistName));
+              // get the layer type
+              int lType = 0;
+              // default resolution for layer 
+              double rmsl0 = 0.;
+              double rmsl1 = 0.;
+              // create a layer Type Tree
+              TTree* ltTree = dynamic_cast<TTree*>
+                (rFile->Get(vidDir+"/"+lidDir+"/layerInfo"));
+              // everything retrieved
+              if (l0Hist and l1Hist and ltTree){
+                // retieving the layer type information
+                ltTree->SetBranchAddress("layerType", &lType);
+                ltTree->SetBranchAddress("layerRms0", &rmsl0);
+                ltTree->SetBranchAddress("layerRms1", &rmsl1);
+                ltTree->GetEntry(0);
+                // create a GeoId of the volume index and layer index
+                Acts::GeometryID lgeoID(0);
+                lgeoID.add(vid, Acts::GeometryID::volume_mask);
+                lgeoID.add(lid, Acts::GeometryID::layer_mask);
+                // create the two resolution maps
+                auto g0 = FW::Root::histToGrid(*l0Hist, {true, rmsl0}, true);
+                auto g1 = FW::Root::histToGrid(*l1Hist, {true, rmsl1}, true);
+                // create a new pair of those and insert to the map
+                auto g0g1 = std::make_shared<Acts::LayerResolution>
+                  (std::move(g0),std::move(g1)); 
+                //lResolutions->operator[](lgeoID) = g0g1;
+                (*lResolutions)[lgeoID]      = std::move(g0g1);
+                digConfig.layerTypes[lgeoID] = lType;
+              }
+            }
+            // delete the vector for layer IDs
+            delete b_lids;
+          }
+        }
+        // dete the vector volume IDs
+        delete b_vids;
+      }
+    }
+    // assign the resolution map
+    digConfig.layerResolutions = lResolutions;
+  }
+    
   auto digitzationAlg
       = std::make_shared<FW::DigitizationAlgorithm>(digConfig, loglevel);
 

@@ -78,6 +78,8 @@ namespace Root {
     float              m_ly;          ///< local ly
     float              m_cov_lx;      ///< local covariance lx
     float              m_cov_ly;      ///< local covariance ly
+    int                m_size_x;      ///< cluster size in x
+    int                m_size_y;      ///< cluster size in x    
     std::vector<int>   m_cell_IDx;    ///< cell ID in lx
     std::vector<int>   m_cell_IDy;    ///< cell ID in ly
     std::vector<float> m_cell_lx;     ///< local cell position x

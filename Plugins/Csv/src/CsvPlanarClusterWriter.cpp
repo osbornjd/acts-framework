@@ -50,13 +50,14 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
   // write csv hits header
   osHits << "hit_id,";
   osHits << "volume_id,layer_id,module_id,";
-  osHits << "x,y,z,ex,ey,ez,";
-  osHits << "phi,theta,ephi,etheta,";
+  osHits << "x,y,z,";
   osHits << "ncells,ch0,ch1,value\n";
   osHits << std::setprecision(m_cfg.outputPrecision);
   // write csv truth headers
   osTruth << "hit_id,";
-  osTruth << "particle_id\n";
+  osTruth << "particle_id";
+  osTruth << "tx, ty, tz,";
+  osTruth << "talpha, tbeta\n";
 
   size_t hitId = 0;
   for (auto& volumeData : clusters) {
@@ -79,9 +80,6 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           osHits << layerData.first << ",";
           osHits << moduleData.first << ",";
           osHits << pos.x() << "," << pos.y() << "," << pos.z() << ",";
-          osHits << "-1.0,-1.0,-1.0,";                       // TODO ex, ey, ez
-          osHits << pos.phi() << "," << pos.theta() << ",";  // TODO phi, theta
-          osHits << "-1.0,-1.0,";  // TODO ephi, etheta
           // append cell information
           const auto& cells = cluster.digitizationCells();
           osHits << cells.size();
@@ -90,11 +88,22 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
                    << cell.data;
           }
           osHits << '\n';
+          
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
           for (auto& tVertex : cluster.truthVertices()) {
-            for (auto& tIngoing : tVertex.incomingParticles())
-              osTruth << hitId << "," << tIngoing.barcode() << '\n';
+            for (auto& tIngoing : tVertex.incomingParticles()){
+              // positon
+              Acts::Vector3D vPosition = tVertex.position();
+              // create the local angles talpha, tbeta
+              Acts::Vector3D lDir 
+                = cluster.referenceSurface().transform().inverse().linear()
+                  * tIngoing.momentum();
+              osTruth << hitId << "," << tIngoing.barcode() 
+                      << vPosition.x() << "," << vPosition.y() << "," << vPosition.z() 
+                      << lDir.phi() << "," << lDir.theta() << '\n';
+              
+              }
           }
         }
       }

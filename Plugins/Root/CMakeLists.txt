@@ -8,6 +8,7 @@ set(srcs include/ACTFW/Plugins/Root/RootExCellWriter.hpp
          include/ACTFW/Plugins/Root/RootMaterialTrackReader.hpp
          include/ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp
          include/ACTFW/Plugins/Root/RootParticleWriter.hpp
+         include/ACTFW/Plugins/Root/RootGridUtils.hpp
          include/ACTFW/Plugins/Root/MaterialEffectsWriter.hpp
          src/RootIndexedMaterialReader.cpp
          src/RootIndexedMaterialWriter.cpp

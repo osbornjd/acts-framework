@@ -106,6 +106,7 @@ plbConfig.posnegLayerPositionsZ = {600. * Acts::units::_mm,
                                    820. * Acts::units::_mm,
                                    960. * Acts::units::_mm,
                                    1100 * Acts::units::_mm,
+                                   1300 * Acts::units::_mm,
                                    1500 * Acts::units::_mm};
 
 plbConfig.posnegLayerEnvelopeR = {1. * Acts::units::_mm,
@@ -113,11 +114,13 @@ plbConfig.posnegLayerEnvelopeR = {1. * Acts::units::_mm,
                                   1. * Acts::units::_mm,
                                   1. * Acts::units::_mm,
                                   1. * Acts::units::_mm,
+                                  1. * Acts::units::_mm,
                                   1. * Acts::units::_mm};
 // material concentration is always behing
-plbConfig.posnegLayerMaterialConcentration = std::vector<int>(6, 0);
+plbConfig.posnegLayerMaterialConcentration = std::vector<int>(7, 0);
 // layer structure surface has pixel material properties
 plbConfig.posnegLayerMaterialProperties = {pcmProperties,
+                                           pcmProperties,
                                            pcmProperties,
                                            pcmProperties,
                                            pcmProperties,
@@ -133,17 +136,17 @@ std::vector<int>            perRS = {-1, -1};      // readout side
 std::vector<double>         perLA = {0., 0.};      // lorentz angle
 std::vector<Acts::Material> perM  = {pcMaterial, pcMaterial};  // material
 
-plbConfig.posnegModuleMinHalfX     = std::vector<std::vector<double>>(6, perHX);
+plbConfig.posnegModuleMinHalfX     = std::vector<std::vector<double>>(7, perHX);
 plbConfig.posnegModuleMaxHalfX     = {};
-plbConfig.posnegModuleHalfY        = std::vector<std::vector<double>>(6, perHY);
-plbConfig.posnegModulePhiBins      = std::vector<std::vector<size_t>>(6, perBP);
-plbConfig.posnegModuleThickness    = std::vector<std::vector<double>>(6, perT);
-plbConfig.posnegModuleReadoutBinsX = std::vector<std::vector<size_t>>(6, perBX);
-plbConfig.posnegModuleReadoutBinsY = std::vector<std::vector<size_t>>(6, perBY);
-plbConfig.posnegModuleReadoutSide  = std::vector<std::vector<int>>(6, perRS);
-plbConfig.posnegModuleLorentzAngle = std::vector<std::vector<double>>(6, perLA);
+plbConfig.posnegModuleHalfY        = std::vector<std::vector<double>>(7, perHY);
+plbConfig.posnegModulePhiBins      = std::vector<std::vector<size_t>>(7, perBP);
+plbConfig.posnegModuleThickness    = std::vector<std::vector<double>>(7, perT);
+plbConfig.posnegModuleReadoutBinsX = std::vector<std::vector<size_t>>(7, perBX);
+plbConfig.posnegModuleReadoutBinsY = std::vector<std::vector<size_t>>(7, perBY);
+plbConfig.posnegModuleReadoutSide  = std::vector<std::vector<int>>(7, perRS);
+plbConfig.posnegModuleLorentzAngle = std::vector<std::vector<double>>(7, perLA);
 plbConfig.posnegModuleMaterial
-    = std::vector<std::vector<Acts::Material>>(6, perM);
+    = std::vector<std::vector<Acts::Material>>(7, perM);
 
 // no frontside/backside
 plbConfig.posnegModuleFrontsideStereo = {};

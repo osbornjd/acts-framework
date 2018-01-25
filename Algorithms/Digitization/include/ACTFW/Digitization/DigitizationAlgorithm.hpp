@@ -13,16 +13,17 @@
 #include <map>
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTS/Utilities/Units.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 #include "ACTS/Utilities/detail/Axis.hpp"
 #include "ACTS/Utilities/detail/Grid.hpp"
 
-
 namespace Acts {
 class PlanarModuleStepper;
   typedef detail::Grid<double, detail::EquidistantAxis, detail::EquidistantAxis> ResolutionGrid;
   typedef std::pair<ResolutionGrid,ResolutionGrid> LayerResolution;
+  typedef std::map<Acts::GeometryID, std::shared_ptr<Acts::LayerResolution> > ResolutionMap;
 }
 
 namespace FW {
@@ -47,13 +48,15 @@ public:
     /// module stepper
     std::shared_ptr<Acts::PlanarModuleStepper> planarModuleStepper = nullptr;
     /// the reader for the resolution file, fixed to 2D for now
-    std::shared_ptr< std::map<Acts::GeometryID, std::shared_ptr<Acts::LayerResolution> > > 
-      layerResolutions = nullptr;
-    /// read in by hand if the layer is of r-type and z-type (@todo make cleaner after Tracking ML)
-    /// z, r type 
+    std::shared_ptr<Acts::ResolutionMap> layerResolutions = nullptr;
+    /// read in by hand if the layer is of r-type and z-type 
+    /// (@todo make cleaner after Tracking ML)
     std::map< Acts::GeometryID, int > layerTypes;
-    
-    
+    /// amount of smearing
+    double smearParameter = 0.1; // accounts for n % gaussian width
+    /// cut parameter - percentage of thickness to be traversed;
+    double cutParameter   = 0.; //15; //  
+        
   };
   
   /// Constructor

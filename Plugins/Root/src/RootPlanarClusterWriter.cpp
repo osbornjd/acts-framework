@@ -50,6 +50,8 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
   m_outputTree->Branch("l_y", &m_ly);
   m_outputTree->Branch("cov_l_x", &m_cov_lx);
   m_outputTree->Branch("cov_l_y", &m_cov_ly);
+  m_outputTree->Branch("size_x",  &m_size_x);
+  m_outputTree->Branch("size_y",  &m_size_y);
   m_outputTree->Branch("cell_ID_x", &m_cell_IDx);
   m_outputTree->Branch("cell_ID_y", &m_cell_IDy);
   m_outputTree->Branch("cell_l_x", &m_cell_lx);
@@ -114,8 +116,10 @@ FW::Root::RootPlanarClusterWriter::writeT(
           m_z         = pos.z();
           m_lx        = local.x();
           m_ly        = local.y();
-          m_cov_lx    = 0.;  // @todo fill in
-          m_cov_ly    = 0.;  // @todo fill in
+          /// fill the covariance from the cluster
+          auto cov = cluster.covariance();
+          m_cov_lx    = cov(0,0);  
+          m_cov_ly    = cov(1,1); 
           // get the cells and run through them
           const auto& cells    = cluster.digitizationCells();
           auto detectorElement = clusterSurface.associatedDetectorElement();
@@ -135,6 +139,16 @@ FW::Root::RootPlanarClusterWriter::writeT(
               m_cell_ly.push_back(cellLocalPosition.y());
             }
           }
+          // fill the cluster size 
+          m_size_x = (*std::max_element(m_cell_IDx.begin(),
+                                        m_cell_IDx.end()))
+                     -(*std::min_element(m_cell_IDx.begin(),
+                                        m_cell_IDx.end()))+1;
+          m_size_y = (*std::max_element(m_cell_IDy.begin(),
+                                        m_cell_IDy.end()))
+                     -(*std::min_element(m_cell_IDy.begin(),
+                                         m_cell_IDy.end()))+1;
+          
           // get the truth parameters
           for (auto& tvertex : cluster.truthVertices()) {
             auto& tposition = tvertex.position();
