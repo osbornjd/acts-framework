@@ -67,6 +67,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
 
   // Setup random number distributions for some quantities
   FW::GaussDist gDist(0.,1.);
+  FW::UniformDist fDist(0.,1.);
       
   // the particle mass table
   Acts::ParticleMasses pMasses;
@@ -117,6 +118,10 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
                    << moduleKey);
         // get the hit parameters
         for (auto& hit : sData.second) {
+          // throw a certain number of hit away if configured
+          if (m_cfg.hitInefficiency != 0. 
+              && fDist(rng) < m_cfg.hitInefficiency) continue;
+          
           auto hitParameters   = hit.first.get();
           auto particleBarcode = hit.second;
           // get the surface
@@ -180,11 +185,13 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
                   continue;
                 // smeared, passed and taken
                 totalPath += sLength;
+                // write the path length : digital for strips
+                double wLength = (volumeKey < 10) ? sLength : 1.;
                 // introduce cut value for step size 
                 usedCells.push_back(
                     std::move(Acts::DigitizationCell(dStep.stepCell.channel0,
                                                      dStep.stepCell.channel1,
-                                                     sLength)));
+                                                     wLength)));
                 // recorod to get the min/max
                 channels0.push_back(dStep.stepCell.channel0);
                 channels1.push_back(dStep.stepCell.channel1);
@@ -211,7 +218,8 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
               
               // use digital clustering ? @HACK for Tracking ML 
               // only Pixel detector has analog clustering
-              Acts::Vector2D localPosition = ( (volumeKey < 10) && usedCells.size() > 1 ) ?
+              bool analog = ( (volumeKey < 10) && usedCells.size() > 1 );
+              Acts::Vector2D localPosition =  analog ?
                  Acts::Vector2D(localXana, localYana) 
               :  Acts::Vector2D(localXdig, localYdig);
               // @todo remove unneccesary conversion

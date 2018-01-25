@@ -55,8 +55,8 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
   osHits << std::setprecision(m_cfg.outputPrecision);
   // write csv truth headers
   osTruth << "hit_id,";
-  osTruth << "particle_id";
-  osTruth << "tx, ty, tz,";
+  osTruth << "particle_id,";
+  osTruth << "tx,ty,tz,";
   osTruth << "talpha, tbeta\n";
 
   size_t hitId = 0;
@@ -99,9 +99,9 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
               Acts::Vector3D lDir 
                 = cluster.referenceSurface().transform().inverse().linear()
                   * tIngoing.momentum();
-              osTruth << hitId << "," << tIngoing.barcode() 
-                      << vPosition.x() << "," << vPosition.y() << "," << vPosition.z() 
-                      << lDir.phi() << "," << lDir.theta() << '\n';
+              osTruth << hitId << "," << tIngoing.barcode() << ",";
+              osTruth << vPosition.x() << "," << vPosition.y() << "," << vPosition.z() <<','; 
+              osTruth << lDir.phi() << "," << lDir.theta() << '\n';
               
               }
           }

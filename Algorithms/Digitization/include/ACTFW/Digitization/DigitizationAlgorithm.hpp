@@ -56,6 +56,8 @@ public:
     double smearParameter = 0.1; // accounts for n % gaussian width
     /// cut parameter - percentage of thickness to be traversed;
     double cutParameter   = 0.; //15; //  
+    /// inefficiency for full hits
+    double hitInefficiency = 0.01;
         
   };
   

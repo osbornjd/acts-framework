@@ -248,8 +248,8 @@ sslbConfig.centralModuleHalfX     = {24., 24., 24., 24.};
 sslbConfig.centralModuleHalfY     = {54., 54., 54., 54.};
 sslbConfig.centralModuleThickness = {0.25, 0.25, 0.25, 0.25};
 
-sslbConfig.centralModuleReadoutBinsX = {800, 800, 800, 800};  // 60 um pitch
-sslbConfig.centralModuleReadoutBinsY = {9, 9, 9, 9};          // 1.2 cm strixels
+sslbConfig.centralModuleReadoutBinsX = {600, 600, 600, 600};  // 80 um pitch
+sslbConfig.centralModuleReadoutBinsY = {90, 90, 90, 90};      // 1.2 mm strixels
 sslbConfig.centralModuleReadoutSide  = {1, 1, 1, 1};
 sslbConfig.centralModuleLorentzAngle = {0.12, 0.12, 0.12, 0.12};
 
@@ -277,13 +277,13 @@ std::vector<double> mrMaxHx = {24.2, 32.2, 40.0};
 std::vector<double> mrHy    = {78., 78., 78.};
 
 // simplified strixels readout
-std::vector<size_t> mrReadoutBinsX = {968, 1288, 1600};  // 50 um pitch
-std::vector<size_t> mrReadoutBinsY = {60, 60, 60};       // 1.6 mm strixels
+std::vector<size_t> mrReadoutBinsX = {605, 805, 1000};  // 80 um pitch
+std::vector<size_t> mrReadoutBinsY = {130, 130, 130};   // 1.2 mm strixels
 std::vector<int>    mrReadoutSide  = {1, 1, 1};
 std::vector<double> mrLorentzAngle = {0., 0., 0.};
 
 std::vector<size_t>         mPhiBins   = {52, 56, 60};
-std::vector<double>         mThickness = {0.2, 0.2, 0.2};
+std::vector<double>         mThickness = {0.25, 0.25, 0.25};
 std::vector<Acts::Material> mMaterial  = {ssMaterial, ssMaterial, ssMaterial};
 
 sslbConfig.posnegLayerBinMultipliers = {1, 2};
@@ -384,11 +384,11 @@ lslbConfig.centralModuleBinningSchema        = {{120, 21}, {152, 21}};
 lslbConfig.centralModuleTiltPhi              = {-0.15, -0.15};
 lslbConfig.centralModuleHalfX                = {24., 24.};
 lslbConfig.centralModuleHalfY                = {54., 54.};
-lslbConfig.centralModuleThickness            = {0.25, 0.25};
+lslbConfig.centralModuleThickness            = {0.35, 0.35};
 lslbConfig.centralModuleMaterial             = {lsMaterial, lsMaterial};
 
-lslbConfig.centralModuleReadoutBinsX = {840, 840};  // 100 um pitch
-lslbConfig.centralModuleReadoutBinsY = {1, 1};      // 1 strip
+lslbConfig.centralModuleReadoutBinsX = {400, 400};  // 120 um pitch
+lslbConfig.centralModuleReadoutBinsY = {10, 10};      // 10 strips = 10.8 mm
 lslbConfig.centralModuleReadoutSide  = {1, 1};
 lslbConfig.centralModuleLorentzAngle = {0.08, 0.08};
 
@@ -411,14 +411,14 @@ lslbConfig.centralModulePositions = lslbCentralModulePositions;
 
 // configure the endcaps
 mrMinHx    = {40., 78.};
-mrMaxHx    = {64.};
+mrMaxHx    = {64.2, 84.};
 mrHy       = {78., 78.};
 mPhiBins   = {58, 46};
-mThickness = {0.25, 0.25};
+mThickness = {0.35, 0.35};
 mMaterial  = {lsMaterial, lsMaterial};
 
-mrReadoutBinsX = {1120, 1120};  // 100 um pitch
-mrReadoutBinsY = {1, 1};        // 2 strips
+mrReadoutBinsX = {1070, 1400};  // 120 um pitch
+mrReadoutBinsY = {15, 15};      // 15 strips - 10.2 mm
 mrReadoutSide  = {1, 1};
 mrLorentzAngle = {0., 0.};
 
