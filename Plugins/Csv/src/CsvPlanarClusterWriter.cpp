@@ -57,7 +57,7 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
   osTruth << "hit_id,";
   osTruth << "particle_id,";
   osTruth << "tx,ty,tz,";
-  osTruth << "talpha, tbeta\n";
+  osTruth << "tphi,ttheta\n";
 
   size_t hitId = 0;
   for (auto& volumeData : clusters) {
@@ -96,12 +96,9 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
               // positon
               Acts::Vector3D vPosition = tVertex.position();
               // create the local angles talpha, tbeta
-              Acts::Vector3D lDir 
-                = cluster.referenceSurface().transform().inverse().linear()
-                  * tIngoing.momentum();
               osTruth << hitId << "," << tIngoing.barcode() << ",";
               osTruth << vPosition.x() << "," << vPosition.y() << "," << vPosition.z() <<','; 
-              osTruth << lDir.phi() << "," << lDir.theta() << '\n';
+              osTruth << tIngoing.momentum().phi() << "," << tIngoing.momentum().theta() << '\n';
               
               }
           }
