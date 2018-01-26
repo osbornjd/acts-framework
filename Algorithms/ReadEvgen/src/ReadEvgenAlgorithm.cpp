@@ -91,7 +91,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
   Acts::Vector3D vertex(vertexX, vertexY, vertexZ);
 
   // fill in the particles
-  barcode_type pCounter = 0;
+  barcode_type pCounter = 1;
   for (auto& hsVertex : hardscatterEvent) {
     // shift the vertex
     hsVertex.shift(vertex);
@@ -100,7 +100,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
       // generate the new barcode, and assign it
       Acts::ParticleProperties* hsp
           = const_cast<Acts::ParticleProperties*>(&oparticle);
-      hsp->assign(m_cfg.barcodeSvc->generate(0, pCounter++));
+      hsp->assign(m_cfg.barcodeSvc->generate(1, pCounter++));
     }
     // store the hard scatter vertices
     evgen.push_back(hsVertex);
@@ -122,7 +122,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
       ACTS_ERROR("Could not read pile up event " << ipue << ". Aborting.");
       return FW::ProcessCode::ABORT;
     }
-    pCounter = 0;
+    pCounter = 1;
     // loop over pileup vertex per event
     for (auto& puVertex : pileupEvent) {
       // shift to the pile-up vertex
@@ -131,7 +131,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
       for (auto& oparticle : puVertex.outgoingParticles()) {
         Acts::ParticleProperties* hsp
             = const_cast<Acts::ParticleProperties*>(&oparticle);
-        hsp->assign(m_cfg.barcodeSvc->generate(ipue + 1, pCounter++));
+        hsp->assign(m_cfg.barcodeSvc->generate(ipue + 2, pCounter++));
       }
       evgen.push_back(puVertex);
     }
