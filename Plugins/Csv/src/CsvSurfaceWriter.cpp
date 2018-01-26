@@ -65,7 +65,7 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
 
   // Get the layer geo id information
   auto geoID = surface.geoID();
-  auto volumeID    = geoID.value(Acts::GeometryID::layer_mask);
+  auto volumeID    = geoID.value(Acts::GeometryID::volume_mask);
   auto layerID     = geoID.value(Acts::GeometryID::layer_mask);
   auto sensitiveID = geoID.value(Acts::GeometryID::sensitive_mask);
   

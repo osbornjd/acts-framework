@@ -115,11 +115,11 @@ main(int argc, char* argv[])
   
   FW::Csv::CsvSurfaceWriter::Config sfCsvWriterConfig("SurfaceWriter",
                                                       Acts::Logging::INFO);
-  sfCsvjWriterConfig.outputPrecision    = 6;
-  sfCsvjWriterConfig.outputSensitive    = true;
-  sfCsvjWriterConfig.outputStream       = csvStream;
+  sfCsvWriterConfig.outputPrecision    = 6;
+  sfCsvWriterConfig.outputSensitive    = true;
+  sfCsvWriterConfig.outputStream       = csvStream;
   auto sfCsvWriter
-          = std::make_shared<FW::Csv::CsvSurfaceWriter>(sfCsvjWriterConfig);
+          = std::make_shared<FW::Csv::CsvSurfaceWriter>(sfCsvWriterConfig);
   
   // configure the tracking geometry writer
   FW::Csv::CsvTrackingGeometryWriter::Config tgCsvWriterConfig(
