@@ -6,4 +6,4 @@ target_link_libraries(ACTFWCsvPlugin PUBLIC ACTSCore ACTFramework)
 target_link_libraries(ACTFWCsvPlugin PUBLIC Threads::Threads)
 
 install(TARGETS ACTFWCsvPlugin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}) 

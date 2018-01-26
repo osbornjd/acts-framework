@@ -10,6 +10,8 @@
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
+#include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
+#include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
 
 namespace po = boost::program_options;
@@ -57,6 +59,8 @@ main(int argc, char* argv[])
   // the detectors
   std::vector<std::string> subDetectors
       = {"BeamPipe", "Pix", "PST", "SStrip", "LStrip"};
+  
+  // OBJ output
   // the writers
   std::vector<std::shared_ptr<FWObj::ObjSurfaceWriter>> subWriters;
   std::vector<std::shared_ptr<std::ofstream>>           subStreams;
@@ -102,4 +106,33 @@ main(int argc, char* argv[])
   for (auto sStreams : subStreams) {
     sStreams->close();
   }
+  
+  // CSV output
+  // sub detector stream
+  auto csvStream = std::shared_ptr<std::ofstream>(new std::ofstream);
+  std::string csvOutputName = "Detector.csv";
+  csvStream->open(csvOutputName);
+  
+  FW::Csv::CsvSurfaceWriter::Config sfCsvWriterConfig("SurfaceWriter",
+                                                      Acts::Logging::INFO);
+  sfCsvjWriterConfig.outputPrecision    = 6;
+  sfCsvjWriterConfig.outputSensitive    = true;
+  sfCsvjWriterConfig.outputStream       = csvStream;
+  auto sfCsvWriter
+          = std::make_shared<FW::Csv::CsvSurfaceWriter>(sfCsvjWriterConfig);
+  
+  // configure the tracking geometry writer
+  FW::Csv::CsvTrackingGeometryWriter::Config tgCsvWriterConfig(
+      "CsvTrackingGeometryWriter", Acts::Logging::INFO);
+  tgCsvWriterConfig.surfaceWriter       = sfCsvWriter;
+  tgCsvWriterConfig.layerPrefix         = "\n";
+  // the tracking geometry writers
+  auto tgCsvWriter
+      = std::make_shared<FW::Csv::CsvTrackingGeometryWriter>(tgCsvWriterConfig);
+
+  // write the tracking geometry object
+  tgCsvWriter->write(*(tGeometry.get()));
+  // close the file
+  csvStream->close();
+  
 }
