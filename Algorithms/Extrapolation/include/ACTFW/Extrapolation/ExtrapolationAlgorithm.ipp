@@ -202,7 +202,7 @@ FW::ExtrapolationAlgorithm::executeTestT(
         if (executeTestT<T, BoundT>(rEngine,
                                     uDist,
                                     ecg,
-                                    op.barcode(),
+                                    daughterBc,
                                     op.pdgID(),
                                     eCells,
                                     simulated,
