@@ -35,7 +35,6 @@ auto beamPipeVolumeBuilder
 // add to the list of builders
 volumeBuilders.push_back(beamPipeVolumeBuilder);
 
-/*
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 // Pixel detector
@@ -216,7 +215,6 @@ auto pstVolumeBuilder = std::make_shared<const Acts::CylinderVolumeBuilder>(
 // add to the detector builds
 volumeBuilders.push_back(pstVolumeBuilder);
 
-*/
 //-------------------------------------------------------------------------------------
 // SHORT strip detector
 //-------------------------------------------------------------------------------------

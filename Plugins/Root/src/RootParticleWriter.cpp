@@ -127,7 +127,7 @@ FW::Root::RootParticleWriter::writeT(
         // the barcode service
         m_vertex.push_back(m_cfg.barcodeSvc->vertex(particle.barcode()));
         m_primary.push_back(m_cfg.barcodeSvc->primary(particle.barcode()));
-        m_generation.push_back(m_cfg.barcodeSvc->generate(particle.barcode()));
+        m_generation.push_back(m_cfg.barcodeSvc->generation(particle.barcode()));
         m_secondary.push_back(m_cfg.barcodeSvc->secondary(particle.barcode()));
         m_process.push_back(m_cfg.barcodeSvc->process(particle.barcode()));
       }

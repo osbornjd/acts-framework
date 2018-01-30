@@ -33,7 +33,7 @@ FW::Csv::CsvSurfaceWriter::CsvSurfaceWriter(
   // Write down the file prefix
   if (m_cfg.filePrefix != "")
      (*m_cfg.outputStream) << m_cfg.filePrefix << '\n';
-  (*m_cfg.outputStream) << "volumeID,layerID,sensitiveID,";
+  (*m_cfg.outputStream) << "volume_id,layer_id,module_id,";
   (*m_cfg.outputStream) << "cx,cy,cz,";
   (*m_cfg.outputStream) << "rot(0,0),rot(0,1),rot(0,2),";
   (*m_cfg.outputStream) << "rot(1,0),rot(1,1),rot(1,2),";
