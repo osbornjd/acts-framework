@@ -237,7 +237,6 @@ Acts::MaterialProperties ssecmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 2.5*A
 // Module material - X0, L0, A, Z, Rho
 Acts::Material ssMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
 
-
 // configure the central barrel
 sslbConfig.centralLayerBinMultipliers = {1, 1};
 sslbConfig.centralLayerRadii          = {260., 360., 500., 660.};

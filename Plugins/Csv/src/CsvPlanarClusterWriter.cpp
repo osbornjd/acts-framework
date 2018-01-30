@@ -57,7 +57,7 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
   osTruth << "hit_id,";
   osTruth << "particle_id,";
   osTruth << "tx,ty,tz,";
-  osTruth << "tphi,ttheta\n";
+  osTruth << "tpx,tpy,tpz\n";
 
   size_t hitId = 0;
   for (auto& volumeData : clusters) {
@@ -98,7 +98,7 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
               // create the local angles talpha, tbeta
               osTruth << hitId << "," << tIngoing.barcode() << ",";
               osTruth << vPosition.x() << "," << vPosition.y() << "," << vPosition.z() <<','; 
-              osTruth << tIngoing.momentum().phi() << "," << tIngoing.momentum().theta() << '\n';
+              osTruth << tIngoing.momentum().x() << "," << tIngoing.momentum().y() <<  "," << tIngoing.momentum().z()<< '\n';
               
               }
           }
