@@ -34,6 +34,8 @@ auto beamPipeVolumeBuilder
         Acts::getDefaultLogger("BeamPipeVolumeBuilder", volumeLLevel));
 // add to the list of builders
 volumeBuilders.push_back(beamPipeVolumeBuilder);
+
+/*
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 // Pixel detector
@@ -48,7 +50,8 @@ plbConfig.layerIdentification = "Pixel";
 // envelope for layers
 std::pair<double, double> pcEnvelope(2., 2.);
 // Layer material properties - thickness, X0, L0, A, Z, Rho
-Acts::MaterialProperties pcmProperties(1., 95.7, 465.2, 28.03, 14., 2.32e-3);
+Acts::MaterialProperties pcmbProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 1.5*Acts::units::_mm);
+Acts::MaterialProperties pcmecProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 1.5*Acts::units::_mm);  
 // Module material - X0, L0, A, Z, Rho
 Acts::Material pcMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
 
@@ -65,7 +68,7 @@ plbConfig.centralLayerEnvelopes
 // material concentration alsways outside the modules
 plbConfig.centralLayerMaterialConcentration = {1, 1, 1, 1};
 plbConfig.centralLayerMaterialProperties
-    = {pcmProperties, pcmProperties, pcmProperties, pcmProperties};
+    = {pcmbProperties, pcmbProperties, pcmbProperties, pcmbProperties};
 plbConfig.centralModuleBinningSchema = {{16, 14}, {32, 14}, {52, 14}, {78, 14}};
 plbConfig.centralModuleTiltPhi       = {0.14, 0.14, 0.14, 0.14};
 plbConfig.centralModuleHalfX         = {8.4, 8.4, 8.4, 8.4};
@@ -116,16 +119,16 @@ plbConfig.posnegLayerEnvelopeR = {1. * Acts::units::_mm,
                                   1. * Acts::units::_mm,
                                   1. * Acts::units::_mm,
                                   1. * Acts::units::_mm};
-// material concentration is always behing
+// material concentration is always behind the layer in the pixels
 plbConfig.posnegLayerMaterialConcentration = std::vector<int>(7, 0);
 // layer structure surface has pixel material properties
-plbConfig.posnegLayerMaterialProperties = {pcmProperties,
-                                           pcmProperties,
-                                           pcmProperties,
-                                           pcmProperties,
-                                           pcmProperties,
-                                           pcmProperties,
-                                           pcmProperties};
+plbConfig.posnegLayerMaterialProperties = {pcmecProperties,
+                                           pcmecProperties,
+                                           pcmecProperties,
+                                           pcmecProperties,
+                                           pcmecProperties,
+                                           pcmecProperties,
+                                           pcmecProperties};
 std::vector<double>         perHX = {8.4, 8.4};    // half length x
 std::vector<double>         perHY = {36., 36.};    // half length y
 std::vector<size_t>         perBP = {40, 68};      // bins in phi
@@ -213,6 +216,7 @@ auto pstVolumeBuilder = std::make_shared<const Acts::CylinderVolumeBuilder>(
 // add to the detector builds
 volumeBuilders.push_back(pstVolumeBuilder);
 
+*/
 //-------------------------------------------------------------------------------------
 // SHORT strip detector
 //-------------------------------------------------------------------------------------
@@ -229,9 +233,12 @@ sslbConfig.layerIdentification = "SStrip";
 // envelope double
 std::pair<double, double> ssEnvelope(2., 2.);
 // Layer material properties - thickness, X0, L0, A, Z, Rho
-Acts::MaterialProperties ssmProperties(1., 95.7, 465.2, 28.03, 14., 2.32e-3);
+Acts::MaterialProperties ssbmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 2.*Acts::units::_mm);
+Acts::MaterialProperties ssecmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 2.5*Acts::units::_mm);
+
 // Module material - X0, L0, A, Z, Rho
 Acts::Material ssMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
+
 
 // configure the central barrel
 sslbConfig.centralLayerBinMultipliers = {1, 1};
@@ -240,7 +247,7 @@ sslbConfig.centralLayerEnvelopes
     = {ssEnvelope, ssEnvelope, ssEnvelope, ssEnvelope};
 sslbConfig.centralLayerMaterialConcentration = {-1, -1, -1, -1};
 sslbConfig.centralLayerMaterialProperties
-    = {ssmProperties, ssmProperties, ssmProperties, ssmProperties};
+    = {ssbmProperties, ssbmProperties, ssbmProperties, ssbmProperties};
 sslbConfig.centralModuleBinningSchema
     = {{40, 21}, {56, 21}, {78, 21}, {102, 21}};
 sslbConfig.centralModuleTiltPhi   = {-0.15, -0.15, -0.15, -0.15};
@@ -282,7 +289,7 @@ std::vector<size_t> mrReadoutBinsY = {130, 130, 130};   // 1.2 mm strixels
 std::vector<int>    mrReadoutSide  = {1, 1, 1};
 std::vector<double> mrLorentzAngle = {0., 0., 0.};
 
-std::vector<size_t>         mPhiBins   = {52, 56, 60};
+std::vector<size_t>         mPhiBins   = {54, 56, 60};
 std::vector<double>         mThickness = {0.25, 0.25, 0.25};
 std::vector<Acts::Material> mMaterial  = {ssMaterial, ssMaterial, ssMaterial};
 
@@ -293,7 +300,7 @@ size_t nposnegs                  = sslbConfig.posnegLayerPositionsZ.size();
 sslbConfig.posnegLayerEnvelopeR  = std::vector<double>(nposnegs, 5.);
 sslbConfig.posnegLayerMaterialConcentration = std::vector<int>(nposnegs, 0);
 sslbConfig.posnegLayerMaterialProperties
-    = std::vector<Acts::MaterialProperties>(nposnegs, ssmProperties);
+    = std::vector<Acts::MaterialProperties>(nposnegs, ssecmProperties);
 sslbConfig.posnegModuleMinHalfX
     = std::vector<std::vector<double>>(nposnegs, mrMinHx);
 sslbConfig.posnegModuleMaxHalfX
@@ -353,7 +360,7 @@ auto sstripVolumeBuilder = std::make_shared<const Acts::CylinderVolumeBuilder>(
 
 //-------------------------------------------------------------------------------------
 // add to the list of builders
-volumeBuilders.push_back(sstripVolumeBuilder);
+// volumeBuilders.push_back(sstripVolumeBuilder);
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
@@ -369,8 +376,9 @@ lslbConfig.layerIdentification = "LStrip";
 // some prep work
 // envelope double
 std::pair<double, double> lsEnvelope(2., 2.);
-// Layer material properties - thickness, X0, L0, A, Z, Rho
-Acts::MaterialProperties lsmProperties(1., 95.7, 465.2, 28.03, 14., 2.32e-3);
+// Layer material properties - thickness, X0, L0, A, Z, Rho - barrel
+Acts::MaterialProperties lsbmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 2.5*Acts::units::_mm);
+Acts::MaterialProperties lsecmProperties( 95.7, 465.2, 28.03, 14., 2.32e-3, 3.5*Acts::units::_mm);
 // Module material - X0, L0, A, Z, Rho
 Acts::Material lsMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
 
@@ -379,7 +387,7 @@ lslbConfig.centralLayerBinMultipliers        = {1, 1};
 lslbConfig.centralLayerRadii                 = {820., 1020.};
 lslbConfig.centralLayerEnvelopes             = {lsEnvelope, lsEnvelope};
 lslbConfig.centralLayerMaterialConcentration = {-1, -1};
-lslbConfig.centralLayerMaterialProperties    = {lsmProperties, lsmProperties};
+lslbConfig.centralLayerMaterialProperties    = {lsbmProperties, lsbmProperties};
 lslbConfig.centralModuleBinningSchema        = {{120, 21}, {152, 21}};
 lslbConfig.centralModuleTiltPhi              = {-0.15, -0.15};
 lslbConfig.centralModuleHalfX                = {24., 24.};
@@ -410,14 +418,14 @@ for (size_t lslb = 0; lslb < lslbConfig.centralLayerRadii.size(); ++lslb) {
 lslbConfig.centralModulePositions = lslbCentralModulePositions;
 
 // configure the endcaps
-mrMinHx    = {40., 78.};
-mrMaxHx    = {64.2, 84.};
+mrMinHx    = {54., 66.};
+mrMaxHx    = {64.2, 72.};
 mrHy       = {78., 78.};
-mPhiBins   = {58, 46};
+mPhiBins   = {48, 50};
 mThickness = {0.35, 0.35};
 mMaterial  = {lsMaterial, lsMaterial};
 
-mrReadoutBinsX = {1070, 1400};  // 120 um pitch
+mrReadoutBinsX = {1070, 1200};  // 120 um pitch
 mrReadoutBinsY = {15, 15};      // 15 strips - 10.2 mm
 mrReadoutSide  = {1, 1};
 mrLorentzAngle = {0., 0.};
@@ -429,7 +437,7 @@ nposnegs                         = lslbConfig.posnegLayerPositionsZ.size();
 lslbConfig.posnegLayerEnvelopeR  = std::vector<double>(nposnegs, 5.);
 lslbConfig.posnegLayerMaterialConcentration = std::vector<int>(nposnegs, 0);
 lslbConfig.posnegLayerMaterialProperties
-    = std::vector<Acts::MaterialProperties>(nposnegs, lsmProperties);
+    = std::vector<Acts::MaterialProperties>(nposnegs, lsecmProperties);
 lslbConfig.posnegModuleMinHalfX
     = std::vector<std::vector<double>>(nposnegs, mrMinHx);
 lslbConfig.posnegModuleMaxHalfX
@@ -487,3 +495,4 @@ auto lstripVolumeBuilder = std::make_shared<const Acts::CylinderVolumeBuilder>(
     Acts::getDefaultLogger("LStripVolumeBuilder", volumeLLevel));
 // add to the list of builders
 volumeBuilders.push_back(lstripVolumeBuilder);
+
