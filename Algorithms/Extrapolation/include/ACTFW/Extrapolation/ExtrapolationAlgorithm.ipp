@@ -21,6 +21,7 @@ FW::ExtrapolationAlgorithm::executeTestT(
     UniformDist&                             uDist,
     Acts::ExtrapolationCell<T>&              ecc,
     barcode_type                             barcode,
+    barcode_type&                            sgoffset,   
     int                                      pdgcode,
     std::vector<Acts::ExtrapolationCell<T>>& eCells,
     std::vector<Acts::ProcessVertex>&        simulated,
@@ -62,6 +63,7 @@ FW::ExtrapolationAlgorithm::executeTestT(
     // sample free path in terms of nuclear interaction length
     double al           = 1.;  // scaling here
     ecc.materialLimitL0 = -log(uDist(rEngine)) * al;
+    ACTS_VERBOSE("HadronicInteraction path limit samples as : " << ecc.materialLimitL0 );
     ecc.addConfigurationMode(Acts::ExtrapolationMode::StopWithMaterialLimitL0);
   }
 
@@ -155,12 +157,14 @@ FW::ExtrapolationAlgorithm::executeTestT(
       // count the successful daughters
       //
       // Add children to the vector of children
-      int                                   daughter = 0;
       std::vector<Acts::ParticleProperties> pIngoing = {};
       std::vector<Acts::ParticleProperties> pOutgoing;
 
       // create only for
+      int sdaugther = 0;
       for (auto& op : vtx.outgoingParticles()) {
+        // a new vertex has been - created, 
+        // generation jump happend - we can reset the secondary counter
         ACTS_VERBOSE("Particle with charge = " << op.charge());
         double d0    = 0.;
         double z0    = 0.;
@@ -175,16 +179,36 @@ FW::ExtrapolationAlgorithm::executeTestT(
         // create a daughter barcode in relation to the mother
         barcode_type daughterBc = op.barcode();
         if (m_cfg.barcodeSvc) {
+          // input barcode
           // get vertex, primary and generation
           barcode_type vtx  = m_cfg.barcodeSvc->vertex(barcode);
           barcode_type prim = m_cfg.barcodeSvc->primary(barcode);
           barcode_type gen  = m_cfg.barcodeSvc->generation(barcode);
+          barcode_type sec  = m_cfg.barcodeSvc->secondary(barcode);
+          barcode_type proc = m_cfg.barcodeSvc->process(barcode);          
+          
+          // we set the process to 1
+          if ( (gen == 0 && sgoffset == 0) || (proc ==1 && sdaugther == 0)) {
+            // it's the very first daughter of a generation
+            // it carries the process 1
+            proc     = 1;
+            // we can reset the offset x
+            sgoffset = 0;
+          } else {
+            // otherwise the process is always 2
+            proc = 2;
+          }
+
           // increase the generation
           ++gen;
+          ++sdaugther;
+          // we se the process to identify the first in each go
+          
           // generate a new particle with a dummy process 211
           // @todo update process after final Fatras integration
           daughterBc
-              = m_cfg.barcodeSvc->generate(vtx, prim, gen, ++daughter, 1);
+              = m_cfg.barcodeSvc->generate(vtx, prim, gen, ++sgoffset, proc);
+
           pOutgoing.push_back(Acts::ParticleProperties(
               op.momentum(), op.mass(), op.charge(), op.pdgID(), daughterBc));
         }
@@ -203,6 +227,7 @@ FW::ExtrapolationAlgorithm::executeTestT(
                                     uDist,
                                     ecg,
                                     daughterBc,
+                                    sgoffset,
                                     op.pdgID(),
                                     eCells,
                                     simulated,

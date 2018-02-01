@@ -357,7 +357,7 @@ auto sstripVolumeBuilder = std::make_shared<const Acts::CylinderVolumeBuilder>(
 
 //-------------------------------------------------------------------------------------
 // add to the list of builders
-// volumeBuilders.push_back(sstripVolumeBuilder);
+volumeBuilders.push_back(sstripVolumeBuilder);
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------

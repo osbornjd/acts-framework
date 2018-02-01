@@ -35,9 +35,9 @@ FW::Csv::CsvSurfaceWriter::CsvSurfaceWriter(
      (*m_cfg.outputStream) << m_cfg.filePrefix << '\n';
   (*m_cfg.outputStream) << "volume_id,layer_id,module_id,";
   (*m_cfg.outputStream) << "cx,cy,cz,";
-  (*m_cfg.outputStream) << "rot(0,0),rot(0,1),rot(0,2),";
-  (*m_cfg.outputStream) << "rot(1,0),rot(1,1),rot(1,2),";
-  (*m_cfg.outputStream) << "rot(2,0),rot(2,1),rot(2,2)";
+  (*m_cfg.outputStream) << "rot_xu,rot_xv,rot_xw,";
+  (*m_cfg.outputStream) << "rot_yu,rot_yv,rot_yw,";
+  (*m_cfg.outputStream) << "rot_zu,rot_zv,rot_zw";
   (*m_cfg.outputStream) << '\n';
   (*m_cfg.outputStream) << std::setprecision(m_cfg.outputPrecision);
 

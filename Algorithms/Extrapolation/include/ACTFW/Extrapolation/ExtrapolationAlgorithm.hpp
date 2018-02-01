@@ -80,6 +80,7 @@ public:
     std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     /// the BarcodeSvc
     std::shared_ptr<BarcodeSvc> barcodeSvc = nullptr;
+    
   };
 
   /// Constructor
@@ -106,7 +107,8 @@ private:
       RandomEngine&                            rEngine,
       UniformDist&                             uDist,
       Acts::ExtrapolationCell<T>&              ecc,
-      barcode_type                             barcode,
+      barcode_type                             barcode, 
+      barcode_type&                            subgenoffset,         
       int                                      pdgcode,
       std::vector<Acts::ExtrapolationCell<T>>& eCells,
       std::vector<Acts::ProcessVertex>&        simulated,
