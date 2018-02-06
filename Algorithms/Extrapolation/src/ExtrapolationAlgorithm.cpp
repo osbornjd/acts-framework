@@ -119,17 +119,21 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
       pars << d0, z0, phi, theta, qop;
       // some screen output
       std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+      // sub generation offset
+      barcode_type sgoffset = 0;
       // execute the test for charged particles
       if (particle.charge()) {
         // charged extrapolation - with hit recording
         Acts::BoundParameters startParameters(
             std::move(cov), std::move(pars), surface);
         Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
+        // get the sub generation offset
         if (executeTestT<Acts::TrackParameters, Acts::BoundParameters>(
                 rng,
                 udist,
                 ecc,
                 particle.barcode(),
+                sgoffset,
                 particle.pdgID(),
                 cCells,
                 simulated,
@@ -148,6 +152,7 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
                 udist,
                 ecn,
                 particle.barcode(),
+                sgoffset,
                 particle.pdgID(),
                 nCells,
                 simulated)
