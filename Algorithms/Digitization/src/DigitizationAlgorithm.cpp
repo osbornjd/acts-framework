@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <stdexcept>
-
+#include <algorithm>    // std::random_shuffle
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -49,6 +49,11 @@ FW::ProcessCode
 FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
   
+  size_t simulated_hits   = 0;
+  size_t dropped_hits     = 0;
+  size_t random_hits      = 0;
+  size_t skipped_modules  = 0;
+  
   // prepare the input data
   const FW::DetectorData<geo_id_value,
                          std::pair<std::unique_ptr<const Acts::TrackParameters>,
@@ -66,8 +71,9 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
   FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
 
   // Setup random number distributions for some quantities
-  FW::GaussDist gDist(0.,1.);
+  FW::GaussDist   gDist(0.,1.);
   FW::UniformDist fDist(0.,1.);
+  FW::PoissonDist pDist(1);
       
   // the particle mass table
   Acts::ParticleMasses pMasses;
@@ -113,16 +119,97 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
       }
       
       for (auto& sData : lData.second) {
+
+        // for memory cleanup
+        std::vector<Acts::BoundParameters*> mcleanup;
+
+        
         auto moduleKey = sData.first;
         ACTS_DEBUG("-- Processing Module Data collection for module with ID "
                    << moduleKey);
-        // get the hit parameters
+        
+        // @HACK for TrackML
+        typedef std::pair<const Acts::TrackParameters*, barcode_type > HitAndBc;
+        std::vector< HitAndBc > processedHits;
+        processedHits.reserve(sData.second.size()+10);
+  
+        const Acts::Surface* moduleSurface = 0;
+  
+        // (1) fill the hits from simulation parameters
         for (auto& hit : sData.second) {
           // throw a certain number of hit away if configured
           if (m_cfg.hitInefficiency != 0. 
-              && fDist(rng) < m_cfg.hitInefficiency) continue;
+              && fDist(rng) < m_cfg.hitInefficiency) {
+                ++dropped_hits;
+                continue;
+          }
+          // one simulated hit
+          ++simulated_hits;
+          // get the hit parametes and the barcode
+          auto hitPars   = hit.first.get();
+          auto partBc = hit.second;
+          // fill into the new vector
+          processedHits.push_back(HitAndBc(hitPars,partBc)); 
+          // story the module surface
+          moduleSurface = &hitPars->referenceSurface();
+        }
+        
+        // (2) add random some random hits
+        size_t nHits = moduleSurface ? pDist(rng) : 0;
+        if (!nHits) ++skipped_modules;
+        
+        for (size_t ih = 0; ih < nHits; ++ih){
           
-          auto hitParameters   = hit.first.get();
+          // let's create a random hit
+          // 
+          auto vStore = moduleSurface->bounds().valueStore();
+          // throw a local position in Y
+          double locX = 0.;          
+          double locY = 0.;          
+          if (vStore.size() == 2){
+            // rectangle case
+            locX = (-1 + 2*fDist(rng))*vStore[0];
+            locY = (-1 + 2*fDist(rng))*vStore[1];
+          } else if (vStore.size() == 3){
+            // trapezoidal case
+            double maxY = vStore[2];
+            locY = (-1 + 2*fDist(rng))*maxY;
+            double minX = vStore[0];
+            double maxX = vStore[1];
+            double kXY = (maxX-minX)/(2*maxY);
+            double maxXatY = minX + kXY*(locY+maxY); 
+            locX = (-1 + 2*fDist(rng))*maxXatY;
+          }
+          
+          // we have the two local coorinates
+          // now generate phi and theta
+          // we want them to loosely correlate with the 
+          // phi / theta direction where the surface sits
+          // this is to avoid randomly big clusters again
+          double cphi   = moduleSurface->center().phi();
+          double ctheta = moduleSurface->center().theta();
+          double rphi   = cphi + (-1+2*fDist(rng))*0.25*M_PI;
+          double rtheta = ctheta + (-1+2*fDist(rng))*0.25*M_PI;
+          double qop = 0.000001;
+          
+          Acts::ActsVector<double, Acts::NGlobalPars> rpvec;
+          rpvec << locX,locY,rphi,rtheta,qop;
+          Acts::BoundParameters* rParameters
+             = new Acts::BoundParameters(nullptr,rpvec,*moduleSurface);
+          // fill into the new vector
+          processedHits.push_back(HitAndBc(rParameters,0)); 
+          mcleanup.push_back(rParameters);
+          // increase the random hit counter 
+          ++random_hits;
+        } // loop over random hits
+        
+        // randomize the position in the processedHits vector
+        std::random_shuffle(processedHits.begin(),processedHits.end());
+                
+        // get the hit parameters
+        for (auto& hit : processedHits) {
+          // process as is
+          auto hitParameters   = hit.first;
           auto particleBarcode = hit.second;
           // get the surface
           const Acts::Surface& hitSurface = hitParameters->referenceSurface();
@@ -144,12 +231,16 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
               Acts::Vector2D localIntersection(pars[Acts::ParDef::eLOC_0],
                                                pars[Acts::ParDef::eLOC_1]);
               Acts::Vector3D localDirection(
-                  hitSurface.transform().inverse().linear() * momentum);
+                  hitSurface.transform().inverse().linear() * momentum.unit());
+
+              // we ignore extreme incident angles
+              if (std::abs(localDirection.z())<m_cfg.cosThetaLocMin) continue;
+              
               // position
               std::vector<Acts::DigitizationStep> dSteps
                   = m_cfg.planarModuleStepper->cellSteps(*hitDigitizationModule,
                                                          localIntersection,
-                                                         localDirection.unit());
+                                                         localDirection);
               // everything under threshold or edge effects
               if (!dSteps.size()) continue;
               /// let' create a cluster position - centroid method  
@@ -294,9 +385,17 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
                                moduleKey,
                                std::move(pCluster));
 
-            }  // hit moulde proection
+            }  // hit moulde protection
+            
+            
+            
           }    // hit element protection
         }      // hit loop
+        
+        // memory cleanup per module
+        for (auto& mparams : mcleanup)
+          delete mparams;
+        
       }        // moudle loop
     }          // layer loop
   }            // volume loop
@@ -311,6 +410,10 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }
+
+  ACTS_INFO("This event had " << simulated_hits << " simulated vs. " << random_hits << " injected random hits.");
+  ACTS_INFO("Hits dropped tue to inefficiencies         : " << dropped_hits );
+  ACTS_INFO("Modules skipped due to poisson fluctuation : " << skipped_modules );
 
   return FW::ProcessCode::SUCCESS;
 }

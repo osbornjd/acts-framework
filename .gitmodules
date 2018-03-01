@@ -4,3 +4,6 @@
 [submodule "acts-fatras"]
 	path = external/acts-fatras
 	url = ../acts-fatras.git
+[submodule "external/acts-data"]
+	path = external/acts-data
+	url = ssh://git@gitlab.cern.ch:7999/acts/acts-data.git

@@ -26,6 +26,7 @@ FW::ProcessCode
 setupWriters(FW::Sequencer&                  sequencer,
              std::shared_ptr<FW::BarcodeSvc> barcode,
              std::string                     outputDir,
+             bool                            production,
              Acts::Logging::Level            defaultLevel)
 {
   const std::string particles = "FatrasParticles";
@@ -46,7 +47,8 @@ setupWriters(FW::Sequencer&                  sequencer,
   pWriterRootConfig.filePath   = FW::joinPaths(outputDir, "particles.root");
   pWriterRootConfig.barcodeSvc = barcode;
   auto pWriterRoot
-      = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
+      = production ? nullptr : 
+        std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
 
   // clusters as csv
   FW::Csv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
@@ -59,7 +61,9 @@ setupWriters(FW::Sequencer&                  sequencer,
   FW::Root::RootPlanarClusterWriter::Config clusterWriterRootConfig;
   clusterWriterRootConfig.collection = clusters;
   clusterWriterRootConfig.filePath = FW::joinPaths(outputDir, "clusters.root");
-  auto clusteWriterRoot = std::make_shared<FW::Root::RootPlanarClusterWriter>(
+  auto clusteWriterRoot 
+    = production ? nullptr : 
+      std::make_shared<FW::Root::RootPlanarClusterWriter>(
       clusterWriterRootConfig);
 
   // space points as json
@@ -67,7 +71,8 @@ setupWriters(FW::Sequencer&                  sequencer,
   spWriterJsonConfig.collection = points;
   spWriterJsonConfig.outputDir  = outputDir;
   auto spWriterJson
-      = std::make_shared<FW::Json::JsonSpacePointWriter<Acts::Vector3D>>(
+      = production ? nullptr : 
+        std::make_shared<FW::Json::JsonSpacePointWriter<Acts::Vector3D>>(
           spWriterJsonConfig);
 
   // space points as obj
@@ -75,7 +80,8 @@ setupWriters(FW::Sequencer&                  sequencer,
   spWriterObjConfig.collection = points;
   spWriterObjConfig.outputDir  = outputDir;
   auto spWriterObj
-      = std::make_shared<FW::Obj::ObjSpacePointWriter<Acts::Vector3D>>(
+      = production ? nullptr : 
+        std::make_shared<FW::Obj::ObjSpacePointWriter<Acts::Vector3D>>(
           spWriterObjConfig);
 
   // charged particles as obj
@@ -83,7 +89,8 @@ setupWriters(FW::Sequencer&                  sequencer,
   trackWriterObjConfig.collection = "excells_charged";
   trackWriterObjConfig.outputDir  = outputDir;
   auto trackWriterObj
-      = std::make_shared<FW::Obj::ObjExCellWriter<Acts::TrackParameters>>(
+      = production ? nullptr :
+        std::make_shared<FW::Obj::ObjExCellWriter<Acts::TrackParameters>>(
           trackWriterObjConfig);
 
   // Write ROOT TTree
@@ -97,7 +104,8 @@ setupWriters(FW::Sequencer&                  sequencer,
   reccWriterConfig.writeSensitive = true;
   reccWriterConfig.writePassive   = true;
   auto rootEccWriter
-      = std::make_shared<FW::Root::RootExCellWriter<Acts::TrackParameters>>(
+      = production ? nullptr :
+        std::make_shared<FW::Root::RootExCellWriter<Acts::TrackParameters>>(
           reccWriterConfig);
 
   // ecc for neutral particles
@@ -110,20 +118,28 @@ setupWriters(FW::Sequencer&                  sequencer,
   recnWriterConfig.writeSensitive = true;
   recnWriterConfig.writePassive   = true;
   auto rootEcnWriter
-      = std::make_shared<FW::Root::RootExCellWriter<Acts::NeutralParameters>>(
+      = production ? nullptr :
+        std::make_shared<FW::Root::RootExCellWriter<Acts::NeutralParameters>>(
           recnWriterConfig);
 
+            
   // add to sequencer
-  if (sequencer.addWriters({pWriterCsv,
-                            pWriterRoot,
-                            clusterWriterCsv,
-                            clusteWriterRoot,
-                            spWriterJson,
-                            spWriterObj,
-                            trackWriterObj,
-                            rootEccWriter,
-                            rootEcnWriter})
-      != FW::ProcessCode::SUCCESS)
+  if (production) {
+   if (sequencer.addWriters({pWriterCsv,
+                            clusterWriterCsv})
+      != FW::ProcessCode::SUCCESS) 
     return FW::ProcessCode::ABORT;
-  return FW::ProcessCode::SUCCESS;
+  } else {
+    if (sequencer.addWriters({pWriterCsv,
+                              clusterWriterCsv,
+                              clusteWriterRoot,
+                              spWriterJson,
+                              spWriterObj,
+                              trackWriterObj,
+                              rootEccWriter,
+                              rootEcnWriter})
+        != FW::ProcessCode::SUCCESS)  
+      return FW::ProcessCode::ABORT;
+   }
+   return FW::ProcessCode::SUCCESS;
 }

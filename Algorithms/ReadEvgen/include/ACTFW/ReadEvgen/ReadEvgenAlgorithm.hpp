@@ -76,7 +76,7 @@ public:
 
   /// Return the number of events
   virtual size_t
-  numEvents() const;
+  numEvents() const final override;
 
 private:
   Config                              m_cfg;

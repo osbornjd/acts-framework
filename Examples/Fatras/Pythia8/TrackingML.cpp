@@ -125,7 +125,7 @@ main(int argc, char* argv[])
                                 "tml_resolutions.root")
                  != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
-  if (setupWriters(sequencer, barcodeSvc, outputDir)
+  if (setupWriters(sequencer, barcodeSvc, outputDir, true)
       != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
   if (sequencer.run(nEvents) != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;

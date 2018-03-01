@@ -123,7 +123,7 @@ main(int argc, char* argv[])
                                 logLevel)
                  != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
-  if (setupWriters(sequencer, barcodeSvc, outputDir)
+  if (setupWriters(sequencer, barcodeSvc, outputDir, false, logLevel)
       != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
   if (sequencer.run(nEvents) != FW::ProcessCode::SUCCESS) return EXIT_FAILURE;

@@ -49,7 +49,11 @@ namespace GPythia8 {
     /// @param logger is the logger instance
     Generator(const Config&                       cfg,
               std::unique_ptr<const Acts::Logger> logger
+
               = Acts::getDefaultLogger("Generator", Acts::Logging::INFO));
+
+    /// Detault destructor
+    ~Generator() = default;
 
     /// Framework name() method
     std::string
@@ -64,6 +68,7 @@ namespace GPythia8 {
          const FW::AlgorithmContext*       context = nullptr) final override;
 
   private:
+    
     /// Private access to the logging instance
     const Acts::Logger&
     logger() const

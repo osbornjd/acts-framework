@@ -251,6 +251,7 @@ FW::ProcessCode
 setupWriters(FW::Sequencer&                  sequencer,
              std::shared_ptr<FW::BarcodeSvc> barcode,
              std::string                     outputDir,
+             bool                            production,
              Acts::Logging::Level            loglevel = Acts::Logging::INFO);
 
 #endif  // ACTFW_FATRASCOMMON_HPP

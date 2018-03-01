@@ -47,6 +47,8 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
     throw std::ios_base::failure("Could not open '" + pathTruth + "' to write");
   }
 
+  size_t skipped_hits = 0;
+
   // write csv hits header
   osHits << "hit_id,";
   osHits << "volume_id,layer_id,module_id,";
@@ -106,5 +108,8 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
       }
     }
   }
+  
+  ACTS_VERBOSE("Number of skipped hits from being written out : " << skipped_hits);
+    
   return FW::ProcessCode::SUCCESS;
 }
