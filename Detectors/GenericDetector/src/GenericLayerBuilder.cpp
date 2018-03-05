@@ -242,8 +242,8 @@ FWGen::GenericLayerBuilder::constructLayers()
       // create the surface array - it will also fill the accesible binmember
       // chache if avalable
       Acts::ProtoLayer pl(sVector);
-      pl.envR = m_cfg.approachSurfaceEnvelope;
-      pl.envZ = layerEnvelopeCoverZ;
+      pl.envR = {m_cfg.approachSurfaceEnvelope, m_cfg.approachSurfaceEnvelope};
+      pl.envZ = {layerEnvelopeCoverZ, layerEnvelopeCoverZ};
       Acts::MutableLayerPtr cLayer
           = m_cfg.layerCreator->cylinderLayer(sVector, phiBins, zBins, pl);
       // the layer is built le't see if it needs material
@@ -508,13 +508,13 @@ FWGen::GenericLayerBuilder::constructLayers()
       }
       // create the layers with the surface arrays
       Acts::ProtoLayer pln(nsVector);
-      pln.envR                     = layerEnvelopeR;
-      pln.envZ                     = m_cfg.approachSurfaceEnvelope;
+      pln.envR = {layerEnvelopeR, layerEnvelopeR};
+      pln.envZ = {m_cfg.approachSurfaceEnvelope, m_cfg.approachSurfaceEnvelope};
       Acts::MutableLayerPtr nLayer = m_cfg.layerCreator->discLayer(
           nsVector, layerBinsR, layerBinsPhi, pln);
       Acts::ProtoLayer plp(psVector);
-      plp.envR                     = layerEnvelopeR;
-      plp.envZ                     = m_cfg.approachSurfaceEnvelope;
+      plp.envR = {layerEnvelopeR, layerEnvelopeR};
+      plp.envZ = {m_cfg.approachSurfaceEnvelope, m_cfg.approachSurfaceEnvelope};
       Acts::MutableLayerPtr pLayer = m_cfg.layerCreator->discLayer(
           psVector, layerBinsR, layerBinsPhi, plp);
 
