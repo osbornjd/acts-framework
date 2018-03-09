@@ -44,11 +44,12 @@ main(int argc, char* argv[])
 
   // the detectors
   std::vector<std::string> subDetectors = {"beampipe",
-                                           "FCChhInner0",
                                            "FCChhInner",
                                            "FCChhOuter",
-                                           "FCChhForwardHelper",
-                                           "FCChhForward"};
+                                           "FCChhFwdEcap",
+                                           "ECalBarrel",
+                                           "HCalBarrel",
+                                           "MuonBarrel"};
   // the writers
   std::vector<std::shared_ptr<FWObj::ObjSurfaceWriter>> subWriters;
   std::vector<std::shared_ptr<std::ofstream>>           subStreams;
