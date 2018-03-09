@@ -8,6 +8,7 @@
 #include "TTree.h"
 #include "TTreeReader.h"
 #include "TTreeReaderValue.h"
+#include "datamodel/MCParticleData.h"
 #include "datamodel/PositionedTrackHitData.h"
 
 namespace Acts {
@@ -47,10 +48,8 @@ namespace FCCedm {
       std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
       /// The mask to decode cellID to volumeID
       unsigned long long mask = 0xffffffff;
-      /// @todo remove later, just for debugging
-      /// The output positions
-      std::string missedPositions = "missedPositions";
-      std::string foundPositions  = "foundPositions";
+      /// The fcc truth particle map
+      std::string particleMap = "particleMap";
     };
 
     /// Constructor
@@ -102,6 +101,11 @@ namespace FCCedm {
     std::vector<FW::fccMeasurement> m_measurements;
     /// The number of events, determined by the entries in the file
     size_t m_nEvents;
+    /// the fcc truth particles
+    TTreeReaderValue<std::vector<fcc::MCParticleData>> m_particles;
+    /// The truth particle map - combining the particle ID with the truth
+    /// particle
+    std::map<unsigned, const FW::fccTruthParticle> m_particleMap;
 
     /// Private access to the logging instance
     const Acts::Logger&
@@ -112,10 +116,17 @@ namespace FCCedm {
 
     /// Private class which translates the FCC positioned track hit into an Acts
     /// measurement
-    /// @param[in] fccTrackHit The inout fcc positioned track hit
+    /// @param[in] fccTrackHit The input fcc positioned track hit
     /// @return The translated FW::fccMeasurement
     const FW::fccMeasurement
     measurement(const fcc::PositionedTrackHitData& fccTrackHit) const;
+
+    /// Private class which translates the FCC monte carlo particle into an Acts
+    /// truth particle
+    /// @param[in] fccParticle The input fcc mc particle
+    /// @return The translated FW::fccTruthParticle
+    const FW::fccTruthParticle
+    particle(const fcc::MCParticleData& fccParticle) const;
   };
 
   inline size_t

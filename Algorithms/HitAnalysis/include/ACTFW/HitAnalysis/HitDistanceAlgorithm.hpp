@@ -45,6 +45,8 @@ public:
     std::string surfaceHitAnalysis = "surfaceHitAnalysis";
     /// The output parameters of the hit distance analysis for each layer
     std::string layerHitAnalysis = "layerHitAnalysis";
+    /// The truth particle map
+    std::string particleMap = "particleMap";
   };
 
   /// Constructor

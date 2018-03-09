@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "ACTS/EventData/Measurement.hpp"
+#include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Definitions.hpp"
 
 namespace FW {
@@ -13,7 +14,7 @@ typedef Acts::
     Measurement<Identifier, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>
         Measurement2D;
 
-/// @classe fccMeasurement
+/// @class fccMeasurement
 /// @brief Class to describe an fcc measurement
 class fccMeasurement
 {
@@ -37,14 +38,17 @@ public:
   {
   }
 
-  ///@return measurement
+  // destructor
+  ~fccMeasurement() = default;
+
+  /// @return measurement
   const Measurement2D
   measurement() const
   {
     return m_measurement;
   }
 
-  ///@return local position of measurement
+  /// @return local position of measurement
   const Acts::Vector2D
   locPos() const
   {
@@ -52,7 +56,7 @@ public:
                           m_measurement.get<Acts::ParDef::eLOC_1>());
   }
 
-  ///@return the trackID (identification of truth)
+  // /@return the trackID (identification of truth)
   const unsigned
   trackID() const
   {
@@ -62,6 +66,55 @@ public:
 private:
   Measurement2D m_measurement;
   unsigned      m_trackID;
+};
+
+/// @class fccTruthParticle
+/// @brief Class to describe fcc truth particle
+class fccTruthParticle
+{
+public:
+  /// constructor
+  fccTruthParticle(const Acts::Vector3D& vertex,
+                   unsigned              status,
+                   const Acts::Vector3D& momentum,
+                   double                mass    = 0.,
+                   double                charge  = 0.,
+                   pdg_type              pID     = 0.,
+                   barcode_type          barcode = 0)
+    : m_vertex(vertex)
+    , m_status(status)
+    , m_particleProp(momentum, mass, charge, pID, barcode)
+  {
+  }
+
+  // destructor
+  ~fccTruthParticle() = default;
+
+  /// @return particle properties
+  const Acts::ParticleProperties
+  particleProperties() const
+  {
+    return m_particleProp;
+  }
+
+  /// @return status
+  unsigned
+  status() const
+  {
+    return m_status;
+  }
+
+  /// @return vertex
+  Acts::Vector3D
+  vertex() const
+  {
+    return m_vertex;
+  }
+
+private:
+  Acts::ParticleProperties m_particleProp;
+  unsigned                 m_status;
+  Acts::Vector3D           m_vertex;
 };
 
 /// @class AnalysisParameters

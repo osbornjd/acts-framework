@@ -17,6 +17,7 @@ FW::FCCedm::fccTrackHitReader::fccTrackHitReader(
   , m_logger(std::move(logger))
   , m_treeReader(nullptr)
   , m_measurements()
+  , m_particleMap()
 {
   if (m_cfg.fileList.empty()) {
     throw std::invalid_argument(
@@ -41,6 +42,9 @@ FW::FCCedm::fccTrackHitReader::fccTrackHitReader(
   m_positionedTrackHits
       = TTreeReaderValue<std::vector<fcc::PositionedTrackHitData>>(
           *m_treeReader, m_cfg.branchName.c_str());
+  // read in fcc::MCParticles
+  m_particles = TTreeReaderValue<std::vector<fcc::MCParticleData>>(
+      *m_treeReader, "simParticles");
 
   m_detElements
       = m_cfg.trackingGeometry->highestTrackingVolume()->detectorElements();
@@ -76,10 +80,24 @@ FW::FCCedm::fccTrackHitReader::read(FW::AlgorithmContext ctx)
   for (auto& ptHit : *m_positionedTrackHits)
     m_measurements.push_back(measurement(ptHit));
 
+  m_particleMap.clear();
+  // translate FCC edm MCParticle to FW::fccTruthParticle for
+  // further processing
+  for (auto& truthP : *m_particles)
+    m_particleMap.emplace(std::make_pair(truthP.core.bits, particle(truthP)));
+
+  // m_particleMap[0](particle(truthP));
+
   // write to the EventStore
   if (ctx.eventStore.add(m_cfg.collection, std::move(m_measurements))
       == FW::ProcessCode::ABORT) {
     ACTS_INFO("Could not add collection " << m_cfg.collection
+                                          << " to event store. Abort.");
+    return FW::ProcessCode::ABORT;
+  }
+  if (ctx.eventStore.add(m_cfg.particleMap, std::move(m_particleMap))
+      == FW::ProcessCode::ABORT) {
+    ACTS_INFO("Could not add collection " << m_cfg.particleMap
                                           << " to event store. Abort.");
     return FW::ProcessCode::ABORT;
   }
@@ -122,4 +140,22 @@ FW::FCCedm::fccTrackHitReader::measurement(
       + std::to_string(globPos.x()) + "," + std::to_string(globPos.y()) + ","
       + std::to_string(globPos.z()) + ")";
   throw std::runtime_error(error);
+}
+
+const FW::fccTruthParticle
+FW::FCCedm::fccTrackHitReader::particle(
+    const fcc::MCParticleData& fccParticle) const
+{
+  Acts::Vector3D vertex(fccParticle.core.vertex.x,
+                        fccParticle.core.vertex.y,
+                        fccParticle.core.vertex.z);
+  unsigned       status = fccParticle.core.status;
+  Acts::Vector3D momentum(
+      fccParticle.core.p4.px, fccParticle.core.p4.py, fccParticle.core.p4.pz);
+  double       mass    = 0.;
+  double       charge  = fccParticle.core.charge;
+  pdg_type     pID     = fccParticle.core.pdgId;
+  barcode_type barcode = fccParticle.core.bits;
+  return (FW::fccTruthParticle(
+      vertex, status, momentum, mass, charge, pID, barcode));
 }

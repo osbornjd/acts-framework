@@ -23,7 +23,7 @@ FW::ProcessCode
 FW::HitDistanceAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
   ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);
-  // read particles from input collection
+  // read measurements from input collection
   const std::vector<FW::fccMeasurement>* measurements = nullptr;
   if (ctx.eventStore.get(m_cfg.collection, measurements)
       == FW::ProcessCode::ABORT) {
@@ -35,7 +35,19 @@ FW::HitDistanceAlgorithm::execute(FW::AlgorithmContext ctx) const
     ACTS_DEBUG("No track hits to be processed for this event");
     return FW::ProcessCode::SUCCESS;
   }
-
+  // read truth particle map from input collection
+  const std::map<unsigned, const FW::fccTruthParticle>* particleMap = nullptr;
+  if (ctx.eventStore.get(m_cfg.particleMap, particleMap)
+      == FW::ProcessCode::ABORT) {
+    ACTS_INFO("Could not find collection: " << m_cfg.collection
+                                            << " in event store. Abort.");
+    return FW::ProcessCode::ABORT;
+  }
+  if (!particleMap) {
+    ACTS_DEBUG("No track hits to be processed for this event");
+    return FW::ProcessCode::SUCCESS;
+  } else
+    std::cout << "Found map with size: " << particleMap->size() << std::endl;
   // map containing all measurements of each surface for this event
   auto measOnSurfaces
       = std::map<Acts::GeometryID, std::vector<FW::fccMeasurement>>();
@@ -90,9 +102,15 @@ FW::HitDistanceAlgorithm::execute(FW::AlgorithmContext ctx) const
       // go through all the measurements to calculate the distances to the
       // remaining measurements (ref is the current reference measurement)
       for (auto meas = (ref + 1); meas != measurements.end(); meas++) {
+        // search for the particle in the truth (particle below a certain energy
+        // are not written to truth)
+        auto searchParticle = particleMap->find(meas->trackID());
         // only calculate distance, if the measurement comes from another
-        // particle -> if the trackID differs
-        if (meas->trackID() != ref->trackID()) {
+        // particle -> if the trackID differs, if the particle is found in the
+        // truth and if it is a primary
+        if (meas->trackID() != ref->trackID()
+            && searchParticle != particleMap->end()
+            && searchParticle->second.status() == 1) {
           // caclulate the distances of the two coordinates
           double d0 = fabs(meas->locPos().x() - ref->locPos().x());
           double d1 = fabs(meas->locPos().y() - ref->locPos().y());
@@ -193,6 +211,5 @@ FW::HitDistanceAlgorithm::execute(FW::AlgorithmContext ctx) const
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }
-
   return FW::ProcessCode::SUCCESS;
 }
