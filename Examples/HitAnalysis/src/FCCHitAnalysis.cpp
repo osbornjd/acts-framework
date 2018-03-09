@@ -65,9 +65,7 @@ main(int argc, char* argv[])
   hitReaderConfig.collection = "measurements";
   hitReaderConfig.treeName   = "events";
   // hitReaderConfig.branchName      = "overlaidPositionedTrackHits";
-  hitReaderConfig.branchName      = "positionedHits";
-  hitReaderConfig.missedPositions = "missedPositions";
-  hitReaderConfig.foundPositions  = "foundPositions";
+  hitReaderConfig.branchName = "positionedHits";
   auto hitReader
       = std::make_shared<FW::FCCedm::fccTrackHitReader>(hitReaderConfig);
 
