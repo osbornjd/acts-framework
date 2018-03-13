@@ -129,7 +129,7 @@ FW::HitDistanceAlgorithm::execute(FW::AlgorithmContext ctx) const
       }
     }
 
-    if (nHits > 0) {
+    if (nHits > 1) {
       // calculate averages
       double surf_mean0 = surf_sum0 / nHits;
       double surf_mean1 = surf_sum1 / nHits;

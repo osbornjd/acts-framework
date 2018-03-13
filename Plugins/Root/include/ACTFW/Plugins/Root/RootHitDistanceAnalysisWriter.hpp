@@ -91,7 +91,7 @@ namespace Root {
     /// The output tree
     TTree* m_outputTree;
     /// The GeometryID of the layer
-    unsigned long long m_layerID;
+    unsigned long long m_geoID;
     /// Optional parameter (e.g. for indicating position in r, eta)
     float m_par0;
     /// Optional parameter (e.g. for indicating position in z, phi)

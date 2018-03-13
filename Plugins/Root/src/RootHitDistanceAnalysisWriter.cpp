@@ -34,7 +34,7 @@ FW::Root::RootHitDistanceAnalysisWriter::RootHitDistanceAnalysisWriter(
   if (!m_outputTree) throw std::bad_alloc();
 
   // Initial parameters
-  m_outputTree->Branch("layerID", &m_layerID);
+  m_outputTree->Branch("geoID", &m_geoID);
   m_outputTree->Branch("par0", &m_par0);
   m_outputTree->Branch("par1", &m_par1);
   m_outputTree->Branch("mean0", &m_mean0);
@@ -65,7 +65,7 @@ FW::Root::RootHitDistanceAnalysisWriter::writeT(
   // loop over all layers
   for (auto& layer : layerDistanceParams) {
     unsigned long long id                  = layer.first.value();
-    m_layerID                              = id;
+    m_geoID                                = id;
     m_par0                                 = std::get<2>(layer.second);
     m_par1                                 = std::get<3>(layer.second);
     FW::AnalysisParameters distanceParams0 = std::get<0>(layer.second);
