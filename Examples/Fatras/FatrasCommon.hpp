@@ -53,7 +53,7 @@ setupSimulation(FW::Sequencer&                                sequencer,
                 std::shared_ptr<FW::RandomNumbersSvc>         random,
                 std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
                 std::shared_ptr<MagneticField>                bfield,
-                std::array<bool, 4>&                          exoptions,
+                std::pair< std::array<bool, 4>, std::array<double, 4> >& exoptions,
                 Acts::Logging::Level loglevel = Acts::Logging::VERBOSE,
                 std::string resolutionFile = "")
 {
@@ -66,7 +66,7 @@ setupSimulation(FW::Sequencer&                                sequencer,
   std::shared_ptr<MatIntEngine> materialEngine = nullptr;
     
   // fatras is chosen 
-  if (exoptions[0]){
+  if (exoptions.first[0]){
     
       // we need the msc sampler 
       using MSCSampler
@@ -90,10 +90,10 @@ setupSimulation(FW::Sequencer&                                sequencer,
       
       // MaterialInteractionEngine
       auto matConfig     = MatIntEngine::Config();
-      matConfig.multipleScatteringSampler  = (exoptions[2] ? mscSampler : nullptr);
-      matConfig.energyLossSampler          = (exoptions[1] ? eLSampler : nullptr);
+      matConfig.multipleScatteringSampler  = (exoptions.first[2] ? mscSampler : nullptr);
+      matConfig.energyLossSampler          = (exoptions.first[1] ? eLSampler : nullptr);
       matConfig.parametricScattering       = true;
-      matConfig.hadronicInteractionSampler = (exoptions[3] ? hiSampler : nullptr);
+      matConfig.hadronicInteractionSampler = (exoptions.first[3] ? hiSampler : nullptr);
       materialEngine = std::make_shared<MatIntEngine>(matConfig);
       materialEngine->setLogger(Acts::getDefaultLogger("MaterialEngine", loglevel));
   }
@@ -116,8 +116,10 @@ setupSimulation(FW::Sequencer&                                sequencer,
   eTestConfig.collectMaterial      = true;
   eTestConfig.sensitiveCurvilinear = false;
   eTestConfig.pathLimit            = -1.;
-  eTestConfig.maxD0                = 1000.;
-  eTestConfig.maxZ0                = 3000.;
+  eTestConfig.minPt                = exoptions.second[0];
+  eTestConfig.maxD0                = exoptions.second[1];
+  eTestConfig.maxZ0                = exoptions.second[2];
+  eTestConfig.maxEta               = exoptions.second[3];  
   eTestConfig.randomNumbers        = random;
   eTestConfig.barcodeSvc           = barcodeSvc;
   // Set up the FatrasAlgorithm

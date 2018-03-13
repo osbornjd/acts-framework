@@ -34,20 +34,42 @@ namespace Options {
                       "Apply scattering correction.")
                      ("ext-hadronic",
                       po::value<bool>()->default_value(true),
-                      "Apply hadronic interaction (Fatras only).");
+                      "Apply hadronic interaction (Fatras only).")
+                     ("ext-min-pt",
+                      po::value<double>()->default_value(100.*Acts::units::_MeV),
+                      "Minimum transverse momentum.")
+                     ("ext-max-d0",
+                      po::value<double>()->default_value(1000.*Acts::units::_mm),
+                      "Maximal transverse impact parameter (absolute).")
+                     ("ext-max-z0",
+                      po::value<double>()->default_value(3000.*Acts::units::_mm),
+                      "Maximal longitudinal impact parameter (absolute).")
+                     ("ext-max-eta",
+                      po::value<double>()->default_value(5.),
+                      "Maximal pseudo-rapidity (absolute).");
   }
 
   /// read the evgen options and return a Config file
   template <class AMAP>
-  std::array<bool, 4>
+  std::pair< std::array<bool, 4>, std::array<double, 4> >
   readExtrapolationOptions(const AMAP& vm)
   {
+    // boolean steering
     bool fatras     = vm["ext-fatras"].template as<bool>();
     bool eloss      = vm["ext-energyloss"].template as<bool>();
     bool scattering = vm["ext-scattering"].template as<bool>();
     bool hadronic   = vm["ext-hadronic"].template as<bool>();
+    // parameter
+    double minPt   = vm["ext-min-pt"].template as<double>(); 
+    double maxD0   = vm["ext-max-d0"].template as<double>();
+    double maxZ0   = vm["ext-max-z0"].template as<double>();
+    double maxEta  = vm["ext-max-eta"].template as<double>(); 
     // return the config
-    return { fatras, eloss, scattering, hadronic };
+    std::array<bool, 4> steering = { fatras, eloss, scattering, hadronic };
+    std::array<double, 4> parameters = { minPt, maxD0, maxZ0, maxEta };
+    
+    return std::pair< std::array<bool, 4>, std::array<double, 4> >( steering, parameters );
+
   }
 }
 

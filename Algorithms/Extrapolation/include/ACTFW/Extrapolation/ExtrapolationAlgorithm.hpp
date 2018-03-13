@@ -54,12 +54,12 @@ public:
     /// the simulated neutral excell collection (optional)
     std::string simulatedNeutralExCellCollection = "";
     /// the cuts applied in this case
+    // minimum pt for further simulation
+    double minPt = 0.100 * Acts::units::_GeV;    
     /// @todo remove later and replace by particle selector
     double maxD0  = std::numeric_limits<double>::max();
     double maxZ0  = std::numeric_limits<double>::max();
     double maxEta = std::numeric_limits<double>::max();
-    // minimum pt for further simulation
-    double minPt = 0.100 * Acts::units::_GeV;
     /// skip or process neutral particles
     bool skipNeutral = false;
     /// configuration: sensitive collection
