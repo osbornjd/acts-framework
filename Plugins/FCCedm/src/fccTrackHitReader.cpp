@@ -86,6 +86,7 @@ FW::FCCedm::fccTrackHitReader::read(FW::AlgorithmContext ctx)
   for (auto& truthP : *m_particles)
     m_particleMap.emplace(std::make_pair(truthP.core.bits, particle(truthP)));
 
+  std::cout << "#particles: " << m_particleMap.size() << std::endl;
   // m_particleMap[0](particle(truthP));
 
   // write to the EventStore
@@ -149,7 +150,11 @@ FW::FCCedm::fccTrackHitReader::particle(
   Acts::Vector3D vertex(fccParticle.core.vertex.x,
                         fccParticle.core.vertex.y,
                         fccParticle.core.vertex.z);
-  unsigned       status = fccParticle.core.status;
+  unsigned status = fccParticle.core.status;
+  if (status != 1 && status != 201)
+    std::string error
+        = "Status not initialized! Value: " + std::to_string(status);
+  throw std::runtime_error(error);
   Acts::Vector3D momentum(
       fccParticle.core.p4.px, fccParticle.core.p4.py, fccParticle.core.p4.pz);
   double       mass    = 0.;
