@@ -20,3 +20,14 @@ if (USE_DD4HEP)
 
   install(TARGETS ACTFWDD4hepGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
+
+# generic detector test
+add_executable(ACTFWFASER src/FASER)
+target_include_directories(ACTFWFASER PRIVATE ${Boost_INCLUDE_DIRS})
+target_include_directories(ACTFWFASER PUBLIC ${DD4hep_INCLUDE_DIRS})
+target_link_libraries(ACTFWFASER PUBLIC ACTSCore)
+target_link_libraries(ACTFWFASER PRIVATE ACTFramework ACTFWObjPlugin ACTFWGenericDetector)
+target_link_libraries(ACTFWFASER PRIVATE ${Boost_LIBRARIES})
+
+install(TARGETS ACTFWFASER RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
