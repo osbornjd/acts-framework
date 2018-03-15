@@ -8,15 +8,27 @@
 
 #include <boost/program_options.hpp>
 
+#include "ACTS/Utilities/Units.hpp"
+
 #include "ACTS/Surfaces/RectangleBounds.hpp"
 #include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Surfaces/PlaneSurface.hpp"
 
-//#include "ACTS/Surfaces/SurfaceArray.hpp"
-#include "ACTS/Surfaces/concept/AnySurfaceGridLookup.hpp"
+#include "ACTS/Surfaces/SurfaceArray.hpp"
+
+#include "ACTS/Surfaces/RectangleBounds.hpp"
 #include "ACTS/Layers/PlaneLayer.hpp"
 
+#include "ACTS/Tools/ITrackingVolumeHelper.hpp"
+#include "ACTS/Volumes/CuboidVolumeBounds.hpp"
+#include "ACTS/Material/Material.hpp"
+#include "ACTS/Utilities/BinnedArrayXD.hpp"
+#include "ACTS/Detector/TrackingVolume.hpp"
+
+#include "ACTS/Detector/TrackingGeometry.hpp"
+
 namespace po = boost::program_options;
+
 
 int
 main(int argc, char* argv[])
@@ -46,24 +58,90 @@ main(int argc, char* argv[])
   }
 //---------------------------------------------------------
 
-double halfX = 5;
-double halfY = 5;
-int num_Layers = 5;
-std::vector<double> distances(num_Layers);
+//TODO: Units
+double halfX = 			5. * Acts::units::_m;
+double halfY = 			5. * Acts::units::_m;
+double thickness = 		0. * Acts::units::_mm;
+float X0 = 			95.7;
+float L0 = 			465.2;
+float A = 			28.03;
+float Z = 			14.;
+float Rho = 			2.32e-3;
+unsigned int numLayers = 	5;
+double localPos[] =		{0. * Acts::units::_mm,
+				5. * Acts::units::_mm,
+				10. * Acts::units::_mm,
+				15. * Acts::units::_mm,
+				20. * Acts::units::_mm};
+double posFirstSur =		150. * Acts::units::_m;
 
-SurfaceVector surVec(num_Layers);
-for(int i = 0; i < num_Layers; i++)
+
+//Build Surfaces
+std::shared_ptr<const Acts::RectangleBounds> recBounds(new Acts::RectangleBounds(halfX, halfY));
+
+Acts::Transform3D t3d[numLayers];
+Acts::PlaneSurface* pSur[numLayers];
+for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++) 
 {
-    const Acts::RectangleBounds rbounds(halfX, halfY);
+    t3d[iLayer] = Acts::Translation3D(0., 0., posFirstSur + localPos[iLayer]);
 
-    Acts::Transform3D t3d;
-    t3d = Acts::Translation3D(0., 0., 150.); //TODO:Units
-
-    const Acts::PlaneSurface ps(std::make_shared<const Acts::Transform3D>(t3d), std::make_shared<const Acts::RectangleBounds>(rbounds));
-    surVec.push_back(&ps);
+    pSur[iLayer] = new Acts::PlaneSurface(
+			std::make_shared<const Acts::Transform3D>(t3d[iLayer]), recBounds);
 }
-Acts::concepts::AnySurfaceGridLookup<SurfaceVector> lookup;
 
-Acts::SurfaceArray surArray(SurVec, surVec);
-//Acts::PlaneLayer player;
+//Build Layers
+std::unique_ptr<Acts::SurfaceArray> surArrays[numLayers];
+Acts::LayerPtr layPtr[numLayers];
+for(unsigned int iSurface; iSurface < numLayers; iSurface++)
+{
+    surArrays[iSurface] = std::make_unique<Acts::SurfaceArray>(Acts::SurfaceArray(pSur[iSurface]));
+    
+    layPtr[iSurface] = Acts::PlaneLayer::create(std::make_shared<const Acts::Transform3D>(t3d[iSurface]),
+					recBounds,
+					std::move(surArrays[iSurface]),
+					thickness);
 }
+
+//Build Volumes
+Acts::VolumeBoundsPtr volBoundsPtr[numLayers];
+std::shared_ptr<Acts::Material> mat[numLayers];
+for(unsigned int iVolume; iVolume < numLayers; iVolume++)
+{
+    volBoundsPtr[iVolume] = std::make_shared<Acts::CuboidVolumeBounds>(
+			    Acts::CuboidVolumeBounds(halfX,
+			    halfY,
+			    0.5 * thickness));
+
+    mat[iVolume] = std::make_shared<Acts::Material>(Acts::Material(
+		    X0,
+		    L0,
+		    A,
+		    Z,
+		    Rho));
+}
+
+
+
+
+//Acts::VolumeBoundsPtr vbp(new Acts::CuboidVolumeBounds(halfX, halfY, 0.5 * thickness));
+//std::shared_ptr<Acts::Material> mat(new Acts::Material(X0, L0, A, Z, Rho));
+
+//std::unique_ptr<const Acts::LayerArray> binArrXD(new Acts::BinnedArrayXD<Acts::LayerPtr>(mlp));
+
+//const Acts::LayerVector layVec(1, mlp);
+
+
+//TODO: Transform3D direkt als shared_ptr erzeugen
+//Acts::MutableTrackingVolumePtr mtvp(Acts::TrackingVolume::create(std::make_shared<const Acts::Transform3D>(t3d), vbp, mat, std::move(binArrXD), layVec));
+
+//Acts::TrackingGeometry tGeo(mtvp);
+
+//---------------------------------------------------------
+
+
+}
+
+
+
+
+
