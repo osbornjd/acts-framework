@@ -95,7 +95,7 @@ Acts::LayerPtr layPtr[numLayers];
 for(unsigned int iSurface; iSurface < numLayers; iSurface++)
 {
     surArrays[iSurface] = std::make_unique<Acts::SurfaceArray>(Acts::SurfaceArray(pSur[iSurface]));
-    
+
     layPtr[iSurface] = Acts::PlaneLayer::create(std::make_shared<const Acts::Transform3D>(t3d[iSurface]),
 					recBounds,
 					std::move(surArrays[iSurface]),
@@ -107,7 +107,7 @@ Acts::VolumeBoundsPtr volBoundsPtr[numLayers];
 std::shared_ptr<Acts::Material> mat[numLayers];
 for(unsigned int iVolume; iVolume < numLayers; iVolume++)
 {
-    volBoundsPtr[iVolume] = std::make_shared<Acts::CuboidVolumeBounds>(
+    volBoundsPtr[iVolume] = std::make_shared<const Acts::CuboidVolumeBounds>(
 			    Acts::CuboidVolumeBounds(halfX,
 			    halfY,
 			    0.5 * thickness));
@@ -120,11 +120,14 @@ for(unsigned int iVolume; iVolume < numLayers; iVolume++)
 		    Rho));
 }
 
+std::vector<std::pair<Acts::LayerPtr, Acts::Vector3D>> tapVec;
+for(unsigned int iVolume; iVolume < numLayers; iVolume++)
+{
+    tapVec.push_back(std::pair<Acts::LayerPtr, Acts::Vector3D>(layPtr[iVolume], Acts::Vector3D(0., 0., posFirstSur + localPos[iVolume])));
+}
 
+//std::unique_ptr<const Acts::LayerArray> layArr(new Acts::BinnedArrayXD<Acts::LayerPtr>());;
 
-
-//Acts::VolumeBoundsPtr vbp(new Acts::CuboidVolumeBounds(halfX, halfY, 0.5 * thickness));
-//std::shared_ptr<Acts::Material> mat(new Acts::Material(X0, L0, A, Z, Rho));
 
 //std::unique_ptr<const Acts::LayerArray> binArrXD(new Acts::BinnedArrayXD<Acts::LayerPtr>(mlp));
 
