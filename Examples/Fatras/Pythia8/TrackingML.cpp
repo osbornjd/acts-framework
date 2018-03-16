@@ -111,7 +111,7 @@ main(int argc, char* argv[])
                         bField.first,
                         exoptions,
                         logLevel,
-                        "tml_resolutions.root")
+                        "")
         != FW::ProcessCode::SUCCESS)
       return EXIT_FAILURE;
   } else if (bField.second  // use the constant field instead
@@ -122,7 +122,7 @@ main(int argc, char* argv[])
                                 bField.second,
                                 exoptions,
                                 logLevel,
-                                "tml_resolutions.root")
+                                "")
                  != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
   if (setupWriters(sequencer, barcodeSvc, outputDir, true)
