@@ -137,7 +137,26 @@ Acts::MutableTrackingVolumePtr mtvp(Acts::TrackingVolume::create(htrans,
 								std::move(layArr), 
 								layVec));
 
-//Acts::TrackingGeometry tGeo(mtvp);
+//Build vacuum volume
+Acts::Transform3D transVac;
+transVac = Acts::Translation3D(0., 0., 0.);
+std::shared_ptr<const Acts::Transform3D> htransVac(&transVac);
+
+Acts::VolumeBoundsPtr volBoundsPtrVac = std::make_shared<const Acts::CuboidVolumeBounds>(
+					Acts::CuboidVolumeBounds(halfX,
+								halfY,
+								localPos.front()));
+
+std::shared_ptr<const Acts::Material> matVac(new Acts::Material());
+Acts::MutableTrackingVolumePtr mtvpVac(Acts::TrackingVolume::create(htransVac,
+								volBoundsPtrVac,
+								matVac);
+
+
+
+
+
+Acts::TrackingGeometry tGeo(mtvp);
 
 //---------------------------------------------------------
 
