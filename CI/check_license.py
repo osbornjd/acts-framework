@@ -6,7 +6,11 @@ from subprocess import check_output
 import re
 import difflib
 from datetime import datetime
+from fnmatch import fnmatch
 
+EXCLUDE = [
+    "./external/*"
+]
 
 def main():
     p = argparse.ArgumentParser()
@@ -66,6 +70,9 @@ def main():
 
     exit = 0
     for src in srcs:
+        if any([fnmatch(src, e) for e in EXCLUDE]):
+            continue
+
         with open(src, "r+") as f:
             license = ""
             for x in range(len(raw)):
