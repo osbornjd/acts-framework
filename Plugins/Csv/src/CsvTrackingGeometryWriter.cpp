@@ -8,6 +8,7 @@
 
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include <iostream>
+#include <sstream>
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "ACTS/Detector/TrackingVolume.hpp"
 #include "ACTS/Surfaces/Surface.hpp"
@@ -53,16 +54,17 @@ FW::Csv::CsvTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       // bail out if you have no surface writer
       if (!surfaceWriter) return;
       // layer prefix
-      surfaceWriter->write(m_cfg.layerPrefix);
+      surfaceWriter->write(m_cfg.layerPrefix);      
       // check for sensitive surfaces
       if (layer->surfaceArray() && surfaceWriter) {
+        // the current module thickness
+        double cThickness = 0.;
+        std::vector<double> cValues;
         // loop over the surface
         for (auto surface : layer->surfaceArray()->arrayObjects()) {
-          if (surface
-              && (surfaceWriter->write(*surface)) == FW::ProcessCode::ABORT)
-            return;
+          if (surface && surfaceWriter->write(*surface) == FW::ProcessCode::ABORT) return;
         }
-      }
+      }    
     }
   }
   // get the confined volumes and step down the hierarchy

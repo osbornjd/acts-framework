@@ -38,6 +38,9 @@ FW::Csv::CsvSurfaceWriter::CsvSurfaceWriter(
   (*m_cfg.outputStream) << "rot_xu,rot_xv,rot_xw,";
   (*m_cfg.outputStream) << "rot_yu,rot_yv,rot_yw,";
   (*m_cfg.outputStream) << "rot_zu,rot_zv,rot_zw";
+  if (m_cfg.outputBounds){
+    (*m_cfg.outputStream) << ",thickness,[ bound_values ]";
+  }
   (*m_cfg.outputStream) << '\n';
   (*m_cfg.outputStream) << std::setprecision(m_cfg.outputPrecision);
 
@@ -72,6 +75,7 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
   // write configurations
   if ((sensitiveID && m_cfg.outputSensitive) || 
       (!sensitiveID && m_cfg.outputLayerSurface) ){
+                
     // surface indentification
     (*m_cfg.outputStream) 
       << volumeID << "," << layerID << "," << sensitiveID <<",";
@@ -82,7 +86,7 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
     (*m_cfg.outputStream) 
       << sTransform(1,0) << "," << sTransform(1,1) << "," << sTransform(1,2) <<",";
     (*m_cfg.outputStream) 
-      << sTransform(2,0) << "," << sTransform(2,1) << "," << sTransform(2,2) << '\n';
+      << sTransform(2,0) << "," << sTransform(2,1) << "," << sTransform(2,2);
   
     // dynamic_cast to PlanarBounds
     const Acts::PlanarBounds* planarBounds
@@ -90,14 +94,21 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
     // only continue if the cast worked
     if (planarBounds && m_cfg.outputSensitive && m_cfg.outputBounds) {
       ACTS_VERBOSE(">>Csv: Writing out a PlaneSurface ");
-      // set the precision - just to be sure
-      if (m_cfg.outputBounds){
-        // get the vertices
-        // auto planarVertices = planarBounds->vertices();
-        (*m_cfg.outputStream) << '\n';
+      // get thickness and value store
+      if (surface.associatedDetectorElement()){
+        double thickness = surface.associatedDetectorElement()->thickness();
+        (*m_cfg.outputStream) << "," << thickness << ", ";
+        // get the values from the bound value store
+        auto bValues = surface.bounds().valueStore();
+        for (size_t bv = 0; bv < bValues.size(); ++bv){
+          (*m_cfg.outputStream) << bValues[bv];
+          if ( bv <  bValues.size()-1) 
+             (*m_cfg.outputStream) << ",";
+        }
       }
-      (*m_cfg.outputStream) << '\n';
     }
+    // break the line 
+    (*m_cfg.outputStream) << '\n';
 
     // check if you have layer and check what your have
     // dynamic cast to CylinderBounds work the same

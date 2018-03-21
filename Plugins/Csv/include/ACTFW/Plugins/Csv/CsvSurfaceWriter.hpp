@@ -43,7 +43,7 @@ public:
     /// write the layer surface out
     bool outputLayerSurface = false;
     /// write the bounds   
-    bool outputBounds       = false;
+    bool outputBounds       = true;
     /// output scalor
     double outputScalor     = 1.;
     /// precision for out
