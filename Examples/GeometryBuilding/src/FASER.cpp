@@ -14,6 +14,8 @@
 #include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Surfaces/PlaneSurface.hpp"
 
+#include "ACTS/Material/SurfaceMaterialProxy.hpp"
+
 #include "ACTS/Surfaces/SurfaceArray.hpp"
 
 #include "ACTS/Surfaces/RectangleBounds.hpp"
@@ -76,19 +78,19 @@ main(int argc, char* argv[])
 //TODO: Units
 const double halfX				= 5. * Acts::units::_m;
 const double halfY				= 5. * Acts::units::_m;
-const double thickness 				= 5. * Acts::units::_mm;
+const double thickness 				= 1. * Acts::units::_mm;
 const float X0 					= 95.7;
 const float L0 					= 465.2;
 const float A 					= 28.03;
 const float Z 					= 14.;
 const float Rho 				= 2.32e-3;
 const unsigned int numLayers 			= 5;
-const std::array<double, numLayers> localPos 	= {5. * Acts::units::_m,
-						   10. * Acts::units::_m,
-						   15. * Acts::units::_m,
-						   20. * Acts::units::_m,
-						   25. * Acts::units::_m};
-const double posFirstSur 			= 5. * Acts::units::_m; //TODO: modifiziert
+const std::array<double, numLayers> localPos 	= {1. * Acts::units::_m, //TODO: modifiziert
+						   2. * Acts::units::_m,
+						   3. * Acts::units::_m,
+						   4. * Acts::units::_m,
+						   5. * Acts::units::_m};
+const double posFirstSur 			= 1. * Acts::units::_m; //TODO: modifiziert
 const double eps 				= 10. * Acts::units::_mm; //Muss jedes layer + thickness beinhalten
 
 
@@ -106,7 +108,14 @@ for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++)
 
     pSur[iLayer] = new Acts::PlaneSurface(
 			std::make_shared<const Acts::Transform3D>(t3d[iLayer]), recBounds);
+
+    std::shared_ptr<Acts::SurfaceMaterialProxy> surMat(new Acts::SurfaceMaterialProxy()); //Material@Surface
+    pSur[iLayer]->setAssociatedMaterial(surMat);
 }
+
+std::cout << "Surfaces: " << std::endl;
+for(unsigned int i = 0; i < numLayers; i++)
+    std::cout << i << "\t" << pSur[i] << std::endl;
 
 //Build Layers
 
@@ -138,7 +147,6 @@ Acts::VolumeBoundsPtr volBoundsPtr = std::make_shared<const Acts::CuboidVolumeBo
 								(localPos.back() - localPos.front()) / 2 + eps));
 
 std::shared_ptr<const Acts::Material> mat(new Acts::Material(X0, L0, A, Z, Rho));
-
 
 Acts::LayerVector layVec;
 for(auto layer : layPtr) layVec.push_back(layer);
@@ -219,8 +227,12 @@ mtvpWorld->sign(Acts::GeometrySignature::Global);
 
 std::cout << "Weltvolumen: " << (posFirstSur + localPos.back()) / 2 + eps << "\t" << (posFirstSur + localPos.back()) / 2 << std::endl;
 
+/*
 for(unsigned int i = 0; i < 181; i += 10) 
     std::cout << i << "\t" << mtvpWorld->trackingVolume(Acts::Vector3D(0., 0., i * Acts::units::_m))->volumeName() << std::endl;
+for(unsigned int i = 1000; i < 7000; i += 200)
+    std::cout << i << "\t" << mtvp->associatedLayer(Acts::Vector3D(0., 0., i * Acts::units::_mm)) << std::endl;
+*/
 
 auto tGeo = std::shared_ptr<Acts::TrackingGeometry>(new Acts::TrackingGeometry(mtvpWorld));
 
@@ -246,7 +258,7 @@ for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
     objSurWriter.back()->write(*(pSur[iSurface]));
 }
 
-std::cout << mtvpVac->geometrySignature() << std::endl;
+
 
 //Test the setup
 const unsigned nEvents = 1;
@@ -254,13 +266,13 @@ const Acts::ConstantBField bField(0., 0., 0.); //TODO: auf 0 gesetzt, kann/sollt
 
 FW::ParticleGun::Config cfgParGun;
 cfgParGun.evgenCollection = "EvgenParticles";
-cfgParGun.nParticles = 10000;
-cfgParGun.z0Range = {{-eps / 2 * Acts::units::_mm, eps / 2 * Acts::units::_mm}};
-cfgParGun.etaRange = {{-10., 10.}};
+cfgParGun.nParticles = 1;
+cfgParGun.z0Range = {{-eps / 2, eps / 2}};
+cfgParGun.etaRange = {{10., 10.}};
 cfgParGun.ptRange = {{0., 10. * Acts::units::_GeV}};
-cfgParGun.mass = 511 * Acts::units::_keV;
+cfgParGun.mass = 105.6 * Acts::units::_MeV;
 cfgParGun.charge = - Acts::units::_e;
-cfgParGun.pID = 11;
+cfgParGun.pID = 13;
 
 FW::RandomNumbersSvc::Config cfgRng;
 std::shared_ptr<FW::RandomNumbersSvc> RngSvc(new FW::RandomNumbersSvc(cfgRng));
@@ -289,6 +301,8 @@ objTGeoWriter.write(tGeo);
 */
 //---------------------------------------------------------
 for(int i = 0; i < numLayers; i++) streams[i]->close();
+
+
 
 }
 
