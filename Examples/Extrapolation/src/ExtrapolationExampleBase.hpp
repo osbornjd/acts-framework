@@ -61,7 +61,7 @@ run(size_t                                        nEvents,
   reccWriterConfig.filePath       = "excells_charged.root";
   reccWriterConfig.treeName       = "extrapolation_charged";
   reccWriterConfig.collection     = "excells_charged";
-  reccWriterConfig.writeBoundary  = false;
+  reccWriterConfig.writeBoundary  = true; //modifiziert
   reccWriterConfig.writeMaterial  = true;
   reccWriterConfig.writeSensitive = true;
   reccWriterConfig.writePassive   = true;
@@ -74,7 +74,7 @@ run(size_t                                        nEvents,
   recnWriterConfig.filePath       = "excells_neutral.root";
   recnWriterConfig.treeName       = "extrapolation_neutral";
   recnWriterConfig.collection     = "excells_neutral";
-  recnWriterConfig.writeBoundary  = false;
+  recnWriterConfig.writeBoundary  = true; //modifiziert
   recnWriterConfig.writeMaterial  = true;
   recnWriterConfig.writeSensitive = true;
   recnWriterConfig.writePassive   = true;
@@ -105,7 +105,7 @@ run(size_t                                        nEvents,
   FW::Sequencer::Config seqConfig;
 
   // now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
+  FW::Sequencer sequencer(seqConfig, Acts::getDefaultLogger("Squencer", Acts::Logging::VERBOSE)); //modifiziert
   sequencer.addServices({randomNumbers});
   sequencer.addWriters({rootEccWriter, rootEcnWriter});
   sequencer.appendEventAlgorithms({particleGun, extrapolationAlg});
