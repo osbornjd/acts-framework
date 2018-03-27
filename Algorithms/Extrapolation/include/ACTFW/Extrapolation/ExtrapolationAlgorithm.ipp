@@ -50,7 +50,7 @@ FW::ExtrapolationAlgorithm::executeTestT(
   // theta / phi
   auto   sPosition = startParameters.position();
   double sTheta    = startParameters.momentum().theta();
-  double sPhi      = startParameters.momentum().theta();
+  double sPhi      = startParameters.momentum().phi();
   double tX0       = 0.;
   double tL0       = 0.;
   // material steps to be  filled
