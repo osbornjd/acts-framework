@@ -14,6 +14,10 @@
 #include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Surfaces/PlaneSurface.hpp"
 
+#include "ACTS/Digitization/CartesianSegmentation.hpp"
+#include "ACTS/Digitization/DigitizationModule.hpp"
+#include "ACTFW/GenericDetector/GenericDetectorElement.hpp"
+
 #include "ACTS/Material/HomogeneousSurfaceMaterial.hpp"
 
 #include "ACTS/Surfaces/SurfaceArray.hpp"
@@ -41,49 +45,84 @@
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "../../Extrapolation/src/ExtrapolationExampleBase.hpp"
+#include "../../Extrapolation/src/ExtrapolationExampleBase.hpp" //nasty but working
 
-//namespace po = boost::program_options;
+//TODO: includes aufraeumen
 
 
 int
 main(int argc, char* argv[])
 {
+//x-/y-size of the setup
 const double halfX				= 0.2 * Acts::units::_m;
 const double halfY				= 0.2 * Acts::units::_m;
+//thickness of the detector layers
 const double thickness 				= 10. * Acts::units::_mm;
+//material of the detector layers
 const float X0 					= 95.7;
 const float L0 					= 465.2;
 const float A 					= 28.03;
 const float Z 					= 14.;
 const float Rho 				= 2.32e-3;
+//number of detector layers
 const unsigned int numLayers 			= 5;
+//local position of the detector layers
 const std::array<double, numLayers> localPos 	= {1. * Acts::units::_m,
 						   1.5 * Acts::units::_m,
 						   2. * Acts::units::_m,
 						   2.5 * Acts::units::_m,
 						   3. * Acts::units::_m};
+//position of the detector
 const double posFirstSur 			= 25. * Acts::units::_m;
+//epsilon to ensure to keep the vertex and the layers inside the corresponding volumes
 const double eps 				= 10. * Acts::units::_mm;
+//number of detector cells in x-/y-direction
+const unsigned int numCellsX			= 2;
+const unsigned int numCellsY			= 2;
+//lorentz angle
+const double lorentzangle			= 0.;
 
 
 //Build Surfaces
 std::cout << "Building surfaces" << std::endl;
 
+//rectangle that contains the surface
 std::shared_ptr<const Acts::RectangleBounds> recBounds(new Acts::RectangleBounds(halfX, halfY));
-
+//global translation of the surface
 std::array<Acts::Transform3D, numLayers> t3d;
-std::array<Acts::PlaneSurface*, numLayers> pSur;
+//material of the detector layer
 Acts::MaterialProperties matProp(X0, L0, A, Z, Rho, thickness);
+
+std::shared_ptr<const Acts::Segmentation> segmentation(new Acts::CartesianSegmentation(recBounds, numCellsX, numCellsY));
+std::shared_ptr<const Acts::DigitizationModule> digitization(new Acts::DigitizationModule(segmentation, thickness / 2, 1, lorentzangle)); //TODO: wenn hier die cells erzeugt werden, dann muessten alle platten die selben cells ansprechen
+std::array<FWGen::GenericDetectorElement*, numLayers> genDetElem;
+
+//putting everything together in a surface
+std::array<Acts::PlaneSurface*, numLayers> pSur;
 for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++) 
 {
+    Identifier id(iLayer);
     t3d[iLayer] = Acts::Translation3D(0., 0., posFirstSur + localPos[iLayer]);
-
-    pSur[iLayer] = new Acts::PlaneSurface(
-			std::make_shared<const Acts::Transform3D>(t3d[iLayer]), recBounds);
-
     std::shared_ptr<Acts::SurfaceMaterial> surMat(new Acts::HomogeneousSurfaceMaterial(matProp));
-    pSur[iLayer]->setAssociatedMaterial(surMat);
+    
+    genDetElem[iLayer] = new FWGen::GenericDetectorElement(id,
+							    std::make_shared<const Acts::Transform3D>(t3d[iLayer]),
+							    recBounds,
+							    thickness,
+							    surMat,
+							    digitization);
+
+    pSur[iLayer] = new Acts::PlaneSurface(recBounds,
+					    *(genDetElem[iLayer]),
+					    genDetElem[iLayer]->identify()); //TODO: identischer identifier fuer detectorelement und surface?
+/*
+    for(int x = 0; x < numCellsX; x++)
+	for(int y = 0; y < numCellsY; y++)
+	{
+		const Acts::DigitizationCell dc = pSur[iLayer]->associatedDetectorElement()->digitizationModule()->cell(Acts::Vector2D((double) x, (double) y));
+		std::cout << x << "," << y << "\t" << dc.channel0 << "," << dc.channel1 << "," << dc.data << std::endl;
+	}
+*/
 }
 
 //Build Layers
@@ -212,12 +251,12 @@ for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 }
 
 //Test the setup
-const unsigned nEvents = 100;
+const unsigned nEvents = 1;
 const Acts::ConstantBField bField(0., 0., 0.);
 
 FW::ParticleGun::Config cfgParGun;
 cfgParGun.evgenCollection = "EvgenParticles";
-cfgParGun.nParticles = 100;
+cfgParGun.nParticles = 5;
 cfgParGun.z0Range = {{-eps / 2, eps / 2}};
 cfgParGun.d0Range = {{0., 0.15 * Acts::units::_m}};
 cfgParGun.etaRange = {{0., 10.}};
@@ -239,6 +278,7 @@ FW::RandomNumbersSvc::Config cfgEpol;
 ACTFWExtrapolationExample::run(nEvents, std::make_shared<Acts::ConstantBField>(bField), tGeo, cfgParGun, cfgEpol, Acts::Logging::VERBOSE);
 
 for(int i = 0; i < numLayers; i++) streams[i]->close();
+//TODO: Digitization als methode in extrapolationexamplebase implementieren (kommt aus fatrascommon.hpp/.cpp
 }
 
 
