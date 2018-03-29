@@ -39,6 +39,15 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
   if (!osHits) {
     throw std::ios_base::failure("Could not open '" + pathHits + "' to write");
   }
+
+  // open per-event details file for the hit details
+  std::string pathDetails
+      = perEventFilepath(m_cfg.outputDir, "details.csv", ctx.eventNumber);
+  std::ofstream osDetails(pathDetails, std::ofstream::out | std::ofstream::trunc);
+  if (!osDetails) {
+    throw std::ios_base::failure("Could not open '" + pathHits + "' to write");
+  }
+  
   // open per-event truth file
   std::string pathTruth
       = perEventFilepath(m_cfg.outputDir, "truth.csv", ctx.eventNumber);
@@ -51,10 +60,14 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
 
   // write csv hits header
   osHits << "hit_id,";
-  osHits << "volume_id,layer_id,module_id,";
   osHits << "x,y,z,";
-  osHits << "ncells,ch0,ch1,value\n";
+  osHits << "volume_id,layer_id,module_id" << '\n';
   osHits << std::setprecision(m_cfg.outputPrecision);
+  
+  // write csv hit detials header
+  osDetails << "hit_id,ch0,ch1,value" << '\n';
+  osDetails << std::setprecision(m_cfg.outputPrecision);
+  
   // write csv truth headers
   osTruth << "hit_id,";
   osTruth << "particle_id,";
@@ -78,18 +91,18 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
 
           // write hit information
           osHits << hitId << ",";
+          osHits << pos.x() << "," << pos.y() << "," << pos.z() << ",";
           osHits << volumeData.first << ",";
           osHits << layerData.first << ",";
-          osHits << moduleData.first << ",";
-          osHits << pos.x() << "," << pos.y() << "," << pos.z() << ",";
+          osHits << moduleData.first << '\n';
+          
           // append cell information
           const auto& cells = cluster.digitizationCells();
-          osHits << cells.size();
           for (auto& cell : cells) {
-            osHits << "," << cell.channel0 << "," << cell.channel1 << ","
-                   << cell.data;
+            osDetails << hitId << "," << cell.channel0 
+                               << "," << cell.channel1 
+                               << "," << cell.data << '\n';
           }
-          osHits << '\n';
           
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment

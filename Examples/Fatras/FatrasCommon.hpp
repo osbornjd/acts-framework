@@ -138,12 +138,14 @@ setupSimulation(FW::Sequencer&                                sequencer,
       pmStepperConfig, Acts::getDefaultLogger("PlanarModuleStepper", loglevel));
 
   FW::DigitizationAlgorithm::Config digConfig;
-  digConfig.simulatedHitsCollection = eTestConfig.simulatedHitsCollection;
-  digConfig.clustersCollection      = "FatrasClusters";
-  digConfig.spacePointsCollection   = "FatrasSpacePoints";
-  digConfig.randomNumbers           = random;
-  digConfig.planarModuleStepper     = pmStepper;
-  
+  digConfig.simulatedHitsCollection   = eTestConfig.simulatedHitsCollection;
+  digConfig.clustersCollection        = "FatrasClusters";
+  digConfig.spacePointsCollection     = "FatrasSpacePoints";
+  digConfig.hitsPerParticleCollection = "FatrasHitsPerParticle";
+  digConfig.randomNumbers             = random;
+  digConfig.planarModuleStepper       = pmStepper;
+  digConfig.trackingGeometry          = geometry;
+    
   // load the resolutions
   // @todo move reading into a IReaderT 
   if (resolutionFile != ""){

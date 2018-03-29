@@ -16,6 +16,8 @@
 #include "ACTS/Surfaces/RadialBounds.hpp"
 #include "ACTS/Surfaces/SurfaceBounds.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
+#include "ACTS/Digitization/DigitizationModule.hpp"
+#include "ACTS/Digitization/CartesianSegmentation.hpp"
 
 FW::Csv::CsvSurfaceWriter::CsvSurfaceWriter(
     const FW::Csv::CsvSurfaceWriter::Config& cfg)
@@ -39,7 +41,7 @@ FW::Csv::CsvSurfaceWriter::CsvSurfaceWriter(
   (*m_cfg.outputStream) << "rot_yu,rot_yv,rot_yw,";
   (*m_cfg.outputStream) << "rot_zu,rot_zv,rot_zw";
   if (m_cfg.outputBounds){
-    (*m_cfg.outputStream) << ",thickness,[ bound_values ]";
+    (*m_cfg.outputStream) << ",module_t,module_minhx,module_maxhx,module_hy,pitchX,pitchY";
   }
   (*m_cfg.outputStream) << '\n';
   (*m_cfg.outputStream) << std::setprecision(m_cfg.outputPrecision);
@@ -96,14 +98,32 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
       ACTS_VERBOSE(">>Csv: Writing out a PlaneSurface ");
       // get thickness and value store
       if (surface.associatedDetectorElement()){
-        double thickness = surface.associatedDetectorElement()->thickness();
-        (*m_cfg.outputStream) << "," << thickness << ", ";
+        auto detElement = surface.associatedDetectorElement();
+        // get thickness and bounds
+        double thickness = detElement->thickness();
+        (*m_cfg.outputStream) << "," << thickness << ",";
         // get the values from the bound value store
         auto bValues = surface.bounds().valueStore();
-        for (size_t bv = 0; bv < bValues.size(); ++bv){
-          (*m_cfg.outputStream) << bValues[bv];
-          if ( bv <  bValues.size()-1) 
-             (*m_cfg.outputStream) << ",";
+        if (bValues.size() == 2){
+          (*m_cfg.outputStream) << bValues[0] << ",";
+          (*m_cfg.outputStream) << bValues[0] << ",";
+          (*m_cfg.outputStream) << bValues[1] << ",";
+        } else if (bValues.size() == 3){
+          for (auto& bv : bValues)
+            (*m_cfg.outputStream) << bv << ",";
+        }
+        // get the ditigization module
+        if (detElement->digitizationModule()){
+          auto dModule = detElement->digitizationModule();
+          // dynamic_cast to CartesianSegmentation
+          const Acts::CartesianSegmentation* cSegmentation =
+          dynamic_cast<const Acts::CartesianSegmentation*>
+            (&(dModule->segmentation()));
+          if (cSegmentation){
+            auto pitch = cSegmentation->pitch();
+            (*m_cfg.outputStream) << pitch.first << ",";
+            (*m_cfg.outputStream) << pitch.second;
+          }
         }
       }
     }

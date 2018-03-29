@@ -29,15 +29,17 @@ setupWriters(FW::Sequencer&                  sequencer,
              bool                            production,
              Acts::Logging::Level            defaultLevel)
 {
-  const std::string particles = "FatrasParticles";
-  const std::string clusters  = "FatrasClusters";
-  const std::string points    = "FatrasSpacePoints";
+  const std::string particles       = "FatrasParticles";
+  const std::string clusters        = "FatrasClusters";
+  const std::string points          = "FatrasSpacePoints";
+  const std::string hitsPerParticle = "FatrasHitsPerParticle";
 
   // particles as csv
   FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
-  pWriterCsvConfig.collection = particles;
-  pWriterCsvConfig.outputDir  = outputDir;
-  pWriterCsvConfig.barcodeSvc = barcode;
+  pWriterCsvConfig.collection                = particles;
+  pWriterCsvConfig.outputDir                 = outputDir;
+  pWriterCsvConfig.barcodeSvc                = barcode;
+  pWriterCsvConfig.hitsPerParticleCollection = hitsPerParticle;
   auto pWriterCsv
       = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
 

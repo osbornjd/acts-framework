@@ -60,8 +60,8 @@ buildGenericDetector(Acts::Logging::Level surfaceLLevel,
   std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
 
  // a hash include for the Generic Detector : a bit ugly but effective
- // #include "ACTFW/GenericDetector/GenericDetectorML.ipp"  
- #include "ACTFW/GenericDetector/GenericDetectorCDOT1.ipp"
+ #include "ACTFW/GenericDetector/GenericDetectorML.ipp"  
+ //#include "ACTFW/GenericDetector/GenericDetectorCDOT1.ipp"
  // #include "ACTFW/GenericDetector/GenericDetectorCDOT1.ipp"
 
   //-------------------------------------------------------------------------------------

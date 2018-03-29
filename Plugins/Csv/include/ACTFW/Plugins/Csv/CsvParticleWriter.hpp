@@ -47,6 +47,9 @@ namespace Csv {
       size_t      outputPrecision = 6;  ///< floating point precision
       /// the barcode service to decode/endcode barcode
       std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
+      /// try to get the hits per particle map
+      std::string hitsPerParticleCollection;
+      
     };
 
     /// constructor

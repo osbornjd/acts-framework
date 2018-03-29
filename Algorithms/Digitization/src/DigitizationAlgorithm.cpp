@@ -12,7 +12,6 @@
 #include <stdexcept>
 #include <algorithm>    // std::random_shuffle
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
@@ -22,7 +21,7 @@
 #include "ACTS/Digitization/PlanarModuleStepper.hpp"
 #include "ACTS/Digitization/Segmentation.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/EventData/TrackParameters.hpp"
+#include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Surfaces/Surface.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 #include "ACTS/Utilities/ParameterDefinitions.hpp"
@@ -52,20 +51,22 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
   size_t simulated_hits   = 0;
   size_t dropped_hits     = 0;
   size_t random_hits      = 0;
-  size_t skipped_modules  = 0;
   
   // prepare the input data
-  const FW::DetectorData<geo_id_value,
+  typedef FW::DetectorData<geo_id_value,
                          std::pair<std::unique_ptr<const Acts::TrackParameters>,
-                                   barcode_type>>* hitData
+                                   barcode_type>> HitDataTP;
+    
+  const HitDataTP* hitDataC
       = nullptr;
   // read and go
-  if (ctx.eventStore.get(m_cfg.simulatedHitsCollection, hitData)
+  if (ctx.eventStore.get(m_cfg.simulatedHitsCollection, hitDataC)
       == FW::ProcessCode::ABORT)
     return FW::ProcessCode::ABORT;
 
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitsCollection
                                     << "' from event store.");
+  
 
   // Create a random number generator
   FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
@@ -74,6 +75,15 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
   FW::GaussDist   gDist(0.,1.);
   FW::UniformDist fDist(0.,1.);
   FW::PoissonDist pDist(1);
+  
+  // AWFUL HACK to insert 'spurious' hits 
+  HitDataTP* hitData = const_cast<HitDataTP*>(hitDataC);
+  // now get all detector elements
+  if (m_cfg.trackingGeometry){
+    const Acts::TrackingVolume* world 
+      = m_cfg.trackingGeometry->highestTrackingVolume();
+    random_hits = createExtraHits(*hitData,rng,pDist,fDist,*world);
+  }
       
   // the particle mass table
   Acts::ParticleMasses pMasses;
@@ -82,6 +92,8 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
   // perpare the second output data : SpacePoints
   FW::DetectorData<geo_id_value, Acts::Vector3D> spacePoints;
+  
+  std::map<barcode_type,size_t> hitsPerParticle;
 
   // now digitise
   for (auto& vData : (*hitData)) {
@@ -119,10 +131,6 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
       }
       
       for (auto& sData : lData.second) {
-
-        // for memory cleanup
-        std::vector<Acts::BoundParameters*> mcleanup;
-
         
         auto moduleKey = sData.first;
         ACTS_DEBUG("-- Processing Module Data collection for module with ID "
@@ -131,11 +139,11 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
         // @HACK for TrackML
         typedef std::pair<const Acts::TrackParameters*, barcode_type > HitAndBc;
         std::vector< HitAndBc > processedHits;
-        processedHits.reserve(sData.second.size()+10);
+        processedHits.reserve(sData.second.size());
   
         const Acts::Surface* moduleSurface = 0;
   
-        // (1) fill the hits from simulation parameters
+        // fill all the hits 
         for (auto& hit : sData.second) {
           // throw a certain number of hit away if configured
           if (m_cfg.hitInefficiency != 0. 
@@ -143,6 +151,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
                 ++dropped_hits;
                 continue;
           }
+                    
           // one simulated hit
           ++simulated_hits;
           // get the hit parametes and the barcode
@@ -154,54 +163,6 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
           moduleSurface = &hitPars->referenceSurface();
         }
         
-        // (2) add random some random hits
-        size_t nHits = moduleSurface ? pDist(rng) : 0;
-        if (!nHits) ++skipped_modules;
-        
-        for (size_t ih = 0; ih < nHits; ++ih){
-          
-          // let's create a random hit
-          // 
-          auto vStore = moduleSurface->bounds().valueStore();
-          // throw a local position in Y
-          double locX = 0.;          
-          double locY = 0.;          
-          if (vStore.size() == 2){
-            // rectangle case
-            locX = (-1 + 2*fDist(rng))*vStore[0];
-            locY = (-1 + 2*fDist(rng))*vStore[1];
-          } else if (vStore.size() == 3){
-            // trapezoidal case
-            double maxY = vStore[2];
-            locY = (-1 + 2*fDist(rng))*maxY;
-            double minX = vStore[0];
-            double maxX = vStore[1];
-            double kXY = (maxX-minX)/(2*maxY);
-            double maxXatY = minX + kXY*(locY+maxY); 
-            locX = (-1 + 2*fDist(rng))*maxXatY;
-          }
-          
-          // we have the two local coorinates
-          // now generate phi and theta
-          // we want them to loosely correlate with the 
-          // phi / theta direction where the surface sits
-          // this is to avoid randomly big clusters again
-          double cphi   = moduleSurface->center().phi();
-          double ctheta = moduleSurface->center().theta();
-          double rphi   = cphi + (-1+2*fDist(rng))*0.25*M_PI;
-          double rtheta = ctheta + (-1+2*fDist(rng))*0.25*M_PI;
-          double qop = 0.000001;
-          
-          Acts::ActsVector<double, Acts::NGlobalPars> rpvec;
-          rpvec << locX,locY,rphi,rtheta,qop;
-          Acts::BoundParameters* rParameters
-             = new Acts::BoundParameters(nullptr,rpvec,*moduleSurface);
-          // fill into the new vector
-          processedHits.push_back(HitAndBc(rParameters,0)); 
-          mcleanup.push_back(rParameters);
-          // increase the random hit counter 
-          ++random_hits;
-        } // loop over random hits
         
         // randomize the position in the processedHits vector
         std::random_shuffle(processedHits.begin(),processedHits.end());
@@ -377,6 +338,13 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
                                layerKey,
                                moduleKey,
                                hitParameters->position());
+                               
+              // hits per particle checking
+              if (hitsPerParticle.find(particleBarcode) == hitsPerParticle.end())
+                hitsPerParticle[particleBarcode] = 0;
+              else 
+                ++hitsPerParticle[particleBarcode];
+                               
 
               // insert into the cluster map
               FW::Data::insert(planarClusters,
@@ -391,11 +359,6 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
             
           }    // hit element protection
         }      // hit loop
-        
-        // memory cleanup per module
-        for (auto& mparams : mcleanup)
-          delete mparams;
-        
       }        // moudle loop
     }          // layer loop
   }            // volume loop
@@ -405,15 +368,22 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }
+  
+  
+  // write the SpacePoints to the EventStore
+  if (ctx.eventStore.add(m_cfg.hitsPerParticleCollection, std::move(hitsPerParticle))
+      == FW::ProcessCode::ABORT) {
+    return FW::ProcessCode::ABORT;
+  }
+  
   // write the clusters to the EventStore
   if (ctx.eventStore.add(m_cfg.clustersCollection, std::move(planarClusters))
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }
 
-  ACTS_INFO("This event had " << simulated_hits << " simulated vs. " << random_hits << " injected random hits.");
-  ACTS_INFO("Hits dropped tue to inefficiencies         : " << dropped_hits );
-  ACTS_INFO("Modules skipped due to poisson fluctuation : " << skipped_modules );
+  ACTS_DEBUG("This event had " << simulated_hits << " simulated vs. " << random_hits << " injected random hits.");
+  ACTS_DEBUG("Hits dropped tue to inefficiencies         : " << dropped_hits );
 
   return FW::ProcessCode::SUCCESS;
 }
