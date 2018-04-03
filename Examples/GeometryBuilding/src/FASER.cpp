@@ -45,7 +45,7 @@
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "../../Extrapolation/src/ExtrapolationExampleBase.hpp" //nasty but working
+#include "../ExtrapolationExampleBase.hpp" //nasty but working
 
 //TODO: includes aufraeumen
 
@@ -133,11 +133,13 @@ std::array<Acts::LayerPtr, numLayers> layPtr;
 for(unsigned int iSurface; iSurface < numLayers; iSurface++)
 {
     surArrays[iSurface] = std::make_unique<Acts::SurfaceArray>(Acts::SurfaceArray(pSur[iSurface]));
+    std::cout << "surArray: " << surArrays[iSurface]->surfaces().size() << "\t" << pSur[iSurface] << std::endl;
 
     layPtr[iSurface] = Acts::PlaneLayer::create(std::make_shared<const Acts::Transform3D>(t3d[iSurface]),
 					recBounds,
 					std::move(surArrays[iSurface]),
 					thickness);
+    std::cout << iSurface << "\t" << layPtr[iSurface]->surfaceArray()->size() << "\t" << (layPtr[iSurface]->surfaceArray()->surfaces()).size() << std::endl;
 }
 
 //Build Volumes
@@ -223,7 +225,8 @@ std::shared_ptr<const Acts::TrackingVolumeArray> trVolArr(new Acts::BinnedArrayX
 
 Acts::MutableTrackingVolumePtr mtvpWorld(Acts::TrackingVolume::create(htransWorld,
 								volBoundsPtrWorld,
-								trVolArr));
+								trVolArr,
+								"Welt"));
 
 mtvpWorld->sign(Acts::GeometrySignature::Global);
 
@@ -251,12 +254,12 @@ for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 }
 
 //Test the setup
-const unsigned nEvents = 1;
+const unsigned nEvents = 100;
 const Acts::ConstantBField bField(0., 0., 0.);
 
 FW::ParticleGun::Config cfgParGun;
 cfgParGun.evgenCollection = "EvgenParticles";
-cfgParGun.nParticles = 5;
+cfgParGun.nParticles = 100;
 cfgParGun.z0Range = {{-eps / 2, eps / 2}};
 cfgParGun.d0Range = {{0., 0.15 * Acts::units::_m}};
 cfgParGun.etaRange = {{0., 10.}};
@@ -279,6 +282,7 @@ ACTFWExtrapolationExample::run(nEvents, std::make_shared<Acts::ConstantBField>(b
 
 for(int i = 0; i < numLayers; i++) streams[i]->close();
 //TODO: Digitization als methode in extrapolationexamplebase implementieren (kommt aus fatrascommon.hpp/.cpp
+//TODO: besser waere es wohl die gesamte extrapolation zu extrahieren und hier in methodenform zu implementieren
 }
 
 

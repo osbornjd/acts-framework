@@ -21,12 +21,20 @@ if (USE_DD4HEP)
   install(TARGETS ACTFWDD4hepGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+add_library(ACTFWParticleDigitization STATIC FatrasCommon.cpp FatrasCommon.cpp)
+
+target_include_directories(ACTFWParticleDigitization PUBLIC ${ROOT_INCLUDE_DIRS})
+target_include_directories(ACTFWParticleDigitization PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(ACTFWParticleDigitization PUBLIC ACTSCore)
+target_link_libraries(ACTFWParticleDigitization PUBLIC ACTFramework ACTFWExtrapolation ACTFWDigitization ACTFWParticleGun)
+target_link_libraries(ACTFWParticleDigitization PUBLIC ACTFWCsvPlugin ACTFWJsonPlugin ACTFWObjPlugin ACTFWRootPlugin ACTFWBFieldPlugin)
+
 # generic detector test
 add_executable(ACTFWFASER src/FASER)
 target_include_directories(ACTFWFASER PRIVATE ${Boost_INCLUDE_DIRS})
 target_include_directories(ACTFWFASER PUBLIC ${DD4hep_INCLUDE_DIRS})
 target_link_libraries(ACTFWFASER PUBLIC ACTSCore)
-target_link_libraries(ACTFWFASER PRIVATE ACTFramework ACTFWObjPlugin ACTFWGenericDetector ACTFWParticleGun ACTFWExtrapolation)
+target_link_libraries(ACTFWFASER PRIVATE ACTFramework ACTFWObjPlugin ACTFWGenericDetector ACTFWParticleGun ACTFWDigitization ACTFWParticleDigitization ACTFWExtrapolation)
 target_link_libraries(ACTFWFASER PRIVATE ACTFWRootPlugin ACTFWBFieldPlugin)
 target_link_libraries(ACTFWFASER PRIVATE ${Boost_LIBRARIES})
 
