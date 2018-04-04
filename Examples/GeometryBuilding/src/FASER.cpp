@@ -54,8 +54,8 @@ int
 main(int argc, char* argv[])
 {
 //x-/y-size of the setup
-const double halfX				= 0.2 * Acts::units::_m;
-const double halfY				= 0.2 * Acts::units::_m;
+const double halfX				= 0.1 * Acts::units::_m; //TODO: segmentation funktioniert so nicht
+const double halfY				= 0.1 * Acts::units::_m;
 //thickness of the detector layers
 const double thickness 				= 10. * Acts::units::_mm;
 //material of the detector layers
@@ -67,13 +67,13 @@ const float Rho 				= 2.32e-3;
 //number of detector layers
 const unsigned int numLayers 			= 5;
 //local position of the detector layers
-const std::array<double, numLayers> localPos 	= {1. * Acts::units::_m,
-						   1.5 * Acts::units::_m,
-						   2. * Acts::units::_m,
-						   2.5 * Acts::units::_m,
-						   3. * Acts::units::_m};
+const std::array<double, numLayers> localPos 	= {3.2 * Acts::units::_m,
+						   3.4 * Acts::units::_m,
+						   3.6 * Acts::units::_m,
+						   3.8 * Acts::units::_m,
+						   4. * Acts::units::_m};
 //position of the detector
-const double posFirstSur 			= 25. * Acts::units::_m;
+const double posFirstSur 			= 400. * Acts::units::_m;
 //epsilon to ensure to keep the vertex and the layers inside the corresponding volumes
 const double eps 				= 10. * Acts::units::_mm;
 //number of detector cells in x-/y-direction
@@ -81,7 +81,7 @@ const unsigned int numCellsX			= 2;
 const unsigned int numCellsY			= 2;
 //lorentz angle
 const double lorentzangle			= 0.;
-
+const int nVacs 					= 20;
 
 //Build Surfaces
 std::cout << "Building surfaces" << std::endl;
@@ -115,14 +115,6 @@ for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++)
     pSur[iLayer] = new Acts::PlaneSurface(recBounds,
 					    *(genDetElem[iLayer]),
 					    genDetElem[iLayer]->identify()); //TODO: identischer identifier fuer detectorelement und surface?
-/*
-    for(int x = 0; x < numCellsX; x++)
-	for(int y = 0; y < numCellsY; y++)
-	{
-		const Acts::DigitizationCell dc = pSur[iLayer]->associatedDetectorElement()->digitizationModule()->cell(Acts::Vector2D((double) x, (double) y));
-		std::cout << x << "," << y << "\t" << dc.channel0 << "," << dc.channel1 << "," << dc.data << std::endl;
-	}
-*/
 }
 
 //Build Layers
@@ -181,25 +173,84 @@ mtvp->sign(Acts::GeometrySignature::Global);
 //Build vacuum volume
 std::cout << "Building vacuum" << std::endl;
 
-Acts::Transform3D transVac;
-transVac = Acts::Translation3D(0., 0., posFirstSur / 2 - eps);
-std::shared_ptr<const Acts::Transform3D> htransVac = std::make_shared<Acts::Transform3D>(transVac);
+std::array<Acts::MutableTrackingVolumePtr, nVacs> vacArr;
 
-Acts::VolumeBoundsPtr volBoundsPtrVac = std::make_shared<const Acts::CuboidVolumeBounds>(
-					Acts::CuboidVolumeBounds(halfX,
-								halfY,
-								posFirstSur / 2));
-
-Acts::MutableTrackingVolumePtr mtvpVac(Acts::TrackingVolume::create(htransVac,
-								volBoundsPtrVac,
-								nullptr,
-								"Vakuum"));
-
-mtvpVac->sign(Acts::GeometrySignature::Global);
+for(int iVac = 0; iVac < nVacs; iVac++)
+{
+	if(iVac == 0) //TODO: volumina passen nicht mehr
+	{
+		Acts::Transform3D transVac;
+		transVac = Acts::Translation3D(0., 0., (20. * iVac + 10.)  * Acts::units::_m - eps / 2); //hardcode
+		std::shared_ptr<const Acts::Transform3D> htransVac = std::make_shared<Acts::Transform3D>(transVac);
+		
+		Acts::VolumeBoundsPtr volBoundsPtrVac = std::make_shared<const Acts::CuboidVolumeBounds>(
+							Acts::CuboidVolumeBounds(halfX,
+										halfY,
+										(posFirstSur / (double) nVacs + eps) / 2));
+		
+		Acts::MutableTrackingVolumePtr mtvpVac(Acts::TrackingVolume::create(htransVac,
+										volBoundsPtrVac,
+										nullptr,
+										"Vakuum" + std::to_string(iVac)));
+		
+		mtvpVac->sign(Acts::GeometrySignature::Global);
+		vacArr[iVac] = mtvpVac;
+		std::cout << iVac << "\t" << (20. * iVac + 10.)  * Acts::units::_m - eps / 2 << "\t" << (posFirstSur / (double) nVacs + eps) / 2 << std::endl;
+		continue;
+	}
+	
+	if(iVac == nVacs - 1)
+	{
+		Acts::Transform3D transVac;
+		transVac = Acts::Translation3D(0., 0., (20. * iVac + 10.)  * Acts::units::_m + eps / 2); //hardcode
+		std::shared_ptr<const Acts::Transform3D> htransVac = std::make_shared<Acts::Transform3D>(transVac);
+		
+		Acts::VolumeBoundsPtr volBoundsPtrVac = std::make_shared<const Acts::CuboidVolumeBounds>(
+							Acts::CuboidVolumeBounds(halfX,
+										halfY,
+										(posFirstSur / (double) nVacs + eps) / 2));
+		
+		Acts::MutableTrackingVolumePtr mtvpVac(Acts::TrackingVolume::create(htransVac,
+										volBoundsPtrVac,
+										nullptr,
+										"Vakuum" + std::to_string(iVac)));
+		
+		mtvpVac->sign(Acts::GeometrySignature::Global);
+		vacArr[iVac] = mtvpVac;
+		std::cout << iVac << "\t" << (20. * iVac + 10.)  * Acts::units::_m + eps / 2 << "\t" << (posFirstSur / (double) nVacs + eps) / 2 << std::endl;
+		continue;
+	}
+	
+	Acts::Transform3D transVac;
+	transVac = Acts::Translation3D(0., 0., (20. * iVac + 10.) * Acts::units::_m); //hardcode
+	std::shared_ptr<const Acts::Transform3D> htransVac = std::make_shared<Acts::Transform3D>(transVac);
+	
+	Acts::VolumeBoundsPtr volBoundsPtrVac = std::make_shared<const Acts::CuboidVolumeBounds>(
+						Acts::CuboidVolumeBounds(halfX,
+									halfY,
+									(posFirstSur / (double) nVacs) / 2));
+	
+	Acts::MutableTrackingVolumePtr mtvpVac(Acts::TrackingVolume::create(htransVac,
+									volBoundsPtrVac,
+									nullptr,
+									"Vakuum" + std::to_string(iVac)));
+	
+	mtvpVac->sign(Acts::GeometrySignature::Global);
+	vacArr[iVac] = mtvpVac;
+	std::cout << iVac << "\t" << (20. * iVac + 10.) * Acts::units::_m << "\t" << (posFirstSur / (double) nVacs) / 2 << std::endl;
+}
 
 //Glue everything together
-mtvp->glueTrackingVolume(Acts::BoundarySurfaceFace::negativeFaceXY, mtvpVac, Acts::BoundarySurfaceFace::positiveFaceXY);
-mtvpVac->glueTrackingVolume(Acts::BoundarySurfaceFace::positiveFaceXY, mtvp, Acts::BoundarySurfaceFace::negativeFaceXY);
+for(int iVac = 0; iVac < nVacs; iVac++)
+{
+	if(iVac != nVacs -1)
+		vacArr[iVac]->glueTrackingVolume(Acts::BoundarySurfaceFace::positiveFaceXY, vacArr[iVac + 1], Acts::BoundarySurfaceFace::negativeFaceXY);
+	if(iVac != 0)
+		vacArr[iVac]->glueTrackingVolume(Acts::BoundarySurfaceFace::negativeFaceXY, vacArr[iVac - 1], Acts::BoundarySurfaceFace::positiveFaceXY);
+}
+
+mtvp->glueTrackingVolume(Acts::BoundarySurfaceFace::negativeFaceXY, vacArr[nVacs - 1], Acts::BoundarySurfaceFace::positiveFaceXY);
+vacArr[nVacs - 1]->glueTrackingVolume(Acts::BoundarySurfaceFace::positiveFaceXY, mtvp, Acts::BoundarySurfaceFace::negativeFaceXY);
 
 //Build world
 std::cout << "Building world" << std::endl;
@@ -214,10 +265,28 @@ Acts::VolumeBoundsPtr volBoundsPtrWorld = std::make_shared<const Acts::CuboidVol
 								(posFirstSur + localPos.back()) / 2 + eps));
 
 std::vector<std::pair<std::shared_ptr<const Acts::TrackingVolume>, Acts::Vector3D>> tapVec;
-tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(mtvp, Acts::Vector3D(0., 0., posFirstSur + localPos.back() / 2))); //TODO: checken ob das passt
-tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(mtvpVac, Acts::Vector3D(0., 0., posFirstSur / 2 - eps)));
+tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(mtvp, Acts::Vector3D(0., 0., posFirstSur + localPos.back() / 2)));
+for(int iVac = 0; iVac < nVacs; iVac++)
+{
+	if(iVac == 0)
+	{
+		tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(vacArr[iVac], Acts::Vector3D(0., 0.,  (20. * iVac + 10.)  * Acts::units::_m - eps / 2)));
+		continue;
+	}
+	if(iVac == nVacs - 1)
+	{
+		tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(vacArr[iVac], Acts::Vector3D(0., 0.,  (20. * iVac + 10.)  * Acts::units::_m + eps / 2)));
+		continue;
+	}
+	tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(vacArr[iVac], Acts::Vector3D(0., 0., (20. * iVac + 10.) * Acts::units::_m)));
+}
 
-const std::vector<float> binBoundaries = {-eps, posFirstSur - eps, posFirstSur + localPos.back() + eps};
+std::vector<float> binBoundaries = {-eps};
+for(int iVac = 1; iVac < nVacs; iVac++)
+	binBoundaries.push_back((posFirstSur / (double) nVacs) * iVac);
+binBoundaries.push_back(posFirstSur - eps);
+binBoundaries.push_back(posFirstSur + localPos.back() + eps);
+
 Acts::BinningData binData(Acts::BinningOption::open, Acts::BinningValue::binZ, binBoundaries);
 std::unique_ptr<const Acts::BinUtility> bu(new Acts::BinUtility(binData));
 
@@ -254,15 +323,15 @@ for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 }
 
 //Test the setup
-const unsigned nEvents = 100;
+const unsigned nEvents = 1;
 const Acts::ConstantBField bField(0., 0., 0.);
 
 FW::ParticleGun::Config cfgParGun;
 cfgParGun.evgenCollection = "EvgenParticles";
-cfgParGun.nParticles = 100;
+cfgParGun.nParticles = 10;
 cfgParGun.z0Range = {{-eps / 2, eps / 2}};
 cfgParGun.d0Range = {{0., 0.15 * Acts::units::_m}};
-cfgParGun.etaRange = {{0., 10.}};
+cfgParGun.etaRange = {{9., 10.}};
 cfgParGun.ptRange = {{0., 10. * Acts::units::_MeV}};
 cfgParGun.mass = 105.6 * Acts::units::_MeV;
 cfgParGun.charge = - Acts::units::_e;
