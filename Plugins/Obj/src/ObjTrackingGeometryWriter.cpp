@@ -79,7 +79,7 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
         // surfaces
         surfaceWriter->write(m_cfg.sensitiveGroupPrefix);
         // loop over the surface
-        for (auto surface : layer->surfaceArray()->surfaces()) {
+        for (auto surface : layer->surfaceArray()->arrayObjects()) {
           if (surface
               && (surfaceWriter->write(*surface)) == FW::ProcessCode::ABORT)
             return;

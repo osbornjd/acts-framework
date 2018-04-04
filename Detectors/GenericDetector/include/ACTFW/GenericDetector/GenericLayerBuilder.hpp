@@ -18,7 +18,7 @@
 
 namespace Acts {
 
-class LayerCreator;
+class ILayerCreator;
 class Surface;
 class DetecorElementBase;
 }
@@ -125,7 +125,7 @@ public:
     std::vector<std::vector<double>> posnegModuleBacksideGap;
 
     /// helper tools: layer creator
-    std::shared_ptr<const Acts::LayerCreator> layerCreator = nullptr;
+    std::shared_ptr<const Acts::ILayerCreator> layerCreator = nullptr;
     /// helper tools: central passiva layer builder
     std::shared_ptr<const Acts::ILayerBuilder> centralPassiveLayerBuilder
         = nullptr;

@@ -141,7 +141,9 @@ private:
                    const Acts::Surface&               sf,
                    std::vector<TrackParametersPtr>&   res) const
   {
-    TrackParametersPtr p = prop.propagate(pars, sf, opt).endParameters;
+    TrackParametersPtr p
+        = prop.propagate_with_cache(cache, pars, sf, opt).endParameters;
+
     if (p) {
       const auto& pos = p->position();
       ACTS_VERBOSE("Intersection = " << pos.x() << "," << pos.y() << ","
