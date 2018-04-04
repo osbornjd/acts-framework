@@ -53,9 +53,7 @@
 int
 main(int argc, char* argv[])
 {
-//x-/y-size of the setup
-const double halfX				= 0.1 * Acts::units::_m; //TODO: segmentation funktioniert so nicht
-const double halfY				= 0.1 * Acts::units::_m;
+
 //thickness of the detector layers
 const double thickness 				= 10. * Acts::units::_mm;
 //material of the detector layers
@@ -82,6 +80,14 @@ const unsigned int numCellsY			= 2;
 //lorentz angle
 const double lorentzangle			= 0.;
 const int nVacs 					= 20;
+const double stripGap				= 269. * Acts::units::_um;
+const unsigned int numCells 		= 1280;
+const double pitch					= 75.5 * Acts::units::_um;
+const double lengthStrip			= 48.2 * Acts::units::_mm;
+//x-/y-size of the setup
+const double halfX				= numCells * pitch / 2 + 10;
+const double halfY				= lengthStrip + stripGap / 2 + 10;
+const double rotation			= 0.026;
 
 //Build Surfaces
 std::cout << "Building surfaces" << std::endl;
@@ -89,32 +95,83 @@ std::cout << "Building surfaces" << std::endl;
 //rectangle that contains the surface
 std::shared_ptr<const Acts::RectangleBounds> recBounds(new Acts::RectangleBounds(halfX, halfY));
 //global translation of the surface
-std::array<Acts::Transform3D, numLayers> t3d;
+std::array<Acts::Transform3D, 2 * numLayers> t3d;
+
+Acts::RotationMatrix3D rotationPos, rotationNeg;
+
+Acts::Vector3D xPos(cos(rotation), sin(rotation), 0.);
+Acts::Vector3D yPos(-sin(rotation), cos(rotation), 0.);
+Acts::Vector3D zPos(0., 0., 1.);
+rotationPos.col(0) = xPos;
+rotationPos.col(1) = yPos;
+rotationPos.col(2) = zPos;
+
+Acts::Vector3D xNeg(cos(-rotation), sin(-rotation), 0.);
+Acts::Vector3D yNeg(-sin(-rotation), cos(-rotation), 0.);
+Acts::Vector3D zNeg(0., 0., 1.);
+rotationNeg.col(0) = xNeg;
+rotationNeg.col(1) = yNeg;
+rotationNeg.col(2) = zNeg;                
+                
 //material of the detector layer
 Acts::MaterialProperties matProp(X0, L0, A, Z, Rho, thickness);
 
-std::shared_ptr<const Acts::Segmentation> segmentation(new Acts::CartesianSegmentation(recBounds, numCellsX, numCellsY));
-std::shared_ptr<const Acts::DigitizationModule> digitization(new Acts::DigitizationModule(segmentation, thickness / 2, 1, lorentzangle)); //TODO: wenn hier die cells erzeugt werden, dann muessten alle platten die selben cells ansprechen
-std::array<FWGen::GenericDetectorElement*, numLayers> genDetElem;
+//Build Segmentation
+std::vector<float> stripBoundariesX, stripBoundariesY;
+for(int iX = 0; iX <= numCells; iX++)
+	stripBoundariesX.push_back(iX * pitch - (numCells * pitch) / 2);
+stripBoundariesY.push_back(-lengthStrip - stripGap / 2);
+stripBoundariesY.push_back(-stripGap / 2);
+stripBoundariesY.push_back(stripGap / 2);
+stripBoundariesY.push_back(lengthStrip + stripGap / 2);
+
+Acts::BinningData binDataX(Acts::BinningOption::open, Acts::BinningValue::binX, stripBoundariesX);
+std::shared_ptr<Acts::BinUtility> buX(new Acts::BinUtility(binDataX));
+Acts::BinningData binDataY(Acts::BinningOption::open, Acts::BinningValue::binY, stripBoundariesY);
+std::shared_ptr<Acts::BinUtility> buY(new Acts::BinUtility(binDataY));
+(*buX) += (*buY);
+
+std::shared_ptr<const Acts::Segmentation> segmentation(new Acts::CartesianSegmentation(buX, recBounds));
+
+std::shared_ptr<const Acts::DigitizationModule> digitization(new Acts::DigitizationModule(segmentation, thickness / 2, 1, lorentzangle));
+std::array<FWGen::GenericDetectorElement*, 2 * numLayers> genDetElem;
 
 //putting everything together in a surface
-std::array<Acts::PlaneSurface*, numLayers> pSur;
+std::array<Acts::PlaneSurface*, 2 * numLayers> pSur;
 for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++) 
 {
-    Identifier id(iLayer);
-    t3d[iLayer] = Acts::Translation3D(0., 0., posFirstSur + localPos[iLayer]);
+    Identifier id(2 * iLayer);
+    
+    t3d[2 * iLayer] = Acts::getTransformFromRotTransl(rotationPos, Acts::Vector3D(0., 0., posFirstSur + localPos[iLayer]));
+    
     std::shared_ptr<Acts::SurfaceMaterial> surMat(new Acts::HomogeneousSurfaceMaterial(matProp));
     
-    genDetElem[iLayer] = new FWGen::GenericDetectorElement(id,
-							    std::make_shared<const Acts::Transform3D>(t3d[iLayer]),
+    genDetElem[2 * iLayer] = new FWGen::GenericDetectorElement(id,
+							    std::make_shared<const Acts::Transform3D>(t3d[2 * iLayer]),
 							    recBounds,
 							    thickness,
 							    surMat,
 							    digitization);
 
-    pSur[iLayer] = new Acts::PlaneSurface(recBounds,
-					    *(genDetElem[iLayer]),
-					    genDetElem[iLayer]->identify()); //TODO: identischer identifier fuer detectorelement und surface?
+    pSur[2 * iLayer] = new Acts::PlaneSurface(recBounds,
+					    *(genDetElem[2 * iLayer]),
+					    genDetElem[2 * iLayer]->identify());
+					    
+
+    id = 2 * iLayer + 1;
+    
+    t3d[2 * iLayer + 1] = Acts::getTransformFromRotTransl(rotationNeg, Acts::Vector3D(0., 0., posFirstSur + localPos[iLayer] + 1)); //TODO: translation muss sich aendern
+    
+    genDetElem[2 * iLayer + 1] = new FWGen::GenericDetectorElement(id,
+							    std::make_shared<const Acts::Transform3D>(t3d[2 * iLayer + 1]),
+							    recBounds,
+							    thickness,
+							    surMat,
+							    digitization);
+
+    pSur[2 * iLayer + 1] = new Acts::PlaneSurface(recBounds,
+					    *(genDetElem[2 * iLayer + 1]),
+					    genDetElem[2 * iLayer + 1]->identify());
 }
 
 //Build Layers
@@ -122,16 +179,22 @@ std::cout << "Building layers" << std::endl;
 
 std::array<std::unique_ptr<Acts::SurfaceArray>, numLayers> surArrays;
 std::array<Acts::LayerPtr, numLayers> layPtr;
-for(unsigned int iSurface; iSurface < numLayers; iSurface++)
+for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 {
-    surArrays[iSurface] = std::make_unique<Acts::SurfaceArray>(Acts::SurfaceArray(pSur[iSurface]));
-    std::cout << "surArray: " << surArrays[iSurface]->surfaces().size() << "\t" << pSur[iSurface] << std::endl;
-
+	Acts::SurfaceVector surVec = {pSur[2 * iSurface], pSur[2 * iSurface + 1]};
+	
+	std::cout << "adressen: " << surVec[0] << "\t" << surVec[1] << std::endl;
+	
+    surArrays[iSurface] = std::make_unique<Acts::SurfaceArray>(Acts::SurfaceArray(surVec));
+    
+    std::cout << "surArray: " << surArrays[iSurface]->surfaces().size() << std::endl;
+    std::cout << "\t" << pSur[0] << "\t" << pSur[1] << std::endl;
+	
     layPtr[iSurface] = Acts::PlaneLayer::create(std::make_shared<const Acts::Transform3D>(t3d[iSurface]),
 					recBounds,
 					std::move(surArrays[iSurface]),
 					thickness);
-    std::cout << iSurface << "\t" << layPtr[iSurface]->surfaceArray()->size() << "\t" << (layPtr[iSurface]->surfaceArray()->surfaces()).size() << std::endl;
+    //~ std::cout << iSurface << "\t" << layPtr[iSurface]->surfaceArray()->size() << "\t" << (layPtr[iSurface]->surfaceArray()->surfaces()).size() << std::endl;
 }
 
 //Build Volumes
@@ -177,7 +240,7 @@ std::array<Acts::MutableTrackingVolumePtr, nVacs> vacArr;
 
 for(int iVac = 0; iVac < nVacs; iVac++)
 {
-	if(iVac == 0) //TODO: volumina passen nicht mehr
+	if(iVac == 0)
 	{
 		Acts::Transform3D transVac;
 		transVac = Acts::Translation3D(0., 0., (20. * iVac + 10.)  * Acts::units::_m - eps / 2); //hardcode
@@ -195,7 +258,7 @@ for(int iVac = 0; iVac < nVacs; iVac++)
 		
 		mtvpVac->sign(Acts::GeometrySignature::Global);
 		vacArr[iVac] = mtvpVac;
-		std::cout << iVac << "\t" << (20. * iVac + 10.)  * Acts::units::_m - eps / 2 << "\t" << (posFirstSur / (double) nVacs + eps) / 2 << std::endl;
+		//~ std::cout << iVac << "\t" << (20. * iVac + 10.)  * Acts::units::_m - eps / 2 << "\t" << (posFirstSur / (double) nVacs + eps) / 2 << std::endl;
 		continue;
 	}
 	
@@ -217,7 +280,7 @@ for(int iVac = 0; iVac < nVacs; iVac++)
 		
 		mtvpVac->sign(Acts::GeometrySignature::Global);
 		vacArr[iVac] = mtvpVac;
-		std::cout << iVac << "\t" << (20. * iVac + 10.)  * Acts::units::_m + eps / 2 << "\t" << (posFirstSur / (double) nVacs + eps) / 2 << std::endl;
+		//~ std::cout << iVac << "\t" << (20. * iVac + 10.)  * Acts::units::_m + eps / 2 << "\t" << (posFirstSur / (double) nVacs + eps) / 2 << std::endl;
 		continue;
 	}
 	
@@ -237,7 +300,7 @@ for(int iVac = 0; iVac < nVacs; iVac++)
 	
 	mtvpVac->sign(Acts::GeometrySignature::Global);
 	vacArr[iVac] = mtvpVac;
-	std::cout << iVac << "\t" << (20. * iVac + 10.) * Acts::units::_m << "\t" << (posFirstSur / (double) nVacs) / 2 << std::endl;
+	//~ std::cout << iVac << "\t" << (20. * iVac + 10.) * Acts::units::_m << "\t" << (posFirstSur / (double) nVacs) / 2 << std::endl;
 }
 
 //Glue everything together
@@ -331,10 +394,10 @@ cfgParGun.evgenCollection = "EvgenParticles";
 cfgParGun.nParticles = 10;
 cfgParGun.z0Range = {{-eps / 2, eps / 2}};
 cfgParGun.d0Range = {{0., 0.15 * Acts::units::_m}};
-cfgParGun.etaRange = {{9., 10.}};
+cfgParGun.etaRange = {{7., 15.}};
 cfgParGun.ptRange = {{0., 10. * Acts::units::_MeV}};
 cfgParGun.mass = 105.6 * Acts::units::_MeV;
-cfgParGun.charge = - Acts::units::_e;
+cfgParGun.charge = -Acts::units::_e;
 cfgParGun.pID = 13;
 
 FW::RandomNumbersSvc::Config cfgRng;
@@ -350,8 +413,6 @@ FW::RandomNumbersSvc::Config cfgEpol;
 ACTFWExtrapolationExample::run(nEvents, std::make_shared<Acts::ConstantBField>(bField), tGeo, cfgParGun, cfgEpol, Acts::Logging::VERBOSE);
 
 for(int i = 0; i < numLayers; i++) streams[i]->close();
-//TODO: Digitization als methode in extrapolationexamplebase implementieren (kommt aus fatrascommon.hpp/.cpp
-//TODO: besser waere es wohl die gesamte extrapolation zu extrahieren und hier in methodenform zu implementieren
 }
 
 
