@@ -55,7 +55,9 @@ main(int argc, char* argv[])
 {
 
 //thickness of the detector layers
-const double thickness 				= 10. * Acts::units::_mm;
+const double thicknessSCT			= 0.32 * Acts::units::_mm;
+const double thicknessSupport		= 3.3 * Acts::units::_mm;
+const double thickness 				= 2 * thicknessSCT + thicknessSupport;
 //material of the detector layers
 const float X0 					= 95.7;
 const float L0 					= 465.2;
@@ -74,9 +76,6 @@ const std::array<double, numLayers> localPos 	= {3.2 * Acts::units::_m,
 const double posFirstSur 			= 400. * Acts::units::_m;
 //epsilon to ensure to keep the vertex and the layers inside the corresponding volumes
 const double eps 				= 10. * Acts::units::_mm;
-//number of detector cells in x-/y-direction
-const unsigned int numCellsX			= 2;
-const unsigned int numCellsY			= 2;
 //lorentz angle
 const double lorentzangle			= 0.;
 const int nVacs 					= 20;
@@ -85,8 +84,8 @@ const unsigned int numCells 		= 1280;
 const double pitch					= 75.5 * Acts::units::_um;
 const double lengthStrip			= 48.2 * Acts::units::_mm;
 //x-/y-size of the setup
-const double halfX				= numCells * pitch / 2 + 10;
-const double halfY				= lengthStrip + stripGap / 2 + 10;
+const double halfX				= numCells * pitch / 2;
+const double halfY				= lengthStrip + stripGap / 2;
 const double rotation			= 0.026;
 
 //Build Surfaces
@@ -133,7 +132,7 @@ std::shared_ptr<Acts::BinUtility> buY(new Acts::BinUtility(binDataY));
 
 std::shared_ptr<const Acts::Segmentation> segmentation(new Acts::CartesianSegmentation(buX, recBounds));
 
-std::shared_ptr<const Acts::DigitizationModule> digitization(new Acts::DigitizationModule(segmentation, thickness / 2, 1, lorentzangle));
+std::shared_ptr<const Acts::DigitizationModule> digitization(new Acts::DigitizationModule(segmentation, thickness / 2, 1, lorentzangle)); //TODO: readout richtung festlegen
 std::array<FWGen::GenericDetectorElement*, 2 * numLayers> genDetElem;
 
 //putting everything together in a surface
@@ -142,7 +141,7 @@ for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++)
 {
     Identifier id(2 * iLayer);
     
-    t3d[2 * iLayer] = Acts::getTransformFromRotTransl(rotationPos, Acts::Vector3D(0., 0., posFirstSur + localPos[iLayer]));
+    t3d[2 * iLayer] = Acts::getTransformFromRotTransl(rotationPos, Acts::Vector3D(0., 0., posFirstSur + localPos[iLayer] - (thicknessSupport + thicknessSCT) / 2));
     
     std::shared_ptr<Acts::SurfaceMaterial> surMat(new Acts::HomogeneousSurfaceMaterial(matProp));
     
@@ -160,7 +159,7 @@ for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++)
 
     id = 2 * iLayer + 1;
     
-    t3d[2 * iLayer + 1] = Acts::getTransformFromRotTransl(rotationNeg, Acts::Vector3D(0., 0., posFirstSur + localPos[iLayer] + 1)); //TODO: translation muss sich aendern
+    t3d[2 * iLayer + 1] = Acts::getTransformFromRotTransl(rotationNeg, Acts::Vector3D(0., 0., posFirstSur + localPos[iLayer] + (thicknessSupport + thicknessSCT) / 2));
     
     genDetElem[2 * iLayer + 1] = new FWGen::GenericDetectorElement(id,
 							    std::make_shared<const Acts::Transform3D>(t3d[2 * iLayer + 1]),
@@ -177,20 +176,18 @@ for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++)
 //Build Layers
 std::cout << "Building layers" << std::endl;
 
+std::array<Acts::Transform3D, numLayers> t3dLay;
 std::array<std::unique_ptr<Acts::SurfaceArray>, numLayers> surArrays;
 std::array<Acts::LayerPtr, numLayers> layPtr;
 for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 {
+	t3dLay[iSurface] = Acts::Translation3D(0., 0., posFirstSur + localPos[iSurface]);
+	
 	Acts::SurfaceVector surVec = {pSur[2 * iSurface], pSur[2 * iSurface + 1]};
 	
-	std::cout << "adressen: " << surVec[0] << "\t" << surVec[1] << std::endl;
-	
     surArrays[iSurface] = std::make_unique<Acts::SurfaceArray>(Acts::SurfaceArray(surVec));
-    
-    std::cout << "surArray: " << surArrays[iSurface]->surfaces().size() << std::endl;
-    std::cout << "\t" << pSur[0] << "\t" << pSur[1] << std::endl;
 	
-    layPtr[iSurface] = Acts::PlaneLayer::create(std::make_shared<const Acts::Transform3D>(t3d[iSurface]),
+    layPtr[iSurface] = Acts::PlaneLayer::create(std::make_shared<const Acts::Transform3D>(t3dLay[iSurface]),
 					recBounds,
 					std::move(surArrays[iSurface]),
 					thickness);
@@ -386,12 +383,12 @@ for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 }
 
 //Test the setup
-const unsigned nEvents = 1;
+const unsigned nEvents = 10;
 const Acts::ConstantBField bField(0., 0., 0.);
 
 FW::ParticleGun::Config cfgParGun;
 cfgParGun.evgenCollection = "EvgenParticles";
-cfgParGun.nParticles = 10;
+cfgParGun.nParticles = 100;
 cfgParGun.z0Range = {{-eps / 2, eps / 2}};
 cfgParGun.d0Range = {{0., 0.15 * Acts::units::_m}};
 cfgParGun.etaRange = {{7., 15.}};
