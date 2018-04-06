@@ -12,6 +12,7 @@
 #include "ACTS/Detector/DetectorElementBase.hpp"
 #include "ACTS/Digitization/CartesianSegmentation.hpp"
 #include "ACTS/Digitization/DigitizationModule.hpp"
+#include "ACTS/Layers/ProtoLayer.hpp"
 #include "ACTS/Material/HomogeneousSurfaceMaterial.hpp"
 #include "ACTS/Material/Material.hpp"
 #include "ACTS/Material/MaterialProperties.hpp"
@@ -240,12 +241,11 @@ FWGen::GenericLayerBuilder::constructLayers()
       zBins *= m_cfg.centralLayerBinMultipliers.second;
       // create the surface array - it will also fill the accesible binmember
       // chache if avalable
+      Acts::ProtoLayer pl(sVector);
+      pl.envR = {m_cfg.approachSurfaceEnvelope, m_cfg.approachSurfaceEnvelope};
+      pl.envZ = {layerEnvelopeCoverZ, layerEnvelopeCoverZ};
       Acts::MutableLayerPtr cLayer
-          = m_cfg.layerCreator->cylinderLayer(sVector,
-                                              m_cfg.approachSurfaceEnvelope,
-                                              layerEnvelopeCoverZ,
-                                              phiBins,
-                                              zBins);
+          = m_cfg.layerCreator->cylinderLayer(sVector, phiBins, zBins, pl);
       // the layer is built le't see if it needs material
       if (m_cfg.centralLayerMaterialProperties.size()) {
         // get the material from configuration
@@ -507,20 +507,16 @@ FWGen::GenericLayerBuilder::constructLayers()
         layerBinsPhi *= m_cfg.posnegLayerBinMultipliers.second;
       }
       // create the layers with the surface arrays
-      Acts::MutableLayerPtr nLayer
-          = m_cfg.layerCreator->discLayer(nsVector,
-                                          layerEnvelopeR,
-                                          layerEnvelopeR,
-                                          m_cfg.approachSurfaceEnvelope,
-                                          layerBinsR,
-                                          layerBinsPhi);
-      Acts::MutableLayerPtr pLayer
-          = m_cfg.layerCreator->discLayer(psVector,
-                                          layerEnvelopeR,
-                                          layerEnvelopeR,
-                                          m_cfg.approachSurfaceEnvelope,
-                                          layerBinsR,
-                                          layerBinsPhi);
+      Acts::ProtoLayer pln(nsVector);
+      pln.envR = {layerEnvelopeR, layerEnvelopeR};
+      pln.envZ = {m_cfg.approachSurfaceEnvelope, m_cfg.approachSurfaceEnvelope};
+      Acts::MutableLayerPtr nLayer = m_cfg.layerCreator->discLayer(
+          nsVector, layerBinsR, layerBinsPhi, pln);
+      Acts::ProtoLayer plp(psVector);
+      plp.envR = {layerEnvelopeR, layerEnvelopeR};
+      plp.envZ = {m_cfg.approachSurfaceEnvelope, m_cfg.approachSurfaceEnvelope};
+      Acts::MutableLayerPtr pLayer = m_cfg.layerCreator->discLayer(
+          psVector, layerBinsR, layerBinsPhi, plp);
 
       // the layer is built le't see if it needs material
       if (m_cfg.posnegLayerMaterialProperties.size()) {
