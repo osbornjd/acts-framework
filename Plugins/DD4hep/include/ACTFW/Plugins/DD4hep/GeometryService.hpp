@@ -45,7 +45,7 @@ namespace DD4hep {
       /// The default logger
       std::shared_ptr<const Acts::Logger> logger;
       /// XML-file with the detector description
-      std::string xmlFileName;
+      std::vector<std::string> xmlFileNames;
       /// Logger for the geometry transformation
       Acts::Logging::Level lvl;
       /// The name of the service
@@ -88,10 +88,15 @@ namespace DD4hep {
       /// in the description of the Acts::ActsExtension class.
       bool buildDigitizationModules;
 
+      double defaultLayerThickness;
+
+      std::function<void(std::vector<dd4hep::DetElement>& detectors)>
+          sortDetectors;
+
       Config(const std::string&   lname = "GeometryService",
              Acts::Logging::Level level = Acts::Logging::INFO)
         : logger(Acts::getDefaultLogger(lname, level))
-        , xmlFileName("")
+        , xmlFileNames()
         , lvl(level)
         , name(lname)
         , bTypePhi(Acts::equidistant)

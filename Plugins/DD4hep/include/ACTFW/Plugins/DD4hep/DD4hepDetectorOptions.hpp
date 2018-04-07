@@ -24,6 +24,52 @@ namespace FW {
 
 namespace Options {
 
+  void
+  sortFCChhDetElements(std::vector<dd4hep::DetElement>& det)
+  {
+    std::vector<dd4hep::DetElement> tracker;
+    std::vector<dd4hep::DetElement> eCal;
+    std::vector<dd4hep::DetElement> hCal;
+    std::vector<dd4hep::DetElement> muon;
+    for (auto& detElement : det) {
+      std::string detName = detElement.name();
+      if (detName.find("Muon") != std::string::npos)
+        muon.push_back(detElement);
+      else if (detName.find("ECal") != std::string::npos)
+        eCal.push_back(detElement);
+      else if (detName.find("HCal") != std::string::npos)
+        hCal.push_back(detElement);
+      else
+        tracker.push_back(detElement);
+    }
+    sort(muon.begin(),
+         muon.end(),
+         [](const dd4hep::DetElement& a, const dd4hep::DetElement& b) {
+           return (a.id() < b.id());
+         });
+    sort(eCal.begin(),
+         eCal.end(),
+         [](const dd4hep::DetElement& a, const dd4hep::DetElement& b) {
+           return (a.id() < b.id());
+         });
+    sort(hCal.begin(),
+         hCal.end(),
+         [](const dd4hep::DetElement& a, const dd4hep::DetElement& b) {
+           return (a.id() < b.id());
+         });
+    sort(tracker.begin(),
+         tracker.end(),
+         [](const dd4hep::DetElement& a, const dd4hep::DetElement& b) {
+           return (a.id() < b.id());
+         });
+    det.clear();
+    det = tracker;
+
+    det.insert(det.end(), eCal.begin(), eCal.end());
+    det.insert(det.end(), hCal.begin(), hCal.end());
+    det.insert(det.end(), muon.begin(), muon.end());
+  }
+
   /// the particle gun options, the are prefixes with gp
   template <class AOPT>
   void
@@ -31,21 +77,39 @@ namespace Options {
   {
     opt.add_options()(
         "dd4hep-input",
-        po::value<std::string>()->default_value(
-            "file:Detectors/DD4hepDetector/compact/FCChhTrackerTkLayout.xml"),
-        "The location of the input DD4hep file, use 'file:foo.xml'")(
+        po::value<read_strings>()->multitoken()->default_value(
+            {"file:Detectors/DD4hepDetector/compact/FCChhBaseline/"
+             "FCChh_DectEmptyMaster.xml",
+             "file:Detectors/DD4hepDetector/compact/FCChhBaseline/"
+             "Tracker.xml"}),
+        "The locations of the input DD4hep files, use 'file:foo.xml'. In case "
+        "you want to read in multiple files, just seperate the strings by "
+        "space.")("dd4hep-envelopeR",
+                  po::value<double>()->default_value(1. * Acts::units::_mm),
+                  "The envelop cover in R for DD4hep volumes.")(
         "dd4hep-envelopeR",
-        po::value<double>()->default_value(0.),
-        "The envelop cover in R for DD4hep volumes.")(
+        po::value<double>()->default_value(1. * Acts::units::_mm),
+        "The tolerance added to the geometrical extension in r of the "
+        "layers contained to build the volume envelope around in mm.")(
         "dd4hep-envelopeZ",
-        po::value<double>()->default_value(0.),
-        "The envelop cover in z for DD4hep volumes.")(
+        po::value<double>()->default_value(1. * Acts::units::_mm),
+        "The tolerance added to the geometrical extension in z of the "
+        "layers contained to build the volume envelope around in mm.")(
         "dd4hep-digitizationmodules",
         po::value<bool>()->default_value(false),
         "The envelop cover in z for DD4hep volumes.")(
+        "dd4hep-layerThickness",
+        po::value<double>()->default_value(10e-10),
+        "In case no surfaces (to be contained by the layer) are handed over, "
+        "the layer thickness will be set to this value.")(
+        "dd4hep-buildFCChh",
+        po::value<bool>()->default_value(true),
+        "If you are not building the FCChh detector please set this flag to "
+        "false.")(
         "dd4hep-loglevel",
         po::value<size_t>()->default_value(2),
-        "The output log level of the geometry building. Please set the wished "
+        "The output log level of the geometry building. Please set the "
+        "wished "
         "number (0 = VERBOSE, 1 = "
         "DEBUG, 2 = INFO, 3 = WARNING, 4 = ERROR, 5 = FATAL).");
   }
@@ -62,14 +126,18 @@ namespace Options {
     // DETECTOR configuration:
     // --------------------------------------------------------------------------------
     FW::DD4hep::GeometryService::Config gsConfig("GeometryService", logLevel);
-    gsConfig.xmlFileName = vm["dd4hep-input"].template as<std::string>();
-    gsConfig.bTypePhi    = Acts::equidistant;
-    gsConfig.bTypeR      = Acts::arbitrary;
-    gsConfig.bTypeZ      = Acts::equidistant;
-    gsConfig.envelopeR   = vm["dd4hep-envelopeR"].template as<double>();
-    gsConfig.envelopeZ   = vm["dd4hep-envelopeZ"].template as<double>();
+    gsConfig.xmlFileNames = vm["dd4hep-input"].template as<read_strings>();
+    gsConfig.bTypePhi     = Acts::equidistant;
+    gsConfig.bTypeR       = Acts::arbitrary;
+    gsConfig.bTypeZ       = Acts::equidistant;
+    gsConfig.envelopeR    = vm["dd4hep-envelopeR"].template as<double>();
+    gsConfig.envelopeZ    = vm["dd4hep-envelopeZ"].template as<double>();
     gsConfig.buildDigitizationModules
         = vm["dd4hep-digitizationmodules"].template as<bool>();
+    gsConfig.defaultLayerThickness
+        = vm["dd4hep-layerThickness"].template as<double>();
+    if (vm["dd4hep-buildFCChh"].template as<bool>())
+      gsConfig.sortDetectors = sortFCChhDetElements;
     return gsConfig;
   }
 }
