@@ -72,17 +72,13 @@ FW::ProcessCode
 FW::DD4hep::GeometryService::buildTrackingGeometry()
 {
   // set the tracking geometry
-  m_trackingGeometry
-      = std::move(Acts::convertDD4hepDetector(dd4hepGeometry(),
-                                              m_cfg.lvl,
-                                              m_cfg.bTypePhi,
-                                              m_cfg.bTypeR,
-                                              m_cfg.bTypeZ,
-                                              m_cfg.envelopeR,
-                                              m_cfg.envelopeZ,
-                                              m_cfg.buildDigitizationModules,
-                                              m_cfg.defaultLayerThickness,
-                                              m_cfg.sortDetectors));
+  m_trackingGeometry = std::move(Acts::convertDD4hepDetector(dd4hepGeometry(),
+                                                             m_cfg.lvl,
+                                                             m_cfg.bTypePhi,
+                                                             m_cfg.bTypeR,
+                                                             m_cfg.bTypeZ,
+                                                             m_cfg.envelopeR,
+                                                             m_cfg.envelopeZ));
   return FW::ProcessCode::SUCCESS;
 }
 
