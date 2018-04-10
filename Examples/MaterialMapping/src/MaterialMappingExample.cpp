@@ -30,8 +30,8 @@ main()
   // set up the geometry service
   FW::DD4hep::GeometryService::Config gsConfig("GeometryService",
                                                Acts::Logging::INFO);
-  gsConfig.xmlFileName
-      = "file:Examples/DD4hepExample/DD4hepDetector/compact/FCCTracker.xml";
+  gsConfig.xmlFileNames
+      = {"file:Examples/DD4hepExample/DD4hepDetector/compact/FCCTracker.xml"};
   auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(gsConfig);
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
       = geometrySvc->trackingGeometry();
