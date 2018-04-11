@@ -23,6 +23,9 @@
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Digitization/PlanarModuleStepper.hpp"
 
+#include "ACTFW/SpacePointFinder/SpacePointFinder.hpp"
+
+
 /// Setup extrapolation and digitization.
 ///
 /// Expects a `EvgenParticles` object in the event store with the truth
@@ -66,10 +69,16 @@ setupSimulation(FW::Sequencer&                                sequencer,
   digConfig.randomNumbers           = random;
   digConfig.planarModuleStepper     = pmStepper;
   auto digitzationAlg
-      = std::make_shared<FW::DigitizationAlgorithm>(digConfig, Acts::Logging::DEBUG); //modifiziert von loglevel
+      = std::make_shared<FW::DigitizationAlgorithm>(digConfig, Acts::Logging::INFO);
+      
+  //TESTSTAND
+  FW::SpacePointFinder::Config spfConfig;
+  spfConfig.collectionIn = "FatrasClusters";
+  spfConfig.collectionOut = "SCTSpacePoints";
+  auto spacepointAlg = std::make_shared<FW::SpacePointFinder>(spfConfig, Acts::Logging::DEBUG);
 
   // add algorithms to sequencer
-  if (sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg})
+  if (sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg, spacepointAlg})
       != FW::ProcessCode::SUCCESS)
     return FW::ProcessCode::ABORT;
   return FW::ProcessCode::SUCCESS;

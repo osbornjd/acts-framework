@@ -105,24 +105,24 @@ run(size_t                                        nEvents,
   
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
-  seqConfig.jobStoreLogLevel = Acts::Logging::VERBOSE;
-  seqConfig.eventStoreLogLevel = Acts::Logging::VERBOSE;
+  seqConfig.jobStoreLogLevel = Acts::Logging::INFO;
+  seqConfig.eventStoreLogLevel = Acts::Logging::INFO;
 
   // now create the sequencer
-  FW::Sequencer sequencer(seqConfig, Acts::getDefaultLogger("Squencer", Acts::Logging::VERBOSE)); //modifiziert
+  FW::Sequencer sequencer(seqConfig, Acts::getDefaultLogger("Squencer", Acts::Logging::INFO)); //modifiziert
   sequencer.addServices({randomNumbers});
   //MODIFIZIERT
   setupWriters(sequencer,
 		barcodes,
 		"",
-		Acts::Logging::VERBOSE);
+		Acts::Logging::INFO);
   //sequencer.addWriters({rootEccWriter, rootEcnWriter});
   sequencer.prependEventAlgorithms({particleGun});
   setupSimulation(sequencer,
 		    tGeometry,
 		    randomNumbers,
 		    magField,
-		    Acts::Logging::VERBOSE);
+		    Acts::Logging::INFO);
 		    
   //sequencer.appendEventAlgorithms({particleGun, extrapolationAlg});
   sequencer.run(nEvents);

@@ -383,12 +383,12 @@ for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 }
 
 //Test the setup
-const unsigned nEvents = 10;
+const unsigned nEvents = 1;
 const Acts::ConstantBField bField(0., 0., 0.);
 
 FW::ParticleGun::Config cfgParGun;
 cfgParGun.evgenCollection = "EvgenParticles";
-cfgParGun.nParticles = 100;
+cfgParGun.nParticles = 5;
 cfgParGun.z0Range = {{-eps / 2, eps / 2}};
 cfgParGun.d0Range = {{0., 0.15 * Acts::units::_m}};
 cfgParGun.etaRange = {{7., 15.}};
