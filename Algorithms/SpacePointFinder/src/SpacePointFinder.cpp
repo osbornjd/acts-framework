@@ -343,8 +343,7 @@ FW::SpacePointFinder::execute(AlgorithmContext ctx) const
   spacePoints = calculateSpacePoints(allCombHits);
 
   // Write to Whiteboard
-  if (ctx.eventStore.add(m_cfg.collectionOut,
-                         std::move(spacePoints))
+  if (ctx.eventStore.add(m_cfg.collectionOut, std::move(spacePoints))
       != ProcessCode::SUCCESS)
     return ProcessCode::ABORT;
   return FW::ProcessCode::SUCCESS;
