@@ -23,7 +23,7 @@
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Digitization/PlanarModuleStepper.hpp"
 
-#include "ACTFW/SpacePointFinder/SpacePointFinder.hpp"
+//~ #include "ACTFW/SpacePointFinder/SpacePointFinder.hpp"
 
 
 /// Setup extrapolation and digitization.
@@ -71,14 +71,15 @@ setupSimulation(FW::Sequencer&                                sequencer,
   auto digitzationAlg
       = std::make_shared<FW::DigitizationAlgorithm>(digConfig, Acts::Logging::INFO);
       
-  //TESTSTAND
-  FW::SpacePointFinder::Config spfConfig;
-  spfConfig.collectionIn = "FatrasClusters";
-  spfConfig.collectionOut = "SCTSpacePoints";
-  auto spacepointAlg = std::make_shared<FW::SpacePointFinder>(spfConfig, Acts::Logging::DEBUG);
+  //~ //TESTSTAND
+  //~ FW::SpacePointFinder::Config spfConfig;
+  //~ spfConfig.collectionIn = "FatrasClusters";
+  //~ spfConfig.collectionOut = "SCTSpacePoints";
+  //~ auto spacepointAlg = std::make_shared<FW::SpacePointFinder>(spfConfig, Acts::Logging::DEBUG);
 
   // add algorithms to sequencer
-  if (sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg, spacepointAlg})
+  //~ if (sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg, spacepointAlg})
+  if (sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg})
       != FW::ProcessCode::SUCCESS)
     return FW::ProcessCode::ABORT;
   return FW::ProcessCode::SUCCESS;
