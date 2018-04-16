@@ -31,10 +31,12 @@ typedef DetectorData<geo_id_value, Acts::PlanarModuleCluster> DetData;
 /// the digitized hits and combines them on at least two different
 /// strips to a result of the combined detector element.
 ///
-
+/// @note This is a rough implementation underlying many assumptions
+///
 class SpacePointFinder : public BareAlgorithm
 {
 public:
+  /// @brief Configuration of the class to steer its behaviour
   struct Config
   {
     /// Input collection of digitized particles
@@ -51,7 +53,7 @@ public:
     Acts::Vector3D vertex = {0., 0., 0.};
   };
 
-  /// Structure for easier bookkeeping of potential hit combinations
+  /// @brief Structure for easier bookkeeping of potential hit combinations
   /// on two surfaces
   struct CombinedHits
   {
@@ -69,7 +71,7 @@ public:
   SpacePointFinder(const Config&        cfg,
                    Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Executes the full algorithm. Extracts the data from Whiteboard,
+  /// @brief Executes the full algorithm. Extracts the data from Whiteboard,
   /// processes it and stores the space points on the Whiteboard.
   /// @param ctx is the Whiteboard that stores the data
   /// @return information is the algorithm was successful
@@ -79,27 +81,27 @@ public:
 private:
   Config m_cfg;
 
-  /// Getter method for the digitized hits
+  /// @brief Getter method for the digitized hits
   /// @param ctx is the reference to the Whiteboard that stores the data
   /// @param detData local pointer to all produced digitized hits
   /// @return information if the data was found or not
   ProcessCode
   clusterReading(AlgorithmContext& ctx, const DetData*& detData) const;
 
-  /// Getter method for the local coordinates of a hit
+  /// @brief Getter method for the local coordinates of a hit
   /// on its corresponding surface
   /// @param hit object related to the hit that holds the necessary information
   /// @return vector of the local coordinates of the hit on the surface
   const Acts::Vector2D
   localCoords(const Acts::PlanarModuleCluster& hit) const;
 
-  /// Getter method for the global coordinates of a hit
+  /// @brief Getter method for the global coordinates of a hit
   /// @param hit object related to the hit that holds the necessary information
   /// @return vector of the global coordinates of the hit
   const Acts::Vector3D
   globalCoords(const Acts::PlanarModuleCluster& hit) const;
 
-  /// Calculates (Delta theta)^2 + (Delta phi)^2 between two hits
+  /// @brief Calculates (Delta theta)^2 + (Delta phi)^2 between two hits
   /// @param hit1 the first hit
   /// @param hit2 the second hit
   /// @return the squared sum in case of success, otherwise -1
@@ -107,7 +109,7 @@ private:
   differenceOfHits(const Acts::PlanarModuleCluster& hit1,
                    const Acts::PlanarModuleCluster& hit2) const;
 
-  /// Searches possible combinations of two hits on different surfaces
+  /// @brief Searches possible combinations of two hits on different surfaces
   /// that may come from the same particles
   /// @param vec1 vector of hits on the first surface
   /// @param vec2 vector of hits on the second surface
@@ -116,7 +118,7 @@ private:
   combineHits(const std::vector<Acts::PlanarModuleCluster>& vec1,
               const std::vector<Acts::PlanarModuleCluster>& vec2) const;
 
-  /// Searches and stores all hit combination candidates in the detector
+  /// @brief Searches and stores all hit combination candidates in the detector
   /// @param detData local pointer to all produced digitized hits
   /// @param allCombHits matrix that stores all hit combination candidates
   void
@@ -124,24 +126,26 @@ private:
       const DetData*&                         detData,
       std::vector<std::vector<CombinedHits>>& allCombHits) const;
 
-  /// No function, still TODO
+  /// No function, still TODO!
   void
   filterCombinations(std::vector<std::vector<CombinedHits>>& allCombHits) const;
 
-  /// Calculates the top and bottom ends of a strip detector element
+  /// @brief Calculates the top and bottom ends of a strip detector element
   /// that corresponds to a given hit
   /// @param hit object that stores the information about the hit
   /// @return vectors to the top and bottom end of the strip detector element
   const std::pair<Acts::Vector3D, Acts::Vector3D>
   endsOfStrip(const Acts::PlanarModuleCluster& hit) const;
 
-  /// Calculates the space points out of a given collection of hits
-  /// on several strip detectors
+  /// @brief Calculates the space points out of a given collection of hits
+  /// on several strip detectors and stores the data
   /// @param allCombHits matrix that stores all hit combination candidates
+  /// @param detData local pointer to all produced digitized hits
   /// @return pointer to all resolved space points
-  std::unique_ptr<const std::vector<Acts::Vector3D>>
+  FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>
   calculateSpacePoints(
-      std::vector<std::vector<CombinedHits>>& allCombHits) const;
+      std::vector<std::vector<CombinedHits>>& allCombHits,
+      const DetData*& 						  detData) const;
 };
 
 }  // namespace FW
