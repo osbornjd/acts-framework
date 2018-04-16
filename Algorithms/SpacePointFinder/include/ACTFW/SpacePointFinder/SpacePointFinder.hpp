@@ -1,6 +1,6 @@
 // This file is part of the ACTS project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2018 ACTS project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -92,20 +92,20 @@ private:
   /// on its corresponding surface
   /// @param hit object related to the hit that holds the necessary information
   /// @return vector of the local coordinates of the hit on the surface
-  const Acts::Vector2D
+  Acts::Vector2D
   localCoords(const Acts::PlanarModuleCluster& hit) const;
 
   /// @brief Getter method for the global coordinates of a hit
   /// @param hit object related to the hit that holds the necessary information
   /// @return vector of the global coordinates of the hit
-  const Acts::Vector3D
+  Acts::Vector3D
   globalCoords(const Acts::PlanarModuleCluster& hit) const;
 
   /// @brief Calculates (Delta theta)^2 + (Delta phi)^2 between two hits
   /// @param hit1 the first hit
   /// @param hit2 the second hit
   /// @return the squared sum in case of success, otherwise -1
-  const double
+  double
   differenceOfHits(const Acts::PlanarModuleCluster& hit1,
                    const Acts::PlanarModuleCluster& hit2) const;
 
@@ -134,7 +134,7 @@ private:
   /// that corresponds to a given hit
   /// @param hit object that stores the information about the hit
   /// @return vectors to the top and bottom end of the strip detector element
-  const std::pair<Acts::Vector3D, Acts::Vector3D>
+  std::pair<Acts::Vector3D, Acts::Vector3D>
   endsOfStrip(const Acts::PlanarModuleCluster& hit) const;
 
   /// @brief Calculates the space points out of a given collection of hits

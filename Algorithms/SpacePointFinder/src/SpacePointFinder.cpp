@@ -1,6 +1,6 @@
 // This file is part of the ACTS project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2018 ACTS project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -50,7 +50,7 @@ FW::SpacePointFinder::clusterReading(AlgorithmContext& ctx,
   return FW::ProcessCode::SUCCESS;
 }
 
-const Acts::Vector2D
+Acts::Vector2D
 FW::SpacePointFinder::localCoords(const Acts::PlanarModuleCluster& hit) const
 {
   // Local position information
@@ -59,7 +59,7 @@ FW::SpacePointFinder::localCoords(const Acts::PlanarModuleCluster& hit) const
   return local;
 }
 
-const Acts::Vector3D
+Acts::Vector3D
 FW::SpacePointFinder::globalCoords(const Acts::PlanarModuleCluster& hit) const
 {
   // Receive corresponding surface
@@ -72,7 +72,7 @@ FW::SpacePointFinder::globalCoords(const Acts::PlanarModuleCluster& hit) const
   return pos;
 }
 
-const double
+double
 FW::SpacePointFinder::differenceOfHits(
     const Acts::PlanarModuleCluster& hit1,
     const Acts::PlanarModuleCluster& hit2) const
@@ -82,27 +82,31 @@ FW::SpacePointFinder::differenceOfHits(
   Acts::Vector3D pos2 = globalCoords(hit2);
 
   // Check if measurements are close enough to each other
-  if (fabs(sqrt(pos1.x() * pos1.x() + pos1.y() * pos1.y() + pos1.z() * pos1.z())
-           - sqrt(pos2.x() * pos2.x() + pos2.y() * pos2.y()
-                  + pos2.z() * pos2.z()))
-      > m_cfg.diffDist)
+  if ((pos1 - pos2).norm() > m_cfg.diffDist)
     return -1.;
 
   // Calculate the angles of the hits
   double phi1, theta1, phi2, theta2;
   phi1   = atan2(pos1.y() - m_cfg.vertex.y(), pos1.x() - m_cfg.vertex.x());
+  std::cout << "phi: " << phi1 << std::endl;
+  phi1 = (pos1 - m_cfg.vertex).phi();
+  std::cout << "phi1: " << phi1 << std::endl;
   theta1 = M_PI / 2
       - atan(pos1.z()
              - m_cfg.vertex.z() / sqrt((pos1.x() - m_cfg.vertex.x()) * pos1.x()
                                        - m_cfg.vertex.x())
              + (pos1.y() - m_cfg.vertex.x()) * (pos1.y() - m_cfg.vertex.x()));
-  phi2   = atan2(pos2.y() - m_cfg.vertex.y(), pos2.x() - m_cfg.vertex.x());
-  theta2 = M_PI / 2
-      - atan(pos2.z()
-             - m_cfg.vertex.z() / sqrt((pos2.x() - m_cfg.vertex.x()) * pos2.x()
-                                       - m_cfg.vertex.x())
-             + (pos2.y() - m_cfg.vertex.x()) * (pos2.y() - m_cfg.vertex.x()));
-
+             std::cout << "theta: " << theta1 << std::endl;
+  theta1 = (pos1 - m_cfg.vertex).theta();
+  std::cout << "theta1: " << theta1 << std::endl;
+  //~ phi2   = atan2(pos2.y() - m_cfg.vertex.y(), pos2.x() - m_cfg.vertex.x());
+  phi2 = (pos2 - m_cfg.vertex).phi();
+  //~ theta2 = M_PI / 2
+      //~ - atan(pos2.z()
+             //~ - m_cfg.vertex.z() / sqrt((pos2.x() - m_cfg.vertex.x()) * pos2.x()
+                                       //~ - m_cfg.vertex.x())
+             //~ + (pos2.y() - m_cfg.vertex.x()) * (pos2.y() - m_cfg.vertex.x()));
+  theta2 = (pos2 - m_cfg.vertex).theta();
   // Calculate the squared difference between the theta angles
   double diffTheta2 = (theta1 - theta2) * (theta1 - theta2);
   if (diffTheta2 > m_cfg.diffTheta2) {
@@ -248,7 +252,7 @@ FW::SpacePointFinder::filterCombinations(
     }
 }
 
-const std::pair<Acts::Vector3D, Acts::Vector3D>
+std::pair<Acts::Vector3D, Acts::Vector3D>
 FW::SpacePointFinder::endsOfStrip(const Acts::PlanarModuleCluster& hit) const
 {
   // Calculate the local coordinates of the hit
