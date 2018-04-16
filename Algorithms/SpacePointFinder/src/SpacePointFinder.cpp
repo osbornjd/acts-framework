@@ -106,23 +106,39 @@ FW::SpacePointFinder::differenceOfHits(
   // Calculate the squared difference between the theta angles
   double diffTheta2 = (theta1 - theta2) * (theta1 - theta2);
   if (diffTheta2 > m_cfg.diffTheta2) {
-    ACTS_DEBUG("Squared theta angle "
-               << diffTheta2
-               << " between positions ("
-               << pos1.x() << ", " << pos1.y() << ", " << pos1.z() << ") and ("
-               << pos2.x() << ", " << pos2.y() << ", " << pos2.z()
-               << ") too large - points are not combined");
+    ACTS_DEBUG(
+        "Squared theta angle " << diffTheta2 << " between positions ("
+                               << pos1.x()
+                               << ", "
+                               << pos1.y()
+                               << ", "
+                               << pos1.z()
+                               << ") and ("
+                               << pos2.x()
+                               << ", "
+                               << pos2.y()
+                               << ", "
+                               << pos2.z()
+                               << ") too large - points are not combined");
     return -1.;
   }
 
   // Calculate the squared difference between the phi angles
   double diffPhi2 = (phi1 - phi2) * (phi1 - phi2);
   if (diffPhi2 > m_cfg.diffPhi2) {
-    ACTS_DEBUG("Squared phi angle " << diffPhi2
-               << " between positions ("
-               << pos1.x() << ", " << pos1.y() << ", " << pos1.z() << ") and ("
-               << pos2.x() << ", " << pos2.y() << ", " << pos2.z()
-               << ") too large - points are not combined");
+    ACTS_DEBUG("Squared phi angle " << diffPhi2 << " between positions ("
+                                    << pos1.x()
+                                    << ", "
+                                    << pos1.y()
+                                    << ", "
+                                    << pos1.z()
+                                    << ") and ("
+                                    << pos2.x()
+                                    << ", "
+                                    << pos2.y()
+                                    << ", "
+                                    << pos2.z()
+                                    << ") too large - points are not combined");
     return -1.;
   }
 
@@ -135,7 +151,8 @@ FW::SpacePointFinder::combineHits(
     const std::vector<Acts::PlanarModuleCluster>& vec1,
     const std::vector<Acts::PlanarModuleCluster>& vec2) const
 {
-//TODO: only the closest differences get selected -> some points are not taken into account
+  // TODO: only the closest differences get selected -> some points are not
+  // taken into account
   // Declare helper variables
   double                                          currentDiff;
   FW::SpacePointFinder::CombinedHits              tmpCombHits;
@@ -179,7 +196,7 @@ FW::SpacePointFinder::findOverlappingClusters(
 {
   // Declare temporary storage
   std::vector<Acts::PlanarModuleCluster> const* module1;
-  std::vector<Acts::PlanarModuleCluster> const* module2;  
+  std::vector<Acts::PlanarModuleCluster> const* module2;
   // TODO: Only treats two surfaces per layer
 
   // Loop over the planar clusters in this event
@@ -252,22 +269,20 @@ FW::SpacePointFinder::endsOfStrip(const Acts::PlanarModuleCluster& hit) const
   size_t binY = binData[1].searchLocal(local);
 
   Acts::Vector2D topLocal, bottomLocal;
-  
-  if(boundariesX[binX + 1] - boundariesX[binX] < boundariesY[binY + 1] - boundariesY[binY])
-  {
-	  // Set the top and bottom end of the strip in local coordinates
-	  topLocal = {(boundariesX[binX] + boundariesX[binX + 1]) / 2,
-	                             boundariesY[binY + 1]};
-	  bottomLocal
-	      = {(boundariesX[binX] + boundariesX[binX + 1]) / 2, boundariesY[binY]};
-  }
-  else
-  {
-	  // Set the top and bottom end of the strip in local coordinates
-	  topLocal = {boundariesX[binX],
-	                             (boundariesY[binY] + boundariesY[binY + 1]) / 2};
-	  bottomLocal
-	      = {boundariesX[binX + 1], (boundariesY[binY] + boundariesY[binY + 1]) / 2};
+
+  if (boundariesX[binX + 1] - boundariesX[binX]
+      < boundariesY[binY + 1] - boundariesY[binY]) {
+    // Set the top and bottom end of the strip in local coordinates
+    topLocal = {(boundariesX[binX] + boundariesX[binX + 1]) / 2,
+                boundariesY[binY + 1]};
+    bottomLocal
+        = {(boundariesX[binX] + boundariesX[binX + 1]) / 2, boundariesY[binY]};
+  } else {
+    // Set the top and bottom end of the strip in local coordinates
+    topLocal
+        = {boundariesX[binX], (boundariesY[binY] + boundariesY[binY + 1]) / 2};
+    bottomLocal = {boundariesX[binX + 1],
+                   (boundariesY[binY] + boundariesY[binY + 1]) / 2};
   }
 
   // Calculate the global coordinates of the top and bottom end of the strip
@@ -283,16 +298,16 @@ FW::SpacePointFinder::endsOfStrip(const Acts::PlanarModuleCluster& hit) const
 FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>
 FW::SpacePointFinder::calculateSpacePoints(
     std::vector<std::vector<CombinedHits>>& allCombHits,
-    const DetData*& 						detData) const
+    const DetData*&                         detData) const
 {
   // Source of algorithm: Athena, SiSpacePointMakerTool::makeSCT_SpacePoint()
-  //TODO: some stability part still missing
+  // TODO: some stability part still missing
 
   // Declare storage of the found space points
   std::vector<Acts::Vector3D> spacePoints;
 
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> stripClusters;
-  
+
   // Walk over every found candidate pair
   for (auto& layers : allCombHits)
     for (auto& hits : layers) {
@@ -303,7 +318,7 @@ FW::SpacePointFinder::calculateSpacePoints(
       /// The following algorithm is meant for finding the position on the first
       /// strip if there is a corresponding hit on the second strip. The
       /// resulting point is a point x on the first surfaces. This point is
-      /// along a line between the points a (top end of the strip) 
+      /// along a line between the points a (top end of the strip)
       /// and b (bottom end of the strip). The location can be parametrized as
       /// 	2 * x = (1 + m) a + (1 - m) b
       /// as function of the scalar m. m is a parameter in the interval
@@ -317,7 +332,7 @@ FW::SpacePointFinder::calculateSpacePoints(
       /// needs to be fulfilled. Inserting the first equation into this
       /// equation leads to the condition for m as given in the following
       /// algorithm and therefore to the calculation of x.
-      
+
       Acts::Vector3D q  = ends1.first - ends1.second;
       Acts::Vector3D s  = ends1.first + ends1.second - 2 * m_cfg.vertex;
       Acts::Vector3D r  = ends2.first - ends2.second;
@@ -327,40 +342,46 @@ FW::SpacePointFinder::calculateSpacePoints(
 
       // Check if hit is on strip
       if (fabs(m) > 1) {
-        ACTS_INFO("Unable to combine hits with vertex (" << m_cfg.vertex[0] << ", " << m_cfg.vertex[1] << ", " << m_cfg.vertex[2] << ")");
-      } else
-      {
+        ACTS_INFO("Unable to combine hits with vertex (" << m_cfg.vertex[0]
+                                                         << ", "
+                                                         << m_cfg.vertex[1]
+                                                         << ", "
+                                                         << m_cfg.vertex[2]
+                                                         << ")");
+      } else {
         // Store the space point
         spacePoints.push_back(0.5 * (ends1.first + ends1.second + m * q));
-        
-        //Receive the identification of the digitized hits on the first surface
-	    Identifier id(hits.hitModule1->identifier());
-	    Acts::GeometryID geoID(id.value());
-	  
-        //The covariance is currently set to 0.
-	    Acts::ActsSymMatrixD<2> cov;
-	    cov << 0., 0., 0., 0.;
 
-		//Get the local coordinates of the space point
-	    Acts::Vector2D local;
-	    hits.hitModule1->referenceSurface().globalToLocal(spacePoints.back(), {0., 0., 0.}, local);
-	  
-	    //Build the space point
-	    Acts::PlanarModuleCluster pCluster(hits.hitModule1->referenceSurface(),
-								   Identifier(geoID.value()),
-								   std::move(cov),
-								   local[0],
-								   local[1],
-								   std::move(hits.hitModule1->digitizationCells()),
-								   {hits.hitModule1->truthVertices()});
-				   
-	    //Insert into the cluster map
-	    FW::Data::insert(stripClusters,
-					   geoID.value(Acts::GeometryID::volume_mask),
-					   geoID.value(Acts::GeometryID::layer_mask),
-					   geoID.value(Acts::GeometryID::sensitive_mask),
-					   std::move(pCluster));
-	  }
+        // Receive the identification of the digitized hits on the first surface
+        Identifier       id(hits.hitModule1->identifier());
+        Acts::GeometryID geoID(id.value());
+
+        // The covariance is currently set to 0.
+        Acts::ActsSymMatrixD<2> cov;
+        cov << 0., 0., 0., 0.;
+
+        // Get the local coordinates of the space point
+        Acts::Vector2D local;
+        hits.hitModule1->referenceSurface().globalToLocal(
+            spacePoints.back(), {0., 0., 0.}, local);
+
+        // Build the space point
+        Acts::PlanarModuleCluster pCluster(
+            hits.hitModule1->referenceSurface(),
+            Identifier(geoID.value()),
+            std::move(cov),
+            local[0],
+            local[1],
+            std::move(hits.hitModule1->digitizationCells()),
+            {hits.hitModule1->truthVertices()});
+
+        // Insert into the cluster map
+        FW::Data::insert(stripClusters,
+                         geoID.value(Acts::GeometryID::volume_mask),
+                         geoID.value(Acts::GeometryID::layer_mask),
+                         geoID.value(Acts::GeometryID::sensitive_mask),
+                         std::move(pCluster));
+      }
     }
   // Return the resolved hits
   return stripClusters;
@@ -375,7 +396,7 @@ FW::SpacePointFinder::execute(AlgorithmContext ctx) const
   // Acts::PlanarModuleCluster>
   const DetData*                                               detData;
   std::vector<std::vector<FW::SpacePointFinder::CombinedHits>> allCombHits;
-  FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>    stripClusters;
+  FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> stripClusters;
 
   // Receive all hits from the Whiteboard
   clusterReading(ctx, detData);

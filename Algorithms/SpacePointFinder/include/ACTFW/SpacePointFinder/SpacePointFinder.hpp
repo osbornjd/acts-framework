@@ -143,9 +143,8 @@ private:
   /// @param detData local pointer to all produced digitized hits
   /// @return pointer to all resolved space points
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>
-  calculateSpacePoints(
-      std::vector<std::vector<CombinedHits>>& allCombHits,
-      const DetData*& 						  detData) const;
+  calculateSpacePoints(std::vector<std::vector<CombinedHits>>& allCombHits,
+                       const DetData*&                         detData) const;
 };
 
 }  // namespace FW
