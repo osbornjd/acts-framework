@@ -72,7 +72,7 @@ setupWriters(FW::Sequencer&                  sequencer,
   auto spWriterObj
       = std::make_shared<FW::Obj::ObjSpacePointWriter<Acts::Vector3D>>(
           spWriterObjConfig, Acts::Logging::VERBOSE);
-  
+
   // add to sequencer
   if (sequencer.addWriters({pWriterCsv,
                             pWriterRoot,

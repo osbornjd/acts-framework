@@ -82,7 +82,7 @@ run(size_t                                        nEvents,
   auto rootEcnWriter
       = std::make_shared<FW::Root::RootExCellWriter<Acts::NeutralParameters>>(
           recnWriterConfig);
-  
+
   // the Algorithm with its configurations
   FW::ExtrapolationAlgorithm::Config eTestConfig;
   eTestConfig.evgenCollection              = particleGunConfig.evgenCollection;
@@ -101,28 +101,23 @@ run(size_t                                        nEvents,
 
   auto extrapolationAlg
       = std::make_shared<FW::ExtrapolationAlgorithm>(eTestConfig, eLogLevel);
-  
+
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
-  seqConfig.jobStoreLogLevel = Acts::Logging::INFO;
+  seqConfig.jobStoreLogLevel   = Acts::Logging::INFO;
   seqConfig.eventStoreLogLevel = Acts::Logging::INFO;
 
   // now create the sequencer
-  FW::Sequencer sequencer(seqConfig, Acts::getDefaultLogger("Squencer", Acts::Logging::INFO));
+  FW::Sequencer sequencer(
+      seqConfig, Acts::getDefaultLogger("Squencer", Acts::Logging::INFO));
   sequencer.addServices({randomNumbers});
-  setupWriters(sequencer,
-		barcodes,
-		"",
-		Acts::Logging::INFO);
-  //sequencer.addWriters({rootEccWriter, rootEcnWriter});
+  setupWriters(sequencer, barcodes, "", Acts::Logging::INFO);
+  // sequencer.addWriters({rootEccWriter, rootEcnWriter});
   sequencer.prependEventAlgorithms({particleGun});
-  setupSimulation(sequencer,
-		    tGeometry,
-		    randomNumbers,
-		    magField,
-		    Acts::Logging::INFO);
-		    
-  //sequencer.appendEventAlgorithms({particleGun, extrapolationAlg});
+  setupSimulation(
+      sequencer, tGeometry, randomNumbers, magField, Acts::Logging::INFO);
+
+  // sequencer.appendEventAlgorithms({particleGun, extrapolationAlg});
   sequencer.run(nEvents);
 
   return 0;
