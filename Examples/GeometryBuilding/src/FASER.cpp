@@ -30,6 +30,8 @@
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "../ExtrapolationExampleBase.hpp" //nasty but working
 
+
+/// This function builds FASER, handles shooting particles on it and collects the results. The configuration of everything is given by two blocks in this code. 
 int
 main(int argc, char* argv[])
 {
@@ -121,7 +123,8 @@ std::shared_ptr<Acts::BinUtility> buY(new Acts::BinUtility(binDataY));
 std::shared_ptr<const Acts::Segmentation> segmentation(new Acts::CartesianSegmentation(buX, recBounds));
 
 //Build digitization parts
-std::shared_ptr<const Acts::DigitizationModule> digitization(new Acts::DigitizationModule(segmentation, thickness / 2, 1, lorentzangle));
+std::shared_ptr<const Acts::DigitizationModule> digitizationFront(new Acts::DigitizationModule(segmentation, thickness / 2, -1, lorentzangle));
+std::shared_ptr<const Acts::DigitizationModule> digitizationBack(new Acts::DigitizationModule(segmentation, thickness / 2, 1, lorentzangle));
 std::array<FWGen::GenericDetectorElement*, 2 * numLayers> genDetElem;
 
 //Put everything together in a surface
@@ -141,7 +144,7 @@ for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++)
 							    recBounds,
 							    thickness,
 							    surMat,
-							    digitization);
+							    digitizationFront);
 	//Create the surface
     pSur[2 * iLayer] = new Acts::PlaneSurface(recBounds,
 					    *(genDetElem[2 * iLayer]),
@@ -158,7 +161,7 @@ for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++)
 							    recBounds,
 							    thickness,
 							    surMat,
-							    digitization);
+							    digitizationBack);
 
     pSur[2 * iLayer + 1] = new Acts::PlaneSurface(recBounds,
 					    *(genDetElem[2 * iLayer + 1]),
@@ -176,7 +179,7 @@ std::array<Acts::LayerPtr, numLayers> layPtr;
 //Take 2 surfaces and put them together into a layer
 for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 {
-	//Move the Layer to its destination
+	//Move the layer to its destination
 	t3dLay[iSurface] = Acts::Translation3D(0., 0., posFirstSur + localPos[iSurface]);
 	//Collect surfaces 
 	Acts::SurfaceVector surVec = {pSur[2 * iSurface], pSur[2 * iSurface + 1]};
@@ -193,20 +196,24 @@ for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 //Build tracking volume
 std::cout << "Building tracking volume" << std::endl;
 
+//Trasnlation of the volume
 Acts::Transform3D trans;
 trans = Acts::Translation3D(0., 0., posFirstSur + localPos.back() / 2);
 std::shared_ptr<const Acts::Transform3D> htrans = std::make_shared<Acts::Transform3D>(trans);
-
+//Create volume
 Acts::VolumeBoundsPtr volBoundsPtr = std::make_shared<const Acts::CuboidVolumeBounds>(
 					Acts::CuboidVolumeBounds(halfX,
 								halfY,
 								localPos.back() / 2 + eps));
-
+//Add material
+//TODO: Does this material mean that the volume is completly filled with the material?
 std::shared_ptr<const Acts::Material> mat(new Acts::Material(X0, L0, A, Z, Rho));
 
+//Collect all layers
 Acts::LayerVector layVec;
 for(auto layer : layPtr) layVec.push_back(layer);
 
+//Create layer array -> navigation through the layers
 Acts::LayerArrayCreator layArrCreator(Acts::getDefaultLogger("LayerArrayCreator", Acts::Logging::VERBOSE));
 std::unique_ptr<const Acts::LayerArray> layArr(layArrCreator.layerArray(
 							layVec,
@@ -215,6 +222,7 @@ std::unique_ptr<const Acts::LayerArray> layArr(layArrCreator.layerArray(
 							Acts::BinningType::arbitrary,
 							Acts::BinningValue::binZ));
 
+//Create tracking volume
 Acts::MutableTrackingVolumePtr mtvp(Acts::TrackingVolume::create(htrans,
 								volBoundsPtr, 
 								mat, 
@@ -226,17 +234,22 @@ Acts::MutableTrackingVolumePtr mtvp(Acts::TrackingVolume::create(htrans,
 
 mtvp->sign(Acts::GeometrySignature::Global);
 
-//Build vacuum volume
+
+//////////////////////////////////////////////////////////////////
+
+//Build vacuum volumes
 std::cout << "Building vacuum" << std::endl;
 
 std::array<Acts::MutableTrackingVolumePtr, nVacs> vacArr;
 
+//Repeat the steps of the tracking volume but with vacuum and without layers
 for(int iVac = 0; iVac < nVacs; iVac++)
 {
+	//Use epsilon around first and last vacuum -> assure everything happens in the world
 	if(iVac == 0)
 	{
 		Acts::Transform3D transVac;
-		transVac = Acts::Translation3D(0., 0., (20. * iVac + 10.)  * Acts::units::_m - eps / 2); //hardcode
+		transVac = Acts::Translation3D(0., 0., (20. * iVac + 10.)  * Acts::units::_m - eps / 2); //hardcoded
 		std::shared_ptr<const Acts::Transform3D> htransVac = std::make_shared<Acts::Transform3D>(transVac);
 		
 		Acts::VolumeBoundsPtr volBoundsPtrVac = std::make_shared<const Acts::CuboidVolumeBounds>(
@@ -251,7 +264,6 @@ for(int iVac = 0; iVac < nVacs; iVac++)
 		
 		mtvpVac->sign(Acts::GeometrySignature::Global);
 		vacArr[iVac] = mtvpVac;
-		//~ std::cout << iVac << "\t" << (20. * iVac + 10.)  * Acts::units::_m - eps / 2 << "\t" << (posFirstSur / (double) nVacs + eps) / 2 << std::endl;
 		continue;
 	}
 	
@@ -273,7 +285,6 @@ for(int iVac = 0; iVac < nVacs; iVac++)
 		
 		mtvpVac->sign(Acts::GeometrySignature::Global);
 		vacArr[iVac] = mtvpVac;
-		//~ std::cout << iVac << "\t" << (20. * iVac + 10.)  * Acts::units::_m + eps / 2 << "\t" << (posFirstSur / (double) nVacs + eps) / 2 << std::endl;
 		continue;
 	}
 	
@@ -293,10 +304,11 @@ for(int iVac = 0; iVac < nVacs; iVac++)
 	
 	mtvpVac->sign(Acts::GeometrySignature::Global);
 	vacArr[iVac] = mtvpVac;
-	//~ std::cout << iVac << "\t" << (20. * iVac + 10.) * Acts::units::_m << "\t" << (posFirstSur / (double) nVacs) / 2 << std::endl;
 }
 
-//Glue everything together
+//////////////////////////////////////////////////////////////////
+
+//Glue everything together -> allows navigation from volume to volume
 for(int iVac = 0; iVac < nVacs; iVac++)
 {
 	if(iVac != nVacs -1)
@@ -308,35 +320,41 @@ for(int iVac = 0; iVac < nVacs; iVac++)
 mtvp->glueTrackingVolume(Acts::BoundarySurfaceFace::negativeFaceXY, vacArr[nVacs - 1], Acts::BoundarySurfaceFace::positiveFaceXY);
 vacArr[nVacs - 1]->glueTrackingVolume(Acts::BoundarySurfaceFace::positiveFaceXY, mtvp, Acts::BoundarySurfaceFace::negativeFaceXY);
 
+//////////////////////////////////////////////////////////////////
+
 //Build world
 std::cout << "Building world" << std::endl;
 
+//Translation of the world
 Acts::Transform3D transWorld;
 transWorld = Acts::Translation3D(0., 0., (posFirstSur + localPos.back()) / 2);
 std::shared_ptr<const Acts::Transform3D> htransWorld = std::make_shared<Acts::Transform3D>(transWorld);
 
+//Create world volume
 Acts::VolumeBoundsPtr volBoundsPtrWorld = std::make_shared<const Acts::CuboidVolumeBounds>(
 					Acts::CuboidVolumeBounds(halfX,
 								halfY,
 								(posFirstSur + localPos.back()) / 2 + eps));
 
+//Collect the position of the subvolumes
 std::vector<std::pair<std::shared_ptr<const Acts::TrackingVolume>, Acts::Vector3D>> tapVec;
 tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(mtvp, Acts::Vector3D(0., 0., posFirstSur + localPos.back() / 2)));
 for(int iVac = 0; iVac < nVacs; iVac++)
 {
 	if(iVac == 0)
 	{
-		tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(vacArr[iVac], Acts::Vector3D(0., 0.,  (20. * iVac + 10.)  * Acts::units::_m - eps / 2)));
+		tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(vacArr[iVac], Acts::Vector3D(0., 0.,  (20. * iVac + 10.)  * Acts::units::_m - eps / 2))); //hardcode
 		continue;
 	}
 	if(iVac == nVacs - 1)
 	{
-		tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(vacArr[iVac], Acts::Vector3D(0., 0.,  (20. * iVac + 10.)  * Acts::units::_m + eps / 2)));
+		tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(vacArr[iVac], Acts::Vector3D(0., 0.,  (20. * iVac + 10.)  * Acts::units::_m + eps / 2))); //hardcode
 		continue;
 	}
-	tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(vacArr[iVac], Acts::Vector3D(0., 0., (20. * iVac + 10.) * Acts::units::_m)));
+	tapVec.push_back(std::pair<Acts::TrackingVolumePtr, Acts::Vector3D>(vacArr[iVac], Acts::Vector3D(0., 0., (20. * iVac + 10.) * Acts::units::_m))); //hardcode
 }
 
+//Collect the boarders of the volumes for binning
 std::vector<float> binBoundaries = {-eps};
 for(int iVac = 1; iVac < nVacs; iVac++)
 	binBoundaries.push_back((posFirstSur / (double) nVacs) * iVac);
@@ -346,8 +364,10 @@ binBoundaries.push_back(posFirstSur + localPos.back() + eps);
 Acts::BinningData binData(Acts::BinningOption::open, Acts::BinningValue::binZ, binBoundaries);
 std::unique_ptr<const Acts::BinUtility> bu(new Acts::BinUtility(binData));
 
+//Collect the volumes
 std::shared_ptr<const Acts::TrackingVolumeArray> trVolArr(new Acts::BinnedArrayXD<Acts::TrackingVolumePtr>(tapVec, std::move(bu)));
 
+//Create the world
 Acts::MutableTrackingVolumePtr mtvpWorld(Acts::TrackingVolume::create(htransWorld,
 								volBoundsPtrWorld,
 								trVolArr,
@@ -355,6 +375,7 @@ Acts::MutableTrackingVolumePtr mtvpWorld(Acts::TrackingVolume::create(htransWorl
 
 mtvpWorld->sign(Acts::GeometrySignature::Global);
 
+//Build tracking geometry
 auto tGeo = std::shared_ptr<Acts::TrackingGeometry>(new Acts::TrackingGeometry(mtvpWorld));
 
 //Produce .obj file(s)
@@ -382,6 +403,7 @@ for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 const unsigned nEvents = 1;
 const Acts::ConstantBField bField(0., 0., 0.);
 
+//Definition about what to shoot
 FW::ParticleGun::Config cfgParGun;
 cfgParGun.evgenCollection = "EvgenParticles";
 cfgParGun.nParticles = 5;
@@ -393,6 +415,7 @@ cfgParGun.mass = 105.6 * Acts::units::_MeV;
 cfgParGun.charge = -Acts::units::_e;
 cfgParGun.pID = 13;
 
+//Configure RNG and barcode
 FW::RandomNumbersSvc::Config cfgRng;
 std::shared_ptr<FW::RandomNumbersSvc> RngSvc(new FW::RandomNumbersSvc(cfgRng));
 cfgParGun.randomNumbers = RngSvc;
@@ -403,6 +426,7 @@ cfgParGun.barcodes = BarSvc;
 
 FW::RandomNumbersSvc::Config cfgEpol;
 
+//Pass everything to the ExtrapolationExampleBase
 ACTFWExtrapolationExample::run(nEvents, std::make_shared<Acts::ConstantBField>(bField), tGeo, cfgParGun, cfgEpol, Acts::Logging::VERBOSE);
 
 for(int i = 0; i < numLayers; i++) streams[i]->close();

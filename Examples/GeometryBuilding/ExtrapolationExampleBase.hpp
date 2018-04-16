@@ -18,7 +18,6 @@
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-
 #include "FatrasCommon.hpp"
 
 /// simple base for the extrapolation example
@@ -109,9 +108,8 @@ run(size_t                                        nEvents,
   seqConfig.eventStoreLogLevel = Acts::Logging::INFO;
 
   // now create the sequencer
-  FW::Sequencer sequencer(seqConfig, Acts::getDefaultLogger("Squencer", Acts::Logging::INFO)); //modifiziert
+  FW::Sequencer sequencer(seqConfig, Acts::getDefaultLogger("Squencer", Acts::Logging::INFO));
   sequencer.addServices({randomNumbers});
-  //MODIFIZIERT
   setupWriters(sequencer,
 		barcodes,
 		"",
