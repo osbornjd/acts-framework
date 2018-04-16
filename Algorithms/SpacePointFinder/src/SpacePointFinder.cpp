@@ -82,16 +82,15 @@ FW::SpacePointFinder::differenceOfHits(
   Acts::Vector3D pos2 = globalCoords(hit2);
 
   // Check if measurements are close enough to each other
-  if ((pos1 - pos2).norm() > m_cfg.diffDist)
-    return -1.;
+  if ((pos1 - pos2).norm() > m_cfg.diffDist) return -1.;
 
   // Calculate the angles of the hits
   double phi1, theta1, phi2, theta2;
-  phi1 = (pos1 - m_cfg.vertex).phi();
+  phi1   = (pos1 - m_cfg.vertex).phi();
   theta1 = (pos1 - m_cfg.vertex).theta();
-  phi2 = (pos2 - m_cfg.vertex).phi();
+  phi2   = (pos2 - m_cfg.vertex).phi();
   theta2 = (pos2 - m_cfg.vertex).theta();
-  
+
   // Calculate the squared difference between the theta angles
   double diffTheta2 = (theta1 - theta2) * (theta1 - theta2);
   if (diffTheta2 > m_cfg.diffTheta2) {
