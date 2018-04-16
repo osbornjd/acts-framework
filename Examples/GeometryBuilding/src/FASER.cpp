@@ -6,79 +6,63 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-//#include <boost/program_options.hpp>
-
 #include "ACTS/Utilities/Units.hpp"
-
 #include "ACTS/Surfaces/RectangleBounds.hpp"
-#include "ACTS/Utilities/Definitions.hpp"
 #include "ACTS/Surfaces/PlaneSurface.hpp"
-
 #include "ACTS/Digitization/CartesianSegmentation.hpp"
 #include "ACTS/Digitization/DigitizationModule.hpp"
 #include "ACTFW/GenericDetector/GenericDetectorElement.hpp"
-
 #include "ACTS/Material/HomogeneousSurfaceMaterial.hpp"
-
 #include "ACTS/Surfaces/SurfaceArray.hpp"
-
-#include "ACTS/Surfaces/RectangleBounds.hpp"
 #include "ACTS/Layers/PlaneLayer.hpp"
-
-#include "ACTS/Tools/ITrackingVolumeHelper.hpp"
 #include "ACTS/Volumes/CuboidVolumeBounds.hpp"
 #include "ACTS/Material/Material.hpp"
-
 #include "ACTS/Tools/LayerArrayCreator.hpp"
-
 #include "ACTS/Utilities/BinningType.hpp"
-
 #include "ACTS/Utilities/BinnedArrayXD.hpp"
 #include "ACTS/Detector/TrackingVolume.hpp"
-
 #include "ACTS/Detector/TrackingGeometry.hpp"
-
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
-
 #include "ACTS/MagneticField/ConstantBField.hpp"
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "../ExtrapolationExampleBase.hpp" //nasty but working
 
-//TODO: includes aufraeumen
-
-
 int
 main(int argc, char* argv[])
 {
 
-//thickness of the detector layers
+//Define the properties of the detector
+
+//Thickness of the detector layers
 const double thicknessSCT			= 0.32 * Acts::units::_mm;
 const double thicknessSupport		= 3.3 * Acts::units::_mm;
 const double thickness 				= 2 * thicknessSCT + thicknessSupport;
-//material of the detector layers
+//Material of the strips
 const float X0 					= 95.7;
 const float L0 					= 465.2;
 const float A 					= 28.03;
 const float Z 					= 14.;
 const float Rho 				= 2.32e-3;
-//number of detector layers
+//Number of detector layers
 const unsigned int numLayers 			= 5;
-//local position of the detector layers
+//Local position of the detector layers
 const std::array<double, numLayers> localPos 	= {3.2 * Acts::units::_m,
 						   3.4 * Acts::units::_m,
 						   3.6 * Acts::units::_m,
 						   3.8 * Acts::units::_m,
 						   4. * Acts::units::_m};
-//position of the detector
+//Position of the detector
 const double posFirstSur 			= 400. * Acts::units::_m;
-//epsilon to ensure to keep the vertex and the layers inside the corresponding volumes
+//Epsilon to ensure to keep the vertex and the layers inside the corresponding volumes
 const double eps 				= 10. * Acts::units::_mm;
-//lorentz angle
+//Lorentz angle
 const double lorentzangle			= 0.;
+//Length of a step limited to 25m -> multiple vacuum volumes will be glued together
 const int nVacs 					= 20;
+//Geometry of the strips
 const double stripGap				= 269. * Acts::units::_um;
 const unsigned int numCells 		= 1280;
 const double pitch					= 75.5 * Acts::units::_um;
@@ -86,16 +70,19 @@ const double lengthStrip			= 48.2 * Acts::units::_mm;
 //x-/y-size of the setup
 const double halfX				= numCells * pitch / 2;
 const double halfY				= lengthStrip + stripGap / 2;
+//Rotation of the strip plates
 const double rotation			= 0.026;
+
+//////////////////////////////////////////////////////////////////
 
 //Build Surfaces
 std::cout << "Building surfaces" << std::endl;
 
-//rectangle that contains the surface
+//Rectangle that contains the surface
 std::shared_ptr<const Acts::RectangleBounds> recBounds(new Acts::RectangleBounds(halfX, halfY));
-//global translation of the surface
+//Global translation of the surface
 std::array<Acts::Transform3D, 2 * numLayers> t3d;
-
+//Global rotation of the surfaces
 Acts::RotationMatrix3D rotationPos, rotationNeg;
 
 Acts::Vector3D xPos(cos(rotation), sin(rotation), 0.);
@@ -112,10 +99,10 @@ rotationNeg.col(0) = xNeg;
 rotationNeg.col(1) = yNeg;
 rotationNeg.col(2) = zNeg;                
                 
-//material of the detector layer
+//Material of the detector layer
 Acts::MaterialProperties matProp(X0, L0, A, Z, Rho, thickness);
 
-//Build Segmentation
+//Build segmentation
 std::vector<float> stripBoundariesX, stripBoundariesY;
 for(int iX = 0; iX <= numCells; iX++)
 	stripBoundariesX.push_back(iX * pitch - (numCells * pitch) / 2);
@@ -124,6 +111,7 @@ stripBoundariesY.push_back(-stripGap / 2);
 stripBoundariesY.push_back(stripGap / 2);
 stripBoundariesY.push_back(lengthStrip + stripGap / 2);
 
+//Build binning
 Acts::BinningData binDataX(Acts::BinningOption::open, Acts::BinningValue::binX, stripBoundariesX);
 std::shared_ptr<Acts::BinUtility> buX(new Acts::BinUtility(binDataX));
 Acts::BinningData binDataY(Acts::BinningOption::open, Acts::BinningValue::binY, stripBoundariesY);
@@ -132,31 +120,35 @@ std::shared_ptr<Acts::BinUtility> buY(new Acts::BinUtility(binDataY));
 
 std::shared_ptr<const Acts::Segmentation> segmentation(new Acts::CartesianSegmentation(buX, recBounds));
 
-std::shared_ptr<const Acts::DigitizationModule> digitization(new Acts::DigitizationModule(segmentation, thickness / 2, 1, lorentzangle)); //TODO: readout richtung festlegen
+//Build digitization parts
+std::shared_ptr<const Acts::DigitizationModule> digitization(new Acts::DigitizationModule(segmentation, thickness / 2, 1, lorentzangle));
 std::array<FWGen::GenericDetectorElement*, 2 * numLayers> genDetElem;
 
-//putting everything together in a surface
+//Put everything together in a surface
 std::array<Acts::PlaneSurface*, 2 * numLayers> pSur;
+//Bit nasty creation of all surfaces. In every iteration 2 surfaces (both strip detector plates of a layer) are created.
 for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++) 
 {
+	//Set an identifier. Ordered by first surface = even, second = odd number
     Identifier id(2 * iLayer);
-    
+    //Translate the surface
     t3d[2 * iLayer] = Acts::getTransformFromRotTransl(rotationPos, Acts::Vector3D(0., 0., posFirstSur + localPos[iLayer] - (thicknessSupport + thicknessSCT) / 2));
-    
+    //Add material to surface
     std::shared_ptr<Acts::SurfaceMaterial> surMat(new Acts::HomogeneousSurfaceMaterial(matProp));
-    
+    //Create digitization
     genDetElem[2 * iLayer] = new FWGen::GenericDetectorElement(id,
 							    std::make_shared<const Acts::Transform3D>(t3d[2 * iLayer]),
 							    recBounds,
 							    thickness,
 							    surMat,
 							    digitization);
-
+	//Create the surface
     pSur[2 * iLayer] = new Acts::PlaneSurface(recBounds,
 					    *(genDetElem[2 * iLayer]),
 					    genDetElem[2 * iLayer]->identify());
 					    
 
+	//Repeat the steps for the second surface
     id = 2 * iLayer + 1;
     
     t3d[2 * iLayer + 1] = Acts::getTransformFromRotTransl(rotationNeg, Acts::Vector3D(0., 0., posFirstSur + localPos[iLayer] + (thicknessSupport + thicknessSCT) / 2));
@@ -173,28 +165,32 @@ for(unsigned int iLayer = 0; iLayer < numLayers; iLayer++)
 					    genDetElem[2 * iLayer + 1]->identify());
 }
 
+//////////////////////////////////////////////////////////////////
+
 //Build Layers
 std::cout << "Building layers" << std::endl;
 
 std::array<Acts::Transform3D, numLayers> t3dLay;
 std::array<std::unique_ptr<Acts::SurfaceArray>, numLayers> surArrays;
 std::array<Acts::LayerPtr, numLayers> layPtr;
+//Take 2 surfaces and put them together into a layer
 for(unsigned int iSurface = 0; iSurface < numLayers; iSurface++)
 {
+	//Move the Layer to its destination
 	t3dLay[iSurface] = Acts::Translation3D(0., 0., posFirstSur + localPos[iSurface]);
-	
+	//Collect surfaces 
 	Acts::SurfaceVector surVec = {pSur[2 * iSurface], pSur[2 * iSurface + 1]};
-	
     surArrays[iSurface] = std::make_unique<Acts::SurfaceArray>(Acts::SurfaceArray(surVec));
-	
+	//Create layer
     layPtr[iSurface] = Acts::PlaneLayer::create(std::make_shared<const Acts::Transform3D>(t3dLay[iSurface]),
 					recBounds,
 					std::move(surArrays[iSurface]),
 					thickness);
-    //~ std::cout << iSurface << "\t" << layPtr[iSurface]->surfaceArray()->size() << "\t" << (layPtr[iSurface]->surfaceArray()->surfaces()).size() << std::endl;
 }
 
-//Build Volumes
+//////////////////////////////////////////////////////////////////
+
+//Build tracking volume
 std::cout << "Building tracking volume" << std::endl;
 
 Acts::Transform3D trans;
