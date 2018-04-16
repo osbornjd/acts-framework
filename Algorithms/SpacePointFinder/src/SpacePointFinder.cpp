@@ -87,26 +87,11 @@ FW::SpacePointFinder::differenceOfHits(
 
   // Calculate the angles of the hits
   double phi1, theta1, phi2, theta2;
-  phi1   = atan2(pos1.y() - m_cfg.vertex.y(), pos1.x() - m_cfg.vertex.x());
-  std::cout << "phi: " << phi1 << std::endl;
   phi1 = (pos1 - m_cfg.vertex).phi();
-  std::cout << "phi1: " << phi1 << std::endl;
-  theta1 = M_PI / 2
-      - atan(pos1.z()
-             - m_cfg.vertex.z() / sqrt((pos1.x() - m_cfg.vertex.x()) * pos1.x()
-                                       - m_cfg.vertex.x())
-             + (pos1.y() - m_cfg.vertex.x()) * (pos1.y() - m_cfg.vertex.x()));
-             std::cout << "theta: " << theta1 << std::endl;
   theta1 = (pos1 - m_cfg.vertex).theta();
-  std::cout << "theta1: " << theta1 << std::endl;
-  //~ phi2   = atan2(pos2.y() - m_cfg.vertex.y(), pos2.x() - m_cfg.vertex.x());
   phi2 = (pos2 - m_cfg.vertex).phi();
-  //~ theta2 = M_PI / 2
-      //~ - atan(pos2.z()
-             //~ - m_cfg.vertex.z() / sqrt((pos2.x() - m_cfg.vertex.x()) * pos2.x()
-                                       //~ - m_cfg.vertex.x())
-             //~ + (pos2.y() - m_cfg.vertex.x()) * (pos2.y() - m_cfg.vertex.x()));
   theta2 = (pos2 - m_cfg.vertex).theta();
+  
   // Calculate the squared difference between the theta angles
   double diffTheta2 = (theta1 - theta2) * (theta1 - theta2);
   if (diffTheta2 > m_cfg.diffTheta2) {
@@ -237,10 +222,10 @@ FW::SpacePointFinder::filterCombinations(
     const
 {
   // Walk through the layers
-  for (auto& layer : allCombHits)
+  for (const auto& layer : allCombHits)
     // Walk through every hit combination of a layer
-    for (auto& combination : layer) {
-      for (auto& combinationCompare : layer)
+    for (const auto& combination : layer) {
+      for (const auto& combinationCompare : layer)
         // Check, if combinations infere and resolve the problem.
         // Hits on the first module are different from each other by
         // construction but a hit on the second module can appear in multiple
@@ -313,11 +298,11 @@ FW::SpacePointFinder::calculateSpacePoints(
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> stripClusters;
 
   // Walk over every found candidate pair
-  for (auto& layers : allCombHits)
-    for (auto& hits : layers) {
+  for (const auto& layers : allCombHits)
+    for (const auto& hits : layers) {
       // Calculate the ends of the strip detector elements
-      auto& ends1 = endsOfStrip(*(hits.hitModule1));
-      auto& ends2 = endsOfStrip(*(hits.hitModule2));
+      const auto& ends1 = endsOfStrip(*(hits.hitModule1));
+      const auto& ends2 = endsOfStrip(*(hits.hitModule2));
 
       /// The following algorithm is meant for finding the position on the first
       /// strip if there is a corresponding hit on the second strip. The
