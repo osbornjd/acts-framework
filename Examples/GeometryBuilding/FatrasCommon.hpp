@@ -70,16 +70,15 @@ setupSimulation(FW::Sequencer&                                sequencer,
   auto digitzationAlg = std::make_shared<FW::DigitizationAlgorithm>(
       digConfig, Acts::Logging::INFO);
 
-
   //~ FW::SpacePointFinder::Config spfConfig;
   //~ spfConfig.collectionIn = "FatrasClusters";
   //~ spfConfig.collectionOut = "SCTSpacePoints";
   //~ auto spacepointAlg = std::make_shared<FW::SpacePointFinder>(spfConfig,
-  //Acts::Logging::DEBUG);
+  // Acts::Logging::DEBUG);
 
   // add algorithms to sequencer
   //~ if (sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg,
-  //spacepointAlg})
+  // spacepointAlg})
   if (sequencer.appendEventAlgorithms({extrapolationAlg, digitzationAlg})
       != FW::ProcessCode::SUCCESS)
     return FW::ProcessCode::ABORT;
