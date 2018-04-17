@@ -6,9 +6,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <boost/program_options.hpp>
+#include <boost/program_options.hpp>
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
+#include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
 #include "ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp"
@@ -18,23 +22,39 @@
 #include "ACTS/Detector/TrackingGeometry.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialMapper.hpp"
 
-int
-main()
-{
-  size_t nEvents = 1;
+namespace po = boost::program_options;
 
-  // DETECTOR:
-  // --------------------------------------------------------------------------------
-  // DD4Hep detector definition
-  //
-  // set up the geometry service
-  FW::DD4hep::GeometryService::Config gsConfig("GeometryService",
-                                               Acts::Logging::INFO);
-  gsConfig.xmlFileName
-      = "file:Examples/DD4hepExample/DD4hepDetector/compact/FCCTracker.xml";
-  auto geometrySvc = std::make_shared<FW::DD4hep::GeometryService>(gsConfig);
+int
+main(int argc, char* argv[])
+{
+  // Declare the supported program options.
+  po::options_description desc("Allowed options");
+  // add the standard options
+  FW::Options::addStandardOptions<po::options_description>(desc, 100, 2);
+  // add the detector options
+  FW::Options::addDD4hepOptions<po::options_description>(desc);
+  po::variables_map vm;
+  // Get all options from contain line and store it into the map
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+  // print help if requested
+  if (vm.count("help")) {
+    std::cout << desc << std::endl;
+    return 1;
+  }
+  // now read the standard options
+  auto standardOptions
+      = FW::Options::readStandardOptions<po::variables_map>(vm);
+  // read the detector config & dd4hep detector
+  auto dd4HepDetectorConfig
+      = FW::Options::readDD4hepConfig<po::variables_map>(vm);
+  auto geometrySvc
+      = std::make_shared<FW::DD4hep::GeometryService>(dd4HepDetectorConfig);
+
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
       = geometrySvc->trackingGeometry();
+
+  auto nEvents = standardOptions.first;
 
   // DD4Hep to Geant4 conversion
   //
@@ -43,6 +63,7 @@ main()
   dgConfig.dd4hepService = geometrySvc;
   auto dd4hepToG4Svc = std::make_shared<FW::DD4hepG4::DD4hepToG4Svc>(dgConfig);
 
+  // @todo update - make program options in separate MR
   // --------------------------------------------------------------------------------
   // MaterialMapping Algorithm configruation:
   //
