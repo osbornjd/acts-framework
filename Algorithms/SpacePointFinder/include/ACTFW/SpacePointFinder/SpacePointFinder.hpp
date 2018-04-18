@@ -71,7 +71,6 @@ public:
   execute(AlgorithmContext ctx) const;
 
 private:
-
   /// @brief Structure for easier bookkeeping of potential hit combinations
   /// on two surfaces
   struct CombinedHits
@@ -84,52 +83,59 @@ private:
     /// Allows vetos between different possible combinations
     double diff;
   };
-  
-  /// @brief Storage container for variables related to the calculation of space points
+
+  /// @brief Storage container for variables related to the calculation of space
+  /// points
   struct SpacePointParameters
   {
-	/// Vector pointing from bottom to top end of first SDE
-	Acts::Vector3D 	q;
-	/// Vector pointing from bottom to top end of second SDE
-	Acts::Vector3D 	r;
-	/// Twice the vector pointing from vertex to to midpoint of first SDE
-	Acts::Vector3D 	s;
-	/// Twice the vector pointing from vertex to to midpoint of second SDE
-	Acts::Vector3D 	t;
-	/// Cross product between SpacePointParameters::q and SpacePointParameters::s
-	Acts::Vector3D 	qs;
-	/// Cross product between SpacePointParameters::r and SpacePointParameters::t
-	Acts::Vector3D 	rt;
-	/// Magnitude of SpacePointParameters::q
-	double 			qmag = 0.;
-	/// Parameter that determines the hit position on the first SDE
-	double		  	m = 0.;
-	/// Parameter that determines the hit position on the second SDE
-	double		  	n = 0.;
-	/// Regular limit of the absolut values of SpacePointParameters::m and SpacePointParameters::n
-	double		  	limit = 1.;
-	/// Limit of SpacePointParameters::m and SpacePointParameters::n in case of variable vertex
-	double			limitExtended = 1.;
-	
-	/// @brief reset structure and allows to reuse the same structure
-	void reset()
-	{
-		// Set every vector to nullvector. This allows checks, if a variable was already set.
-		q 				= {0., 0., 0.};
-		r 				= {0., 0., 0.};
-		s 				= {0., 0., 0.};
-		t 				= {0., 0., 0.};
-		qs				= {0., 0., 0.};
-		rt				= {0., 0., 0.};
-		// Set every double to default values
-		qmag 			= 0;
-		m 				= 0;
-		n 				= 0;
-		limit 			= 1.;
-		limitExtended 	= 1.;
-	}
+    /// Vector pointing from bottom to top end of first SDE
+    Acts::Vector3D q;
+    /// Vector pointing from bottom to top end of second SDE
+    Acts::Vector3D r;
+    /// Twice the vector pointing from vertex to to midpoint of first SDE
+    Acts::Vector3D s;
+    /// Twice the vector pointing from vertex to to midpoint of second SDE
+    Acts::Vector3D t;
+    /// Cross product between SpacePointParameters::q and
+    /// SpacePointParameters::s
+    Acts::Vector3D qs;
+    /// Cross product between SpacePointParameters::r and
+    /// SpacePointParameters::t
+    Acts::Vector3D rt;
+    /// Magnitude of SpacePointParameters::q
+    double qmag = 0.;
+    /// Parameter that determines the hit position on the first SDE
+    double m = 0.;
+    /// Parameter that determines the hit position on the second SDE
+    double n = 0.;
+    /// Regular limit of the absolut values of SpacePointParameters::m and
+    /// SpacePointParameters::n
+    double limit = 1.;
+    /// Limit of SpacePointParameters::m and SpacePointParameters::n in case of
+    /// variable vertex
+    double limitExtended = 1.;
+
+    /// @brief reset structure and allows to reuse the same structure
+    void
+    reset()
+    {
+      // Set every vector to nullvector. This allows checks, if a variable was
+      // already set.
+      q  = {0., 0., 0.};
+      r  = {0., 0., 0.};
+      s  = {0., 0., 0.};
+      t  = {0., 0., 0.};
+      qs = {0., 0., 0.};
+      rt = {0., 0., 0.};
+      // Set every double to default values
+      qmag          = 0;
+      m             = 0;
+      n             = 0;
+      limit         = 1.;
+      limitExtended = 1.;
+    }
   };
-  
+
   /// Storage of the user defined configuration of the class
   Config m_cfg;
 
@@ -169,7 +175,7 @@ private:
   void
   combineHits(const std::vector<Acts::PlanarModuleCluster>& vec1,
               const std::vector<Acts::PlanarModuleCluster>& vec2,
-              std::vector<CombinedHits>&					combHits) const;
+              std::vector<CombinedHits>&                    combHits) const;
 
   /// @brief Searches and stores all hit combination candidates in the detector
   /// @param detData local pointer to all produced digitized hits
@@ -190,21 +196,25 @@ private:
   std::pair<Acts::Vector3D, Acts::Vector3D>
   endsOfStrip(const Acts::PlanarModuleCluster& hit) const;
 
-  /// @brief This function tests if a space point can be estimated by a more tolerant treatment of construction. In fact, this function indirectly allows shifts of the vertex.
-  /// @param spaPoPa container that stores geometric parameters and rules of the space point formation
+  /// @brief This function tests if a space point can be estimated by a more
+  /// tolerant treatment of construction. In fact, this function indirectly
+  /// allows shifts of the vertex.
+  /// @param spaPoPa container that stores geometric parameters and rules of the
+  /// space point formation
   /// @return indicator if the test was successful
   bool
   recoverSpacePoint(SpacePointParameters& spaPoPa) const;
-  
+
   /// @brief Stores a calculated space point
   /// @param spacePoint location of the determined space point on the first SDE
-  /// @param hits data container that provides additional information about the space point
+  /// @param hits data container that provides additional information about the
+  /// space point
   /// @param stripClust data container that stores all information
   void
   storeSpacePoint(const Acts::Vector3D& spacePoint,
-				  const CombinedHits&	hits,
-				  DetData& 				stripClusters) const;
-	
+                  const CombinedHits&   hits,
+                  DetData&              stripClusters) const;
+
   /// @brief Calculates the space points out of a given collection of hits
   /// on several strip detectors and stores the data
   /// @param allCombHits matrix that stores all hit combination candidates
