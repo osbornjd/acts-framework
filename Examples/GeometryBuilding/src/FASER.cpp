@@ -436,7 +436,7 @@ main(int argc, char* argv[])
   FWObj::ObjSurfaceWriter::Config                       cfgSur;
   std::vector<std::shared_ptr<std::ofstream>>           streams;
   std::vector<std::shared_ptr<FWObj::ObjSurfaceWriter>> objSurWriter;
-  for (unsigned int iSurface = 0; iSurface < numLayers; iSurface++) {
+  for (unsigned int iSurface = 0; iSurface < numLayers * 2; iSurface++) {
     cfgSur = FWObj::ObjSurfaceWriter::Config(std::to_string(iSurface),
                                              Acts::Logging::DEBUG);
     cfgSur.filePrefix = std::to_string(iSurface) + std::string(".obj");
@@ -453,13 +453,13 @@ main(int argc, char* argv[])
   }
 
   // Test the setup
-  const unsigned             nEvents = 1;
+  const unsigned             nEvents = 10;
   const Acts::ConstantBField bField(0., 0., 0.);
 
   // Definition about what to shoot
   FW::ParticleGun::Config cfgParGun;
   cfgParGun.evgenCollection = "EvgenParticles";
-  cfgParGun.nParticles      = 5;
+  cfgParGun.nParticles      = 100;
   cfgParGun.z0Range         = {{-eps / 2, eps / 2}};
   cfgParGun.d0Range         = {{0., 0.15 * Acts::units::_m}};
   cfgParGun.etaRange        = {{7., 15.}};

@@ -111,13 +111,13 @@ run(size_t                                        nEvents,
   FW::Sequencer sequencer(
       seqConfig, Acts::getDefaultLogger("Squencer", Acts::Logging::INFO));
   sequencer.addServices({randomNumbers});
-  setupWriters(sequencer, barcodes, "", Acts::Logging::INFO);
-  // sequencer.addWriters({rootEccWriter, rootEcnWriter});
-  sequencer.prependEventAlgorithms({particleGun});
-  setupSimulation(
-      sequencer, tGeometry, randomNumbers, magField, Acts::Logging::INFO);
+  //~ setupWriters(sequencer, barcodes, "", Acts::Logging::INFO);
+  sequencer.addWriters({rootEccWriter, rootEcnWriter});
+  //~ sequencer.prependEventAlgorithms({particleGun});
+  //~ setupSimulation(
+      //~ sequencer, tGeometry, randomNumbers, magField, Acts::Logging::INFO);
 
-  // sequencer.appendEventAlgorithms({particleGun, extrapolationAlg});
+  sequencer.appendEventAlgorithms({particleGun, extrapolationAlg});
   sequencer.run(nEvents);
 
   return 0;
