@@ -6,8 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_ALGORITHMS_SPACEPOINTFINDER_H
-#define ACTFW_ALGORITHMS_SPACEPOINTFINDER_H
+#ifndef ACTFW_ALGORITHMS_STRIPSPACEPOINTBUILDER_H
+#define ACTFW_ALGORITHMS_STRIPSPACEPOINTBUILDER_H
 
 #include <ACTS/Digitization/PlanarModuleCluster.hpp>
 #include <ACTS/Utilities/Units.hpp>
@@ -24,7 +24,7 @@ namespace FW {
 /// Type of the hit data stored in the detector
 typedef DetectorData<geo_id_value, Acts::PlanarModuleCluster> DetData;
 
-/// @class SpacePointFinder
+/// @class StripSpacePointBuilder
 ///
 /// After the particle interaction with surfaces are recorded and digitized
 /// the hits strip detectors need further treatment. This class takes
@@ -34,7 +34,7 @@ typedef DetectorData<geo_id_value, Acts::PlanarModuleCluster> DetData;
 /// @note Used abbreviation: "Strip Detector Element" -> SDE
 /// @note This is a rough implementation underlying many assumptions
 ///
-class SpacePointFinder : public BareAlgorithm
+class StripSpacePointBuilder : public BareAlgorithm
 {
 public:
   /// @brief Configuration of the class to steer its behaviour
@@ -60,7 +60,7 @@ public:
 
   /// Constructor
   /// @param cfg is the configuration class
-  SpacePointFinder(const Config&        cfg,
+  StripSpacePointBuilder(const Config&        cfg,
                    Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// @brief Executes the full algorithm. Extracts the data from Whiteboard,
@@ -227,4 +227,4 @@ private:
 
 }  // namespace FW
 
-#endif  // ACTFW_ALGORITHMS_SPACEPOINTFINDER_H
+#endif  // ACTFW_ALGORITHMS_STRIPSPACEPOINTBUILDER_H

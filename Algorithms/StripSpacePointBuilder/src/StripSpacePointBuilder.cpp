@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/SpacePointFinder/SpacePointFinder.hpp"
+#include "ACTFW/StripSpacePointBuilder/StripSpacePointBuilder.hpp"
 #include <cmath>
 #include <limits>
 #include <stdexcept>
@@ -16,9 +16,9 @@
 /// @note Used abbreviation: "Strip Detector Element" -> SDE
 ///
 
-FW::SpacePointFinder::SpacePointFinder(const FW::SpacePointFinder::Config& cfg,
+FW::StripSpacePointBuilder::StripSpacePointBuilder(const FW::StripSpacePointBuilder::Config& cfg,
                                        Acts::Logging::Level level)
-  : FW::BareAlgorithm("SpacePointFinder", level), m_cfg(cfg)
+  : FW::BareAlgorithm("StripSpacePointBuilder", level), m_cfg(cfg)
 {
   // Check that all mandatory configuration parameters are present
   if (m_cfg.collectionIn.empty()) {
@@ -40,7 +40,7 @@ FW::SpacePointFinder::SpacePointFinder(const FW::SpacePointFinder::Config& cfg,
 }
 
 FW::ProcessCode
-FW::SpacePointFinder::clusterReading(AlgorithmContext& ctx,
+FW::StripSpacePointBuilder::clusterReading(AlgorithmContext& ctx,
                                      const DetData*&   detData) const
 {
   // Load hit data from Whiteboard
@@ -55,7 +55,7 @@ FW::SpacePointFinder::clusterReading(AlgorithmContext& ctx,
 }
 
 Acts::Vector2D
-FW::SpacePointFinder::localCoords(const Acts::PlanarModuleCluster& hit) const
+FW::StripSpacePointBuilder::localCoords(const Acts::PlanarModuleCluster& hit) const
 {
   // Local position information
   auto           par = hit.parameters();
@@ -64,7 +64,7 @@ FW::SpacePointFinder::localCoords(const Acts::PlanarModuleCluster& hit) const
 }
 
 Acts::Vector3D
-FW::SpacePointFinder::globalCoords(const Acts::PlanarModuleCluster& hit) const
+FW::StripSpacePointBuilder::globalCoords(const Acts::PlanarModuleCluster& hit) const
 {
   // Receive corresponding surface
   auto& clusterSurface = hit.referenceSurface();
@@ -77,7 +77,7 @@ FW::SpacePointFinder::globalCoords(const Acts::PlanarModuleCluster& hit) const
 }
 
 double
-FW::SpacePointFinder::differenceOfHits(
+FW::StripSpacePointBuilder::differenceOfHits(
     const Acts::PlanarModuleCluster& hit1,
     const Acts::PlanarModuleCluster& hit2) const
 {
@@ -139,16 +139,16 @@ FW::SpacePointFinder::differenceOfHits(
 }
 
 void
-FW::SpacePointFinder::combineHits(
+FW::StripSpacePointBuilder::combineHits(
     const std::vector<Acts::PlanarModuleCluster>&    vec1,
     const std::vector<Acts::PlanarModuleCluster>&    vec2,
-    std::vector<FW::SpacePointFinder::CombinedHits>& combHits) const
+    std::vector<FW::StripSpacePointBuilder::CombinedHits>& combHits) const
 {
   // TODO: only the closest differences get selected -> some points are not
   // taken into account
   // Declare helper variables
   double                             currentDiff;
-  FW::SpacePointFinder::CombinedHits tmpCombHits;
+  FW::StripSpacePointBuilder::CombinedHits tmpCombHits;
   double                             diffMin;
   unsigned int                       hitMin;
 
@@ -178,15 +178,15 @@ FW::SpacePointFinder::combineHits(
 }
 
 void
-FW::SpacePointFinder::findOverlappingClusters(
+FW::StripSpacePointBuilder::findOverlappingClusters(
     const DetData*&                                               detData,
-    std::vector<std::vector<FW::SpacePointFinder::CombinedHits>>& allCombHits)
+    std::vector<std::vector<FW::StripSpacePointBuilder::CombinedHits>>& allCombHits)
     const
 {
   // Declare temporary storage
   std::vector<std::vector<Acts::PlanarModuleCluster> const*> modules;
   unsigned int                                               index;
-  std::vector<FW::SpacePointFinder::CombinedHits>            combHits;
+  std::vector<FW::StripSpacePointBuilder::CombinedHits>            combHits;
 
   // Loop over the planar clusters in this event
   for (auto& volumeData : *detData)
@@ -215,7 +215,7 @@ FW::SpacePointFinder::findOverlappingClusters(
         break;
       // Try to combine the hits of every surface with each other
       default:
-        std::vector<FW::SpacePointFinder::CombinedHits> tmpCombHits;
+        std::vector<FW::StripSpacePointBuilder::CombinedHits> tmpCombHits;
         for (unsigned int i = 0; i < modules.size(); i++)
           for (unsigned int j = i + 1; j < modules.size(); j++) {
             combineHits(*(modules[i]), *(modules[j]), tmpCombHits);
@@ -229,8 +229,8 @@ FW::SpacePointFinder::findOverlappingClusters(
 }
 
 void
-FW::SpacePointFinder::filterCombinations(
-    std::vector<std::vector<FW::SpacePointFinder::CombinedHits>>& allCombHits)
+FW::StripSpacePointBuilder::filterCombinations(
+    std::vector<std::vector<FW::StripSpacePointBuilder::CombinedHits>>& allCombHits)
     const
 {
   // Walk through the layers
@@ -250,7 +250,7 @@ FW::SpacePointFinder::filterCombinations(
 }
 
 std::pair<Acts::Vector3D, Acts::Vector3D>
-FW::SpacePointFinder::endsOfStrip(const Acts::PlanarModuleCluster& hit) const
+FW::StripSpacePointBuilder::endsOfStrip(const Acts::PlanarModuleCluster& hit) const
 {
   // Calculate the local coordinates of the hit
   const Acts::Vector2D local = localCoords(hit);
@@ -296,8 +296,8 @@ FW::SpacePointFinder::endsOfStrip(const Acts::PlanarModuleCluster& hit) const
 }
 
 bool
-FW::SpacePointFinder::recoverSpacePoint(
-    FW::SpacePointFinder::SpacePointParameters& spaPoPa) const
+FW::StripSpacePointBuilder::recoverSpacePoint(
+    FW::StripSpacePointBuilder::SpacePointParameters& spaPoPa) const
 {
   /// Consider some cases that would allow an easy exit
   // Check if the limits are allowed to be increased
@@ -372,7 +372,7 @@ FW::SpacePointFinder::recoverSpacePoint(
 }
 
 void
-FW::SpacePointFinder::storeSpacePoint(const Acts::Vector3D& spacePoint,
+FW::StripSpacePointBuilder::storeSpacePoint(const Acts::Vector3D& spacePoint,
                                       const CombinedHits&   hits,
                                       DetData&              stripClusters) const
 {
@@ -408,15 +408,14 @@ FW::SpacePointFinder::storeSpacePoint(const Acts::Vector3D& spacePoint,
 }
 
 FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>
-FW::SpacePointFinder::calculateSpacePoints(
+FW::StripSpacePointBuilder::calculateSpacePoints(
     std::vector<std::vector<CombinedHits>>& allCombHits,
     const DetData*&                         detData) const
 {
   // Source of algorithm: Athena, SiSpacePointMakerTool::makeSCT_SpacePoint()
-  // TODO: some stability part still missing
 
   DetData                                    stripClusters;
-  FW::SpacePointFinder::SpacePointParameters spaPoPa;
+  FW::StripSpacePointBuilder::SpacePointParameters spaPoPa;
 
   // Walk over every found candidate pair
   for (const auto& layers : allCombHits)
@@ -487,14 +486,14 @@ FW::SpacePointFinder::calculateSpacePoints(
 }
 
 FW::ProcessCode
-FW::SpacePointFinder::execute(AlgorithmContext ctx) const
+FW::StripSpacePointBuilder::execute(AlgorithmContext ctx) const
 {
   ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);
 
   // DetData is typename of DetectorData<geo_id_value,
   // Acts::PlanarModuleCluster>
   const DetData*                                               detData;
-  std::vector<std::vector<FW::SpacePointFinder::CombinedHits>> allCombHits;
+  std::vector<std::vector<FW::StripSpacePointBuilder::CombinedHits>> allCombHits;
   DetData                                                      stripClusters;
 
   // Receive all hits from the Whiteboard
