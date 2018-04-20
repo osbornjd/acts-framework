@@ -41,7 +41,7 @@ const unsigned int numLayers = 5;
 const int nVacs = 20;
   
 struct configParams {
-	
+  
   // Thickness of the detector layers
   double thicknessSCT     = 0.32 * Acts::units::_mm;
   double thicknessSupport = 3.3 * Acts::units::_mm;
@@ -76,11 +76,26 @@ struct configParams {
   // Rotation of the strip plates
   double rotation = 0.026;
   
+  // Configuration of the particle gun
+  unsigned             nEvents = 10;
+  Acts::ConstantBField bField;
+  size_t nParticles      = 100;
+  std::array<double, 2> z0Range         = {{-eps / 2, eps / 2}};
+  std::array<double, 2> d0Range         = {{0., 0.15 * Acts::units::_m}};
+  std::array<double, 2> phiRange		= {{-M_PI, M_PI}};
+  std::array<double, 2> etaRange        = {{7., 15.}};
+  std::array<double, 2> ptRange         = {{0., 10. * Acts::units::_MeV}};
+  double mass            = 105.6 * Acts::units::_MeV;
+  double charge          = -Acts::units::_e;
+  int pID             = 13;
+  
+  configParams() : bField(0., 0., 0.) {}
+  
   void readConfig(char* filename)
   {
 	 std::ifstream ifs(filename, std::fstream::in);
      std::string line;
-	 
+	 //Detector configuration
 	 if(getline(ifs, line))
 	  thicknessSCT = strtod(line.substr(line.find(" ") + 1).c_str(), NULL) * Acts::units::_mm;
 	 if(getline(ifs, line))
@@ -121,6 +136,46 @@ struct configParams {
 	  lengthStrip = strtod(line.substr(line.find(" ") + 1).c_str(), NULL) * Acts::units::_mm;
 	 if(getline(ifs, line))
 	  rotation = strtod(line.substr(line.find(" ") + 1).c_str(), NULL);
+	 // Particle gun configuration
+	 if(getline(ifs, line))
+	  nEvents = atoi(line.substr(line.find(" ") + 1).c_str());
+	 Acts::Vector3D bfieldTmp(0., 0., 0.);
+	 if(getline(ifs, line))
+	  bfieldTmp[0] = strtod(line.substr(line.find(" ") + 1).c_str(), NULL);
+	 if(getline(ifs, line))
+	  bfieldTmp[1] = strtod(line.substr(line.find(" ") + 1).c_str(), NULL);
+	 if(getline(ifs, line))
+	  bfieldTmp[2] = strtod(line.substr(line.find(" ") + 1).c_str(), NULL);
+     bField.setField(bfieldTmp);
+     if(getline(ifs, line))
+	  nParticles      = atoi(line.substr(line.find(" ") + 1).c_str());
+     if(getline(ifs, line))
+     {
+      double tmp        = strtod(line.substr(line.find(" ") + 1).c_str(), NULL);
+      z0Range = {{-tmp, tmp}};
+     }
+     if(getline(ifs, line))
+      phiRange[0]       = strtod(line.substr(line.find(" ") + 1).c_str(), NULL);
+     if(getline(ifs, line))
+      phiRange[1]       = strtod(line.substr(line.find(" ") + 1).c_str(), NULL);
+     if(getline(ifs, line))
+      d0Range[0]       = strtod(line.substr(line.find(" ") + 1).c_str(), NULL) * Acts::units::_m;
+     if(getline(ifs, line))
+      d0Range[1]       = strtod(line.substr(line.find(" ") + 1).c_str(), NULL) * Acts::units::_m;
+     if(getline(ifs, line))
+      etaRange[0]       = strtod(line.substr(line.find(" ") + 1).c_str(), NULL);
+     if(getline(ifs, line))
+      etaRange[1]       = strtod(line.substr(line.find(" ") + 1).c_str(), NULL);
+     if(getline(ifs, line))
+      ptRange[0]       = strtod(line.substr(line.find(" ") + 1).c_str(), NULL) * Acts::units::_MeV;
+     if(getline(ifs, line))
+      ptRange[1]       = strtod(line.substr(line.find(" ") + 1).c_str(), NULL) * Acts::units::_MeV;
+     if(getline(ifs, line))
+      mass = strtod(line.substr(line.find(" ") + 1).c_str(), NULL) * Acts::units::_MeV;
+     if(getline(ifs, line))
+      charge = strtod(line.substr(line.find(" ") + 1).c_str(), NULL) * Acts::units::_e;
+     if(getline(ifs, line))
+	  pID = atoi(line.substr(line.find(" ") + 1).c_str()); 
 	 
 	 halfX = numCells * pitch / 2;
      halfY = lengthStrip + stripGap / 2; 
@@ -149,9 +204,132 @@ struct configParams {
 	std::cout << "lengthStrip: " << lengthStrip << std::endl;
 	std::cout << "halfX: " << halfX << std::endl;
 	std::cout << "halfY: " << halfY << std::endl;
-	std::cout << "rotation: " << rotation << std::endl;
+	std::cout << "rotation: " << rotation << std::endl << std::endl;
+	std::cout << "nEvents: " << nEvents << std::endl;
+	Acts::Vector3D dummyVec(0., 0., 0.);
+	std::cout << "bField: " << bField.getField(dummyVec)[0] << " " << bField.getField(dummyVec)[1] << " " << bField.getField(dummyVec)[2] << std::endl;
+	std::cout << "nParticles: " << nParticles << std::endl;
+	std::cout << "z0Range: " << z0Range[0] << " " << z0Range[1] << std::endl;
+	std::cout << "d0Range: " << d0Range[0] << " " << d0Range[1] << std::endl;
+	std::cout << "phiRange: " << phiRange[0] << " " << phiRange[1] << std::endl;
+	std::cout << "etaRange: " << etaRange[0] << " " << etaRange[1] << std::endl;
+	std::cout << "ptRange: " << ptRange[0] << " " << ptRange[1] << std::endl;
+	std::cout << "mass: " << mass << std::endl;
+	std::cout << "charge: " << charge << std::endl;
+	std::cout << "pID: " << pID << std::endl;
   }
 };
+
+std::array<Acts::PlaneSurface*, 2 * numLayers> buildSurfaces(configParams& cfg, std::shared_ptr<const Acts::RectangleBounds>& recBounds)
+{
+ // Global translation of the surface
+  std::array<Acts::Transform3D, 2 * numLayers> t3d;
+  // Global rotation of the surfaces
+  Acts::RotationMatrix3D rotationPos, rotationNeg;
+
+  Acts::Vector3D xPos(cos(cfg.rotation), sin(cfg.rotation), 0.);
+  Acts::Vector3D yPos(-sin(cfg.rotation), cos(cfg.rotation), 0.);
+  Acts::Vector3D zPos(0., 0., 1.);
+  rotationPos.col(0) = xPos;
+  rotationPos.col(1) = yPos;
+  rotationPos.col(2) = zPos;
+
+  Acts::Vector3D xNeg(cos(-cfg.rotation), sin(-cfg.rotation), 0.);
+  Acts::Vector3D yNeg(-sin(-cfg.rotation), cos(-cfg.rotation), 0.);
+  Acts::Vector3D zNeg(0., 0., 1.);
+  rotationNeg.col(0) = xNeg;
+  rotationNeg.col(1) = yNeg;
+  rotationNeg.col(2) = zNeg;
+
+  // Material of the detector layer
+  Acts::MaterialProperties matProp(cfg.X0, cfg.L0, cfg.A, cfg.Z, cfg.Rho, cfg.thickness);
+
+  // Build segmentation
+  std::vector<float> stripBoundariesX, stripBoundariesY;
+  for (int iX = 0; iX <= cfg.numCells; iX++)
+    stripBoundariesX.push_back(iX * cfg.pitch - (cfg.numCells * cfg.pitch) / 2);
+  stripBoundariesY.push_back(-cfg.lengthStrip - cfg.stripGap / 2);
+  stripBoundariesY.push_back(-cfg.stripGap / 2);
+  stripBoundariesY.push_back(cfg.stripGap / 2);
+  stripBoundariesY.push_back(cfg.lengthStrip + cfg.stripGap / 2);
+
+  // Build binning
+  Acts::BinningData binDataX(
+      Acts::BinningOption::open, Acts::BinningValue::binX, stripBoundariesX);
+  std::shared_ptr<Acts::BinUtility> buX(new Acts::BinUtility(binDataX));
+  Acts::BinningData                 binDataY(
+      Acts::BinningOption::open, Acts::BinningValue::binY, stripBoundariesY);
+  std::shared_ptr<Acts::BinUtility> buY(new Acts::BinUtility(binDataY));
+  (*buX) += (*buY);
+
+  std::shared_ptr<const Acts::Segmentation> segmentation(
+      new Acts::CartesianSegmentation(buX, recBounds));
+
+  // Build digitization parts
+  std::shared_ptr<const Acts::DigitizationModule> digitizationFront(
+      new Acts::DigitizationModule(
+          segmentation, cfg.thickness / 2, -1, cfg.lorentzangle));
+  std::shared_ptr<const Acts::DigitizationModule> digitizationBack(
+      new Acts::DigitizationModule(
+          segmentation, cfg.thickness / 2, 1, cfg.lorentzangle));
+  std::array<FWGen::GenericDetectorElement*, 2 * numLayers> genDetElem;
+
+  // Put everything together in a surface
+  std::array<Acts::PlaneSurface*, 2 * numLayers> pSur;
+  // Bit nasty creation of all surfaces. In every iteration 2 surfaces (both
+  // strip detector plates of a layer) are created.
+  for (unsigned int iLayer = 0; iLayer < numLayers; iLayer++) {
+    // Set an identifier. Ordered by first surface = even, second = odd number
+    Identifier id(2 * iLayer);
+    // Translate the surface
+    t3d[2 * iLayer] = Acts::getTransformFromRotTransl(
+        rotationPos,
+        Acts::Vector3D(0.,
+                       0.,
+                       cfg.posFirstSur + cfg.localPos[iLayer]
+                           - (cfg.thicknessSupport + cfg.thicknessSCT) / 2));
+    // Add material to surface
+    std::shared_ptr<Acts::SurfaceMaterial> surMat(
+        new Acts::HomogeneousSurfaceMaterial(matProp));
+    // Create digitization
+    genDetElem[2 * iLayer] = new FWGen::GenericDetectorElement(
+        id,
+        std::make_shared<const Acts::Transform3D>(t3d[2 * iLayer]),
+        recBounds,
+        cfg.thickness,
+        surMat,
+        digitizationFront);
+    // Create the surface
+    pSur[2 * iLayer]
+        = new Acts::PlaneSurface(recBounds,
+                                 *(genDetElem[2 * iLayer]),
+                                 genDetElem[2 * iLayer]->identify());
+
+    // Repeat the steps for the second surface
+    id = 2 * iLayer + 1;
+
+    t3d[2 * iLayer + 1] = Acts::getTransformFromRotTransl(
+        rotationNeg,
+        Acts::Vector3D(0.,
+                       0.,
+                       cfg.posFirstSur + cfg.localPos[iLayer]
+                           + (cfg.thicknessSupport + cfg.thicknessSCT) / 2));
+
+    genDetElem[2 * iLayer + 1] = new FWGen::GenericDetectorElement(
+        id,
+        std::make_shared<const Acts::Transform3D>(t3d[2 * iLayer + 1]),
+        recBounds,
+        cfg.thickness,
+        surMat,
+        digitizationBack);
+
+    pSur[2 * iLayer + 1]
+        = new Acts::PlaneSurface(recBounds,
+                                 *(genDetElem[2 * iLayer + 1]),
+                                 genDetElem[2 * iLayer + 1]->identify());
+  }
+  return std::move(pSur);
+}
 
 std::array<Acts::LayerPtr, numLayers> buildLayers(configParams& cfg, std::shared_ptr<const Acts::RectangleBounds>& recBounds, std::array<Acts::PlaneSurface*, 2 * numLayers>& pSur)           
 {
@@ -406,20 +584,21 @@ void writeSurfacesToFile(std::array<Acts::PlaneSurface*, 2 * numLayers>& pSur)
 
 void testDetector(configParams& cfg, std::shared_ptr<Acts::TrackingGeometry>& tGeo)
 {
-  const unsigned             nEvents = 10;
-  const Acts::ConstantBField bField(0., 0., 0.);
+  const unsigned             nEvents = cfg.nEvents;
+  const Acts::ConstantBField bField = cfg.bField;
 
   // Definition about what to shoot
   FW::ParticleGun::Config cfgParGun;
   cfgParGun.evgenCollection = "EvgenParticles";
-  cfgParGun.nParticles      = 100;
-  cfgParGun.z0Range         = {{-cfg.eps / 2, cfg.eps / 2}};
-  cfgParGun.d0Range         = {{0., 0.15 * Acts::units::_m}};
-  cfgParGun.etaRange        = {{7., 15.}};
-  cfgParGun.ptRange         = {{0., 10. * Acts::units::_MeV}};
-  cfgParGun.mass            = 105.6 * Acts::units::_MeV;
-  cfgParGun.charge          = -Acts::units::_e;
-  cfgParGun.pID             = 13;
+  cfgParGun.nParticles      = cfg.nParticles;
+  cfgParGun.z0Range         = cfg.z0Range;
+  cfgParGun.d0Range         = cfg.d0Range;
+  cfgParGun.phiRange		= cfg.phiRange;
+  cfgParGun.etaRange        = cfg.etaRange;
+  cfgParGun.ptRange         = cfg.ptRange;
+  cfgParGun.mass            = cfg.mass;
+  cfgParGun.charge          = cfg.charge;
+  cfgParGun.pID             = cfg.pID;
 
   // Configure RNG and barcode
   FW::RandomNumbersSvc::Config          cfgRng;
@@ -442,117 +621,7 @@ void testDetector(configParams& cfg, std::shared_ptr<Acts::TrackingGeometry>& tG
                                  Acts::Logging::VERBOSE);
 }
 
-std::array<Acts::PlaneSurface*, 2 * numLayers> buildSurfaces(configParams& cfg, std::shared_ptr<const Acts::RectangleBounds>& recBounds)
-{
- // Global translation of the surface
-  std::array<Acts::Transform3D, 2 * numLayers> t3d;
-  // Global rotation of the surfaces
-  Acts::RotationMatrix3D rotationPos, rotationNeg;
 
-  Acts::Vector3D xPos(cos(cfg.rotation), sin(cfg.rotation), 0.);
-  Acts::Vector3D yPos(-sin(cfg.rotation), cos(cfg.rotation), 0.);
-  Acts::Vector3D zPos(0., 0., 1.);
-  rotationPos.col(0) = xPos;
-  rotationPos.col(1) = yPos;
-  rotationPos.col(2) = zPos;
-
-  Acts::Vector3D xNeg(cos(-cfg.rotation), sin(-cfg.rotation), 0.);
-  Acts::Vector3D yNeg(-sin(-cfg.rotation), cos(-cfg.rotation), 0.);
-  Acts::Vector3D zNeg(0., 0., 1.);
-  rotationNeg.col(0) = xNeg;
-  rotationNeg.col(1) = yNeg;
-  rotationNeg.col(2) = zNeg;
-
-  // Material of the detector layer
-  Acts::MaterialProperties matProp(cfg.X0, cfg.L0, cfg.A, cfg.Z, cfg.Rho, cfg.thickness);
-
-  // Build segmentation
-  std::vector<float> stripBoundariesX, stripBoundariesY;
-  for (int iX = 0; iX <= cfg.numCells; iX++)
-    stripBoundariesX.push_back(iX * cfg.pitch - (cfg.numCells * cfg.pitch) / 2);
-  stripBoundariesY.push_back(-cfg.lengthStrip - cfg.stripGap / 2);
-  stripBoundariesY.push_back(-cfg.stripGap / 2);
-  stripBoundariesY.push_back(cfg.stripGap / 2);
-  stripBoundariesY.push_back(cfg.lengthStrip + cfg.stripGap / 2);
-
-  // Build binning
-  Acts::BinningData binDataX(
-      Acts::BinningOption::open, Acts::BinningValue::binX, stripBoundariesX);
-  std::shared_ptr<Acts::BinUtility> buX(new Acts::BinUtility(binDataX));
-  Acts::BinningData                 binDataY(
-      Acts::BinningOption::open, Acts::BinningValue::binY, stripBoundariesY);
-  std::shared_ptr<Acts::BinUtility> buY(new Acts::BinUtility(binDataY));
-  (*buX) += (*buY);
-
-  std::shared_ptr<const Acts::Segmentation> segmentation(
-      new Acts::CartesianSegmentation(buX, recBounds));
-
-  // Build digitization parts
-  std::shared_ptr<const Acts::DigitizationModule> digitizationFront(
-      new Acts::DigitizationModule(
-          segmentation, cfg.thickness / 2, -1, cfg.lorentzangle));
-  std::shared_ptr<const Acts::DigitizationModule> digitizationBack(
-      new Acts::DigitizationModule(
-          segmentation, cfg.thickness / 2, 1, cfg.lorentzangle));
-  std::array<FWGen::GenericDetectorElement*, 2 * numLayers> genDetElem;
-
-  // Put everything together in a surface
-  std::array<Acts::PlaneSurface*, 2 * numLayers> pSur;
-  // Bit nasty creation of all surfaces. In every iteration 2 surfaces (both
-  // strip detector plates of a layer) are created.
-  for (unsigned int iLayer = 0; iLayer < numLayers; iLayer++) {
-    // Set an identifier. Ordered by first surface = even, second = odd number
-    Identifier id(2 * iLayer);
-    // Translate the surface
-    t3d[2 * iLayer] = Acts::getTransformFromRotTransl(
-        rotationPos,
-        Acts::Vector3D(0.,
-                       0.,
-                       cfg.posFirstSur + cfg.localPos[iLayer]
-                           - (cfg.thicknessSupport + cfg.thicknessSCT) / 2));
-    // Add material to surface
-    std::shared_ptr<Acts::SurfaceMaterial> surMat(
-        new Acts::HomogeneousSurfaceMaterial(matProp));
-    // Create digitization
-    genDetElem[2 * iLayer] = new FWGen::GenericDetectorElement(
-        id,
-        std::make_shared<const Acts::Transform3D>(t3d[2 * iLayer]),
-        recBounds,
-        cfg.thickness,
-        surMat,
-        digitizationFront);
-    // Create the surface
-    pSur[2 * iLayer]
-        = new Acts::PlaneSurface(recBounds,
-                                 *(genDetElem[2 * iLayer]),
-                                 genDetElem[2 * iLayer]->identify());
-
-    // Repeat the steps for the second surface
-    id = 2 * iLayer + 1;
-
-    t3d[2 * iLayer + 1] = Acts::getTransformFromRotTransl(
-        rotationNeg,
-        Acts::Vector3D(0.,
-                       0.,
-                       cfg.posFirstSur + cfg.localPos[iLayer]
-                           + (cfg.thicknessSupport + cfg.thicknessSCT) / 2));
-
-    genDetElem[2 * iLayer + 1] = new FWGen::GenericDetectorElement(
-        id,
-        std::make_shared<const Acts::Transform3D>(t3d[2 * iLayer + 1]),
-        recBounds,
-        cfg.thickness,
-        surMat,
-        digitizationBack);
-
-    pSur[2 * iLayer + 1]
-        = new Acts::PlaneSurface(recBounds,
-                                 *(genDetElem[2 * iLayer + 1]),
-                                 genDetElem[2 * iLayer + 1]->identify());
-  }
-  return std::move(pSur);
-}
-  
 /// This function builds FASER, handles shooting particles on it and collects
 /// the results. The configuration of everything is given by two blocks in this
 /// code.
