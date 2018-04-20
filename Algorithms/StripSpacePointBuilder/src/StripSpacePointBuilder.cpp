@@ -16,8 +16,9 @@
 /// @note Used abbreviation: "Strip Detector Element" -> SDE
 ///
 
-FW::StripSpacePointBuilder::StripSpacePointBuilder(const FW::StripSpacePointBuilder::Config& cfg,
-                                       Acts::Logging::Level level)
+FW::StripSpacePointBuilder::StripSpacePointBuilder(
+    const FW::StripSpacePointBuilder::Config& cfg,
+    Acts::Logging::Level                      level)
   : FW::BareAlgorithm("StripSpacePointBuilder", level), m_cfg(cfg)
 {
   // Check that all mandatory configuration parameters are present
@@ -41,7 +42,7 @@ FW::StripSpacePointBuilder::StripSpacePointBuilder(const FW::StripSpacePointBuil
 
 FW::ProcessCode
 FW::StripSpacePointBuilder::clusterReading(AlgorithmContext& ctx,
-                                     const DetData*&   detData) const
+                                           const DetData*&   detData) const
 {
   // Load hit data from Whiteboard
   if (ctx.eventStore.get(m_cfg.collectionIn, detData)
@@ -55,7 +56,8 @@ FW::StripSpacePointBuilder::clusterReading(AlgorithmContext& ctx,
 }
 
 Acts::Vector2D
-FW::StripSpacePointBuilder::localCoords(const Acts::PlanarModuleCluster& hit) const
+FW::StripSpacePointBuilder::localCoords(
+    const Acts::PlanarModuleCluster& hit) const
 {
   // Local position information
   auto           par = hit.parameters();
@@ -64,7 +66,8 @@ FW::StripSpacePointBuilder::localCoords(const Acts::PlanarModuleCluster& hit) co
 }
 
 Acts::Vector3D
-FW::StripSpacePointBuilder::globalCoords(const Acts::PlanarModuleCluster& hit) const
+FW::StripSpacePointBuilder::globalCoords(
+    const Acts::PlanarModuleCluster& hit) const
 {
   // Receive corresponding surface
   auto& clusterSurface = hit.referenceSurface();
@@ -140,17 +143,17 @@ FW::StripSpacePointBuilder::differenceOfHits(
 
 void
 FW::StripSpacePointBuilder::combineHits(
-    const std::vector<Acts::PlanarModuleCluster>&    vec1,
-    const std::vector<Acts::PlanarModuleCluster>&    vec2,
+    const std::vector<Acts::PlanarModuleCluster>&          vec1,
+    const std::vector<Acts::PlanarModuleCluster>&          vec2,
     std::vector<FW::StripSpacePointBuilder::CombinedHits>& combHits) const
 {
   // TODO: only the closest differences get selected -> some points are not
   // taken into account
   // Declare helper variables
-  double                             currentDiff;
+  double                                   currentDiff;
   FW::StripSpacePointBuilder::CombinedHits tmpCombHits;
-  double                             diffMin;
-  unsigned int                       hitMin;
+  double                                   diffMin;
+  unsigned int                             hitMin;
 
   // Walk through all hits on both surfaces
   for (unsigned int iVec1 = 0; iVec1 < vec1.size(); iVec1++) {
@@ -179,14 +182,14 @@ FW::StripSpacePointBuilder::combineHits(
 
 void
 FW::StripSpacePointBuilder::findOverlappingClusters(
-    const DetData*&                                               detData,
-    std::vector<std::vector<FW::StripSpacePointBuilder::CombinedHits>>& allCombHits)
-    const
+    const DetData*& detData,
+    std::vector<std::vector<FW::StripSpacePointBuilder::CombinedHits>>&
+        allCombHits) const
 {
   // Declare temporary storage
   std::vector<std::vector<Acts::PlanarModuleCluster> const*> modules;
   unsigned int                                               index;
-  std::vector<FW::StripSpacePointBuilder::CombinedHits>            combHits;
+  std::vector<FW::StripSpacePointBuilder::CombinedHits>      combHits;
 
   // Loop over the planar clusters in this event
   for (auto& volumeData : *detData)
@@ -230,8 +233,8 @@ FW::StripSpacePointBuilder::findOverlappingClusters(
 
 void
 FW::StripSpacePointBuilder::filterCombinations(
-    std::vector<std::vector<FW::StripSpacePointBuilder::CombinedHits>>& allCombHits)
-    const
+    std::vector<std::vector<FW::StripSpacePointBuilder::CombinedHits>>&
+        allCombHits) const
 {
   // Walk through the layers
   for (const auto& layer : allCombHits)
@@ -250,7 +253,8 @@ FW::StripSpacePointBuilder::filterCombinations(
 }
 
 std::pair<Acts::Vector3D, Acts::Vector3D>
-FW::StripSpacePointBuilder::endsOfStrip(const Acts::PlanarModuleCluster& hit) const
+FW::StripSpacePointBuilder::endsOfStrip(
+    const Acts::PlanarModuleCluster& hit) const
 {
   // Calculate the local coordinates of the hit
   const Acts::Vector2D local = localCoords(hit);
@@ -373,8 +377,8 @@ FW::StripSpacePointBuilder::recoverSpacePoint(
 
 void
 FW::StripSpacePointBuilder::storeSpacePoint(const Acts::Vector3D& spacePoint,
-                                      const CombinedHits&   hits,
-                                      DetData&              stripClusters) const
+                                            const CombinedHits&   hits,
+                                            DetData& stripClusters) const
 {
   // Receive the identification of the digitized hits on the first surface
   Identifier       id(hits.hitModule1->identifier());
@@ -414,7 +418,7 @@ FW::StripSpacePointBuilder::calculateSpacePoints(
 {
   // Source of algorithm: Athena, SiSpacePointMakerTool::makeSCT_SpacePoint()
 
-  DetData                                    stripClusters;
+  DetData                                          stripClusters;
   FW::StripSpacePointBuilder::SpacePointParameters spaPoPa;
 
   // Walk over every found candidate pair
@@ -492,9 +496,10 @@ FW::StripSpacePointBuilder::execute(AlgorithmContext ctx) const
 
   // DetData is typename of DetectorData<geo_id_value,
   // Acts::PlanarModuleCluster>
-  const DetData*                                               detData;
-  std::vector<std::vector<FW::StripSpacePointBuilder::CombinedHits>> allCombHits;
-  DetData                                                      stripClusters;
+  const DetData* detData;
+  std::vector<std::vector<FW::StripSpacePointBuilder::CombinedHits>>
+          allCombHits;
+  DetData stripClusters;
 
   // Receive all hits from the Whiteboard
   clusterReading(ctx, detData);

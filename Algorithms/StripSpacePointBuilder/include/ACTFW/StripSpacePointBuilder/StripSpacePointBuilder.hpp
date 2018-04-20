@@ -61,7 +61,7 @@ public:
   /// Constructor
   /// @param cfg is the configuration class
   StripSpacePointBuilder(const Config&        cfg,
-                   Acts::Logging::Level level = Acts::Logging::INFO);
+                         Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// @brief Executes the full algorithm. Extracts the data from Whiteboard,
   /// processes it and stores the space points on the Whiteboard.
