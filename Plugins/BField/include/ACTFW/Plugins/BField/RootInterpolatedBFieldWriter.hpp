@@ -10,6 +10,7 @@
 #define ACTFW_BFIELD_ROOTINTERPOLAREDBFIELDWRITER_H
 
 #include <TTree.h>
+#include <boost/optional.hpp>
 #include <mutex>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -45,8 +46,29 @@ namespace BField {
       std::string fileMode = "recreate";
       /// The magnetic field to be written out
       std::shared_ptr<const Acts::InterpolatedBFieldMap> bField = nullptr;
-      /// The axes definition of the grid of the magnetic field map
+      /// How the magnetic field map should be written out
       GridType gridType = xyz;
+      /// [optional] Setting the range to be printed out in either r (for
+      /// cylinder coordinates) or x/y (in cartesian coordinates)
+      /// @note setting this parameter is optional, in case no boundaries are
+      /// handed over the full magnetic field map will be printed out
+      boost::optional<std::array<double, 2>> rBounds;
+      /// [optional] Setting the range in z to be printed out
+      /// @note setting this parameter is optional, in case no boundaries are
+      /// handed over the full magnetic field map will be printed out
+      boost::optional<std::array<double, 2>> zBounds;
+      /// Number of bins in r
+      /// @note setting this parameter is optional, in case no bin numbers are
+      /// handed over the full magnetic field map will be printed out
+      size_t rBins = 200;
+      /// Number of bins in z
+      // @note setting this parameter is optional, in case no bin numbers are
+      /// handed over the full magnetic field map will be printed out
+      size_t zBins = 300;
+      /// Number of bins in phi
+      // @note setting this parameter is optional, in case no bin numbers are
+      /// handed over the full magnetic field map will be printed out
+      size_t phiBins = 100;
     };
 
     /// Write down an interpolated magnetic field map

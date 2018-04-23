@@ -15,9 +15,35 @@
 #include "TROOT.h"
 #include "TTree.h"
 
-// This script prints a magnetic field map.
+// This script prints the histogram of a magnetic field map.
 // To be used with the Output of the RootInterpolatedBFieldWriter.
 
+/// to print out the FCC field map please use
+/// @code
+/// printBField("FCChhBField.root","bField","printBField_FCC.root",-20.,20.,-30.,30.,400.)
+/// @endcode
+/// ro print out the ATLAS BField map pleas use
+/// @code
+/// printBField("ATLASBField.root","bField","printBField_ATLAS.root",-10.,10.,-15.,15.,200.)
+/// @endcode
+
+/// @param inFile The root input file containing the magnetic field values and
+/// positions either in cylinder (Branch names: 'r','z','Br','Bz') or cartesian
+/// coordinates (Branch names: 'x','y','z','Bx','By','Bz')
+/// @param the name of the tree containing the branches
+/// @param rMin The minimum value of the position in either r (for cylinder
+/// coordinates) or x/y (for cartesian coordinates) to be printed in [m]
+/// @param rMin The minimum value of the position in either r (for cylinder
+/// coordinates) or x/y (for cartesian coordinates) to be printed in [m]
+/// @param rMin The maximum value of the position in either r (for cylinder
+/// coordinates) or x/y (for cartesian coordinates) to be printed in [m]
+/// @param rMin The minimum value of the position in z in [m]
+/// @param rMin The maximum value of the position in z in [m]
+/// @param nBins Number of bins which should be used for the histogram (on all
+/// axes)
+/// @note This script just writes out the values which are read in from the
+/// given input file. It does no interpolation inbetween the values. This means,
+/// in case the binning is chosen too high, empty bins will appear.
 void
 printBField(std::string inFile,
             std::string treeName,
@@ -45,17 +71,24 @@ printBField(std::string inFile,
 
   TTreeReader reader(treeName.c_str(), &inputFile);
 
-  double x, y, z, r;
-  double Bx, By, Bz, Br;
+  double x = 0., y = 0., z = 0., r = 0.;
+  double Bx = 0., By = 0., Bz = 0., Br = 0.;
 
-  tree->SetBranchAddress("x", &x);
-  tree->SetBranchAddress("y", &y);
+  // find out if file is given in cylinder coordinates or cartesian corrdinates
+  bool cylinderCoordinates = false;
+  if (tree->FindBranch("r")) {
+    cylinderCoordinates = true;
+    tree->SetBranchAddress("r", &r);
+    tree->SetBranchAddress("Br", &Br);
+  } else {
+    tree->SetBranchAddress("x", &x);
+    tree->SetBranchAddress("y", &y);
+    tree->SetBranchAddress("Bx", &Bx);
+    tree->SetBranchAddress("By", &By);
+  }
+  // should be given for sure
   tree->SetBranchAddress("z", &z);
-  tree->SetBranchAddress("r", &r);
-  tree->SetBranchAddress("Bx", &Bx);
-  tree->SetBranchAddress("By", &By);
   tree->SetBranchAddress("Bz", &Bz);
-  tree->SetBranchAddress("Br", &Br);
 
   Int_t entries = tree->GetEntries();
   std::cout << "Creating new output file: " << outFile
@@ -81,22 +114,29 @@ printBField(std::string inFile,
 
   for (int i = 0; i < entries; i++) {
     tree->GetEvent(i);
+    if (cylinderCoordinates) {
+      float bFieldValue = sqrt(Br * Br + Bz * Bz);
+      bField_rz->Fill(z / 1000., r / 1000., bFieldValue);
+    } else {
+      float bFieldValue = sqrt(Bx * Bx + By * By + Bz * Bz);
 
-    float bFieldValue = sqrt(Bx * Bx + By * By + Bz * Bz);
-    bField_rz->Fill(z / 1000., r / 1000., bFieldValue);
-    bField_xy->Fill(x / 1000., y / 1000., bFieldValue);
-    bField_yz->Fill(z / 1000., y / 1000., bFieldValue);
-    bField_xz->Fill(z / 1000., x / 1000., bFieldValue);
+      bField_xy->Fill(x / 1000., y / 1000., bFieldValue);
+      bField_yz->Fill(z / 1000., y / 1000., bFieldValue);
+      bField_xz->Fill(z / 1000., x / 1000., bFieldValue);
+    }
   }
   inputFile.Close();
 
-  bField_rz->Write();
+  if (!cylinderCoordinates) {
+    bField_xy->Write();
+    bField_yz->Write();
+    bField_xz->Write();
+  } else
+    bField_rz->Write();
+
   delete bField_rz;
-  bField_xy->Write();
   delete bField_xy;
-  bField_yz->Write();
   delete bField_yz;
-  bField_xz->Write();
   delete bField_xz;
 
   outputFile.Close();

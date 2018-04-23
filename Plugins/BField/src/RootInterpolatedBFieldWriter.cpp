@@ -44,24 +44,12 @@ FW::BField::RootInterpolatedBFieldWriter::run(
   if (!outputTree) throw std::bad_alloc();
 
   // The position values
-  double x;
-  outputTree->Branch("x", &x);
-  double y;
-  outputTree->Branch("y", &y);
   double z;
   outputTree->Branch("z", &z);
-  double r;
-  outputTree->Branch("r", &r);
 
   // The BField values
-  double Bx;
-  outputTree->Branch("Bx", &Bx);
-  double By;
-  outputTree->Branch("By", &By);
   double Bz;
   outputTree->Branch("Bz", &Bz);
-  double Br;
-  outputTree->Branch("Br", &Br);
 
   // Get the underlying mapper of the InterpolatedBFieldMap
   auto mapper = cfg.bField->getMapper();
@@ -71,95 +59,187 @@ FW::BField::RootInterpolatedBFieldWriter::run(
   auto maxima = mapper.getMax();
   auto nBins  = mapper.getNBins();
 
-  // Write down the interpolated magnetic field map
-  double stepX = 0., stepY = 0., stepZ = 0.;
-  double minX = 0., minY = 0., minZ = 0.;
-  double maxX = 0., maxY = 0., maxZ = 0.;
-  size_t nBinsX = 0, nBinsY = 0, nBinsZ = 0;
-
   if (cfg.gridType == GridType::xyz) {
-    if (minima.size() != 3 || maxima.size() != 3) {
-      std::ostringstream errorMsg;
-      errorMsg << "Wrong number of axes for given gridType: " << minima.size()
-               << ", axes given - but 3 are required! Please check gridType, "
-                  "current gridType(0 = rz, 1 = xyz) is : "
-               << cfg.gridType;
-      throw std::invalid_argument(errorMsg.str());
+    ACTS_INFO("Map will be written out in cartesian coordinates (x,y,z).");
+
+    // Write out the interpolated magnetic field map
+    double stepX = 0., stepY = 0., stepZ = 0.;
+    double minX = 0., minY = 0., minZ = 0.;
+    double maxX = 0., maxY = 0., maxZ = 0.;
+    size_t nBinsX = 0, nBinsY = 0, nBinsZ = 0;
+
+    // The position values in xy
+    double x;
+    outputTree->Branch("x", &x);
+    double y;
+    outputTree->Branch("y", &y);
+    // The BField values in xy
+    double Bx;
+    outputTree->Branch("Bx", &Bx);
+    double By;
+    outputTree->Branch("By", &By);
+
+    // check if range is user defined
+    if (cfg.rBounds && cfg.zBounds) {
+      ACTS_INFO("User defined ranges handed over.");
+
+      // print out map in user defined range
+      minX = cfg.rBounds->at(0);
+      minY = cfg.rBounds->at(0);
+      minZ = cfg.zBounds->at(0);
+
+      maxX = cfg.rBounds->at(1);
+      maxY = cfg.rBounds->at(1);
+      maxZ = cfg.zBounds->at(1);
+
+      nBinsX = cfg.rBins;
+      nBinsY = cfg.rBins;
+      nBinsZ = cfg.zBins;
+
+    } else {
+      ACTS_INFO("No user defined ranges handed over - printing out whole map.");
+      // print out whole map
+      // check dimension of Bfieldmap
+      if (minima.size() == 3 && maxima.size() == 3) {
+
+        minX = minima.at(0);
+        minY = minima.at(1);
+        minZ = minima.at(2);
+
+        maxX = maxima.at(0);
+        maxY = maxima.at(1);
+        maxZ = maxima.at(2);
+
+        nBinsX = nBins.at(0);
+        nBinsY = nBins.at(1);
+        nBinsZ = nBins.at(2);
+
+      } else if (minima.size() == 2 && maxima.size() == 2) {
+
+        minX = -maxima.at(0);
+        minY = -maxima.at(0);
+        minZ = minima.at(1);
+
+        maxX = maxima.at(0);
+        maxY = maxima.at(0);
+        maxZ = maxima.at(1);
+
+        nBinsX = nBins.at(0);
+        nBinsY = nBins.at(0);
+        nBinsZ = nBins.at(1);
+      } else {
+        std::ostringstream errorMsg;
+        errorMsg << "BField has wrong dimension. The dimension needs to be "
+                    "either 2 (r,z,Br,Bz) or 3(x,y,z,Bx,By,Bz) in order to be "
+                    "written out by this writer.";
+        throw std::invalid_argument(errorMsg.str());
+      }
     }
-    stepX = fabs(minima.at(0) - maxima.at(0)) / nBins.at(0);
-    stepY = fabs(minima.at(1) - maxima.at(1)) / nBins.at(1);
-    stepZ = fabs(minima.at(2) - maxima.at(2)) / nBins.at(2);
 
-    minX = minima.at(0);
-    minY = minima.at(1);
-    minZ = minima.at(2);
+    stepX = fabs(minX - maxX) / nBinsX;
+    stepY = fabs(minY - maxY) / nBinsY;
+    stepZ = fabs(minZ - maxZ) / nBinsZ;
 
-    nBinsX = nBins.at(0);
-    nBinsY = nBins.at(1);
-    nBinsZ = nBins.at(2);
-
-    for (int i = 0; i < nBinsX; i++) {
+    for (int i = 0; i <= nBinsX; i++) {
       double raw_x = minX + i * stepX;
-      for (int j = 0; j < nBinsY; j++) {
+      for (int j = 0; j <= nBinsY; j++) {
         double raw_y = minY + j * stepY;
-        for (int k = 0; k < nBinsZ; k++) {
+        for (int k = 0; k <= nBinsZ; k++) {
           double         raw_z = minZ + k * stepZ;
           Acts::Vector3D position(raw_x, raw_y, raw_z);
-          auto           bField = cfg.bField->getField(position);
+          if (cfg.bField->isInside(position)) {
+            auto bField = cfg.bField->getField(position);
 
-          x  = raw_x / Acts::units::_mm;
-          y  = raw_y / Acts::units::_mm;
-          z  = raw_z / Acts::units::_mm;
-          r  = position.perp() / Acts::units::_mm;
-          Bx = bField.x() / Acts::units::_T;
-          By = bField.y() / Acts::units::_T;
-          Bz = bField.z() / Acts::units::_T;
-          Br = bField.perp() / Acts::units::_T;
-
-          outputTree->Fill();
+            x  = raw_x / Acts::units::_mm;
+            y  = raw_y / Acts::units::_mm;
+            z  = raw_z / Acts::units::_mm;
+            Bx = bField.x() / Acts::units::_T;
+            By = bField.y() / Acts::units::_T;
+            Bz = bField.z() / Acts::units::_T;
+            outputTree->Fill();
+          }
         }  // for z
       }    // for y
     }      // for x
-
   } else {
-    if (minima.size() != 2 || maxima.size() != 2) {
-      std::ostringstream errorMsg;
-      errorMsg << "Wrong number of axes for given gridType: " << minima.size()
-               << ", axes given - but 2 are required! Please check "
-                  "gridType, current gridType(0 = rz, 1 = xyz) is : "
-               << cfg.gridType;
-      throw std::invalid_argument(errorMsg.str());
+    ACTS_INFO("Map will be written out in cylinder coordinates (r,z).");
+    // The position value in r
+    double r;
+    outputTree->Branch("r", &r);
+    // The BField value in r
+    double Br;
+    outputTree->Branch("Br", &Br);
+
+    double minR = 0, maxR = 0;
+    double minZ = 0, maxZ = 0;
+    size_t nBinsR = 0, nBinsZ = 0, nBinsPhi = 0;
+    double stepR = 0, stepZ = 0;
+
+    if (cfg.rBounds && cfg.zBounds) {
+      ACTS_INFO("User defined ranges handed over.");
+
+      minR = cfg.rBounds->at(0);
+      minZ = cfg.zBounds->at(0);
+
+      maxR = cfg.rBounds->at(1);
+      maxZ = cfg.zBounds->at(1);
+
+      nBinsR   = cfg.rBins;
+      nBinsZ   = cfg.zBins;
+      nBinsPhi = cfg.phiBins;
+    } else {
+      ACTS_INFO("No user defined ranges handed over - printing out whole map.");
+
+      if (minima.size() == 3 && maxima.size() == 3) {
+        minR = 0.;
+        minZ = minima.at(2);
+
+        maxR = maxima.at(0);
+        maxZ = maxima.at(2);
+
+        nBinsR   = nBins.at(0);
+        nBinsZ   = nBins.at(2);
+        nBinsPhi = 100.;
+
+      } else if (minima.size() == 2 || maxima.size() == 2) {
+        minR = minima.at(0);
+        minZ = minima.at(1);
+
+        maxR = maxima.at(0);
+        maxZ = maxima.at(1);
+
+        nBinsR   = nBins.at(0);
+        nBinsZ   = nBins.at(1);
+        nBinsPhi = 100.;
+
+      } else {
+        std::ostringstream errorMsg;
+        errorMsg << "BField has wrong dimension. The dimension needs to be "
+                    "either 2 (r,z,Br,Bz) or 3(x,y,z,Bx,By,Bz) in order to be "
+                    "written out by this writer.";
+        throw std::invalid_argument(errorMsg.str());
+      }
     }
-
-    double stepR   = fabs(minima.at(0) - maxima.at(0)) / nBins.at(0);
-    stepZ          = fabs(minima.at(1) - maxima.at(1)) / nBins.at(1);
-    double stepPhi = (2 * M_PI) / 100.;
-
-    double minR   = minima.at(0);
-    minZ          = minima.at(1);
-    double minPhi = -M_PI;
-
-    double nBinsR   = nBins.at(0);
-    nBinsZ          = nBins.at(1);
-    double nBinsPhi = 100.;
+    double minPhi  = -M_PI;
+    stepR          = fabs(minR - maxR) / nBinsR;
+    stepZ          = fabs(minZ - maxZ) / nBinsZ;
+    double stepPhi = (2 * M_PI) / nBinsPhi;
 
     for (int i = 0; i < nBinsPhi; i++) {
       double phi = minPhi + i * stepPhi;
-      for (int j = 0; j < nBinsR; j++) {
-        double raw_r = minR + j * stepR;
-        for (int k = 0; k < nBinsZ; k++) {
-          double         raw_z = minZ + k * stepZ;
+      for (int k = 0; k < nBinsZ; k++) {
+        double raw_z = minZ + k * stepZ;
+        for (int j = 0; j < nBinsR; j++) {
+          double         raw_r = minR + j * stepR;
           Acts::Vector3D position(raw_r * cos(phi), raw_r * sin(phi), raw_z);
-          auto           bField = cfg.bField->getField(position);
-          x                     = position.x() / Acts::units::_mm;
-          y                     = position.y() / Acts::units::_mm;
-          z                     = raw_z / Acts::units::_mm;
-          r                     = raw_r / Acts::units::_mm;
-          Bx                    = bField.x() / Acts::units::_T;
-          By                    = bField.y() / Acts::units::_T;
-          Bz                    = bField.z() / Acts::units::_T;
-          Br                    = bField.perp() / Acts::units::_T;
-          outputTree->Fill();
+          if (cfg.bField->isInside(position)) {
+            auto bField = cfg.bField->getField(position);
+            z           = raw_z / Acts::units::_mm;
+            r           = raw_r / Acts::units::_mm;
+            Bz          = bField.z() / Acts::units::_T;
+            Br          = bField.perp() / Acts::units::_T;
+            outputTree->Fill();
+          }
         }
       }
     }  // for
