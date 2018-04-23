@@ -299,6 +299,26 @@ FW::StripSpacePointBuilder::endsOfStrip(
   return std::make_pair(topGlobal, bottomGlobal);
 }
 
+double
+FW::StripSpacePointBuilder::calcPerpProj(const Acts::Vector3D& a, const Acts::Vector3D& c, const Acts::Vector3D& q, const Acts::Vector3D& r) const
+{
+	/// This approach assumes that no vertex is available. This option aims to approximate the space points from cosmic data.
+	/// The underlying assumption is that the best point is given by the closest distance between both lines describing the SDEs.
+	/// The point x on the first SDE is parametrized as a + lambda0 * q with the top end a of the strip and the vector q = a - b(ottom end of the strip).
+	/// An analogous parametrization is performed of the second SDE with y = c + lambda1 * r.
+	/// x get resolved by resolving lambda0 from the condition that |x-y| is the shortest distance between two skew lines. 
+	Acts::Vector3D ac = c - a;
+	double qr = q.dot(r);
+	double denom = q.dot(q) - qr * qr;
+	
+	// Check for numerical stability
+	if(fabs(denom) > 10e-7)
+		// Return lambda0
+		return (ac.dot(r) * qr - ac.dot(q) * r.dot(r)) / denom;
+	// lambda0 is in the interval [-1,0]. This return serves as error check.
+	return 1.;
+}
+
 bool
 FW::StripSpacePointBuilder::recoverSpacePoint(
     FW::StripSpacePointBuilder::SpacePointParameters& spaPoPa) const
@@ -448,14 +468,25 @@ FW::StripSpacePointBuilder::calculateSpacePoints(
       /// The same calculation can be repeated for y. Its corresponding
       /// parameter will be named n.
 
-      spaPoPa.reset();
+	  spaPoPa.reset();
       spaPoPa.q  = ends1.first - ends1.second;
-      spaPoPa.s  = ends1.first + ends1.second - 2 * m_cfg.vertex;
       spaPoPa.r  = ends2.first - ends2.second;
+      
+      // Fast skipping if a perpendicular projection should be used
+      double resultPerpProj;
+      if(m_cfg.usePerpProj
+		 && (resultPerpProj = calcPerpProj(ends1.first, ends2.first, spaPoPa.q, spaPoPa.r) <= 0.))
+	  {
+		storeSpacePoint(ends1.first + resultPerpProj * spaPoPa.q, hits, stripClusters);
+		continue;
+	  }
+      
+      spaPoPa.s  = ends1.first + ends1.second - 2 * m_cfg.vertex;
       spaPoPa.t  = ends2.first + ends2.second - 2 * m_cfg.vertex;
       spaPoPa.qs = spaPoPa.q.cross(spaPoPa.s);
       spaPoPa.rt = spaPoPa.r.cross(spaPoPa.t);
-      spaPoPa.m  = -spaPoPa.s.dot(spaPoPa.rt) / spaPoPa.q.dot(spaPoPa.rt);
+      spaPoPa.m  = -spaPoPa.s.dot(spaPoPa.rt)
+						/ spaPoPa.q.dot(spaPoPa.rt);
 
       // Set the limit for the parameter
       if (spaPoPa.limit == 1. && m_cfg.stripLengthTolerance != 0.)

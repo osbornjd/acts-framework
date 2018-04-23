@@ -56,6 +56,8 @@ public:
     double stripLengthGapTolerance = 0.01;
     /// Assumed position of the vertex
     Acts::Vector3D vertex = {0., 0., 0.};
+    /// Perform the perpendicular projection for space point finding
+    bool usePerpProj = false;
   };
 
   /// Constructor
@@ -196,6 +198,17 @@ private:
   std::pair<Acts::Vector3D, Acts::Vector3D>
   endsOfStrip(const Acts::PlanarModuleCluster& hit) const;
 
+  /// @brief Calculates a space point whithout using the vertex
+  /// @note This is mostly to resolve space points from cosmic data
+  /// @param a vector to the top end of the first SDE
+  /// @param c vector to the top end of the second SDE
+  /// @param q vector from the bottom to the top end of the first SDE
+  /// @param r vector from the bottom to the top end of the second SDE
+  /// @return parameter that indicates the location of the space point; returns 1. if it failed
+  /// @note The meaning of the parameter is explained in more detail in the function body
+  double
+  calcPerpProj(const Acts::Vector3D& a, const Acts::Vector3D& c, const Acts::Vector3D& q, const Acts::Vector3D& r) const;
+  
   /// @brief This function tests if a space point can be estimated by a more
   /// tolerant treatment of construction. In fact, this function indirectly
   /// allows shifts of the vertex.
