@@ -26,24 +26,7 @@ class HepMCReader : public HepMC::GenEvent
 {
 public:
 
-  void readEvt(std::istream& is);
-
-  
-  
-  //~ const Acts::ProcessVertex
-  //~ vertex(unsigned int index);
-  
-  //~ const std::vector<Acts::ProcessVertex>
-  //~ vertex();
-  
-  //~ const Acts::ParticleProperties
-  //~ particle(...
-  // particles eines vertex; alle FS particles
-  
-  
-private:
-  
-  struct EventHead
+    struct EventHead
   {
 	int eventNumber;
 	int processID;
@@ -67,8 +50,34 @@ private:
 		EventHead evtHead;
 		std::vector<Acts::ProcessVertex> vertices;
   };
+  
+  
+  void readEvt(std::istream& is);
 
+	const EventStore&
+	event(unsigned int index);
+	
+	const std::vector<EventStore>&
+	allEvents();
+	
+	const EventHead&
+	eventHead(unsigned int index);
+	
+	const std::vector<EventHead>
+	allEventHeads();
+	
+  const Acts::ProcessVertex&
+  vertex(unsigned int indexEvent, unsigned int indexVertex);
+  
+  const std::vector<Acts::ProcessVertex>&
+  vertices(unsigned int indexEvent);
+  
+  const std::vector<Acts::ProcessVertex>
+  vertices();
+    
 
+  
+private:
 	std::vector<EventStore> events;
 	
 	void storeEvent();
@@ -76,25 +85,5 @@ private:
 	EventHead initHead();
 	Acts::ParticleProperties buildParticle(HepMC::GenVertex::particles_in_const_iterator it);
 }; 
-
-inline void 
-FW::HepMCReader::readEvt(std::istream& is) 
-{
-	read(is);
-	storeEvent();
-}
-
-inline Acts::ParticleProperties
-FW::HepMCReader::buildParticle(HepMC::GenVertex::particles_in_const_iterator it)
-{
-	return std::move(Acts::ParticleProperties({(*it)->momentum().x(), (*it)->momentum().y(), (*it)->momentum().z()}, 
-											  (*it)->generated_mass(),
-											  0, //TODO: ladung ist nicht in genparticle hinterlegt -> pid verwenden?
-											  (*it)->pdg_id(),
-											  (*it)->barcode()));
-}
-
-
-
 } // FW
 #endif  // ACTFW_PLUGINS_HEPMCREADER_H

@@ -12,6 +12,23 @@
 #include <stdexcept>
 
 void 
+FW::HepMCReader::readEvt(std::istream& is) 
+{
+	read(is);
+	storeEvent();
+}
+
+Acts::ParticleProperties
+FW::HepMCReader::buildParticle(HepMC::GenVertex::particles_in_const_iterator it)
+{
+	return std::move(Acts::ParticleProperties({(*it)->momentum().x(), (*it)->momentum().y(), (*it)->momentum().z()}, 
+											  (*it)->generated_mass(),
+											  0, //TODO: ladung ist nicht in genparticle hinterlegt -> pid verwenden?
+											  (*it)->pdg_id(),
+											  (*it)->barcode()));
+}
+
+void 
 FW::HepMCReader::storeEvent() 
 {
 	EventStore evtStore;
@@ -65,3 +82,53 @@ FW::HepMCReader::storeEventBody()
 	}
 	return std::move(vertices);
 }
+
+const FW::HepMCReader::EventStore&
+FW::HepMCReader::event(unsigned int index)
+{
+	return events[index];
+}
+
+const std::vector<FW::HepMCReader::EventStore>&
+FW::HepMCReader::allEvents()
+{
+	return events;
+}
+
+const FW::HepMCReader::EventHead&
+FW::HepMCReader::eventHead(unsigned int index)
+{
+	return events[index].evtHead;
+}
+
+const std::vector<FW::HepMCReader::EventHead>
+FW::HepMCReader::allEventHeads()
+{
+	std::vector<FW::HepMCReader::EventHead> heads;
+	for(auto& event : events)
+		heads.push_back(event.evtHead);
+	return heads;
+}
+
+const Acts::ProcessVertex&
+FW::HepMCReader::vertex(unsigned int indexEvent, unsigned int indexVertex)
+{
+	return events[indexEvent].vertices[indexVertex];
+}
+
+const std::vector<Acts::ProcessVertex>&
+FW::HepMCReader::vertices(unsigned int indexEvent)
+{
+	return events[indexEvent].vertices;
+}
+
+const std::vector<Acts::ProcessVertex>
+FW::HepMCReader::vertices()
+{
+	std::vector<Acts::ProcessVertex> vertices;
+	for(auto& event : events)
+		for(auto& vertex : event.vertices)
+			vertices.push_back(vertex);
+	return vertices;
+}
+  
