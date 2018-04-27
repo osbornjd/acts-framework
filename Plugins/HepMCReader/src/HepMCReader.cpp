@@ -18,12 +18,19 @@ FW::HepMCReader::readEvt(std::istream& is)
 	storeEvent();
 }
 
+void 
+FW::HepMCReader::readFile(std::istream& is)
+{
+	while(!is.eof())
+		readEvt(is);
+}
+
 Acts::ParticleProperties
 FW::HepMCReader::buildParticle(HepMC::GenVertex::particles_in_const_iterator it)
 {
 	return std::move(Acts::ParticleProperties({(*it)->momentum().x(), (*it)->momentum().y(), (*it)->momentum().z()}, 
 											  (*it)->generated_mass(),
-											  0, //TODO: ladung ist nicht in genparticle hinterlegt -> pid verwenden?
+											  0, //TODO: charge is not in genparticle -> use pid?
 											  (*it)->pdg_id(),
 											  (*it)->barcode()));
 }
@@ -48,8 +55,8 @@ FW::HepMCReader::initHead()
 	evtHead.unitLength = (length_unit() == HepMC::Units::LengthUnit::MM ? Acts::units::_mm : Acts::units::_cm);
 	// cross section + uncertainty
 	evtHead.crossSection = std::make_pair(cross_section()->cross_section(), cross_section()->cross_section_error());
-	evtHead.numVertices = vertices_size(); //TODO: kann uU weg
-	evtHead.numParticles = particles_size(); //TODO; kann uU weg
+	evtHead.numVertices = vertices_size(); //TODO: can be removed probably
+	evtHead.numParticles = particles_size(); //TODO: can be removed probably
 	if(beam_particles().first && beam_particles().second) evtHead.beamParticles = std::make_pair(beam_particles().first->barcode(), beam_particles().second->barcode());
 	evtHead.randomStates = &(random_states());
 	evtHead.weights = &(weights());
@@ -75,7 +82,7 @@ FW::HepMCReader::storeEventBody()
 		}
 		Acts::ProcessVertex vertex({(*vtx)->position().x(), (*vtx)->position().y(), (*vtx)->position().z()},
 										 (*vtx)->position().t(),
-										 0, //TODO: was bedeutet process_type?
+										 0, //TODO: what does process_type?
 										 particlesIn,
 										 particlesOut);
 		vertices.push_back(std::move(vertex));

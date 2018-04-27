@@ -25,7 +25,9 @@ namespace FW {
 class HepMCReader : public HepMC::GenEvent
 {
 public:
-
+ //TODO: writer for the complete file
+ //TODO: linking more general
+ //TODO: comments
     struct EventHead
   {
 	int eventNumber;
@@ -52,8 +54,9 @@ public:
   };
   
   
+  
   void readEvt(std::istream& is);
-
+void readFile(std::istream& is);
 	const EventStore&
 	event(unsigned int index);
 	
