@@ -13,23 +13,88 @@
 #include <iostream>
 #include <mutex>
 #include "HepMC/GenEvent.h"
+#include "ACTS/EventData/ParticleDefinitions.hpp"
+#include "ACTS/Utilities/Units.hpp"
 
 namespace FW {
 
-/// @class ObjSurfaceWriter
-///
-/// An Obj writer for the geometry
-///
-class HepMCReader
+//~ /// @class ObjSurfaceWriter
+//~ ///
+//~ /// An Obj writer for the geometry
+//~ ///
+class HepMCReader : public HepMC::GenEvent
 {
 public:
 
-  HepMC::GenEvent ge;
-  
-  void print() {ge.print();}
-  void read(std::istream& is) {ge.read(is);};
+  void readEvt(std::istream& is);
 
   
-};
+  
+  //~ const Acts::ProcessVertex
+  //~ vertex(unsigned int index);
+  
+  //~ const std::vector<Acts::ProcessVertex>
+  //~ vertex();
+  
+  //~ const Acts::ParticleProperties
+  //~ particle(...
+  // particles eines vertex; alle FS particles
+  
+  
+private:
+  
+  struct EventHead
+  {
+	int eventNumber;
+	int processID;
+	int processVertexBarcode;
+	double unitMomentum;
+	double unitLength;
+	// cross section + uncertainty
+	std::pair<double, double> crossSection;
+	int numVertices;
+	int numParticles;
+	std::pair<pdg_type, pdg_type> beamParticles = std::make_pair(0, 0); 
+	std::vector<long> const* randomStates;
+	HepMC::WeightContainer* weights;
+	double eventScale;
+	double alphaQCD;
+	double alphaQED;
+  };
+  
+  struct EventStore
+  {
+		EventHead evtHead;
+		std::vector<Acts::ProcessVertex> vertices;
+  };
+
+
+	std::vector<EventStore> events;
+	
+	void storeEvent();
+	std::vector<Acts::ProcessVertex> storeEventBody();
+	EventHead initHead();
+	Acts::ParticleProperties buildParticle(HepMC::GenVertex::particles_in_const_iterator it);
+}; 
+
+inline void 
+FW::HepMCReader::readEvt(std::istream& is) 
+{
+	read(is);
+	storeEvent();
+}
+
+inline Acts::ParticleProperties
+FW::HepMCReader::buildParticle(HepMC::GenVertex::particles_in_const_iterator it)
+{
+	return std::move(Acts::ParticleProperties({(*it)->momentum().x(), (*it)->momentum().y(), (*it)->momentum().z()}, 
+											  (*it)->generated_mass(),
+											  0, //TODO: ladung ist nicht in genparticle hinterlegt -> pid verwenden?
+											  (*it)->pdg_id(),
+											  (*it)->barcode()));
+}
+
+
+
 } // FW
 #endif  // ACTFW_PLUGINS_HEPMCREADER_H
