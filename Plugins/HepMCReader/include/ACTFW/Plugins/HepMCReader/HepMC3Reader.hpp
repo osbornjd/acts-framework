@@ -6,13 +6,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_PLUGINS_HEPMCREADER_H
-#define ACTFW_PLUGINS_HEPMCREADER_H
+#ifndef ACTFW_PLUGINS_HepMC3Reader_H
+#define ACTFW_PLUGINS_HepMC3Reader_H
 
 #include <fstream>
 #include <iostream>
 #include <mutex>
+#include "HepMC/Reader.h"
 #include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Units.hpp"
 
@@ -23,15 +25,15 @@ namespace FW {
 /// An HepMC reader and converter to ACTS types.
 /// The HepMC::GenEvent usually stores a single event. This class is a child class from this class and extends the class by a persistent storage in ACTS data types.
 ///
-class HepMCReader : public HepMC::GenEvent
+class HepMC3Reader : public HepMC::GenEvent
 {
 public:
  //TODO: writer for the complete file
 
- /// @brief This structure stores general information about an event
+	/// @brief This structure stores general information about an event
     struct EventHead
   {
-	   // Index of the event
+	  // Index of the event
 	int eventNumber;
 	// Used unit of momentum (MeV or GeV)
 	double unitMomentum;
@@ -40,30 +42,39 @@ public:
 	// Storage of the cross section (first) and its uncertainty (second)
 	std::pair<double, double> crossSection;
 	// Beam particles. Both are 0 if not set.
-	std::pair<pdg_type, pdg_type> beamParticles = std::make_pair(0, 0);
-	// Used weights of the event 
+	std::pair<pdg_type, pdg_type> beamParticles = std::make_pair(0, 0); 
+	// Used weights of the event
 	HepMC::WeightContainer* weights;
+	// Position of the primary vertex
+	Acts::Vector3D posVertex;
+	// Time of the primary vertex
+	double timeVertex;
+	//TODO: Vertex
   };
   
-    /// @brief This structure stores all information about the event
+  /// @brief This structure stores all information about the event
   struct EventStore
   {
-	  	   //TODO: heavy ions are not recorded yet
+	   //TODO: heavy ions are not recorded yet
 	   // Storage of general information
 		EventHead evtHead;
-			// Storage of every vertex and particles
+		// Storage of every vertex and particles
 		std::vector<Acts::ProcessVertex> vertices;
   };
   
-  /// @brief Reader of a single event
-  /// @param input stream to .hepmc file
-  void 
-  readEvt(std::istream& is);
+  /// @brief Constructor
+  /// @param filename path of the HepMC file that will be read
+  /// @param version version of HepMC that will be used 
+  HepMC3Reader(const std::string& filename, const int version = 3);
   
-    /// @brief Reader of all events in a single file
-    /// @param input stream to .hepmc file
-void 
-readFile(std::istream& is);
+  /// @brief Reader of a single event
+  /// @return flag to indicate if the reading was successful
+	bool 
+	readEvt();
+  
+  /// @brief Reader of all events in a single file
+	void 
+	readFile();
 
 	/// @brief Getter of a single event
 	/// @param index index of the event
@@ -104,10 +115,12 @@ readFile(std::istream& is);
   /// @return list of all vertices recorded
   const std::vector<Acts::ProcessVertex>
   vertices();
-
+    
 private:
 	// Storage of all events
 	std::vector<EventStore> events;
+	// Reader of the HepMC file
+	HepMC::Reader* reader;
 	
 	/// @brief Storage of a read event
 	void 
@@ -130,4 +143,4 @@ private:
 	buildParticle(HepMC::GenVertex::particles_in_const_iterator it);
 }; 
 } // FW
-#endif  // ACTFW_PLUGINS_HEPMCREADER_H
+#endif  // ACTFW_PLUGINS_HepMC3Reader_H
