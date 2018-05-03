@@ -19,7 +19,8 @@ format:
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
   image: gitlab-registry.cern.ch/acts/machines/check:latest
-  before_script: []
+  before_script: 
+    - git submodule deinit -f external/*
   script:
     - CI/check_format .
   artifacts:
@@ -32,7 +33,8 @@ license:
   image: python:alpine3.6
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
-  before_script: []
+  before_script:
+    - git submodule deinit -f external/*
   script:
     - CI/check_license.py .
 
