@@ -15,6 +15,7 @@
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Units.hpp"
 #include "HepMC/GenEvent.h"
+#include "HepPID/ParticleIDMethods.hh"
 
 namespace FW {
 

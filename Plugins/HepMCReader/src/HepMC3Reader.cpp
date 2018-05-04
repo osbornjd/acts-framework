@@ -56,7 +56,7 @@ FW::HepMC3Reader::buildParticle(
   return std::move(Acts::ParticleProperties(
       {(*it)->momentum().x(), (*it)->momentum().y(), (*it)->momentum().z()},
       (*it)->generated_mass(),
-      0,  // TODO: charge is not in genparticle -> use pid?
+      HepPID::charge((*it)->pdg_id()),
       (*it)->pdg_id(),
       (*it)->id()));
 }

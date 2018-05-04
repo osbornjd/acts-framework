@@ -17,6 +17,7 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/Reader.h"
+#include "HepPID/ParticleIDMethods.hh"
 
 namespace FW {
 
