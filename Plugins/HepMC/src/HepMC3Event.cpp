@@ -41,7 +41,7 @@ FW::HepMC3Event::event_time()
 }
 
 Acts::ParticleProperties
-FW::HepMC3Event::genParticleToActs(HepMC::GenParticlePtr genParticle) const
+FW::HepMC3Event::genParticleToActs(const HepMC::GenParticlePtr& genParticle) const
 {
 	return Acts::ParticleProperties({genParticle->momentum().x(), genParticle->momentum().y(), genParticle->momentum().z()},
 									genParticle->generated_mass(),
@@ -133,7 +133,7 @@ FW::HepMC3Event::vertices()
 	}
 	return std::move(actsVertices);
 }
-    
+
 const std::vector<std::shared_ptr<Acts::ParticleProperties>>
 FW::HepMC3Event::beams() const
 {
@@ -142,4 +142,85 @@ FW::HepMC3Event::beams() const
 	for(auto& genBeam : genBeams)
 		actsBeams.push_back(std::make_shared<Acts::ParticleProperties>(genParticleToActs(genBeam)));
 	return std::move(actsBeams);
+}
+
+
+void 
+FW::HepMC3Event::setUnits(const double newMomentumUnit, const double newLengthUnit)
+{
+	HepMC::Units::MomentumUnit mom;
+	if(newMomentumUnit == Acts::units::_MeV)
+		mom = HepMC::Units::MomentumUnit::MEV;
+	else
+		if(newMomentumUnit == Acts::units::_GeV)
+			mom = HepMC::Units::MomentumUnit::GEV;
+		else
+			std::cout << "Invalid unit of momentum: " << newMomentumUnit << std::endl; 
+	HepMC::Units::LengthUnit len;
+	if(newLengthUnit == Acts::units::_mm)
+		len = HepMC::Units::LengthUnit::MM;
+	else
+		if(newLengthUnit == Acts::units::_cm)
+			len = HepMC::Units::LengthUnit::CM;
+		else
+			std::cout << "Invalid unit of length: " << newLengthUnit << std::endl;
+	HepMC::GenEvent::set_units(mom, len);
+}
+    
+
+void 
+FW::HepMC3Event::shiftPositionBy(const Acts::Vector3D& deltaPos, const double deltaTime)
+{
+	const HepMC::FourVector vec(deltaPos(0), deltaPos(1), deltaPos(2), deltaTime);
+	HepMC::GenEvent::shift_position_by(vec);	
+}
+   
+void 
+FW::HepMC3Event::shiftPositionTo(const Acts::Vector3D& deltaPos, const double deltaTime) 
+{
+	const HepMC::FourVector vec(deltaPos(0), deltaPos(1), deltaPos(2), deltaTime);
+	HepMC::GenEvent::shift_position_to(vec);
+}
+
+HepMC::GenParticlePtr
+FW::HepMC3Event::ActsParticleToGen(const Acts::ParticleProperties& actsParticle, int status) const
+{
+	Acts::Vector3D mom = actsParticle.momentum();
+	double energy = sqrt(actsParticle.mass() * actsParticle.mass() + actsParticle.momentum().dot(actsParticle.momentum()));
+	const HepMC::FourVector vec(mom(0), mom(1), mom(2), energy);
+	HepMC::GenParticle genParticle(vec, actsParticle.pdgID(), status);
+	return std::move(HepMC::SmartPointer<HepMC::GenParticle>(&genParticle));
+}
+  
+void 
+FW::HepMC3Event::addParticle(Acts::ParticleProperties particle, double mass, int status)
+{
+	HepMC::GenParticlePtr genParticle = ActsParticleToGen(particle, status);
+	genParticle->set_generated_mass(mass);
+	
+	HepMC::GenEvent::add_particle(genParticle);
+}
+
+void 
+FW::HepMC3Event::addVertex(Acts::ProcessVertex vertex, int statusVtx, int statusIn, int statusOut)
+{
+	Acts::Vector3D pos = vertex.position();
+	const HepMC::FourVector vec(pos(0), pos(1), pos(2), vertex.interactionTime());
+	
+	HepMC::GenVertex genVertex(vec);
+	genVertex.set_status(statusVtx);
+
+	const std::vector<Acts::ParticleProperties> particlesIn = vertex.incomingParticles();
+	for(auto& particle : particlesIn)
+	{
+		HepMC::GenParticlePtr genParticle = ActsParticleToGen(particle, statusIn);
+		genVertex.add_particle_in(genParticle);
+	}
+	const std::vector<Acts::ParticleProperties> particlesOut = vertex.outgoingParticles();
+	for(auto& particle : particlesOut)
+	{
+		HepMC::GenParticlePtr genParticle = ActsParticleToGen(particle, statusOut);
+		genVertex.add_particle_out(genParticle);
+	}
+	HepMC::GenEvent::add_vertex(HepMC::SmartPointer<HepMC::GenVertex>(&genVertex));
 }
