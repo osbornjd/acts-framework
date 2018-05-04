@@ -9,8 +9,8 @@
 #ifndef ACTFW_EXTRAPOLATION_EXAMPLEBASE_H
 #define ACTFW_EXTRAPOLATION_EXAMPLEBASE_H
 
-#include <ACTS/MagneticField/ConstantBField.hpp>
-#include <ACTS/Utilities/Units.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/Utilities/Units.hpp>
 #include <memory>
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"

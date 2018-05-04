@@ -8,7 +8,7 @@
 
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
 
-#include <ACTS/Utilities/Units.hpp>
+#include <Acts/Utilities/Units.hpp>
 #include <TDatabasePDG.h>
 
 #include "ACTFW/Random/RandomNumbersSvc.hpp"

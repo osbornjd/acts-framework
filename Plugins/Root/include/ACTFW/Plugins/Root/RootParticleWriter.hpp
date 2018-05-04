@@ -13,7 +13,7 @@
 #ifndef ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
 #define ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
 
-#include <ACTS/EventData/ParticleDefinitions.hpp>
+#include <Acts/EventData/ParticleDefinitions.hpp>
 #include <mutex>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WriterT.hpp"

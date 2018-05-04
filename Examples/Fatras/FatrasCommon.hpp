@@ -20,8 +20,8 @@
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Digitization/PlanarModuleStepper.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Digitization/PlanarModuleStepper.hpp"
 
 /// Setup extrapolation and digitization.
 ///

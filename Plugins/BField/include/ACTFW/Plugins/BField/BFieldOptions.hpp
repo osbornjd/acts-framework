@@ -13,11 +13,11 @@
 #include <utility>
 #include "ACTFW/Plugins/BField/BFieldUtils.hpp"
 #include "ACTFW/Utilities/Options.hpp"
-#include "ACTS/MagneticField/ConstantBField.hpp"
-#include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
-#include "ACTS/MagneticField/concept/AnyFieldLookup.hpp"
-#include "ACTS/Utilities/Logger.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
+#include "Acts/MagneticField/concept/AnyFieldLookup.hpp"
+#include "Acts/Utilities/Logger.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace po = boost::program_options;
 

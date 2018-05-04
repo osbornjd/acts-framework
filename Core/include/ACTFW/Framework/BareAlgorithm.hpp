@@ -20,7 +20,7 @@
 
 #include "ACTFW/Framework/IAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 

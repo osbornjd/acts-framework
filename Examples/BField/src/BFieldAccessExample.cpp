@@ -19,8 +19,8 @@
 #include "ACTFW/Plugins/BField/RootInterpolatedBFieldWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Utilities/Options.hpp"
-#include "ACTS/MagneticField/concept/AnyFieldLookup.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/MagneticField/concept/AnyFieldLookup.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 /// The main executable
 ///

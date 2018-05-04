@@ -16,13 +16,13 @@
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
-#include "ACTS/Layers/Layer.hpp"
-#include "ACTS/Surfaces/PerigeeSurface.hpp"
-#include "ACTS/Utilities/Definitions.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/EventData/ParticleDefinitions.hpp"
+#include "Acts/Extrapolation/IExtrapolationEngine.hpp"
+#include "Acts/Layers/Layer.hpp"
+#include "Acts/Surfaces/PerigeeSurface.hpp"
+#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 FW::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
     const FW::ExtrapolationAlgorithm::Config& cfg,

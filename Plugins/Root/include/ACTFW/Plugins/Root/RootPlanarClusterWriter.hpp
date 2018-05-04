@@ -12,7 +12,7 @@
 #ifndef ACTFW_ROOTPLANARCLUSTERWRITER_H
 #define ACTFW_ROOTPLANARCLUSTERWRITER_H
 
-#include <ACTS/Digitization/PlanarModuleCluster.hpp>
+#include <Acts/Digitization/PlanarModuleCluster.hpp>
 #include <mutex>
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"

@@ -16,8 +16,8 @@
 #include <TTree.h>
 
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
-#include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
-#include "ACTS/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
+#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialPlugins/SurfaceMaterialRecord.hpp"
 
 FW::MaterialMapping::MaterialMapping(const FW::MaterialMapping::Config& cnf,
                                      Acts::Logging::Level               level)

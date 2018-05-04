@@ -9,9 +9,9 @@
 #ifndef AGD_GENERICDETECTORELEMENT_GENERICDETECTORELEMENT
 #define AGD_GENERICDETECTORELEMENT_GENERICDETECTORELEMENT 1
 
-#include "ACTS/Detector/DetectorElementBase.hpp"
-#include "ACTS/Utilities/Definitions.hpp"
-#include "ACTS/Utilities/Identifier.hpp"
+#include "Acts/Detector/DetectorElementBase.hpp"
+#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/Identifier.hpp"
 
 namespace Acts {
 class Surface;

@@ -12,17 +12,17 @@
 #include <iostream>
 #include <vector>
 #include "ACTFW/GenericDetector/GenericLayerBuilder.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Material/Material.hpp"
-#include "ACTS/Tools/CylinderVolumeBuilder.hpp"
-#include "ACTS/Tools/CylinderVolumeHelper.hpp"
-#include "ACTS/Tools/LayerArrayCreator.hpp"
-#include "ACTS/Tools/LayerCreator.hpp"
-#include "ACTS/Tools/PassiveLayerBuilder.hpp"
-#include "ACTS/Tools/SurfaceArrayCreator.hpp"
-#include "ACTS/Tools/TrackingGeometryBuilder.hpp"
-#include "ACTS/Tools/TrackingVolumeArrayCreator.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Material/Material.hpp"
+#include "Acts/Tools/CylinderVolumeBuilder.hpp"
+#include "Acts/Tools/CylinderVolumeHelper.hpp"
+#include "Acts/Tools/LayerArrayCreator.hpp"
+#include "Acts/Tools/LayerCreator.hpp"
+#include "Acts/Tools/PassiveLayerBuilder.hpp"
+#include "Acts/Tools/SurfaceArrayCreator.hpp"
+#include "Acts/Tools/TrackingGeometryBuilder.hpp"
+#include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace FWGen {
 

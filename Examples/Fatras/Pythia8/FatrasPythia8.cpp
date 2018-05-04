@@ -9,8 +9,8 @@
 /// @file
 /// @brief Fatras example with a pythia8 generator and the generic detector
 
-#include <ACTS/Detector/TrackingGeometry.hpp>
-#include <ACTS/Utilities/Units.hpp>
+#include <Acts/Detector/TrackingGeometry.hpp>
+#include <Acts/Utilities/Units.hpp>
 #include <boost/program_options.hpp>
 #include <cstdlib>
 #include "ACTFW/Framework/StandardOptions.hpp"

@@ -12,9 +12,9 @@
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "ACTS/Digitization/DigitizationModule.hpp"
-#include "ACTS/Digitization/PlanarModuleCluster.hpp"
-#include "ACTS/Digitization/Segmentation.hpp"
+#include "Acts/Digitization/DigitizationModule.hpp"
+#include "Acts/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Digitization/Segmentation.hpp"
 
 FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
     const FW::Root::RootPlanarClusterWriter::Config& cfg,

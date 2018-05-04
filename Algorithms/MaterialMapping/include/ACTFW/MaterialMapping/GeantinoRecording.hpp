@@ -14,8 +14,8 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Utilities/Logger.hpp"
 #include "G4RunManager.hh"
 
 namespace FW {

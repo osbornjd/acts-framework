@@ -12,7 +12,7 @@
 #include <ios>
 #include <stdexcept>
 
-#include <ACTS/Digitization/PlanarModuleCluster.hpp>
+#include <Acts/Digitization/PlanarModuleCluster.hpp>
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"

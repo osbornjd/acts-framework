@@ -11,7 +11,7 @@
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
 
 namespace po = boost::program_options;
 

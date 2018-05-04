@@ -13,9 +13,9 @@
 #include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/MagneticField/ConstantBField.hpp"
-#include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "ExtrapolationExampleBase.hpp"
 
 namespace po = boost::program_options;

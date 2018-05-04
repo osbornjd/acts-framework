@@ -14,7 +14,7 @@
 #include <utility>
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Utilities/Options.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace po = boost::program_options;
 

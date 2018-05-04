@@ -14,7 +14,7 @@
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 FW::ParticleGun::ParticleGun(const FW::ParticleGun::Config& cfg,
                              Acts::Logging::Level           level)

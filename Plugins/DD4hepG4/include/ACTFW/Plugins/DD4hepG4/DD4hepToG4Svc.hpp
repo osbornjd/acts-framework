@@ -13,7 +13,7 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/GeometryInterfaces/IDD4hepService.hpp"
 #include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Utilities/Logger.hpp"
 #include "G4RunManager.hh"
 #include "G4VUserDetectorConstruction.hh"
 

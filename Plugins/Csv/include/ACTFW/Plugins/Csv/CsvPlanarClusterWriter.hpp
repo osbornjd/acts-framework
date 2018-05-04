@@ -13,7 +13,7 @@
 #ifndef ACTFW_CSVPLANARCLUSTERWRITER_H
 #define ACTFW_CSVPLANARCLUSTERWRITER_H
 
-#include <ACTS/Digitization/PlanarModuleCluster.hpp>
+#include <Acts/Digitization/PlanarModuleCluster.hpp>
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 

@@ -16,7 +16,7 @@
 #include <memory>
 #include <string>
 
-#include <ACTS/Utilities/Logger.hpp>
+#include <Acts/Utilities/Logger.hpp>
 
 #include "ACTFW/Framework/IWriter.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
