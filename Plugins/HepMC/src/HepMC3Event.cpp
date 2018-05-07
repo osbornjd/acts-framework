@@ -193,34 +193,108 @@ FW::HepMC3Event::ActsParticleToGen(const Acts::ParticleProperties& actsParticle,
 }
   
 void 
-FW::HepMC3Event::addParticle(Acts::ParticleProperties particle, double mass, int status)
+FW::HepMC3Event::addParticle(std::shared_ptr<Acts::ParticleProperties>& particle, double mass, int status)
 {
-	HepMC::GenParticlePtr genParticle = ActsParticleToGen(particle, status);
+	HepMC::GenParticlePtr genParticle = ActsParticleToGen(*particle, status);
 	genParticle->set_generated_mass(mass);
 	
 	HepMC::GenEvent::add_particle(genParticle);
 }
 
-void 
-FW::HepMC3Event::addVertex(Acts::ProcessVertex vertex, int statusVtx, int statusIn, int statusOut)
+HepMC::GenVertexPtr
+FW::HepMC3Event::createGenVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex, int statusVtx, int statusIn, int statusOut)
 {
-	Acts::Vector3D pos = vertex.position();
-	const HepMC::FourVector vec(pos(0), pos(1), pos(2), vertex.interactionTime());
+	Acts::Vector3D pos = vertex->position();
+	const HepMC::FourVector vec(pos(0), pos(1), pos(2), vertex->interactionTime());
 	
 	HepMC::GenVertex genVertex(vec);
 	genVertex.set_status(statusVtx);
 
-	const std::vector<Acts::ParticleProperties> particlesIn = vertex.incomingParticles();
+	const std::vector<Acts::ParticleProperties> particlesIn = vertex->incomingParticles();
 	for(auto& particle : particlesIn)
 	{
 		HepMC::GenParticlePtr genParticle = ActsParticleToGen(particle, statusIn);
 		genVertex.add_particle_in(genParticle);
 	}
-	const std::vector<Acts::ParticleProperties> particlesOut = vertex.outgoingParticles();
+	const std::vector<Acts::ParticleProperties> particlesOut = vertex->outgoingParticles();
 	for(auto& particle : particlesOut)
 	{
 		HepMC::GenParticlePtr genParticle = ActsParticleToGen(particle, statusOut);
 		genVertex.add_particle_out(genParticle);
 	}
-	HepMC::GenEvent::add_vertex(HepMC::SmartPointer<HepMC::GenVertex>(&genVertex));
+	return HepMC::SmartPointer<HepMC::GenVertex>(&genVertex);
 }
+
+void 
+FW::HepMC3Event::addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex, int statusVtx, int statusIn, int statusOut)
+{
+	HepMC::GenEvent::add_vertex(createGenVertex(vertex, statusVtx, statusIn, statusOut));
+}
+
+void 
+FW::HepMC3Event::removeParticle(const std::shared_ptr<Acts::ParticleProperties>& actsParticle)
+{
+	const std::vector<HepMC::GenParticlePtr> genParticles = HepMC::GenEvent::particles();
+	const unsigned long id = actsParticle->barcode();
+	for(auto& genParticle : genParticles)
+		if(genParticle->id() == id)
+		{
+			HepMC::GenEvent::remove_particle(genParticle);
+			break;
+		}	
+}
+
+void 
+FW::HepMC3Event::removeParticles(const std::vector<std::shared_ptr<Acts::ParticleProperties>>& actsParticles)
+{
+	for(auto& actsParticle : actsParticles)
+		removeParticle(actsParticle);
+}
+
+bool
+FW::HepMC3Event::compareVertices(const std::shared_ptr<Acts::ProcessVertex>& actsVertex, const HepMC::GenVertexPtr& genVertex)
+{
+	HepMC::FourVector genVec = genVertex->position();
+	if(actsVertex->interactionTime() != genVec.t())
+		return false;
+	Acts::Vector3D actsVec = actsVertex->position();
+	if(actsVec(0) != genVec.x())
+		return false;
+	if(actsVec(1) != genVec.y())
+		return false;
+	if(actsVec(2) != genVec.z())
+		return false;
+	if(actsVertex->incomingParticles().size() != genVertex->particles_in().size())
+		return false;
+	if(actsVertex->outgoingParticles().size() != genVertex->particles_out().size())
+		return false;
+	return true;
+}
+
+void 
+FW::HepMC3Event::removeVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex)
+{
+	const std::vector<HepMC::GenVertexPtr> genVertices = HepMC::GenEvent::vertices();
+	for(auto& genVertex : genVertices)
+		if(compareVertices(actsVertex, genVertex))
+		{
+			HepMC::GenEvent::remove_vertex(genVertex);
+			break;
+		}
+}
+
+void 
+FW::HepMC3Event::addTree(const std::vector<std::shared_ptr<Acts::ProcessVertex>>& actsVertices, int statusVtx, int statusIn, int statusOut)
+{
+	std::vector<HepMC::GenVertexPtr> genVertices;
+	for(auto& actsVertex : actsVertices)
+		genVertices.push_back(createGenVertex(actsVertex, statusVtx, statusIn, statusOut));
+	std::vector<HepMC::GenParticlePtr> genParticles;
+	for(auto& genVertex : genVertices)
+	{
+		genParticles.insert(genParticles.end(), genVertex->particles_in().begin(), genVertex->particles_in().end());
+		genParticles.insert(genParticles.end(), genVertex->particles_out().begin(), genVertex->particles_out().end());
+	}	
+	HepMC::GenEvent::add_tree(genParticles);
+}
+    

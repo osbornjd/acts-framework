@@ -25,6 +25,8 @@ namespace FW {
 ///
 /// This class inherits from HepMC::GenEvent and expands the base class by getter functions that return parameters such as vertices or particles as Acts objects. The internal behaviour of HepMC::GenEvent is not changed by this class.
 ///
+/// @note HepMC treats status codes of particles and vertices. These parameters are not a part of Acts and therefore not treated. If this class should write to a HepMC file and new added particles/vertices are involved, the status codes need to be set manually. For further information see https://hepmc.web.cern.ch/hepmc/releases/HepMC2_user_manual.pdf .
+///
 class HepMC3Event : public HepMC::GenEvent
 {
 public:
@@ -38,49 +40,44 @@ public:
     void 
     setUnits(const double newMomentumUnit, const double newLengthUnit);
     
+    /// @brief Shifts the positioning of an event in space and time
+    /// @param deltaPos relative spatial shift that will be applied
+    /// @param deltaTime relative time shift that will be applied
     void 
     shiftPositionBy(const Acts::Vector3D& deltaPos, const double deltaTime);
     
+    /// @brief Shifts the positioning of an event in space and time
+    /// @param deltaPos relative spatial shift that will be applied
+    /// @param deltaTime relative time shift that will be applied
     void 
     shiftPositionTo(const Acts::Vector3D& deltaPos, const double deltaTime);
     
+    /// @brief Adds a new particle
+    /// @param particle new particle that will be added
+    /// @param mass mass of the new particle
+    /// @param status HepMC internal indicator of the particle's behaviour
     void 
-    addParticle(Acts::ParticleProperties particle, double mass = 0, int status = 0);
+    addParticle(std::shared_ptr<Acts::ParticleProperties>& particle, double mass = 0, int status = 0);
+
+	/// @brief Adds a new vertex
+	/// @param vertex new vertex that will be added
+	/// @param statusVtx HepMC internal indicator of the vertex' behaviour
+    /// @param statusIn HepMC internal indicator of the particle's behaviour
+    /// @param statusOut HepMC internal indicator of the particle's behaviour
+    void 
+    addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex, int statusVtx = 0, int statusIn = 0, int statusOut = 0);
+    
+    void 
+    removeParticle(const std::shared_ptr<Acts::ParticleProperties>& actsParticle);
+    
+	void 
+	removeParticles(const std::vector<std::shared_ptr<Acts::ParticleProperties>>& actsParticles);
 
     void 
-    addVertex(Acts::ProcessVertex vertex, int statusVtx = 0, int statusIn = 0, int statusOut = 0); //TODO: angucken, was der status beim vertex macht
-    
-        //~ /// @brief Remove particle from the event
-    //~ ///
-    //~ /// This function  will remove whole sub-tree starting from this particle
-    //~ /// if it is the only incoming particle of this vertex.
-    //~ /// It will also production vertex of this particle if this vertex
-    //~ /// has no more outgoing particles
-    //~ void remove_particle( GenParticlePtr v );
-    
-        //~ /// @brief Remove a set of particles
-    //~ ///
-    //~ /// This function follows rules of GenEvent::remove_particle to remove
-    //~ /// a list of particles from the event.
-    //~ void remove_particles( std::vector<GenParticlePtr> v );
+    removeVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex);
 
-    //~ /// @brief Remove vertex from the event
-    //~ ///
-    //~ /// This will remove all sub-trees of all outgoing particles of this vertex
-    //~ /// @todo Optimize. Currently each particle/vertex is erased separately
-    //~ void remove_vertex( GenVertexPtr v );
-
-    //~ /// @brief Add whole tree in topological order
-    //~ ///
-    //~ /// This function will find the beam particles (particles
-    //~ /// that have no production vertices or their production vertices
-    //~ /// have no particles) and will add the whole decay tree starting from
-    //~ /// these particles.
-    //~ ///
-    //~ /// @note Any particles on this list that do not belong to the tree
-    //~ ///       will be ignored.
-    //~ void add_tree( const std::vector<GenParticlePtr> &particles );
-    
+	void 
+	addTree(const std::vector<std::shared_ptr<Acts::ProcessVertex>>& actsVertices, int statusVtx, int statusIn, int statusOut);
     
         //~ /// @brief Fill GenEventData object
     //~ void write_data(GenEventData &data) const;
@@ -144,9 +141,16 @@ private:
   
   /// @brief Transform Acts::ParticleProperties to HepMC::GenParticlePtr
   /// @param actsParticle particle that will be transformed
-  /// @param status HepMC internal indicator if a particle decayed or not
+  /// @param status HepMC internal indicator of the particle's behaviour
   /// @return Corresponding particle in HepMC type
   HepMC::GenParticlePtr
   ActsParticleToGen(const Acts::ParticleProperties& actsParticle, int status) const;
+  
+  
+	HepMC::GenVertexPtr
+	createGenVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex, int statusVtx, int statusIn, int statusOut);
+
+  bool
+  compareVertices(const std::shared_ptr<Acts::ProcessVertex>& actsVertex, const HepMC::GenVertexPtr& genVertex);
 };
 }  // FW
