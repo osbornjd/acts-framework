@@ -30,8 +30,7 @@ namespace FW {
 class HepMC3Event : public HepMC::GenEvent
 {
 public:
-  // TODO: writer for the complete file
-  // TODO: constructor is a setter!
+	HepMC3Event(double momentumUnit = Acts::units::_GeV, double lengthUnit = Acts::units::_mm);
     
     /// @brief Sets new units for momentums and lengths.
     /// @note The allowed units are MeV and Gev or mm and cm

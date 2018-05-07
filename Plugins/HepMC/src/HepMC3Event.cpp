@@ -8,6 +8,10 @@
 
 #include "ACTFW/Plugins/HepMC/HepMC3Event.hpp"
 
+FW::HepMC3Event::HepMC3Event(double momentumUnit, double lengthUnit) : HepMC::GenEvent() 
+{
+	setUnits(momentumUnit, lengthUnit);
+}
 
 double 
 FW::HepMC3Event::momentum_unit()
