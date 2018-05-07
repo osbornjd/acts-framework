@@ -71,11 +71,11 @@ public:
   /// @param deltaTime relative time shift that will be applied
   void
   shiftPositionTo(const Acts::Vector3D& deltaPos, const double deltaTime);
-  
+
   ///
   /// Getter
   ///
-  
+
   /// @brief Getter of the unit of momentum used
   /// @return Unit in type of Acts::units
   double
@@ -120,7 +120,7 @@ public:
   /// @return List of beam particles
   const std::vector<std::shared_ptr<Acts::ParticleProperties>>
   beams() const;
-  
+
   ///
   /// Adder
   ///
@@ -146,7 +146,7 @@ public:
   void
   addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex,
             int                                         statusVtx,
-            const std::map<barcode_type, int>     statusIn,
+            const std::map<barcode_type, int> statusIn,
             const std::map<barcode_type, int> statusOut);
 
   /// @brief Adds a tree of particles and corresponding vertices to the record.
@@ -165,11 +165,11 @@ public:
   /// added manually.
   void
   addTree(const std::vector<std::shared_ptr<Acts::ProcessVertex>>& actsVertices,
-          const std::vector<int>                                                      statusVtx,
-          const std::map<barcode_type, int>                                                      statusIn,
+          const std::vector<int>                                   statusVtx,
+          const std::map<barcode_type, int> statusIn,
           const std::map<barcode_type, int> statusOut);
-          
-  ///          
+
+  ///
   /// Remover
   ///
 
@@ -192,7 +192,6 @@ public:
   removeVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex);
 
 private:
-
   /// @brief Transform HepMC::GenParticlePtr to Acts::ParticleProperties
   /// @param genParticle particle that will be transformed
   /// @return Corresponding particle in Acts type
@@ -218,7 +217,7 @@ private:
   HepMC::GenVertexPtr
   createGenVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex,
                   int                                         statusVtx,
-                  const std::map<barcode_type, int>                                         statusIn,
+                  const std::map<barcode_type, int> statusIn,
                   const std::map<barcode_type, int> statusOut) const;
 
   /// @brief Compares an Acts vertex with a HepMC::GenVertex
