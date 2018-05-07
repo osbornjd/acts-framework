@@ -11,14 +11,14 @@
 #include <fstream>
 #include <iostream>
 #include <mutex>
+#include "ACTFW/Plugins/HepMC/HepMC3Event.hpp"
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 #include "ACTS/Utilities/Units.hpp"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/Reader.h"
-#include "HepPID/ParticleIDMethods.hh"
-#include "ACTFW/Plugins/HepMC/HepMC3Event.hpp"
 #include "HepMC/ReaderAscii.h"
+#include "HepPID/ParticleIDMethods.hh"
 
 namespace FW {
 
@@ -29,27 +29,25 @@ namespace FW {
 class HepMC3Run
 {
 public:
-	HepMC3Run(const std::string filename);
-	
-	void 
-	readRun();
+  HepMC3Run(const std::string filename);
 
-	unsigned int 
-	nEvents();
-	
-	const std::shared_ptr<HepMC3Event>&
-	event(unsigned int index);
-	
-	const std::vector<std::shared_ptr<HepMC3Event>>&
-	events();
-	
-	bool 
-	readEvent();
-	
+  void
+  readRun();
+
+  unsigned int
+  nEvents();
+
+  const std::shared_ptr<HepMC3Event>&
+  event(unsigned int index);
+
+  const std::vector<std::shared_ptr<HepMC3Event>>&
+  events();
+
+  bool
+  readEvent();
+
 private:
-	HepMC::ReaderAscii m_reader;
-	std::vector<std::shared_ptr<HepMC3Event>> m_events;
-	
-
+  HepMC::ReaderAscii                        m_reader;
+  std::vector<std::shared_ptr<HepMC3Event>> m_events;
 };
 }  // FW
