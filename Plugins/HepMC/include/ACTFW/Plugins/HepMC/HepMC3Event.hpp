@@ -79,22 +79,22 @@ public:
   /// @brief Getter of the unit of momentum used
   /// @return Unit in type of Acts::units
   double
-  momentumUnit();
+  momentumUnit() const;
 
   /// @brief Getter of the unit of length used
   /// @return Unit in type of Acts::units
   double
-  lengthUnit();
+  lengthUnit() const;
 
   /// @brief Getter of the position of the vertex
   /// @return Vector to the location of the vertex
   Acts::Vector3D
-  eventPos();
+  eventPos() const;
 
   /// @brief Getter of the time of the vertex
   /// @return Time of the vertex
   double
-  eventTime();
+  eventTime() const;
 
   /// @brief Get list of const particles
   /// @return List of const particles
@@ -128,7 +128,7 @@ public:
   /// @brief Adds a new particle
   /// @param particle new particle that will be added
   /// @param mass mass of the new particle
-  /// @param status HepMC internal indicator of the particle's behaviour
+  /// @param status HepMC internal steering of the particle's behaviour
   void
   addParticle(std::shared_ptr<Acts::ParticleProperties>& particle,
               double                                     mass   = 0,
@@ -136,18 +136,18 @@ public:
 
   /// @brief Adds a new vertex
   /// @param vertex new vertex that will be added
-  /// @param statusVtx HepMC internal indicator of the vertex' behaviour
-  /// @param statusIn HepMC internal indicator of the behaviour of incoming
+  /// @param statusVtx HepMC internal steering of the vertex' behaviour
+  /// @param statusIn HepMC internal steering of the behaviour of incoming
   /// particles
-  /// @param statusOut HepMC internal indicator of the behaviour of outgoing
+  /// @param statusOut HepMC internal steering of the behaviour of outgoing
   /// particles
   /// @note The statuses are not represented in Acts and therefore need to be
   /// added manually.
   void
   addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex,
-            int                                         statusVtx = 0,
-            int                                         statusIn  = 0,
-            int statusOut = 0);  // TODO: Status individualization
+            int                                         statusVtx,
+            const std::map<barcode_type, int>     statusIn,
+            const std::map<barcode_type, int> statusOut);
 
   /// @brief Adds a tree of particles and corresponding vertices to the record.
   /// @note This function needs vertices since in Acts only the vertices know
@@ -156,18 +156,18 @@ public:
   /// into corresponding HepMC::GenParticles.
   /// @param actsVertices list of vertices that will be added. These vertices
   /// contain the participating particles.
-  /// @param statusVtx HepMC internal indicator of the vertex' behaviour
-  /// @param statusIn HepMC internal indicator of the behaviour of incoming
+  /// @param statusVtx HepMC internal steering of the vertex' behaviour
+  /// @param statusIn HepMC internal steering of the behaviour of incoming
   /// particles
-  /// @param statusOut HepMC internal indicator of the behaviour of outgoing
+  /// @param statusOut HepMC internal steering of the behaviour of outgoing
   /// particles
-  /// @note The statuses are not represented in Acts and therefore need to be
+  /// @note The statuses are not steering in Acts and therefore need to be
   /// added manually.
   void
   addTree(const std::vector<std::shared_ptr<Acts::ProcessVertex>>& actsVertices,
-          int                                                      statusVtx,
-          int                                                      statusIn,
-          int statusOut);  // TODO: Status individualization
+          const std::vector<int>                                                      statusVtx,
+          const std::map<barcode_type, int>                                                      statusIn,
+          const std::map<barcode_type, int> statusOut);
           
   ///          
   /// Remover
@@ -201,7 +201,7 @@ private:
 
   /// @brief Transform Acts::ParticleProperties to HepMC::GenParticlePtr
   /// @param actsParticle particle that will be transformed
-  /// @param status HepMC internal indicator of the particle's behaviour
+  /// @param status HepMC internal steering of the particle's behaviour
   /// @return Corresponding particle in HepMC type
   HepMC::GenParticlePtr
   actsParticleToGen(const Acts::ParticleProperties& actsParticle,
@@ -209,17 +209,17 @@ private:
 
   /// @brief Converts an Acts vertex to a HepMC::GenVertexPtr
   /// @param actsVertex Acts vertex that will be converted
-  /// @param statusVtx HepMC internal indicator of the vertex' behaviour
-  /// @param statusIn HepMC internal indicator of the behaviour of incoming
+  /// @param statusVtx HepMC internal steering of the vertex' behaviour
+  /// @param statusIn HepMC internal steering of the behaviour of incoming
   /// particles
-  /// @param statusOut HepMC internal indicator of the behaviour of outgoing
+  /// @param statusOut HepMC internal steering of the behaviour of outgoing
   /// particles
   /// @return Converted Acts vertex to HepMC::GenVertexPtr
   HepMC::GenVertexPtr
   createGenVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex,
                   int                                         statusVtx,
-                  int                                         statusIn,
-                  int statusOut);  // TODO: Status individualization
+                  const std::map<barcode_type, int>                                         statusIn,
+                  const std::map<barcode_type, int> statusOut) const;
 
   /// @brief Compares an Acts vertex with a HepMC::GenVertex
   /// @note An Acts vertex does not store a barcode. Therefore the content of
@@ -233,6 +233,6 @@ private:
   /// @return boolean result if both vertices are identical
   bool
   compareVertices(const std::shared_ptr<Acts::ProcessVertex>& actsVertex,
-                  const HepMC::GenVertexPtr&                  genVertex);
+                  const HepMC::GenVertexPtr&                  genVertex) const;
 };
 }  // FW

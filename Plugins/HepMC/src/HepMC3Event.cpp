@@ -68,7 +68,7 @@ FW::HepMC3Event::shiftPositionTo(const Acts::Vector3D& deltaPos,
 }
 
 double
-FW::HepMC3Event::momentumUnit()
+FW::HepMC3Event::momentumUnit() const
 {
   // HepMC allows only MEV and GEV. This allows an easy identification.
   return (HepMC::GenEvent::momentum_unit() == HepMC::Units::MomentumUnit::MEV
@@ -77,7 +77,7 @@ FW::HepMC3Event::momentumUnit()
 }
 
 double
-FW::HepMC3Event::lengthUnit()
+FW::HepMC3Event::lengthUnit() const
 {
   // HepMC allows only MM and CM. This allows an easy identification.
   return (HepMC::GenEvent::length_unit() == HepMC::Units::LengthUnit::MM
@@ -86,7 +86,7 @@ FW::HepMC3Event::lengthUnit()
 }
 
 Acts::Vector3D
-FW::HepMC3Event::eventPos()
+FW::HepMC3Event::eventPos() const
 {
   // Extract the position from HepMC::FourVector
   Acts::Vector3D vec;
@@ -97,7 +97,7 @@ FW::HepMC3Event::eventPos()
 }
 
 double
-FW::HepMC3Event::eventTime()
+FW::HepMC3Event::eventTime() const
 {
   // Extract the time from HepMC::FourVector
   return HepMC::GenEvent::event_pos().t();
@@ -265,8 +265,8 @@ HepMC::GenVertexPtr
 FW::HepMC3Event::createGenVertex(
     const std::shared_ptr<Acts::ProcessVertex>& actsVertex,
     int                                         statusVtx,
-    int                                         statusIn,
-    int                                         statusOut)
+    std::map<barcode_type, int>                                         statusIn,
+    std::map<barcode_type, int>                                         statusOut) const
 {
   // Build HepMC::FourVector
   Acts::Vector3D          pos = actsVertex->position();
@@ -281,14 +281,14 @@ FW::HepMC3Event::createGenVertex(
       = actsVertex->incomingParticles();
   // Store incoming particles
   for (auto& particle : particlesIn) {
-    HepMC::GenParticlePtr genParticle = actsParticleToGen(particle, statusIn);
+    HepMC::GenParticlePtr genParticle = actsParticleToGen(particle, statusIn[particle.barcode()]);
     genVertex.add_particle_in(genParticle);
   }
   const std::vector<Acts::ParticleProperties> particlesOut
       = actsVertex->outgoingParticles();
   // Store outgoing particles
   for (auto& particle : particlesOut) {
-    HepMC::GenParticlePtr genParticle = actsParticleToGen(particle, statusOut);
+    HepMC::GenParticlePtr genParticle = actsParticleToGen(particle, statusOut[particle.barcode()]);
     genVertex.add_particle_out(genParticle);
   }
   return HepMC::SmartPointer<HepMC::GenVertex>(&genVertex);
@@ -297,8 +297,8 @@ FW::HepMC3Event::createGenVertex(
 void
 FW::HepMC3Event::addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex,
                            int statusVtx,
-                           int statusIn,
-                           int statusOut)
+                           const std::map<barcode_type, int> statusIn,
+                           const std::map<barcode_type, int> statusOut)
 {
   HepMC::GenEvent::add_vertex(
       createGenVertex(vertex, statusVtx, statusIn, statusOut));
@@ -307,15 +307,15 @@ FW::HepMC3Event::addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex,
 void
 FW::HepMC3Event::addTree(
     const std::vector<std::shared_ptr<Acts::ProcessVertex>>& actsVertices,
-    int                                                      statusVtx,
-    int                                                      statusIn,
-    int                                                      statusOut)
+    const std::vector<int>                                                      statusVtx,
+    const std::map<barcode_type, int>                                                      statusIn,
+    const std::map<barcode_type, int>                                                      statusOut)
 {
   std::vector<HepMC::GenVertexPtr> genVertices;
   // Tranlsate elements of actsVertices into HepMC::GenVertex
-  for (auto& actsVertex : actsVertices)
+  for (unsigned int index = 0; index < actsVertices.size(); index++)
     genVertices.push_back(
-        createGenVertex(actsVertex, statusVtx, statusIn, statusOut));
+        createGenVertex(actsVertices[index], statusVtx[index], statusIn, statusOut));
   std::vector<HepMC::GenParticlePtr> genParticles;
   // Extract particles from vertices
   for (auto& genVertex : genVertices) {
@@ -336,7 +336,7 @@ FW::HepMC3Event::removeParticle(
 {
   const std::vector<HepMC::GenParticlePtr> genParticles
       = HepMC::GenEvent::particles();
-  const unsigned long id = actsParticle->barcode();
+  const barcode_type id = actsParticle->barcode();
   // Search HepMC::GenParticle with the same id as the Acts particle
   for (auto& genParticle : genParticles)
     if (genParticle->id() == id) {
@@ -357,7 +357,7 @@ FW::HepMC3Event::removeParticles(
 bool
 FW::HepMC3Event::compareVertices(
     const std::shared_ptr<Acts::ProcessVertex>& actsVertex,
-    const HepMC::GenVertexPtr&                  genVertex)
+    const HepMC::GenVertexPtr&                  genVertex) const
 {
   // Compare position, time, number of incoming and outgoing particles between
   // both vertices. Return false if one criterium does not match, else true.
