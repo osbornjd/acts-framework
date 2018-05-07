@@ -49,6 +49,10 @@ public:
   HepMC3Event(double momentumUnit = Acts::units::_GeV,
               double lengthUnit   = Acts::units::_mm);
 
+  ///
+  /// Setter
+  ///
+
   /// @brief Sets new units for momentums and lengths.
   /// @note The allowed units are MeV and Gev or mm and cm
   /// @param newMomentumUnit new unit of momentum
@@ -67,90 +71,30 @@ public:
   /// @param deltaTime relative time shift that will be applied
   void
   shiftPositionTo(const Acts::Vector3D& deltaPos, const double deltaTime);
-
-  /// @brief Adds a new particle
-  /// @param particle new particle that will be added
-  /// @param mass mass of the new particle
-  /// @param status HepMC internal indicator of the particle's behaviour
-  void
-  addParticle(std::shared_ptr<Acts::ParticleProperties>& particle,
-              double                                     mass   = 0,
-              int                                        status = 0);
-
-  /// @brief Adds a new vertex
-  /// @param vertex new vertex that will be added
-  /// @param statusVtx HepMC internal indicator of the vertex' behaviour
-  /// @param statusIn HepMC internal indicator of the behaviour of incoming
-  /// particles
-  /// @param statusOut HepMC internal indicator of the behaviour of outgoing
-  /// particles
-  /// @note The statuses are not represented in Acts and therefore need to be
-  /// added manually.
-  void
-  addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex,
-            int                                         statusVtx = 0,
-            int                                         statusIn  = 0,
-            int statusOut = 0);  // TODO: Status individualization
-
-  /// @brief Removes a particle from the record
-  /// @param actsParticle particle that will be removed
-  void
-  removeParticle(const std::shared_ptr<Acts::ParticleProperties>& actsParticle);
-
-  /// @brief Removes multiple particles from the record
-  /// @param actsParticles particles that will be removed
-  void
-  removeParticles(const std::vector<std::shared_ptr<Acts::ParticleProperties>>&
-                      actsParticles);
-
-  /// @brief Removes a vertex from the record
-  /// @note The identification of the vertex is potentially unstable (c.f.
-  /// HepMC3Event::compareVertices())
-  /// @param actsVertex vertex that will be removed
-  void
-  removeVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex);
-
-  /// @brief Adds a tree of particles and corresponding vertices to the record.
-  /// @note This function needs vertices since in Acts only the vertices know
-  /// the particles that enter/exit a vertex. HepMC propagates this information
-  /// to the particles, too. Therefore the Acts vertices need to be translated
-  /// into corresponding HepMC::GenParticles.
-  /// @param actsVertices list of vertices that will be added. These vertices
-  /// contain the participating particles.
-  /// @param statusVtx HepMC internal indicator of the vertex' behaviour
-  /// @param statusIn HepMC internal indicator of the behaviour of incoming
-  /// particles
-  /// @param statusOut HepMC internal indicator of the behaviour of outgoing
-  /// particles
-  /// @note The statuses are not represented in Acts and therefore need to be
-  /// added manually.
-  void
-  addTree(const std::vector<std::shared_ptr<Acts::ProcessVertex>>& actsVertices,
-          int                                                      statusVtx,
-          int                                                      statusIn,
-          int statusOut);  // TODO: Status individualization
-
-  //////////////////////////////////////////////////////////////////
-
+  
+  ///
+  /// Getter
+  ///
+  
   /// @brief Getter of the unit of momentum used
   /// @return Unit in type of Acts::units
   double
-  momentum_unit();
+  momentumUnit();
 
   /// @brief Getter of the unit of length used
   /// @return Unit in type of Acts::units
   double
-  length_unit();
+  lengthUnit();
 
   /// @brief Getter of the position of the vertex
   /// @return Vector to the location of the vertex
   Acts::Vector3D
-  event_pos();
+  eventPos();
 
   /// @brief Getter of the time of the vertex
   /// @return Time of the vertex
   double
-  event_time();
+  eventTime();
 
   /// @brief Get list of const particles
   /// @return List of const particles
@@ -176,8 +120,79 @@ public:
   /// @return List of beam particles
   const std::vector<std::shared_ptr<Acts::ParticleProperties>>
   beams() const;
+  
+  ///
+  /// Adder
+  ///
+
+  /// @brief Adds a new particle
+  /// @param particle new particle that will be added
+  /// @param mass mass of the new particle
+  /// @param status HepMC internal indicator of the particle's behaviour
+  void
+  addParticle(std::shared_ptr<Acts::ParticleProperties>& particle,
+              double                                     mass   = 0,
+              int                                        status = 0);
+
+  /// @brief Adds a new vertex
+  /// @param vertex new vertex that will be added
+  /// @param statusVtx HepMC internal indicator of the vertex' behaviour
+  /// @param statusIn HepMC internal indicator of the behaviour of incoming
+  /// particles
+  /// @param statusOut HepMC internal indicator of the behaviour of outgoing
+  /// particles
+  /// @note The statuses are not represented in Acts and therefore need to be
+  /// added manually.
+  void
+  addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex,
+            int                                         statusVtx = 0,
+            int                                         statusIn  = 0,
+            int statusOut = 0);  // TODO: Status individualization
+
+  /// @brief Adds a tree of particles and corresponding vertices to the record.
+  /// @note This function needs vertices since in Acts only the vertices know
+  /// the particles that enter/exit a vertex. HepMC propagates this information
+  /// to the particles, too. Therefore the Acts vertices need to be translated
+  /// into corresponding HepMC::GenParticles.
+  /// @param actsVertices list of vertices that will be added. These vertices
+  /// contain the participating particles.
+  /// @param statusVtx HepMC internal indicator of the vertex' behaviour
+  /// @param statusIn HepMC internal indicator of the behaviour of incoming
+  /// particles
+  /// @param statusOut HepMC internal indicator of the behaviour of outgoing
+  /// particles
+  /// @note The statuses are not represented in Acts and therefore need to be
+  /// added manually.
+  void
+  addTree(const std::vector<std::shared_ptr<Acts::ProcessVertex>>& actsVertices,
+          int                                                      statusVtx,
+          int                                                      statusIn,
+          int statusOut);  // TODO: Status individualization
+          
+  ///          
+  /// Remover
+  ///
+
+  /// @brief Removes a particle from the record
+  /// @param actsParticle particle that will be removed
+  void
+  removeParticle(const std::shared_ptr<Acts::ParticleProperties>& actsParticle);
+
+  /// @brief Removes multiple particles from the record
+  /// @param actsParticles particles that will be removed
+  void
+  removeParticles(const std::vector<std::shared_ptr<Acts::ParticleProperties>>&
+                      actsParticles);
+
+  /// @brief Removes a vertex from the record
+  /// @note The identification of the vertex is potentially unstable (c.f.
+  /// HepMC3Event::compareVertices())
+  /// @param actsVertex vertex that will be removed
+  void
+  removeVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex);
 
 private:
+
   /// @brief Transform HepMC::GenParticlePtr to Acts::ParticleProperties
   /// @param genParticle particle that will be transformed
   /// @return Corresponding particle in Acts type
@@ -189,7 +204,7 @@ private:
   /// @param status HepMC internal indicator of the particle's behaviour
   /// @return Corresponding particle in HepMC type
   HepMC::GenParticlePtr
-  ActsParticleToGen(const Acts::ParticleProperties& actsParticle,
+  actsParticleToGen(const Acts::ParticleProperties& actsParticle,
                     int                             status) const;
 
   /// @brief Converts an Acts vertex to a HepMC::GenVertexPtr

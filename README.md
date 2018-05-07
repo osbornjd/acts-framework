@@ -13,6 +13,8 @@ depending on which of the following built options
 *   USE_DD4HEP
 *   USE_GEANT4
 *   USE_PYTHIA8
+*   USE_HEPMC (older version 2.06.09)
+*   USE_HEPMC3
 
 are activated/deactivated during the configuration step, e.g. as `cmake
 -DUSE_DD4HEP=on ...`. The ACTS Core library and the ACTS Fatras library will be
