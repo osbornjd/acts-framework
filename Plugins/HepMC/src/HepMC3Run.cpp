@@ -7,18 +7,27 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/HepMC/HepMC3Run.hpp"
-#include <ios>
-#include <iostream>
-#include <stdexcept>
-#include "HepMC/GenParticle.h"
 
 FW::HepMC3Run::HepMC3Run(const std::string filename) : m_reader(filename)
 {
 }
 
+bool
+FW::HepMC3Run::readEvent()
+{
+  FW::HepMC3Event hepmc3evt;
+  // Read event and store it
+  if (m_reader.read_event(hepmc3evt)) {
+    m_events.push_back(std::make_shared<FW::HepMC3Event>(hepmc3evt));
+    return true;
+  }
+  return false;
+}
+
 void
 FW::HepMC3Run::readRun()
 {
+  // Continue reading events as long as the reading is successful
   while (readEvent()) {
   }
 }
@@ -39,15 +48,4 @@ const std::vector<std::shared_ptr<FW::HepMC3Event>>&
 FW::HepMC3Run::events()
 {
   return m_events;
-}
-
-bool
-FW::HepMC3Run::readEvent()
-{
-  FW::HepMC3Event hepmc3evt;
-  if (m_reader.read_event(hepmc3evt)) {
-    m_events.push_back(std::make_shared<FW::HepMC3Event>(hepmc3evt));
-    return true;
-  }
-  return false;
 }

@@ -14,6 +14,9 @@
 #include "HepMC/ReaderAscii.h"
 #include "HepPID/ParticleName.hh"
 
+///
+/// Straight forward example of reading a HepMC3 file.
+///
 int
 main(int argc, char* argv[])
 {

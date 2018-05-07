@@ -9,14 +9,8 @@
 #pragma once
 
 #include <fstream>
-#include <iostream>
-#include <mutex>
 #include "ACTFW/Plugins/HepMC/HepMC3Event.hpp"
-#include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Utilities/Units.hpp"
 #include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/Reader.h"
 #include "HepMC/ReaderAscii.h"
 #include "HepPID/ParticleIDMethods.hh"
 
@@ -29,25 +23,39 @@ namespace FW {
 class HepMC3Run
 {
 public:
+  /// @brief Constructor
+  /// @param filename name of the HepMC file that will be read
   HepMC3Run(const std::string filename);
 
-  void
-  readRun();
-
-  unsigned int
-  nEvents();
-
-  const std::shared_ptr<HepMC3Event>&
-  event(unsigned int index);
-
-  const std::vector<std::shared_ptr<HepMC3Event>>&
-  events();
-
+  /// @brief Reads an event from file
+  /// @return boolean indicator if the reading was successful
   bool
   readEvent();
 
+  /// @brief Reads the whole run from file
+  void
+  readRun();
+
+  /// @brief Getter of the amount of events read
+  /// @return number of events read
+  unsigned int
+  nEvents();
+
+  /// @brief Getter of a single event
+  /// @param index index of the event that will be returned
+  /// @return event with index @p index
+  const std::shared_ptr<HepMC3Event>&
+  event(unsigned int index);
+
+  /// @brief Getter of all read events
+  /// @return collection of all read events
+  const std::vector<std::shared_ptr<HepMC3Event>>&
+  events();
+
 private:
-  HepMC::ReaderAscii                        m_reader;
+  /// Internal file reader
+  HepMC::ReaderAscii m_reader;
+  /// Storage of read events
   std::vector<std::shared_ptr<HepMC3Event>> m_events;
 };
 }  // FW
