@@ -19,5 +19,5 @@ lcg=/cvmfs/sft.cern.ch/lcg/views/${release}/${platform}
 source ${lcg}/setup.sh
 # extra variables required to build acts
 export DD4hep_DIR=${lcg}
-export PYTHIA8_INCLUDE_DIR="${view}/include"
-export PYTHIA8_LIBRARY_DIR="${view}/lib"
+export PYTHIA8_INCLUDE_DIR="${lcg}/include"
+export PYTHIA8_LIBRARY_DIR="${lcg}/lib"
