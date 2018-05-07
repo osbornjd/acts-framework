@@ -34,6 +34,12 @@ namespace FW {
 /// codes need to be set manually. For further information see
 /// https://hepmc.web.cern.ch/hepmc/releases/HepMC2_user_manual.pdf .
 ///
+/// @note The data stored in Acts::ParticleProperties and Acts::ProcessVertex
+/// are not identical with the corresponding HepMC classes. Therefore
+/// translations between both are performed that slice or add data to an object.
+/// If one or both of the Acts classes change, the translation in this class
+/// needs to be properly adapted.
+///
 class HepMC3Event : public HepMC::GenEvent
 {
 public:
