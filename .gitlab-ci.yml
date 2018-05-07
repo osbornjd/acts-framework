@@ -34,10 +34,7 @@ license:
   image: python:alpine3.6
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
-  before_script: 
-    - apk --no-cache add git
-    - git submodule deinit -f external/*
-
+  before_script: []
   script:
     - CI/check_license.py .
 
