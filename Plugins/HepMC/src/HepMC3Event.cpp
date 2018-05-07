@@ -206,21 +206,21 @@ FW::HepMC3Event::addParticle(std::shared_ptr<Acts::ParticleProperties>& particle
 }
 
 HepMC::GenVertexPtr
-FW::HepMC3Event::createGenVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex, int statusVtx, int statusIn, int statusOut)
+FW::HepMC3Event::createGenVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex, int statusVtx, int statusIn, int statusOut)
 {
-	Acts::Vector3D pos = vertex->position();
-	const HepMC::FourVector vec(pos(0), pos(1), pos(2), vertex->interactionTime());
+	Acts::Vector3D pos = actsVertex->position();
+	const HepMC::FourVector vec(pos(0), pos(1), pos(2), actsVertex->interactionTime());
 	
 	HepMC::GenVertex genVertex(vec);
 	genVertex.set_status(statusVtx);
 
-	const std::vector<Acts::ParticleProperties> particlesIn = vertex->incomingParticles();
+	const std::vector<Acts::ParticleProperties> particlesIn = actsVertex->incomingParticles();
 	for(auto& particle : particlesIn)
 	{
 		HepMC::GenParticlePtr genParticle = ActsParticleToGen(particle, statusIn);
 		genVertex.add_particle_in(genParticle);
 	}
-	const std::vector<Acts::ParticleProperties> particlesOut = vertex->outgoingParticles();
+	const std::vector<Acts::ParticleProperties> particlesOut = actsVertex->outgoingParticles();
 	for(auto& particle : particlesOut)
 	{
 		HepMC::GenParticlePtr genParticle = ActsParticleToGen(particle, statusOut);

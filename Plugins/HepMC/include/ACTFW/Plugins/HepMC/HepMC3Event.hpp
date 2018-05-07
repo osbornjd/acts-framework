@@ -30,6 +30,9 @@ namespace FW {
 class HepMC3Event : public HepMC::GenEvent
 {
 public:
+	/// @brief Constructor
+	/// @param momentumUnit unit of momentum that will be used
+	/// @param lengthUnit unit of length that will be used
 	HepMC3Event(double momentumUnit = Acts::units::_GeV, double lengthUnit = Acts::units::_mm);
     
     /// @brief Sets new units for momentums and lengths.
@@ -56,33 +59,42 @@ public:
     /// @param mass mass of the new particle
     /// @param status HepMC internal indicator of the particle's behaviour
     void 
-    addParticle(std::shared_ptr<Acts::ParticleProperties>& particle, double mass = 0, int status = 0);
+    addParticle(std::shared_ptr<Acts::ParticleProperties>& particle, double mass = 0, int status = 0); 
 
 	/// @brief Adds a new vertex
 	/// @param vertex new vertex that will be added
 	/// @param statusVtx HepMC internal indicator of the vertex' behaviour
-    /// @param statusIn HepMC internal indicator of the particle's behaviour
-    /// @param statusOut HepMC internal indicator of the particle's behaviour
+    /// @param statusIn HepMC internal indicator of the behaviour of incoming particles
+    /// @param statusOut HepMC internal indicator of the behaviour of outgoing particles
+    /// @note The statuses are not represented in Acts and therefore need to be added manually.
     void 
-    addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex, int statusVtx = 0, int statusIn = 0, int statusOut = 0);
+    addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex, int statusVtx = 0, int statusIn = 0, int statusOut = 0); // TODO: Status individualization
     
+    /// @brief Removes a particle from the record
+    /// @param actsParticle particle that will be removed
     void 
     removeParticle(const std::shared_ptr<Acts::ParticleProperties>& actsParticle);
     
+    /// @brief Removes multiple particles from the record
+    /// @param actsParticles particles that will be removed
 	void 
 	removeParticles(const std::vector<std::shared_ptr<Acts::ParticleProperties>>& actsParticles);
 
+	/// @brief Removes a vertex from the record
+	/// @note The identification of the vertex is potentially unstable (c.f. HepMC3Event::compareVertices())
+	/// @param actsVertex vertex that will be removed
     void 
     removeVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex);
 
+	/// @brief Adds a tree of particles and corresponding vertices to the record.
+	/// @param actsVertices list of vertices that will be added. These vertices contain the participating particles.
+	/// @param statusVtx HepMC internal indicator of the vertex' behaviour
+    /// @param statusIn HepMC internal indicator of the behaviour of incoming particles
+    /// @param statusOut HepMC internal indicator of the behaviour of outgoing particles
+    /// @note The statuses are not represented in Acts and therefore need to be added manually.
 	void 
-	addTree(const std::vector<std::shared_ptr<Acts::ProcessVertex>>& actsVertices, int statusVtx, int statusIn, int statusOut);
+	addTree(const std::vector<std::shared_ptr<Acts::ProcessVertex>>& actsVertices, int statusVtx, int statusIn, int statusOut); // TODO: Status individualization
     
-        //~ /// @brief Fill GenEventData object
-    //~ void write_data(GenEventData &data) const;
-
-    //~ /// @brief Fill GenEvent based on GenEventData
-    //~ void read_data(const GenEventData &data);
     //////////////////////////////////////////////////////////////////
 
   /// @brief Getter of the unit of momentum used
@@ -145,10 +157,20 @@ private:
   HepMC::GenParticlePtr
   ActsParticleToGen(const Acts::ParticleProperties& actsParticle, int status) const;
   
-  
+	/// @brief Converts an Acts vertex to a HepMC::GenVertexPtr
+	/// @param actsVertex Acts vertex that will be converted
+	/// @param statusVtx HepMC internal indicator of the vertex' behaviour
+    /// @param statusIn HepMC internal indicator of the behaviour of incoming particles
+    /// @param statusOut HepMC internal indicator of the behaviour of outgoing particles
+    /// @return Converted Acts vertex to HepMC::GenVertexPtr
 	HepMC::GenVertexPtr
-	createGenVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex, int statusVtx, int statusIn, int statusOut);
+	createGenVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex, int statusVtx, int statusIn, int statusOut);  // TODO: Status individualization
 
+  /// @brief Compares an Acts vertex with a HepMC::GenVertex
+  /// @note An Acts vertex does not store a barcode. Therefore the content of both vertices is compared. The position, time and number of incoming and outgoing particles will be compared. Since a second vertex could exist in the record with identical informations (although unlikely), this comparison could lead to false positive results. On the other hand, a numerical deviation of the parameters could lead to a false negative.
+  /// @param actsVertex Acts vertex
+  /// @param genVertex HepMC::GenVertex
+  /// @return boolean result if both vertices are identical
   bool
   compareVertices(const std::shared_ptr<Acts::ProcessVertex>& actsVertex, const HepMC::GenVertexPtr& genVertex);
 };
