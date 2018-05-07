@@ -24,9 +24,9 @@ namespace FW {
 /// @class HepMC3Event
 ///
 /// This class inherits from HepMC::GenEvent and expands the base class by
-/// getter functions that return parameters such as vertices or particles as
-/// Acts objects. The internal behaviour of HepMC::GenEvent is not changed by
-/// this class.
+/// setter and getter functions that take or return parameters such as vertices
+/// or particles as Acts objects. The internal behaviour of HepMC::GenEvent is
+/// not changed by this class.
 ///
 /// @note HepMC treats status codes of particles and vertices. These parameters
 /// are not a part of Acts and therefore not treated. If this class should write
