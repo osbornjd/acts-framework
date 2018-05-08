@@ -26,11 +26,9 @@ FW::SimulatedParticle<HepMC::GenParticle>::id(const HepMC::GenParticle* particle
 	return particle->id();
 }
 
-Acts::ProcessVertex
+Acts::ProcessVertex*
 FW::SimulatedParticle<HepMC::GenParticle>::processVertex(const HepMC::GenVertex* vertex)
 {
-  std::shared_ptr<Acts::ProcessVertex> actsVertex;
-
     const std::vector<HepMC::GenParticlePtr> genParticlesIn
         = vertex->particles_in();
     std::vector<Acts::ParticleProperties> actsParticlesIn;
@@ -46,7 +44,7 @@ FW::SimulatedParticle<HepMC::GenParticle>::processVertex(const HepMC::GenVertex*
       actsParticlesOut.push_back(particleProperties(&*genParticle));
 
     // Create Acts vertex
-    return Acts::ProcessVertex({vertex->position().x(),
+    return new Acts::ProcessVertex({vertex->position().x(),
                                 vertex->position().y(),
                                 vertex->position().z()},
                                vertex->position().t(),
@@ -55,17 +53,24 @@ FW::SimulatedParticle<HepMC::GenParticle>::processVertex(const HepMC::GenVertex*
                                actsParticlesOut);
 }
 	
-const Acts::ProcessVertex
+const Acts::ProcessVertex*
 FW::SimulatedParticle<HepMC::GenParticle>::productionVertex(const HepMC::GenParticle* particle)
 {
-  return processVertex(&*(particle->production_vertex()));
+  // Return the vertex if it exists
+  if(particle->production_vertex())
+	return processVertex(&*(particle->production_vertex()));
+  else 
+	return nullptr;
 }
 
-const Acts::ProcessVertex
+const Acts::ProcessVertex*
 FW::SimulatedParticle<HepMC::GenParticle>::endVertex(const HepMC::GenParticle* particle)
 {
- 
-  return processVertex(&*(particle->end_vertex()));
+  // Return the vertex if it exists
+  if(particle->end_vertex())
+	return processVertex(&*(particle->end_vertex()));
+  else
+	return nullptr;
 }
 
 int
