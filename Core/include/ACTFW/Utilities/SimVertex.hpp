@@ -102,7 +102,8 @@ namespace SimVertex {
   /// @param particle incoming particle that will be added
   template <class V>
   static void
-  addParticleIn(std::shared_ptr<V> vertex, std::shared_ptr<Acts::ParticleProperties> particle)
+  addParticleIn(std::shared_ptr<V>                        vertex,
+                std::shared_ptr<Acts::ParticleProperties> particle)
   {
     SimulatedVertex<V>::addParticleIn(vertex, particle);
   }
@@ -112,7 +113,8 @@ namespace SimVertex {
   /// @param particle outgoing particle that will be added
   template <class V>
   static void
-  addParticleOut(std::shared_ptr<V> vertex, std::shared_ptr<Acts::ParticleProperties> particle)
+  addParticleOut(std::shared_ptr<V>                        vertex,
+                 std::shared_ptr<Acts::ParticleProperties> particle)
   {
     SimulatedVertex<V>::addParticleOut(vertex, particle);
   }
@@ -122,7 +124,8 @@ namespace SimVertex {
   /// @param particle incoming particle that will be removed
   template <class V>
   static void
-  removeParticleIn(std::shared_ptr<V> vertex, std::shared_ptr<Acts::ParticleProperties> particle)
+  removeParticleIn(std::shared_ptr<V>                        vertex,
+                   std::shared_ptr<Acts::ParticleProperties> particle)
   {
     SimulatedVertex<V>::removeParticleIn(vertex, particle);
   }
@@ -132,11 +135,12 @@ namespace SimVertex {
   /// @param particle outgoing particle that will be removed
   template <class V>
   static void
-  removeParticleOut(std::shared_ptr<V> vertex, std::shared_ptr<Acts::ParticleProperties> particle)
+  removeParticleOut(std::shared_ptr<V>                        vertex,
+                    std::shared_ptr<Acts::ParticleProperties> particle)
   {
     SimulatedVertex<V>::removeParticleOut(vertex, particle);
   }
-  
+
   /// @brief Sets the position of a vertex translated into Acts
   /// @param vertex vertex in external data type
   /// @param pos new position of the vertex
@@ -144,9 +148,9 @@ namespace SimVertex {
   static void
   position(const std::shared_ptr<V> vertex, Acts::Vector3D pos)
   {
-	  SimulatedVertex<V>::position(vertex, pos);
+    SimulatedVertex<V>::position(vertex, pos);
   }
-  
+
   /// @brief Sets the time of a vertex translated into Acts
   /// @param vertex vertex in external data type
   /// @param time new time of the vertex
@@ -154,7 +158,7 @@ namespace SimVertex {
   static void
   time(const std::shared_ptr<V> vertex, double time)
   {
-	  SimulatedVertex<V>::time(vertex, time);
+    SimulatedVertex<V>::time(vertex, time);
   }
 }  // SimVertex
 }  // FW

@@ -13,13 +13,12 @@
 
 namespace FW {
 
-//~ /// @struct SimulatedVertex
-//~ ///
-//~ /// This structure is the default structure for vertices from external
-//~ /// datatypes. It allows calling the functions that always handle primitive
-//or
-//~ /// Acts data types.
-//~ ///
+/// @struct SimulatedEvent
+///
+/// This structure is the default structure for events from external
+/// datatypes. It allows calling the functions that always handle primitive or
+/// Acts data types.
+///
 template <class E>
 struct SimulatedEvent
 {
@@ -30,11 +29,10 @@ namespace SimEvent {
   ///
   /// Setter
   ///
-  
-  //~ /// @brief Sets new units for momentums and lengths.
-  //~ /// @note The allowed units are MeV and Gev or mm and cm
-  //~ /// @param newMomentumUnit new unit of momentum
-  //~ /// @param newLengthUnit new unit of length
+
+  /// @brief Sets new units for momentums
+  /// @param event event in external data type
+  /// @param momentumUnit new unit of momentum
   template <class E>
   static void
   momentumUnit(std::shared_ptr<E> event, const double momentumUnit)
@@ -42,6 +40,9 @@ namespace SimEvent {
     SimulatedEvent<E>::setMomentumUnit(event, momentumUnit);
   }
 
+  /// @brief Sets new units for lengths
+  /// @param event event in external data type
+  /// @param lengthUnit new unit of length
   template <class E>
   static void
   lengthUnit(std::shared_ptr<E> event, const double lengthUnit)
@@ -49,30 +50,35 @@ namespace SimEvent {
     SimulatedEvent<E>::setLengthUnit(event, lengthUnit);
   }
 
-  //~ /// @brief Shifts the positioning of an event in space and time
-  //~ /// @param deltaPos relative spatial shift that will be applied
-  //~ /// @param deltaTime relative time shift that will be applied
+  /// @brief Shifts the positioning of an event in space and time
+  /// @param event event in external data type
+  /// @param deltaPos relative spatial shift that will be applied
+  /// @param deltaTime relative time shift that will be applied
   template <class E>
   static void
-  shiftPositionBy(std::shared_ptr<E>                    event,
+  shiftPositionBy(std::shared_ptr<E>    event,
                   const Acts::Vector3D& deltaPos,
                   const double          deltaTime)
   {
     SimulatedEvent<E>::shiftPositionBy(event, deltaPos, deltaTime);
   }
 
-  //~ /// @brief Shifts the positioning of an event in space and time
-  //~ /// @param deltaPos relative spatial shift that will be applied
-  //~ /// @param deltaTime relative time shift that will be applied
+  /// @brief Shifts the positioning of an event to a paint in space and time
+  /// @param event event in external data type
+  /// @param pos new position of the event
+  /// @param time new time of the event
   template <class E>
   static void
-  shiftPositionTo(std::shared_ptr<E>                    event,
-                  const Acts::Vector3D& deltaPos,
-                  const double          deltaTime)
+  shiftPositionTo(std::shared_ptr<E>    event,
+                  const Acts::Vector3D& pos,
+                  const double          time)
   {
     SimulatedEvent<E>::shiftPositionTo(event, deltaPos, deltaTime);
   }
 
+  /// @brief Shifts the positioning of an event to a paint in space
+  /// @param event event in external data type
+  /// @param pos new position of the event
   template <class E>
   static void
   shiftPositionTo(std::shared_ptr<E> event, const Acts::Vector3D& deltaPos)
@@ -80,6 +86,9 @@ namespace SimEvent {
     SimulatedEvent<E>::shiftPositionTo(event, deltaPos);
   }
 
+  /// @brief Shifts the positioning of an event to a paint in time
+  /// @param event event in external data type
+  /// @param time new time of the event
   template <class E>
   static void
   shiftPositionTo(std::shared_ptr<E> event, const double deltaTime)
@@ -88,11 +97,64 @@ namespace SimEvent {
   }
 
   ///
+  /// Adder
+  ///
+
+  /// @brief Adds a new particle
+  /// @param event event in external data type
+  /// @param particle new particle that will be added
+  template <class E>
+  static void
+  addParticle(std::shared_ptr<E>                        event,
+              std::shared_ptr<Acts::ParticleProperties> particle)
+  {
+    SimulatedEvent<E>::addParticle(event, particle);
+  }
+
+  /// @brief Adds a new vertex
+  /// @param event event in external data type
+  /// @param vertex new vertex that will be added
+  template <class E>
+  static void
+  addVertex(std::shared_ptr<E>                         event,
+            const std::shared_ptr<Acts::ProcessVertex> vertex)
+  {
+    SimulatedEvent<E>::addVertex(event, vertex);
+  }
+
+  ///
+  /// Remover
+  ///
+
+  /// @brief Removes a particle from the record
+  /// @param event event in external data type
+  /// @param particle particle that will be removed
+  template <class E>
+  static void
+  removeParticle(std::shared_ptr<E>                               event,
+                 const std::shared_ptr<Acts::ParticleProperties>& particle)
+  {
+    SimulatedEvent<E>::removeParticle(event, vertex);
+  }
+
+  /// @brief Removes a vertex from the record
+  /// @param event event in external data type
+  /// @param vertex vertex that will be removed
+  template <class E>
+  static void
+  removeVertex(std::shared_ptr<E>                          event,
+               const std::shared_ptr<Acts::ProcessVertex>& vertex)
+  {
+    SimulatedEvent<E>::removeVertex(event, vertex);
+  }
+
+  ///
   /// Getter
   ///
 
-  //~ /// @brief Getter of the unit of momentum used
-  //~ /// @return Unit in type of Acts::units
+  /// @brief Getter of the unit of momentum used
+  /// @param event event in external data type
+  /// @return unit of momentum
   template <class E>
   static double
   momentumUnit(const std::shared_ptr<E> event)
@@ -100,8 +162,9 @@ namespace SimEvent {
     return SimulatedEvent<E>::momentumUnit(E * event);
   }
 
-  //~ /// @brief Getter of the unit of length used
-  //~ /// @return Unit in type of Acts::units
+  /// @brief Getter of the unit of length used
+  /// @param event event in external data type
+  /// @return unit of length
   template <class E>
   static double
   lengthUnit(const std::shared_ptr<E> event)
@@ -109,132 +172,57 @@ namespace SimEvent {
     return SimulatedEvent<E>::lengthUnit(E * event);
   }
 
-  /// @brief Getter of the position of the vertex
-  /// @return Vector to the location of the vertex
+  /// @brief Getter of the position of the event
+  /// @param event event in external data type
+  /// @return vector to the location of the event
   template <class E>
   static Acts::Vector3D
-  eventPos(std::shared_ptr<E> event)
+  eventPos(const std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::eventPos(E * event);
   }
 
-  /// @brief Getter of the time of the vertex
-  /// @return Time of the vertex
+  /// @brief Getter of the time of the event
+  /// @param event event in external data type
+  /// @return time of the event
   template <class E>
   static double
-  eventTime(std::shared_ptr<E> event)
+  eventTime(const std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::eventTime(E * event);
   }
 
-  /// @brief Get list of const particles
-  /// @return List of const particles
+  /// @brief Get list of particles
+  /// @param event event in external data type
+  /// @return List of particles
   template <class E>
-  static std::vector<std::unique_ptrActs::ParticleProperties>>
-  particles(std::shared_ptr<E> event)
+      static std::
+          vector<std::unique_ptrActs::ParticleProperties>> particles(
+                                                               const std::
+                                                                   shared_ptr<E>
+                                                                       event)
   {
     return SimulatedEvent<E>::particles(E * event);
   }
 
-  /// @brief Get list of const vertices
-  /// @return List of const vertices
+  /// @brief Get list of vertices
+  /// @param event event in external data type
+  /// @return List of vertices
   template <class E>
-  static std::vector<std::unique_ptr<Acts::ProcessVertex>
-  vertices(std::shared_ptr<E> event)
+      static std::vector < std::unique_ptr<Acts::ProcessVertex>
+                           vertices(const std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::vertices(E * event);
   }
 
   /// @brief Get beam particles
+  /// @param event event in external data type
   /// @return List of beam particles
   template <class E>
   static std::vector<std::unique_ptr<Acts::ParticleProperties>>
-  beams(std::shared_ptr<E> event)
+  beams(const std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::beams(E * event);
   }
-
-  ///
-  /// Adder
-  ///
-
-  //~ /// @brief Adds a new particle
-  //~ /// @param particle new particle that will be added
-  //~ /// @param mass mass of the new particle
-  //~ /// @param status HepMC internal steering of the particle's behaviour
-  template <class E>
-  static void
-  addParticle(std::shared_ptr<E> event, std::shared_ptr<Acts::ParticleProperties> particle)
-  {
-	  SimulatedEvent<E>::addParticle(event, particle);
-  }
-
-  //~ /// @brief Adds a new vertex
-  //~ /// @param vertex new vertex that will be added
-  //~ /// @param statusVtx HepMC internal steering of the vertex' behaviour
-  //~ /// @param statusIn HepMC internal steering of the behaviour of incoming
-  //~ /// particles
-  //~ /// @param statusOut HepMC internal steering of the behaviour of outgoing
-  //~ /// particles
-  //~ /// @note The statuses are not represented in Acts and therefore need to
-  //~ /// be added manually.
-  template <class E>
-  static void
-  addVertex(const std::shared_ptr<Acts::ProcessVertex> vertex);
-
-  /// @brief Adds a tree of particles and corresponding vertices to the
-  //~ //record.
-  /// @note This function needs vertices since in Acts only the vertices
-  //~ //know
-  /// the particles that enter/exit a vertex. HepMC propagates this
-  //~ //information
-  /// to the particles, too. Therefore the Acts vertices need to be
-  //~ //translated
-  /// into corresponding HepMC::GenParticles.
-  /// @param actsVertices list of vertices that will be added. These
-  //~ //vertices
-  /// contain the participating particles.
-  /// @param statusVtx HepMC internal steering of the vertex' behaviour
-  /// @param statusIn HepMC internal steering of the behaviour of incoming
-  /// particles
-  /// @param statusOut HepMC internal steering of the behaviour of outgoing
-  /// particles
-  /// @note The statuses are not steering in Acts and therefore need to be
-  /// added manually.
-  template <class E>
-  static void
-  addTree(const std::vector<std::shared_ptr<Acts::ProcessVertex>>&
-  //~ //actsVertices,
-  const std::vector<int>                                   statusVtx,
-  const std::map<barcode_type, int> statusIn,
-  const std::map<barcode_type, int> statusOut);
-
-  //~ ///
-  //~ /// Remover
-  //~ ///
-
-  //~ /// @brief Removes a particle from the record
-  //~ /// @param actsParticle particle that will be removed
-  //~ template <class E>
-  //~ static void
-  //~ removeParticle(const std::shared_ptr<Acts::ParticleProperties>&
-  //actsParticle);
-
-  //~ /// @brief Removes multiple particles from the record
-  //~ /// @param actsParticles particles that will be removed
-  //~ template <class E>
-  //~ static void
-  //~ removeParticles(const
-  //std::vector<std::shared_ptr<Acts::ParticleProperties>>&
-  //~ actsParticles);
-
-  //~ /// @brief Removes a vertex from the record
-  //~ /// @note The identification of the vertex is potentially unstable (c.f.
-  //~ /// HepMC3Event::compareVertices())
-  //~ /// @param actsVertex vertex that will be removed
-  //~ template <class E>
-  //~ static void
-  //~ removeVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex);
-
 }  // SimVertex
 }  // FW
