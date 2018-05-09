@@ -22,7 +22,7 @@
 
 namespace FW {
 
-/// @struct HepMC3Event
+/// @struct SimulatedEvent<HepMC::GenEvent>
 ///
 /// This struct is an explicit implementation of FW::SimulatedEvent for the
 /// translation of HepMC::GenEvent objects into Acts.

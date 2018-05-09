@@ -18,7 +18,7 @@ namespace FW {
 template <class V>
 struct SimulatedVertex;
 
-/// @struct HepMC3Vertex
+/// @struct SimulatedVertex<HepMC::GenVertex>
 ///
 /// This struct is an explicit implementation of FW::SimulatedVertex for the
 /// translation of HepMC::GenVertex objects into Acts.

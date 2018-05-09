@@ -10,8 +10,10 @@
 
 #include <memory>
 #include "ACTS/EventData/ParticleDefinitions.hpp"
-// TODO: Include on set flag
+
+#ifdef USE_HEPMC3
 #include "ACTFW/Plugins/HepMC/HepMC3Event.hpp"
+#endif
 
 namespace FW {
 

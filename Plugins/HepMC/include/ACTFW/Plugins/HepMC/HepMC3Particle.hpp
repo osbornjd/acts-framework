@@ -20,7 +20,7 @@ namespace FW {
 template <class T>
 struct SimulatedParticle;
 
-/// @struct HepMC3Particle
+/// @struct SimulatedParticle<HepMC::GenParticle>
 ///
 /// This struct is an explicit implementation of FW::SimulatedParticle for the
 /// translation of HepMC::GenParticle objects into Acts.
