@@ -91,5 +91,28 @@ struct SimulatedVertex<HepMC::GenVertex>
   /// @return time of the vertex
   static double
   time(const HepMC::GenVertex* vertex);
+
+private:
+  /// @brief Converts HepMC::GenParticle objects into Acts
+  /// @param genParticles list of HepMC::GenParticle objects
+  /// @return converted list
+  static std::vector<Acts::ParticleProperties>
+  genParticlesToActs(const std::vector<HepMC::GenParticlePtr>& genParticles);
+
+  /// @brief Converts an Acts::ParticleProperties into HepMC::GenParticle
+  /// @param actsParticle Acts particle that will be converted
+  /// @return converted particle
+  static HepMC::GenParticlePtr
+  actsParticleToGen(Acts::ParticleProperties* actsParticle);
+
+  /// @brief Finds a HepMC::GenParticle from a list that matches an
+  /// Acts::ParticleProperties object
+  /// @param genParticles list of HepMC particles
+  /// @param actsParticle Acts particle
+  /// @return HepMC particle that matched with the Acts particle or nullptr if
+  /// no match was found
+  static HepMC::GenParticlePtr
+  matchParticles(const std::vector<HepMC::GenParticlePtr>& genParticles,
+                 Acts::ParticleProperties*                 actsParticle);
 };
 }  // FW

@@ -96,7 +96,7 @@ namespace SimVertex {
   {
     return SimulatedVertex<V>::time(vertex);
   }
-  
+
   /// @brief Adds an incoming particle to a vertex translated into Acts
   /// @param vertex vertex in external data type
   /// @param particle incoming particle that will be added
