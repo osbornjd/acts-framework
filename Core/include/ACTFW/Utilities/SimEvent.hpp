@@ -10,6 +10,8 @@
 
 #include <memory>
 #include "ACTS/EventData/ParticleDefinitions.hpp"
+// TODO: Include on set flag
+#include "ACTFW/Plugins/HepMC/HepMC3Event.hpp"
 
 namespace FW {
 
@@ -73,7 +75,7 @@ namespace SimEvent {
                   const Acts::Vector3D& pos,
                   const double          time)
   {
-    SimulatedEvent<E>::shiftPositionTo(event, deltaPos, deltaTime);
+    SimulatedEvent<E>::shiftPositionTo(event, pos, time);
   }
 
   /// @brief Shifts the positioning of an event to a paint in space
@@ -81,9 +83,9 @@ namespace SimEvent {
   /// @param pos new position of the event
   template <class E>
   static void
-  shiftPositionTo(std::shared_ptr<E> event, const Acts::Vector3D& deltaPos)
+  shiftPositionTo(std::shared_ptr<E> event, const Acts::Vector3D& pos)
   {
-    SimulatedEvent<E>::shiftPositionTo(event, deltaPos);
+    SimulatedEvent<E>::shiftPositionTo(event, pos);
   }
 
   /// @brief Shifts the positioning of an event to a paint in time
@@ -91,9 +93,9 @@ namespace SimEvent {
   /// @param time new time of the event
   template <class E>
   static void
-  shiftPositionTo(std::shared_ptr<E> event, const double deltaTime)
+  shiftPositionTo(std::shared_ptr<E> event, const double time)
   {
-    SimulatedEvent<E>::shiftPositionTo(event, deltaTime);
+    SimulatedEvent<E>::shiftPositionTo(event, time);
   }
 
   ///
@@ -134,7 +136,7 @@ namespace SimEvent {
   removeParticle(std::shared_ptr<E>                               event,
                  const std::shared_ptr<Acts::ParticleProperties>& particle)
   {
-    SimulatedEvent<E>::removeParticle(event, vertex);
+    SimulatedEvent<E>::removeParticle(event, particle);
   }
 
   /// @brief Removes a vertex from the record
@@ -159,7 +161,7 @@ namespace SimEvent {
   static double
   momentumUnit(const std::shared_ptr<E> event)
   {
-    return SimulatedEvent<E>::momentumUnit(E * event);
+    return SimulatedEvent<E>::momentumUnit(event);
   }
 
   /// @brief Getter of the unit of length used
@@ -169,7 +171,7 @@ namespace SimEvent {
   static double
   lengthUnit(const std::shared_ptr<E> event)
   {
-    return SimulatedEvent<E>::lengthUnit(E * event);
+    return SimulatedEvent<E>::lengthUnit(event);
   }
 
   /// @brief Getter of the position of the event
@@ -179,7 +181,7 @@ namespace SimEvent {
   static Acts::Vector3D
   eventPos(const std::shared_ptr<E> event)
   {
-    return SimulatedEvent<E>::eventPos(E * event);
+    return SimulatedEvent<E>::eventPos(event);
   }
 
   /// @brief Getter of the time of the event
@@ -189,7 +191,7 @@ namespace SimEvent {
   static double
   eventTime(const std::shared_ptr<E> event)
   {
-    return SimulatedEvent<E>::eventTime(E * event);
+    return SimulatedEvent<E>::eventTime(event);
   }
 
   /// @brief Get list of particles
@@ -197,22 +199,22 @@ namespace SimEvent {
   /// @return List of particles
   template <class E>
       static std::
-          vector<std::unique_ptrActs::ParticleProperties>> particles(
+          vector<std::unique_ptr<Acts::ParticleProperties>> particles(
                                                                const std::
                                                                    shared_ptr<E>
                                                                        event)
   {
-    return SimulatedEvent<E>::particles(E * event);
+    return SimulatedEvent<E>::particles(event);
   }
 
   /// @brief Get list of vertices
   /// @param event event in external data type
   /// @return List of vertices
   template <class E>
-      static std::vector < std::unique_ptr<Acts::ProcessVertex>
+      static std::vector < std::unique_ptr<Acts::ProcessVertex>>
                            vertices(const std::shared_ptr<E> event)
   {
-    return SimulatedEvent<E>::vertices(E * event);
+    return SimulatedEvent<E>::vertices(event);
   }
 
   /// @brief Get beam particles
@@ -222,7 +224,7 @@ namespace SimEvent {
   static std::vector<std::unique_ptr<Acts::ParticleProperties>>
   beams(const std::shared_ptr<E> event)
   {
-    return SimulatedEvent<E>::beams(E * event);
+    return SimulatedEvent<E>::beams(event);
   }
-}  // SimVertex
+}  // SimEvent
 }  // FW

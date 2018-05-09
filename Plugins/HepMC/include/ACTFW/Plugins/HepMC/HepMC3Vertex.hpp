@@ -15,6 +15,9 @@
 
 namespace FW {
 
+template <class V>
+struct SimulatedVertex;
+
 /// @struct HepMC3Vertex
 ///
 /// This struct is an explicit implementation of FW::SimulatedVertex for the
@@ -23,6 +26,8 @@ namespace FW {
 template <>
 struct SimulatedVertex<HepMC::GenVertex>
 {
+public:
+
   /// @brief Returns a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return corresponding Acts vertex
@@ -112,6 +117,7 @@ private:
   genParticlesToActs(const std::vector<HepMC::GenParticlePtr>& genParticles);
 
   /// @brief Converts an Acts::ParticleProperties into HepMC::GenParticle
+  /// @note The conversion ignores HepMC status codes
   /// @param actsParticle Acts particle that will be converted
   /// @return converted particle
   static HepMC::GenParticlePtr

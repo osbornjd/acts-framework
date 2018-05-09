@@ -17,7 +17,7 @@ FW::SimulatedVertex<HepMC::GenVertex>::genParticlesToActs(
   // Translate all particles
   for (auto& genParticle : genParticles)
     actsParticles.push_back(
-        *(SimParticle::particleProperties<HepMC::GenParticle>(std::make_shared<HepMC::GenParticle>(*genParticle))));
+        *(FW::SimParticle::particleProperties<HepMC::GenParticle>(std::make_shared<HepMC::GenParticle>(*genParticle))));
   return actsParticles;
 }
 
@@ -26,12 +26,12 @@ FW::SimulatedVertex<HepMC::GenVertex>::processVertex(
     const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   // Create Acts vertex
-  return std::make_unique<Acts::ProcessVertex>(Acts::ProcessVertex(
+  return std::move(std::make_unique<Acts::ProcessVertex>(Acts::ProcessVertex(
       {vertex->position().x(), vertex->position().y(), vertex->position().z()},
       vertex->position().t(),
       0,  // TODO: what does process_type?
       genParticlesToActs(vertex->particles_in()),
-      genParticlesToActs(vertex->particles_out())));
+      genParticlesToActs(vertex->particles_out()))));
 }
 
 bool

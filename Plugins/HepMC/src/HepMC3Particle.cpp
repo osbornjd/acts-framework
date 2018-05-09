@@ -12,14 +12,14 @@ std::unique_ptr<Acts::ParticleProperties>
 FW::SimulatedParticle<HepMC::GenParticle>::particleProperties(
     const std::shared_ptr<HepMC::GenParticle> particle)
 {
-  return std::make_unique<Acts::ParticleProperties>(
+  return std::move(std::make_unique<Acts::ParticleProperties>(
       Acts::ParticleProperties({particle->momentum().x(),
                                 particle->momentum().y(),
                                 particle->momentum().z()},
                                particle->generated_mass(),
                                HepPID::charge(particle->pid()),
                                particle->pid(),
-                               particle->id()));
+                               particle->id())));
 }
 
 int
@@ -35,7 +35,7 @@ FW::SimulatedParticle<HepMC::GenParticle>::productionVertex(
 {
   // Return the vertex if it exists
   if (particle->production_vertex())
-    return std::move(SimVertex::processVertex<HepMC::GenVertex>(
+    return std::move(FW::SimVertex::processVertex<HepMC::GenVertex>(
         std::make_shared<HepMC::GenVertex>(*particle->production_vertex())));
   else
     return nullptr;
@@ -48,7 +48,7 @@ FW::SimulatedParticle<HepMC::GenParticle>::endVertex(
   // Return the vertex if it exists
   if (particle->end_vertex())
     return std::move(
-        SimVertex::processVertex<HepMC::GenVertex>(std::make_shared<HepMC::GenVertex>(*(particle->end_vertex()))));
+        FW::SimVertex::processVertex<HepMC::GenVertex>(std::make_shared<HepMC::GenVertex>(*(particle->end_vertex()))));
   else
     return nullptr;
 }

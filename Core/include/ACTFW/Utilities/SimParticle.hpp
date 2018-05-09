@@ -11,6 +11,8 @@
 #include <memory>
 #include "ACTS/EventData/ParticleDefinitions.hpp"
 
+#include "ACTFW/Plugins/HepMC/HepMC3Particle.hpp"
+
 namespace FW {
 
 /// @struct SimulatedParticle

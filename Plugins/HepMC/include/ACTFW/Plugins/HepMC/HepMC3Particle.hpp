@@ -8,14 +8,17 @@
 
 #pragma once
 
-#include "ACTFW/Plugins/HepMC/HepMC3Vertex.hpp"
 #include "ACTFW/Utilities/SimParticle.hpp"
+#include "ACTFW/Utilities/SimVertex.hpp"
 #include "HepMC/FourVector.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 #include "HepPID/ParticleIDMethods.hh"
 
 namespace FW {
+
+template <class T>
+struct SimulatedParticle;
 
 /// @struct HepMC3Particle
 ///
@@ -25,6 +28,7 @@ namespace FW {
 template <>
 struct SimulatedParticle<HepMC::GenParticle>
 {
+public:
   /// @brief Returns the particle translated into Acts
   /// @param particle HepMC::GenParticle particle
   /// @return corresponding Acts particle
