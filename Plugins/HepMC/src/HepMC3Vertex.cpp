@@ -17,13 +17,13 @@ FW::SimulatedVertex<HepMC::GenVertex>::genParticlesToActs(
   // Translate all particles
   for (auto& genParticle : genParticles)
     actsParticles.push_back(
-        *(SimParticle::particleProperties<HepMC::GenParticle>(&*genParticle)));
+        *(SimParticle::particleProperties<HepMC::GenParticle>(std::make_shared<HepMC::GenParticle>(*genParticle))));
   return actsParticles;
 }
 
 std::unique_ptr<Acts::ProcessVertex>
 FW::SimulatedVertex<HepMC::GenVertex>::processVertex(
-    const HepMC::GenVertex* vertex)
+    const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   // Create Acts vertex
   return std::make_unique<Acts::ProcessVertex>(Acts::ProcessVertex(
@@ -35,33 +35,33 @@ FW::SimulatedVertex<HepMC::GenVertex>::processVertex(
 }
 
 bool
-FW::SimulatedVertex<HepMC::GenVertex>::inEvent(const HepMC::GenVertex* vertex)
+FW::SimulatedVertex<HepMC::GenVertex>::inEvent(const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   return vertex->in_event();
 }
 
 int
-FW::SimulatedVertex<HepMC::GenVertex>::id(const HepMC::GenVertex* vertex)
+FW::SimulatedVertex<HepMC::GenVertex>::id(const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   return vertex->id();
 }
 
 std::vector<Acts::ParticleProperties>
 FW::SimulatedVertex<HepMC::GenVertex>::particlesIn(
-    const HepMC::GenVertex* vertex)
+    const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   return genParticlesToActs(vertex->particles_in());
 }
 
 std::vector<Acts::ParticleProperties>
 FW::SimulatedVertex<HepMC::GenVertex>::particlesOut(
-    const HepMC::GenVertex* vertex)
+    const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   return genParticlesToActs(vertex->particles_out());
 }
 
 Acts::Vector3D
-FW::SimulatedVertex<HepMC::GenVertex>::position(const HepMC::GenVertex* vertex)
+FW::SimulatedVertex<HepMC::GenVertex>::position(const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   Acts::Vector3D vec;
   vec(0) = vertex->position().x();
@@ -71,14 +71,14 @@ FW::SimulatedVertex<HepMC::GenVertex>::position(const HepMC::GenVertex* vertex)
 }
 
 double
-FW::SimulatedVertex<HepMC::GenVertex>::time(const HepMC::GenVertex* vertex)
+FW::SimulatedVertex<HepMC::GenVertex>::time(const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   return vertex->position().t();
 }
 
 HepMC::GenParticlePtr
 FW::SimulatedVertex<HepMC::GenVertex>::actsParticleToGen(
-    Acts::ParticleProperties* actsParticle)
+    std::shared_ptr<Acts::ParticleProperties> actsParticle)
 {
   // Extract momentum and energy from Acts particle for HepMC::FourVector
   Acts::Vector3D mom = actsParticle->momentum();
@@ -95,16 +95,16 @@ FW::SimulatedVertex<HepMC::GenVertex>::actsParticleToGen(
 
 void
 FW::SimulatedVertex<HepMC::GenVertex>::addParticleIn(
-    HepMC::GenVertex*         vertex,
-    Acts::ParticleProperties* particle)
+    std::shared_ptr<HepMC::GenVertex>         vertex,
+    std::shared_ptr<Acts::ParticleProperties> particle)
 {
   vertex->add_particle_in(actsParticleToGen(particle));
 }
 
 void
 FW::SimulatedVertex<HepMC::GenVertex>::addParticleOut(
-    HepMC::GenVertex*         vertex,
-    Acts::ParticleProperties* particle)
+    std::shared_ptr<HepMC::GenVertex>         vertex,
+    std::shared_ptr<Acts::ParticleProperties> particle)
 {
   vertex->add_particle_out(actsParticleToGen(particle));
 }
@@ -112,7 +112,7 @@ FW::SimulatedVertex<HepMC::GenVertex>::addParticleOut(
 HepMC::GenParticlePtr
 FW::SimulatedVertex<HepMC::GenVertex>::matchParticles(
     const std::vector<HepMC::GenParticlePtr>& genParticles,
-    Acts::ParticleProperties*                 actsParticle)
+    std::shared_ptr<Acts::ParticleProperties>                 actsParticle)
 {
   const barcode_type id = actsParticle->barcode();
   // Search HepMC::GenParticle with the same id as the Acts particle
@@ -125,8 +125,8 @@ FW::SimulatedVertex<HepMC::GenVertex>::matchParticles(
 
 void
 FW::SimulatedVertex<HepMC::GenVertex>::removeParticleIn(
-    HepMC::GenVertex*         vertex,
-    Acts::ParticleProperties* particle)
+    std::shared_ptr<HepMC::GenVertex>         vertex,
+    std::shared_ptr<Acts::ParticleProperties> particle)
 {
   // Remove particle if it exists
   if (HepMC::GenParticlePtr genParticle
@@ -136,8 +136,8 @@ FW::SimulatedVertex<HepMC::GenVertex>::removeParticleIn(
 
 void
 FW::SimulatedVertex<HepMC::GenVertex>::removeParticleOut(
-    HepMC::GenVertex*         vertex,
-    Acts::ParticleProperties* particle)
+    std::shared_ptr<HepMC::GenVertex>         vertex,
+    std::shared_ptr<Acts::ParticleProperties> particle)
 {
   // Remove particle if it exists
   if (HepMC::GenParticlePtr genParticle

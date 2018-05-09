@@ -10,7 +10,6 @@
 
 #include <memory>
 #include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTFW/Plugins/HepMC/HepMC3Vertex.hpp"
 
 namespace FW {
 
@@ -32,7 +31,7 @@ namespace SimVertex {
   /// @return corresponding Acts vertex
   template <class V>
   static std::unique_ptr<Acts::ProcessVertex>
-  processVertex(const V* vertex)
+  processVertex(const std::shared_ptr<V> vertex)
   {
     return std::move(SimulatedVertex<V>::processVertex(vertex));
   }
@@ -43,7 +42,7 @@ namespace SimVertex {
   /// @return boolean expression if the vertex is in an event
   template <class V>
   static bool
-  inEvent(const V* vertex)
+  inEvent(const std::shared_ptr<V> vertex)
   {
     return SimulatedVertex<V>::inEvent(vertex);
   }
@@ -53,7 +52,7 @@ namespace SimVertex {
   /// @return id of the vertex
   template <class V>
   static int
-  id(const V* vertex)
+  id(const std::shared_ptr<V> vertex)
   {
     return SimulatedVertex<V>::id(vertex);
   }
@@ -63,7 +62,7 @@ namespace SimVertex {
   /// @return incoming particles of the vertex
   template <class V>
   static std::vector<Acts::ParticleProperties>
-  particlesIn(const V* vertex)
+  particlesIn(const std::shared_ptr<V> vertex)
   {
     return SimulatedVertex<V>::particlesIn(vertex);
   }
@@ -73,7 +72,7 @@ namespace SimVertex {
   /// @return outgoing particles of the vertex
   template <class V>
   static std::vector<Acts::ParticleProperties>
-  particlesOut(const V* vertex)
+  particlesOut(const std::shared_ptr<V> vertex)
   {
     return SimulatedVertex<V>::particlesOut(vertex);
   }
@@ -83,7 +82,7 @@ namespace SimVertex {
   /// @return position of the vertex
   template <class V>
   static Acts::Vector3D
-  position(const V* vertex)
+  position(const std::shared_ptr<V> vertex)
   {
     return SimulatedVertex<V>::position(vertex);
   }
@@ -93,7 +92,7 @@ namespace SimVertex {
   /// @return time of the vertex
   template <class V>
   static double
-  time(const V* vertex)
+  time(const std::shared_ptr<V> vertex)
   {
     return SimulatedVertex<V>::time(vertex);
   }
@@ -103,7 +102,7 @@ namespace SimVertex {
   /// @param particle incoming particle that will be added
   template <class V>
   static void
-  addParticleIn(V* vertex, Acts::ParticleProperties* particle)
+  addParticleIn(std::shared_ptr<V> vertex, std::shared_ptr<Acts::ParticleProperties> particle)
   {
     SimulatedVertex<V>::addParticleIn(vertex, particle);
   }
@@ -113,7 +112,7 @@ namespace SimVertex {
   /// @param particle outgoing particle that will be added
   template <class V>
   static void
-  addParticleOut(V* vertex, Acts::ParticleProperties* particle)
+  addParticleOut(std::shared_ptr<V> vertex, std::shared_ptr<Acts::ParticleProperties> particle)
   {
     SimulatedVertex<V>::addParticleOut(vertex, particle);
   }
@@ -123,7 +122,7 @@ namespace SimVertex {
   /// @param particle incoming particle that will be removed
   template <class V>
   static void
-  removeParticleIn(V* vertex, Acts::ParticleProperties* particle)
+  removeParticleIn(std::shared_ptr<V> vertex, std::shared_ptr<Acts::ParticleProperties> particle)
   {
     SimulatedVertex<V>::removeParticleIn(vertex, particle);
   }
@@ -133,7 +132,7 @@ namespace SimVertex {
   /// @param particle outgoing particle that will be removed
   template <class V>
   static void
-  removeParticleOut(V* vertex, Acts::ParticleProperties* particle)
+  removeParticleOut(std::shared_ptr<V> vertex, std::shared_ptr<Acts::ParticleProperties> particle)
   {
     SimulatedVertex<V>::removeParticleOut(vertex, particle);
   }

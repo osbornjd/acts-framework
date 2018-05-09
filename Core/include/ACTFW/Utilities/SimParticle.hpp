@@ -10,7 +10,6 @@
 
 #include <memory>
 #include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTFW/Plugins/HepMC/HepMC3Particle.hpp"
 
 namespace FW {
 
@@ -32,7 +31,7 @@ namespace SimParticle {
   /// @return corresponding Acts particle
   template <class T>
   static std::unique_ptr<Acts::ParticleProperties>
-  particleProperties(const T* particle)
+  particleProperties(const std::shared_ptr<T> particle)
   {
     return std::move(SimulatedParticle<T>::particleProperties(particle));
   }
@@ -42,7 +41,7 @@ namespace SimParticle {
   /// @return id of the particle
   template <class T>
   static int
-  id(const T* particle)
+  id(const std::shared_ptr<T> particle)
   {
     return SimulatedParticle<T>::id(particle);
   }
@@ -52,7 +51,7 @@ namespace SimParticle {
   /// @return production vertex of the particle or nullptr if it does not exist
   template <class T>
   std::unique_ptr<Acts::ProcessVertex>
-  productionVertex(const T* particle)
+  productionVertex(const std::shared_ptr<T> particle)
   {
     return std::move(SimulatedParticle<T>::productionVertex(particle));
   }
@@ -62,7 +61,7 @@ namespace SimParticle {
   /// @return end vertex of the particle or nullptr if it does not exist
   template <class T>
   std::unique_ptr<Acts::ProcessVertex>
-  endVertex(const T* particle)
+  endVertex(const std::shared_ptr<T> particle)
   {
     return std::move(SimulatedParticle<T>::endVertex(particle));
   }
@@ -72,7 +71,7 @@ namespace SimParticle {
   /// @return PDG code of the particle
   template <class T>
   int
-  pdgID(const T* particle)
+  pdgID(const std::shared_ptr<T> particle)
   {
     return SimulatedParticle<T>::pdgID(particle);
   }
@@ -82,7 +81,7 @@ namespace SimParticle {
   /// @return momentum of the particle
   template <class T>
   Acts::Vector3D
-  momentum(const T* particle)
+  momentum(const std::shared_ptr<T> particle)
   {
     return SimulatedParticle<T>::momentum(particle);
   }
@@ -92,7 +91,7 @@ namespace SimParticle {
   /// @return energy of the particle
   template <class T>
   double
-  energy(const T* particle)
+  energy(const std::shared_ptr<T> particle)
   {
     return SimulatedParticle<T>::energy(particle);
   }
@@ -102,7 +101,7 @@ namespace SimParticle {
   /// @return mass of the particle
   template <class T>
   double
-  mass(const T* particle)
+  mass(const std::shared_ptr<T> particle)
   {
     return SimulatedParticle<T>::mass(particle);
   }
@@ -112,7 +111,7 @@ namespace SimParticle {
   /// @return charge of the particle
   template <class T>
   double
-  charge(const T* particle)
+  charge(const std::shared_ptr<T> particle)
   {
     return SimulatedParticle<T>::charge(particle);
   }
@@ -122,7 +121,7 @@ namespace SimParticle {
   /// @param pid PDG code that will be set
   template <class T>
   void
-  pdgID(T* particle, const int pid)
+  pdgID(std::shared_ptr<T> particle, const int pid)
   {
     SimulatedParticle<T>::pdgID(particle, pid);
   }
@@ -132,7 +131,7 @@ namespace SimParticle {
   /// @param mom momentum that will be set
   template <class T>
   void
-  momentum(T* particle, const Acts::Vector3D& mom)
+  momentum(std::shared_ptr<T> particle, const Acts::Vector3D& mom)
   {
     SimulatedParticle<T>::momentum(particle, mom);
   }
@@ -142,7 +141,7 @@ namespace SimParticle {
   /// @param energy energy that will be set
   template <class T>
   void
-  energy(T* particle, const double energy)
+  energy(std::shared_ptr<T> particle, const double energy)
   {
     SimulatedParticle<T>::momentum(particle, energy);
   }
@@ -152,7 +151,7 @@ namespace SimParticle {
   /// @param mass mass that will be set
   template <class T>
   void
-  mass(T* particle, const double mass)
+  mass(std::shared_ptr<T> particle, const double mass)
   {
     SimulatedParticle<T>::mass(particle, mass);
   }
