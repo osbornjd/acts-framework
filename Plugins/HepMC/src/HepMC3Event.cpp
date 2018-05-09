@@ -112,8 +112,8 @@ FW::HepMC3Event::genParticleToActs(
                                    genParticle->momentum().y(),
                                    genParticle->momentum().z()},
                                   genParticle->generated_mass(),
-                                  HepPID::charge(genParticle->pdg_id()),
-                                  genParticle->pdg_id(),
+                                  HepPID::charge(genParticle->pid()),
+                                  genParticle->pid(),
                                   genParticle->id());
 }
 
