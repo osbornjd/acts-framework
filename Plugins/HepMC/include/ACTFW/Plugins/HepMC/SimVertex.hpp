@@ -13,7 +13,7 @@
 
 namespace FW {
 
-/// @struct SimulatedParticle
+/// @struct SimulatedVertex
 ///
 /// This structure is the default structure for vertices from external
 /// datatypes. It allows calling the functions that always handle primitive or
@@ -57,46 +57,6 @@ namespace SimVertex {
     return SimulatedVertex<V>::id(vertex);
   }
 
-  /// @brief Adds an incoming particle to a vertex translated into Acts
-  /// @param vertex vertex in external data type
-  /// @param particle incoming particle that will be added
-  template <class V>
-  static void
-  addParticleIn(V* vertex, Acts::ParticleProperties* particle)
-  {
-    SimulatedVertex<V>::addParticleIn(vertex, particle);
-  }
-
-  /// @brief Adds an outgoing particle to a vertex translated into Acts
-  /// @param vertex vertex in external data type
-  /// @param particle outgoing particle that will be added
-  template <class V>
-  static void
-  addParticleOut(V* vertex, Acts::ParticleProperties* particle)
-  {
-    SimulatedVertex<V>::addParticleOut(vertex, particle);
-  }
-
-  /// @brief Removes an incoming particle from a vertex translated into Acts
-  /// @param vertex vertex in external data type
-  /// @param particle incoming particle that will be removed
-  template <class V>
-  static void
-  removeParticleIn(V* vertex, Acts::ParticleProperties* particle)
-  {
-    SimulatedVertex<V>::removeParticleIn(vertex, particle);
-  }
-
-  /// @brief Removes an outgoing particle from a vertex translated into Acts
-  /// @param vertex vertex in external data type
-  /// @param particle outgoing particle that will be removed
-  template <class V>
-  static void
-  removeParticleOut(V* vertex, Acts::ParticleProperties* particle)
-  {
-    SimulatedVertex<V>::removeParticleOut(vertex, particle);
-  }
-
   /// @brief Returns the incoming particles of a vertex translated into Acts
   /// @param vertex vertex in external data type
   /// @return incoming particles of the vertex
@@ -135,6 +95,46 @@ namespace SimVertex {
   time(const V* vertex)
   {
     return SimulatedVertex<V>::time(vertex);
+  }
+  
+  /// @brief Adds an incoming particle to a vertex translated into Acts
+  /// @param vertex vertex in external data type
+  /// @param particle incoming particle that will be added
+  template <class V>
+  static void
+  addParticleIn(V* vertex, Acts::ParticleProperties* particle)
+  {
+    SimulatedVertex<V>::addParticleIn(vertex, particle);
+  }
+
+  /// @brief Adds an outgoing particle to a vertex translated into Acts
+  /// @param vertex vertex in external data type
+  /// @param particle outgoing particle that will be added
+  template <class V>
+  static void
+  addParticleOut(V* vertex, Acts::ParticleProperties* particle)
+  {
+    SimulatedVertex<V>::addParticleOut(vertex, particle);
+  }
+
+  /// @brief Removes an incoming particle from a vertex translated into Acts
+  /// @param vertex vertex in external data type
+  /// @param particle incoming particle that will be removed
+  template <class V>
+  static void
+  removeParticleIn(V* vertex, Acts::ParticleProperties* particle)
+  {
+    SimulatedVertex<V>::removeParticleIn(vertex, particle);
+  }
+
+  /// @brief Removes an outgoing particle from a vertex translated into Acts
+  /// @param vertex vertex in external data type
+  /// @param particle outgoing particle that will be removed
+  template <class V>
+  static void
+  removeParticleOut(V* vertex, Acts::ParticleProperties* particle)
+  {
+    SimulatedVertex<V>::removeParticleOut(vertex, particle);
   }
 }  // SimVertex
 }  // FW
