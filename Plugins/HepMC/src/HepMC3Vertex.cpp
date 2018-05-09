@@ -144,3 +144,17 @@ FW::SimulatedVertex<HepMC::GenVertex>::removeParticleOut(
       = matchParticles(vertex->particles_out(), particle))
     vertex->remove_particle_out(genParticle);
 }
+
+void
+FW::SimulatedVertex<HepMC::GenVertex>::position(const std::shared_ptr<HepMC::GenVertex> vertex, Acts::Vector3D pos)
+{
+	HepMC::FourVector fVec(pos(0), pos(1), pos(2), vertex->position().t());
+	vertex->set_position(fVec);
+}
+  
+void
+FW::SimulatedVertex<HepMC::GenVertex>::time(const std::shared_ptr<HepMC::GenVertex> vertex, double time)
+{
+	HepMC::FourVector fVec(vertex->position().x(), vertex->position().y(), vertex->position().z(), time);
+	vertex->set_position(fVec);
+}

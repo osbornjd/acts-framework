@@ -37,14 +37,14 @@ namespace SimEvent {
   //~ /// @param newLengthUnit new unit of length
   template <class E>
   static void
-  momentumUnit(E* event, const double momentumUnit)
+  momentumUnit(std::shared_ptr<E> event, const double momentumUnit)
   {
     SimulatedEvent<E>::setMomentumUnit(event, momentumUnit);
   }
 
   template <class E>
   static void
-  lengthUnit(E* event, const double lengthUnit)
+  lengthUnit(std::shared_ptr<E> event, const double lengthUnit)
   {
     SimulatedEvent<E>::setLengthUnit(event, lengthUnit);
   }
@@ -54,7 +54,7 @@ namespace SimEvent {
   //~ /// @param deltaTime relative time shift that will be applied
   template <class E>
   static void
-  shiftPositionBy(E*                    event,
+  shiftPositionBy(std::shared_ptr<E>                    event,
                   const Acts::Vector3D& deltaPos,
                   const double          deltaTime)
   {
@@ -66,7 +66,7 @@ namespace SimEvent {
   //~ /// @param deltaTime relative time shift that will be applied
   template <class E>
   static void
-  shiftPositionTo(E*                    event,
+  shiftPositionTo(std::shared_ptr<E>                    event,
                   const Acts::Vector3D& deltaPos,
                   const double          deltaTime)
   {
@@ -75,14 +75,14 @@ namespace SimEvent {
 
   template <class E>
   static void
-  shiftPositionTo(E* event, const Acts::Vector3D& deltaPos)
+  shiftPositionTo(std::shared_ptr<E> event, const Acts::Vector3D& deltaPos)
   {
     SimulatedEvent<E>::shiftPositionTo(event, deltaPos);
   }
 
   template <class E>
   static void
-  shiftPositionTo(E* event, const double deltaTime)
+  shiftPositionTo(std::shared_ptr<E> event, const double deltaTime)
   {
     SimulatedEvent<E>::shiftPositionTo(event, deltaTime);
   }
@@ -95,7 +95,7 @@ namespace SimEvent {
   //~ /// @return Unit in type of Acts::units
   template <class E>
   static double
-  momentumUnit(E* event)
+  momentumUnit(const std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::momentumUnit(E * event);
   }
@@ -104,7 +104,7 @@ namespace SimEvent {
   //~ /// @return Unit in type of Acts::units
   template <class E>
   static double
-  lengthUnit(E* event)
+  lengthUnit(const std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::lengthUnit(E * event);
   }
@@ -113,7 +113,7 @@ namespace SimEvent {
   /// @return Vector to the location of the vertex
   template <class E>
   static Acts::Vector3D
-  eventPos(E* event)
+  eventPos(std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::eventPos(E * event);
   }
@@ -122,7 +122,7 @@ namespace SimEvent {
   /// @return Time of the vertex
   template <class E>
   static double
-  eventTime(E* event)
+  eventTime(std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::eventTime(E * event);
   }
@@ -131,7 +131,7 @@ namespace SimEvent {
   /// @return List of const particles
   template <class E>
   static std::vector<std::unique_ptrActs::ParticleProperties>>
-  particles(E* event)
+  particles(std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::particles(E * event);
   }
@@ -140,7 +140,7 @@ namespace SimEvent {
   /// @return List of const vertices
   template <class E>
   static std::vector<std::unique_ptr<Acts::ProcessVertex>
-  vertices(E* event)
+  vertices(std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::vertices(E * event);
   }
@@ -149,7 +149,7 @@ namespace SimEvent {
   /// @return List of beam particles
   template <class E>
   static std::vector<std::unique_ptr<Acts::ParticleProperties>>
-  beams(E* event)
+  beams(std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::beams(E * event);
   }
@@ -164,9 +164,10 @@ namespace SimEvent {
   //~ /// @param status HepMC internal steering of the particle's behaviour
   template <class E>
   static void
-  addParticle(std::shared_ptr<Acts::ParticleProperties>& particle,
-  double                                     mass   = 0,
-  int                                        status = 0);
+  addParticle(std::shared_ptr<E> event, std::shared_ptr<Acts::ParticleProperties> particle)
+  {
+	  SimulatedEvent<E>::addParticle(event, particle);
+  }
 
   //~ /// @brief Adds a new vertex
   //~ /// @param vertex new vertex that will be added
@@ -179,10 +180,7 @@ namespace SimEvent {
   //~ /// be added manually.
   template <class E>
   static void
-  addVertex(const std::shared_ptr<Acts::ProcessVertex>& vertex,
-  int                                         statusVtx,
-  const std::map<barcode_type, int> statusIn,
-  const std::map<barcode_type, int> statusOut);
+  addVertex(const std::shared_ptr<Acts::ProcessVertex> vertex);
 
   /// @brief Adds a tree of particles and corresponding vertices to the
   //~ //record.
