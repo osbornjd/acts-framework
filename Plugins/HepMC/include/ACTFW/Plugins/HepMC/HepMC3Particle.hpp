@@ -93,7 +93,8 @@ public:
   /// @param particle HepMC::GenParticle particle
   /// @param mom momentum that will be set
   static void
-  momentum(std::shared_ptr<HepMC::GenParticle> particle, const Acts::Vector3D& mom);
+  momentum(std::shared_ptr<HepMC::GenParticle> particle,
+           const Acts::Vector3D&               mom);
 
   /// @brief Sets the energy of a particle translated from Acts
   /// @param particle HepMC::GenParticle particle

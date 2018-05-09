@@ -198,11 +198,8 @@ namespace SimEvent {
   /// @param event event in external data type
   /// @return List of particles
   template <class E>
-      static std::
-          vector<std::unique_ptr<Acts::ParticleProperties>> particles(
-                                                               const std::
-                                                                   shared_ptr<E>
-                                                                       event)
+  static std::vector<std::unique_ptr<Acts::ParticleProperties>>
+  particles(const std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::particles(event);
   }
@@ -211,8 +208,8 @@ namespace SimEvent {
   /// @param event event in external data type
   /// @return List of vertices
   template <class E>
-      static std::vector < std::unique_ptr<Acts::ProcessVertex>>
-                           vertices(const std::shared_ptr<E> event)
+  static std::vector<std::unique_ptr<Acts::ProcessVertex>>
+  vertices(const std::shared_ptr<E> event)
   {
     return SimulatedEvent<E>::vertices(event);
   }

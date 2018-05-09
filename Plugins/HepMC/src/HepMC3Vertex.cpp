@@ -17,7 +17,8 @@ FW::SimulatedVertex<HepMC::GenVertex>::genParticlesToActs(
   // Translate all particles
   for (auto& genParticle : genParticles)
     actsParticles.push_back(
-        *(FW::SimParticle::particleProperties<HepMC::GenParticle>(std::make_shared<HepMC::GenParticle>(*genParticle))));
+        *(FW::SimParticle::particleProperties<HepMC::GenParticle>(
+            std::make_shared<HepMC::GenParticle>(*genParticle))));
   return actsParticles;
 }
 
@@ -35,13 +36,15 @@ FW::SimulatedVertex<HepMC::GenVertex>::processVertex(
 }
 
 bool
-FW::SimulatedVertex<HepMC::GenVertex>::inEvent(const std::shared_ptr<HepMC::GenVertex> vertex)
+FW::SimulatedVertex<HepMC::GenVertex>::inEvent(
+    const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   return vertex->in_event();
 }
 
 int
-FW::SimulatedVertex<HepMC::GenVertex>::id(const std::shared_ptr<HepMC::GenVertex> vertex)
+FW::SimulatedVertex<HepMC::GenVertex>::id(
+    const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   return vertex->id();
 }
@@ -61,7 +64,8 @@ FW::SimulatedVertex<HepMC::GenVertex>::particlesOut(
 }
 
 Acts::Vector3D
-FW::SimulatedVertex<HepMC::GenVertex>::position(const std::shared_ptr<HepMC::GenVertex> vertex)
+FW::SimulatedVertex<HepMC::GenVertex>::position(
+    const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   Acts::Vector3D vec;
   vec(0) = vertex->position().x();
@@ -71,7 +75,8 @@ FW::SimulatedVertex<HepMC::GenVertex>::position(const std::shared_ptr<HepMC::Gen
 }
 
 double
-FW::SimulatedVertex<HepMC::GenVertex>::time(const std::shared_ptr<HepMC::GenVertex> vertex)
+FW::SimulatedVertex<HepMC::GenVertex>::time(
+    const std::shared_ptr<HepMC::GenVertex> vertex)
 {
   return vertex->position().t();
 }
@@ -112,7 +117,7 @@ FW::SimulatedVertex<HepMC::GenVertex>::addParticleOut(
 HepMC::GenParticlePtr
 FW::SimulatedVertex<HepMC::GenVertex>::matchParticles(
     const std::vector<HepMC::GenParticlePtr>& genParticles,
-    std::shared_ptr<Acts::ParticleProperties>                 actsParticle)
+    std::shared_ptr<Acts::ParticleProperties> actsParticle)
 {
   const barcode_type id = actsParticle->barcode();
   // Search HepMC::GenParticle with the same id as the Acts particle
@@ -146,15 +151,22 @@ FW::SimulatedVertex<HepMC::GenVertex>::removeParticleOut(
 }
 
 void
-FW::SimulatedVertex<HepMC::GenVertex>::position(const std::shared_ptr<HepMC::GenVertex> vertex, Acts::Vector3D pos)
+FW::SimulatedVertex<HepMC::GenVertex>::position(
+    const std::shared_ptr<HepMC::GenVertex> vertex,
+    Acts::Vector3D                          pos)
 {
-	HepMC::FourVector fVec(pos(0), pos(1), pos(2), vertex->position().t());
-	vertex->set_position(fVec);
+  HepMC::FourVector fVec(pos(0), pos(1), pos(2), vertex->position().t());
+  vertex->set_position(fVec);
 }
-  
+
 void
-FW::SimulatedVertex<HepMC::GenVertex>::time(const std::shared_ptr<HepMC::GenVertex> vertex, double time)
+FW::SimulatedVertex<HepMC::GenVertex>::time(
+    const std::shared_ptr<HepMC::GenVertex> vertex,
+    double                                  time)
 {
-	HepMC::FourVector fVec(vertex->position().x(), vertex->position().y(), vertex->position().z(), time);
-	vertex->set_position(fVec);
+  HepMC::FourVector fVec(vertex->position().x(),
+                         vertex->position().y(),
+                         vertex->position().z(),
+                         time);
+  vertex->set_position(fVec);
 }

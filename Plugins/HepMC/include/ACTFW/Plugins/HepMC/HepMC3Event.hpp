@@ -40,7 +40,8 @@ public:
   /// @param event event in HepMC data type
   /// @param momentumUnit new unit of momentum
   static void
-  momentumUnit(std::shared_ptr<HepMC::GenEvent> event, const double momentumUnit);
+  momentumUnit(std::shared_ptr<HepMC::GenEvent> event,
+               const double                     momentumUnit);
 
   /// @brief Sets new units for lengths
   /// @note The allowed units are mm and cm
@@ -54,24 +55,25 @@ public:
   /// @param deltaPos relative spatial shift that will be applied
   /// @param deltaTime relative time shift that will be applied
   static void
-  shiftPositionBy(std::shared_ptr<HepMC::GenEvent>    event,
-                  const Acts::Vector3D& deltaPos,
-                  const double          deltaTime);
+  shiftPositionBy(std::shared_ptr<HepMC::GenEvent> event,
+                  const Acts::Vector3D&            deltaPos,
+                  const double                     deltaTime);
 
   /// @brief Shifts the positioning of an event to a paint in space and time
   /// @param event event in HepMC data type
   /// @param pos new position of the event
   /// @param time new time of the event
   static void
-  shiftPositionTo(std::shared_ptr<HepMC::GenEvent>    event,
-                  const Acts::Vector3D& pos,
-                  const double          time);
+  shiftPositionTo(std::shared_ptr<HepMC::GenEvent> event,
+                  const Acts::Vector3D&            pos,
+                  const double                     time);
 
   /// @brief Shifts the positioning of an event to a paint in space
   /// @param event event in HepMC data type
   /// @param pos new position of the event
   static void
-  shiftPositionTo(std::shared_ptr<HepMC::GenEvent> event, const Acts::Vector3D& pos);
+  shiftPositionTo(std::shared_ptr<HepMC::GenEvent> event,
+                  const Acts::Vector3D&            pos);
 
   /// @brief Shifts the positioning of an event to a paint in time
   /// @param event event in HepMC data type
@@ -87,7 +89,7 @@ public:
   /// @param event event in HepMC data type
   /// @param particle new particle that will be added
   static void
-  addParticle(std::shared_ptr<HepMC::GenEvent>                        event,
+  addParticle(std::shared_ptr<HepMC::GenEvent>          event,
               std::shared_ptr<Acts::ParticleProperties> particle);
 
   /// @brief Adds a new vertex
@@ -95,7 +97,7 @@ public:
   /// @param vertex new vertex that will be added
   /// @note The statuses are not represented in Acts and therefore set to 0
   static void
-  addVertex(std::shared_ptr<HepMC::GenEvent>                         event,
+  addVertex(std::shared_ptr<HepMC::GenEvent>           event,
             const std::shared_ptr<Acts::ProcessVertex> vertex);
   ///
   /// Remover
@@ -105,16 +107,16 @@ public:
   /// @param event event in HepMC data type
   /// @param particle particle that will be removed
   static void
-  removeParticle(std::shared_ptr<HepMC::GenEvent>                               event,
+  removeParticle(std::shared_ptr<HepMC::GenEvent>                 event,
                  const std::shared_ptr<Acts::ParticleProperties>& particle);
 
   /// @brief Removes a vertex from the record
-    /// @note The identification of the vertex is potentially unstable (c.f.
+  /// @note The identification of the vertex is potentially unstable (c.f.
   /// HepMC3Event::compareVertices())
   /// @param event event in HepMC data type
   /// @param vertex vertex that will be removed
   static void
-  removeVertex(std::shared_ptr<HepMC::GenEvent>                          event,
+  removeVertex(std::shared_ptr<HepMC::GenEvent>            event,
                const std::shared_ptr<Acts::ProcessVertex>& vertex);
 
   ///
@@ -148,18 +150,15 @@ public:
   /// @brief Get list of particles
   /// @param event event in HepMC data type
   /// @return List of particles
-      static std::
-          vector<std::unique_ptr<Acts::ParticleProperties>> particles(
-                                                               const std::
-                                                                   shared_ptr<HepMC::GenEvent>
-                                                                       event);
+  static std::vector<std::unique_ptr<Acts::ParticleProperties>>
+  particles(const std::shared_ptr<HepMC::GenEvent> event);
 
   /// @brief Get list of vertices
   /// @param event event in HepMC data type
   /// @return List of vertices
-      static std::vector < std::unique_ptr<Acts::ProcessVertex>>
-                           vertices(const std::shared_ptr<HepMC::GenEvent> event);
-                           
+  static std::vector<std::unique_ptr<Acts::ProcessVertex>>
+  vertices(const std::shared_ptr<HepMC::GenEvent> event);
+
   /// @brief Get beam particles
   /// @param event event in HepMC data type
   /// @return List of beam particles
@@ -167,9 +166,8 @@ public:
   beams(const std::shared_ptr<HepMC::GenEvent> event);
 
 private:
-
   /// @brief Converts an Acts::ParticleProperties into HepMC::GenParticle
-    /// @note The conversion ignores HepMC status codes
+  /// @note The conversion ignores HepMC status codes
   /// @param actsParticle Acts particle that will be converted
   /// @return converted particle
   static HepMC::GenParticlePtr

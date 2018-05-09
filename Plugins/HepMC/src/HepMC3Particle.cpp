@@ -47,8 +47,8 @@ FW::SimulatedParticle<HepMC::GenParticle>::endVertex(
 {
   // Return the vertex if it exists
   if (particle->end_vertex())
-    return std::move(
-        FW::SimVertex::processVertex<HepMC::GenVertex>(std::make_shared<HepMC::GenVertex>(*(particle->end_vertex()))));
+    return std::move(FW::SimVertex::processVertex<HepMC::GenVertex>(
+        std::make_shared<HepMC::GenVertex>(*(particle->end_vertex()))));
   else
     return nullptr;
 }
@@ -93,24 +93,26 @@ FW::SimulatedParticle<HepMC::GenParticle>::charge(
 }
 
 void
-FW::SimulatedParticle<HepMC::GenParticle>::pdgID(std::shared_ptr<HepMC::GenParticle> particle,
-                                                 const int           pid)
+FW::SimulatedParticle<HepMC::GenParticle>::pdgID(
+    std::shared_ptr<HepMC::GenParticle> particle,
+    const int                           pid)
 {
   particle->set_pid(pid);
 }
 
 void
 FW::SimulatedParticle<HepMC::GenParticle>::momentum(
-    std::shared_ptr<HepMC::GenParticle>   particle,
-    const Acts::Vector3D& mom)
+    std::shared_ptr<HepMC::GenParticle> particle,
+    const Acts::Vector3D&               mom)
 {
   HepMC::FourVector fVec(mom(0), mom(1), mom(2), particle->momentum().e());
   particle->set_momentum(fVec);
 }
 
 void
-FW::SimulatedParticle<HepMC::GenParticle>::energy(std::shared_ptr<HepMC::GenParticle> particle,
-                                                  const double        energy)
+FW::SimulatedParticle<HepMC::GenParticle>::energy(
+    std::shared_ptr<HepMC::GenParticle> particle,
+    const double                        energy)
 {
   HepMC::FourVector fVec(particle->momentum().x(),
                          particle->momentum().y(),
@@ -120,8 +122,9 @@ FW::SimulatedParticle<HepMC::GenParticle>::energy(std::shared_ptr<HepMC::GenPart
 }
 
 void
-FW::SimulatedParticle<HepMC::GenParticle>::mass(std::shared_ptr<HepMC::GenParticle> particle,
-                                                const double        mass)
+FW::SimulatedParticle<HepMC::GenParticle>::mass(
+    std::shared_ptr<HepMC::GenParticle> particle,
+    const double                        mass)
 {
   particle->set_generated_mass(mass);
 }
