@@ -10,6 +10,7 @@
 
 #include <memory>
 #include "ACTS/EventData/ParticleDefinitions.hpp"
+#include "ACTFW/Plugins/HepMC/HepMC3Vertex.hpp"
 
 namespace FW {
 

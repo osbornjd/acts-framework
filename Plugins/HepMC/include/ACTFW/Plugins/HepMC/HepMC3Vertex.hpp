@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "ACTFW/Plugins/HepMC/SimVertex.hpp"
+#include "ACTFW/Utilities/SimVertex.hpp"
 #include "HepMC/FourVector.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"

@@ -9,7 +9,7 @@
 #pragma once
 
 #include "ACTFW/Plugins/HepMC/HepMC3Vertex.hpp"
-#include "ACTFW/Plugins/HepMC/SimParticle.hpp"
+#include "ACTFW/Utilities/SimParticle.hpp"
 #include "HepMC/FourVector.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
