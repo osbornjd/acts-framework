@@ -18,7 +18,7 @@ namespace FW {
 
 /// @struct SimulatedReader
 ///
-/// This structure is the default structure for runs from external
+/// This structure is the default structure to read runs from external
 /// datatypes. It allows calling the functions that always handle primitive or
 /// Acts data types.
 ///
@@ -38,6 +38,16 @@ namespace SimReader {
   readEvent(R& reader, std::shared_ptr<E> event)
   {
     return SimulatedReader<R, E>::readEvent(reader, event);
+  }
+  
+  /// @brief Reports the status of the reader
+  /// @param reader reader of run files
+  /// @return boolean status indicator
+  template <class R, class E>
+  static bool
+  status(R& reader)
+  {
+	  return SimulatedReader<R, E>::status(reader);
   }
 }  // SimReader
 }  // FW

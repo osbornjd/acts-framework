@@ -6,19 +6,20 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/HepMC/HepMC3Reader.hpp"
+#include "ACTFW/Plugins/HepMC/HepMC3Writer.hpp"
 
 bool
-FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>::readEvent(
-    HepMC::ReaderAscii&              reader,
+FW::SimulatedWriter<HepMC::WriterAscii, HepMC::GenEvent>::writeEvent(
+    HepMC::WriterAscii&              writer,
     std::shared_ptr<HepMC::GenEvent> event)
 {
-  // Read event and store it
- return reader.read_event(*event);
+  // Write event from storage
+ writer.write_event(*event);
+ return true;
 }
 
 bool
-FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>::status(HepMC::ReaderAscii& reader)
+FW::SimulatedWriter<HepMC::WriterAscii, HepMC::GenEvent>::status(HepMC::WriterAscii& writer)
 {
-	return reader.failed();
+	return writer.failed();
 }

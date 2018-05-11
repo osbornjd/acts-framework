@@ -19,7 +19,7 @@ struct SimulatedReader;
 
 /// @struct SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>
 ///
-/// This structure is the default structure for runs from external
+/// This structure is the explicit structure to read runs from HepMC
 /// datatypes. It allows calling the functions that always handle primitive or
 /// Acts data types.
 ///
@@ -33,5 +33,11 @@ public:
   /// @return boolean indicator if the reading was successful
   static bool
   readEvent(HepMC::ReaderAscii& reader, std::shared_ptr<HepMC::GenEvent> event);
+  
+  /// @brief Reports the status of the reader
+  /// @param reader reader of run files
+  /// @return boolean status indicator
+  static bool
+  status(HepMC::ReaderAscii& reader);
 };
 }  // FW
