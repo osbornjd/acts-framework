@@ -14,12 +14,13 @@ FW::SimulatedWriter<HepMC::WriterAscii, HepMC::GenEvent>::writeEvent(
     std::shared_ptr<HepMC::GenEvent> event)
 {
   // Write event from storage
- writer.write_event(*event);
- return true;
+  writer.write_event(*event);
+  return true;
 }
 
 bool
-FW::SimulatedWriter<HepMC::WriterAscii, HepMC::GenEvent>::status(HepMC::WriterAscii& writer)
+FW::SimulatedWriter<HepMC::WriterAscii, HepMC::GenEvent>::status(
+    HepMC::WriterAscii& writer)
 {
-	return writer.failed();
+  return writer.failed();
 }

@@ -39,7 +39,7 @@ namespace SimWriter {
   {
     return SimulatedWriter<W, E>::readEvent(writer, event);
   }
-  
+
   /// @brief Reports the status of the writer
   /// @param writer writer of run files
   /// @return boolean status indicator
@@ -47,7 +47,7 @@ namespace SimWriter {
   static bool
   status(W& writer)
   {
-	  return SimulatedWriter<W, E>::status(writer);
+    return SimulatedWriter<W, E>::status(writer);
   }
 }  // SimReader
 }  // FW

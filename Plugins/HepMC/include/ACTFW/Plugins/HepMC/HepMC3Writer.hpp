@@ -31,10 +31,12 @@ public:
   /// @param writer writer of run files
   /// @param event storage of the event
   /// @return boolean indicator if the writing was successful
-  /// @note HepMC3 does not state a success or failure. The returned argument is always true.
+  /// @note HepMC3 does not state a success or failure. The returned argument is
+  /// always true.
   static bool
-  writeEvent(HepMC::WriterAscii& writer, std::shared_ptr<HepMC::GenEvent> event);
-  
+  writeEvent(HepMC::WriterAscii&              writer,
+             std::shared_ptr<HepMC::GenEvent> event);
+
   /// @brief Reports the status of the writer
   /// @param writer writer of run files
   /// @return boolean status indicator

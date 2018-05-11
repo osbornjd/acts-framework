@@ -39,7 +39,7 @@ namespace SimReader {
   {
     return SimulatedReader<R, E>::readEvent(reader, event);
   }
-  
+
   /// @brief Reports the status of the reader
   /// @param reader reader of run files
   /// @return boolean status indicator
@@ -47,7 +47,7 @@ namespace SimReader {
   static bool
   status(R& reader)
   {
-	  return SimulatedReader<R, E>::status(reader);
+    return SimulatedReader<R, E>::status(reader);
   }
 }  // SimReader
 }  // FW

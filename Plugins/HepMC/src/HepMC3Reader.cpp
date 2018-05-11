@@ -14,11 +14,12 @@ FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>::readEvent(
     std::shared_ptr<HepMC::GenEvent> event)
 {
   // Read event and store it
- return reader.read_event(*event);
+  return reader.read_event(*event);
 }
 
 bool
-FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>::status(HepMC::ReaderAscii& reader)
+FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>::status(
+    HepMC::ReaderAscii& reader)
 {
-	return reader.failed();
+  return reader.failed();
 }

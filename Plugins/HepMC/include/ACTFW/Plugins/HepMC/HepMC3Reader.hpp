@@ -33,7 +33,7 @@ public:
   /// @return boolean indicator if the reading was successful
   static bool
   readEvent(HepMC::ReaderAscii& reader, std::shared_ptr<HepMC::GenEvent> event);
-  
+
   /// @brief Reports the status of the reader
   /// @param reader reader of run files
   /// @return boolean status indicator
