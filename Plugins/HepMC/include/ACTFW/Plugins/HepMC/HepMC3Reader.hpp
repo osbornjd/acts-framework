@@ -33,13 +33,5 @@ public:
   /// @return boolean indicator if the reading was successful
   static bool
   readEvent(HepMC::ReaderAscii& reader, std::shared_ptr<HepMC::GenEvent> event);
-
-  /// @brief Reads the whole run from file
-  /// @param reader reader of run files
-  /// @param events storage of the read events
-  /// @return boolean indicator if the reading was succesful
-  static bool
-  readRun(HepMC::ReaderAscii&                            reader,
-          std::vector<std::shared_ptr<HepMC::GenEvent>>& events);
 };
 }  // FW

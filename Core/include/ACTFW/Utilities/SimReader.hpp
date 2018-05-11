@@ -9,7 +9,6 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
 #ifdef USE_HEPMC3
 #include "ACTFW/Plugins/HepMC/HepMC3Reader.hpp"
@@ -39,17 +38,6 @@ namespace SimReader {
   readEvent(R& reader, std::shared_ptr<E> event)
   {
     return SimulatedReader<R, E>::readEvent(reader, event);
-  }
-
-  /// @brief Reads the whole run from file
-  /// @param reader reader of run files
-  /// @param events storage of the read events
-  /// @return boolean indicator if the reading was succesful
-  template <class R, class E>
-  static bool
-  readRun(R& reader, std::vector<std::shared_ptr<E>>& events)
-  {
-    return SimulatedReader<R, E>::readRun(reader, events);
   }
 }  // SimReader
 }  // FW

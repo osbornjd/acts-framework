@@ -17,18 +17,3 @@ FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>::readEvent(
   if (reader.read_event(*event)) return true;
   return false;
 }
-
-bool
-FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>::readRun(
-    HepMC::ReaderAscii&                            reader,
-    std::vector<std::shared_ptr<HepMC::GenEvent>>& events)
-{
-  std::shared_ptr<HepMC::GenEvent> event;
-  // Read single event
-  if (!readEvent(reader, event)) return false;
-  // Continue reading events as long as the reading is successful
-  do
-    events.push_back(event);
-  while (readEvent(reader, event));
-  return true;
-}
