@@ -165,6 +165,9 @@ public:
   static std::vector<std::unique_ptr<Acts::ParticleProperties>>
   beams(const std::shared_ptr<HepMC::GenEvent> event);
 
+  static std::vector<std::unique_ptr<Acts::ParticleProperties>>
+  finalState(const std::shared_ptr<HepMC::GenEvent> event);
+
 private:
   /// @brief Converts an Acts::ParticleProperties into HepMC::GenParticle
   /// @note The conversion ignores HepMC status codes

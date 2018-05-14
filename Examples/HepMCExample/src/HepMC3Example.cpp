@@ -97,4 +97,13 @@ main(int argc, char* argv[])
               << particle->momentum()(0) << ", " << particle->momentum()(1)
               << ", " << particle->momentum()(2)
               << "), mass:  " << particle->mass() << std::endl;
+
+  std::cout << std::endl << "Initial to final state: ";
+  std::vector<std::unique_ptr<Acts::ParticleProperties>> fState
+      = FW::SimEvent::finalState<HepMC::GenEvent>(genevt);
+  for (auto& pbeam : beam)
+    std::cout << HepPID::particleName(pbeam->pdgID()) << " ";
+  std::cout << "-> ";
+  for (auto& fs : fState) std::cout << HepPID::particleName(fs->pdgID()) << " ";
+  std::cout << std::endl;
 }

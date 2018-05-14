@@ -225,5 +225,12 @@ namespace SimEvent {
   {
     return SimulatedEvent<E>::beams(event);
   }
+
+  template <class E>
+  static std::vector<std::unique_ptr<Acts::ParticleProperties>>
+  finalState(const std::shared_ptr<E> event)
+  {
+    return SimulatedEvent<E>::finalState(event);
+  };
 }  // SimEvent
 }  // FW
