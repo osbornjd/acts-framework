@@ -21,5 +21,5 @@ bool
 FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>::status(
     HepMC::ReaderAscii& reader)
 {
-  return reader.failed();
+  return !reader.failed();
 }

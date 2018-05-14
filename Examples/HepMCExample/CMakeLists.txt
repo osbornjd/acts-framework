@@ -9,3 +9,6 @@ target_link_libraries(ACTFWHepMC3Example PRIVATE HepMC3Lib)
 target_link_libraries(ACTFWHepMC3Example PRIVATE HepPID)
 
 install(TARGETS ACTFWHepMC3Example RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(FILES test.hepmc3 DESTINATION ${CMAKE_INSTALL_BINDIR})
+#file(INSTALL test.hepmc3 DESTINATION ${CMAKE_INSTALL_BINDIR})
