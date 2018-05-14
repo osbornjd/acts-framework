@@ -165,6 +165,9 @@ public:
   static std::vector<std::unique_ptr<Acts::ParticleProperties>>
   beams(const std::shared_ptr<HepMC::GenEvent> event);
 
+  /// @brief Get final state particles
+  /// @param event event in HepMC data type
+  /// @return List of final state particles
   static std::vector<std::unique_ptr<Acts::ParticleProperties>>
   finalState(const std::shared_ptr<HepMC::GenEvent> event);
 

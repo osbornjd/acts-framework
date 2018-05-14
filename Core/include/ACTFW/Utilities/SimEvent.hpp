@@ -226,6 +226,9 @@ namespace SimEvent {
     return SimulatedEvent<E>::beams(event);
   }
 
+  /// @brief Get final state particles
+  /// @param event event in external data type
+  /// @return List of final state particles
   template <class E>
   static std::vector<std::unique_ptr<Acts::ParticleProperties>>
   finalState(const std::shared_ptr<E> event)

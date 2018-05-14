@@ -322,22 +322,14 @@ std::vector<std::unique_ptr<Acts::ParticleProperties>>
 FW::SimulatedEvent<HepMC::GenEvent>::finalState(
     const std::shared_ptr<HepMC::GenEvent> event)
 {
-  std::vector<HepMC::GenVertexPtr> vertices = event->vertices();
+  std::vector<HepMC::GenParticlePtr> particles = event->particles();
   std::vector<std::unique_ptr<Acts::ParticleProperties>> fState;
-  for (auto& vertex : vertices) {
-    std::vector<HepMC::GenParticlePtr> particlesIn = vertex->particles_in();
-    for (auto& particle : particlesIn)
-      if (!particle->production_vertex())
-        fState.push_back(
-            FW::SimParticle::particleProperties<HepMC::GenParticle>(
-                std::make_shared<HepMC::GenParticle>(*particle)));
-
-    std::vector<HepMC::GenParticlePtr> particlesOut = vertex->particles_out();
-    for (auto& particle : particlesOut)
-      if (!particle->end_vertex())
-        fState.push_back(
-            FW::SimParticle::particleProperties<HepMC::GenParticle>(
-                std::make_shared<HepMC::GenParticle>(*particle)));
+  // Walk over every vertex
+  for (auto& particle : particles) {
+    // Collect particles without end vertex
+    if (!particle->end_vertex())
+      fState.push_back(FW::SimParticle::particleProperties<HepMC::GenParticle>(
+          std::make_shared<HepMC::GenParticle>(*particle)));
   }
   return fState;
 }
