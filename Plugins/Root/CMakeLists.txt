@@ -15,6 +15,15 @@ set(srcs include/ACTFW/Plugins/Root/RootExCellWriter.hpp
          src/RootPlanarClusterWriter.cpp
          src/RootParticleWriter.cpp)
 # generate root dictionary for material mapping - needed to write this class to a root file
+if (DEFINED Acts_FOUND)
+root_generate_dictionary(
+  G__Material
+  ${Acts_INCLUDE_DIR}/Acts/Material/Material.hpp
+  ${Acts_INCLUDE_DIR}/Acts/Plugins/MaterialPlugins/MaterialStep.hpp
+  ${Acts_INCLUDE_DIR}/Acts/Plugins/MaterialPlugins/MaterialTrack.hpp
+  LINKDEF include/ACTFW/Plugins/Root/Material_LinkDef.h
+  OPTIONS -I${Acts_INCLUDE_DIR})
+else()
 root_generate_dictionary(
   G__Material
   ${PROJECT_SOURCE_DIR}/external/acts-core/Core/include/Acts/Material/Material.hpp
@@ -23,6 +32,7 @@ root_generate_dictionary(
   LINKDEF include/ACTFW/Plugins/Root/Material_LinkDef.h
   OPTIONS -I${PROJECT_SOURCE_DIR}/external/acts-core/Core/include
           -I${PROJECT_SOURCE_DIR}/external/acts-core/Plugins/MaterialPlugin/include)
+endif()
 
 add_library(ACTFWRootPlugin SHARED ${srcs} G__Material.cxx)
 target_include_directories(ACTFWRootPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)

@@ -21,6 +21,7 @@ option(USE_DD4HEP "Build DD4hep-based code" off)
 option(USE_GEANT4 "Build Geant4-based code" off)
 option(USE_OPENMP "Build framework with OpenMP enabled" ${USE_OPENMP_DEFAULT})
 option(USE_PYTHIA8 "Build Pythia8-based code" off)
+option(BUILD_ACTS "Build acts-core as submodule" on)
 
 # determine build-flag dependent components
 set(DD4hep_COMPONENTS DDCore DDSegmentation)
@@ -74,15 +75,22 @@ if(USE_PYTHIA8)
   find_package(Pythia8 REQUIRED)
 endif()
 
-# acts-core and acts-fatras are build as subprojects with fixed options
-set(ACTS_BUILD_DOC OFF CACHE BOOL "Build ACTS documentation")
-set(ACTS_BUILD_EXAMPLES OFF CACHE BOOL "Build ACTS examples")
-set(ACTS_BUILD_TESTS OFF CACHE BOOL "Build ACTS unit tests")
-set(ACTS_BUILD_INTEGRATION_TESTS OFF CACHE BOOL "Build ACTS integration tests")
-set(ACTS_BUILD_DD4HEP_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build ACTS DD4HEP plugins")
-set(ACTS_BUILD_MATERIAL_PLUGIN ON CACHE BOOL "Build ACTS Material plugins")
-set(ACTS_BUILD_TGEO_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build ACTS TGeo plugins")
-add_subdirectory(external/acts-core)
+if(BUILD_ACTS)
+  message(STATUS "Building Acts core from source")
+  # acts-core and acts-fatras are build as subprojects with fixed options
+  set(ACTS_BUILD_DOC OFF CACHE BOOL "Build ACTS documentation")
+  set(ACTS_BUILD_EXAMPLES OFF CACHE BOOL "Build ACTS examples")
+  set(ACTS_BUILD_TESTS OFF CACHE BOOL "Build ACTS unit tests")
+  set(ACTS_BUILD_INTEGRATION_TESTS OFF CACHE BOOL "Build ACTS integration tests")
+  set(ACTS_BUILD_DD4HEP_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build ACTS DD4HEP plugins")
+  set(ACTS_BUILD_MATERIAL_PLUGIN ON CACHE BOOL "Build ACTS Material plugins")
+  set(ACTS_BUILD_TGEO_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build ACTS TGeo plugins")
+  add_subdirectory(external/acts-core)
+else()
+  message(STATUS "Using external Acts core installation")
+  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialPlugin TGeoPlugin DD4hepPlugin)
+endif()
+
 add_subdirectory(external/acts-fatras)
 
 # simplify handling of optional components
