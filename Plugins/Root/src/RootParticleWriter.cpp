@@ -27,10 +27,14 @@ FW::Root::RootParticleWriter::RootParticleWriter(
     throw std::invalid_argument("Missing tree name");
   }
 
+  std::string outputName = "";
+  if (m_cfg.outputDir != "") outputName += m_cfg.outputDir + "/";
+  outputName += m_cfg.outputFileName;
+
   // Setup ROOT I/O
-  m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+  m_outputFile = TFile::Open(outputName.c_str(), m_cfg.fileMode.c_str());
   if (!m_outputFile) {
-    throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
+    throw std::ios_base::failure("Could not open '" + outputName);
   }
   m_outputFile->cd();
   m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
@@ -68,7 +72,7 @@ FW::Root::RootParticleWriter::endRun()
   m_outputFile->cd();
   m_outputTree->Write();
   ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
-                                        << m_cfg.filePath
+                                        << m_cfg.outputFileName
                                         << "'");
   return ProcessCode::SUCCESS;
 }

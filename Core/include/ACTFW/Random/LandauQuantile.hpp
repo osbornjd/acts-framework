@@ -9,7 +9,6 @@
 #pragma once
 
 #include <limits>
-#include <math>
 
 static inline double
 landau_quantile(double z, double xi)

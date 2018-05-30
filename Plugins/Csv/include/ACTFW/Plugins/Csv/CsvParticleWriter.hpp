@@ -10,13 +10,12 @@
 /// @date 2016-05-23 Initial version
 /// @date 2017-08-07 Rewrite with new interfaces
 
-#ifndef ACTFW_CSVPARTICLERITER_H
-#define ACTFW_CSVPARTICLERITER_H
-#include <Acts/EventData/ParticleDefinitions.hpp>
-#include <Acts/Utilities/Logger.hpp>
+#pragma once
+
 #include <vector>
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
+#include "Acts/Utilities/Logger.hpp"
+#include "Fatras/Kernel/Particle.hpp"
 
 namespace FW {
 namespace Csv {
@@ -35,18 +34,20 @@ namespace Csv {
   ///     event000000002-particles.csv
   ///
   /// and each line in the file corresponds to one particle.
-  class CsvParticleWriter : public WriterT<std::vector<Acts::ProcessVertex>>
+  class CsvParticleWriter : public WriterT<std::vector<Fatras::Vertex>>
   {
   public:
-    using Base = WriterT<std::vector<Acts::ProcessVertex>>;
+    using Base = WriterT<std::vector<Fatras::Vertex>>;
 
     struct Config
     {
       std::string collection;           ///< which collection to write
       std::string outputDir;            ///< where to place output files
+      std::string outputFileName;       ///< output file name
       size_t      outputPrecision = 6;  ///< floating point precision
-      /// the barcode service to decode/endcode barcode
-      std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
+
+      /// try to get the hits per particle map
+      std::string hitsPerParticleCollection = "";
     };
 
     /// constructor
@@ -57,8 +58,8 @@ namespace Csv {
 
   protected:
     ProcessCode
-    writeT(const FW::AlgorithmContext&             ctx,
-           const std::vector<Acts::ProcessVertex>& particles) final override;
+    writeT(const FW::AlgorithmContext&        ctx,
+           const std::vector<Fatras::Vertex>& vertices) final override;
 
   private:
     Config m_cfg;
@@ -66,5 +67,3 @@ namespace Csv {
 
 }  // namespace Csv
 }  // namespace FW
-
-#endif  // ACTFW_CSVPARTICLERITER_H

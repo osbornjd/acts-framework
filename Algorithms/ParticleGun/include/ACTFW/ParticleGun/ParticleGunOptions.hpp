@@ -82,7 +82,6 @@ namespace Options {
     auto ptr  = vm["pg-ptrange"].template as<read_range>();
     // particle gun as generator
     FW::ParticleGunAlgorithm::Config particleGunConfig;
-    particleGunConfig.evgenCollection = "EvgenParticles";
     particleGunConfig.nParticles = vm["pg-nparticles"].template as<size_t>();
     particleGunConfig.d0Range    = {{d0r[0] * au::_mm, d0r[1] * au::_mm}};
     particleGunConfig.z0Range    = {{z0r[0] * au::_mm, z0r[1] * au::_mm}};

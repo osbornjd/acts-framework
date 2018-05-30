@@ -6,18 +6,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_EXAMPLES_PARTICLEGUN_H
-#define ACTFW_EXAMPLES_PARTICLEGUN_H
-
 #include <boost/program_options.hpp>
 #include <string>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-//#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/ParticleGun/ParticleGunAlgorithm.hpp"
 #include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
+#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
@@ -40,7 +38,9 @@ main(int argc, char* argv[])
   // add the particle gun options
   FW::Options::addParticleGunOptions<po::options_description>(desc);
   // add specific options for this example
-  desc.add_options()(
+  desc.add_options()("output-dir",
+                     po::value<std::string>()->default_value(""),
+                     "Output directory location.")(
       "output-root-file",
       po::value<std::string>()->default_value(""),
       "If the string is not empty: write a '.root' output file (full run).")(
@@ -58,18 +58,6 @@ main(int argc, char* argv[])
     return 1;
   }
 
-  // output root filename
-  std::string rootFileName = vm["output-root-file"].get<std::string>();
-  if (rootFileName != "" && rootFileName.find(".root"))
-
-    // Write ROOT TTree
-    FW::Root::RootParticleWriter::Config particleWriterConfig;
-  particleWriterConfig.collection = readEvgenCfg.evgenCollection;
-  particleWriterConfig.filePath   = "EvgenParticles.root";
-  particleWriterConfig.barcodeSvc = barcodeSvc;
-  auto particleWriter
-      = std::make_shared<FW::Root::RootParticleWriter>(particleWriterConfig);
-
   // now read the standard options
   auto standardOptions
       = FW::Options::readStandardOptions<po::variables_map>(vm);
@@ -79,19 +67,56 @@ main(int argc, char* argv[])
   auto randomNumbersCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
-  // now read the particle gun configs
+  // Create the barcode service
+  FW::BarcodeSvc::Config barcodeSvcCfg;
+  auto                   barcodes = std::make_shared<FW::BarcodeSvc>(
+      barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
+  // Now read the particle gun configs
   auto particleGunCfg
       = FW::Options::readParticleGunConfig<po::variables_map>(vm);
+  particleGunCfg.barcodeSvc      = barcodes;
+  particleGunCfg.randomNumberSvc = randomNumbers;
   auto particleGun = std::make_shared<FW::ParticleGunAlgorithm>(particleGunCfg);
+
+  // Output directory
+  std::string outputDir = vm["output-dir"].as<std::string>();
+
+  // Output csv filename: append .csv if needed
+  std::string csvFileName = vm["output-csv-file"].as<std::string>();
+  if (csvFileName != "" && csvFileName.find(".csv") == std::string::npos) {
+    csvFileName += ".csv";
+  }
+
+  // Output root filename: append .root
+  std::string rootFileName = vm["output-root-file"].as<std::string>();
+  if (rootFileName != "" && rootFileName.find(".root") == std::string::npos) {
+    rootFileName += ".root";
+  }
+
+  // Write particles as CSV files
+  FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
+  pWriterCsvConfig.collection = particleGunCfg.evgenCollection;
+  ;
+  pWriterCsvConfig.outputDir      = outputDir;
+  pWriterCsvConfig.outputFileName = csvFileName;
+  auto pWriterCsv
+      = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
+
+  // Write particles as ROOT TTree
+  FW::Root::RootParticleWriter::Config pWriterRootConfig;
+  pWriterRootConfig.collection     = particleGunCfg.evgenCollection;
+  pWriterRootConfig.outputFileName = rootFileName;
+  pWriterRootConfig.barcodeSvc     = barcodes;
+  auto pWriterRoot
+      = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
 
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
-  // now create the sequencer
+  // now create the sequencer & add the relevant
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({randomNumbers});
   sequencer.appendEventAlgorithms({particleGun});
-  sequencer.addWriters({particleWriter});
+  if (rootFileName != "") sequencer.addWriters({pWriterRoot});
+  if (csvFileName != "") sequencer.addWriters({pWriterCsv});
   sequencer.run(nEvents);
 }
-
-#endif  // ACTFW_EXAMPLES_PARTICLEGUN_H

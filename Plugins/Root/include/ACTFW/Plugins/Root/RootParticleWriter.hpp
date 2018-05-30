@@ -33,7 +33,8 @@ namespace Root {
     struct Config
     {
       std::string collection;              ///< particle collection to write
-      std::string filePath;                ///< path of the output file
+      std::string outputDir;               ///< where to place output files
+      std::string outputFileName;          ///< output file name
       std::string fileMode = "RECREATE";   ///< file access mode
       std::string treeName = "particles";  ///< name of the output tree
       std::shared_ptr<FW::BarcodeSvc>

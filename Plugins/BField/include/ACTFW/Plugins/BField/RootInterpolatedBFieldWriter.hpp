@@ -6,10 +6,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_BFIELD_ROOTINTERPOLAREDBFIELDWRITER_H
-#define ACTFW_BFIELD_ROOTINTERPOLAREDBFIELDWRITER_H
+#pragma once
 
 #include <TTree.h>
+#include <array>
 #include <boost/optional.hpp>
 #include <mutex>
 #include "ACTFW/Framework/IService.hpp"
@@ -82,5 +82,3 @@ namespace BField {
 }  // namespace BField
 
 }  // namespace FW
-
-#endif  // ACTFW_BFIELD_ROOTINTERPOLAREDBFIELDWRITER_H

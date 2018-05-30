@@ -56,8 +56,8 @@ public:
     // randomize the charge (indicates PID flip)
     bool randomCharge = false;
     // FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
-    std::shared_ptr<FW::BarcodeSvc>       barcodes      = nullptr;
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
+    std::shared_ptr<FW::BarcodeSvc>       barcodeSvc      = nullptr;
   };
 
   /// Constructor

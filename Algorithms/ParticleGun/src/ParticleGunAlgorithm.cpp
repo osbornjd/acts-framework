@@ -25,9 +25,9 @@ FW::ParticleGunAlgorithm::ParticleGunAlgorithm(
   // Check that all mandatory configuration parameters are present
   if (m_cfg.evgenCollection.empty()) {
     throw std::invalid_argument("Missing output collection");
-  } else if (!m_cfg.randomNumbers) {
+  } else if (!m_cfg.randomNumberSvc) {
     throw std::invalid_argument("Missing random numbers service");
-  } else if (!m_cfg.barcodes) {
+  } else if (!m_cfg.barcodeSvc) {
     throw std::invalid_argument("Missing barcode service");
   }
 
@@ -48,7 +48,7 @@ FW::ParticleGunAlgorithm::execute(AlgorithmContext ctx) const
 
   ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);
   // what's written out
-  RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
+  RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(ctx);
 
   UniformDist d0Dist(m_cfg.d0Range.at(0), m_cfg.d0Range.at(1));
   UniformDist z0Dist(m_cfg.z0Range.at(0), m_cfg.z0Range.at(1));
@@ -68,7 +68,7 @@ FW::ParticleGunAlgorithm::execute(AlgorithmContext ctx) const
     double phi = phiDist(rng);
     double eta = etaDist(rng);
     double pt  = ptDist(rng);
-    auto   bc  = m_cfg.barcodes->generate(ip);
+    // auto   bc  = m_cfg.barcodeSvc->generate(ip);
     // create vertex from random parameters
     Acts::Vector3D vertex(d0 * std::sin(phi), d0 * -std::cos(phi), z0);
 
@@ -83,7 +83,7 @@ FW::ParticleGunAlgorithm::execute(AlgorithmContext ctx) const
                            m_cfg.mass,
                            flip * m_cfg.charge,
                            flip * m_cfg.pID,
-                           bc);
+                           ip);
   }
   ACTS_DEBUG("Generated 1 vertex with " << particles.size() << " particles.");
   // the vertices
