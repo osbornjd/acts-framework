@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_ALGORITHMS_PARTICLEGUN_H
-#define ACTFW_ALGORITHMS_PARTICLEGUN_H
+#pragma once
 
 #include <array>
 #include "ACTFW/Framework/BareAlgorithm.hpp"
@@ -74,5 +73,3 @@ private:
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_ALGORITHMS_PARTICLEGUN_H

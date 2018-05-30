@@ -12,7 +12,7 @@
 #include <map>
 #include <vector>
 #include "ACTFW/Barcode/Barcode.hpp"
-#include "ACTS/Utilities/Definitions.hpp"
+#include "Acts/Utilities/Definitions.hpp"
 
 namespace Acts {
 class Surface;

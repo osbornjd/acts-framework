@@ -17,7 +17,7 @@
 
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/IService.hpp"
-#include "ACTS/Utilities/GeometryID.hpp"
+#include "Acts/Utilities/GeometryID.hpp"
 
 namespace FW {
 

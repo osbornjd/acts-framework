@@ -6,8 +6,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef landau_quantile_HPP
-#define landau_quantile_HPP 1
+#pragma once
+
+#include <limits>
+#include <math>
 
 static inline double
 landau_quantile(double z, double xi)
@@ -216,5 +218,3 @@ landau_quantile(double z, double xi)
   }
   return xi * ranlan;
 }
-
-#endif

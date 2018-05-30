@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include "ACTFW/Utilities/Options.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Utilities/Units.hpp"
 #include "Fatras/EnergyLossSampler.hpp"
 #include "Fatras/HadronicInteractionParametricSampler.hpp"
 #include "Fatras/MultipleScatteringSamplerHighland.hpp"
