@@ -14,7 +14,7 @@
 #include <utility>
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Utilities/Options.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace po = boost::program_options;
 

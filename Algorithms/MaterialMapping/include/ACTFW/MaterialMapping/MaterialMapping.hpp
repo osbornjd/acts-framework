@@ -16,11 +16,11 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Layers/Layer.hpp"
-#include "ACTS/Material/SurfaceMaterial.hpp"
-#include "ACTS/Plugins/MaterialPlugins/MaterialMapper.hpp"
-#include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Layers/Layer.hpp"
+#include "Acts/Material/SurfaceMaterial.hpp"
+#include "Acts/Plugins/MaterialPlugins/MaterialMapper.hpp"
+#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 class WhiteBoard;

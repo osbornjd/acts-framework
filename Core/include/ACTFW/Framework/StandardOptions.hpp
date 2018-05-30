@@ -14,7 +14,7 @@
 #define ACTFW_FRAMEWORK_OPTIONS_HPP
 
 #include <utility>
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace po = boost::program_options;
 

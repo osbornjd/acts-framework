@@ -16,7 +16,7 @@
 #ifndef ACTFW_READERS_IPARTICLEREADER_H
 #define ACTFW_READERS_IPARTICLEREADER_H 1
 
-#include "ACTS/EventData/ParticleDefinitions.hpp"
+#include "Acts/EventData/ParticleDefinitions.hpp"
 
 namespace FW {
 

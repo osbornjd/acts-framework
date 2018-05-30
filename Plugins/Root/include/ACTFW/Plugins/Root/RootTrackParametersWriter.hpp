@@ -15,7 +15,7 @@
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 class TFile;
 

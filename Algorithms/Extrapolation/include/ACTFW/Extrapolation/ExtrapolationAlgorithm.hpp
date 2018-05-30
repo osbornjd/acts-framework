@@ -19,11 +19,11 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/EventData/NeutralParameters.hpp"
-#include "ACTS/EventData/TrackParameters.hpp"
-#include "ACTS/Extrapolation/ExtrapolationCell.hpp"
-#include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
-#include "ACTS/Utilities/GeometryID.hpp"
+#include "Acts/EventData/NeutralParameters.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/Extrapolation/ExtrapolationCell.hpp"
+#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Utilities/GeometryID.hpp"
 
 namespace Acts {
 class IExtrapolationEngine;

@@ -11,8 +11,8 @@
 
 #include <memory>
 
-#include "ACTS/MagneticField/ConstantBField.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 class IExtrapolationEngine;

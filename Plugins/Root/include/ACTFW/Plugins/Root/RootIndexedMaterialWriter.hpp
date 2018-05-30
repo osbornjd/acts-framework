@@ -16,9 +16,9 @@
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Material/SurfaceMaterial.hpp"
-#include "ACTS/Utilities/Definitions.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Material/SurfaceMaterial.hpp"
+#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/Logger.hpp"
 #include "TFile.h"
 
 namespace FW {

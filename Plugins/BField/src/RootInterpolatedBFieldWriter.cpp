@@ -10,8 +10,8 @@
 #include <ios>
 #include <sstream>
 #include <stdexcept>
-#include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
+#include "Acts/Utilities/Units.hpp"
 #include "TFile.h"
 
 void

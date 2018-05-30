@@ -16,14 +16,14 @@
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTS/Extrapolation/RungeKuttaEngine.hpp"
-#include "ACTS/MagneticField/ConstantBField.hpp"
-#include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
-#include "ACTS/MagneticField/SharedBFieldMap.hpp"
-#include "ACTS/Propagator/AtlasStepper.hpp"
-#include "ACTS/Propagator/EigenStepper.hpp"
-#include "ACTS/Propagator/Propagator.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Extrapolation/RungeKuttaEngine.hpp"
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
+#include "Acts/MagneticField/SharedBFieldMap.hpp"
+#include "Acts/Propagator/AtlasStepper.hpp"
+#include "Acts/Propagator/EigenStepper.hpp"
+#include "Acts/Propagator/Propagator.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace po = boost::program_options;
 

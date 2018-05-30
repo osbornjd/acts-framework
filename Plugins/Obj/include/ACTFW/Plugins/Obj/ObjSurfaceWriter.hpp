@@ -16,8 +16,8 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Plugins/Obj/ObjHelper.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Surfaces/Surface.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace FWObj {
 

@@ -11,8 +11,8 @@
 
 #include <memory>
 #include <vector>
-#include "ACTS/Utilities/Definitions.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 class TrackingGeometry;

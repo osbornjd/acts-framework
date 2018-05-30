@@ -8,7 +8,7 @@
 
 #include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
 #include <stdexcept>
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Utilities/Units.hpp"
 #include "G4Material.hh"
 #include "G4Step.hh"
 

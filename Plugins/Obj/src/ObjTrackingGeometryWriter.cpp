@@ -9,8 +9,8 @@
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include <iostream>
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Detector/TrackingVolume.hpp"
-#include "ACTS/Surfaces/Surface.hpp"
+#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Surfaces/Surface.hpp"
 
 FWObj::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
     const FWObj::ObjTrackingGeometryWriter::Config& cfg)

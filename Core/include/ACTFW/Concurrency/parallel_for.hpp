@@ -86,7 +86,7 @@ namespace Details {
     return FW::Details::LoopFlow::Break;                                       \
   }
 
-  // Thanks to the loop iteration wrapper above, most of the ACTSFW parallel
+  // Thanks to the loop iteration wrapper above, most of the ActsFW parallel
   // for loop can now be written as real C++ code, instead of a macro.
   //
   // This function runs a parallel for loop, with loop iterations going from

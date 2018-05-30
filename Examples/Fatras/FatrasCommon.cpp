@@ -8,8 +8,8 @@
 
 #include "FatrasCommon.hpp"
 
-#include <ACTS/MagneticField/ConstantBField.hpp>
-#include <ACTS/Utilities/Units.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/Utilities/Units.hpp>
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Plugins/Json/JsonSpacePointWriter.hpp"

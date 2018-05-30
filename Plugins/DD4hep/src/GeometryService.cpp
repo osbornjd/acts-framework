@@ -7,14 +7,14 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Plugins/DD4hepPlugins/ConvertDD4hepDetector.hpp"
-#include "ACTS/Tools/CylinderVolumeBuilder.hpp"
-#include "ACTS/Tools/CylinderVolumeHelper.hpp"
-#include "ACTS/Tools/LayerArrayCreator.hpp"
-#include "ACTS/Tools/SurfaceArrayCreator.hpp"
-#include "ACTS/Tools/TrackingVolumeArrayCreator.hpp"
-#include "ACTS/Utilities/BinningType.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Plugins/DD4hepPlugins/ConvertDD4hepDetector.hpp"
+#include "Acts/Tools/CylinderVolumeBuilder.hpp"
+#include "Acts/Tools/CylinderVolumeHelper.hpp"
+#include "Acts/Tools/LayerArrayCreator.hpp"
+#include "Acts/Tools/SurfaceArrayCreator.hpp"
+#include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Utilities/BinningType.hpp"
 
 FW::DD4hep::GeometryService::GeometryService(
     const FW::DD4hep::GeometryService::Config& cfg)

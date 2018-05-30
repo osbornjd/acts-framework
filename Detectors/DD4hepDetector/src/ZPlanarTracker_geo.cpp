@@ -29,9 +29,9 @@ using namespace dd4hep;
 // using namespace DD4hep::DDRec;
 // using namespace DDSurfaces;
 
-#include "ACTS/Plugins/DD4hepPlugins/ActsExtension.hpp"
-#include "ACTS/Plugins/DD4hepPlugins/IActsExtension.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Plugins/DD4hepPlugins/ActsExtension.hpp"
+#include "Acts/Plugins/DD4hepPlugins/IActsExtension.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 static Ref_t
 create_element(Detector& lcdd, xml_h e, SensitiveDetector sens)

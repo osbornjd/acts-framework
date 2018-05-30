@@ -16,7 +16,7 @@
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
 
 namespace po = boost::program_options;
 

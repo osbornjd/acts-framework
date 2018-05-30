@@ -12,8 +12,8 @@
 #include <memory>
 #include <mutex>
 
-#include <ACTS/EventData/ParticleDefinitions.hpp>
-#include <ACTS/Utilities/Logger.hpp>
+#include <Acts/EventData/ParticleDefinitions.hpp>
+#include <Acts/Utilities/Logger.hpp>
 #include <Pythia8/Pythia.h>
 
 #include "ACTFW/Random/RandomNumbersSvc.hpp"

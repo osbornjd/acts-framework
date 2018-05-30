@@ -2,7 +2,7 @@ add_library(ACTFWParticleGunCommon STATIC FatrasCommon.cpp FatrasCommon.cpp)
 
 target_include_directories(ACTFWParticleGunCommon PUBLIC ${ROOT_INCLUDE_DIRS})
 target_include_directories(ACTFWParticleGunCommon PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(ACTFWParticleGunCommon PUBLIC ACTSCore)
+target_link_libraries(ACTFWParticleGunCommon PUBLIC Acts::Core)
 target_link_libraries(ACTFWParticleGunCommon PUBLIC ACTFramework ACTFWExtrapolation ACTFWDigitization ACTFWParticleGun)
 target_link_libraries(ACTFWParticleGunCommon PUBLIC ACTFWCsvPlugin ACTFWJsonPlugin ACTFWObjPlugin ACTFWRootPlugin ACTFWBFieldPlugin)
 

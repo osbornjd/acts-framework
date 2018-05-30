@@ -9,8 +9,8 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetUtils.h"
 
-#include "ACTS/Plugins/DD4hepPlugins/ActsExtension.hpp"
-#include "ACTS/Plugins/DD4hepPlugins/IActsExtension.hpp"
+#include "Acts/Plugins/DD4hepPlugins/ActsExtension.hpp"
+#include "Acts/Plugins/DD4hepPlugins/IActsExtension.hpp"
 
 using dd4hep::Volume;
 using dd4hep::DetElement;

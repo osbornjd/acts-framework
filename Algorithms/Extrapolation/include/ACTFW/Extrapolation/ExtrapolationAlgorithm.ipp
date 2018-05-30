@@ -7,10 +7,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Extrapolation/ExtrapolationCell.hpp"
-#include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/EventData/ParticleDefinitions.hpp"
+#include "Acts/Extrapolation/ExtrapolationCell.hpp"
+#include "Acts/Extrapolation/IExtrapolationEngine.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 template <class T>
 FW::ProcessCode

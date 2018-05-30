@@ -7,10 +7,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/GenericDetector/GenericDetectorElement.hpp"
-#include "ACTS/Surfaces/DiscBounds.hpp"
-#include "ACTS/Surfaces/DiscSurface.hpp"
-#include "ACTS/Surfaces/PlanarBounds.hpp"
-#include "ACTS/Surfaces/PlaneSurface.hpp"
+#include "Acts/Surfaces/DiscBounds.hpp"
+#include "Acts/Surfaces/DiscSurface.hpp"
+#include "Acts/Surfaces/PlanarBounds.hpp"
+#include "Acts/Surfaces/PlaneSurface.hpp"
 
 FWGen::GenericDetectorElement::GenericDetectorElement(
     const Identifier                                identifier,

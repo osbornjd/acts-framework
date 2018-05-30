@@ -14,9 +14,9 @@
 #include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/MagneticField/ConstantBField.hpp"
-#include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "ExtrapolationExampleBase.hpp"
 
 namespace po = boost::program_options;

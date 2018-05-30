@@ -17,8 +17,8 @@
 #include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Utilities/Units.hpp"
 #include "FatrasCommon.hpp"
 
 namespace po = boost::program_options;

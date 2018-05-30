@@ -9,9 +9,9 @@
 #ifndef ACTFW_BFIELD_TXTBFIELDUTILS_HPP
 #define ACTFW_BFIELD_TXTBFIELDUTILS_HPP
 
-#include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
-#include "ACTS/Utilities/Logger.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
+#include "Acts/Utilities/Logger.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace FW {
 
