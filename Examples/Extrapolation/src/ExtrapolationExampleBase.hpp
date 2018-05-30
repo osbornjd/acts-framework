@@ -84,17 +84,17 @@ run(size_t                                        nEvents,
 
   // the Algorithm with its configurations
   FW::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.evgenCollection              = particleGunConfig.evgenCollection;
-  eTestConfig.simulatedParticlesCollection = "SimulatedParticles";
+  eTestConfig.evgenCollection             = particleGunConfig.evgenCollection;
+  eTestConfig.simulatedParticleCollection = "SimulatedParticles";
   eTestConfig.simulatedChargedExCellCollection = reccWriterConfig.collection;
   eTestConfig.simulatedNeutralExCellCollection = recnWriterConfig.collection;
-  eTestConfig.simulatedHitsCollection          = "SimulatedHits";
+  eTestConfig.simulatedHitCollection           = "SimulatedHits";
   eTestConfig.searchMode                       = 1;
   eTestConfig.extrapolationEngine              = extrapolationEngine;
-  eTestConfig.collectSensitive                 = true;
-  eTestConfig.collectPassive                   = true;
+  eTestConfig.resolveSensitive                 = true;
+  eTestConfig.resolvePassive                   = true;
   eTestConfig.collectBoundary                  = true;
-  eTestConfig.collectMaterial                  = true;
+  eTestConfig.resolveMaterial                  = true;
   eTestConfig.sensitiveCurvilinear             = false;
   eTestConfig.pathLimit                        = -1.;
 

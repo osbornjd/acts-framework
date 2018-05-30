@@ -209,4 +209,4 @@ modulePositionsRing(double z,
   return rPositions;
 }
 
-}  // end of namespace FWGen
+}  // namespace FWGen

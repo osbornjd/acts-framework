@@ -1,21 +1,13 @@
 // This file is part of the ACTS project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017-2018 ACTS project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-//
-//  RandomNumbersSvc.hpp
-//  ACTFW
-//
-//  Created by Andreas Salzburger on 17/05/16.
-//
-//
-
 #ifndef ACTFW_BARCODE_BARCODESVC_H
-#define ACTFW_BARCODE_BARCODESVC_H 1
+#define ACTFW_BARCODE_BARCODESVC_H
 
 #include <array>
 #include <string>
@@ -24,11 +16,9 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
+#include "Barcode.hpp"
 
 namespace FW {
-
-// barcodes
-typedef unsigned long barcode_type;
 
 /// @class RandomNumbersSvc
 ///

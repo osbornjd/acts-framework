@@ -79,8 +79,8 @@ namespace BField {
                                  Acts::Logging::INFO));
   };
 
-}  // end of namespace BField
+}  // namespace BField
 
-}  // end of namespace FW
+}  // namespace FW
 
 #endif  // ACTFW_BFIELD_ROOTINTERPOLAREDBFIELDWRITER_H

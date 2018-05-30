@@ -100,8 +100,8 @@ main(int argc, char* argv[])
 
   using StepperA = Acts::EigenStepper<BField>;
   using StepperB = Acts::AtlasStepper<BField>;
-  using PropA    = Acts::propagation::Propagator<StepperA>;
-  using PropB    = Acts::propagation::Propagator<StepperB>;
+  using PropA    = Acts::Propagator<StepperA>;
+  using PropB    = Acts::Propagator<StepperB>;
   using PropE    = Acts::RungeKuttaEngine<Acts::InterpolatedBFieldMap>;
 
   auto stepperA = StepperA(fieldA);

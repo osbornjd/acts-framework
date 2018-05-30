@@ -10,13 +10,12 @@
 /// @date 2016-05-23 Initial version
 /// @date 2017-08-07 Rewrite with new interfaces
 
-#ifndef ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
-#define ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H
+#pragma once
 
-#include <Acts/EventData/ParticleDefinitions.hpp>
 #include <mutex>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
+#include "Fatras/Kernel/Particle.hpp"
 
 class TFile;
 class TTree;
@@ -27,11 +26,10 @@ namespace Root {
   /// Write out a particles associated to process vertices into a TTree
   ///
   /// Each entry in the TTree corresponds to the particles in one event.
-  class RootParticleWriter final
-      : public WriterT<std::vector<Acts::ProcessVertex>>
+  class RootParticleWriter final : public WriterT<std::vector<Fatras::Vertex>>
   {
   public:
-    using Base = WriterT<std::vector<Acts::ProcessVertex>>;
+    using Base = WriterT<std::vector<Fatras::Vertex>>;
     struct Config
     {
       std::string collection;              ///< particle collection to write
@@ -59,8 +57,8 @@ namespace Root {
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
-    writeT(const AlgorithmContext&                 ctx,
-           const std::vector<Acts::ProcessVertex>& vertices) final override;
+    writeT(const AlgorithmContext&            ctx,
+           const std::vector<Fatras::Vertex>& vertices) final override;
 
   private:
     Config     m_cfg;         ///< the config class
@@ -89,5 +87,3 @@ namespace Root {
 
 }  // namespace Root
 }  // namespace FW
-
-#endif  // ACTFW_PLUGINS_ROOT_ROOTPARTICLEWRITER_H

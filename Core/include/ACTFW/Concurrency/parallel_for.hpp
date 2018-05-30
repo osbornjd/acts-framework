@@ -154,6 +154,8 @@ namespace Details {
       auto exception = boost::get<std::exception_ptr>(std::move(exit_reason));
       std::rethrow_exception(std::move(exception));
     }
+    // return an optional<T>() as default
+    return boost::optional<T>();
   }
 
 /// The following macro is the out-of-order multithreaded equivalent of the

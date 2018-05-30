@@ -33,7 +33,7 @@ FW::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
     throw std::invalid_argument("Missing extrapolation engine");
   } else if (m_cfg.evgenCollection.empty()) {
     throw std::invalid_argument("Missing input collection");
-  } else if (m_cfg.simulatedParticlesCollection.empty()) {
+  } else if (m_cfg.simulatedParticleCollection.empty()) {
     throw std::invalid_argument("Missing simulated particles collection");
   }
 }
@@ -139,7 +139,7 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
   }
   // write simulated data to the event store
   // - the particles
-  if (ctx.eventStore.add(m_cfg.simulatedParticlesCollection,
+  if (ctx.eventStore.add(m_cfg.simulatedParticleCollection,
                          std::move(simulated))
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
@@ -159,8 +159,8 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
     return FW::ProcessCode::ABORT;
   }
   // - the simulated hits - if configured
-  if (m_cfg.simulatedHitsCollection != ""
-      && ctx.eventStore.add(m_cfg.simulatedHitsCollection, std::move(hits))
+  if (m_cfg.simulatedHitCollection != ""
+      && ctx.eventStore.add(m_cfg.simulatedHitCollection, std::move(hits))
           == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }

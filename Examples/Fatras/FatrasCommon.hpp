@@ -37,18 +37,18 @@ setupSimulation(FW::Sequencer&                                sequencer,
 {
   // extrapolation algorithm
   FW::ExtrapolationAlgorithm::Config eTestConfig;
-  eTestConfig.evgenCollection              = "EvgenParticles";
-  eTestConfig.simulatedParticlesCollection = "FatrasParticles";
-  eTestConfig.simulatedHitsCollection      = "FatrasHits";
-  eTestConfig.searchMode                   = 1;
+  eTestConfig.evgenCollection             = "EvgenParticles";
+  eTestConfig.simulatedParticleCollection = "FatrasParticles";
+  eTestConfig.simulatedHitCollection      = "FatrasHits";
+  eTestConfig.searchMode                  = 1;
   eTestConfig.extrapolationEngine
       = FW::initExtrapolator(geometry, bfield, loglevel);
 
   eTestConfig.skipNeutral          = true;
-  eTestConfig.collectSensitive     = true;
-  eTestConfig.collectPassive       = true;
+  eTestConfig.resolveSensitive     = true;
+  eTestConfig.resolvePassive       = true;
   eTestConfig.collectBoundary      = true;
-  eTestConfig.collectMaterial      = true;
+  eTestConfig.resolveMaterial      = true;
   eTestConfig.sensitiveCurvilinear = false;
   eTestConfig.pathLimit            = -1.;
   auto extrapolationAlg
@@ -60,11 +60,11 @@ setupSimulation(FW::Sequencer&                                sequencer,
       pmStepperConfig, Acts::getDefaultLogger("PlanarModuleStepper", loglevel));
 
   FW::DigitizationAlgorithm::Config digConfig;
-  digConfig.simulatedHitsCollection = eTestConfig.simulatedHitsCollection;
-  digConfig.clustersCollection      = "FatrasClusters";
-  digConfig.spacePointsCollection   = "FatrasSpacePoints";
-  digConfig.randomNumbers           = random;
-  digConfig.planarModuleStepper     = pmStepper;
+  digConfig.simulatedHitCollection = eTestConfig.simulatedHitCollection;
+  digConfig.clusterCollection      = "FatrasClusters";
+  digConfig.spacePointCollection   = "FatrasSpacePoints";
+  digConfig.randomNumbers          = random;
+  digConfig.planarModuleStepper    = pmStepper;
   auto digitzationAlg
       = std::make_shared<FW::DigitizationAlgorithm>(digConfig, loglevel);
 

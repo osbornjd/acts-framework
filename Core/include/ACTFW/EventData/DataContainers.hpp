@@ -100,7 +100,7 @@ namespace Data {
     return (&(layerData->second));
   };
 
-}  // end of namespace Data
+}  // namespace Data
 }
 
 #endif  // ACTFW_EVENTDATA_DATACONTAINERS_H

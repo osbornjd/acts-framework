@@ -28,15 +28,7 @@
 typedef std::unique_ptr<const Acts::TrackParameters> TrackParametersPtr;
 
 /// @brief this test algorithm performs test propagation
-/// with the Acts::propagation::Propagator(s) and compares
-/// them to the Acts::IPropagationEngine
-///
-/// There are three test modes availaible that run exclusively
-/// - pathLength test, i.e. propagation starts from curvilinear
-///   to curvilinear and stops at a certain path length
-/// - kalman, i.e. propagation in a sequential manner
-/// @todo:
-/// - surface, i.e. propagation from surface to another surface
+/// with the Acts::Propagator(s)
 
 namespace FW {
 
@@ -97,7 +89,7 @@ private:
   generateCovariance(FW::RandomEngine& rnd, FW::GaussDist& gauss) const;
 
   /// propagate from type A or B
-  /// @tparam[in] prop is the propgator of type A or B
+  /// @tparam[in] prop is the propagator of type A or B
   /// @tparam[in] opt is the Option of type A or B
   /// @param[in] pars is the TrackParameters to start from
   /// @param[in] sf is the optional surface
@@ -126,7 +118,7 @@ private:
   }
 
   /// propagate from type A or B
-  /// @tparam[in] prop is the propgator of type A or B
+  /// @tparam[in] prop is the propagator of type A or B
   /// @tparam[in] cache is the propagator cache
   /// @tparam[in] opt is the Option of type A or B
   /// @param[in] pars is the TrackParameters to start from
@@ -134,12 +126,12 @@ private:
   /// @param[in,out] res is the resut vector
   template <typename PropagatorAB, typename OptionsAB, typename Parameters>
   void
-  propagateCacheAB(const PropagatorAB&                prop,
-                   typename PropagatorAB::cache_type& cache,
-                   const OptionsAB&                   opt,
-                   const Parameters&                  pars,
-                   const Acts::Surface&               sf,
-                   std::vector<TrackParametersPtr>&   res) const
+  propagateCacheAB(const PropagatorAB&                   prop,
+                   typename PropagatorAB::stepper_cache& cache,
+                   const OptionsAB&                      opt,
+                   const Parameters&                     pars,
+                   const Acts::Surface&                  sf,
+                   std::vector<TrackParametersPtr>&      res) const
   {
     TrackParametersPtr p = prop.propagate(pars, sf, opt).endParameters;
     if (p) {
@@ -151,7 +143,7 @@ private:
   }
 
   /// propagate from type A or B
-  /// @tparam[in] prop is the propgator of type A or B
+  /// @tparam[in] prop is the propagator of type A or B
   /// @param[in] pars is the TrackParameters to start from
   /// @param[in] sf is the  surface
   /// @param[in,out] res is the resut vector

@@ -1,4 +1,4 @@
-file(GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
+file(GLOB_RECURSE src_files "src/*.cpp")
 
 add_executable(ACTFWHelloWorldExample ${src_files})
 target_include_directories(ACTFWHelloWorldExample PRIVATE ${Boost_INCLUDE_DIRS})

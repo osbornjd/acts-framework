@@ -75,8 +75,8 @@ FW::Root::RootParticleWriter::endRun()
 
 FW::ProcessCode
 FW::Root::RootParticleWriter::writeT(
-    const AlgorithmContext&                 ctx,
-    const std::vector<Acts::ProcessVertex>& vertices)
+    const AlgorithmContext&            ctx,
+    const std::vector<Fatras::Vertex>& vertices)
 {
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);
@@ -103,30 +103,33 @@ FW::Root::RootParticleWriter::writeT(
 
   // loop over the process vertices
   for (auto& vertex : vertices) {
-    auto& vtx = vertex.position();
-    for (auto& particle : vertex.outgoingParticles()) {
+    auto& vtx = vertex.position;
+    for (auto& particle : vertex.outgoingParticles) {
       /// collect the information
-      m_vx.push_back(vtx.x());
-      m_vy.push_back(vtx.y());
-      m_vz.push_back(vtx.z());
-      m_eta.push_back(particle.momentum().eta());
-      m_phi.push_back(particle.momentum().phi());
-      m_px.push_back(particle.momentum().x());
-      m_py.push_back(particle.momentum().y());
-      m_pz.push_back(particle.momentum().z());
-      m_pT.push_back(particle.momentum().perp());
-      m_charge.push_back(particle.charge());
-      m_mass.push_back(particle.mass());
-      m_pdgCode.push_back(particle.pdgID());
-      m_barcode.push_back(particle.barcode());
+      m_vx.push_back(particle.position.x());
+      m_vy.push_back(particle.position.y());
+      m_vz.push_back(particle.position.z());
+      m_eta.push_back(particle.momentum.eta());
+      m_phi.push_back(particle.momentum.phi());
+      m_px.push_back(particle.momentum.x());
+      m_py.push_back(particle.momentum.y());
+      m_pz.push_back(particle.momentum.z());
+      m_pT.push_back(particle.momentum.perp());
+      m_charge.push_back(particle.q);
+      m_mass.push_back(particle.m);
+      m_pdgCode.push_back(particle.pdg);
+
+      auto barcode = particle.barcode;
+
+      m_barcode.push_back(barcode);
       // decode using the barcode service
       if (m_cfg.barcodeSvc) {
         // the barcode service
-        m_vertex.push_back(m_cfg.barcodeSvc->vertex(particle.barcode()));
-        m_primary.push_back(m_cfg.barcodeSvc->primary(particle.barcode()));
-        m_generation.push_back(m_cfg.barcodeSvc->generate(particle.barcode()));
-        m_secondary.push_back(m_cfg.barcodeSvc->secondary(particle.barcode()));
-        m_process.push_back(m_cfg.barcodeSvc->process(particle.barcode()));
+        m_vertex.push_back(m_cfg.barcodeSvc->vertex(barcode));
+        m_primary.push_back(m_cfg.barcodeSvc->primary(barcode));
+        m_generation.push_back(m_cfg.barcodeSvc->generate(barcode));
+        m_secondary.push_back(m_cfg.barcodeSvc->secondary(barcode));
+        m_process.push_back(m_cfg.barcodeSvc->process(barcode));
       }
     }
   }

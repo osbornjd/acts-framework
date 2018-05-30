@@ -82,11 +82,6 @@ main(int argc, char* argv[])
     std::cout << desc << std::endl;
     return 1;
   }
-  // now read the standard options
-  auto standardOptions
-      = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents  = standardOptions.first;
-  auto logLevel = standardOptions.second;
   // create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
   if (!bField.first) {

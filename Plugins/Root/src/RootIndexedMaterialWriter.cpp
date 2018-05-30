@@ -70,7 +70,7 @@ FW::Root::RootIndexedMaterialWriter::write(
 
   ACTS_INFO("Writing out map at " << tdName);
 
-  size_t bins0, bins1 = 0;
+  size_t bins0 = 0, bins1 = 0;
   // understand what sort of material you have in mind
   Acts::BinnedSurfaceMaterial* bsm
       = dynamic_cast<Acts::BinnedSurfaceMaterial*>(ism.second);

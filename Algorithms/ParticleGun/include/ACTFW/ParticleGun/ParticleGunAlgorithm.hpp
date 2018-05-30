@@ -6,12 +6,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
-#define ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
+#ifndef ACTFW_ALGORITHMS_PARTICLEGUN_H
+#define ACTFW_ALGORITHMS_PARTICLEGUN_H
 
 #include <array>
 #include "ACTFW/Framework/BareAlgorithm.hpp"
-#include "Acts/EventData/ParticleDefinitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
 
@@ -30,7 +29,7 @@ class RandomNumbersSvc;
 /// in a given range. It fills a vector of particle properties for feeding into
 /// fast simulation.
 ///
-class ParticleGun : public BareAlgorithm
+class ParticleGunAlgorithm : public BareAlgorithm
 {
 public:
   struct Config
@@ -54,7 +53,7 @@ public:
     /// the charge of the particle
     double charge = 0.;
     /// the pdg type of the particle
-    pdg_type pID = 0.;
+    int pID = 0.;
     // randomize the charge (indicates PID flip)
     bool randomCharge = false;
     // FW random number service
@@ -64,8 +63,8 @@ public:
 
   /// Constructor
   /// @param cfg is the configuration class
-  ParticleGun(const Config&        cfg,
-              Acts::Logging::Level level = Acts::Logging::INFO);
+  ParticleGunAlgorithm(const Config&        cfg,
+                       Acts::Logging::Level level = Acts::Logging::INFO);
 
   ProcessCode
   execute(AlgorithmContext ctx) const;
@@ -76,4 +75,4 @@ private:
 
 }  // namespace FW
 
-#endif  // ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
+#endif  // ACTFW_ALGORITHMS_PARTICLEGUN_H

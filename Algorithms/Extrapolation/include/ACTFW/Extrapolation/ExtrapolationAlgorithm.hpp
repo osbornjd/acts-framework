@@ -43,9 +43,9 @@ public:
     /// the particles input collections
     std::string evgenCollection = "";
     /// the simulated particles output collection
-    std::string simulatedParticlesCollection = "";
+    std::string simulatedParticleCollection = "";
     /// the simulated hits output collection (optional)
-    std::string simulatedHitsCollection = "";
+    std::string simulatedHitCollection = "";
     /// the simulated charged excell collection (optional)
     std::string simulatedChargedExCellCollection = "";
     /// the simulated neutral excell collection (optional)
@@ -54,18 +54,18 @@ public:
     /// @todo remove later and replace by particle selector
     double maxD0  = std::numeric_limits<double>::max();
     double maxEta = std::numeric_limits<double>::max();
-    ;
+
     double minPt = 0.0;
     /// skip or process neutral particles
     bool skipNeutral = false;
     /// configuration: sensitive collection
-    bool collectSensitive = true;
+    bool resolveSensitive = true;
     /// configuration: collect passive
-    bool collectPassive = true;
+    bool resolvePassive = true;
     /// configuration: collect boundary
     bool collectBoundary = true;
     /// configuration: collect material
-    bool collectMaterial = true;
+    bool resolveMaterial = true;
     /// configuration: don't collapse
     bool sensitiveCurvilinear = false;
     /// define how robust the search mode is

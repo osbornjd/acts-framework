@@ -116,7 +116,7 @@ namespace BField {
         double      BFieldUnit   = Acts::units::_T,
         size_t      nPoints      = 1000,
         bool        firstOctant  = false);
-  }  // end of namespace txt
+  }  // namespace txt
 
   namespace root {
     /// Method to setup the FieldMapper
@@ -209,9 +209,9 @@ namespace BField {
         double      lengthUnit   = Acts::units::_mm,
         double      BFieldUnit   = Acts::units::_T,
         bool        firstOctant  = false);
-  }  // end of namespace root
+  }  // namespace root
 
-}  // end of namespace BField
+}  // namespace BField
 
-}  // end of namespace FW
+}  // namespace FW
 #endif  // ACTFW_BFIELD_TXTBFIELDUTILS_HPP

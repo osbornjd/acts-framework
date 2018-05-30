@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(ActsFramework LANGUAGES CXX)
+project(ACTSFramework LANGUAGES CXX)
 
 # We normally want to build the framework with OpenMP-based multithreaded event
 # processing enabled, because we want ACTS developers to test their code with
@@ -105,8 +105,8 @@ function(add_subdirectory_if path)
   endif()
 endfunction()
 
-add_subdirectory(Core)
-add_subdirectory(Algorithms)
-add_subdirectory(Detectors)
-add_subdirectory(Plugins)
-add_subdirectory(Examples)
+#add_subdirectory(Core)
+#add_subdirectory(Algorithms)
+#add_subdirectory(Detectors)
+#add_subdirectory(Plugins)
+#add_subdirectory(Examples)

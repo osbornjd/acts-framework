@@ -55,7 +55,7 @@ public:
     std::vector<int> centralLayerMaterialConcentration;
     /// the assigned material propertis @todo change to surface material
     std::vector<Acts::MaterialProperties> centralLayerMaterialProperties;
-    /// teh binning schema: nPhi x nZ
+    /// the binning schema: nPhi x nZ
     std::vector<std::pair<int, int>> centralModuleBinningSchema;
     /// the module center positions
     std::vector<std::vector<Acts::Vector3D>> centralModulePositions;
@@ -223,6 +223,6 @@ FWGen::GenericLayerBuilder::getConfiguration() const
 {
   return m_cfg;
 }
-}  // end of namespace
+}  // namespace
 
 #endif  // AGEN_GENERICDETECTOR_GENERICLAYERBUILDER_H

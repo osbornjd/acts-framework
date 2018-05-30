@@ -44,7 +44,7 @@ accessFieldCell(Field&                         bField,
   if (!istep || !cell.isInside(position)) {
     cell = bField.getFieldCell(position);
   }  // get the field from the cell
-  return std::move(cell.getField(position));
+  return cell.getField(position);
 }
 
 template <typename Field>
@@ -82,7 +82,8 @@ accessStepWise(Field& bField,
       for (size_t iphi = 0; iphi < phi_steps; ++iphi) {
         double phi = phi_0 + iphi * phi_step;
         // make a direction
-        Acts::Vector3D dir(cos(phi) * sin(phi), sin(phi) * sin(phi), cos(phi));
+        Acts::Vector3D dir(
+            cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
         // check for the current step
         double currentStep = 0.;
         // now step through the magnetic field
@@ -184,8 +185,7 @@ main(int argc, char* argv[])
   // now read the standard options
   auto standardOptions
       = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents  = standardOptions.first;
-  auto logLevel = standardOptions.second;
+  auto nEvents = standardOptions.first;
   // create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
   if (!bField.first) {

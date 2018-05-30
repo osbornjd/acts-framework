@@ -94,13 +94,6 @@ FW::GPythia8::Generator::read(std::vector<Acts::ProcessVertex>& processVertices,
   std::vector<Acts::ParticleProperties> particlesOut;
   // reserve the maximum amount
   particlesOut.reserve(np);
-  // The counter and offset
-  int i;
-  int ioff = 0;
-  // setting the offset for event it = 90
-  if (m_pythia8.event[0].id() == 90) {
-    ioff = -1;
-  }
 
   // Particle loop
   for (int ip = 0; ip < np; ip++) {

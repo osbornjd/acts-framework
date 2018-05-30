@@ -28,7 +28,7 @@ main(int argc, char* argv[])
 {
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  // add teh standard options
+  // add the standard options
   FW::Options::addStandardOptions<po::options_description>(desc, 1, 2);
   // add the evgen options
   FW::Options::addEvgenOptions<po::options_description>(desc);

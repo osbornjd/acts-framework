@@ -12,7 +12,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <utility>
-#include "ACTFW/ParticleGun/ParticleGun.hpp"
+#include "ACTFW/ParticleGun/ParticleGunAlgorithm.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "Acts/Utilities/Units.hpp"
 
@@ -63,12 +63,15 @@ namespace Options {
         "pg-ptrange",
         po::value<read_range>()->multitoken()->default_value({100., 1e5}),
         "range in which the pt in [MeV] parameter is simulated. Please hand "
-        "over by simply seperating the values by space");
+        "over by simply seperating the values by space")(
+        "pg-evgen-collection",
+        po::value<std::string>()->default_value("EvgenParticles"),
+        "Name of the generated particle collection.");
   }
 
   /// read the particle gun options and return a Config file
   template <class AMAP>
-  FW::ParticleGun::Config
+  FW::ParticleGunAlgorithm::Config
   readParticleGunConfig(const AMAP& vm)
   {
     // read the reange as vector (missing istream for std::array)
@@ -78,7 +81,7 @@ namespace Options {
     auto etar = vm["pg-etarange"].template as<read_range>();
     auto ptr  = vm["pg-ptrange"].template as<read_range>();
     // particle gun as generator
-    FW::ParticleGun::Config particleGunConfig;
+    FW::ParticleGunAlgorithm::Config particleGunConfig;
     particleGunConfig.evgenCollection = "EvgenParticles";
     particleGunConfig.nParticles = vm["pg-nparticles"].template as<size_t>();
     particleGunConfig.d0Range    = {{d0r[0] * au::_mm, d0r[1] * au::_mm}};
@@ -90,6 +93,8 @@ namespace Options {
     particleGunConfig.charge = vm["pg-charge"].template as<double>() * au::_e;
     particleGunConfig.randomCharge = vm["pg-chargeflip"].template as<bool>();
     particleGunConfig.pID          = vm["pg-pdg"].template as<int>();
+    particleGunConfig.evgenCollection
+        = vm["pg-evgen-collection"].template as<std::string>();
     // return the config object
     return particleGunConfig;
   }

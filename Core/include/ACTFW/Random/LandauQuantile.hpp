@@ -9,7 +9,7 @@
 #ifndef landau_quantile_HPP
 #define landau_quantile_HPP 1
 
-static double
+static inline double
 landau_quantile(double z, double xi)
 {
   // LANDAU quantile : algorithm from CERNLIB G110 ranlan

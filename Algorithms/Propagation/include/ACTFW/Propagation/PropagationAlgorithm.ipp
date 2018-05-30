@@ -37,8 +37,8 @@ PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::
                          Acts::Logging::Level loglevel)
   : BareAlgorithm("PropagationAlgorithm", loglevel), m_cfg(cfg)
 {
-  m_optionsA.max_path_length = m_cfg.pathLimit;
-  m_optionsB.max_path_length = m_cfg.pathLimit;
+  m_optionsA.pathLimit = m_cfg.pathLimit;
+  m_optionsB.pathLimit = m_cfg.pathLimit;
   // create the surface
   m_surface = std::make_unique<Acts::CylinderSurface>(
       nullptr, 2. * m_cfg.pathLimit, std::numeric_limits<double>::max());
@@ -120,7 +120,7 @@ PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::execute(
             std::move(cov), vertex, momentum, charge);
         // record the start paramters
         auto sPars = sParameters.clone();
-        tParameters.push_back(std::move(TrackParametersPtr(sPars)));
+        tParameters.push_back(TrackParametersPtr(sPars));
         // the path length test
         if (m_cfg.testMode == pathLength) {
           ACTS_VERBOSE("Testing path length propagation ...");
@@ -154,8 +154,8 @@ PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::execute(
             // initial parameters
             const Acts::TrackParameters* parameters = &(sParameters);
             // cache creation
-            typename PropagatorA::cache_type cacheA(sParameters);
-            size_t                           npars = tParameters.size();
+            typename PropagatorA::stepper_cache cacheA(sParameters);
+            size_t                              npars = tParameters.size();
             // loop over surfaces
             for (auto& surface : m_radialSurfaces) {
               if (m_cfg.cacheCall) {

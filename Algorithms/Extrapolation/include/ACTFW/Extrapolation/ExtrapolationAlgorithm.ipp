@@ -29,13 +29,13 @@ FW::ExtrapolationAlgorithm::executeTestT(
   ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
   ecc.searchMode = m_cfg.searchMode;
   // now set the behavioral bits
-  if (m_cfg.collectSensitive)
+  if (m_cfg.resolveSensitive)
     ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
-  if (m_cfg.collectPassive)
+  if (m_cfg.resolvePassive)
     ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
   if (m_cfg.collectBoundary)
     ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
-  if (m_cfg.collectMaterial)
+  if (m_cfg.resolveMaterial)
     ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
   if (m_cfg.sensitiveCurvilinear) ecc.sensitiveCurvilinear = true;
 
@@ -47,12 +47,6 @@ FW::ExtrapolationAlgorithm::executeTestT(
   // screen output
   ACTS_DEBUG("===> forward extrapolation - collecting information <<===");
 
-  // theta / phi
-  auto   sPosition = startParameters.position();
-  double sTheta    = startParameters.momentum().theta();
-  double sPhi      = startParameters.momentum().phi();
-  double tX0       = 0.;
-  double tL0       = 0.;
   // material steps to be  filled
   std::vector<Acts::MaterialStep> materialSteps;
 
@@ -64,7 +58,7 @@ FW::ExtrapolationAlgorithm::executeTestT(
   }
 
   // create the detector hits data
-  if (dData && m_cfg.simulatedHitsCollection != "") {
+  if (dData && m_cfg.simulatedHitCollection != "") {
     /// loop over steps and get the sensitive
     for (auto& es : ecc.extrapolationSteps) {
       // check if you have parameters

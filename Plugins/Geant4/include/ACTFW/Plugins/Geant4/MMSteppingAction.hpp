@@ -44,7 +44,7 @@ namespace G4 {
 
     /// Interface Method doing the step
     /// @note it creates and collects the MaterialStep entities
-    /// @param step is teh Geant4 step of the particle
+    /// @param step is the Geant4 step of the particle
     void
     UserSteppingAction(const G4Step* step) final override;
 

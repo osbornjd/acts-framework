@@ -1,40 +1,41 @@
 include(${ROOT_USE_FILE})
 
-set(srcs include/ACTFW/Plugins/Root/RootExCellWriter.hpp
-         include/ACTFW/Plugins/Root/RootExCellWriter.ipp
-         include/ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp
-         include/ACTFW/Plugins/Root/RootIndexedMaterialReader.hpp
-         include/ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp
-         include/ACTFW/Plugins/Root/RootMaterialTrackReader.hpp
-         include/ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp
+set(srcs #include/ACTFW/Plugins/Root/RootExCellWriter.hpp
+         #include/ACTFW/Plugins/Root/RootExCellWriter.ipp
+         #include/ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp
+         #include/ACTFW/Plugins/Root/RootIndexedMaterialReader.hpp
+         #include/ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp
+         #include/ACTFW/Plugins/Root/RootMaterialTrackReader.hpp
+         #include/ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp
          include/ACTFW/Plugins/Root/RootParticleWriter.hpp
-         src/RootIndexedMaterialReader.cpp
-         src/RootIndexedMaterialWriter.cpp
-         src/RootMaterialTrackReader.cpp
-         src/RootMaterialTrackWriter.cpp
-         src/RootPlanarClusterWriter.cpp
+         #src/RootIndexedMaterialReader.cpp
+         #src/RootIndexedMaterialWriter.cpp
+         #src/RootMaterialTrackReader.cpp
+         #src/RootMaterialTrackWriter.cpp
+         #src/RootPlanarClusterWriter.cpp
          src/RootParticleWriter.cpp)
 # generate root dictionary for material mapping - needed to write this class to a root file
-if (DEFINED Acts_FOUND)
-root_generate_dictionary(
-  G__Material
-  ${Acts_INCLUDE_DIR}/Acts/Material/Material.hpp
-  ${Acts_INCLUDE_DIR}/Acts/Plugins/MaterialPlugins/MaterialStep.hpp
-  ${Acts_INCLUDE_DIR}/Acts/Plugins/MaterialPlugins/MaterialTrack.hpp
-  LINKDEF include/ACTFW/Plugins/Root/Material_LinkDef.h
-  OPTIONS -I${Acts_INCLUDE_DIR})
-else()
-root_generate_dictionary(
-  G__Material
-  ${PROJECT_SOURCE_DIR}/external/acts-core/Core/include/Acts/Material/Material.hpp
-  ${PROJECT_SOURCE_DIR}/external/acts-core/Plugins/MaterialPlugin/include/Acts/Plugins/MaterialPlugins/MaterialStep.hpp
-  ${PROJECT_SOURCE_DIR}/external/acts-core/Plugins/MaterialPlugin/include/Acts/Plugins/MaterialPlugins/MaterialTrack.hpp
-  LINKDEF include/ACTFW/Plugins/Root/Material_LinkDef.h
-  OPTIONS -I${PROJECT_SOURCE_DIR}/external/acts-core/Core/include
-          -I${PROJECT_SOURCE_DIR}/external/acts-core/Plugins/MaterialPlugin/include)
-endif()
+#if (DEFINED Acts_FOUND)
+#root_generate_dictionary(
+#  G__Material
+#  ${Acts_INCLUDE_DIR}/Acts/Material/Material.hpp
+#  ${Acts_INCLUDE_DIR}/Acts/Plugins/MaterialPlugins/MaterialStep.hpp
+#  ${Acts_INCLUDE_DIR}/Acts/Plugins/MaterialPlugins/MaterialTrack.hpp
+#  LINKDEF include/ACTFW/Plugins/Root/Material_LinkDef.h
+#  OPTIONS -I${Acts_INCLUDE_DIR})
+#else()
+#root_generate_dictionary(
+#  G__Material
+#  ${PROJECT_SOURCE_DIR}/external/acts-core/Core/include/Acts/Material/Material.hpp
+#  ${PROJECT_SOURCE_DIR}/external/acts-core/Plugins/MaterialPlugin/include/Acts/Plugins/MaterialPlugins/MaterialStep.hpp
+#  ${PROJECT_SOURCE_DIR}/external/acts-core/Plugins/MaterialPlugin/include/Acts/Plugins/MaterialPlugins/MaterialTrack.hpp
+#  LINKDEF include/ACTFW/Plugins/Root/Material_LinkDef.h
+#  OPTIONS -I${PROJECT_SOURCE_DIR}/external/acts-core/Core/include
+#          -I${PROJECT_SOURCE_DIR}/external/acts-core/Plugins/MaterialPlugin/include)
+#endif()
 
-add_library(ACTFWRootPlugin SHARED ${srcs} G__Material.cxx)
+
+add_library(ACTFWRootPlugin SHARED ${srcs}) # G__Material.cxx)
 target_include_directories(ACTFWRootPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(ACTFWRootPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
 target_link_libraries(ACTFWRootPlugin PUBLIC Acts::Core Acts::MaterialPlugin)

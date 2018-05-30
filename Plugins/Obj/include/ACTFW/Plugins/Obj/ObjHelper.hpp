@@ -74,6 +74,6 @@ namespace FWObjHelper {
 
 }  // enf of namespace
 
-}  // end of namespace Obj
+}  // namespace Obj
 
 #endif  // ACTFW_OBJ_PLUGINS_HELPER_H
