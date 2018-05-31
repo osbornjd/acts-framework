@@ -98,7 +98,6 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
 
     // the asspcoated perigee for this vertex
     Acts::PerigeeSurface surface(evtx.position());
-
     // loop over particles
     for (const auto& particle : sparticles) {
       double d0    = 0.;
