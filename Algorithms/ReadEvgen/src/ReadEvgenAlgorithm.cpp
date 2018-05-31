@@ -6,10 +6,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
 
 #include <iostream>
 
+#include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
@@ -24,7 +24,7 @@ FW::ReadEvgenAlgorithm::ReadEvgenAlgorithm(
     throw std::invalid_argument("Missing output collection");
   } else if (!m_cfg.barcodeSvc) {
     throw std::invalid_argument("Missing barcode service");
-  } else if (!m_cfg.randomNumbers) {
+  } else if (!m_cfg.randomNumberSvc) {
     throw std::invalid_argument("Missing random numbers service");
   }
 }
@@ -39,9 +39,9 @@ FW::ProcessCode
 FW::ReadEvgenAlgorithm::skip(size_t nEvents)
 {
   // there is a hard scatter evgen reader
-  std::vector<Acts::ProcessVertex> skipParticles;
+  std::vector<Fatras::Vertex> skipEvents;
   if (m_cfg.hardscatterEventReader
-      && m_cfg.hardscatterEventReader->read(skipParticles, nEvents)
+      && m_cfg.hardscatterEventReader->read(skipEvents, nEvents)
           == FW::ProcessCode::ABORT) {
     // error and abort
     ACTS_ERROR("Could not skip " << nEvents << ". Aborting.");
@@ -57,7 +57,7 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
              << ctx.eventNumber);
 
   // Create a random number generator
-  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
+  FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(ctx);
 
   // Setup random number distributions for some quantities
   FW::PoissonDist pileupDist(m_cfg.pileupPoissonParameter);
@@ -67,10 +67,11 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
                             m_cfg.vertexZParameters[1]);
 
   // prepare the output collection
-  std::vector<Acts::ProcessVertex> evgen;
+  std::vector<Fatras::Vertex> evgen;
+
 
   // get the hard scatter if you have it
-  std::vector<Acts::ProcessVertex> hardscatterEvent;
+  std::vector<Fatras::Vertex> hardscatterEvent;
   if (m_cfg.hardscatterEventReader
       && m_cfg.hardscatterEventReader->read(hardscatterEvent, 0, &ctx)
           == FW::ProcessCode::ABORT) {
@@ -79,43 +80,58 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
   }
 
   // generate the number of pileup events
-  size_t nPileUpEvents = m_cfg.randomNumbers ? size_t(pileupDist(rng)) : 0;
+  size_t nPileUpEvents = m_cfg.randomNumberSvc ? size_t(pileupDist(rng)) : 0;
+  ACTS_VERBOSE("Number of in-time pileup events : " << nPileUpEvents);
 
-  ACTS_VERBOSE("- [PU X] number of in-time pileup events : " << nPileUpEvents);
+  // reserve the number of pileup events + one hard scatter event
+  evgen.reserve(nPileUpEvents+1);
+    
+  // the event counter
+  barcode_type eCounter = 0;
+  // the particle counter
+  barcode_type pCounter = 0;
 
-  // reserve quite a lot of space
+  // lambda for vertex processing 
+  auto processVertex = [&evgen,&pCounter,&eCounter]
+          (const Acts::Vector3D& shift, 
+           Fatras::Vertex& vertex, 
+           BarcodeSvc& barcodeSvc) -> void {
+      // shift the vertex
+      vertex.position = vertex.position + shift;
+         // shift and assign barcodes to outgoing particles
+         for (auto& op : vertex.outgoingParticles) {
+           // shift the particle position by the smeared vertex
+           op.position = op.position + shift;
+           // generate the new barcode, and assign it
+           op.barcode  = barcodeSvc.generate(eCounter, pCounter++);
+         }
+         // store the hard scatter vertices
+         evgen.push_back(vertex);
+  };
+
+  // create a vertex distribution 
   double vertexX = vertexTDist(rng);
   double vertexY = vertexTDist(rng);
   double vertexZ = vertexZDist(rng);
-
-  Acts::Vector3D vertex(vertexX, vertexY, vertexZ);
-
-  // fill in the particles
-  barcode_type pCounter = 0;
+  Acts::Vector3D vertexShift(vertexX, vertexY, vertexZ);
+  
+  // hard scatter section
   for (auto& hsVertex : hardscatterEvent) {
-    // shift the vertex
-    hsVertex.shift(vertex);
-    // assign barcodes
-    for (auto& oparticle : hsVertex.outgoingParticles()) {
-      // generate the new barcode, and assign it
-      Acts::ParticleProperties* hsp
-          = const_cast<Acts::ParticleProperties*>(&oparticle);
-      hsp->assign(m_cfg.barcodeSvc->generate(0, pCounter++));
-    }
-    // store the hard scatter vertices
-    evgen.push_back(hsVertex);
+    // create the new vertex position
+    processVertex(vertexShift,hsVertex,*m_cfg.barcodeSvc);
+    ++eCounter;
   }
 
-  // loop over the pile-up vertices
+  // pile-up section
   for (size_t ipue = 0; ipue < nPileUpEvents; ++ipue) {
     // reserve quite a lot of space
     double puVertexX = vertexTDist(rng);
     double puVertexY = vertexTDist(rng);
     double puVertexZ = vertexZDist(rng);
     // create the pileup vertex
-    vertex = Acts::Vector3D(puVertexX, puVertexY, puVertexZ);
+    vertexShift = Acts::Vector3D(puVertexX, puVertexY, puVertexZ);
     // get the vertices per pileup event
-    std::vector<Acts::ProcessVertex> pileupEvent;
+    std::vector<Fatras::Vertex> pileupEvent;
     if (m_cfg.pileupEventReader
         && m_cfg.pileupEventReader->read(pileupEvent, 0, &ctx)
             == FW::ProcessCode::ABORT) {
@@ -125,23 +141,19 @@ FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
     pCounter = 0;
     // loop over pileup vertex per event
     for (auto& puVertex : pileupEvent) {
-      // shift to the pile-up vertex
-      puVertex.shift(vertex);
-      // assign barcodes
-      for (auto& oparticle : puVertex.outgoingParticles()) {
-        Acts::ParticleProperties* hsp
-            = const_cast<Acts::ParticleProperties*>(&oparticle);
-        hsp->assign(m_cfg.barcodeSvc->generate(ipue + 1, pCounter++));
-      }
-      evgen.push_back(puVertex);
+      // create the new vertex position
+      processVertex(vertexShift,puVertex,*m_cfg.barcodeSvc);
+      ++eCounter;
     }
   }
+
+  // shuffle the HS event
+  if (m_cfg.shuffleEvents) std::random_shuffle(evgen.begin(),evgen.end());
 
   // write to the EventStore
   if (ctx.eventStore.add(m_cfg.evgenCollection, std::move(evgen))
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }
-
   return FW::ProcessCode::SUCCESS;
 }

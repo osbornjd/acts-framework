@@ -19,6 +19,7 @@ endif()
 
 option(USE_DD4HEP "Build DD4hep-based code" off)
 option(USE_GEANT4 "Build Geant4-based code" off)
+option(USE_FATRAS "Build Fatras-based code" off)
 option(USE_OPENMP "Build framework with OpenMP enabled" ${USE_OPENMP_DEFAULT})
 option(USE_PYTHIA8 "Build Pythia8-based code" off)
 option(BUILD_ACTS "Build acts-core as submodule" on)
@@ -91,7 +92,7 @@ else()
   find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialPlugin TGeoPlugin DD4hepPlugin)
 endif()
 
-add_subdirectory(external/acts-fatras)
+add_subdirectory_if(external/acts-fatras USE_FATRAS)
 
 # simplify handling of optional components
 # all arguments after the path are evaluated in the if(...) context

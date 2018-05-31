@@ -6,16 +6,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_EXAMPLES_READEVGENALGORITHM_H
-#define ACTFW_EXAMPLES_READEVGENALGORITHM_H
+#pragma once
 
 #include <array>
 #include <memory>
 
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
-#include "Acts/EventData/ParticleDefinitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
+#include "Fatras/Kernel/Particle.hpp"
 
 namespace FW {
 
@@ -35,10 +34,10 @@ public:
   struct Config
   {
     /// the hard scatter reader (optional)
-    std::shared_ptr<IReaderT<std::vector<Acts::ProcessVertex>>>
+    std::shared_ptr< IReaderT< std::vector<Fatras::Vertex> > >
         hardscatterEventReader = nullptr;
     /// the pileup reader (optional)
-    std::shared_ptr<IReaderT<std::vector<Acts::ProcessVertex>>>
+    std::shared_ptr< IReaderT< std::vector<Fatras::Vertex> > >
         pileupEventReader = nullptr;
     /// name of the output collection
     std::string evgenCollection = "EvgenParticles";
@@ -50,9 +49,11 @@ public:
     /// the BarcodeSvc
     std::shared_ptr<BarcodeSvc> barcodeSvc = nullptr;
     /// the random number service
-    std::shared_ptr<RandomNumbersSvc> randomNumbers = nullptr;
+    std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
     /// the number of events to be read in (needd for reader interface)
     size_t nEvents = 0;
+    /// shuffle the events to avoid having HS always first
+    bool shuffleEvents = false;
   };
 
   /// Constructor
@@ -98,5 +99,3 @@ ReadEvgenAlgorithm::numEvents() const
 }
 
 }  // namespace FW
-
-#endif  /// ACTFW_EXAMPLES_READEVGENALGORITHM_H

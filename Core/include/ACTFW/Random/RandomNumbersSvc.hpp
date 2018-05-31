@@ -68,9 +68,15 @@ public:
   /// and multiple uses of a given RNG seed, this should only be done once per
   /// Algorithm invocation, after what the generator object should be reused.
   ///
+  /// It calls generateSeed() for an event driven seed
+  ///
   /// @param context is the AlgorithmContext of the host algorithm
   RandomEngine
   spawnGenerator(const AlgorithmContext& context) const;
+
+
+  const unsigned int
+  generateSeed(const AlgorithmContext& context) const;
 
   /// Ask for the seed
   unsigned int

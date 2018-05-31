@@ -31,49 +31,55 @@ FW::Root::RootParticleWriter::RootParticleWriter(
   if (m_cfg.outputDir != "") outputName += m_cfg.outputDir + "/";
   outputName += m_cfg.outputFileName;
 
-  // Setup ROOT I/O
-  m_outputFile = TFile::Open(outputName.c_str(), m_cfg.fileMode.c_str());
-  if (!m_outputFile) {
-    throw std::ios_base::failure("Could not open '" + outputName);
-  }
-  m_outputFile->cd();
-  m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
-  if (!m_outputTree) throw std::bad_alloc();
+  if (!outputName.empty()){
+    // Setup ROOT I/O
+    m_outputFile = TFile::Open(outputName.c_str(), m_cfg.fileMode.c_str());
+    if (!m_outputFile) {
+      throw std::ios_base::failure("Could not open '" + outputName);
+    }
+    m_outputFile->cd();
+    m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
+    if (!m_outputTree) throw std::bad_alloc();
 
-  // Initial parameters
-  m_outputTree->Branch("eta", &m_eta);
-  m_outputTree->Branch("phi", &m_phi);
-  m_outputTree->Branch("vx", &m_vx);
-  m_outputTree->Branch("vy", &m_vy);
-  m_outputTree->Branch("vz", &m_vz);
-  m_outputTree->Branch("px", &m_px);
-  m_outputTree->Branch("py", &m_py);
-  m_outputTree->Branch("pz", &m_pz);
-  m_outputTree->Branch("pt", &m_pT);
-  m_outputTree->Branch("charge", &m_charge);
-  m_outputTree->Branch("mass", &m_mass);
-  m_outputTree->Branch("pdg", &m_pdgCode);
-  m_outputTree->Branch("barcode", &m_barcode);
-  m_outputTree->Branch("vertex", &m_vertex);
-  m_outputTree->Branch("primary", &m_primary);
-  m_outputTree->Branch("generation", &m_generation);
-  m_outputTree->Branch("secondary", &m_secondary);
-  m_outputTree->Branch("process", &m_process);
+    // Initial parameters
+    m_outputTree->Branch("eta", &m_eta);
+    m_outputTree->Branch("phi", &m_phi);
+    m_outputTree->Branch("vx", &m_vx);
+    m_outputTree->Branch("vy", &m_vy);
+    m_outputTree->Branch("vz", &m_vz);
+    m_outputTree->Branch("px", &m_px);
+    m_outputTree->Branch("py", &m_py);
+    m_outputTree->Branch("pz", &m_pz);
+    m_outputTree->Branch("pt", &m_pT);
+    m_outputTree->Branch("charge", &m_charge);
+    m_outputTree->Branch("mass", &m_mass);
+    m_outputTree->Branch("pdg", &m_pdgCode);
+    m_outputTree->Branch("barcode", &m_barcode);
+    m_outputTree->Branch("vertex", &m_vertex);
+    m_outputTree->Branch("primary", &m_primary);
+    m_outputTree->Branch("generation", &m_generation);
+    m_outputTree->Branch("secondary", &m_secondary);
+    m_outputTree->Branch("process", &m_process);
+  }
 }
 
 FW::Root::RootParticleWriter::~RootParticleWriter()
 {
-  m_outputFile->Close();
+  if (m_outputFile){
+      m_outputFile->Close();
+  }
 }
 
 FW::ProcessCode
 FW::Root::RootParticleWriter::endRun()
 {
-  m_outputFile->cd();
-  m_outputTree->Write();
-  ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
-                                        << m_cfg.outputFileName
-                                        << "'");
+  if (m_outputFile){
+    m_outputFile->cd();
+    m_outputTree->Write();
+    ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
+                                          << m_cfg.outputFileName
+                                          << "'");
+  }
   return ProcessCode::SUCCESS;
 }
 
@@ -82,6 +88,9 @@ FW::Root::RootParticleWriter::writeT(
     const AlgorithmContext&            ctx,
     const std::vector<Fatras::Vertex>& vertices)
 {
+  
+  if (!m_outputFile) return ProcessCode::SUCCESS;
+  
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);
 

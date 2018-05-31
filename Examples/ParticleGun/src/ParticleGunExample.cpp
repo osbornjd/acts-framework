@@ -64,59 +64,62 @@ main(int argc, char* argv[])
   auto nEvents  = standardOptions.first;
   auto logLevel = standardOptions.second;
   // Create the random number engine
-  auto randomNumbersCfg
+  auto randomNumberSvcCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
-  auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
+  auto randomNumberSvc = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
   // Create the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
-  auto                   barcodes = std::make_shared<FW::BarcodeSvc>(
+  auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
       barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
   // Now read the particle gun configs
   auto particleGunCfg
       = FW::Options::readParticleGunConfig<po::variables_map>(vm);
-  particleGunCfg.barcodeSvc      = barcodes;
-  particleGunCfg.randomNumberSvc = randomNumbers;
+  particleGunCfg.barcodeSvc      = barcodeSvc;
+  particleGunCfg.randomNumberSvc = randomNumberSvc;
   auto particleGun = std::make_shared<FW::ParticleGunAlgorithm>(particleGunCfg);
 
   // Output directory
   std::string outputDir = vm["output-dir"].as<std::string>();
 
-  // Output csv filename: append .csv if needed
-  std::string csvFileName = vm["output-csv-file"].as<std::string>();
-  if (csvFileName != "" && csvFileName.find(".csv") == std::string::npos) {
-    csvFileName += ".csv";
-  }
-
-  // Output root filename: append .root
-  std::string rootFileName = vm["output-root-file"].as<std::string>();
-  if (rootFileName != "" && rootFileName.find(".root") == std::string::npos) {
-    rootFileName += ".root";
-  }
-
   // Write particles as CSV files
-  FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
-  pWriterCsvConfig.collection = particleGunCfg.evgenCollection;
-  ;
-  pWriterCsvConfig.outputDir      = outputDir;
-  pWriterCsvConfig.outputFileName = csvFileName;
-  auto pWriterCsv
-      = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
-
-  // Write particles as ROOT TTree
-  FW::Root::RootParticleWriter::Config pWriterRootConfig;
-  pWriterRootConfig.collection     = particleGunCfg.evgenCollection;
-  pWriterRootConfig.outputFileName = rootFileName;
-  pWriterRootConfig.barcodeSvc     = barcodes;
-  auto pWriterRoot
-      = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
-
+  std::shared_ptr<FW::Csv::CsvParticleWriter> pWriterCsv = nullptr;
+  std::string csvFileName = vm["output-csv-file"].as<std::string>();
+  if (!csvFileName.empty()){
+    if (csvFileName.find(".csv") == std::string::npos) {
+        csvFileName += ".csv";
+    }
+    FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
+    pWriterCsvConfig.collection     = particleGunCfg.evgenCollection;
+    pWriterCsvConfig.outputDir      = outputDir;
+    pWriterCsvConfig.outputFileName = csvFileName;
+    pWriterCsv
+        = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
+  } 
+    
+  // Write particles as CSV files
+  std::shared_ptr<FW::Root::RootParticleWriter> pWriterRoot = nullptr;
+  std::string rootFileName = vm["output-root-file"].as<std::string>();
+  if (!rootFileName.empty()){
+    if (rootFileName.find(".root") == std::string::npos) {
+        rootFileName += ".root";
+    }
+    // Write particles as ROOT TTree
+    FW::Root::RootParticleWriter::Config pWriterRootConfig;
+    pWriterRootConfig.collection     = particleGunCfg.evgenCollection;
+    pWriterRootConfig.outputFileName = rootFileName;
+    pWriterRootConfig.barcodeSvc     = barcodeSvc;
+    pWriterRoot
+        = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
+  }
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
   // now create the sequencer & add the relevant
   FW::Sequencer sequencer(seqConfig);
-  sequencer.addServices({randomNumbers});
+  sequencer.addServices({randomNumberSvc});
   sequencer.appendEventAlgorithms({particleGun});
-  if (rootFileName != "") sequencer.addWriters({pWriterRoot});
-  if (csvFileName != "") sequencer.addWriters({pWriterCsv});
+  if (pWriterRoot) 
+    sequencer.addWriters({pWriterRoot});
+  if (pWriterCsv) 
+    sequencer.addWriters({pWriterCsv});
   sequencer.run(nEvents);
 }

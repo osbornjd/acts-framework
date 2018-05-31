@@ -32,11 +32,17 @@ FW::RandomNumbersSvc::name() const
 FW::RandomEngine
 FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext& context) const
 {
+  return RandomEngine(generateSeed(context));
+}
+
+const unsigned int
+FW::RandomNumbersSvc::generateSeed(const AlgorithmContext& context) const
+{
   // use Cantor pairing function to generate a unique generator id from
   // algorithm and event number to get a consistent seed
   // see https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
   const unsigned int k1 = context.algorithmNumber;
   const unsigned int k2 = context.eventNumber;
   const unsigned int id = (k1 + k2) * (k1 + k2 + 1) / 2 + k2;
-  return RandomEngine(m_cfg.seed + id);
+  return m_cfg.seed+id;
 }

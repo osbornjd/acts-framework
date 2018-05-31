@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_OPTIONS_EVGENOPTIONS_HPP
-#define ACTFW_OPTIONS_EVGENOPTIONS_HPP
+#pragma once
 
 #include <iostream>
 #include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
@@ -27,6 +26,9 @@ namespace Options {
     opt.add_options()("evg-collection",
                       po::value<std::string>()->default_value("EvgenParticles"),
                       "Collection name of the evgen particles.")(
+        "evg-shuffle",
+        po::value<bool>()->default_value(false),
+        "Shuffle the order of events after reading.")(
         "evg-pileup",
         po::value<int>()->default_value(200),
         "Number of instantaneous pile-up events.")(
@@ -56,10 +58,10 @@ namespace Options {
     auto vzpars = vm["evg-vertex-zrange"].template as<read_range>();
     readEvgenConfig.vertexTParameters = {{vtpars[0], vtpars[1]}};
     readEvgenConfig.vertexZParameters = {{vzpars[0], vzpars[1]}};
+    // shuffle the event or not
+    readEvgenConfig.shuffleEvents     = vm["evg-shuffle"].template as<bool>();
     // return the config
     return readEvgenConfig;
   }
 }
 }
-
-#endif  // ACTFW_OPTIONS_EVGENOPTIONS_HPP

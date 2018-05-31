@@ -1,4 +1,4 @@
-# framework test section
+# framework test section - without dependencies
 add_subdirectory(HelloWorld)
 add_subdirectory(RandomNumbers)
 add_subdirectory(WhiteBoard)
@@ -9,10 +9,10 @@ add_subdirectory(WhiteBoard)
 add_subdirectory(BField)
 
 # particle gun and event reading
-add_subdirectory(ParticleGun)
+add_subdirectory_if(ParticleGun USE_FATRAS)
+add_subdirectory_if(ReadEvgen USE_FATRAS AND USE_PYTHIA8)
 
 #add_subdirectory(Extrapolation)
 #add_subdirectory(Fatras)
-#add_subdirectory_if(ReadEvgen USE_PYTHIA8)
 #add_subdirectory(Propagation)
-#add_subdirectory(WhiteBoard)
+
