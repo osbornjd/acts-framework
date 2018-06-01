@@ -13,19 +13,18 @@
 #include <mutex>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Plugins/Obj/ObjHelper.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
-namespace Obj {
-
-/// @class ObjSurfaceWriter
+namespace Csv {
+  
+/// @class CsvSurfaceWriter
 ///
-/// An Obj writer for the geometry
+/// A Cvs surface writer for the geometry
 ///
-class ObjSurfaceWriter : public FW::IWriterT<Acts::Surface>
+class CsvSurfaceWriter : public FW::IWriterT<Acts::Surface>
 {
 public:
   // @class Config
@@ -38,29 +37,25 @@ public:
     std::shared_ptr<const Acts::Logger> logger;
     /// the name of the algorithm
     std::string name;
-    /// approximate cyinders by that
-    unsigned int outputPhiSegemnts = 72;
-    /// write thickness if available
-    double outputThickness = 2.;
     /// write sensitive surfaces
-    bool outputSensitive = true;
+    bool outputSensitive   = true;
     /// write the layer surface out
-    bool outputLayerSurface = true;
+    bool outputLayerSurface = false;
+    /// write the bounds   
+    bool outputBounds       = true;
     /// output scalor
-    double outputScalor = 1.;
+    double outputScalor     = 1.;
     /// precision for out
     unsigned int outputPrecision = 6;
     /// file prefix to be written out
     std::string filePrefix = "";
-    /// prefixes
-    /// @todo These aren't used anywhere, should they be dropped?
-    std::string planarPrefix   = "";
-    std::string cylinderPrefix = "";
-    std::string diskPrefix     = "";
     /// the output stream
     std::shared_ptr<std::ofstream> outputStream = nullptr;
 
-    Config(const std::string&   lname = "ObjSurfaceWriter",
+    /// Constructor of nested config class
+    /// @param lname name of the Writer
+    /// @param lvl output log level
+    Config(const std::string&   lname = "CsvSurfaceWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
       : logger(Acts::getDefaultLogger(lname, lvl)), name(lname)
     {
@@ -70,7 +65,7 @@ public:
   /// Constructor
   ///
   /// @param cfg is the configuration class
-  ObjSurfaceWriter(const Config& cfg);
+  CsvSurfaceWriter(const Config& cfg);
 
   /// Framework name() method
   std::string
@@ -87,8 +82,7 @@ public:
   write(const std::string& sinfo);
 
 private:
-  Config                  m_cfg;         ///< the config class
-  Obj::VtnCounter m_vtnCounter;  ///< vertex, texture, normal
+  Config     m_cfg;          ///< the config class
   std::mutex m_write_mutex;  ///< mutex to protect multi-threaded writes
 
   /// Private access to the logging instance
@@ -100,7 +94,7 @@ private:
 };
 
 inline FW::ProcessCode
-ObjSurfaceWriter::write(const std::string& sinfo)
+CsvSurfaceWriter::write(const std::string& sinfo)
 {
   // lock the mutex for writing
   std::lock_guard<std::mutex> lock(m_write_mutex);
@@ -109,6 +103,6 @@ ObjSurfaceWriter::write(const std::string& sinfo)
   return FW::ProcessCode::SUCCESS;
 }
 
-} // namespace Obj
+} // namespace Csv
 } // namespace FW
 

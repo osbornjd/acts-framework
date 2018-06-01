@@ -10,7 +10,7 @@
 #include <vector>
 
 void
-FWObj::FWObjHelper::writeVTN(std::ofstream&        stream,
+FW::Obj::writeVTN(std::ofstream&        stream,
                              VtnCounter&           vtnCounter,
                              double                scalor,
                              const Acts::Vector3D& vertex,
@@ -40,7 +40,7 @@ FWObj::FWObjHelper::writeVTN(std::ofstream&        stream,
 }
 
 void
-FWObj::FWObjHelper::constructVerticalFaces(
+FW::Obj::constructVerticalFaces(
     std::ofstream&                   stream,
     unsigned int                     start,
     const std::vector<unsigned int>& vsides)
@@ -67,7 +67,7 @@ FWObj::FWObjHelper::constructVerticalFaces(
 }
 
 void
-FWObj::FWObjHelper::writePlanarFace(std::ofstream& stream,
+FW::Obj::writePlanarFace(std::ofstream& stream,
                                     VtnCounter&    vtnCounter,
                                     double         scalor,
                                     const std::vector<Acts::Vector3D>& vertices,
@@ -112,7 +112,7 @@ FWObj::FWObjHelper::writePlanarFace(std::ofstream& stream,
 }
 
 void
-FWObj::FWObjHelper::writeTube(std::ofstream&           stream,
+FW::Obj::writeTube(std::ofstream&           stream,
                               VtnCounter&              vtnCounter,
                               double                   scalor,
                               unsigned int             nSegments,

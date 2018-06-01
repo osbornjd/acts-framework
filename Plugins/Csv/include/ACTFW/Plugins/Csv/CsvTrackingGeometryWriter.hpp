@@ -9,28 +9,30 @@
 #pragma once
 
 #include <mutex>
-
 #include <fstream>
 #include <iostream>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
+#include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
-  class TrackingVolume;
-  class TrackingGeometry;
+class TrackingVolume;
+}
+namespace FW {
+class ISurfaceWriter;
 }
 
 namespace FW {
+namespace Csv {
 
-namespace Obj {
-
-/// @class ObjTrackingGeometryWriter
+/// @class CsvTrackingGeometryWriter
 ///
-/// An Obj writer for the geometry
+/// An Csv writer for the geometry
 /// It delegates the writing of surfaces to the surface writers
-class ObjTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
+class CsvTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
 {
 public:
   // @class Config
@@ -44,23 +46,25 @@ public:
     /// the name of the writer
     std::string name = "";
     /// surfaceWriters
-    std::vector<std::shared_ptr<ObjSurfaceWriter>> surfaceWriters;
-    std::string                                    filePrefix           = "";
-    std::string                                    sensitiveGroupPrefix = "";
-    std::string                                    layerPrefix          = "";
+    std::shared_ptr<CsvSurfaceWriter> surfaceWriter = nullptr;
+    std::string                       filePrefix    = "";
+    std::string                       layerPrefix   = "";
 
-    Config(const std::string&   lname = "ObjTrackingGeometryWriter",
+    /// Constructor for the nested config class
+    /// @param lname is the name of the writer
+    /// @lvl is the screen output logging level
+    Config(const std::string&   lname = "CsvTrackingGeometryWriter",
            Acts::Logging::Level lvl   = Acts::Logging::INFO)
       : logger(Acts::getDefaultLogger(lname, lvl))
       , name(lname)
-      , surfaceWriters()
+      , surfaceWriter()
     {
     }
   };
 
   /// Constructor
   /// @param cfg is the configuration class
-  ObjTrackingGeometryWriter(const Config& cfg);
+  CsvTrackingGeometryWriter(const Config& cfg);
 
   /// Framework name() method
   /// @return the name of the tool
@@ -89,5 +93,5 @@ private:
   }
 };
 
-} // namespace Obj
-} // namepace FW
+} // namespace Csv
+} // namesapce FW

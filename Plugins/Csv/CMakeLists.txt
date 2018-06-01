@@ -1,4 +1,4 @@
-file(GLOB_RECURSE src_files "src/CsvParticleWriter.cpp" "include/*.*pp")
+file(GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
 
 add_library(ACTFWCsvPlugin SHARED ${src_files})
 target_include_directories(ACTFWCsvPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)

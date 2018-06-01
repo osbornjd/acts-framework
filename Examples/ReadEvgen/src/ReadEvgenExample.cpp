@@ -18,7 +18,7 @@
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
+#include "ACTFW/ReadEvgen/EvgenReader.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
 
 namespace po = boost::program_options;
@@ -32,7 +32,7 @@ main(int argc, char* argv[])
   // add the standard options
   FW::Options::addStandardOptions<po::options_description>(desc, 1, 2);
   // add the evgen options
-  FW::Options::addEvgenOptions<po::options_description>(desc);
+  FW::Options::addEvgenReaderOptions<po::options_description>(desc);
   // add the pythia 8 options
   FW::Options::addPythia8Options<po::options_description>(desc);
   // add the random number options
@@ -92,8 +92,8 @@ main(int argc, char* argv[])
   readEvgenCfg.nEvents                = nEvents;
 
   // create the read Algorithm
-  auto readEvgen = std::make_shared<FW::ReadEvgenAlgorithm>(
-      readEvgenCfg, Acts::getDefaultLogger("ReadEvgenAlgorithm", logLevel));
+  auto readEvgen = std::make_shared<FW::EvgenReader>(
+      readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
 
   // Output directory
   std::string outputDir = vm["output-dir"].as<std::string>();

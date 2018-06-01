@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_PLUGINS_OBJEXCELLWRITER_H
-#define ACTFW_PLUGINS_OBJEXCELLWRITER_H
+#pragma once
 
 #include <TTree.h>
 #include <mutex>
@@ -122,5 +121,3 @@ namespace Obj {
 
 }  // namespace Obj
 }  // namespace FW
-
-#endif  // ACTFW_PLUGINS_OBJEXCELLWRITER_H

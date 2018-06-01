@@ -21,11 +21,12 @@
 #include "Acts/Digitization/PlanarModuleCluster.hpp"
 #include "Acts/Digitization/PlanarModuleStepper.hpp"
 #include "Acts/Digitization/Segmentation.hpp"
-#include "Acts/EventData/ParticleDefinitions.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
+#include "Fatras/Kernel/Particle.hpp"
+#include "Fatras/Kernel/Definitions.hpp"
 
 FW::DigitizationAlgorithm::DigitizationAlgorithm(
     const FW::DigitizationAlgorithm::Config& cfg,
@@ -38,7 +39,7 @@ FW::DigitizationAlgorithm::DigitizationAlgorithm(
     throw std::invalid_argument("Missing output space points collection");
   } else if (m_cfg.clusterCollection.empty()) {
     throw std::invalid_argument("Missing output clusters collection");
-  } else if (!m_cfg.randomNumbers) {
+  } else if (!m_cfg.randomNumberSvc) {
     throw std::invalid_argument("Missing random numbers service");
   } else if (!m_cfg.planarModuleStepper) {
     throw std::invalid_argument("Missing planar module stepper");
@@ -49,7 +50,7 @@ FW::ProcessCode
 FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
 {
   // prepare the input data
-  const FW::DetectorData<geo_id_value, FW::SimHit>* simHits = nullptr;
+  const FW::DetectorData<geo_id_value, Fatras::SensitiveHit>* simHits = nullptr;
   // read and go
   if (context.eventStore.get(m_cfg.simulatedHitCollection, simHits)
       == FW::ProcessCode::ABORT)
@@ -58,12 +59,10 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
                                     << "' from event store.");
 
-  // the particle mass table
-  Acts::ParticleMasses pMasses;
-
   // prepare the output data: Clusters
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
-  // perpare the second output data : SpacePoints
+  
+  // perpare the second output data : Truth SpacePoints
   FW::DetectorData<geo_id_value, Acts::Vector3D> spacePoints;
 
   // now digitise
@@ -81,7 +80,6 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
                    << moduleKey);
         // get the hit parameters
         for (auto& hit : sData.second) {
-          auto particleBarcode = hit.barcode;
           // get the surface
           const Acts::Surface& hitSurface = (*hit.surface);
           // get the DetectorElement
@@ -102,7 +100,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
               Acts::Vector2D localIntersection(localIntersect3D.x(),
                                                localIntersect3D.y());
               Acts::Vector3D localDirection(invTransfrom.linear()
-                                            * hit.momentum.unit());
+                                            * hit.direction);
               // now calculate the steps through the silicon
               std::vector<Acts::DigitizationStep> dSteps
                   = m_cfg.planarModuleStepper->cellSteps(*hitDigitizationModule,
@@ -153,15 +151,6 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
               geoID.add(layerKey, Acts::GeometryID::layer_mask);
               geoID.add(moduleKey, Acts::GeometryID::sensitive_mask);
               geoID.add(binSerialized, Acts::GeometryID::channel_mask);
-              // create the truth for this - assume here muons
-              Acts::ParticleProperties pProperties(hit.momentum,
-                                                   pMasses.mass[Acts::muon],
-                                                   1.,
-                                                   13,
-                                                   particleBarcode);
-              // the associated process vertex
-              Acts::ProcessVertex pVertex(
-                  hit.position, 0., 0, {pProperties}, {});
 
               // create the planar cluster
               Acts::PlanarModuleCluster pCluster(hitSurface,
@@ -169,8 +158,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
                                                  std::move(cov),
                                                  localX,
                                                  localY,
-                                                 std::move(usedCells),
-                                                 {pVertex});
+                                                 std::move(usedCells));
 
               // insert into the space point map
               FW::Data::insert(

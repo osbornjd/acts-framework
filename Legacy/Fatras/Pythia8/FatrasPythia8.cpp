@@ -7,21 +7,19 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 /// @file
-/// @brief Fatras example with pythia8 generator and a DD4hep detector
+/// @brief Fatras example with a pythia8 generator and the generic detector
 
 #include <Acts/Detector/TrackingGeometry.hpp>
 #include <Acts/Utilities/Units.hpp>
 #include <boost/program_options.hpp>
 #include <cstdlib>
-#include <iostream>
 #include "ACTFW/Framework/StandardOptions.hpp"
+#include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
-#include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
 #include "ACTFW/Plugins/Pythia8/GeneratorOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
-#include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
+#include "ACTFW/ReadEvgen/EvgenReader.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
 #include "FatrasCommon.hpp"
 
@@ -37,13 +35,11 @@ main(int argc, char* argv[])
   // add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
   // read the evgen options
-  FW::Options::addEvgenOptions<po::options_description>(desc);
+  FW::Options::addEvgenReaderOptions<po::options_description>(desc);
   // add the pythia 8 options
   FW::Options::addPythia8Options<po::options_description>(desc);
   // add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // add the dd4hep detector options
-  FW::Options::addDD4hepOptions<po::options_description>(desc);
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -61,7 +57,7 @@ main(int argc, char* argv[])
   auto logLevel = standardOptions.second;
   // @todo add the output directory to the standard options
   std::string outputDir = "";
-  // now read the bfield options
+  // read and create the magnetic field
   auto bField = FW::Options::readBField<po::variables_map>(vm);
   // now read the pythia8 configs
   auto pythia8Configs = FW::Options::readPythia8Config<po::variables_map>(vm);
@@ -88,17 +84,13 @@ main(int argc, char* argv[])
   readEvgenCfg.randomNumbers          = randomNumbers;
   readEvgenCfg.barcodeSvc             = barcodeSvc;
   readEvgenCfg.nEvents                = nEvents;
-
   // create the read Algorithm
-  auto readEvgen = std::make_shared<FW::ReadEvgenAlgorithm>(
-      readEvgenCfg, Acts::getDefaultLogger("ReadEvgenAlgorithm", logLevel));
-  // read the detector config & dd4hep detector
-  auto dd4HepDetectorConfig
-      = FW::Options::readDD4hepConfig<po::variables_map>(vm);
-  auto geometrySvc
-      = std::make_shared<FW::DD4hep::GeometryService>(dd4HepDetectorConfig);
-  std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
-      = geometrySvc->trackingGeometry();
+  auto readEvgen = std::make_shared<FW::EvgenReader>(
+      readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
+
+  // generic detector as geometry
+  std::shared_ptr<const Acts::TrackingGeometry> geometry
+      = FWGen::buildGenericDetector(logLevel, logLevel, logLevel, 3);
 
   // setup event loop
   FW::Sequencer sequencer({});
@@ -106,11 +98,11 @@ main(int argc, char* argv[])
     return EXIT_FAILURE;
   if (bField.first
       && setupSimulation(
-             sequencer, dd4tGeometry, randomNumbers, bField.first, logLevel)
+             sequencer, geometry, randomNumbers, bField.first, logLevel)
           != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
   else if (setupSimulation(
-               sequencer, dd4tGeometry, randomNumbers, bField.second, logLevel)
+               sequencer, geometry, randomNumbers, bField.second, logLevel)
            != FW::ProcessCode::SUCCESS)
     return EXIT_FAILURE;
   if (setupWriters(sequencer, barcodeSvc, outputDir)

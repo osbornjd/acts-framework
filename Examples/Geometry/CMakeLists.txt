@@ -3,7 +3,7 @@ add_executable(ACTFWGenericGeometryExample src/GenericGeometryExample)
 target_include_directories(ACTFWGenericGeometryExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_include_directories(ACTFWGenericGeometryExample PUBLIC ${DD4hep_INCLUDE_DIRS})
 target_link_libraries(ACTFWGenericGeometryExample PUBLIC Acts::Core)
-target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFramework ACTFWObjPlugin ACTFWGenericDetector)
+target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFramework ACTFWObjPlugin ACTFWCsvPlugin ACTFWGenericDetector)
 target_link_libraries(ACTFWGenericGeometryExample PRIVATE ${Boost_LIBRARIES})
 
 install(TARGETS ACTFWGenericGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

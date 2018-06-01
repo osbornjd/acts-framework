@@ -9,9 +9,10 @@
 #pragma once
 
 #include <array>
-#include "ACTFW/Framework/BareAlgorithm.hpp"
+#include "ACTFW/Framework/IReader.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 using range = std::array<double, 2>;
 
@@ -22,19 +23,24 @@ class RandomNumbersSvc;
 
 /// @class ParticleGun
 ///
-/// Particle gun implementation of the IParticleReader. It can be used as
+/// Particle gun implementation of the IReader. It can be used as
 /// particle input for the Fatras example.
+/// 
 /// It generates particles of given type with random momentum and random vertex
 /// in a given range. It fills a vector of particle properties for feeding into
 /// fast simulation.
 ///
-class ParticleGunAlgorithm : public BareAlgorithm
+class ParticleGun : public FW::IReader
 {
 public:
   struct Config
   {
+    /// The particle gon is on
+    bool on  = true;
     /// output collection for generated particles
     std::string evgenCollection;
+    /// number of events
+    size_t nEvents = 0;
     /// number of particles
     size_t nParticles = 0;
     /// low, high for d0 range
@@ -62,14 +68,47 @@ public:
 
   /// Constructor
   /// @param cfg is the configuration class
-  ParticleGunAlgorithm(const Config&        cfg,
-                       Acts::Logging::Level level = Acts::Logging::INFO);
+  ParticleGun(const Config&                       cfg,
+              std::unique_ptr<const Acts::Logger> logger
+                = Acts::getDefaultLogger("ParticleGun",
+                                         Acts::Logging::INFO));
 
-  ProcessCode
-  execute(AlgorithmContext ctx) const;
+  /// Framework name() method
+  std::string
+  name() const final override;
+
+  /// Skip a few events in the IO stream
+  /// @param [in] nEvents is the number of skipped events
+  FW::ProcessCode
+  skip(size_t nEvents) final override;
+
+  /// Read out data from the input stream
+  FW::ProcessCode
+  read(FW::AlgorithmContext ctx) final override;
+
+  /// Return the number of events
+  virtual size_t
+  numEvents() const final override;
 
 private:
-  Config m_cfg;
+  Config                              m_cfg;
+  std::unique_ptr<const Acts::Logger> m_logger;
+
+  /// Private access to the logging instance
+  const Acts::Logger&
+  logger() const
+  {
+    return *m_logger;
+  }
+  
 };
+
+/// Return of the number events
+inline size_t
+ParticleGun::numEvents() const
+{
+  return m_cfg.nEvents;
+}
+
 
 }  // namespace FW

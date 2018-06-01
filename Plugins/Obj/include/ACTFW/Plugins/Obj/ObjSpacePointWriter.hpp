@@ -10,8 +10,7 @@
 /// @date 2016-05-23 Initial version
 /// @date 2017-08-07 Rewrite with new interfaces
 
-#ifndef ACTFW_OBJSPACEPOINTWRITER_H
-#define ACTFW_OBJSPACEPOINTWRITER_H
+#pragma once
 
 #include <fstream>
 
@@ -110,5 +109,3 @@ FW::Obj::ObjSpacePointWriter<T>::writeT(
   }
   return ProcessCode::SUCCESS;
 }
-
-#endif  // ACTFW_OBJSPACEPOINTWRITER_H

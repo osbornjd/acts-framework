@@ -53,7 +53,7 @@ public:
     /// input resolution file, needed for gaussian smearing
     std::string resolutionFile         = "";
     /// FW random number service
-    std::shared_ptr<RandomNumbersSvc> randomNumbers                = nullptr;
+    std::shared_ptr<RandomNumbersSvc> randomNumberSvc              = nullptr;
     /// module stepper from ACTS core for geometric clustering
     std::shared_ptr<Acts::PlanarModuleStepper> planarModuleStepper = nullptr;
     

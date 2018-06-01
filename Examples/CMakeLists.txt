@@ -4,7 +4,7 @@ add_subdirectory(RandomNumbers)
 add_subdirectory(WhiteBoard)
 
 # geometry, material and magnetic field
-#add_subdirectory(GeometryBuilding)
+add_subdirectory(Geometry)
 #add_subdirectory_if(MaterialMapping USE_DD4HEP AND USE_GEANT4)
 add_subdirectory(BField)
 

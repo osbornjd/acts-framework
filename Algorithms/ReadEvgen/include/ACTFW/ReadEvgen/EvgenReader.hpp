@@ -22,11 +22,11 @@ class WhiteBoard;
 class RandomNumbersSvc;
 class BarcodeSvc;
 
-/// @class ReadEvgenAlgorithm
+/// @class EvgenReader
 ///
-/// ReadEvgenAlgorithm to read EvGen from some input
+/// EvgenReader to read EvGen from some input
 /// Allows for pile-up reading as well
-class ReadEvgenAlgorithm : public FW::IReader
+class EvgenReader : public FW::IReader
 {
 public:
   /// @struct Config
@@ -57,10 +57,10 @@ public:
   };
 
   /// Constructor
-  ReadEvgenAlgorithm(const Config&                       cnf,
-                     std::unique_ptr<const Acts::Logger> logger
-                     = Acts::getDefaultLogger("ReadEvgenAlgorithm",
-                                              Acts::Logging::INFO));
+  EvgenReader(const Config&                       cnf,
+              std::unique_ptr<const Acts::Logger> logger
+              = Acts::getDefaultLogger("EvgenReader",
+                                       Acts::Logging::INFO));
 
   /// Framework name() method
   std::string
@@ -93,7 +93,7 @@ private:
 
 /// Return of the number events
 inline size_t
-ReadEvgenAlgorithm::numEvents() const
+EvgenReader::numEvents() const
 {
   return m_cfg.nEvents;
 }

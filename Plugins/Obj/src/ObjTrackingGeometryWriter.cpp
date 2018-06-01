@@ -9,23 +9,26 @@
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include <iostream>
 #include "ACTFW/Writers/IWriterT.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Layers/Layer.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 
-FWObj::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
-    const FWObj::ObjTrackingGeometryWriter::Config& cfg)
+
+FW::Obj::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
+    const FW::Obj::ObjTrackingGeometryWriter::Config& cfg)
   : FW::IWriterT<Acts::TrackingGeometry>(), m_cfg(cfg)
 {
 }
 
 std::string
-FWObj::ObjTrackingGeometryWriter::name() const
+FW::Obj::ObjTrackingGeometryWriter::name() const
 {
   return m_cfg.name;
 }
 
 FW::ProcessCode
-FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
+FW::Obj::ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingGeometry object called.");
   // get the world volume
@@ -37,7 +40,7 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
 
 /// process this volume
 void
-FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
+FW::Obj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingVolume object called.");
   // get the confined layers and process them

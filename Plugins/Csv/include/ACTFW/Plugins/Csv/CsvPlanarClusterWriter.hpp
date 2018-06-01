@@ -6,12 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-05-23 Initial version
-/// @date 2017-08-07 Rewrite with new interfaces
-
-#ifndef ACTFW_CSVPLANARCLUSTERWRITER_H
-#define ACTFW_CSVPLANARCLUSTERWRITER_H
+#pragma once
 
 #include <Acts/Digitization/PlanarModuleCluster.hpp>
 #include "ACTFW/EventData/DataContainers.hpp"
@@ -62,5 +57,3 @@ namespace Csv {
   };
 }  // namespace Csv
 }  // namespace FW
-
-#endif  // ACTFW_CSVPLANARCLUSTERWRITER_H

@@ -1,9 +1,12 @@
-Algorithms/ReadEvgen/CMakeLists.txtadd_subdirectory(Csv)
+
+# the writer Plugins
+add_subdirectory(Csv)
+add_subdirectory(Root)
+add_subdirectory(Obj)
+#add_subdirectory(Json)
+
 #add_subdirectory_if(DD4hep USE_DD4HEP)
 #add_subdirectory_if(DD4hepG4 USE_DD4HEP AND USE_GEANT4)
 #add_subdirectory_if(Geant4 USE_GEANT4)
-#add_subdirectory(Json)
-#add_subdirectory(Obj)
 add_subdirectory_if(Pythia8 USE_PYTHIA8 AND USE_FATRAS)
-add_subdirectory(Root)
 add_subdirectory(BField)

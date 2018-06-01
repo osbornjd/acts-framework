@@ -9,7 +9,7 @@
 #pragma once
 
 #include <iostream>
-#include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
+#include "ACTFW/ReadEvgen/EvgenReader.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 
 namespace po = boost::program_options;
@@ -21,34 +21,34 @@ namespace Options {
   // common evgen options, with an evg prefix
   template <class AOPT>
   void
-  addEvgenOptions(AOPT& opt)
+  addEvgenReaderOptions(AOPT& opt)
   {
     opt.add_options()("evg-collection",
                       po::value<std::string>()->default_value("EvgenParticles"),
                       "Collection name of the evgen particles.")(
-        "evg-shuffle",
-        po::value<bool>()->default_value(false),
-        "Shuffle the order of events after reading.")(
-        "evg-pileup",
-        po::value<int>()->default_value(200),
-        "Number of instantaneous pile-up events.")(
-        "evg-vertex-xyrange",
-        po::value<read_range>()->multitoken()->default_value({0., 0.015}),
-        "transverse range of the vertex in xy. Please hand over by simply "
-        "seperating the values by space")(
-        "evg-vertex-zrange",
-        po::value<read_range>()->multitoken()->default_value({0., 5.5}),
-        "transverse range of the vertex in z.  Please hand over by simply "
-        "seperating the values by space");
+                      "evg-shuffle",
+                      po::value<bool>()->default_value(false),
+                      "Shuffle the order of events after reading.")(
+                      "evg-pileup",
+                      po::value<int>()->default_value(200),
+                      "Number of instantaneous pile-up events.")(
+                      "evg-vertex-xyrange",
+                      po::value<read_range>()->multitoken()->default_value({0., 0.015}),
+                      "transverse range of the vertex in xy. Please hand over by simply "
+                      "seperating the values by space")(
+                      "evg-vertex-zrange",
+                      po::value<read_range>()->multitoken()->default_value({0., 5.5}),
+                      "transverse range of the vertex in z.  Please hand over by simply "
+                      "seperating the values by space");
   }
 
   /// read the evgen options and return a Config file
   template <class AMAP>
-  FW::ReadEvgenAlgorithm::Config
+  FW::EvgenReader::Config
   readEvgenConfig(const AMAP& vm)
   {
 
-    FW::ReadEvgenAlgorithm::Config readEvgenConfig;
+    FW::EvgenReader::Config readEvgenConfig;
     readEvgenConfig.evgenCollection
         = vm["evg-collection"].template as<std::string>();
     readEvgenConfig.pileupPoissonParameter

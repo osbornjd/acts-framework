@@ -6,16 +6,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_OBJ_PLUGINS_HELPER_H
-#define ACTFW_OBJ_PLUGINS_HELPER_H
+#pragma once
 
 #include <fstream>
 #include <vector>
 #include "Acts/Utilities/Definitions.hpp"
 
-namespace FWObj {
+namespace FW {
 
-namespace FWObjHelper {
+namespace Obj {
 
   /// This is the counter struct for keeping track of the vertices
   struct VtnCounter
@@ -72,8 +71,6 @@ namespace FWObjHelper {
             double                   hZ,
             double                   thickness = 0.);
 
-}  // enf of namespace
-
 }  // namespace Obj
+}  // namespace FW
 
-#endif  // ACTFW_OBJ_PLUGINS_HELPER_H

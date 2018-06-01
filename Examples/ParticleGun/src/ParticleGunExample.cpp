@@ -12,7 +12,7 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/ParticleGun/ParticleGunAlgorithm.hpp"
+#include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
@@ -76,7 +76,8 @@ main(int argc, char* argv[])
       = FW::Options::readParticleGunConfig<po::variables_map>(vm);
   particleGunCfg.barcodeSvc      = barcodeSvc;
   particleGunCfg.randomNumberSvc = randomNumberSvc;
-  auto particleGun = std::make_shared<FW::ParticleGunAlgorithm>(particleGunCfg);
+  auto particleGun   = std::make_shared<FW::ParticleGun>(
+      particleGunCfg, Acts::getDefaultLogger("ParticleGun", logLevel));
 
   // Output directory
   std::string outputDir = vm["output-dir"].as<std::string>();
@@ -96,7 +97,7 @@ main(int argc, char* argv[])
         = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
   } 
     
-  // Write particles as CSV files
+  // Write particles as ROOT files
   std::shared_ptr<FW::Root::RootParticleWriter> pWriterRoot = nullptr;
   std::string rootFileName = vm["output-root-file"].as<std::string>();
   if (!rootFileName.empty()){
@@ -116,7 +117,8 @@ main(int argc, char* argv[])
   // now create the sequencer & add the relevant
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({randomNumberSvc});
-  sequencer.appendEventAlgorithms({particleGun});
+  sequencer.addReaders({particleGun});
+  sequencer.appendEventAlgorithms({});
   if (pWriterRoot) 
     sequencer.addWriters({pWriterRoot});
   if (pWriterCsv) 

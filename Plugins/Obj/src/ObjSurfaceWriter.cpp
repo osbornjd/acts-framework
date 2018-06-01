@@ -17,8 +17,8 @@
 #include "Acts/Surfaces/SurfaceBounds.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 
-FWObj::ObjSurfaceWriter::ObjSurfaceWriter(
-    const FWObj::ObjSurfaceWriter::Config& cfg)
+FW::Obj::ObjSurfaceWriter::ObjSurfaceWriter(
+    const FW::Obj::ObjSurfaceWriter::Config& cfg)
   : FW::IWriterT<Acts::Surface>(), m_cfg(cfg)
 {
   // Validate the configuration
@@ -35,13 +35,13 @@ FWObj::ObjSurfaceWriter::ObjSurfaceWriter(
 }
 
 std::string
-FWObj::ObjSurfaceWriter::name() const
+FW::Obj::ObjSurfaceWriter::name() const
 {
   return m_cfg.name;
 }
 
 FW::ProcessCode
-FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
+FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
 {
   std::lock_guard<std::mutex> lock(m_write_mutex);
 
@@ -81,7 +81,7 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
       vfaces    = {1, 1, 1, 1};
     }
     // output to file
-    FWObjHelper::writePlanarFace(*(m_cfg.outputStream),
+    Obj::writePlanarFace(*(m_cfg.outputStream),
                                  m_vtnCounter,
                                  scalor,
                                  vertices,
@@ -102,7 +102,7 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     (*(m_cfg.outputStream))
         << " o Cylinder_" << std::to_string(layerID) << '\n';
     // output to the file
-    FWObjHelper::writeTube(*(m_cfg.outputStream),
+    Obj::writeTube(*(m_cfg.outputStream),
                            m_vtnCounter,
                            scalor,
                            m_cfg.outputPhiSegemnts,
@@ -127,7 +127,7 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     double rMax      = radialBounds->rMax();
     double thickness = rMax - rMin;
     // output to the file
-    FWObjHelper::writeTube(*(m_cfg.outputStream),
+    Obj::writeTube(*(m_cfg.outputStream),
                            m_vtnCounter,
                            scalor,
                            m_cfg.outputPhiSegemnts,

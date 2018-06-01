@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_ALGORITHMS_FATRASALGORITHM_H
-#define ACTFW_ALGORITHMS_FATRASALGORITHM_H
+#pragma once
 
 #include <cmath>
 #include <limits>
@@ -22,10 +21,16 @@
 /// Extrapolator from the acts-core toolkit.
 ///
 /// Random numbers are reset per event using the event context
-
+///
+/// @tparam simulator_t The Fatras simulation kernel type
+/// @tparam event_collection_t  The event collection type
+/// @tparam particle_collection_t The Paritlce type
+/// @tparam hit_t The hit Type
 namespace FW {
 
-template <typename propagator_t>
+template <typename simulator_t, 
+          typename event_collection_t, 
+          typename hit_t>
 class FatrasAlgorithm : public BareAlgorithm
 {
 public:
@@ -34,24 +39,25 @@ public:
 
     /// @brief Config constructor with propagator type
     ///
-    /// @tparam is the propagator type
-    /// @param pgt is the propagator object, not it is being moved
-    Config(propagator_t pgt) : propagator(std::move(pgt)) {}
+    /// @param fsimulator Propagator object for charged particles
+    Config(simulator_t fsimulator) :
+      simulator(std::move(fsimulator)),
+    {}
 
-    /// The templated propagator
-    propagator_t propagator;
+    /// The simulation kernel
+    simulator_t simulator;
 
     /// FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
 
-    /// the particles input collection name
-    std::string inputParticleCollection = "";
-
-    /// the simulated particles output collection name
-    std::string simulatedParticleCollection = "";
+    /// the input event collection name
+    std::string intputEventCollection     = "";
 
     /// the simulated particles output collection name
-    std::string simulatedHitCollection = "";
+    std::string simulatedEventCollection = "";
+
+    /// the simulated hit output collection name
+    std::string simulatedHitCollection      = "";
   };
 
   /// Constructor
@@ -74,4 +80,3 @@ private:
 
 #include "FatrasAlgorithm.ipp"
 
-#endif  // ACTFW_ALGORITHMS_FATRASALGORITHM_H

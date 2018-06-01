@@ -11,16 +11,16 @@
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/ParticleGun/ParticleGunAlgorithm.hpp"
+#include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Fatras/Kernel/Particle.hpp"
 
-FW::ParticleGunAlgorithm::ParticleGunAlgorithm(
-    const FW::ParticleGunAlgorithm::Config& cfg,
-    Acts::Logging::Level                    level)
-  : FW::BareAlgorithm("ParticleGun", level), m_cfg(cfg)
+FW::ParticleGun::ParticleGun(
+    const Config&                       cfg,
+    std::unique_ptr<const Acts::Logger> lgr) 
+  : m_cfg(cfg), m_logger(std::move(lgr))
 {
   // Check that all mandatory configuration parameters are present
   if (m_cfg.evgenCollection.empty()) {
@@ -42,8 +42,24 @@ FW::ParticleGunAlgorithm::ParticleGunAlgorithm(
   ACTS_VERBOSE("- pt  range: " << m_cfg.ptRange[0] << ", " << m_cfg.ptRange[1]);
 }
 
+
+std::string
+FW::ParticleGun::name() const
+{
+  return "EvgenReader";
+}
+
 FW::ProcessCode
-FW::ParticleGunAlgorithm::execute(AlgorithmContext ctx) const
+FW::ParticleGun::skip(size_t nEvents)
+{
+  // there is a hard scatter evgen reader 
+  return FW::ProcessCode::SUCCESS;
+}
+
+
+
+FW::ProcessCode
+FW::ParticleGun::read(AlgorithmContext ctx)
 {
 
   ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);

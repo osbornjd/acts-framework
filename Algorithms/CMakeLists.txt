@@ -1,4 +1,5 @@
-#add_subdirectory(Digitization)
+add_subdirectory(Digitization)
+
 #add_subdirectory(Extrapolation)
 #add_subdirectory(Fatras)
 

@@ -9,13 +9,13 @@
 
 #include <iostream>
 
-#include "ACTFW/ReadEvgen/ReadEvgenAlgorithm.hpp"
+#include "ACTFW/ReadEvgen/EvgenReader.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
-FW::ReadEvgenAlgorithm::ReadEvgenAlgorithm(
+FW::EvgenReader::EvgenReader(
     const Config&                       cfg,
     std::unique_ptr<const Acts::Logger> logger)
   : m_cfg(cfg), m_logger(std::move(logger))
@@ -30,13 +30,13 @@ FW::ReadEvgenAlgorithm::ReadEvgenAlgorithm(
 }
 
 std::string
-FW::ReadEvgenAlgorithm::name() const
+FW::EvgenReader::name() const
 {
-  return "ReadEvgenAlgorithm";
+  return "EvgenReader";
 }
 
 FW::ProcessCode
-FW::ReadEvgenAlgorithm::skip(size_t nEvents)
+FW::EvgenReader::skip(size_t nEvents)
 {
   // there is a hard scatter evgen reader
   std::vector<Fatras::Vertex> skipEvents;
@@ -51,7 +51,7 @@ FW::ReadEvgenAlgorithm::skip(size_t nEvents)
 }
 
 FW::ProcessCode
-FW::ReadEvgenAlgorithm::read(FW::AlgorithmContext ctx)
+FW::EvgenReader::read(FW::AlgorithmContext ctx)
 {
   ACTS_DEBUG("Reading in genertated event info for event no. "
              << ctx.eventNumber);
