@@ -11,13 +11,22 @@
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
-
-/// @brief geometry getter, the operator() will be called int he example base
-struct GenericGeometryGetter {
+/// @brief adding some specific options for this geometry type
+struct GenericOptions {
 
 template <typename options_t>
+void operator()(options_t& opt)
+{}
+
+};
+
+
+/// @brief geometry getter, the operator() will be called int he example base
+struct GenericGeometry {
+
+template <typename variable_map_t>
 std::shared_ptr<const Acts::TrackingGeometry> 
-operator()(options_t& vm){
+operator()(variable_map_t& vm){
   // --------------------------------------------------------------------------------
   // set geometry building logging level
   Acts::Logging::Level surfaceLogLevel
@@ -36,7 +45,8 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  GenericGeometryGetter tGeoGetter;
+  GenericOptions  genericOptions;
+  GenericGeometry genericGeometry;
   // now process it
-  return processGeometry(argc, argv, tGeoGetter);
+  return processGeometry(argc, argv, genericOptions, genericGeometry);
 }

@@ -224,7 +224,7 @@ FW::TruthTracking<Propagator_type>::execute(
     // the simulated particles associated to this vertex
     std::vector<Acts::ParticleProperties> sparticles;
     // the generated particles
-    auto& gparticles = evtx.outgoingParticles();
+    auto& gparticles = evtx.out();
     // copy simulated particles
     std::copy_if(gparticles.begin(),
                  gparticles.end(),

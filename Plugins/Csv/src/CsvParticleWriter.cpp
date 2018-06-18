@@ -57,7 +57,7 @@ FW::Csv::CsvParticleWriter::writeT(const FW::AlgorithmContext&        ctx,
   // write one line per particle
   os << std::setprecision(m_cfg.outputPrecision);
   for (auto& vertex : vertices) {
-    for (auto& particle : vertex.outgoingParticles) {
+    for (auto& particle : vertex.out) {
       os << particle.barcode << ",";
       os << particle.position.x() << ",";
       os << particle.position.y() << ",";

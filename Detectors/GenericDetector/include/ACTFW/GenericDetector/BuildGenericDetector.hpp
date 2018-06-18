@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_GENERICDETECTOR_BUILDGENERICDETECTOR_H
-#define ACTFW_GENERICDETECTOR_BUILDGENERICDETECTOR_H 1
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -76,5 +75,3 @@ modulePositionsDisc(double                     z,
                     const std::vector<size_t>& discBinning,
                     const std::vector<double>& moduleHalfLength);
 }
-
-#endif  // ACTFW_GENERICDETECTOR_BUILDGENERICDETECTOR_H

@@ -9,6 +9,7 @@
 #pragma once
 
 #include <iostream>
+#include "Acts/Utilities/Logger.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
@@ -39,7 +40,7 @@ namespace Options {
                       "obj-sf-phisegments",
                       po::value<int>()->default_value(72),
                       "Number of phi segments to approximate curves.")(
-                      "obj-sf-outputprecission",
+                      "obj-sf-outputPrecission",
                       po::value<int>()->default_value(6),
                       "Floating number output precission.")(
                       "obj-sf-outputScalor",
@@ -51,7 +52,7 @@ namespace Options {
                       "obj-sf-outputSensitive",
                       po::value<bool>()->default_value(true),
                       "Write sensitive surfaces.")(
-                      "obj-sf-otuputLayers",
+                      "obj-sf-outputLayers",
                       po::value<bool>()->default_value(true),
                       "Write layer surfaces.");
 
@@ -61,31 +62,31 @@ namespace Options {
   template <class AMAP>
   FW::Obj::ObjTrackingGeometryWriter::Config
   readObjTrackingGeometryWriterConfig(const AMAP& vm, 
-                                      const std::string& name)
+                                      const std::string& name,
+                                      Acts::Logging::Level loglevel = Acts::Logging::INFO)
   {
-    FW::Obj::ObjTrackingGeometryWriter::Config objTgConfig(name);
+    FW::Obj::ObjTrackingGeometryWriter::Config objTgConfig(name, loglevel);
     objTgConfig.filePrefix           = vm["obj-tg-fileheader"].template as<std::string>();
     objTgConfig.sensitiveGroupPrefix = vm["obj-tg-sensitiveheader"].template as<std::string>();
     objTgConfig.layerPrefix          = vm["obj-tg-layerheader"].template as<std::string>();
-    // return the config
     return objTgConfig;
   }
 
   template <class AMAP>
   FW::Obj::ObjSurfaceWriter::Config
   readObjSurfaceWriterConfig(const AMAP& vm, 
-                             const std::string& name)
+                             const std::string& name,
+                             Acts::Logging::Level loglevel)
   {
-    FW::Obj::ObjSurfaceWriter::Config objSfConfig(name, Acts::Logging::INFO);
+    FW::Obj::ObjSurfaceWriter::Config objSfConfig(name, loglevel = Acts::Logging::INFO);
     objSfConfig.filePrefix         = vm["obj-sf-fileheader"].template as<std::string>();
     objSfConfig.outputPhiSegemnts  = vm["obj-sf-phisegments"].template as<int>();
-    objSfConfig.outputPrecision    = vm["obj-sf-outputprecission"].template as<int>();
+    objSfConfig.outputPrecision    = vm["obj-sf-outputPrecission"].template as<int>();
     objSfConfig.outputScalor       = vm["obj-sf-outputScalor"].template as<double>();
     objSfConfig.outputThickness    = vm["obj-sf-outputThickness"].template as<double>();
     objSfConfig.outputSensitive    = vm["obj-sf-outputSensitive"].template as<bool>();
     objSfConfig.outputLayerSurface = vm["obj-sf-outputLayers"].template as<bool>();    
-    return objSfConfig;
-  
+    return objSfConfig; 
   }
 
 } // namespace Options

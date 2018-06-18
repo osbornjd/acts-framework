@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_OPTIONS_PARTICLEGUNOPTIONS_HPP
-#define ACTFW_OPTIONS_PARTICLEGUNOPTIONS_HPP
+#pragma once
 
 #include <cstdlib>
 #include <iostream>
@@ -84,7 +83,7 @@ namespace Options {
     auto ptr  = vm["pg-ptrange"].template as<read_range>();
     // particle gun as generator
     FW::ParticleGun::Config particleGunConfig;
-    particleGunConfig.on         = vm["pg-on"].template as<size_t>();
+    particleGunConfig.on         = vm["pg-on"].template as<bool>();
     particleGunConfig.nParticles = vm["pg-nparticles"].template as<size_t>();
     particleGunConfig.d0Range    = {{d0r[0] * au::_mm, d0r[1] * au::_mm}};
     particleGunConfig.z0Range    = {{z0r[0] * au::_mm, z0r[1] * au::_mm}};
@@ -102,5 +101,3 @@ namespace Options {
   }
 }
 }
-
-#endif  // ACTFW_OPTIONS_PARTICLEGUNOPTIONS_HPP

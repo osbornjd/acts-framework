@@ -23,7 +23,9 @@ template <typename simulator_t,
           typename event_collection_t, 
           typename hit_t>
 FW::ProcessCode
-FW::FatrasAlgorithm<simulator_t,event_collection_t,hit_t>::execute(
+FW::FatrasAlgorithm<simulator_t,
+                    event_collection_t,
+                    hit_t>::execute(
     const FW::AlgorithmContext context) const
 {
 
@@ -31,18 +33,19 @@ FW::FatrasAlgorithm<simulator_t,event_collection_t,hit_t>::execute(
   RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
   // read Particles from input collection
-  const event_collection_t* intputEvent = nullptr;
-  if (context.eventStore.get(m_cfg.intputEventCollection, intputEvent)
+  const event_collection_t* inputEvent = nullptr;
+  if (context.eventStore.get(m_cfg.inputEventCollection, inputEvent)
       == FW::ProcessCode::ABORT)
     return FW::ProcessCode::ABORT;
 
-  ACTS_DEBUG("Read collection '" << m_cfg.intputEventCollection << "' with "
-                                 << intputEvent->size()
+  ACTS_DEBUG("Read collection '" << m_cfg.inputEventCollection << "' with "
+                                 << inputEvent->size()
                                  << " vertices");
 
 
   // output: simulated particles attached to their process vertices
-  event_collection_t simulatedEvent;
+  // we start with a copy of the current event
+  event_collection_t simulatedEvent(*inputEvent);
   
   // nested hit collection struct to shield fatras from FW data structures
   struct HitCollection {
@@ -67,7 +70,7 @@ FW::FatrasAlgorithm<simulator_t,event_collection_t,hit_t>::execute(
   HitCollection simulatedHits;
 
   // the simulation call 
-  simulator(rng,inputEvent,simulatedEvent,simulatedHits);
+  m_cfg.simulator(rng,simulatedEvent,simulatedHits);
 
   // write simulated data to the event store
   // - the simulated particles

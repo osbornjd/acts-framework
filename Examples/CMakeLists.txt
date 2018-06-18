@@ -12,7 +12,9 @@ add_subdirectory(BField)
 add_subdirectory_if(ParticleGun USE_FATRAS)
 add_subdirectory_if(ReadEvgen USE_FATRAS AND USE_PYTHIA8)
 
+# Fatras example for fast simulation
+add_subdirectory_if(Fatras USE_FATRAS AND USE_PYTHIA8)
+
 #add_subdirectory(Extrapolation)
-#add_subdirectory(Fatras)
 #add_subdirectory(Propagation)
 

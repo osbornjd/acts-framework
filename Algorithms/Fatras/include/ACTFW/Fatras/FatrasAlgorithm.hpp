@@ -41,7 +41,7 @@ public:
     ///
     /// @param fsimulator Propagator object for charged particles
     Config(simulator_t fsimulator) :
-      simulator(std::move(fsimulator)),
+      simulator(std::move(fsimulator))
     {}
 
     /// The simulation kernel
@@ -51,7 +51,7 @@ public:
     std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
 
     /// the input event collection name
-    std::string intputEventCollection     = "";
+    std::string inputEventCollection     = "";
 
     /// the simulated particles output collection name
     std::string simulatedEventCollection = "";

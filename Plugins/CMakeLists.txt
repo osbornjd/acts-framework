@@ -1,4 +1,3 @@
-
 # the writer Plugins
 add_subdirectory(Csv)
 add_subdirectory(Root)

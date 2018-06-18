@@ -49,7 +49,7 @@ FW::Obj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
     // loop over the layers
     for (auto layer : tVolume.confinedLayers()->arrayObjects()) {
       // we jump navigation layers
-      if (layer->layerType() == Acts::navigation) continue;
+      if (layer->layerType() == Acts::navigation) continue;        
       // get the volume name
       const std::string& volumeName = tVolume.volumeName();
       // find the right surfacewriter
@@ -57,12 +57,15 @@ FW::Obj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       for (auto writer : m_cfg.surfaceWriters) {
         // get name and writer
         auto writerName = writer->name();
+        // and break
+        ACTS_VERBOSE(">>Obj: The writer name is: " << writerName); 
+        ACTS_VERBOSE(">>Obj: The volume name is: " << volumeName); 
         if (volumeName.find(writerName) != std::string::npos) {
           // asign the writer
           surfaceWriter = writer;
-          // and break
+          // break the loop
           break;
-        }
+        } 
       }
       // bail out if you have no surface writer
       if (!surfaceWriter) return;
@@ -79,8 +82,10 @@ FW::Obj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       }
       // check for sensitive surfaces
       if (layer->surfaceArray() && surfaceWriter) {
+        ACTS_VERBOSE(">>Obj: There are " << layer->surfaceArray()->surfaces().size() 
+                                         << " surfaces."); 
         // surfaces
-        surfaceWriter->write(m_cfg.sensitiveGroupPrefix);
+        // surfaceWriter->write(m_cfg.sensitiveGroupPrefix);
         // loop over the surface
         for (auto surface : layer->surfaceArray()->surfaces()) {
           if (surface

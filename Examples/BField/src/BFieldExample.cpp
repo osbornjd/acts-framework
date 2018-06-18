@@ -85,7 +85,7 @@ main(int argc, char* argv[])
   // create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
   if (!bField.first) {
-    std::cout << "Bfield could not be set up. Exiting." << std::endl;
+    std::cout << "Bfield map could not be read. Exiting." << std::endl;
     return -1;
   }
   // Write the interpolated magnetic field

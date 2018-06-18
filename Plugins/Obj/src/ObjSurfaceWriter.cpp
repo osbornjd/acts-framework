@@ -45,7 +45,6 @@ FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
 {
   std::lock_guard<std::mutex> lock(m_write_mutex);
 
-  // check
   ACTS_DEBUG(">>Obj: Writer for Surface object called.");
 
   auto scalor = m_cfg.outputScalor;

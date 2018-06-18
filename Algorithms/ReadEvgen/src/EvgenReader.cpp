@@ -99,7 +99,7 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
       // shift the vertex
       vertex.position = vertex.position + shift;
          // shift and assign barcodes to outgoing particles
-         for (auto& op : vertex.outgoingParticles) {
+         for (auto& op : vertex.out) {
            // shift the particle position by the smeared vertex
            op.position = op.position + shift;
            // generate the new barcode, and assign it

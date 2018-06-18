@@ -33,7 +33,7 @@ namespace Options {
                       "csv-sf-fileheader",
                       po::value<std::string>()->default_value(""),
                       "The (optional) file header for the surface writer.")(
-                      "csv-sf-outputprecission",
+                      "csv-sf-outputPrecission",
                       po::value<int>()->default_value(6),
                       "Floating number output precission.")(
                       "csv-sf-outputScalor",
@@ -45,7 +45,7 @@ namespace Options {
                       "csv-sf-outputSensitive",
                       po::value<bool>()->default_value(true),
                       "Write sensitive surfaces.")(
-                      "csv-sf-otuputLayers",
+                      "csv-sf-outputLayers",
                       po::value<bool>()->default_value(true),
                       "Write layer surfaces.");
 
@@ -58,8 +58,8 @@ namespace Options {
   {
     FW::Csv::CsvTrackingGeometryWriter::Config 
       objTgConfig(name, Acts::Logging::INFO);
-    objTgConfig.filePrefix           = vm["csv-tg-fileheader"].template as<std::string>();
-    objTgConfig.layerPrefix          = vm["csv-tg-layerheader"].template as<std::string>();
+    //objTgConfig.filePrefix           = vm["csv-tg-fileheader"].template as<std::string>();
+    //objTgConfig.layerPrefix          = vm["csv-tg-layerheader"].template as<std::string>();
     // return the config
     return objTgConfig;
   }
@@ -70,12 +70,15 @@ namespace Options {
   {
     FW::Csv::CsvSurfaceWriter::Config 
       objSfConfig("CsvSurfaceWriter", Acts::Logging::INFO);
-    objSfConfig.filePrefix         = vm["csv-sf-fileheader"].template as<std::string>();
-    objSfConfig.outputPrecision    = vm["csv-sf-outputprecission"].template as<int>();
-    objSfConfig.outputScalor       = vm["csv-sf-outputScalor"].template as<double>();
-    objSfConfig.outputBounds       = vm["csv-sf-outputBounds"].template as<bool>();
-    objSfConfig.outputSensitive    = vm["csv-sf-outputSensitive"].template as<bool>();
-    objSfConfig.outputLayerSurface = vm["csv-sf-outputLayers"].template as<bool>();    
+
+    //objSfConfig.filePrefix         = vm["csv-sf-fileheader"].template as<std::string>();
+    //objSfConfig.outputPrecision    = vm["csv-sf-outputPrecission"].template as<int>();
+    //objSfConfig.outputScalor       = vm["csv-sf-outputScalor"].template as<double>();
+    //objSfConfig.outputBounds       = vm["csv-sf-outputBounds"].template as<bool>();
+    //objSfConfig.outputSensitive    = vm["csv-sf-outputSensitive"].template as<bool>();
+    //objSfConfig.outputLayerSurface = vm["csv-sf-outputLayers"].template as<bool>();    
+
+
     return objSfConfig;
   }
 

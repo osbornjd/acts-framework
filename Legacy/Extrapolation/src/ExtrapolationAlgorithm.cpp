@@ -75,7 +75,7 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
     // the simulated particles associated to this vertex
     std::vector<Acts::ParticleProperties> sparticles;
     // the generated particles
-    auto& gparticles = evtx.outgoingParticles();
+    auto& gparticles = evtx.out();
 
     std::copy_if(gparticles.begin(),
                  gparticles.end(),
