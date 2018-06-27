@@ -26,28 +26,4 @@ template <class W, class E>
 struct SimulatedWriter
 {
 };
-
-namespace SimWriter {
-
-  /// @brief Writes an event to file
-  /// @param writer writer of run files
-  /// @param event storage of the event
-  /// @return boolean indicator if the writing was successful
-  template <class W, class E>
-  static bool
-  writeEvent(W& writer, std::shared_ptr<E> event)
-  {
-    return SimulatedWriter<W, E>::readEvent(writer, event);
-  }
-
-  /// @brief Reports the status of the writer
-  /// @param writer writer of run files
-  /// @return boolean status indicator
-  template <class W, class E>
-  static bool
-  status(W& writer)
-  {
-    return SimulatedWriter<W, E>::status(writer);
-  }
-}  // SimReader
 }  // FW

@@ -33,9 +33,11 @@ std::unique_ptr<Acts::ProcessVertex>
 FW::SimulatedParticle<HepMC::GenParticle>::productionVertex(
     const std::shared_ptr<HepMC::GenParticle> particle)
 {
+  SimulatedVertex<HepMC::GenVertex> simVert;
+
   // Return the vertex if it exists
   if (particle->production_vertex())
-    return std::move(FW::SimVertex::processVertex<HepMC::GenVertex>(
+    return std::move(simVert.processVertex(
         std::make_shared<HepMC::GenVertex>(*particle->production_vertex())));
   else
     return nullptr;
@@ -45,9 +47,11 @@ std::unique_ptr<Acts::ProcessVertex>
 FW::SimulatedParticle<HepMC::GenParticle>::endVertex(
     const std::shared_ptr<HepMC::GenParticle> particle)
 {
+  SimulatedVertex<HepMC::GenVertex> simVert;
+
   // Return the vertex if it exists
   if (particle->end_vertex())
-    return std::move(FW::SimVertex::processVertex<HepMC::GenVertex>(
+    return std::move(simVert.processVertex(
         std::make_shared<HepMC::GenVertex>(*(particle->end_vertex()))));
   else
     return nullptr;

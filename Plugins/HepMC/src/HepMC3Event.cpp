@@ -279,11 +279,12 @@ FW::SimulatedEvent<HepMC::GenEvent>::particles(
   std::vector<std::unique_ptr<Acts::ParticleProperties>> actsParticles;
   const std::vector<HepMC::GenParticlePtr> genParticles = event->particles();
 
+  SimulatedParticle<HepMC::GenParticle> simPart;
+
   // Translate all particles
   for (auto& genParticle : genParticles)
-    actsParticles.push_back(
-        std::move(FW::SimParticle::particleProperties<HepMC::GenParticle>(
-            std::make_shared<HepMC::GenParticle>(*genParticle))));
+    actsParticles.push_back(std::move(simPart.particleProperties(
+        std::make_shared<HepMC::GenParticle>(*genParticle))));
 
   return std::move(actsParticles);
 }
@@ -295,11 +296,12 @@ FW::SimulatedEvent<HepMC::GenEvent>::vertices(
   std::vector<std::unique_ptr<Acts::ProcessVertex>> actsVertices;
   const std::vector<HepMC::GenVertexPtr> genVertices = event->vertices();
 
+  SimulatedVertex<HepMC::GenVertex> simVert;
+
   // Translate all vertices
   for (auto& genVertex : genVertices) {
-    actsVertices.push_back(
-        std::move(FW::SimVertex::processVertex<HepMC::GenVertex>(
-            std::make_shared<HepMC::GenVertex>(*genVertex))));
+    actsVertices.push_back(std::move(
+        simVert.processVertex(std::make_shared<HepMC::GenVertex>(*genVertex))));
   }
   return std::move(actsVertices);
 }
@@ -310,11 +312,13 @@ FW::SimulatedEvent<HepMC::GenEvent>::beams(
 {
   std::vector<std::unique_ptr<Acts::ParticleProperties>> actsBeams;
   const std::vector<HepMC::GenParticlePtr> genBeams = event->beams();
+
+  SimulatedParticle<HepMC::GenParticle> simPart;
+
   // Translate beam particles and store the result
   for (auto& genBeam : genBeams)
-    actsBeams.push_back(
-        std::move(FW::SimParticle::particleProperties<HepMC::GenParticle>(
-            std::make_shared<HepMC::GenParticle>(*genBeam))));
+    actsBeams.push_back(std::move(simPart.particleProperties(
+        std::make_shared<HepMC::GenParticle>(*genBeam))));
   return std::move(actsBeams);
 }
 
@@ -324,11 +328,14 @@ FW::SimulatedEvent<HepMC::GenEvent>::finalState(
 {
   std::vector<HepMC::GenParticlePtr> particles = event->particles();
   std::vector<std::unique_ptr<Acts::ParticleProperties>> fState;
+
+  SimulatedParticle<HepMC::GenParticle> simPart;
+
   // Walk over every vertex
   for (auto& particle : particles) {
     // Collect particles without end vertex
     if (!particle->end_vertex())
-      fState.push_back(FW::SimParticle::particleProperties<HepMC::GenParticle>(
+      fState.push_back(simPart.particleProperties(
           std::make_shared<HepMC::GenParticle>(*particle)));
   }
   return fState;

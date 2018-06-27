@@ -30,98 +30,98 @@ public:
   /// @brief Returns a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return corresponding Acts vertex
-  static std::unique_ptr<Acts::ProcessVertex>
+  std::unique_ptr<Acts::ProcessVertex>
   processVertex(const std::shared_ptr<HepMC::GenVertex> vertex);
 
   /// @brief Returns a boolean expression if a vertex is in an event translated
   /// into Acts
   /// @param vertex vertex in HepMC data type
   /// @return boolean expression if the vertex is in an event
-  static bool
+  bool
   inEvent(const std::shared_ptr<HepMC::GenVertex> vertex);
 
   /// @brief Returns a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return id of the vertex
-  static int
+  int
   id(const std::shared_ptr<HepMC::GenVertex> vertex);
 
   /// @brief Returns the incoming particles of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return incoming particles of the vertex
-  static std::vector<Acts::ParticleProperties>
+  std::vector<Acts::ParticleProperties>
   particlesIn(const std::shared_ptr<HepMC::GenVertex> vertex);
 
   /// @brief Returns the outgoing particles of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return outgoing particles of the vertex
-  static std::vector<Acts::ParticleProperties>
+  std::vector<Acts::ParticleProperties>
   particlesOut(const std::shared_ptr<HepMC::GenVertex> vertex);
 
   /// @brief Returns the position of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return position of the vertex
-  static Acts::Vector3D
+  Acts::Vector3D
   position(const std::shared_ptr<HepMC::GenVertex> vertex);
 
   /// @brief Returns the time of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return time of the vertex
-  static double
+  double
   time(const std::shared_ptr<HepMC::GenVertex> vertex);
 
   /// @brief Adds an incoming particle to a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle incoming particle that will be added
-  static void
+  void
   addParticleIn(std::shared_ptr<HepMC::GenVertex>         vertex,
                 std::shared_ptr<Acts::ParticleProperties> particle);
 
   /// @brief Adds an outgoing particle to a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle outgoing particle that will be added
-  static void
+  void
   addParticleOut(std::shared_ptr<HepMC::GenVertex>         vertex,
                  std::shared_ptr<Acts::ParticleProperties> particle);
 
   /// @brief Removes an incoming particle from a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle incoming particle that will be removed
-  static void
+  void
   removeParticleIn(std::shared_ptr<HepMC::GenVertex>         vertex,
                    std::shared_ptr<Acts::ParticleProperties> particle);
 
   /// @brief Removes an outgoing particle from a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle outgoing particle that will be removed
-  static void
+  void
   removeParticleOut(std::shared_ptr<HepMC::GenVertex>         vertex,
                     std::shared_ptr<Acts::ParticleProperties> particle);
 
   /// @brief Sets the position of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param pos new position of the vertex
-  static void
+  void
   position(const std::shared_ptr<HepMC::GenVertex> vertex, Acts::Vector3D pos);
 
   /// @brief Sets the time of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param time new time of the vertex
-  static void
+  void
   time(const std::shared_ptr<HepMC::GenVertex> vertex, double time);
 
 private:
   /// @brief Converts HepMC::GenParticle objects into Acts
   /// @param genParticles list of HepMC::GenParticle objects
   /// @return converted list
-  static std::vector<Acts::ParticleProperties>
+  std::vector<Acts::ParticleProperties>
   genParticlesToActs(const std::vector<HepMC::GenParticlePtr>& genParticles);
 
   /// @brief Converts an Acts::ParticleProperties into HepMC::GenParticle
   /// @note The conversion ignores HepMC status codes
   /// @param actsParticle Acts particle that will be converted
   /// @return converted particle
-  static HepMC::GenParticlePtr
+  HepMC::GenParticlePtr
   actsParticleToGen(std::shared_ptr<Acts::ParticleProperties> actsParticle);
 
   /// @brief Finds a HepMC::GenParticle from a list that matches an
@@ -130,7 +130,7 @@ private:
   /// @param actsParticle Acts particle
   /// @return HepMC particle that matched with the Acts particle or nullptr if
   /// no match was found
-  static HepMC::GenParticlePtr
+  HepMC::GenParticlePtr
   matchParticles(const std::vector<HepMC::GenParticlePtr>& genParticles,
                  std::shared_ptr<Acts::ParticleProperties> actsParticle);
 };

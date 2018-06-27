@@ -18,9 +18,11 @@
 int
 main(int argc, char* argv[])
 {
+  FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent> simReader;
+
   std::cout << "Preparing reader " << std::flush;
   HepMC::ReaderAscii reader("test.hepmc3");
-  if (FW::SimReader::status<HepMC::ReaderAscii, HepMC::GenEvent>(reader))
+  if (simReader.status(reader))
     std::cout << "succesful" << std::endl;
   else
     std::cout << "failed" << std::endl;
@@ -28,34 +30,33 @@ main(int argc, char* argv[])
   std::shared_ptr<HepMC::GenEvent> genevt(new HepMC::GenEvent());
 
   std::cout << "Reading event " << std::flush;
-  if (FW::SimReader::readEvent<HepMC::ReaderAscii, HepMC::GenEvent>(reader,
-                                                                    genevt))
+  if (simReader.readEvent(reader, genevt))
     std::cout << "succesful" << std::endl;
   else
     std::cout << "failed" << std::endl;
 
   std::cout << std::endl;
+
+  FW::SimulatedEvent<HepMC::GenEvent> simEvent;
+
   std::cout << "Event data:" << std::endl;
   std::cout << "Units: ";
-  if (FW::SimEvent::momentumUnit<HepMC::GenEvent>(genevt) == Acts::units::_GeV)
+  if (simEvent.momentumUnit(genevt) == Acts::units::_GeV)
     std::cout << "[GEV], ";
-  else if (FW::SimEvent::momentumUnit<HepMC::GenEvent>(genevt)
-           == Acts::units::_MeV)
+  else if (simEvent.momentumUnit(genevt) == Acts::units::_MeV)
     std::cout << "[MeV], ";
-  if (FW::SimEvent::lengthUnit<HepMC::GenEvent>(genevt) == Acts::units::_mm)
+  if (simEvent.lengthUnit(genevt) == Acts::units::_mm)
     std::cout << "[mm]" << std::endl;
-  else if (FW::SimEvent::lengthUnit<HepMC::GenEvent>(genevt)
-           == Acts::units::_cm)
+  else if (simEvent.lengthUnit(genevt) == Acts::units::_cm)
     std::cout << "[cm]" << std::endl;
-  Acts::Vector3D evtPos = FW::SimEvent::eventPos<HepMC::GenEvent>(genevt);
+  Acts::Vector3D evtPos = simEvent.eventPos(genevt);
   std::cout << "Event position: " << evtPos(0) << ", " << evtPos(1) << ", "
             << evtPos(2) << std::endl;
-  std::cout << "Event time: "
-            << FW::SimEvent::eventTime<HepMC::GenEvent>(genevt) << std::endl;
+  std::cout << "Event time: " << simEvent.eventTime(genevt) << std::endl;
 
   std::cout << "Beam particles: ";
   std::vector<std::unique_ptr<Acts::ParticleProperties>> beam
-      = FW::SimEvent::beams<HepMC::GenEvent>(genevt);
+      = simEvent.beams(genevt);
   if (beam.empty())
     std::cout << "none" << std::endl;
   else {
@@ -66,7 +67,7 @@ main(int argc, char* argv[])
 
   std::cout << std::endl << "Vertices: ";
   std::vector<std::unique_ptr<Acts::ProcessVertex>> vertices
-      = FW::SimEvent::vertices<HepMC::GenEvent>(genevt);
+      = simEvent.vertices(genevt);
   if (vertices.empty())
     std::cout << "none" << std::endl;
   else {
@@ -90,7 +91,7 @@ main(int argc, char* argv[])
 
   std::cout << "Total particle record:" << std::endl;
   std::vector<std::unique_ptr<Acts::ParticleProperties>> particles
-      = FW::SimEvent::particles<HepMC::GenEvent>(genevt);
+      = simEvent.particles(genevt);
   for (auto& particle : particles)
     std::cout << HepPID::particleName(particle->pdgID())
               << "\tID:" << particle->barcode() << ", momentum: ("
@@ -100,7 +101,7 @@ main(int argc, char* argv[])
 
   std::cout << std::endl << "Initial to final state: ";
   std::vector<std::unique_ptr<Acts::ParticleProperties>> fState
-      = FW::SimEvent::finalState<HepMC::GenEvent>(genevt);
+      = simEvent.finalState(genevt);
   for (auto& pbeam : beam)
     std::cout << HepPID::particleName(pbeam->pdgID()) << " ";
   std::cout << "-> ";

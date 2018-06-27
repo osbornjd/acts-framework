@@ -13,12 +13,13 @@ std::vector<Acts::ParticleProperties>
 FW::SimulatedVertex<HepMC::GenVertex>::genParticlesToActs(
     const std::vector<HepMC::GenParticlePtr>& genParticles)
 {
+  SimulatedParticle<HepMC::GenParticle> simPart;
+
   std::vector<Acts::ParticleProperties> actsParticles;
   // Translate all particles
   for (auto& genParticle : genParticles)
-    actsParticles.push_back(
-        *(FW::SimParticle::particleProperties<HepMC::GenParticle>(
-            std::make_shared<HepMC::GenParticle>(*genParticle))));
+    actsParticles.push_back(*(simPart.particleProperties(
+        std::make_shared<HepMC::GenParticle>(*genParticle))));
   return actsParticles;
 }
 
