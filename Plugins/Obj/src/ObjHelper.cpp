@@ -11,11 +11,11 @@
 
 void
 FW::Obj::writeVTN(std::ofstream&        stream,
-                             VtnCounter&           vtnCounter,
-                             double                scalor,
-                             const Acts::Vector3D& vertex,
-                             const std::string&    vtntype,
-                             bool                  point)
+                  VtnCounter&           vtnCounter,
+                  double                scalor,
+                  const Acts::Vector3D& vertex,
+                  const std::string&    vtntype,
+                  bool                  point)
 {
   // in case you make a point
   unsigned int cp = 0;
@@ -40,10 +40,9 @@ FW::Obj::writeVTN(std::ofstream&        stream,
 }
 
 void
-FW::Obj::constructVerticalFaces(
-    std::ofstream&                   stream,
-    unsigned int                     start,
-    const std::vector<unsigned int>& vsides)
+FW::Obj::constructVerticalFaces(std::ofstream&                   stream,
+                                unsigned int                     start,
+                                const std::vector<unsigned int>& vsides)
 {
   // construct the vertical faces
   size_t       nsides = vsides.size();
@@ -67,12 +66,12 @@ FW::Obj::constructVerticalFaces(
 }
 
 void
-FW::Obj::writePlanarFace(std::ofstream& stream,
-                                    VtnCounter&    vtnCounter,
-                                    double         scalor,
-                                    const std::vector<Acts::Vector3D>& vertices,
-                                    double                           thickness,
-                                    const std::vector<unsigned int>& vsides)
+FW::Obj::writePlanarFace(std::ofstream&                     stream,
+                         VtnCounter&                        vtnCounter,
+                         double                             scalor,
+                         const std::vector<Acts::Vector3D>& vertices,
+                         double                             thickness,
+                         const std::vector<unsigned int>&   vsides)
 {
   // minimum 3 vertices needed
   if (vertices.size() < 3) return;
@@ -113,13 +112,13 @@ FW::Obj::writePlanarFace(std::ofstream& stream,
 
 void
 FW::Obj::writeTube(std::ofstream&           stream,
-                              VtnCounter&              vtnCounter,
-                              double                   scalor,
-                              unsigned int             nSegments,
-                              const Acts::Transform3D& transform,
-                              double                   r,
-                              double                   hZ,
-                              double                   thickness)
+                   VtnCounter&              vtnCounter,
+                   double                   scalor,
+                   unsigned int             nSegments,
+                   const Acts::Transform3D& transform,
+                   double                   r,
+                   double                   hZ,
+                   double                   thickness)
 {
   // flip along plus/minus and declare the faces
   std::vector<int> flip   = {-1, 1};

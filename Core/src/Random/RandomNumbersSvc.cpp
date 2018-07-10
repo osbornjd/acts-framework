@@ -44,5 +44,5 @@ FW::RandomNumbersSvc::generateSeed(const AlgorithmContext& context) const
   const unsigned int k1 = context.algorithmNumber;
   const unsigned int k2 = context.eventNumber;
   const unsigned int id = (k1 + k2) * (k1 + k2 + 1) / 2 + k2;
-  return m_cfg.seed+id;
+  return m_cfg.seed + id;
 }

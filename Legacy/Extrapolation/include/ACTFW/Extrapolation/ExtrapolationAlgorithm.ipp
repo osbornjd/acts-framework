@@ -7,20 +7,15 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "Acts/EventData/ParticleDefinitions.hpp"
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
 #include "Acts/Extrapolation/IExtrapolationEngine.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 template <class T>
 FW::ProcessCode
-FW::ExtrapolationAlgorithm::executeTestT(
+FW::ExtrapolationAlgorithm::executeTest(
     const T&                                 startParameters,
-    barcode_type                             barcode,
-    std::vector<Acts::ExtrapolationCell<T>>& eCells,
-    FW::DetectorData<geo_id_value,
-                     std::pair<std::unique_ptr<const T>, barcode_type>>* dData)
-    const
+    std::vector<Acts::ExtrapolationCell<T>>& eCells) const
 {
   // setup the extrapolation how you'd like it
   Acts::ExtrapolationCell<T> ecc(startParameters);
@@ -47,9 +42,6 @@ FW::ExtrapolationAlgorithm::executeTestT(
   // screen output
   ACTS_DEBUG("===> forward extrapolation - collecting information <<===");
 
-  // material steps to be  filled
-  std::vector<Acts::MaterialStep> materialSteps;
-
   // call the extrapolation engine
   Acts::ExtrapolationCode eCode = m_cfg.extrapolationEngine->extrapolate(ecc);
   if (eCode.isFailure()) {
@@ -57,52 +49,6 @@ FW::ExtrapolationAlgorithm::executeTestT(
     return FW::ProcessCode::ABORT;
   }
 
-  // create the detector hits data
-  if (dData && m_cfg.simulatedHitCollection != "") {
-    /// loop over steps and get the sensitive
-    for (auto& es : ecc.extrapolationSteps) {
-      // check if you have parameters
-      if (es.parameters) {
-        // get the surface
-        const Acts::Surface& sf = es.parameters->referenceSurface();
-        // check if you have material
-        if (es.configuration.checkMode(
-                Acts::ExtrapolationMode::CollectSensitive)
-            && dData) {
-          // fill the appropriate vector
-          geo_id_value volumeID
-              = sf.geoID().value(Acts::GeometryID::volume_mask);
-          geo_id_value layerID = sf.geoID().value(Acts::GeometryID::layer_mask);
-          geo_id_value moduleID
-              = sf.geoID().value(Acts::GeometryID::sensitive_mask);
-          // search and/or insert - we need to clone as the ECC will be wrritten
-          auto parcpptr = std::unique_ptr<const T>(es.parameters->clone());
-          std::pair<std::unique_ptr<const T>, barcode_type> eHit(
-              std::move(parcpptr), barcode);
-          FW::Data::insert(
-              *dData, volumeID, layerID, moduleID, std::move(eHit));
-        }
-      }
-    }
-    // also check the end parameters
-    if (ecc.endParameters) {
-      // get the endSurface
-      const Acts::Surface& esf = ecc.endParameters->referenceSurface();
-      // check if sensitive
-      if (esf.associatedDetectorElement()) {
-        // fill the appropriate vector
-        geo_id_value volumeID
-            = esf.geoID().value(Acts::GeometryID::volume_mask);
-        geo_id_value layerID = esf.geoID().value(Acts::GeometryID::layer_mask);
-        geo_id_value moduleID
-            = esf.geoID().value(Acts::GeometryID::sensitive_mask);
-        // search and/or insert
-        std::pair<std::unique_ptr<const T>, barcode_type> eHit(
-            std::move(ecc.endParameters), barcode);
-        FW::Data::insert(*dData, volumeID, layerID, moduleID, std::move(eHit));
-      }
-    }
-  }
   /// fill the ecc step into the container at the end
   eCells.push_back(std::move(ecc));
 

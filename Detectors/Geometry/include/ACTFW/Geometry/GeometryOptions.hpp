@@ -15,10 +15,7 @@
 
 namespace po = boost::program_options;
 
-namespace au = Acts::units;
-
 namespace FW {
-
 namespace Options {
 
   /// the particle gun options, the are prefixes with gp
@@ -26,15 +23,18 @@ namespace Options {
   void
   addGeometryOptions(AOPT& opt)
   {
-    opt.add_options()("geo-surfaceloglevel",
+    opt.add_options()("geo-surface-loglevel",
                       po::value<size_t>()->default_value(3),
-                      "The outoput log level for the surface building.")
-                      ("geo-layerloglevel",
-                      po::value<size_t>()->default_value(3),
-                      "The output log level for the layer building.")
-                      ("geo-volumeloglevel",
-                      po::value<size_t>()->default_value(3),
-                      "The output log level for the volume building.");
+                      "The outoput log level for the surface building.")(
+        "geo-layer-loglevel",
+        po::value<size_t>()->default_value(3),
+        "The output log level for the layer building.")(
+        "geo-volume-loglevel",
+        po::value<size_t>()->default_value(3),
+        "The output log level for the volume building.")(
+        "geo-subdetectors",
+        po::value<read_strings>()->multitoken()->default_value({{}}),
+        "Sub detectors for the output writing");
   }
-} // namespace Options
-} // namespace FW
+}  // namespace Options
+}  // namespace FW

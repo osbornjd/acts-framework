@@ -17,9 +17,8 @@
 #include "Acts/Utilities/Units.hpp"
 #include "Fatras/Kernel/Particle.hpp"
 
-FW::ParticleGun::ParticleGun(
-    const Config&                       cfg,
-    std::unique_ptr<const Acts::Logger> lgr) 
+FW::ParticleGun::ParticleGun(const Config&                       cfg,
+                             std::unique_ptr<const Acts::Logger> lgr)
   : m_cfg(cfg), m_logger(std::move(lgr))
 {
   // Check that all mandatory configuration parameters are present
@@ -42,7 +41,6 @@ FW::ParticleGun::ParticleGun(
   ACTS_VERBOSE("- pt  range: " << m_cfg.ptRange[0] << ", " << m_cfg.ptRange[1]);
 }
 
-
 std::string
 FW::ParticleGun::name() const
 {
@@ -52,11 +50,9 @@ FW::ParticleGun::name() const
 FW::ProcessCode
 FW::ParticleGun::skip(size_t nEvents)
 {
-  // there is a hard scatter evgen reader 
+  // there is a hard scatter evgen reader
   return FW::ProcessCode::SUCCESS;
 }
-
-
 
 FW::ProcessCode
 FW::ParticleGun::read(AlgorithmContext ctx)

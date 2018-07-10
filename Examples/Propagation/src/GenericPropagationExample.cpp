@@ -9,7 +9,7 @@
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "ExtrapolationExampleBase.hpp"
+#include "PropagationExampleBase.hpp"
 
 /// @brief adding some specific options for this geometry type
 struct GenericOptions
@@ -51,5 +51,5 @@ main(int argc, char* argv[])
   GenericOptions  genericOptions;
   GenericGeometry genericGeometry;
   // now process it
-  return extrapolationExample(argc, argv, genericOptions, genericGeometry);
+  return propagationExample(argc, argv, genericOptions, genericGeometry);
 }

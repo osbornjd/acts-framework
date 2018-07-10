@@ -1,6 +1,6 @@
 // This file is part of the ACTS project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2018 ACTS project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,7 +9,7 @@
 #include "ACTFW/RootDetector/BuildRootDetector.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "GeometryExampleBase.hpp"
+#include "ExtrapolationExampleBase.hpp"
 
 /// @brief adding some specific options for this geometry type
 struct RootOptions
@@ -45,5 +45,5 @@ main(int argc, char* argv[])
   RootGeometry rootGeometry;
 
   // now process it
-  return processGeometry(argc, argv, rootOptions, rootGeometry);
+  return extrapolationExample(argc, argv, rootOptions, rootGeometry);
 }

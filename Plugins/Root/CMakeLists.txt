@@ -7,13 +7,17 @@ set(srcs #include/ACTFW/Plugins/Root/RootExCellWriter.hpp
          #include/ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp
          #include/ACTFW/Plugins/Root/RootMaterialTrackReader.hpp
          #include/ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp
+         include/ACTFW/Plugins/Root/RootPropagationWriter.hpp
          include/ACTFW/Plugins/Root/RootParticleWriter.hpp
+         include/ACTFW/Plugins/Root/RootFatrasHitWriter.hpp
          #src/RootIndexedMaterialReader.cpp
          #src/RootIndexedMaterialWriter.cpp
          #src/RootMaterialTrackReader.cpp
          #src/RootMaterialTrackWriter.cpp
          #src/RootPlanarClusterWriter.cpp
-         src/RootParticleWriter.cpp)
+         src/RootParticleWriter.cpp
+         src/RootFatrasHitWriter.cpp
+         src/RootPropagationWriter.cpp)
 # generate root dictionary for material mapping - needed to write this class to a root file
 #if (DEFINED Acts_FOUND)
 #root_generate_dictionary(
@@ -38,7 +42,7 @@ add_library(ACTFWRootPlugin SHARED ${srcs}) # G__Material.cxx)
 target_include_directories(ACTFWRootPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(ACTFWRootPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
 target_link_libraries(ACTFWRootPlugin PUBLIC Acts::Core Fatras::Core) # Acts::MaterialPlugin)
-target_link_libraries(ACTFWRootPlugin PUBLIC ACTFramework)
+target_link_libraries(ACTFWRootPlugin PUBLIC ACTFramework ACTFWPropagation)
 target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ACTFWRootPlugin PUBLIC Threads::Threads)
 

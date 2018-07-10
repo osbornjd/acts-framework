@@ -11,13 +11,11 @@
 #include <iostream>
 #include <random>
 #include <stdexcept>
-
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/EventData/ParticleDefinitions.hpp"
 #include "Acts/Extrapolation/IExtrapolationEngine.hpp"
 #include "Acts/Layers/Layer.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
@@ -31,10 +29,6 @@ FW::ExtrapolationAlgorithm::ExtrapolationAlgorithm(
 {
   if (!m_cfg.extrapolationEngine) {
     throw std::invalid_argument("Missing extrapolation engine");
-  } else if (m_cfg.evgenCollection.empty()) {
-    throw std::invalid_argument("Missing input collection");
-  } else if (m_cfg.simulatedParticleCollection.empty()) {
-    throw std::invalid_argument("Missing simulated particles collection");
   }
 }
 
@@ -43,107 +37,62 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
 
   ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);
-  // read particles from input collection
-  const std::vector<Acts::ProcessVertex>* evgen = nullptr;
-  if (ctx.eventStore.get(m_cfg.evgenCollection, evgen)
-      == FW::ProcessCode::ABORT)
-    return FW::ProcessCode::ABORT;
 
-  ACTS_DEBUG("read collection '" << m_cfg.evgenCollection << "' with "
-                                 << evgen->size()
-                                 << " vertices");
-
-  // output: simulated particles attached to their process vertices
-  std::vector<Acts::ProcessVertex> simulated;
   // output: the extrapolation cell collections
   std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
   std::vector<Acts::ExtrapolationCell<Acts::NeutralParameters>> nCells;
-  // output: hits - in detector data container
-  using FatrasHit
-      = std::pair<std::unique_ptr<const Acts::TrackParameters>, barcode_type>;
-  FW::DetectorData<geo_id_value, FatrasHit> hits;
 
-  // loop over the vertices
-  size_t evertices = 0;
-  for (auto& evtx : (*evgen)) {
-    ACTS_DEBUG("Processing event vertex no. " << evertices++);
-    // vertex is outside cut
-    if (evtx.position().perp() > m_cfg.maxD0) {
-      ACTS_VERBOSE("Process vertex is outside the transverse cut. Skipping.");
-      continue;
-    }
-    // the simulated particles associated to this vertex
-    std::vector<Acts::ParticleProperties> sparticles;
-    // the generated particles
-    auto& gparticles = evtx.out();
+  // Create an algorithm local random number generator
+  RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(ctx);
 
-    std::copy_if(gparticles.begin(),
-                 gparticles.end(),
-                 std::back_inserter(sparticles),
-                 [=](const auto& particle) {
-                   return (particle.charge() != 0. || !m_cfg.skipNeutral)
-                       && (std::abs(particle.momentum().eta()) < m_cfg.maxEta)
-                       && (m_cfg.minPt < particle.momentum().perp());
-                 });
-    ACTS_DEBUG("Skipped   particles: " << gparticles.size()
-                   - sparticles.size());
-    ACTS_DEBUG("Simulated particles: " << sparticles.size());
-    // create a new process vertex for the output collection
-    Acts::ProcessVertex svertex(evtx.position(),
-                                evtx.interactionTime(),
-                                evtx.processType(),
-                                {},
-                                sparticles);
-    simulated.push_back(svertex);
+  // Setup random number distributions for some quantities
+  FW::GaussDist   d0Dist(0., m_cfg.d0Sigma);
+  FW::GaussDist   z0Dist(0., m_cfg.z0Sigma);
+  FW::UniformDist phiDist(m_cfg.phiRange.first, m_cfg.phiRange.second);
+  FW::UniformDist etaDist(m_cfg.etaRange.first, m_cfg.etaRange.second);
+  FW::UniformDist ptDist(m_cfg.ptRange.first, m_cfg.ptRange.second);
+  FW::UniformDist qDist(0., 1.);
 
-    // the asspcoated perigee for this vertex
-    Acts::PerigeeSurface surface(evtx.position());
+  Acts::PerigeeSurface surface({0., 0., 0.});
 
-    // loop over particles
-    for (const auto& particle : sparticles) {
-      double d0    = 0.;
-      double z0    = 0.;
-      double phi   = particle.momentum().phi();
-      double theta = particle.momentum().theta();
-      // treat differently for neutral particles
-      double qop = particle.charge() != 0
-          ? particle.charge() / particle.momentum().mag()
-          : 1. / particle.momentum().mag();
-      // parameters
-      Acts::ActsVectorD<5> pars;
-      pars << d0, z0, phi, theta, qop;
-      // some screen output
-      std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
-      // execute the test for charged particles
-      if (particle.charge()) {
-        // charged extrapolation - with hit recording
-        Acts::BoundParameters startParameters(
-            std::move(cov), std::move(pars), surface);
-        if (executeTestT<Acts::TrackParameters>(
-                startParameters, particle.barcode(), cCells, &hits)
-            != FW::ProcessCode::SUCCESS)
-          ACTS_VERBOSE(
-              "Test of charged parameter extrapolation did not succeed.");
-      } else {
-        // neutral extrapolation
-        Acts::NeutralBoundParameters neutralParameters(
-            std::move(cov), std::move(pars), surface);
-        // prepare hits for charged neutral paramters - no hit recording
-        if (executeTestT<Acts::NeutralParameters>(
-                neutralParameters, particle.barcode(), nCells)
-            != FW::ProcessCode::SUCCESS)
-          ACTS_WARNING(
-              "Test of neutral parameter extrapolation did not succeed.");
-      }
+  // loop over number of particles
+  for (size_t ip = 0; ip < m_cfg.nparticles; ++ip) {
+    /// get the d0 and z0
+    double d0     = d0Dist(rng);
+    double z0     = z0Dist(rng);
+    double phi    = phiDist(rng);
+    double eta    = etaDist(rng);
+    double theta  = 2 * atan(exp(-eta));
+    double pt     = ptDist(rng);
+    double p      = pt / sin(theta);
+    double charge = qDist(rng) > 0.5 ? 1. : -1.;
+    double qop    = charge / p;
+    // parameters
+    Acts::ActsVectorD<5> pars;
+    pars << d0, z0, phi, theta, qop;
+    // some screen output
+    std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+    // execute the test for charged particles
+    if (charge) {
+      // charged extrapolation - with hit recording
+      Acts::BoundParameters startParameters(
+          std::move(cov), std::move(pars), surface);
+      if (executeTest<Acts::TrackParameters>(startParameters, cCells)
+          != FW::ProcessCode::SUCCESS)
+        ACTS_VERBOSE(
+            "Test of charged parameter extrapolation did not succeed.");
+    } else {
+      // neutral extrapolation
+      Acts::NeutralBoundParameters neutralParameters(
+          std::move(cov), std::move(pars), surface);
+      // prepare hits for charged neutral paramters - no hit recording
+      if (executeTest<Acts::NeutralParameters>(neutralParameters, nCells)
+          != FW::ProcessCode::SUCCESS)
+        ACTS_WARNING(
+            "Test of neutral parameter extrapolation did not succeed.");
     }
   }
-  // write simulated data to the event store
-  // - the particles
-  if (ctx.eventStore.add(m_cfg.simulatedParticleCollection,
-                         std::move(simulated))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+
   // - the extrapolation cells - charged - if configured
   if (m_cfg.simulatedChargedExCellCollection != ""
       && ctx.eventStore.add(m_cfg.simulatedChargedExCellCollection,
@@ -158,11 +107,7 @@ FW::ExtrapolationAlgorithm::execute(FW::AlgorithmContext ctx) const
           == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }
-  // - the simulated hits - if configured
-  if (m_cfg.simulatedHitCollection != ""
-      && ctx.eventStore.add(m_cfg.simulatedHitCollection, std::move(hits))
-          == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+
+  // return process code
   return FW::ProcessCode::SUCCESS;
 }

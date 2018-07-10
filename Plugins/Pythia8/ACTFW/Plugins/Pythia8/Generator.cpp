@@ -8,14 +8,14 @@
 
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
 
-#include <TDatabasePDG.h>
 #include <Acts/Utilities/Units.hpp>
+#include <TDatabasePDG.h>
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 // wrapper of framework RandomEngine in Pythia8 interface
 
 namespace {
-  
+
 class FrameworkRndmEngine : public Pythia8::RndmEngine
 {
 public:
@@ -79,7 +79,7 @@ FW::GPythia8::Generator::read(std::vector<Fatras::Vertex>& processVertices,
   // get the algorithm and event driven random number seed and set it
   auto seed = m_cfg.randomNumberSvc->generateSeed(*context);
   m_pythia8.rndm.init(seed);
-  
+
   // skip if needed
   if (skip) {
     for (size_t is = 0; is < skip; ++is) m_pythia8.next();
@@ -100,7 +100,6 @@ FW::GPythia8::Generator::read(std::vector<Fatras::Vertex>& processVertices,
   // reserve the maximum amount
   particlesOut.reserve(np);
 
-
   // Particle loop
   for (int ip = 0; ip < np; ip++) {
     if (m_pythia8.event[ip].id() == 90) continue;
@@ -108,7 +107,7 @@ FW::GPythia8::Generator::read(std::vector<Fatras::Vertex>& processVertices,
       // get the pdg number
       int pdg = m_pythia8.event[ip].id();
       // pythia returns charge in units of 1/3
-      float charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+      float charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge() / 3.;
       float mass   = TDatabasePDG::Instance()->GetParticle(pdg)->Mass();
       // get the momentum
       double px = m_pythia8.event[ip].px();  // [GeV/c]
@@ -119,7 +118,7 @@ FW::GPythia8::Generator::read(std::vector<Fatras::Vertex>& processVertices,
       double         vy = m_pythia8.event[ip].yProd();  // [mm]
       double         vz = m_pythia8.event[ip].zProd();  // [mm]
       Acts::Vector3D vertex(vx, vy, vz);
-      // flush if vertices are different 
+      // flush if vertices are different
       if (vertex != lastVertex && particlesOut.size()) {
         // create the process vertex, push it
         Fatras::Vertex pVertex(lastVertex, {}, particlesOut);

@@ -16,7 +16,8 @@
 FW::Csv::CsvTrackingGeometryWriter::CsvTrackingGeometryWriter(
     const FW::Csv::CsvTrackingGeometryWriter::Config& cfg)
   : FW::IWriterT<Acts::TrackingGeometry>(), m_cfg(cfg)
-{}
+{
+}
 
 std::string
 FW::Csv::CsvTrackingGeometryWriter::name() const
@@ -25,7 +26,8 @@ FW::Csv::CsvTrackingGeometryWriter::name() const
 }
 
 FW::ProcessCode
-FW::Csv::CsvTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
+FW::Csv::CsvTrackingGeometryWriter::write(
+    const Acts::TrackingGeometry& tGeometry)
 {
   ACTS_DEBUG(">>Csv: Writer for TrackingGeometry object called.");
   // get the world volume
@@ -54,17 +56,19 @@ FW::Csv::CsvTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       // bail out if you have no surface writer
       if (!surfaceWriter) return;
       // layer prefix
-      surfaceWriter->write(m_cfg.layerPrefix);      
+      surfaceWriter->write(m_cfg.layerPrefix);
       // check for sensitive surfaces
       if (layer->surfaceArray() && surfaceWriter) {
         // the current module thickness
-        double cThickness = 0.;
+        double              cThickness = 0.;
         std::vector<double> cValues;
         // loop over the surface
         for (auto surface : layer->surfaceArray()->surfaces()) {
-          if (surface && surfaceWriter->write(*surface) == FW::ProcessCode::ABORT) return;
+          if (surface
+              && surfaceWriter->write(*surface) == FW::ProcessCode::ABORT)
+            return;
         }
-      }    
+      }
     }
   }
   // get the confined volumes and step down the hierarchy

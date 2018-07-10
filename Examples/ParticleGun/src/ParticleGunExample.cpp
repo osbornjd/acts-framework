@@ -66,7 +66,8 @@ main(int argc, char* argv[])
   // Create the random number engine
   auto randomNumberSvcCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
-  auto randomNumberSvc = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
+  auto randomNumberSvc
+      = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
   // Create the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
   auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
@@ -76,7 +77,7 @@ main(int argc, char* argv[])
       = FW::Options::readParticleGunConfig<po::variables_map>(vm);
   particleGunCfg.barcodeSvc      = barcodeSvc;
   particleGunCfg.randomNumberSvc = randomNumberSvc;
-  auto particleGun   = std::make_shared<FW::ParticleGun>(
+  auto particleGun               = std::make_shared<FW::ParticleGun>(
       particleGunCfg, Acts::getDefaultLogger("ParticleGun", logLevel));
 
   // Output directory
@@ -85,30 +86,29 @@ main(int argc, char* argv[])
   // Write particles as CSV files
   std::shared_ptr<FW::Csv::CsvParticleWriter> pWriterCsv = nullptr;
   std::string csvFileName = vm["output-csv-file"].as<std::string>();
-  if (!csvFileName.empty()){
+  if (!csvFileName.empty()) {
     if (csvFileName.find(".csv") == std::string::npos) {
-        csvFileName += ".csv";
+      csvFileName += ".csv";
     }
     FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
     pWriterCsvConfig.collection     = particleGunCfg.evgenCollection;
     pWriterCsvConfig.outputDir      = outputDir;
     pWriterCsvConfig.outputFileName = csvFileName;
-    pWriterCsv
-        = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
-  } 
-    
+    pWriterCsv = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
+  }
+
   // Write particles as ROOT files
   std::shared_ptr<FW::Root::RootParticleWriter> pWriterRoot = nullptr;
   std::string rootFileName = vm["output-root-file"].as<std::string>();
-  if (!rootFileName.empty()){
+  if (!rootFileName.empty()) {
     if (rootFileName.find(".root") == std::string::npos) {
-        rootFileName += ".root";
+      rootFileName += ".root";
     }
     // Write particles as ROOT TTree
     FW::Root::RootParticleWriter::Config pWriterRootConfig;
-    pWriterRootConfig.collection     = particleGunCfg.evgenCollection;
-    pWriterRootConfig.outputFileName = rootFileName;
-    pWriterRootConfig.barcodeSvc     = barcodeSvc;
+    pWriterRootConfig.collection = particleGunCfg.evgenCollection;
+    pWriterRootConfig.filePath   = rootFileName;
+    pWriterRootConfig.barcodeSvc = barcodeSvc;
     pWriterRoot
         = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
   }
@@ -119,9 +119,7 @@ main(int argc, char* argv[])
   sequencer.addServices({randomNumberSvc});
   sequencer.addReaders({particleGun});
   sequencer.appendEventAlgorithms({});
-  if (pWriterRoot) 
-    sequencer.addWriters({pWriterRoot});
-  if (pWriterCsv) 
-    sequencer.addWriters({pWriterCsv});
+  if (pWriterRoot) sequencer.addWriters({pWriterRoot});
+  if (pWriterCsv) sequencer.addWriters({pWriterCsv});
   sequencer.run(nEvents);
 }

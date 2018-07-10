@@ -14,16 +14,16 @@ int
 main()
 {
   // set geometry building logging level
-  Acts::Logging::Level surfaceLogLevel = Acts::Logging::INFO;
-  Acts::Logging::Level layerLogLevel   = Acts::Logging::INFO;
-  Acts::Logging::Level volumeLogLevel  = Acts::Logging::INFO;
+  Acts::Logging::Level geo - surface - loglevel = Acts::Logging::INFO;
+  Acts::Logging::Level layerLogLevel            = Acts::Logging::INFO;
+  Acts::Logging::Level volumeLogLevel           = Acts::Logging::INFO;
   // set extrapolation logging level
   Acts::Logging::Level eLogLevel = Acts::Logging::INFO;
 
   // create the tracking geometry as a shared pointer
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
       = FWGen::buildGenericDetector(
-          surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
+          geo - surface - loglevel, layerLogLevel, volumeLogLevel, 3);
 
   // set up the magnetic field
   std::shared_ptr<Acts::ConstantBField> magField(

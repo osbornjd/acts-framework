@@ -81,11 +81,11 @@ FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     }
     // output to file
     Obj::writePlanarFace(*(m_cfg.outputStream),
-                                 m_vtnCounter,
-                                 scalor,
-                                 vertices,
-                                 thickness,
-                                 vfaces);
+                         m_vtnCounter,
+                         scalor,
+                         vertices,
+                         thickness,
+                         vfaces);
     (*(m_cfg.outputStream)) << '\n';
   }
 
@@ -102,13 +102,13 @@ FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
         << " o Cylinder_" << std::to_string(layerID) << '\n';
     // output to the file
     Obj::writeTube(*(m_cfg.outputStream),
-                           m_vtnCounter,
-                           scalor,
-                           m_cfg.outputPhiSegemnts,
-                           sTransform,
-                           cylinderBounds->r(),
-                           cylinderBounds->halflengthZ(),
-                           m_cfg.outputThickness);
+                   m_vtnCounter,
+                   scalor,
+                   m_cfg.outputPhiSegemnts,
+                   sTransform,
+                   cylinderBounds->r(),
+                   cylinderBounds->halflengthZ(),
+                   m_cfg.outputThickness);
     (*(m_cfg.outputStream)) << '\n';
   }
 
@@ -127,13 +127,13 @@ FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     double thickness = rMax - rMin;
     // output to the file
     Obj::writeTube(*(m_cfg.outputStream),
-                           m_vtnCounter,
-                           scalor,
-                           m_cfg.outputPhiSegemnts,
-                           sTransform,
-                           0.5 * (rMin + rMax),
-                           m_cfg.outputThickness,
-                           thickness);
+                   m_vtnCounter,
+                   scalor,
+                   m_cfg.outputPhiSegemnts,
+                   sTransform,
+                   0.5 * (rMin + rMax),
+                   m_cfg.outputThickness,
+                   thickness);
     (*(m_cfg.outputStream)) << '\n';
   }
 

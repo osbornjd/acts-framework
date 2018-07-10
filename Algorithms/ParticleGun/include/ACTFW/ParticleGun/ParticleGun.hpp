@@ -12,7 +12,6 @@
 #include "ACTFW/Framework/IReader.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 using range = std::array<double, 2>;
 
@@ -25,7 +24,7 @@ class RandomNumbersSvc;
 ///
 /// Particle gun implementation of the IReader. It can be used as
 /// particle input for the Fatras example.
-/// 
+///
 /// It generates particles of given type with random momentum and random vertex
 /// in a given range. It fills a vector of particle properties for feeding into
 /// fast simulation.
@@ -36,7 +35,7 @@ public:
   struct Config
   {
     /// The particle gon is on
-    bool on  = true;
+    bool on = true;
     /// output collection for generated particles
     std::string evgenCollection;
     /// number of events
@@ -70,8 +69,7 @@ public:
   /// @param cfg is the configuration class
   ParticleGun(const Config&                       cfg,
               std::unique_ptr<const Acts::Logger> logger
-                = Acts::getDefaultLogger("ParticleGun",
-                                         Acts::Logging::INFO));
+              = Acts::getDefaultLogger("ParticleGun", Acts::Logging::INFO));
 
   /// Framework name() method
   std::string
@@ -100,7 +98,6 @@ private:
   {
     return *m_logger;
   }
-  
 };
 
 /// Return of the number events
@@ -109,6 +106,5 @@ ParticleGun::numEvents() const
 {
   return m_cfg.nEvents;
 }
-
 
 }  // namespace FW

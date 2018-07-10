@@ -6,15 +6,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H
-#define ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H
+#pragma once
 
 #include <cmath>
 #include <limits>
 #include <memory>
 
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
@@ -22,17 +19,16 @@
 #include "Acts/EventData/NeutralParameters.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
-#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace Acts {
 class IExtrapolationEngine;
-class TrackingGeometry;
-class TrackingVolume;
 }  // namespace Acts
 
 namespace FW {
 
+/// @brief Algorithm that runs the legacy Extrapolation through a given detector
 class ExtrapolationAlgorithm : public BareAlgorithm
 {
 public:
@@ -40,22 +36,25 @@ public:
   {
     /// the extrapolation engine
     std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine = nullptr;
-    /// the particles input collections
-    std::string evgenCollection = "";
-    /// the simulated particles output collection
-    std::string simulatedParticleCollection = "";
-    /// the simulated hits output collection (optional)
-    std::string simulatedHitCollection = "";
     /// the simulated charged excell collection (optional)
     std::string simulatedChargedExCellCollection = "";
     /// the simulated neutral excell collection (optional)
     std::string simulatedNeutralExCellCollection = "";
-    /// the cuts applied in this case
-    /// @todo remove later and replace by particle selector
-    double maxD0  = std::numeric_limits<double>::max();
-    double maxEta = std::numeric_limits<double>::max();
-
-    double minPt = 0.0;
+    /// how to set it up
+    std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
+    /// number of particles
+    size_t nparticles = 100;
+    /// d0 gaussian sigma
+    double d0Sigma = 15. * Acts::units::_um;
+    /// z0 gaussian sigma
+    double z0Sigma = 55. * Acts::units::_mm;
+    /// phi range
+    std::pair<double, double> phiRange = {-M_PI, M_PI};
+    /// eta range
+    std::pair<double, double> etaRange = {-4., 4.};
+    /// pt range
+    std::pair<double, double> ptRange
+        = {100. * Acts::units::_MeV, 100. * Acts::units::_GeV};
     /// skip or process neutral particles
     bool skipNeutral = false;
     /// configuration: sensitive collection
@@ -75,9 +74,9 @@ public:
   };
 
   /// Constructor
-  /// @param [in] cnf is the configuration struct
+  /// @param [in] cfg is the configuration struct
   /// @param [in] loglevel is the loggin level
-  ExtrapolationAlgorithm(const Config& cnf, Acts::Logging::Level loglevel);
+  ExtrapolationAlgorithm(const Config& cfg, Acts::Logging::Level loglevel);
 
   /// Framework execute method
   /// @param [in] the algorithm context for event consistency
@@ -85,24 +84,17 @@ public:
   execute(AlgorithmContext ctx) const final override;
 
 private:
-  Config m_cfg;  ///< the config class
+  Config m_cfg;  ///< the config struct
 
   /// the templated execute test method for
   /// charged and netural particles
-  /// @param [in] the start parameters
-  /// @param [in] the particle barcode
-  /// @param [in] the detector data container
+  /// @param [in] startParameters the start parameters
+  /// @param [in] eCells is the collection of extrapolation cells
   template <class T>
   ProcessCode
-  executeTestT(
-      const T&                                 startParameters,
-      barcode_type                             barcode,
-      std::vector<Acts::ExtrapolationCell<T>>& eCells,
-      DetectorData<geo_id_value,
-                   std::pair<std::unique_ptr<const T>, barcode_type>>* dData
-      = nullptr) const;
+  executeTest(const T&                                 startParameters,
+              std::vector<Acts::ExtrapolationCell<T>>& eCells) const;
 };
+
 }  // namespace FW
 #include "ExtrapolationAlgorithm.ipp"
-
-#endif  // ACTFW_ALGORITHMS_EXTRAPOLATIONALGORITHM_H

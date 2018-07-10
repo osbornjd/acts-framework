@@ -1,11 +1,16 @@
 file (GLOB_RECURSE src_files "src/*.*pp")
 
-add_executable(ACTFWPropagationExample src/PropagationExample.cpp)
-target_include_directories(ACTFWPropagationExample PRIVATE ACTFWPropagation ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWPropagationExample PRIVATE Acts::Core)
-target_link_libraries(ACTFWPropagationExample PRIVATE ACTFWPropagation ACTFramework ACTFWParticleGun)
-target_link_libraries(ACTFWPropagationExample PRIVATE ACTFWRootPlugin ACTFWBFieldPlugin)
-target_link_libraries(ACTFWPropagationExample PRIVATE ${Boost_LIBRARIES})
+add_executable(ACTFWGenericPropagationExample src/GenericPropagationExample.cpp)
+target_include_directories(ACTFWGenericPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWGenericPropagationExample PRIVATE Acts::Core ACTFWGeometry ACTFWPropagation)
+target_link_libraries(ACTFWGenericPropagationExample PRIVATE ACTFramework ACTFWGenericDetector ACTFWPropagation)
+target_link_libraries(ACTFWGenericPropagationExample PRIVATE ACTFWRootPlugin ACTFWBFieldPlugin)
+target_link_libraries(ACTFWGenericPropagationExample PRIVATE ${Boost_LIBRARIES})
 
-install(TARGETS ACTFWPropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+add_executable(ACTFWRootPropagationExample src/RootPropagationExample.cpp)
+target_include_directories(ACTFWRootPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWRootPropagationExample PRIVATE Acts::Core ACTFWGeometry ACTFWPropagation)
+target_link_libraries(ACTFWRootPropagationExample PRIVATE ACTFramework ACTFWRootDetector ACTFWPropagation)
+target_link_libraries(ACTFWRootPropagationExample PRIVATE ACTFWRootPlugin ACTFWBFieldPlugin)
+target_link_libraries(ACTFWRootPropagationExample PRIVATE ${Boost_LIBRARIES})

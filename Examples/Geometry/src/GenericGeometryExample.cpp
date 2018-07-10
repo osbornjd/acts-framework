@@ -6,39 +6,42 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "GeometryExampleBase.hpp"
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
+#include "GeometryExampleBase.hpp"
 
 /// @brief adding some specific options for this geometry type
-struct GenericOptions {
+struct GenericOptions
+{
 
-template <typename options_t>
-void operator()(options_t& opt)
-{}
-
+  template <typename options_t>
+  void
+  operator()(options_t& opt)
+  {
+  }
 };
 
-
 /// @brief geometry getter, the operator() will be called int he example base
-struct GenericGeometry {
+struct GenericGeometry
+{
 
-template <typename variable_map_t>
-std::shared_ptr<const Acts::TrackingGeometry> 
-operator()(variable_map_t& vm){
-  // --------------------------------------------------------------------------------
-  // set geometry building logging level
-  Acts::Logging::Level surfaceLogLevel
-      = Acts::Logging::Level(vm["sloglevel"].template as<size_t>());
-  Acts::Logging::Level layerLogLevel
-      = Acts::Logging::Level(vm["lloglevel"].template as<size_t>());
-  Acts::Logging::Level volumeLogLevel
-      = Acts::Logging::Level(vm["vloglevel"].template as<size_t>());
-  /// return the generic detector 
-  return FWGen::buildGenericDetector(
+  template <typename variable_map_t>
+  std::shared_ptr<const Acts::TrackingGeometry>
+  operator()(variable_map_t& vm)
+  {
+    // --------------------------------------------------------------------------------
+    // set geometry building logging level
+    Acts::Logging::Level surfaceLogLevel = Acts::Logging::Level(
+        vm["geo-surface-loglevel"].template as<size_t>());
+    Acts::Logging::Level layerLogLevel
+        = Acts::Logging::Level(vm["geo-layer-loglevel"].template as<size_t>());
+    Acts::Logging::Level volumeLogLevel
+        = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
+    /// return the generic detector
+    return FWGen::buildGenericDetector(
         surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
-} 
+  }
 };
 
 int

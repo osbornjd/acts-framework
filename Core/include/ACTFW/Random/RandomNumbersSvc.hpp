@@ -74,7 +74,6 @@ public:
   RandomEngine
   spawnGenerator(const AlgorithmContext& context) const;
 
-
   const unsigned int
   generateSeed(const AlgorithmContext& context) const;
 

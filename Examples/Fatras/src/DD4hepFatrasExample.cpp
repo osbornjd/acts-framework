@@ -11,11 +11,13 @@
 #include "Acts/Detector/TrackingGeometry.hpp"
 
 /// @brief geometry getter, the operator() will be called int he example base
-struct DD4hepGeometryGetter {
-  
-template <typename options_t>
-std::shared_ptr<const Acts::TrackingGeometry> 
-operator()(options_t& vm){
+struct DD4hepGeometryGetter
+{
+
+  template <typename options_t>
+  std::shared_ptr<const Acts::TrackingGeometry>
+  operator()(options_t& vm)
+  {
     // read the detector config & dd4hep detector
     auto dd4HepDetectorConfig
         = FW::Options::readDD4hepConfig<po::variables_map>(vm);
@@ -24,7 +26,7 @@ operator()(options_t& vm){
     std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
         = geometrySvc->trackingGeometry();
     return dd4tGeometry;
-  } 
+  }
 };
 
 int
@@ -33,5 +35,5 @@ main(int argc, char* argv[])
   // --------------------------------------------------------------------------------
   DD4hepGeometryGetter tGeoGetter;
   // now process it
-  return fatrasExample(argc, argv, tGeoGetter);  
+  return fatrasExample(argc, argv, tGeoGetter);
 }

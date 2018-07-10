@@ -12,9 +12,9 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
 #include "ACTFW/Plugins/Pythia8/GeneratorOptions.hpp"
-#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
@@ -47,7 +47,7 @@ main(int argc, char* argv[])
       "output-csv-file",
       po::value<std::string>()->default_value(""),
       "If the string is not empty: Write a '.csv' output files (per event)");
-  
+
   // map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -66,7 +66,8 @@ main(int argc, char* argv[])
   // Create the random number engine
   auto randomNumberSvcCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
-  auto randomNumberSvc = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
+  auto randomNumberSvc
+      = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
   // now read the pythia8 configs
   auto pythia8Configs = FW::Options::readPythia8Config<po::variables_map>(vm);
   pythia8Configs.first.randomNumberSvc  = randomNumberSvc;
@@ -101,34 +102,33 @@ main(int argc, char* argv[])
   // Write particles as CSV files
   std::shared_ptr<FW::Csv::CsvParticleWriter> pWriterCsv = nullptr;
   std::string csvFileName = vm["output-csv-file"].as<std::string>();
-  if (!csvFileName.empty()){
+  if (!csvFileName.empty()) {
     if (csvFileName.find(".csv") == std::string::npos) {
-        csvFileName += ".csv";
+      csvFileName += ".csv";
     }
     FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
     pWriterCsvConfig.collection     = readEvgenCfg.evgenCollection;
     pWriterCsvConfig.outputDir      = outputDir;
     pWriterCsvConfig.outputFileName = csvFileName;
-    pWriterCsv
-        = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
-  } 
-    
+    pWriterCsv = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
+  }
+
   // Write particles as CSV files
   std::shared_ptr<FW::Root::RootParticleWriter> pWriterRoot = nullptr;
   std::string rootFileName = vm["output-root-file"].as<std::string>();
-  if (!rootFileName.empty()){
+  if (!rootFileName.empty()) {
     if (rootFileName.find(".root") == std::string::npos) {
-        rootFileName += ".root";
+      rootFileName += ".root";
     }
     // Write particles as ROOT TTree
     FW::Root::RootParticleWriter::Config pWriterRootConfig;
-    pWriterRootConfig.collection     = readEvgenCfg.evgenCollection;
-    pWriterRootConfig.outputFileName = rootFileName;
-    pWriterRootConfig.barcodeSvc     = barcodeSvc;
+    pWriterRootConfig.collection = readEvgenCfg.evgenCollection;
+    pWriterRootConfig.filePath   = rootFileName;
+    pWriterRootConfig.barcodeSvc = barcodeSvc;
     pWriterRoot
         = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
   }
-  
+
   // create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
   // now create the sequencer
@@ -136,9 +136,7 @@ main(int argc, char* argv[])
   sequencer.addServices({randomNumberSvc});
   sequencer.addReaders({readEvgen});
   sequencer.appendEventAlgorithms({});
-  if (pWriterRoot) 
-    sequencer.addWriters({pWriterRoot});
-  if (pWriterCsv) 
-    sequencer.addWriters({pWriterCsv});
+  if (pWriterRoot) sequencer.addWriters({pWriterRoot});
+  if (pWriterCsv) sequencer.addWriters({pWriterCsv});
   sequencer.run(nEvents);
 }

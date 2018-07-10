@@ -10,11 +10,11 @@
 #include <ios>
 #include <stdexcept>
 
-#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
+#include <Acts/Digitization/PlanarModuleCluster.hpp>
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include <Acts/Digitization/PlanarModuleCluster.hpp>
 
 FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     const FW::Csv::CsvPlanarClusterWriter::Config& cfg,
@@ -42,11 +42,12 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
   // open per-event details file for the hit details
   std::string pathDetails
       = perEventFilepath(m_cfg.outputDir, "details.csv", ctx.eventNumber);
-  std::ofstream osDetails(pathDetails, std::ofstream::out | std::ofstream::trunc);
+  std::ofstream osDetails(pathDetails,
+                          std::ofstream::out | std::ofstream::trunc);
   if (!osDetails) {
     throw std::ios_base::failure("Could not open '" + pathHits + "' to write");
   }
-  
+
   // open per-event truth file
   std::string pathTruth
       = perEventFilepath(m_cfg.outputDir, "truth.csv", ctx.eventNumber);
@@ -62,11 +63,11 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
   osHits << "x,y,z,";
   osHits << "volume_id,layer_id,module_id" << '\n';
   osHits << std::setprecision(m_cfg.outputPrecision);
-  
+
   // write csv hit detials header
   osDetails << "hit_id,ch0,ch1,value" << '\n';
   osDetails << std::setprecision(m_cfg.outputPrecision);
-  
+
   // write csv truth headers
   osTruth << "hit_id,";
   osTruth << "particle_id,";
@@ -94,37 +95,40 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           osHits << volumeData.first << ",";
           osHits << layerData.first << ",";
           osHits << moduleData.first << '\n';
-          
+
           // append cell information
           auto cells = cluster.digitizationCells();
-          std::random_shuffle(cells.begin(),cells.end());
+          std::random_shuffle(cells.begin(), cells.end());
           for (auto& cell : cells) {
-            osDetails << hitId << "," << cell.channel0 
-                               << "," << cell.channel1 
-                               << "," << cell.data << '\n';
+            osDetails << hitId << "," << cell.channel0 << "," << cell.channel1
+                      << "," << cell.data << '\n';
           }
-          
+
           // Truth handling needs to be sorted out !
-          // 
+          //
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
-          //for (auto& tVertex : cluster.truthVertices()) {
+          // for (auto& tVertex : cluster.truthVertices()) {
           //  for (auto& tIngoing : tVertex.incomingParticles()){
           //    // positon
           //    Acts::Vector3D vPosition = tVertex.position();
           //    // create the local angles talpha, tbeta
           //    osTruth << hitId << "," << tIngoing.barcode() << ",";
-          //    osTruth << vPosition.x() << "," << vPosition.y() << "," << vPosition.z() <<','; 
-          //    osTruth << tIngoing.momentum().x() << "," << tIngoing.momentum().y() <<  "," << tIngoing.momentum().z()<< '\n';
-          //    
+          //    osTruth << vPosition.x() << "," << vPosition.y() << "," <<
+          //    vPosition.z() <<',';
+          //    osTruth << tIngoing.momentum().x() << "," <<
+          //    tIngoing.momentum().y() <<  "," << tIngoing.momentum().z()<<
+          //    '\n';
+          //
           //    }
           //}
         }
       }
     }
   }
-  
-  ACTS_VERBOSE("Number of skipped hits from being written out : " << skipped_hits);
-    
+
+  ACTS_VERBOSE(
+      "Number of skipped hits from being written out : " << skipped_hits);
+
   return FW::ProcessCode::SUCCESS;
 }

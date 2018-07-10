@@ -27,21 +27,17 @@ FW::Root::RootParticleWriter::RootParticleWriter(
     throw std::invalid_argument("Missing tree name");
   }
 
-  std::string outputName = "";
-  if (m_cfg.outputDir != "") outputName += m_cfg.outputDir + "/";
-  outputName += m_cfg.outputFileName;
-
-  if (!outputName.empty()){
-    // Setup ROOT I/O
-    m_outputFile = TFile::Open(outputName.c_str(), m_cfg.fileMode.c_str());
-    if (!m_outputFile) {
-      throw std::ios_base::failure("Could not open '" + outputName);
-    }
-    m_outputFile->cd();
-    m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
-    if (!m_outputTree) throw std::bad_alloc();
-
-    // Initial parameters
+  // Setup ROOT I/O
+  m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+  if (!m_outputFile) {
+    throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
+  }
+  m_outputFile->cd();
+  m_outputTree = new TTree(m_cfg.treeName.c_str(), m_cfg.treeName.c_str());
+  if (!m_outputTree)
+    throw std::bad_alloc();
+  else {
+    // I/O parameters
     m_outputTree->Branch("eta", &m_eta);
     m_outputTree->Branch("phi", &m_phi);
     m_outputTree->Branch("vx", &m_vx);
@@ -65,19 +61,19 @@ FW::Root::RootParticleWriter::RootParticleWriter(
 
 FW::Root::RootParticleWriter::~RootParticleWriter()
 {
-  if (m_outputFile){
-      m_outputFile->Close();
+  if (m_outputFile) {
+    m_outputFile->Close();
   }
 }
 
 FW::ProcessCode
 FW::Root::RootParticleWriter::endRun()
 {
-  if (m_outputFile){
+  if (m_outputFile) {
     m_outputFile->cd();
     m_outputTree->Write();
     ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
-                                          << m_cfg.outputFileName
+                                          << m_cfg.filePath
                                           << "'");
   }
   return ProcessCode::SUCCESS;
@@ -88,9 +84,9 @@ FW::Root::RootParticleWriter::writeT(
     const AlgorithmContext&            ctx,
     const std::vector<Fatras::Vertex>& vertices)
 {
-  
+
   if (!m_outputFile) return ProcessCode::SUCCESS;
-  
+
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);
 

@@ -154,10 +154,10 @@ main(int argc, char* argv[])
   // add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
   // add an output file
-  desc.add_options()("bf-phirange",
+  desc.add_options()("bf-phi-range",
                      po::value<read_range>()->default_value({-M_PI, M_PI}),
                      "range in which the phi parameter is generated.")(
-      "bf-thetarange",
+      "bf-theta-range",
       po::value<read_range>()->default_value({0., M_PI}),
       "range in which the eta parameter is generated.")(
       "bf-phisteps",
@@ -193,8 +193,8 @@ main(int argc, char* argv[])
     return -1;
   }
   // get the phi and eta range
-  auto phir   = vm["bf-phirange"].as<read_range>();
-  auto thetar = vm["bf-thetarange"].as<read_range>();
+  auto phir   = vm["bf-phi-range"].as<read_range>();
+  auto thetar = vm["bf-theta-range"].as<read_range>();
   // get the granularity
   size_t phi_steps   = vm["bf-phisteps"].as<size_t>();
   size_t theta_steps = vm["bf-thetasteps"].as<size_t>();

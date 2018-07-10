@@ -28,9 +28,7 @@
 /// @tparam hit_t The hit Type
 namespace FW {
 
-template <typename simulator_t, 
-          typename event_collection_t, 
-          typename hit_t>
+template <typename simulator_t, typename event_collection_t, typename hit_t>
 class FatrasAlgorithm : public BareAlgorithm
 {
 public:
@@ -40,9 +38,7 @@ public:
     /// @brief Config constructor with propagator type
     ///
     /// @param fsimulator Propagator object for charged particles
-    Config(simulator_t fsimulator) :
-      simulator(std::move(fsimulator))
-    {}
+    Config(simulator_t fsimulator) : simulator(std::move(fsimulator)) {}
 
     /// The simulation kernel
     simulator_t simulator;
@@ -51,13 +47,13 @@ public:
     std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
 
     /// the input event collection name
-    std::string inputEventCollection     = "";
+    std::string inputEventCollection = "";
 
     /// the simulated particles output collection name
     std::string simulatedEventCollection = "";
 
     /// the simulated hit output collection name
-    std::string simulatedHitCollection      = "";
+    std::string simulatedHitCollection = "";
   };
 
   /// Constructor
@@ -79,4 +75,3 @@ private:
 }  // namespace FW
 
 #include "FatrasAlgorithm.ipp"
-

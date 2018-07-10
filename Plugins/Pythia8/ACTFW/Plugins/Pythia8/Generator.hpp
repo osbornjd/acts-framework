@@ -11,8 +11,8 @@
 #include <memory>
 #include <mutex>
 
-#include <Fatras/Kernel/Particle.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <Fatras/Kernel/Particle.hpp>
 #include <Pythia8/Pythia.h>
 
 #include "ACTFW/Random/RandomNumbersSvc.hpp"

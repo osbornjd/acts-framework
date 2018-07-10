@@ -25,8 +25,8 @@
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
-#include "Fatras/Kernel/Particle.hpp"
 #include "Fatras/Kernel/Definitions.hpp"
+#include "Fatras/Kernel/Particle.hpp"
 
 FW::DigitizationAlgorithm::DigitizationAlgorithm(
     const FW::DigitizationAlgorithm::Config& cfg,
@@ -61,7 +61,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
 
   // prepare the output data: Clusters
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
-  
+
   // perpare the second output data : Truth SpacePoints
   FW::DetectorData<geo_id_value, Acts::Vector3D> spacePoints;
 

@@ -3,11 +3,21 @@ file (GLOB_RECURSE src_files "src/*.*pp")
 add_executable(ACTFWGenericExtrapolationExample src/GenericExtrapolationExample.cpp)
 target_include_directories(ACTFWGenericExtrapolationExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWGenericExtrapolationExample PRIVATE Acts::Core)
-target_link_libraries(ACTFWGenericExtrapolationExample PRIVATE ACTFramework ACTFWGenericDetector ACTFWExtrapolation ACTFWParticleGun)
+target_link_libraries(ACTFWGenericExtrapolationExample PRIVATE ACTFramework ACTFWGenericDetector ACTFWExtrapolation)
 target_link_libraries(ACTFWGenericExtrapolationExample PRIVATE ACTFWRootPlugin ACTFWBFieldPlugin)
 target_link_libraries(ACTFWGenericExtrapolationExample PRIVATE ${Boost_LIBRARIES})
 
 install(TARGETS ACTFWGenericExtrapolationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+
+add_executable(ACTFWRootExtrapolationExample src/RootExtrapolationExample.cpp)
+target_include_directories(ACTFWRootExtrapolationExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWRootExtrapolationExample PRIVATE Acts::Core)
+target_link_libraries(ACTFWRootExtrapolationExample PRIVATE ACTFramework ACTFWRootDetector ACTFWExtrapolation)
+target_link_libraries(ACTFWRootExtrapolationExample PRIVATE ACTFWRootPlugin ACTFWBFieldPlugin)
+target_link_libraries(ACTFWRootExtrapolationExample PRIVATE ${Boost_LIBRARIES})
+
+install(TARGETS ACTFWRootExtrapolationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(USE_DD4HEP)
   add_executable(ACTFWDD4hepExtrapolationExample src/DD4hepExtrapolationExample.cpp)

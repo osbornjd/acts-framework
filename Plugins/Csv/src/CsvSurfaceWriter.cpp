@@ -10,14 +10,14 @@
 #include <ios>
 #include <iostream>
 #include <stdexcept>
+#include "Acts/Digitization/CartesianSegmentation.hpp"
+#include "Acts/Digitization/DigitizationModule.hpp"
 #include "Acts/Layers/Layer.hpp"
 #include "Acts/Surfaces/CylinderBounds.hpp"
 #include "Acts/Surfaces/PlanarBounds.hpp"
 #include "Acts/Surfaces/RadialBounds.hpp"
 #include "Acts/Surfaces/SurfaceBounds.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
-#include "Acts/Digitization/DigitizationModule.hpp"
-#include "Acts/Digitization/CartesianSegmentation.hpp"
 
 FW::Csv::CsvSurfaceWriter::CsvSurfaceWriter(
     const FW::Csv::CsvSurfaceWriter::Config& cfg)
@@ -33,19 +33,18 @@ FW::Csv::CsvSurfaceWriter::CsvSurfaceWriter(
   }
 
   // Write down the file prefix
-  if (m_cfg.filePrefix != "")
-     (*m_cfg.outputStream) << m_cfg.filePrefix << '\n';
+  if (m_cfg.filePrefix != "") (*m_cfg.outputStream) << m_cfg.filePrefix << '\n';
   (*m_cfg.outputStream) << "volume_id,layer_id,module_id,";
   (*m_cfg.outputStream) << "cx,cy,cz,";
   (*m_cfg.outputStream) << "rot_xu,rot_xv,rot_xw,";
   (*m_cfg.outputStream) << "rot_yu,rot_yv,rot_yw,";
   (*m_cfg.outputStream) << "rot_zu,rot_zv,rot_zw";
-  if (m_cfg.outputBounds){
-    (*m_cfg.outputStream) << ",module_t,module_minhx,module_maxhx,module_hy,pitchX,pitchY";
+  if (m_cfg.outputBounds) {
+    (*m_cfg.outputStream)
+        << ",module_t,module_minhx,module_maxhx,module_hy,pitchX,pitchY";
   }
   (*m_cfg.outputStream) << '\n';
   (*m_cfg.outputStream) << std::setprecision(m_cfg.outputPrecision);
-
 }
 
 std::string
@@ -69,27 +68,27 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
   auto                       sTransform    = surface.transform();
 
   // Get the layer geo id information
-  auto geoID = surface.geoID();
+  auto geoID       = surface.geoID();
   auto volumeID    = geoID.value(Acts::GeometryID::volume_mask);
   auto layerID     = geoID.value(Acts::GeometryID::layer_mask);
   auto sensitiveID = geoID.value(Acts::GeometryID::sensitive_mask);
-  
+
   // write configurations
-  if ((sensitiveID && m_cfg.outputSensitive) || 
-      (!sensitiveID && m_cfg.outputLayerSurface) ){
-                
+  if ((sensitiveID && m_cfg.outputSensitive)
+      || (!sensitiveID && m_cfg.outputLayerSurface)) {
+
     // surface indentification
-    (*m_cfg.outputStream) 
-      << volumeID << "," << layerID << "," << sensitiveID <<",";
-    (*m_cfg.outputStream) 
-      << sCenter.x() << "," << sCenter.y() << "," << sCenter.z() <<",";
-    (*m_cfg.outputStream) 
-      << sTransform(0,0) << "," << sTransform(0,1) << "," << sTransform(0,2) <<",";
-    (*m_cfg.outputStream) 
-      << sTransform(1,0) << "," << sTransform(1,1) << "," << sTransform(1,2) <<",";
-    (*m_cfg.outputStream) 
-      << sTransform(2,0) << "," << sTransform(2,1) << "," << sTransform(2,2);
-  
+    (*m_cfg.outputStream) << volumeID << "," << layerID << "," << sensitiveID
+                          << ",";
+    (*m_cfg.outputStream) << sCenter.x() << "," << sCenter.y() << ","
+                          << sCenter.z() << ",";
+    (*m_cfg.outputStream) << sTransform(0, 0) << "," << sTransform(0, 1) << ","
+                          << sTransform(0, 2) << ",";
+    (*m_cfg.outputStream) << sTransform(1, 0) << "," << sTransform(1, 1) << ","
+                          << sTransform(1, 2) << ",";
+    (*m_cfg.outputStream) << sTransform(2, 0) << "," << sTransform(2, 1) << ","
+                          << sTransform(2, 2);
+
     // dynamic_cast to PlanarBounds
     const Acts::PlanarBounds* planarBounds
         = dynamic_cast<const Acts::PlanarBounds*>(&surfaceBounds);
@@ -97,29 +96,28 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
     if (planarBounds && m_cfg.outputSensitive && m_cfg.outputBounds) {
       ACTS_VERBOSE(">>Csv: Writing out a PlaneSurface ");
       // get thickness and value store
-      if (surface.associatedDetectorElement()){
+      if (surface.associatedDetectorElement()) {
         auto detElement = surface.associatedDetectorElement();
         // get thickness and bounds
         double thickness = detElement->thickness();
         (*m_cfg.outputStream) << "," << thickness << ",";
         // get the values from the bound value store
         auto bValues = surface.bounds().valueStore();
-        if (bValues.size() == 2){
+        if (bValues.size() == 2) {
           (*m_cfg.outputStream) << bValues[0] << ",";
           (*m_cfg.outputStream) << bValues[0] << ",";
           (*m_cfg.outputStream) << bValues[1] << ",";
-        } else if (bValues.size() == 3){
-          for (auto& bv : bValues)
-            (*m_cfg.outputStream) << bv << ",";
+        } else if (bValues.size() == 3) {
+          for (auto& bv : bValues) (*m_cfg.outputStream) << bv << ",";
         }
         // get the ditigization module
-        if (detElement->digitizationModule()){
+        if (detElement->digitizationModule()) {
           auto dModule = detElement->digitizationModule();
           // dynamic_cast to CartesianSegmentation
-          const Acts::CartesianSegmentation* cSegmentation =
-          dynamic_cast<const Acts::CartesianSegmentation*>
-            (&(dModule->segmentation()));
-          if (cSegmentation){
+          const Acts::CartesianSegmentation* cSegmentation
+              = dynamic_cast<const Acts::CartesianSegmentation*>(
+                  &(dModule->segmentation()));
+          if (cSegmentation) {
             auto pitch = cSegmentation->pitch();
             (*m_cfg.outputStream) << pitch.first << ",";
             (*m_cfg.outputStream) << pitch.second;
@@ -127,7 +125,7 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
         }
       }
     }
-    // break the line 
+    // break the line
     (*m_cfg.outputStream) << '\n';
 
     // check if you have layer and check what your have

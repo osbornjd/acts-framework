@@ -9,7 +9,7 @@
 #include "ACTFW/RootDetector/BuildRootDetector.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "GeometryExampleBase.hpp"
+#include "PropagationExampleBase.hpp"
 
 /// @brief adding some specific options for this geometry type
 struct RootOptions
@@ -45,5 +45,5 @@ main(int argc, char* argv[])
   RootGeometry rootGeometry;
 
   // now process it
-  return processGeometry(argc, argv, rootOptions, rootGeometry);
+  return propagationExample(argc, argv, rootOptions, rootGeometry);
 }

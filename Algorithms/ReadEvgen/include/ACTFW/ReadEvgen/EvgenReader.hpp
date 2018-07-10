@@ -34,11 +34,11 @@ public:
   struct Config
   {
     /// the hard scatter reader (optional)
-    std::shared_ptr< IReaderT< std::vector<Fatras::Vertex> > >
+    std::shared_ptr<IReaderT<std::vector<Fatras::Vertex>>>
         hardscatterEventReader = nullptr;
     /// the pileup reader (optional)
-    std::shared_ptr< IReaderT< std::vector<Fatras::Vertex> > >
-        pileupEventReader = nullptr;
+    std::shared_ptr<IReaderT<std::vector<Fatras::Vertex>>> pileupEventReader
+        = nullptr;
     /// name of the output collection
     std::string evgenCollection = "EvgenParticles";
     /// the Poisson parameter for pileup generation
@@ -59,8 +59,7 @@ public:
   /// Constructor
   EvgenReader(const Config&                       cnf,
               std::unique_ptr<const Acts::Logger> logger
-              = Acts::getDefaultLogger("EvgenReader",
-                                       Acts::Logging::INFO));
+              = Acts::getDefaultLogger("EvgenReader", Acts::Logging::INFO));
 
   /// Framework name() method
   std::string

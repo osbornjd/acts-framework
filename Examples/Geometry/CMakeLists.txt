@@ -2,7 +2,8 @@
 add_executable(ACTFWGenericGeometryExample src/GenericGeometryExample)
 target_include_directories(ACTFWGenericGeometryExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWGenericGeometryExample PRIVATE Acts::Core)
-target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFramework ACTFWObjPlugin ACTFWCsvPlugin ACTFWGenericDetector)
+target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFramework ACTFWGeometry)
+target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFWObjPlugin ACTFWCsvPlugin ACTFWGenericDetector)
 target_link_libraries(ACTFWGenericGeometryExample PRIVATE ${Boost_LIBRARIES})
 
 install(TARGETS ACTFWGenericGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -11,7 +12,8 @@ install(TARGETS ACTFWGenericGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_
 add_executable(ACTFWRootGeometryExample src/RootGeometryExample)
 target_include_directories(ACTFWRootGeometryExample PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWRootGeometryExample PRIVATE Acts::Core)
-target_link_libraries(ACTFWRootGeometryExample PRIVATE ACTFramework ACTFWObjPlugin ACTFWCsvPlugin ACTFWRootDetector)
+target_link_libraries(ACTFWRootGeometryExample PRIVATE ACTFramework ACTFWGeometry)
+target_link_libraries(ACTFWRootGeometryExample PRIVATE ACTFWObjPlugin ACTFWCsvPlugin ACTFWRootDetector)
 target_link_libraries(ACTFWRootGeometryExample PRIVATE ${Boost_LIBRARIES})
 
 install(TARGETS ACTFWRootGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -22,7 +24,7 @@ if (USE_DD4HEP)
   target_include_directories(ACTFWDD4hepGeometryExample PRIVATE ${DD4hep_INCLUDE_DIRS})
   target_include_directories(ACTFWDD4hepGeometryExample PRIVATE ${Boost_INCLUDE_DIRS})  
   target_link_libraries(ACTFWDD4hepGeometryExample PRIVATE Acts::Core)
-  target_link_libraries(ACTFWDD4hepGeometryExample PRIVATE ACTFWDD4hepPlugin ACTFramework ACTFWObjPlugin)
+  target_link_libraries(ACTFWDD4hepGeometryExample PRIVATE ACTFWDD4hepPlugin ACTFramework ACTFWGeometry ACTFWObjPlugin)
   target_link_libraries(ACTFWDD4hepGeometryExample PRIVATE ${DD4hep_LIBRARIES})
   target_link_libraries(ACTFWDD4hepGeometryExample PRIVATE ${Boost_LIBRARIES})
 
