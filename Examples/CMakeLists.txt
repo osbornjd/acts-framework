@@ -1,3 +1,6 @@
+# common steering of the events
+add_subdirectory(Common)
+
 # framework test section - without dependencies
 add_subdirectory(HelloWorld)
 add_subdirectory(RandomNumbers)

@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,8 +11,8 @@
 #include <boost/program_options.hpp>
 #include <string>
 #include <vector>
-#include "ACTFW/Framework/StandardOptions.hpp"
-#include "ACTFW/Geometry/GeometryOptions.hpp"
+#include "ACTFW/Common/CommonOptions.hpp"
+#include "ACTFW/Common/GeometryOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvWriterOptions.hpp"
@@ -34,34 +34,31 @@ processGeometry(int                argc,
 
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc, 1, 2);
-  // add options for the Obj writing
+  // Add the standard/common options
+  FW::Options::addCommonOptions<po::options_description>(desc, 1, 2);
+  // Add options for the Obj writing
   FW::Options::addObjWriterOptions<po::options_description>(desc);
-  // add the geometry options
+  // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
 
-  // add specific options for this geometry
+  // Add specific options for this geometry
   geometryOptions(desc);
 
   po::variables_map vm;
   // Get all options from contain line and store it into the map
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
-  // print help if requested
+  // Print help if requested
   if (vm.count("help")) {
     std::cout << desc << std::endl;
     return 1;
   }
 
-  // now read the standard options
-  auto standardOptions
-      = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto logLevel = standardOptions.second;
-
+  // Now read the standard options
+  auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
   auto tGeometry = trackingGeometry(vm);
 
-  // the detectors
+  // The detectors
   read_strings subDetectors = vm["geo-subdetectors"].as<read_strings>();
 
   Acts::Logging::Level surfaceLogLevel
@@ -73,27 +70,27 @@ processGeometry(int                argc,
 
   // ---------------------------------------------------------------------------------
   // OBJ output
-  // the writers
+  // The writers
   std::vector<std::shared_ptr<FW::Obj::ObjSurfaceWriter>> subWriters;
   std::vector<std::shared_ptr<std::ofstream>>             subStreams;
-  // loop and create the obj output writers per defined sub detector
+  // Loop and create the obj output writers per defined sub detector
   for (auto sdet : subDetectors) {
-    // sub detector stream
+    // Sub detector stream
     auto        sdStream = std::shared_ptr<std::ofstream>(new std::ofstream);
     std::string sdOutputName = sdet + std::string(".obj");
     sdStream->open(sdOutputName);
-    // object surface writers
+    // Object surface writers
     FW::Obj::ObjSurfaceWriter::Config sdObjWriterConfig
         = FW::Options::readObjSurfaceWriterConfig(vm, sdet, surfaceLogLevel);
     sdObjWriterConfig.outputStream = sdStream;
     auto sdObjWriter
         = std::make_shared<FW::Obj::ObjSurfaceWriter>(sdObjWriterConfig);
-    // push back
+    // Push back
     subWriters.push_back(sdObjWriter);
     subStreams.push_back(sdStream);
   }
 
-  // configure the tracking geometry writer
+  // Configure the tracking geometry writer
   auto tgObjWriterConfig = FW::Options::readObjTrackingGeometryWriterConfig(
       vm, "ObjTrackingGeometryWriter", volumeLogLevel);
 
@@ -101,11 +98,11 @@ processGeometry(int                argc,
   auto tgObjWriter
       = std::make_shared<FW::Obj::ObjTrackingGeometryWriter>(tgObjWriterConfig);
 
-  // write the tracking geometry object
+  // Write the tracking geometry object
   tgObjWriter->write(*tGeometry);
 
   // --------------------------------------------------------------------------------
-  // close the output streams
+  // Close the output streams
   for (auto sStreams : subStreams) {
     sStreams->close();
   }

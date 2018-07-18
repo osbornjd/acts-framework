@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 ACTS project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,12 +13,12 @@
 
 #include <cstdlib>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
 #include "ACTFW/Digitization/DigitizationOptions.hpp"
 #include "ACTFW/Fatras/FatrasAlgorithm.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/ParticleGun/ParticleGunOptions.hpp"

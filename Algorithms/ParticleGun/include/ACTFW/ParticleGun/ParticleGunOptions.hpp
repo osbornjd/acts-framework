@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,12 +28,9 @@ namespace Options {
   void
   addParticleGunOptions(AOPT& opt)
   {
-    opt.add_options()("pg-on",
-                      po::value<bool>()->default_value(true),
-                      "Use the particle gun.")(
-        "pg-nparticles",
-        po::value<size_t>()->default_value(100.),
-        "number of particles.")(
+    opt.add_options()("pg-nparticles",
+                      po::value<size_t>()->default_value(100.),
+                      "number of particles.")(
         "pg-pdg",
         po::value<int>()->default_value(13),
         "PDG number of the particle, will be adjusted for charge flip.")(
@@ -66,7 +63,7 @@ namespace Options {
         po::value<read_range>()->multitoken()->default_value({100., 1e5}),
         "range in which the pt in [MeV] parameter is simulated. Please hand "
         "over by simply seperating the values by space")(
-        "pg-evgen-collection",
+        "evgen-collection",
         po::value<std::string>()->default_value("EvgenParticles"),
         "Name of the generated particle collection.");
   }
@@ -84,7 +81,6 @@ namespace Options {
     auto ptr  = vm["pg-pt-range"].template as<read_range>();
     // particle gun as generator
     FW::ParticleGun::Config particleGunConfig;
-    particleGunConfig.on         = vm["pg-on"].template as<bool>();
     particleGunConfig.nParticles = vm["pg-nparticles"].template as<size_t>();
     particleGunConfig.d0Range    = {{d0r[0] * au::_mm, d0r[1] * au::_mm}};
     particleGunConfig.z0Range    = {{z0r[0] * au::_mm, z0r[1] * au::_mm}};
@@ -95,8 +91,6 @@ namespace Options {
     particleGunConfig.charge = vm["pg-charge"].template as<double>() * au::_e;
     particleGunConfig.randomCharge = vm["pg-chargeflip"].template as<bool>();
     particleGunConfig.pID          = vm["pg-pdg"].template as<int>();
-    particleGunConfig.evgenCollection
-        = vm["pg-evgen-collection"].template as<std::string>();
     // return the config object
     return particleGunConfig;
   }

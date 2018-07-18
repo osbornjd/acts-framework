@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,10 +9,21 @@
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "FatrasExampleBase.hpp"
+#include "detail/FatrasExampleBase.hpp"
+
+/// @brief adding some specific options for this geometry type
+struct GenericOptions
+{
+
+  template <typename options_t>
+  void
+  operator()(options_t& opt)
+  {
+  }
+};
 
 /// @brief geometry getter, the operator() will be called int he example base
-struct GenericGeometryGetter
+struct GenericGeometry
 {
 
   template <typename options_t>
@@ -37,7 +48,8 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  GenericGeometryGetter tGeoGetter;
+  GenericOptions  genericOptions;
+  GenericGeometry genericGeometry;
   // now process it
-  return fatrasExample(argc, argv, tGeoGetter);
+  return fatrasExample(argc, argv, genericOptions, genericGeometry);
 }

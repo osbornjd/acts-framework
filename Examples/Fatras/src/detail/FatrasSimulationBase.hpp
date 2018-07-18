@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2018 ACTS project team
+// Copyright (C) 2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -76,6 +76,17 @@ struct SurfaceSelector
   }
 };
 
+/// @brief Simulation setup
+///
+/// @tparam bfield_t Type of the bfield for the simulation to be set up
+///
+/// @param fieldMap The field map for the simulation setup
+/// @param sequencer The framework sequencer
+/// @param vm The boost variable map to resolve
+/// @param tGeometry The TrackingGeometry for the tracking setup
+/// @param barcodesSvc The barcode service to be used for the simulation
+/// @param randomNumberSvc The random number service to be used for the
+/// simulation
 template <typename bfield_t>
 void
 setupSimulation(bfield_t                                      fieldMap,
@@ -83,12 +94,17 @@ setupSimulation(bfield_t                                      fieldMap,
                 po::variables_map&                            vm,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
                 std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
-                std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
-                const std::string&                            evgenCollection,
-                Acts::Logging::Level                          logLevel)
+                std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
 {
 
-  // create a navigator for this tracking geometry
+  // Read the log level
+  Acts::Logging::Level logLevel = FW::Options::readLogLevel(vm);
+
+  /// Read the evgen particle collection
+  const std::string& evgenCollection
+      = vm["evgen-particles"].template as<std::string>();
+
+  // Create a navigator for this tracking geometry
   Acts::Navigator cNavigator(tGeometry);
   Acts::Navigator nNavigator(tGeometry);
 
@@ -141,28 +157,34 @@ setupSimulation(bfield_t                                      fieldMap,
                                       FatrasHit>(vm, fatrasSimulator);
   fatrasConfig.randomNumberSvc      = randomNumberSvc;
   fatrasConfig.inputEventCollection = evgenCollection;
-  // finally the fatras algorithm
+
+  // Finally the fatras algorithm
   auto fatrasAlgorithm
       = std::make_shared<FatrasAlgorithm>(fatrasConfig, logLevel);
 
-  // finalize the squencer setting and run
+  // Finalize the squencer setting and run
   sequencer.appendEventAlgorithms({fatrasAlgorithm});
 }
 
+/// @brief Simulation setup
+///
+/// @tparam bfield_t Type of the bfield for the simulation to be set up
+///
+/// @param fieldMap The field map for the simulation setup
+/// @param sequencer The framework sequencer
+/// @param vm The boost variable map to resolve
+/// @param tGeometry The TrackingGeometry for the tracking setup
+/// @param barcodesSvc The barcode service to be used for the simulation
+/// @param randomNumberSvc The random number service to be used for the
+/// simulation
 template <typename vmap_t>
 FW::ProcessCode
 setupSimulation(vmap_t&                                       vm,
                 FW::Sequencer&                                sequencer,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
                 std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
-                std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
-                const std::string&                            evgenCollection)
+                std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
 {
-
-  // Now read the standard options
-  auto standardOptions = FW::Options::readStandardOptions<vmap_t>(vm);
-  auto logLevel        = standardOptions.second;
-
   // create BField service
   auto bField = FW::Options::readBField<vmap_t>(vm);
   // a charged propagator
@@ -176,9 +198,7 @@ setupSimulation(vmap_t&                                       vm,
                     vm,
                     tGeometry,
                     barcodeSvc,
-                    randomNumberSvc,
-                    evgenCollection,
-                    logLevel);
+                    randomNumberSvc);
   } else {
     // create the shared field
     using CField = Acts::ConstantBField;
@@ -189,9 +209,7 @@ setupSimulation(vmap_t&                                       vm,
                     vm,
                     tGeometry,
                     barcodeSvc,
-                    randomNumberSvc,
-                    evgenCollection,
-                    logLevel);
+                    randomNumberSvc);
   }
   return FW::ProcessCode::SUCCESS;
 }

@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2018 ACTS project team
+// Copyright (C) 2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,8 +9,8 @@
 #pragma once
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
@@ -26,36 +26,36 @@ setupEvgenInput(vmap_t&                               vm,
                 std::shared_ptr<FW::BarcodeSvc>       barcodeSvc,
                 std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc)
 {
+  // Read the standard options
+  auto logLevel = FW::Options::readLogLevel<vmap_t>(vm);
+  auto nEvents  = FW::Options::readNumberOfEvents<vmap_t>(vm);
 
-  // Now read the standard options
-  auto standardOptions = FW::Options::readStandardOptions<vmap_t>(vm);
-  auto logLevel        = standardOptions.second;
-  auto nEvents         = standardOptions.first;
+  // Read the particle gun configs
+  auto particleGunCfg = FW::Options::readParticleGunConfig<vmap_t>(vm);
 
-  // Now read the particle gun configs
-  auto        particleGunCfg  = FW::Options::readParticleGunConfig<vmap_t>(vm);
-  std::string evgenCollection = "";
+  // Define which
+  auto evgenInput = vm["fatras-evgen-input"].template as<std::string>();
 
-  if (particleGunCfg.on) {
-    // we are running in particle gun mode
+  // Check if the particle gun is to be used
+  if (evgenInput == "gun") {
+    // Are running in particle gun mode
     particleGunCfg.barcodeSvc      = barcodeSvc;
     particleGunCfg.randomNumberSvc = randomNumberSvc;
     particleGunCfg.nEvents         = nEvents;
     auto particleGun = std::make_shared<FW::ParticleGun>(particleGunCfg);
-    // add particle gun as a reader
-    evgenCollection = particleGunCfg.evgenCollection;
+    // Add particle gun as a reader
     sequencer.addReaders({particleGun});
 
   } else {
-    // now read the pythia8 configs
+    // Read the pythia8 configs
     auto pythia8Configs = FW::Options::readPythia8Config<vmap_t>(vm);
     pythia8Configs.first.randomNumberSvc  = randomNumberSvc;
     pythia8Configs.second.randomNumberSvc = randomNumberSvc;
-    // the hard scatter generator
+    // The hard scatter generator
     auto hsPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
         pythia8Configs.first,
         Acts::getDefaultLogger("HardScatterPythia8Generator", logLevel));
-    // the pileup generator
+    // The pileup generator
     auto puPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
         pythia8Configs.second,
         Acts::getDefaultLogger("PileUpPythia8Generator", logLevel));
@@ -63,7 +63,7 @@ setupEvgenInput(vmap_t&                               vm,
     FW::BarcodeSvc::Config barcodeSvcCfg;
     auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
         barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
-    // now read the evgen config & set the missing parts
+    // Read the evgen config & set the missing parts
     auto readEvgenCfg                   = FW::Options::readEvgenConfig(vm);
     readEvgenCfg.hardscatterEventReader = hsPythiaGenerator;
     readEvgenCfg.pileupEventReader      = puPythiaGenerator;
@@ -74,9 +74,8 @@ setupEvgenInput(vmap_t&                               vm,
     auto readEvgen = std::make_shared<FW::EvgenReader>(
         readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
     // add readEvgen as a reader
-    evgenCollection = readEvgenCfg.evgenCollection;
     sequencer.addReaders({readEvgen});
   }
   // return the resulting evgen collection
-  return evgenCollection;
+  return "";
 }

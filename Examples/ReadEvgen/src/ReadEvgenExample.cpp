@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,8 +9,9 @@
 #include <boost/program_options.hpp>
 #include <memory>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/Common/CollectionsOptions.hpp"
+#include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
@@ -23,21 +24,26 @@
 
 namespace po = boost::program_options;
 
-// the main read evgen executable
+/// Main read evgen executable
+///
+/// @param argc The argument count
+/// @param argv The argument list
 int
 main(int argc, char* argv[])
 {
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc, 1, 2);
-  // add the evgen options
+  // Add the common options
+  FW::Options::addCommonOptions<po::options_description>(desc, 1, 2);
+  // Add the common options
+  FW::Options::addCollectionsOptions<po::options_description>(desc);
+  // Add the evgen options
   FW::Options::addEvgenReaderOptions<po::options_description>(desc);
-  // add the pythia 8 options
+  // Add the pythia 8 options
   FW::Options::addPythia8Options<po::options_description>(desc);
-  // add the random number options
+  // Add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // add specific options for this example
+  // Add specific options for this example
   desc.add_options()("output-dir",
                      po::value<std::string>()->default_value(""),
                      "Output directory location.")(
@@ -58,25 +64,28 @@ main(int argc, char* argv[])
     std::cout << desc << std::endl;
     return 1;
   }
-  // now read the standard options
-  auto standardOptions
-      = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents  = standardOptions.first;
-  auto logLevel = standardOptions.second;
+  // Read the common options
+  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+
+  // The evgen collection name
+  std::string evgenCollection
+      = FW::Options::readEvgenCollectionName<po::variables_map>(vm);
+
   // Create the random number engine
   auto randomNumberSvcCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-  // now read the pythia8 configs
+  // Now read the pythia8 configs
   auto pythia8Configs = FW::Options::readPythia8Config<po::variables_map>(vm);
   pythia8Configs.first.randomNumberSvc  = randomNumberSvc;
   pythia8Configs.second.randomNumberSvc = randomNumberSvc;
-  // the hard scatter generator
+  // The hard scatter generator
   auto hsPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
       pythia8Configs.first,
       Acts::getDefaultLogger("HardScatterPythia8Generator", logLevel));
-  // the pileup generator
+  // The pileup generator
   auto puPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
       pythia8Configs.second,
       Acts::getDefaultLogger("PileUpPythia8Generator", logLevel));
@@ -84,13 +93,14 @@ main(int argc, char* argv[])
   FW::BarcodeSvc::Config barcodeSvcCfg;
   auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
       barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
-  // now read the evgen config & set the missing parts
+  // Now read the evgen config & set the missing parts
   auto readEvgenCfg                   = FW::Options::readEvgenConfig(vm);
   readEvgenCfg.hardscatterEventReader = hsPythiaGenerator;
   readEvgenCfg.pileupEventReader      = puPythiaGenerator;
   readEvgenCfg.randomNumberSvc        = randomNumberSvc;
   readEvgenCfg.barcodeSvc             = barcodeSvc;
   readEvgenCfg.nEvents                = nEvents;
+  readEvgenCfg.evgenCollection        = evgenCollection;
 
   // create the read Algorithm
   auto readEvgen = std::make_shared<FW::EvgenReader>(
@@ -129,9 +139,9 @@ main(int argc, char* argv[])
         = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
   }
 
-  // create the config object for the sequencer
+  // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
-  // now create the sequencer
+  // Now create the sequencer
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({randomNumberSvc});
   sequencer.addReaders({readEvgen});
@@ -139,4 +149,6 @@ main(int argc, char* argv[])
   if (pWriterRoot) sequencer.addWriters({pWriterRoot});
   if (pWriterCsv) sequencer.addWriters({pWriterCsv});
   sequencer.run(nEvents);
+
+  return 0;
 }

@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,8 +9,9 @@
 #include <boost/program_options.hpp>
 #include <string>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/Common/CollectionsOptions.hpp"
+#include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
@@ -31,13 +32,15 @@ main(int argc, char* argv[])
 {
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc, 1, 2);
-  // add the random number options
+  // Add the standard options
+  FW::Options::addCommonOptions<po::options_description>(desc, 1, 2);
+  // Add the collections options/names
+  FW::Options::addCollectionsOptions<po::options_description>(desc);
+  // Add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // add the particle gun options
+  // Add the particle gun options
   FW::Options::addParticleGunOptions<po::options_description>(desc);
-  // add specific options for this example
+  // Add specific options for this example
   desc.add_options()("output-dir",
                      po::value<std::string>()->default_value(""),
                      "Output directory location.")(
@@ -52,31 +55,37 @@ main(int argc, char* argv[])
   // Get all options from contain line and store it into the map
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
-  // print help if requested
+  // Print help if requested
   if (vm.count("help")) {
     std::cout << desc << std::endl;
     return 1;
   }
 
-  // now read the standard options
-  auto standardOptions
-      = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents  = standardOptions.first;
-  auto logLevel = standardOptions.second;
+  // Now read the common options
+  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+
+  // The evgen collection name
+  std::string evgenCollection
+      = FW::Options::readEvgenCollectionName<po::variables_map>(vm);
+
   // Create the random number engine
   auto randomNumberSvcCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
+
   // Create the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
   auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
       barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
+
   // Now read the particle gun configs
   auto particleGunCfg
       = FW::Options::readParticleGunConfig<po::variables_map>(vm);
   particleGunCfg.barcodeSvc      = barcodeSvc;
   particleGunCfg.randomNumberSvc = randomNumberSvc;
+  particleGunCfg.evgenCollection = evgenCollection;
   auto particleGun               = std::make_shared<FW::ParticleGun>(
       particleGunCfg, Acts::getDefaultLogger("ParticleGun", logLevel));
 
@@ -91,7 +100,7 @@ main(int argc, char* argv[])
       csvFileName += ".csv";
     }
     FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
-    pWriterCsvConfig.collection     = particleGunCfg.evgenCollection;
+    pWriterCsvConfig.collection     = evgenCollection;
     pWriterCsvConfig.outputDir      = outputDir;
     pWriterCsvConfig.outputFileName = csvFileName;
     pWriterCsv = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
@@ -106,7 +115,7 @@ main(int argc, char* argv[])
     }
     // Write particles as ROOT TTree
     FW::Root::RootParticleWriter::Config pWriterRootConfig;
-    pWriterRootConfig.collection = particleGunCfg.evgenCollection;
+    pWriterRootConfig.collection = evgenCollection;
     pWriterRootConfig.filePath   = rootFileName;
     pWriterRootConfig.barcodeSvc = barcodeSvc;
     pWriterRoot

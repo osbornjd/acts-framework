@@ -27,18 +27,18 @@ def main():
 
     year = int(datetime.now().strftime("%Y"))
 
-    raw = """// This file is part of the ACTS project.
+    raw = """// This file is part of the Acts project.
 //
-// Copyright (C) {year} ACTS project team
+// Copyright (C) {year} Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/."""
 
     reg = (
-        r"\A// This file is part of the ACTS project.\n"
+        r"\A// This file is part of the Acts project.\n"
         +r"//\n"
-        +r"// Copyright \(C\) (?P<year>.*) ACTS project team\n"
+        +r"// Copyright \(C\) (?P<year>.*) Acts project team\n"
         +r"//\n"
         +r"// This Source Code Form is subject to the terms of the Mozilla Public\n"
         +r"// License, v\. 2\.0\. If a copy of the MPL was not distributed with this\n"

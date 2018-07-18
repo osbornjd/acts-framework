@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,15 +8,13 @@
 
 #pragma once
 
-#pragma once
-
 #include <boost/program_options.hpp>
 #include <memory>
+#include "ACTFW/Common/CommonOptions.hpp"
+#include "ACTFW/Common/GeometryOptions.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Framework/StandardOptions.hpp"
-#include "ACTFW/Geometry/GeometryOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
@@ -24,13 +22,12 @@
 
 namespace po = boost::program_options;
 
-/// The Extrapolation example
+/// @brief The Extrapolation example
 ///
 /// @tparam geometry_getter_t Type of the geometry getter struct
 ///
 /// @param argc the number of argumetns of the call
-/// @param atgv the argument list
-///
+/// @param argv the argument list
 template <typename geometry_options_t, typename geometry_getter_t>
 int
 extrapolationExample(int                argc,
@@ -39,67 +36,67 @@ extrapolationExample(int                argc,
                      geometry_getter_t  trackingGeometry)
 {
 
-  // create the config object for the sequencer
+  // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
-  // now create the sequencer
+  // Now create the sequencer
   FW::Sequencer sequencer(seqConfig);
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc, 1, 2);
-  // add the geometry options
+  // Add the standard options
+  FW::Options::addCommonOptions<po::options_description>(desc, 1, 2);
+  // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
-  // add the bfield options
+  // Add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
-  // add the random number options
+  // Add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // add the fatras options
+  // Add the fatras options
   FW::Options::addExtrapolationOptions<po::options_description>(desc);
 
-  // add specific options for this geometry
+  // Add specific options for this geometry
   geometryOptions(desc);
 
-  // map to store the given program options
+  // Map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
-  // print help if requested
+  // Print help if requested
   if (vm.count("help")) {
     std::cout << desc << std::endl;
     return 1;
   }
-  // now read the standard options
-  auto standardOptions
-      = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents  = standardOptions.first;
-  auto logLevel = standardOptions.second;
+  // Now read the common options
+  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
   // Create the random number engine
   auto randomNumberSvcCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-  // add it to the sequencer
+
+  // Add it to the sequencer
   sequencer.addServices({randomNumberSvc});
 
-  // get the tracking geometry
+  // Get the tracking geometry
   auto tGeometry = trackingGeometry(vm);
 
-  // create BField service
+  // Create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
 
   std::shared_ptr<FW::ExtrapolationAlgorithm> extrapolationAlg = nullptr;
-  // a charged propagator
+
+  // Charged extrapolator in case we have a interpolated magnetic field present
   if (bField.first) {
-    // resolve the bfield map template and create the algorithm
+    // Resolve the bfield map template and create the algorithm
     auto exAlgConfig
         = FW::Options::readExtrapolationConfig(vm, bField.first, tGeometry);
     exAlgConfig.randomNumberSvc = randomNumberSvc;
     extrapolationAlg
         = std::make_shared<FW::ExtrapolationAlgorithm>(exAlgConfig, logLevel);
   } else {
-    // resolve the bfield map template and create the algorithm
+    // Charged extrapolator in case we have a constant magnetic field
     auto exAlgConfig
         = FW::Options::readExtrapolationConfig(vm, bField.second, tGeometry);
     exAlgConfig.randomNumberSvc = randomNumberSvc;
@@ -108,7 +105,7 @@ extrapolationExample(int                argc,
   }
 
   // Write ROOT TTree
-  // ecc for charged particles
+  // Ecc for charged particles
   FW::Root::RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
   reccWriterConfig.filePath       = "excells_charged.root";
   reccWriterConfig.treeName       = "extrapolation_charged";
@@ -121,7 +118,7 @@ extrapolationExample(int                argc,
       = std::make_shared<FW::Root::RootExCellWriter<Acts::TrackParameters>>(
           reccWriterConfig);
 
-  // ecc for neutral particles
+  // Ecc for neutral particles
   FW::Root::RootExCellWriter<Acts::NeutralParameters>::Config recnWriterConfig;
   recnWriterConfig.filePath       = "excells_neutral.root";
   recnWriterConfig.treeName       = "extrapolation_neutral";
@@ -133,11 +130,12 @@ extrapolationExample(int                argc,
   auto rootEcnWriter
       = std::make_shared<FW::Root::RootExCellWriter<Acts::NeutralParameters>>(
           recnWriterConfig);
-  // add the writers
+  // Add the writers
   sequencer.addWriters({rootEccWriter, rootEcnWriter});
-  // append the algorithm
+  // Append the algorithm
   sequencer.appendEventAlgorithms({extrapolationAlg});
-  // initiate the run
+  // Initiate the run
   sequencer.run(nEvents);
-  return 1;
+  // Return 0 for success
+  return 0;
 }

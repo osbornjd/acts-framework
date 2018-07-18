@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2018 ACTS project team
+// Copyright (C) 2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,14 +19,13 @@ namespace po = boost::program_options;
 FW::ProcessCode
 setupRootWriters(po::variables_map&              vm,
                  FW::Sequencer&                  sequencer,
-                 std::shared_ptr<FW::BarcodeSvc> barcodeSvc,
-                 std::string                     outputDir = "",
-                 Acts::Logging::Level defaultLevel = Acts::Logging::INFO)
+                 std::shared_ptr<FW::BarcodeSvc> barcodeSvc)
 {
   const std::string particles = "EvgenParticles";
   const std::string hits      = "FatrasHits";
   const std::string clusters  = "FatrasClusters";
   const std::string points    = "FatrasSpacePoints";
+  const std::string outputDir = "";
 
   // particles as ROOT TTree
   FW::Root::RootParticleWriter::Config pWriterRootConfig;

@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -23,12 +23,9 @@ namespace Options {
   void
   addEvgenReaderOptions(AOPT& opt)
   {
-    opt.add_options()("evg-collection",
-                      po::value<std::string>()->default_value("EvgenParticles"),
-                      "Collection name of the evgen particles.")(
-        "evg-shuffle",
-        po::value<bool>()->default_value(false),
-        "Shuffle the order of events after reading.")(
+    opt.add_options()("evg-shuffle",
+                      po::value<bool>()->default_value(false),
+                      "Shuffle the order of events after reading.")(
         "evg-pileup",
         po::value<int>()->default_value(200),
         "Number of instantaneous pile-up events.")(
@@ -47,10 +44,7 @@ namespace Options {
   FW::EvgenReader::Config
   readEvgenConfig(const AMAP& vm)
   {
-
     FW::EvgenReader::Config readEvgenConfig;
-    readEvgenConfig.evgenCollection
-        = vm["evg-collection"].template as<std::string>();
     readEvgenConfig.pileupPoissonParameter
         = vm["evg-pileup"].template as<int>();
     // vertex parameters

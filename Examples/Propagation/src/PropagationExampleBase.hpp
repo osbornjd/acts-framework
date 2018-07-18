@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,9 +10,9 @@
 
 #include <boost/program_options.hpp>
 #include <memory>
+#include "ACTFW/Common/CommonOptions.hpp"
+#include "ACTFW/Common/GeometryOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Framework/StandardOptions.hpp"
-#include "ACTFW/Geometry/GeometryOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Root/RootPropagationWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
@@ -31,6 +31,18 @@
 
 namespace po = boost::program_options;
 
+/// @brief Propgation setup
+///
+/// @tparam sequencer_t Type of the sequencer of the framework
+/// @tparam bfield_t Type of the magnetic field
+///
+/// @param sequencer The framework sequencer, Propgation algorithm to be added
+/// @param bfield The bfield object needed for the Stepper & propagagor
+/// @param vm The program options for the log file
+/// @param randomNumberSvc The framework random number engine
+/// @param tGeometry The TrackingGeometry object
+///
+/// @return a process code
 template <typename sequencer_t, typename bfield_t>
 FW::ProcessCode
 setupPropgation(sequencer_t&                                  sequencer,
@@ -39,35 +51,40 @@ setupPropgation(sequencer_t&                                  sequencer,
                 std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
-
-  // get the log level
-  auto standardOptions
-      = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto logLevel = standardOptions.second;
+  // Get the log level
+  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
 
-  // resolve the bfield map template and create the propgator
+  // Resolve the bfield map template and create the propgator
   using Stepper    = Acts::EigenStepper<bfield_t>;
   using Propagator = Acts::Propagator<Stepper, Acts::Navigator>;
-
   Stepper    stepper(std::move(bfield));
   Propagator propagator(std::move(stepper), std::move(navigator));
 
-  // read the propagation config and create the algorithms
+  // Read the propagation config and create the algorithms
   auto pAlgConfig = FW::Options::readPropagationConfig(vm, propagator);
   pAlgConfig.randomNumberSvc = randomNumberSvc;
-
   auto propagationAlg = std::make_shared<FW::PropagationAlgorithm<Propagator>>(
       pAlgConfig, logLevel);
 
-  // add the propagation algorithm
+  // Add the propagation algorithm
   sequencer.appendEventAlgorithms({propagationAlg});
 
   return FW::ProcessCode::SUCCESS;
 }
 
+/// @brief Straight Line Propgation setup
+///
+/// @tparam sequencer_t Type of the sequencer of the framework
+///
+/// @param sequencer The framework sequencer, Propgation algorithm to be added
+/// @param vm The program options for the log file
+/// @param randomNumberSvc The framework random number engine
+/// @param tGeometry The TrackingGeometry object
+///
+/// @return a process code
 template <typename sequencer_t>
 FW::ProcessCode
 setupStraightLinePropgation(
@@ -76,13 +93,12 @@ setupStraightLinePropgation(
     std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
-  // get the log level
-  auto standardOptions
-      = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto logLevel = standardOptions.second;
+  // Get the log level
+  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
+
   // Straight line stepper
   using SlStepper  = Acts::StraightLineStepper;
   using Propagator = Acts::Propagator<SlStepper, Acts::Navigator>;
@@ -90,20 +106,19 @@ setupStraightLinePropgation(
   SlStepper  stepper;
   Propagator propagator(std::move(stepper), std::move(navigator));
 
-  // read the propagation config and create the algorithms
+  // Read the propagation config and create the algorithms
   auto pAlgConfig = FW::Options::readPropagationConfig(vm, propagator);
   pAlgConfig.randomNumberSvc = randomNumberSvc;
-
   auto propagationAlg = std::make_shared<FW::PropagationAlgorithm<Propagator>>(
       pAlgConfig, logLevel);
 
-  // add the propagation algorithm
+  // Add the propagation algorithm
   sequencer.appendEventAlgorithms({propagationAlg});
 
   return FW::ProcessCode::SUCCESS;
 }
 
-/// The Extrapolation example
+/// The Propagation example
 ///
 /// @tparam geometry_getter_t Type of the geometry getter struct
 ///
@@ -119,73 +134,72 @@ propagationExample(int                argc,
                    geometry_getter_t  trackingGeometry)
 {
 
-  // create the config object for the sequencer
+  // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
-  // now create the sequencer
+  // Now create the sequencer
   FW::Sequencer sequencer(seqConfig);
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc, 1, 2);
-  // add the geometry options
+  // Add the common options
+  FW::Options::addCommonOptions<po::options_description>(desc, 1, 2);
+  // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
-  // add the bfield options
+  // Add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
-  // add the random number options
+  // Add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // add the fatras options
+  // Add the fatras options
   FW::Options::addPropagationOptions<po::options_description>(desc);
 
-  // add specific options for this geometry
+  // Add specific options for this geometry
   geometryOptions(desc);
 
-  // map to store the given program options
+  // Map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
-  // print help if requested
+  // Print help if requested
   if (vm.count("help")) {
     std::cout << desc << std::endl;
     return 1;
   }
-  // now read the standard options
-  auto standardOptions
-      = FW::Options::readStandardOptions<po::variables_map>(vm);
-  auto nEvents  = standardOptions.first;
-  auto logLevel = standardOptions.second;
+
+  // The Log level
+  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
   // Create the random number engine
   auto randomNumberSvcCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-  // add it to the sequencer
+  // Add it to the sequencer
   sequencer.addServices({randomNumberSvc});
 
-  // get the tracking geometry
+  // Get the tracking geometry
   auto tGeometry = trackingGeometry(vm);
 
-  // create BField service
+  // Create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
 
   if (vm["prop-stepper"].template as<int>() == 0) {
-    // straight line stepper
+    // Straight line stepper was chosen
     setupStraightLinePropgation(sequencer, vm, randomNumberSvc, tGeometry);
   } else if (bField.first) {
-    // define the interpolated b-field
+    // Define the interpolated b-field
     using BField = Acts::SharedBField<Acts::InterpolatedBFieldMap>;
     BField fieldMap(bField.first);
     setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else {
-    // create the constant  field
+    // Create the constant  field
     using CField = Acts::ConstantBField;
     CField fieldMap(*bField.second);
     setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   }
 
   if (vm["prop-output"].template as<bool>()) {
-    // simulated hits as ROOT TTree
+    // Simulated hits as ROOT TTree
     FW::Root::RootPropagationWriter::Config pstepWriterRootConfig;
     pstepWriterRootConfig.collection = "PropagationSteps";
     pstepWriterRootConfig.filePath   = FW::joinPaths(

@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,9 +9,22 @@
 #include <boost/program_options.hpp>
 #include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
+#include "detail/FatrasExampleBase.hpp"
+
+/// @brief adding some specific options for this geometry type
+struct DD4hepOptions
+{
+
+  template <typename options_t>
+  void
+  operator()(options_t& opt)
+  {
+    FW::Options::addDD4hepOptions<options_t>(opt);
+  }
+};
 
 /// @brief geometry getter, the operator() will be called int he example base
-struct DD4hepGeometryGetter
+struct DD4hepGeometry
 {
 
   template <typename options_t>
@@ -29,11 +42,16 @@ struct DD4hepGeometryGetter
   }
 };
 
+/// @brief main executable
+///
+/// @param argc The argument count
+/// @param argv The argument list
 int
 main(int argc, char* argv[])
 {
-  // --------------------------------------------------------------------------------
-  DD4hepGeometryGetter tGeoGetter;
+  // ----------------------------------------------------------
+  DD4hepOptions  dd4HepOptions;
+  DD4hepGeometry dd4HepGeometry;
   // now process it
-  return fatrasExample(argc, argv, tGeoGetter);
+  return fatrasExample(argc, argv, dd4HepOptions, dd4HepGeometry);
 }

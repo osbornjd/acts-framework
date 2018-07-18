@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34,14 +34,14 @@ class ParticleGun : public FW::IReader
 public:
   struct Config
   {
-    /// The particle gon is on
+    /// Indicate whether to use the gun or not
     bool on = true;
     /// output collection for generated particles
-    std::string evgenCollection;
+    std::string evgenCollection = "EvgenParticles";
     /// number of events
-    size_t nEvents = 0;
+    size_t nEvents = 1;
     /// number of particles
-    size_t nParticles = 0;
+    size_t nParticles = 1;
     /// low, high for d0 range
     range d0Range = {{0., 1 * Acts::units::_mm}};
     /// low, high for z0 range

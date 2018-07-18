@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,6 +9,7 @@
 #pragma once
 
 #include <iostream>
+#include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Extrapolation/ExtrapolationEngine.hpp"
@@ -83,11 +84,9 @@ namespace Options {
       std::shared_ptr<bfield_t>                     magField,
       std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
   {
-    // Set up the Extrapolaiton engine
-    auto standardOptions
-        = FW::Options::readStandardOptions<po::variables_map>(vm);
-    auto logLevel = standardOptions.second;
-    //
+    // Set up the Extrapolaiton engine - log level first
+    auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+
     // (a) RungeKuttaPropagtator
     using RKEngine = Acts::RungeKuttaEngine<bfield_t>;
     typename RKEngine::Config propConfig;

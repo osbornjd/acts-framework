@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2018 ACTS project team
+// Copyright (C) 2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -22,7 +22,10 @@ namespace FW {
 
 namespace Options {
 
-  // common evgen options, with an evg prefix
+  /// @brief read the Fatras options
+  ///
+  /// They need the read-evgen
+  /// options associated with the Fatras simulation
   template <typename AOPT>
   void
   addFatrasOptions(AOPT& opt)
@@ -57,9 +60,10 @@ namespace Options {
   typename FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::Config
   readFatrasConfig(const AMAP& vm, simulator_t& simulator)
   {
-    // create a config
+    // Create a config
     typename FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::Config
         fatrasConfig(std::move(simulator));
+
     // set the collections
     fatrasConfig.simulatedHitCollection
         = vm["fatras-sim-hits"].template as<std::string>();
