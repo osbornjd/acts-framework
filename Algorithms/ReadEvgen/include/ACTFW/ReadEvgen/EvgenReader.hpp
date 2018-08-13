@@ -22,11 +22,13 @@ class WhiteBoard;
 class RandomNumbersSvc;
 class BarcodeSvc;
 
+using InputReader = IReaderT<std::vector<Fatras::Vertex>>;
+
 /// @class EvgenReader
 ///
 /// EvgenReader to read EvGen from some input
 /// Allows for pile-up reading as well
-class EvgenReader : public FW::IReader
+class EvgenReader : public IReader
 {
 public:
   /// @struct Config
@@ -34,11 +36,9 @@ public:
   struct Config
   {
     /// the hard scatter reader (optional)
-    std::shared_ptr<IReaderT<std::vector<Fatras::Vertex>>>
-        hardscatterEventReader = nullptr;
+    std::shared_ptr<InputReader> hardscatterEventReader = nullptr;
     /// the pileup reader (optional)
-    std::shared_ptr<IReaderT<std::vector<Fatras::Vertex>>> pileupEventReader
-        = nullptr;
+    std::shared_ptr<InputReader> pileupEventReader      = nullptr;
     /// name of the output collection
     std::string evgenCollection = "EvgenParticles";
     /// the Poisson parameter for pileup generation

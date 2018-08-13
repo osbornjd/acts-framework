@@ -9,9 +9,10 @@
 #pragma once
 
 #include <array>
-#include "ACTFW/Framework/IReader.hpp"
+#include "ACTFW/Readers/IReaderT.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
+#include "Fatras/Kernel/Particle.hpp"
 
 using range = std::array<double, 2>;
 
@@ -19,6 +20,8 @@ namespace FW {
 
 class BarcodeSvc;
 class RandomNumbersSvc;
+
+using InputReader = IReaderT<std::vector<Fatras::Vertex>>;  
 
 /// @class ParticleGun
 ///
@@ -29,15 +32,11 @@ class RandomNumbersSvc;
 /// in a given range. It fills a vector of particle properties for feeding into
 /// fast simulation.
 ///
-class ParticleGun : public FW::IReader
+class ParticleGun : public InputReader
 {
 public:
   struct Config
   {
-    /// Indicate whether to use the gun or not
-    bool on = true;
-    /// output collection for generated particles
-    std::string evgenCollection = "EvgenParticles";
     /// number of events
     size_t nEvents = 1;
     /// number of particles
@@ -73,20 +72,15 @@ public:
 
   /// Framework name() method
   std::string
-  name() const final override;
+  name() const final override { return "ParticleGun"; }
 
-  /// Skip a few events in the IO stream
-  /// @param [in] nEvents is the number of skipped events
+  // clang-format off
+  /// @copydoc FW::IReaderT::read(std::vector<Fatras::Vertex>& pProperties,size_t,const FW::AlgorithmContext*)
+  // clang-format on
   FW::ProcessCode
-  skip(size_t nEvents) final override;
-
-  /// Read out data from the input stream
-  FW::ProcessCode
-  read(FW::AlgorithmContext ctx) final override;
-
-  /// Return the number of events
-  virtual size_t
-  numEvents() const final override;
+  read(std::vector<Fatras::Vertex>& pProperties,
+       size_t                       skip    = 0,
+       const FW::AlgorithmContext*  context = nullptr) final override;
 
 private:
   Config                              m_cfg;
@@ -99,12 +93,5 @@ private:
     return *m_logger;
   }
 };
-
-/// Return of the number events
-inline size_t
-ParticleGun::numEvents() const
-{
-  return m_cfg.nEvents;
-}
 
 }  // namespace FW

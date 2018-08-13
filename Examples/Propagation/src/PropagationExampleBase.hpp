@@ -141,7 +141,7 @@ propagationExample(int                argc,
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the common options
-  FW::Options::addCommonOptions<po::options_description>(desc, 1, 2);
+  FW::Options::addCommonOptions<po::options_description>(desc);
   // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
   // Add the bfield options
@@ -198,19 +198,21 @@ propagationExample(int                argc,
     setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   }
 
-  if (vm["prop-output"].template as<bool>()) {
-    // Simulated hits as ROOT TTree
+  auto psCollection = vm["prop-step-collection"].as<std::string>();  
+
+  if (vm["output-root"].template as<bool>()) {
+    // Write the propagation steps as ROOT TTree
     FW::Root::RootPropagationWriter::Config pstepWriterRootConfig;
-    pstepWriterRootConfig.collection = "PropagationSteps";
+    pstepWriterRootConfig.collection = psCollection;
     pstepWriterRootConfig.filePath   = FW::joinPaths(
-        pstepWriterRootConfig.filePath, "propagation-steps.root");
+        pstepWriterRootConfig.filePath, psCollection+".root");
     auto pstepWriterRoot = std::make_shared<FW::Root::RootPropagationWriter>(
         pstepWriterRootConfig);
     if (sequencer.addWriters({pstepWriterRoot}) != FW::ProcessCode::SUCCESS)
       return -1;
   }
 
-  // initiate the run
+  // Initiate the run
   sequencer.run(nEvents);
   return 1;
 }

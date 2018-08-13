@@ -60,12 +60,9 @@ namespace Options {
         "range in which the eta parameter is simulated. Please hand over by "
         "simply seperating the values by space")(
         "pg-pt-range",
-        po::value<read_range>()->multitoken()->default_value({100., 1e5}),
-        "range in which the pt in [MeV] parameter is simulated. Please hand "
-        "over by simply seperating the values by space")(
-        "evgen-collection",
-        po::value<std::string>()->default_value("EvgenParticles"),
-        "Name of the generated particle collection.");
+        po::value<read_range>()->multitoken()->default_value({0.1, 1e3}),
+        "range in which the pt in [GeV] parameter is simulated. Please hand "
+        "over by simply seperating the values by space");
   }
 
   /// read the particle gun options and return a Config file
@@ -81,14 +78,14 @@ namespace Options {
     auto ptr  = vm["pg-pt-range"].template as<read_range>();
     // particle gun as generator
     FW::ParticleGun::Config particleGunConfig;
-    particleGunConfig.nParticles = vm["pg-nparticles"].template as<size_t>();
-    particleGunConfig.d0Range    = {{d0r[0] * au::_mm, d0r[1] * au::_mm}};
-    particleGunConfig.z0Range    = {{z0r[0] * au::_mm, z0r[1] * au::_mm}};
-    particleGunConfig.phiRange   = {{phir[0], phir[1]}};
-    particleGunConfig.etaRange   = {{etar[0], etar[1]}};
-    particleGunConfig.ptRange    = {{ptr[0] * au::_MeV, ptr[1] * au::_MeV}};
-    particleGunConfig.mass   = vm["pg-mass"].template as<double>() * au::_MeV;
-    particleGunConfig.charge = vm["pg-charge"].template as<double>() * au::_e;
+    particleGunConfig.nParticles   = vm["pg-nparticles"].template as<size_t>();
+    particleGunConfig.d0Range      = {{d0r[0] * au::_mm, d0r[1] * au::_mm}};
+    particleGunConfig.z0Range      = {{z0r[0] * au::_mm, z0r[1] * au::_mm}};
+    particleGunConfig.phiRange     = {{phir[0], phir[1]}};
+    particleGunConfig.etaRange     = {{etar[0], etar[1]}};
+    particleGunConfig.ptRange      = {{ptr[0] * au::_GeV, ptr[1] * au::_GeV}};
+    particleGunConfig.mass         = vm["pg-mass"].template as<double>() * au::_MeV;
+    particleGunConfig.charge       = vm["pg-charge"].template as<double>() * au::_e;
     particleGunConfig.randomCharge = vm["pg-chargeflip"].template as<bool>();
     particleGunConfig.pID          = vm["pg-pdg"].template as<int>();
     // return the config object

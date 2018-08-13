@@ -2,7 +2,7 @@ include(${ROOT_USE_FILE})
 
 set(srcs #include/ACTFW/Plugins/Root/RootExCellWriter.hpp
          #include/ACTFW/Plugins/Root/RootExCellWriter.ipp
-         #include/ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp
+         include/ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp
          #include/ACTFW/Plugins/Root/RootIndexedMaterialReader.hpp
          #include/ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp
          #include/ACTFW/Plugins/Root/RootMaterialTrackReader.hpp
@@ -14,7 +14,7 @@ set(srcs #include/ACTFW/Plugins/Root/RootExCellWriter.hpp
          #src/RootIndexedMaterialWriter.cpp
          #src/RootMaterialTrackReader.cpp
          #src/RootMaterialTrackWriter.cpp
-         #src/RootPlanarClusterWriter.cpp
+         src/RootPlanarClusterWriter.cpp
          src/RootParticleWriter.cpp
          src/RootFatrasHitWriter.cpp
          src/RootPropagationWriter.cpp)

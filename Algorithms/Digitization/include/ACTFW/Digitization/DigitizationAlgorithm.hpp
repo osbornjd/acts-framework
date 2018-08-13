@@ -55,8 +55,7 @@ public:
     /// FW random number service
     std::shared_ptr<RandomNumbersSvc> randomNumberSvc              = nullptr;
     /// module stepper from ACTS core for geometric clustering
-    std::shared_ptr<Acts::PlanarModuleStepper> planarModuleStepper = nullptr;
-    
+    std::shared_ptr<Acts::PlanarModuleStepper> planarModuleStepper = nullptr;    
   };
 
   /// Constructor of the digitization algorithm

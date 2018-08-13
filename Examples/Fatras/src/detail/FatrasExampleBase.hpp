@@ -13,6 +13,8 @@
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Common/GeometryOptions.hpp"
+#include "ACTFW/Common/OutputOptions.hpp"
+#include "ACTFW/Digitization/DigitizationOptions.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -27,7 +29,7 @@
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
 #include "FatrasEvgenBase.hpp"
 #include "FatrasSimulationBase.hpp"
-#include "FatrasWriterBase.hpp"
+#include "FatrasDigitizationBase.hpp"
 
 namespace po = boost::program_options;
 
@@ -36,8 +38,7 @@ namespace po = boost::program_options;
 /// @tparam geometry_getter_t Type of the geometry getter struct
 ///
 /// @param argc the number of argumetns of the call
-/// @param atgv the argument list
-///
+/// @param aegv the argument list
 template <typename geometry_options_t, typename geometry_getter_t>
 int
 fatrasExample(int                argc,
@@ -52,25 +53,29 @@ fatrasExample(int                argc,
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the Common options
-  FW::Options::addCommonOptions<po::options_description>(desc, 1, 2);
+  FW::Options::addCommonOptions<po::options_description>(desc);
   // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
   // Add the particle gun options
   FW::Options::addParticleGunOptions<po::options_description>(desc);
-  // Add the evgen options
-  FW::Options::addEvgenReaderOptions<po::options_description>(desc);
   // Add the Pythia 8 options
   FW::Options::addPythia8Options<po::options_description>(desc);
+  // Add the evgen options
+  FW::Options::addEvgenReaderOptions<po::options_description>(desc);
   // Add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
   // Add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
   // Add the fatras options
   FW::Options::addFatrasOptions<po::options_description>(desc);
-  // Add program specific options
-  desc.add_options()("fatras-evgen-input",
+  // Add the digization options
+  FW::Options::addDigitizationOptions<po::options_description>(desc);
+  // Add the output options
+  FW::Options::addOutputOptions<po::options_description>(desc);
+  // Add program specific options: input / output
+  desc.add_options()("evg-input-type",
                      po::value<std::string>()->default_value("pythia"),
-                     "Type of evgen input 'gun', 'pythia' (default).");
+                     "Type of evgen input 'gun', 'pythia'");                     
 
   // Add specific options for this geometry
   geometryOptions(desc);
@@ -99,38 +104,40 @@ fatrasExample(int                argc,
   sequencer.addServices({randomNumberSvc});
   // Create the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
-  auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
+  auto barcodeSvc = std::make_shared<FW::BarcodeSvc>(
       barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
   // Add it to the sequencer
   sequencer.addServices({barcodeSvc});
 
+  // Get the tracking geometry
+  auto tGeometry = trackingGeometry(vm);
+  
   // (A) EVGEN
   // Setup the evgen input to the simulation
-  std::string evgenCollection = setupEvgenInput<po::variables_map>(
-      vm, sequencer, barcodeSvc, randomNumberSvc);
-
-  // get the tracking geometry
-  auto tGeometry = trackingGeometry(vm);
+  setupEvgenInput<po::variables_map>(vm,
+                                     sequencer,
+                                     barcodeSvc,
+                                     randomNumberSvc);
 
   // (B) SIMULATION
   // Setup the simulation
-  if (setupSimulation<po::variables_map>(
-          vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc)
-      != FW::ProcessCode::SUCCESS) {
-    return -1;
-  }
+  setupSimulation<po::variables_map>(vm, 
+                                     sequencer,
+                                     tGeometry,
+                                     barcodeSvc,
+                                     randomNumberSvc);
+  
+  // (C) DIGITIZATION
+  // Setup the digitization 
+  setupDigitization<po::variables_map>(vm,
+                                       sequencer,
+                                       barcodeSvc,
+                                       randomNumberSvc);                                       
 
-  // (C) Digitisation
+  // (D) TRUTH TRACKING
 
-  // (D) Truth tracking
+  // (E) PATTERN RECOGNITION
 
-  // (E) Pattern recognition
-
-  // (Z) Writers
-  // Root writer section
-  if (setupRootWriters(vm, sequencer, barcodeSvc) != FW::ProcessCode::SUCCESS) {
-    return -1;
-  }
 
   // Initiate the run
   sequencer.run(nEvents);

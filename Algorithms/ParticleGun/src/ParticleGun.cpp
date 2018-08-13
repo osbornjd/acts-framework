@@ -8,23 +8,20 @@
 
 #include <cmath>
 #include <stdexcept>
-
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Utilities/Units.hpp"
-#include "Fatras/Kernel/Particle.hpp"
 
 FW::ParticleGun::ParticleGun(const Config&                       cfg,
                              std::unique_ptr<const Acts::Logger> lgr)
   : m_cfg(cfg), m_logger(std::move(lgr))
 {
   // Check that all mandatory configuration parameters are present
-  if (m_cfg.evgenCollection.empty()) {
-    throw std::invalid_argument("Missing output collection");
-  } else if (!m_cfg.randomNumberSvc) {
+  if (!m_cfg.randomNumberSvc) {
     throw std::invalid_argument("Missing random numbers service");
   } else if (!m_cfg.barcodeSvc) {
     throw std::invalid_argument("Missing barcode service");
@@ -41,26 +38,18 @@ FW::ParticleGun::ParticleGun(const Config&                       cfg,
   ACTS_VERBOSE("- pt  range: " << m_cfg.ptRange[0] << ", " << m_cfg.ptRange[1]);
 }
 
-std::string
-FW::ParticleGun::name() const
-{
-  return "EvgenReader";
-}
-
 FW::ProcessCode
-FW::ParticleGun::skip(size_t nEvents)
+FW::ParticleGun::read(std::vector<Fatras::Vertex>& vertices,
+                      size_t skip,
+                      const AlgorithmContext* context)
 {
-  // there is a hard scatter evgen reader
-  return FW::ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::ParticleGun::read(AlgorithmContext ctx)
-{
-
-  ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);
+  if (!context) {
+    ACTS_FATAL("Missing AlgorithmContext for ParticleGun generator");
+    return ProcessCode::ABORT;
+  }
+  
   // what's written out
-  RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(ctx);
+  RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(*context);
 
   UniformDist d0Dist(m_cfg.d0Range.at(0), m_cfg.d0Range.at(1));
   UniformDist z0Dist(m_cfg.z0Range.at(0), m_cfg.z0Range.at(1));
@@ -68,8 +57,6 @@ FW::ParticleGun::read(AlgorithmContext ctx)
   UniformDist etaDist(m_cfg.etaRange.at(0), m_cfg.etaRange.at(1));
   UniformDist ptDist(m_cfg.ptRange.at(0), m_cfg.ptRange.at(1));
   UniformDist chargeDist(0., 1.);
-
-  std::vector<Fatras::Vertex> vertices;
 
   // the particles
   std::vector<Fatras::Particle> particles;
@@ -102,8 +89,5 @@ FW::ParticleGun::read(AlgorithmContext ctx)
   vertices.push_back(
       Fatras::Vertex(Acts::Vector3D(0., 0., 0.), {}, std::move(particles)));
 
-  if (ctx.eventStore.add(m_cfg.evgenCollection, std::move(vertices))
-      != ProcessCode::SUCCESS)
-    return ProcessCode::ABORT;
   return FW::ProcessCode::SUCCESS;
 }

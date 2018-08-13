@@ -9,7 +9,6 @@
 #include <boost/program_options.hpp>
 #include <string>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Common/CollectionsOptions.hpp"
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -19,6 +18,8 @@
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/ReadEvgen/EvgenReader.hpp"
+#include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
 
 /// The main executable
 ///
@@ -33,13 +34,13 @@ main(int argc, char* argv[])
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the standard options
-  FW::Options::addCommonOptions<po::options_description>(desc, 1, 2);
-  // Add the collections options/names
-  FW::Options::addCollectionsOptions<po::options_description>(desc);
+  FW::Options::addCommonOptions<po::options_description>(desc);
   // Add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
   // Add the particle gun options
   FW::Options::addParticleGunOptions<po::options_description>(desc);
+  // Add the evgen options
+  FW::Options::addEvgenReaderOptions<po::options_description>(desc);
   // Add specific options for this example
   desc.add_options()("output-dir",
                      po::value<std::string>()->default_value(""),
@@ -65,10 +66,6 @@ main(int argc, char* argv[])
   auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
   auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
 
-  // The evgen collection name
-  std::string evgenCollection
-      = FW::Options::readEvgenCollectionName<po::variables_map>(vm);
-
   // Create the random number engine
   auto randomNumberSvcCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
@@ -83,11 +80,23 @@ main(int argc, char* argv[])
   // Now read the particle gun configs
   auto particleGunCfg
       = FW::Options::readParticleGunConfig<po::variables_map>(vm);
-  particleGunCfg.barcodeSvc      = barcodeSvc;
-  particleGunCfg.randomNumberSvc = randomNumberSvc;
-  particleGunCfg.evgenCollection = evgenCollection;
+  particleGunCfg.randomNumberSvc        = randomNumberSvc;
+  particleGunCfg.barcodeSvc             = barcodeSvc;
+  
   auto particleGun               = std::make_shared<FW::ParticleGun>(
       particleGunCfg, Acts::getDefaultLogger("ParticleGun", logLevel));
+
+  // Now read the evgen config & set the missing parts
+  auto readEvgenCfg                   = FW::Options::readEvgenConfig(vm);
+  readEvgenCfg.hardscatterEventReader = particleGun;
+  readEvgenCfg.pileupEventReader      = nullptr;
+  readEvgenCfg.randomNumberSvc        = randomNumberSvc;
+  readEvgenCfg.barcodeSvc             = barcodeSvc;
+  readEvgenCfg.nEvents                = nEvents;
+
+  // Create the read Algorithm
+  auto readEvgen = std::make_shared<FW::EvgenReader>(
+      readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
 
   // Output directory
   std::string outputDir = vm["output-dir"].as<std::string>();
@@ -100,7 +109,7 @@ main(int argc, char* argv[])
       csvFileName += ".csv";
     }
     FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
-    pWriterCsvConfig.collection     = evgenCollection;
+    pWriterCsvConfig.collection     = readEvgenCfg.evgenCollection;
     pWriterCsvConfig.outputDir      = outputDir;
     pWriterCsvConfig.outputFileName = csvFileName;
     pWriterCsv = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
@@ -115,7 +124,7 @@ main(int argc, char* argv[])
     }
     // Write particles as ROOT TTree
     FW::Root::RootParticleWriter::Config pWriterRootConfig;
-    pWriterRootConfig.collection = evgenCollection;
+    pWriterRootConfig.collection = readEvgenCfg.evgenCollection;
     pWriterRootConfig.filePath   = rootFileName;
     pWriterRootConfig.barcodeSvc = barcodeSvc;
     pWriterRoot
@@ -126,7 +135,7 @@ main(int argc, char* argv[])
   // now create the sequencer & add the relevant
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({randomNumberSvc});
-  sequencer.addReaders({particleGun});
+  sequencer.addReaders({readEvgen});
   sequencer.appendEventAlgorithms({});
   if (pWriterRoot) sequencer.addWriters({pWriterRoot});
   if (pWriterCsv) sequencer.addWriters({pWriterCsv});

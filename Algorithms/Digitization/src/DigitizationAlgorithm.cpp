@@ -13,7 +13,6 @@
 
 #include "ACTFW/Barcode/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Detector/DetectorElementBase.hpp"
@@ -49,9 +48,10 @@ FW::DigitizationAlgorithm::DigitizationAlgorithm(
 FW::ProcessCode
 FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
 {
-  // prepare the input data
+  // Prepare the input data collection
   const FW::DetectorData<geo_id_value, Fatras::SensitiveHit>* simHits = nullptr;
-  // read and go
+  
+  // Read it from the event store
   if (context.eventStore.get(m_cfg.simulatedHitCollection, simHits)
       == FW::ProcessCode::ABORT)
     return FW::ProcessCode::ABORT;
@@ -59,10 +59,10 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
                                     << "' from event store.");
 
-  // prepare the output data: Clusters
+  // Prepare the output data: Clusters
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
 
-  // perpare the second output data : Truth SpacePoints
+  // Prepare the second output data : Truth SpacePoints (for debugging)
   FW::DetectorData<geo_id_value, Acts::Vector3D> spacePoints;
 
   // now digitise
@@ -159,10 +159,6 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
                                                  localX,
                                                  localY,
                                                  std::move(usedCells));
-
-              // insert into the space point map
-              FW::Data::insert(
-                  spacePoints, volumeKey, layerKey, moduleKey, hit.position);
 
               // insert into the cluster map
               FW::Data::insert(planarClusters,

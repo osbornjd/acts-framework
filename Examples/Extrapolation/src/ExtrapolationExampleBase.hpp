@@ -12,6 +12,7 @@
 #include <memory>
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Common/GeometryOptions.hpp"
+#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -43,7 +44,7 @@ extrapolationExample(int                argc,
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the standard options
-  FW::Options::addCommonOptions<po::options_description>(desc, 1, 2);
+  FW::Options::addCommonOptions<po::options_description>(desc);
   // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
   // Add the bfield options
@@ -104,34 +105,40 @@ extrapolationExample(int                argc,
         = std::make_shared<FW::ExtrapolationAlgorithm>(exAlgConfig, logLevel);
   }
 
-  // Write ROOT TTree
-  // Ecc for charged particles
-  FW::Root::RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
-  reccWriterConfig.filePath       = "excells_charged.root";
-  reccWriterConfig.treeName       = "extrapolation_charged";
-  reccWriterConfig.collection     = vm["ext-charged-cells"].as<std::string>();
-  reccWriterConfig.writeBoundary  = false;
-  reccWriterConfig.writeMaterial  = true;
-  reccWriterConfig.writeSensitive = true;
-  reccWriterConfig.writePassive   = true;
-  auto rootEccWriter
-      = std::make_shared<FW::Root::RootExCellWriter<Acts::TrackParameters>>(
-          reccWriterConfig);
+  // Write ROOT TTree(s)
+  if (vm["output-root"].as<bool>()){    
+    
+    // Ec for charged particles
+    auto ecc = vm["ext-charged-cells"].as<std::string>();
+    FW::Root::RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
+    reccWriterConfig.filePath       = ecc+".root";
+    reccWriterConfig.treeName       = ecc;
+    reccWriterConfig.collection     = ecc;
+    reccWriterConfig.writeBoundary  = false;
+    reccWriterConfig.writeMaterial  = true;
+    reccWriterConfig.writeSensitive = true;
+    reccWriterConfig.writePassive   = true;
+    auto rootEccWriter
+        = std::make_shared<FW::Root::RootExCellWriter<Acts::TrackParameters>>(
+            reccWriterConfig);
 
-  // Ecc for neutral particles
-  FW::Root::RootExCellWriter<Acts::NeutralParameters>::Config recnWriterConfig;
-  recnWriterConfig.filePath       = "excells_neutral.root";
-  recnWriterConfig.treeName       = "extrapolation_neutral";
-  recnWriterConfig.collection     = vm["ext-neutral-cells"].as<std::string>();
-  recnWriterConfig.writeBoundary  = false;
-  recnWriterConfig.writeMaterial  = true;
-  recnWriterConfig.writeSensitive = true;
-  recnWriterConfig.writePassive   = true;
-  auto rootEcnWriter
-      = std::make_shared<FW::Root::RootExCellWriter<Acts::NeutralParameters>>(
-          recnWriterConfig);
-  // Add the writers
-  sequencer.addWriters({rootEccWriter, rootEcnWriter});
+    // Ec for neutral particles
+    auto ecn = vm["ext-neutral-cells"].as<std::string>();
+    FW::Root::RootExCellWriter<Acts::NeutralParameters>::Config recnWriterConfig;
+    recnWriterConfig.filePath       = ecn+".root";
+    recnWriterConfig.treeName       = ecn;
+    recnWriterConfig.collection     = ecn;
+    recnWriterConfig.writeBoundary  = false;
+    recnWriterConfig.writeMaterial  = true;
+    recnWriterConfig.writeSensitive = true;
+    recnWriterConfig.writePassive   = true;
+    auto rootEcnWriter
+        = std::make_shared<FW::Root::RootExCellWriter<Acts::NeutralParameters>>(
+            recnWriterConfig);
+    // Add the writers
+    sequencer.addWriters({rootEccWriter, rootEcnWriter});
+  }
+  
   // Append the algorithm
   sequencer.appendEventAlgorithms({extrapolationAlg});
   // Initiate the run

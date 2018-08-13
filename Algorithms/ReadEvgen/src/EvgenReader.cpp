@@ -69,6 +69,8 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
 
   // get the hard scatter if you have it
   std::vector<Fatras::Vertex> hardscatterEvent;
+  // Always provide the context to the hard scatter Event
+  const AlgorithmContext* contextPtr = &ctx;
   if (m_cfg.hardscatterEventReader
       && m_cfg.hardscatterEventReader->read(hardscatterEvent, 0, &ctx)
           == FW::ProcessCode::ABORT) {
@@ -127,10 +129,12 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
     double puVertexZ = vertexZDist(rng);
     // create the pileup vertex
     vertexShift = Acts::Vector3D(puVertexX, puVertexY, puVertexZ);
-    // get the vertices per pileup event
+    // Get the vertices per pileup event
+    // only provide the Context for the initial call to set the seed
+    contextPtr = ipue ? nullptr : &ctx;
     std::vector<Fatras::Vertex> pileupEvent;
     if (m_cfg.pileupEventReader
-        && m_cfg.pileupEventReader->read(pileupEvent, 0, &ctx)
+        && m_cfg.pileupEventReader->read(pileupEvent, 0, contextPtr)
             == FW::ProcessCode::ABORT) {
       ACTS_ERROR("Could not read pile up event " << ipue << ". Aborting.");
       return FW::ProcessCode::ABORT;

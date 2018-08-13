@@ -25,7 +25,7 @@ main(int argc, char* argv[])
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the standard options
-  FW::Options::addCommonOptions<po::options_description>(desc, 10, 2);
+  FW::Options::addCommonOptions<po::options_description>(desc);
   // Map to store the given program options
   po::variables_map vm;
   // Get all options from contain line and store it into the map

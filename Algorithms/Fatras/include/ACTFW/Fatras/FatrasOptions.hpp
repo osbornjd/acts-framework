@@ -30,11 +30,11 @@ namespace Options {
   void
   addFatrasOptions(AOPT& opt)
   {
-    opt.add_options()("fatras-sim-event",
-                      po::value<std::string>()->default_value("FatrasEvent"),
+    opt.add_options()("fatras-sim-particles",
+                      po::value<std::string>()->default_value("fatras-particles"),
                       "The collection of simulated particles.")(
         "fatras-sim-hits",
-        po::value<std::string>()->default_value("FatrasHits"),
+        po::value<std::string>()->default_value("fatras-hits"),
         "The collection of simulated hits")(
         "fatras-em-ionisation",
         po::value<bool>()->default_value(true),
@@ -68,7 +68,7 @@ namespace Options {
     fatrasConfig.simulatedHitCollection
         = vm["fatras-sim-hits"].template as<std::string>();
     fatrasConfig.simulatedEventCollection
-        = vm["fatras-sim-event"].template as<std::string>();
+        = vm["fatras-sim-particles"].template as<std::string>();
 
     typedef Fatras::ChargedSelector            CSelector;
     typedef Fatras::Max<Fatras::casts::absEta> CMaxEtaAbs;

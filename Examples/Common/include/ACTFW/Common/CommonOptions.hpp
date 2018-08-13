@@ -29,14 +29,14 @@ namespace Options {
   /// @param defaultValue is the log level default value
   template <typename aopt_t>
   void
-  addCommonOptions(aopt_t& opt, size_t defaultEvents, size_t defaultValue)
+  addCommonOptions(aopt_t& opt)
   {
     opt.add_options()("help", "Produce help message")(
         "events,n",
-        po::value<size_t>()->default_value(defaultEvents),
+        po::value<size_t>()->default_value(1),
         "The number of events to be processed")(
         "loglevel,l",
-        po::value<size_t>()->default_value(defaultValue),
+        po::value<size_t>()->default_value(2),
         "The output log level. Please set the wished number (0 = VERBOSE, 1 = "
         "DEBUG, 2 = INFO, 3 = WARNING, 4 = ERROR, 5 = FATAL).");
   }

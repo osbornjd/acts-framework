@@ -27,7 +27,7 @@ main(int argc, char* argv[])
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the common options
-  FW::Options::addCommonOptions<po::options_description>(desc, 10, 2);
+  FW::Options::addCommonOptions<po::options_description>(desc);
   // Add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
   // Map to store the given program options

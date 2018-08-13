@@ -28,12 +28,13 @@ namespace Options {
   void
   addPropagationOptions(aopt_t& opt)
   {
-    opt.add_options()("prop-output",
-                      po::value<bool>()->default_value(true),
-                      "Run with output mode on, will create an output file.")(
+    opt.add_options()(
         "prop-debug",
         po::value<bool>()->default_value(false),
         "Run in debug mode, will create propagation screen output.")(
+        "prop-step-collection",
+        po::value<std::string>()->default_value("propagation-steps"),
+        "Propgation step collection.")(
         "prop-stepper",
         po::value<int>()->default_value(1),
         "Propgation type: 0 (StraightLine), 1 (Eigen), 2 (Atlas).")(
@@ -111,6 +112,9 @@ namespace Options {
         = vm["prop-pt-loopers"].template as<double>() * au::_GeV;
     pAlgConfig.maxStepSize
         = vm["prop-max-stepsize"].template as<double>() * au::_mm;
+
+    pAlgConfig.propagationStepCollection 
+        = vm["prop-step-collection"].template as<std::string>();
 
     return pAlgConfig;
   }

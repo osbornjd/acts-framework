@@ -22,6 +22,7 @@ option(USE_GEANT4 "Build Geant4-based code" off)
 option(USE_FATRAS "Build Fatras-based code" off)
 option(USE_OPENMP "Build framework with OpenMP enabled" ${USE_OPENMP_DEFAULT})
 option(USE_PYTHIA8 "Build Pythia8-based code" off)
+option(USE_LEGACY "Use Legacy code from acts-core" on)
 option(BUILD_ACTS "Build acts-core as submodule" on)
 
 # determine build-flag dependent components

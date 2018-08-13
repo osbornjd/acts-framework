@@ -19,6 +19,9 @@
 #include "ACTFW/Readers/IReaderT.hpp"
 
 namespace FW {
+  
+using InputReader = IReaderT<std::vector<Fatras::Vertex>>;  
+  
 namespace GPythia8 {
 
   /// @class IParticleReader
@@ -26,7 +29,7 @@ namespace GPythia8 {
   /// Interface class that fills a vector of process vertices
   /// proerties for feeding into the fast simulation
   ///
-  class Generator : public FW::IReaderT<std::vector<Fatras::Vertex>>
+  class Generator : public InputReader
   {
   public:
     struct Config
@@ -51,7 +54,7 @@ namespace GPythia8 {
     name() const final override;
 
     // clang-format off
-    /// @copydoc FW::IReaderT::read(std::vector<Acts::ProcessVertex>&,size_t,const FW::AlgorithmContext*)
+    /// @copydoc FW::IReaderT::read(std::vector<Fatras::Vertex>& pProperties,size_t,const FW::AlgorithmContext*)
     // clang-format on
     FW::ProcessCode
     read(std::vector<Fatras::Vertex>& pProperties,

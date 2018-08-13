@@ -20,10 +20,14 @@ namespace FW {
 
 namespace Options {
 
-  // common evgen options, with an evg prefix
-  template <class AOPT>
+  /// Common obj writing options
+  ///
+  /// @tparam aopt_t Type of the options object (from BOOST)
+  ///
+  /// @param opt The options object, where string based options are attached
+  template <typename aopt_t>
   void
-  addObjWriterOptions(AOPT& opt)
+  addObjWriterOptions(aopt_t& opt)
   {
     opt.add_options()("obj-tg-fileheader",
                       po::value<std::string>()->default_value(""),

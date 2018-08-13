@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_OPTIONS_DIGITIZATIONOPTIONS_HPP
-#define ACTFW_OPTIONS_DIGITIZATIONOPTIONS_HPP
+#pragma once
 
 #include <iostream>
 #include "ACTFW/Utilities/Options.hpp"
@@ -20,27 +19,27 @@ namespace FW {
 
 namespace Options {
 
-  // common digitization options
-  template <typename AOPT>
+  // Digitization options
+  template <typename aopt_t>
   void
-  addDigitizationOptions(AOPT& opt)
+  addDigitizationOptions(aopt_t& opt)
   {
     opt.add_options()(
         "digi-spacepoints",
-        po::value<std::string>()->default_value("FatrasSpacePoints"),
+        po::value<std::string>()->default_value("space-points"),
         "Collection name of the produced space points.")(
         "digi-clusters",
-        po::value<std::string>()->default_value("FatrasClusters"),
+        po::value<std::string>()->default_value("clusters"),
         "Collection name of the produced clustes.")(
         "digi-resolution-file",
         po::value<std::string>()->default_value(""),
         "Name of the resolution file (root format).");
   }
 
-  /// read the digitization options and return a Config object
-  template <typename AMAP>
+  /// Read the digitization options and return a Config object
+  template <typename omap_t>
   DigitizationAlgorithm::Config
-  readDigitizationConfig(const AMAP& vm)
+  readDigitizationConfig(const omap_t& vm)
   {
     // create a config
     DigitizationAlgorithm::Config digiConfig;
@@ -55,5 +54,3 @@ namespace Options {
   }
 }  // namespace Options
 }  // namespace FW
-
-#endif  // ACTFW_OPTIONS_DIGITIZATIONOPTIONS_HPP

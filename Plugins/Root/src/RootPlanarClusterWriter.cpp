@@ -135,23 +135,24 @@ FW::Root::RootPlanarClusterWriter::writeT(
               m_cell_ly.push_back(cellLocalPosition.y());
             }
           }
-          // get the truth parameters
-          for (auto& tvertex : cluster.truthVertices()) {
-            auto& tposition = tvertex.position();
-            for (auto& tparticle : tvertex.incomingParticles()) {
-              // truth global position
-              m_t_gx.push_back(tposition.x());
-              m_t_gy.push_back(tposition.y());
-              m_t_gz.push_back(tposition.z());
-              // local position
-              auto&          tmomentum = tparticle.momentum();
-              Acts::Vector2D lposition;
-              clusterSurface.globalToLocal(tposition, tmomentum, lposition);
-              m_t_lx.push_back(lposition.x());
-              m_t_ly.push_back(lposition.y());
-              m_t_barcode.push_back(tparticle.barcode());
-            }
-          }
+          // get the truth parameters - @todo new truth association
+          //
+          // for (auto& tvertex : cluster.truthVertices()) {
+          //   auto& tposition = tvertex.position();
+          //   for (auto& tparticle : tvertex.incomingParticles()) {
+          //     // truth global position
+          //     m_t_gx.push_back(tposition.x());
+          //     m_t_gy.push_back(tposition.y());
+          //     m_t_gz.push_back(tposition.z());
+          //     // local position
+          //     auto&          tmomentum = tparticle.momentum();
+          //     Acts::Vector2D lposition;
+          //     clusterSurface.globalToLocal(tposition, tmomentum, lposition);
+          //     m_t_lx.push_back(lposition.x());
+          //     m_t_ly.push_back(lposition.y());
+          //     m_t_barcode.push_back(tparticle.barcode());
+          //   }
+          // }
           // fill the tree
           m_outputTree->Fill();
           // now reset

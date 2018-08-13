@@ -9,8 +9,7 @@
 ///////////////////////////////////////////////////////////////////
 // IReaderT.h
 ///////////////////////////////////////////////////////////////////
-#ifndef ACTFW_READERS_IREADERT_H
-#define ACTFW_READERS_IREADERT_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -22,15 +21,15 @@ namespace FW {
 
 /// @class IWriterT
 ///
-/// Interface to readin an object
-template <class T>
+/// Interface to read in an templated object  
+template <typename T>
 class IReaderT : public IService
 {
 public:
   /// Virtual destructor
   virtual ~IReaderT() = default;
 
-  /// the write method
+  /// The Read interface method
   /// @param object is the thing to be read back in
   /// @param skip The events to be skipped
   /// @param context The algorithm context in case it is needed (e.g. random
@@ -39,8 +38,6 @@ public:
   virtual ProcessCode
   read(T&                          object,
        size_t                      skip    = 0,
-       const FW::AlgorithmContext* context = nullptr)
-      = 0;
+       const FW::AlgorithmContext* context = nullptr) = 0;
 };
 }
-#endif  // ACTFW_READERS_IREADERT_H

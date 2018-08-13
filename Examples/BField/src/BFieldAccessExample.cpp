@@ -151,7 +151,7 @@ main(int argc, char* argv[])
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the standard options
-  FW::Options::addCommonOptions<po::options_description>(desc, 1, 2);
+  FW::Options::addCommonOptions<po::options_description>(desc);
   // Add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
   // Add an output file

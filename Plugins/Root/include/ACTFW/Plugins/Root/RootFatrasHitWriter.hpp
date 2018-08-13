@@ -34,7 +34,7 @@ namespace Root {
       std::string collection;                ///< cluster collection to write
       std::string filePath;                  ///< path of the output file
       std::string fileMode = "RECREATE";     ///< file access mode
-      std::string treeName = "fatras_hits";  ///< name of the output tree
+      std::string treeName = "hits";         ///< name of the output tree
     };
 
     /// Constructor with
@@ -59,20 +59,19 @@ namespace Root {
         final override;
 
   private:
-    Config     m_cfg;         ///< the configuration object
-    std::mutex m_writeMutex;  ///< protect multi-threaded writes
-    TFile*     m_outputFile;  ///< the output file
-
-    int   m_volumeID;   ///< volume identifier
-    int   m_layerID;    ///< layer identifier
-    int   m_surfaceID;  ///< surface identifier
-    float m_x;          ///< global x
-    float m_y;          ///< global y
-    float m_z;          ///< global z
-    float m_dx;         ///< global direction x
-    float m_dy;         ///< global direction y
-    float m_dz;         ///< global direction z
-    float m_value;      ///< value of the hit
+    Config      m_cfg;         ///< the configuration object
+    std::mutex  m_writeMutex;  ///< protect multi-threaded writes
+    TFile*      m_outputFile;  ///< the output file
+    int         m_volumeID;    ///< volume identifier
+    int         m_layerID;     ///< layer identifier
+    int         m_surfaceID;   ///< surface identifier
+    float       m_x;           ///< global x
+    float       m_y;           ///< global y
+    float       m_z;           ///< global z
+    float       m_dx;          ///< global direction x
+    float       m_dy;          ///< global direction y
+    float       m_dz;          ///< global direction z
+    float       m_value;       ///< value of the hit
   };
 
 }  // namespace Root

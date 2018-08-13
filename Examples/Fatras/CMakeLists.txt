@@ -4,8 +4,9 @@ add_executable(ACTFWGenericFatrasExample src/GenericFatrasExample.cpp)
 target_include_directories(ACTFWGenericFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWGenericFatrasExample PRIVATE Acts::Core Acts::Legacy Fatras::Core)
 
-target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWFatras ACTFWReadEvgen ACTFWParticleGun)
-target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWRootPlugin ACTFWCsvPlugin ACTFWPluginPythia8)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
 target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWGenericDetector)
 
 target_link_libraries(ACTFWGenericFatrasExample PRIVATE ${Boost_LIBRARIES})
@@ -17,8 +18,9 @@ add_executable(ACTFWRootFatrasExample src/RootFatrasExample.cpp)
 target_include_directories(ACTFWRootFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWRootFatrasExample PRIVATE Acts::Core Acts::Legacy Fatras::Core)
 
-target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWFatras ACTFWReadEvgen ACTFWParticleGun)
-target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWRootPlugin ACTFWCsvPlugin ACTFWPluginPythia8)
+target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
 target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWRootDetector)
 
 target_link_libraries(ACTFWRootFatrasExample PRIVATE ${Boost_LIBRARIES})

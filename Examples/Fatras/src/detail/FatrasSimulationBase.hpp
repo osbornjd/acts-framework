@@ -14,6 +14,10 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
+#include "ACTFW/Plugins/Root/RootFatrasHitWriter.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
@@ -68,7 +72,6 @@ struct SurfaceSelector
   {
     if (selectPassive) return true;
     if (selectSensitive && surface.associatedDetectorElement()) {
-      std::cout << "On sensitive " << std::endl;
       return true;
     }
     if (selectMaterial && surface.associatedMaterial()) return true;
@@ -76,7 +79,7 @@ struct SurfaceSelector
   }
 };
 
-/// @brief Simulation setup
+/// @brief Simulation setup for the FatrasAlgorithm
 ///
 /// @tparam bfield_t Type of the bfield for the simulation to be set up
 ///
@@ -89,7 +92,7 @@ struct SurfaceSelector
 /// simulation
 template <typename bfield_t>
 void
-setupSimulation(bfield_t                                      fieldMap,
+setupSimulationAlgorithm(bfield_t                                      fieldMap,
                 FW::Sequencer&                                sequencer,
                 po::variables_map&                            vm,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
@@ -101,8 +104,8 @@ setupSimulation(bfield_t                                      fieldMap,
   Acts::Logging::Level logLevel = FW::Options::readLogLevel(vm);
 
   /// Read the evgen particle collection
-  const std::string& evgenCollection
-      = vm["evgen-particles"].template as<std::string>();
+  const std::string& evgenCollection 
+        = vm["evg-collection"].template as<std::string>();
 
   // Create a navigator for this tracking geometry
   Acts::Navigator cNavigator(tGeometry);
@@ -164,6 +167,46 @@ setupSimulation(bfield_t                                      fieldMap,
 
   // Finalize the squencer setting and run
   sequencer.appendEventAlgorithms({fatrasAlgorithm});
+  
+  // Output directory
+  std::string outputDir = vm["output-dir"].template as<std::string>();
+
+  // Write simulation information as CSV files
+  std::shared_ptr<FW::Csv::CsvParticleWriter> pWriterCsv = nullptr;
+  if (vm["output-csv"].template as<bool>()){
+    FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
+    pWriterCsvConfig.collection     = fatrasConfig.simulatedEventCollection;
+    pWriterCsvConfig.outputDir      = outputDir;
+    pWriterCsvConfig.outputFileName = fatrasConfig.simulatedEventCollection+".csv";
+    auto pWriterCsv = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
+    
+    sequencer.addWriters({pWriterCsv});
+  }
+
+  // Write simulation information as ROOT files
+  std::shared_ptr<FW::Root::RootParticleWriter> pWriterRoot = nullptr;
+  if (vm["output-root"].template as<bool>()){
+    // Write particles as ROOT TTree
+    FW::Root::RootParticleWriter::Config pWriterRootConfig;
+    pWriterRootConfig.collection = fatrasConfig.simulatedEventCollection;
+    pWriterRootConfig.filePath   
+      = FW::joinPaths(outputDir,fatrasConfig.simulatedEventCollection+".root");
+    pWriterRootConfig.treeName   = fatrasConfig.simulatedEventCollection; 
+    pWriterRootConfig.barcodeSvc = barcodeSvc;
+    auto pWriterRoot
+        = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
+  
+    // Write simulated hits as ROOT TTree
+    FW::Root::RootFatrasHitWriter::Config fhitWriterRootConfig;
+    fhitWriterRootConfig.collection = fatrasConfig.simulatedHitCollection;
+    fhitWriterRootConfig.filePath
+       = FW::joinPaths(outputDir, fatrasConfig.simulatedHitCollection+".root");
+    fhitWriterRootConfig.treeName   = fatrasConfig.simulatedHitCollection;
+      auto fhitWriterRoot
+       = std::make_shared<FW::Root::RootFatrasHitWriter>(fhitWriterRootConfig);
+  
+    sequencer.addWriters({pWriterRoot, fhitWriterRoot});  
+  }  
 }
 
 /// @brief Simulation setup
@@ -178,7 +221,7 @@ setupSimulation(bfield_t                                      fieldMap,
 /// @param randomNumberSvc The random number service to be used for the
 /// simulation
 template <typename vmap_t>
-FW::ProcessCode
+void
 setupSimulation(vmap_t&                                       vm,
                 FW::Sequencer&                                sequencer,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
@@ -192,24 +235,23 @@ setupSimulation(vmap_t&                                       vm,
     // create the shared field
     using BField = Acts::SharedBField<Acts::InterpolatedBFieldMap>;
     BField fieldMap(bField.first);
-    // now setup of the simulation
-    setupSimulation(std::move(fieldMap),
-                    sequencer,
-                    vm,
-                    tGeometry,
-                    barcodeSvc,
-                    randomNumberSvc);
+    // now setup of the simulation and append it to the sequencer
+    setupSimulationAlgorithm(std::move(fieldMap),
+                             sequencer,
+                             vm,
+                             tGeometry,
+                             barcodeSvc,
+                             randomNumberSvc);
   } else {
     // create the shared field
     using CField = Acts::ConstantBField;
     CField fieldMap(*bField.second);
-    // now setup of the simulation
-    setupSimulation(std::move(fieldMap),
-                    sequencer,
-                    vm,
-                    tGeometry,
-                    barcodeSvc,
-                    randomNumberSvc);
+    // now setup of the simulation and append it to the sequencer
+    setupSimulationAlgorithm(std::move(fieldMap),
+                             sequencer,
+                             vm,
+                             tGeometry,
+                             barcodeSvc,
+                             randomNumberSvc);
   }
-  return FW::ProcessCode::SUCCESS;
 }

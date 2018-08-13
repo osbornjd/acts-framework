@@ -1,16 +1,12 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2017-08-07 Rewrite with new interfaces
-
-#ifndef ACTFW_ROOTPLANARCLUSTERWRITER_H
-#define ACTFW_ROOTPLANARCLUSTERWRITER_H
+#pragma once
 
 #include <Acts/Digitization/PlanarModuleCluster.hpp>
 #include <mutex>
@@ -95,5 +91,3 @@ namespace Root {
 
 }  // namespace Root
 }  // namespace FW
-
-#endif  // ACTFW_CSVPLANARCLUSTERWRITER_H

@@ -9,7 +9,7 @@
 #include "ACTFW/RootDetector/BuildRootDetector.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "GeometryExampleBase.hpp"
+#include "detail/GeometryExampleBase.hpp"
 
 /// @brief adding some specific options for this geometry type
 struct RootOptions
