@@ -16,10 +16,13 @@
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
+#include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
+#include "ACTFW/Plugins/Obj/ObjExCellWriter.hpp"
+
 
 namespace po = boost::program_options;
 
@@ -105,42 +108,70 @@ extrapolationExample(int                argc,
         = std::make_shared<FW::ExtrapolationAlgorithm>(exAlgConfig, logLevel);
   }
 
+  // Append the algorithm
+  sequencer.appendEventAlgorithms({extrapolationAlg});
+
+  // ---------------------------------------------------------------------------------  
+  // Output directory
+  std::string outputDir = vm["output-dir"].template as<std::string>();
+  auto ecc = vm["ext-charged-cells"].as<std::string>();
+  auto ecn = vm["ext-neutral-cells"].as<std::string>();
+
   // Write ROOT TTree(s)
   if (vm["output-root"].as<bool>()){    
     
     // Ec for charged particles
-    auto ecc = vm["ext-charged-cells"].as<std::string>();
-    FW::Root::RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
-    reccWriterConfig.filePath       = ecc+".root";
-    reccWriterConfig.treeName       = ecc;
-    reccWriterConfig.collection     = ecc;
-    reccWriterConfig.writeBoundary  = false;
-    reccWriterConfig.writeMaterial  = true;
-    reccWriterConfig.writeSensitive = true;
-    reccWriterConfig.writePassive   = true;
-    auto rootEccWriter
+    FW::Root::RootExCellWriter<Acts::TrackParameters>::Config eccWriterRootConfig;
+    eccWriterRootConfig.filePath       = FW::joinPaths(outputDir, ecc+".obj");
+    eccWriterRootConfig.treeName       = ecc;
+    eccWriterRootConfig.collection     = ecc;
+    eccWriterRootConfig.writeBoundary  = false;
+    eccWriterRootConfig.writeMaterial  = true;
+    eccWriterRootConfig.writeSensitive = true;
+    eccWriterRootConfig.writePassive   = true;
+    auto eccWriterRoot
         = std::make_shared<FW::Root::RootExCellWriter<Acts::TrackParameters>>(
-            reccWriterConfig);
+            eccWriterRootConfig);
 
     // Ec for neutral particles
-    auto ecn = vm["ext-neutral-cells"].as<std::string>();
-    FW::Root::RootExCellWriter<Acts::NeutralParameters>::Config recnWriterConfig;
-    recnWriterConfig.filePath       = ecn+".root";
-    recnWriterConfig.treeName       = ecn;
-    recnWriterConfig.collection     = ecn;
-    recnWriterConfig.writeBoundary  = false;
-    recnWriterConfig.writeMaterial  = true;
-    recnWriterConfig.writeSensitive = true;
-    recnWriterConfig.writePassive   = true;
-    auto rootEcnWriter
+    FW::Root::RootExCellWriter<Acts::NeutralParameters>::Config ecnWriterRootConfig;
+    ecnWriterRootConfig.filePath       = FW::joinPaths(outputDir, ecn+".obj");
+    ecnWriterRootConfig.treeName       = ecn;
+    ecnWriterRootConfig.collection     = ecn;
+    ecnWriterRootConfig.writeBoundary  = false;
+    ecnWriterRootConfig.writeMaterial  = true;
+    ecnWriterRootConfig.writeSensitive = true;
+    ecnWriterRootConfig.writePassive   = true;
+    auto ecnWriterRoot
         = std::make_shared<FW::Root::RootExCellWriter<Acts::NeutralParameters>>(
-            recnWriterConfig);
+            ecnWriterRootConfig);
     // Add the writers
-    sequencer.addWriters({rootEccWriter, rootEcnWriter});
+    sequencer.addWriters({eccWriterRoot, ecnWriterRoot});
   }
   
-  // Append the algorithm
-  sequencer.appendEventAlgorithms({extrapolationAlg});
+  // Write OBJ Files
+  if (vm["output-root"].as<bool>()){    
+    
+    // Ec for charged particles
+    FW::Obj::ObjExCellWriter<Acts::TrackParameters>::Config eccWriterObjConfig;
+    eccWriterObjConfig.collection = ecc;
+    eccWriterObjConfig.outputDir  = outputDir;
+    auto eccWriterObj
+        = std::make_shared<FW::Obj::ObjExCellWriter<Acts::TrackParameters>>(
+            eccWriterObjConfig);
+
+    // Ec for neutral particles
+    FW::Obj::ObjExCellWriter<Acts::NeutralParameters>::Config ecnWriterObjConfig;
+    ecnWriterObjConfig.collection = ecn;
+    ecnWriterObjConfig.outputDir  = outputDir;
+    auto ecnWriterObj
+        = std::make_shared<FW::Obj::ObjExCellWriter<Acts::NeutralParameters>>(
+            ecnWriterObjConfig);
+
+    // Add the writers
+    sequencer.addWriters({eccWriterObj, ecnWriterObj});
+  }
+  
   // Initiate the run
   sequencer.run(nEvents);
   // Return 0 for success

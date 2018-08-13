@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,7 +28,7 @@ namespace Obj {
 
   /// @class ObjTrackingGeometryWriter
   ///
-  /// An Obj writer for the geometry
+  /// An Obj writer for the geometry: TrackingGeometry master
   /// It delegates the writing of surfaces to the surface writers
   class ObjTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
   {

@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -23,14 +23,14 @@ namespace Obj {
 
   /// @class ObjSurfaceWriter
   ///
-  /// An Obj writer for the geometry
+  /// An Obj writer for the geometry: surface section
   ///
   class ObjSurfaceWriter : public FW::IWriterT<Acts::Surface>
   {
   public:
     // @class Config
     //
-    // The nested config class
+    // The nested config class for the Surface writer
     class Config
     {
     public:

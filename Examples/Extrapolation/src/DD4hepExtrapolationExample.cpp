@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,7 +9,7 @@
 #include <boost/program_options.hpp>
 #include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
-#include "ExtrapolationExampleBase.hpp"
+#include "detail/ExtrapolationExampleBase.hpp"
 
 /// @brief adding some specific options for this geometry type
 struct DD4hepOptions
