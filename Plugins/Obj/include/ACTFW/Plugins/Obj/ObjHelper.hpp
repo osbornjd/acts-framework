@@ -70,6 +70,24 @@ namespace Obj {
             double                   r,
             double                   hZ,
             double                   thickness = 0.);
+            
+
+  /// Helper method for bezier line interpolation
+  ///
+  /// @param t is the step parameter along the line
+  /// @param p0 anker point
+  /// @param p1 is p0 + direction@p0
+  /// @param p2 is p2 - direction@p2
+  /// @param p3 is second anker poit
+  ///    
+  /// @return the bezier point
+  Acts::Vector3D
+  calculateBezierPoint(double                t,
+                       const Acts::Vector3D& p0,
+                       const Acts::Vector3D& p1,
+                       const Acts::Vector3D& p2,
+                       const Acts::Vector3D& p3);            
+  
 
 }  // namespace Obj
 }  // namespace FW

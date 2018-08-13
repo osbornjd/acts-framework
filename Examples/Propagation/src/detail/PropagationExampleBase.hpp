@@ -212,7 +212,10 @@ propagationExample(int                argc,
       return -1;
   }
 
+  // 
+
   // Initiate the run
   sequencer.run(nEvents);
+  // Return success code
   return 1;
 }

@@ -9,7 +9,7 @@
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "PropagationExampleBase.hpp"
+#include "detail/PropagationExampleBase.hpp"
 
 /// @brief adding some specific options for this geometry type
 struct GenericOptions

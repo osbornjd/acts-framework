@@ -193,3 +193,24 @@ FW::Obj::writeTube(std::ofstream&           stream,
     }
   }
 }
+
+// Bezier interpolation, see documentation 
+Acts::Vector3D
+FW::Obj::calculateBezierPoint(double                t,
+                              const Acts::Vector3D& p0,
+                              const Acts::Vector3D& p1,
+                              const Acts::Vector3D& p2,
+                              const Acts::Vector3D& p3)                              
+{
+  double u   = 1. - t;
+  double tt  = t * t;
+  double uu  = u * u;
+  double uuu = uu * u;
+  double ttt = tt * t;
+
+  Acts::Vector3D p = uuu * p0;  // first term
+  p += 3 * uu * t * p1;         // second term
+  p += 3 * u * tt * p2;         // third term
+  p += ttt * p3;                // fourth term
+  return p;
+}

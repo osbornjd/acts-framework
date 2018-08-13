@@ -14,6 +14,7 @@
 #include <sstream>
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
+#include "ACTFW/Plugins/Obj/ObjHelper.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
 #include "Acts/Utilities/Logger.hpp"
@@ -80,22 +81,6 @@ namespace Obj {
     writeT(
         const FW::AlgorithmContext&                    ctx,
         const std::vector<Acts::ExtrapolationCell<charge_t>>& ecells) final override;
-
-    /// Helper method for bezier line interpolation
-    ///
-    /// @param t is the step parameter along the line
-    /// @param p0 anker point
-    /// @param p1 is p0 + direction@p0
-    /// @param p2 is p2 - direction@p2
-    /// @param p3 is second anker poit
-    ///    
-    /// @return the bezier point
-    Acts::Vector3D
-    calculateBezierPoint(double                t,
-                         const Acts::Vector3D& p0,
-                         const Acts::Vector3D& p1,
-                         const Acts::Vector3D& p2,
-                         const Acts::Vector3D& p3) const;
 
   private:
     Config     m_cfg;          ///< the configuration class of this writer
@@ -225,28 +210,6 @@ namespace Obj {
     
     // return success
     return FW::ProcessCode::SUCCESS;
-  }
-
-  // Bezier interpolation, see documentation 
-  template <class T>
-  Acts::Vector3D
-  ObjExCellWriter<T>::calculateBezierPoint(double                t,
-                                           const Acts::Vector3D& p0,
-                                           const Acts::Vector3D& p1,
-                                           const Acts::Vector3D& p2,
-                                           const Acts::Vector3D& p3) const
-  {
-    double u   = 1. - t;
-    double tt  = t * t;
-    double uu  = u * u;
-    double uuu = uu * u;
-    double ttt = tt * t;
-
-    Acts::Vector3D p = uuu * p0;  // first term
-    p += 3 * uu * t * p1;         // second term
-    p += 3 * u * tt * p2;         // third term
-    p += ttt * p3;                // fourth term
-    return p;
   }
 
 }  // namespace Obj
