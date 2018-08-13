@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootPropagationWriter.hpp"
+#include "ACTFW/Plugins/Root/RootPropagationStepsWriter.hpp"
 #include <ios>
 #include <stdexcept>
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -16,10 +16,10 @@
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 
-FW::Root::RootPropagationWriter::RootPropagationWriter(
-    const FW::Root::RootPropagationWriter::Config& cfg,
-    Acts::Logging::Level                           level)
-  : Base(cfg.collection, "RootPropagationWriter", level), m_cfg(cfg)
+FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
+    const FW::Root::RootPropagationStepsWriter::Config& cfg,
+    Acts::Logging::Level                                level)
+  : Base(cfg.collection, "RootPropagationStepsWriter", level), m_cfg(cfg)
 {
   // An input collection name and tree name must be specified
   if (m_cfg.collection.empty()) {
@@ -35,13 +35,13 @@ FW::Root::RootPropagationWriter::RootPropagationWriter(
   }
 }
 
-FW::Root::RootPropagationWriter::~RootPropagationWriter()
+FW::Root::RootPropagationStepsWriter::~RootPropagationStepsWriter()
 {
   m_outputFile->Close();
 }
 
 FW::ProcessCode
-FW::Root::RootPropagationWriter::endRun()
+FW::Root::RootPropagationStepsWriter::endRun()
 {
   ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
                                         << m_cfg.filePath
@@ -50,7 +50,7 @@ FW::Root::RootPropagationWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootPropagationWriter::writeT(
+FW::Root::RootPropagationStepsWriter::writeT(
     const AlgorithmContext&              ctx,
     const std::vector<PropagationSteps>& stepCollection)
 {
@@ -66,7 +66,7 @@ FW::Root::RootPropagationWriter::writeT(
   treeName += std::to_string(eventNr);
 
   TTree* outputTree
-      = new TTree(treeName.c_str(), "TTree from RootPropagationWriter");
+      = new TTree(treeName.c_str(), "TTree from RootPropagationStepsWriter");
   if (!outputTree) throw std::bad_alloc();
 
   // Set the branches

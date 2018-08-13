@@ -95,21 +95,21 @@ main(int argc, char* argv[])
 
   // Write particles as CSV files
   std::shared_ptr<FW::Csv::CsvParticleWriter> pWriterCsv = nullptr;
-  if (vm["output-csv"].as<bool>()){
+  if (vm["output-csv"].as<bool>()) {
     FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
     pWriterCsvConfig.collection     = readEvgenCfg.evgenCollection;
     pWriterCsvConfig.outputDir      = outputDir;
-    pWriterCsvConfig.outputFileName = readEvgenCfg.evgenCollection+".csv";
+    pWriterCsvConfig.outputFileName = readEvgenCfg.evgenCollection + ".csv";
     pWriterCsv = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
   }
 
   // Write particles as ROOT file
   std::shared_ptr<FW::Root::RootParticleWriter> pWriterRoot = nullptr;
-  if (vm["output-root"].as<bool>()){
+  if (vm["output-root"].as<bool>()) {
     // Write particles as ROOT TTree
     FW::Root::RootParticleWriter::Config pWriterRootConfig;
     pWriterRootConfig.collection = readEvgenCfg.evgenCollection;
-    pWriterRootConfig.filePath = readEvgenCfg.evgenCollection+".root";
+    pWriterRootConfig.filePath   = readEvgenCfg.evgenCollection + ".root";
     pWriterRootConfig.barcodeSvc = barcodeSvc;
     pWriterRoot
         = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);

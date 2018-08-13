@@ -21,7 +21,7 @@ namespace FW {
 
 /// @class IWriterT
 ///
-/// Interface to read in an templated object  
+/// Interface to read in an templated object
 template <typename T>
 class IReaderT : public IService
 {
@@ -38,6 +38,7 @@ public:
   virtual ProcessCode
   read(T&                          object,
        size_t                      skip    = 0,
-       const FW::AlgorithmContext* context = nullptr) = 0;
+       const FW::AlgorithmContext* context = nullptr)
+      = 0;
 };
 }

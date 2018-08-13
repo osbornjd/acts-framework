@@ -25,8 +25,8 @@ namespace Options {
   {
     // Add specific options for this example
     opt.add_options()("output-dir",
-                       po::value<std::string>()->default_value(""),
-                       "Output directory location.")(
+                      po::value<std::string>()->default_value(""),
+                      "Output directory location.")(
         "output-root",
         po::value<bool>()->default_value(true),
         "Switch on to write '.root' output file(s).")(
@@ -39,7 +39,6 @@ namespace Options {
         "output-json",
         po::value<bool>()->default_value(true),
         "Switch on to write '.json' ouput file(s).");
-    
   }
 }  // namespace Options
 }  // namespace FW

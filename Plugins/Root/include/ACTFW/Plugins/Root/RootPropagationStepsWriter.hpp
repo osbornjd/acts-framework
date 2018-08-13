@@ -21,10 +21,11 @@ namespace Root {
 
   using PropagationSteps = std::vector<Acts::detail::Step>;
 
-  /// @class RootPropagationWriter
+  /// @class RootPropagationStepsWriter
   ///
   /// Write out the steps of test propgations for stepping validation
-  class RootPropagationWriter : public WriterT<std::vector<PropagationSteps>>
+  class RootPropagationStepsWriter
+      : public WriterT<std::vector<PropagationSteps>>
   {
   public:
     using Base = WriterT<std::vector<PropagationSteps>>;
@@ -40,11 +41,12 @@ namespace Root {
     /// Constructor with
     /// @param cfg configuration struct
     /// @param output logging level
-    RootPropagationWriter(const Config&        cfg,
-                          Acts::Logging::Level level = Acts::Logging::INFO);
+    RootPropagationStepsWriter(const Config&        cfg,
+                               Acts::Logging::Level level
+                               = Acts::Logging::INFO);
 
     /// Virtual destructor
-    ~RootPropagationWriter() override;
+    ~RootPropagationStepsWriter() override;
 
     /// End-of-run hook
     ProcessCode

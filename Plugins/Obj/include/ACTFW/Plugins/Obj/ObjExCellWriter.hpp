@@ -9,8 +9,8 @@
 #pragma once
 
 #include <TTree.h>
-#include <mutex>
 #include <fstream>
+#include <mutex>
 #include <sstream>
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
@@ -49,14 +49,13 @@ namespace Obj {
 
       /// Precision for out
       size_t outputPrecision = 4;
-      
-      /// transverse momentum cut 
-      double outputPtCut         = 150. * Acts::units::_MeV;
-      double outputMaxVr         = 1000. * Acts::units::_mm;
-      
+
+      /// transverse momentum cut
+      double outputPtCut = 150. * Acts::units::_MeV;
+      double outputMaxVr = 1000. * Acts::units::_mm;
+
       /// the size of the bezier segment
       double outputBezierSegment = 0. * Acts::units::_mm;
-      
     };
 
     /// Constructor
@@ -78,23 +77,23 @@ namespace Obj {
     /// @param [in] ctx is the algorithm context for event consistency
     /// @param [in] ecells are the celss to be written out
     ProcessCode
-    writeT(
-        const FW::AlgorithmContext&                    ctx,
-        const std::vector<Acts::ExtrapolationCell<charge_t>>& ecells) final override;
+    writeT(const FW::AlgorithmContext&                           ctx,
+           const std::vector<Acts::ExtrapolationCell<charge_t>>& ecells)
+        final override;
 
   private:
-    Config     m_cfg;          ///< the configuration class of this writer
-    size_t     m_vCounter;     ///< the vertex counter needed for Obj objects
+    Config m_cfg;  ///< the configuration class of this writer
   };
 
   template <typename charge_t>
-  ObjExCellWriter<charge_t>::ObjExCellWriter(const ObjExCellWriter<charge_t>::Config& cfg,
-                                      Acts::Logging::Level              level)
-    : FW::WriterT<std::vector<Acts::ExtrapolationCell<charge_t>>>(cfg.collection,
-                                                           "ObjExCellWriter",
-                                                           level)
+  ObjExCellWriter<charge_t>::ObjExCellWriter(
+      const ObjExCellWriter<charge_t>::Config& cfg,
+      Acts::Logging::Level                     level)
+    : FW::WriterT<std::vector<Acts::ExtrapolationCell<charge_t>>>(
+          cfg.collection,
+          "ObjExCellWriter",
+          level)
     , m_cfg(cfg)
-    , m_vCounter(0)
   {
     // Validate the configuration
     if (m_cfg.collection.empty()) {
@@ -110,11 +109,11 @@ namespace Obj {
   {
 
     // Initialize the vertex counter
-    m_vCounter = 0;
-    
+    int vCounter = 0;
+
     // event suffix
     std::string suffix = "tracks.obj";
-    
+
     std::string path
         = FW::perEventFilepath(m_cfg.outputDir, suffix, ctx.eventNumber);
     std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
@@ -125,21 +124,21 @@ namespace Obj {
 
     // Loop over the cells
     for (auto& eCell : ecells) {
-      
+
       // The ecc start paramters
       auto sPosition = eCell.startParameters->position();
       auto sMomentum = eCell.startParameters->momentum();
-      // The momentum & vertex cut 
+      // The momentum & vertex cut
       if (sMomentum.perp() < m_cfg.outputPtCut) continue;
       if (sPosition.perp() > m_cfg.outputMaxVr) continue;
-      
+
       // Remember the first counter - for obj lines
-      size_t fCounter = m_vCounter;
+      size_t fCounter = vCounter;
 
       // Loop over extrapolation steps - add bezier points
       auto lPosition  = eCell.startParameters->position();
       auto lDirection = sMomentum.unit();
-              
+
       for (auto& es : eCell.extrapolationSteps) {
         if (es.parameters) {
           // Take the step parameters
@@ -150,9 +149,9 @@ namespace Obj {
           if (tPosition == sPosition) continue;
           // Write the start parameters because
           // at least one other space point is here
-          if (m_vCounter == fCounter) {
+          if (vCounter == fCounter) {
             // increase the vertex counter
-            ++m_vCounter;
+            ++vCounter;
             // write the actual point
             os << "v " << m_cfg.outputScalor * sPosition.x() << ", "
                << m_cfg.outputScalor * sPosition.y() << ", "
@@ -177,7 +176,7 @@ namespace Obj {
                 double t = ib / (double)segments;
                 auto   bPoint
                     = calculateBezierPoint(t, lPosition, p1, p2, tPosition);
-                ++m_vCounter;
+                ++vCounter;
                 // write the space point
                 os << "v " << m_cfg.outputScalor * bPoint.x() << ", "
                    << m_cfg.outputScalor * bPoint.y() << ", "
@@ -186,8 +185,8 @@ namespace Obj {
               }  // end of bezier segent writing
             }    // protection against only one segment
           }      // end of bezier condition
-          // increase the counter, and write 
-          ++m_vCounter;
+          // increase the counter, and write
+          ++vCounter;
           os << "v " << m_cfg.outputScalor * tPosition.x() << ", "
              << m_cfg.outputScalor * tPosition.y() << ", "
              << m_cfg.outputScalor * tPosition.z() << " # excell point "
@@ -201,13 +200,13 @@ namespace Obj {
       }  // end of extrapolation step loop
 
       // write out the line - only if we have at least two points created
-      if ((m_vCounter-fCounter) > 2)
-        for (size_t iv = fCounter + 1; iv < m_vCounter; ++iv)
+      if ((vCounter - fCounter) > 2)
+        for (size_t iv = fCounter + 1; iv < vCounter; ++iv)
           os << "l " << iv << " " << iv + 1 << '\n';
 
     }  // end of eCells loop
     os << '\n' << '\n';
-    
+
     // return success
     return FW::ProcessCode::SUCCESS;
   }

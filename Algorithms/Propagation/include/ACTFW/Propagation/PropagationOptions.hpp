@@ -113,7 +113,7 @@ namespace Options {
     pAlgConfig.maxStepSize
         = vm["prop-max-stepsize"].template as<double>() * au::_mm;
 
-    pAlgConfig.propagationStepCollection 
+    pAlgConfig.propagationStepCollection
         = vm["prop-step-collection"].template as<std::string>();
 
     return pAlgConfig;

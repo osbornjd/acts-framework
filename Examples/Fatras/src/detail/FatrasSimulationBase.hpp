@@ -13,10 +13,10 @@
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
-#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootFatrasHitWriter.hpp"
+#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
@@ -92,20 +92,21 @@ struct SurfaceSelector
 /// simulation
 template <typename bfield_t>
 void
-setupSimulationAlgorithm(bfield_t                                      fieldMap,
-                FW::Sequencer&                                sequencer,
-                po::variables_map&                            vm,
-                std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
-                std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
-                std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
+setupSimulationAlgorithm(
+    bfield_t                                      fieldMap,
+    FW::Sequencer&                                sequencer,
+    po::variables_map&                            vm,
+    std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
+    std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
+    std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
 {
 
   // Read the log level
   Acts::Logging::Level logLevel = FW::Options::readLogLevel(vm);
 
   /// Read the evgen particle collection
-  const std::string& evgenCollection 
-        = vm["evg-collection"].template as<std::string>();
+  const std::string& evgenCollection
+      = vm["evg-collection"].template as<std::string>();
 
   // Create a navigator for this tracking geometry
   Acts::Navigator cNavigator(tGeometry);
@@ -167,46 +168,48 @@ setupSimulationAlgorithm(bfield_t                                      fieldMap,
 
   // Finalize the squencer setting and run
   sequencer.appendEventAlgorithms({fatrasAlgorithm});
-  
+
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
 
   // Write simulation information as CSV files
   std::shared_ptr<FW::Csv::CsvParticleWriter> pWriterCsv = nullptr;
-  if (vm["output-csv"].template as<bool>()){
+  if (vm["output-csv"].template as<bool>()) {
     FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
-    pWriterCsvConfig.collection     = fatrasConfig.simulatedEventCollection;
-    pWriterCsvConfig.outputDir      = outputDir;
-    pWriterCsvConfig.outputFileName = fatrasConfig.simulatedEventCollection+".csv";
-    auto pWriterCsv = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
-    
+    pWriterCsvConfig.collection = fatrasConfig.simulatedEventCollection;
+    pWriterCsvConfig.outputDir  = outputDir;
+    pWriterCsvConfig.outputFileName
+        = fatrasConfig.simulatedEventCollection + ".csv";
+    auto pWriterCsv
+        = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
+
     sequencer.addWriters({pWriterCsv});
   }
 
   // Write simulation information as ROOT files
   std::shared_ptr<FW::Root::RootParticleWriter> pWriterRoot = nullptr;
-  if (vm["output-root"].template as<bool>()){
+  if (vm["output-root"].template as<bool>()) {
     // Write particles as ROOT TTree
     FW::Root::RootParticleWriter::Config pWriterRootConfig;
     pWriterRootConfig.collection = fatrasConfig.simulatedEventCollection;
-    pWriterRootConfig.filePath   
-      = FW::joinPaths(outputDir,fatrasConfig.simulatedEventCollection+".root");
-    pWriterRootConfig.treeName   = fatrasConfig.simulatedEventCollection; 
+    pWriterRootConfig.filePath   = FW::joinPaths(
+        outputDir, fatrasConfig.simulatedEventCollection + ".root");
+    pWriterRootConfig.treeName   = fatrasConfig.simulatedEventCollection;
     pWriterRootConfig.barcodeSvc = barcodeSvc;
     auto pWriterRoot
         = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
-  
+
     // Write simulated hits as ROOT TTree
     FW::Root::RootFatrasHitWriter::Config fhitWriterRootConfig;
     fhitWriterRootConfig.collection = fatrasConfig.simulatedHitCollection;
-    fhitWriterRootConfig.filePath
-       = FW::joinPaths(outputDir, fatrasConfig.simulatedHitCollection+".root");
-    fhitWriterRootConfig.treeName   = fatrasConfig.simulatedHitCollection;
-      auto fhitWriterRoot
-       = std::make_shared<FW::Root::RootFatrasHitWriter>(fhitWriterRootConfig);
-  
-    sequencer.addWriters({pWriterRoot, fhitWriterRoot});  
-  }  
+    fhitWriterRootConfig.filePath   = FW::joinPaths(
+        outputDir, fatrasConfig.simulatedHitCollection + ".root");
+    fhitWriterRootConfig.treeName = fatrasConfig.simulatedHitCollection;
+    auto fhitWriterRoot
+        = std::make_shared<FW::Root::RootFatrasHitWriter>(fhitWriterRootConfig);
+
+    sequencer.addWriters({pWriterRoot, fhitWriterRoot});
+  }
 }
 
 /// @brief Simulation setup

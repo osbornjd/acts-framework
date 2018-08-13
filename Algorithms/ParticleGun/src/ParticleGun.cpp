@@ -6,12 +6,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "ACTFW/ParticleGun/ParticleGun.hpp"
 #include <cmath>
 #include <stdexcept>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Framework/AlgorithmContext.hpp"
-#include "ACTFW/ParticleGun/ParticleGun.hpp"
+#include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Utilities/Units.hpp"
@@ -40,14 +40,14 @@ FW::ParticleGun::ParticleGun(const Config&                       cfg,
 
 FW::ProcessCode
 FW::ParticleGun::read(std::vector<Fatras::Vertex>& vertices,
-                      size_t skip,
-                      const AlgorithmContext* context)
+                      size_t                       skip,
+                      const AlgorithmContext*      context)
 {
   if (!context) {
     ACTS_FATAL("Missing AlgorithmContext for ParticleGun generator");
     return ProcessCode::ABORT;
   }
-  
+
   // what's written out
   RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(*context);
 

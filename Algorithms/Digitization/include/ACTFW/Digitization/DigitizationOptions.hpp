@@ -24,10 +24,9 @@ namespace Options {
   void
   addDigitizationOptions(aopt_t& opt)
   {
-    opt.add_options()(
-        "digi-spacepoints",
-        po::value<std::string>()->default_value("space-points"),
-        "Collection name of the produced space points.")(
+    opt.add_options()("digi-spacepoints",
+                      po::value<std::string>()->default_value("space-points"),
+                      "Collection name of the produced space points.")(
         "digi-clusters",
         po::value<std::string>()->default_value("clusters"),
         "Collection name of the produced clustes.")(

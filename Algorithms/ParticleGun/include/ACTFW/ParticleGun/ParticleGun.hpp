@@ -21,7 +21,7 @@ namespace FW {
 class BarcodeSvc;
 class RandomNumbersSvc;
 
-using InputReader = IReaderT<std::vector<Fatras::Vertex>>;  
+using InputReader = IReaderT<std::vector<Fatras::Vertex>>;
 
 /// @class ParticleGun
 ///
@@ -72,7 +72,10 @@ public:
 
   /// Framework name() method
   std::string
-  name() const final override { return "ParticleGun"; }
+  name() const final override
+  {
+    return "ParticleGun";
+  }
 
   // clang-format off
   /// @copydoc FW::IReaderT::read(std::vector<Fatras::Vertex>& pProperties,size_t,const FW::AlgorithmContext*)

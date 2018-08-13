@@ -80,10 +80,10 @@ main(int argc, char* argv[])
   // Now read the particle gun configs
   auto particleGunCfg
       = FW::Options::readParticleGunConfig<po::variables_map>(vm);
-  particleGunCfg.randomNumberSvc        = randomNumberSvc;
-  particleGunCfg.barcodeSvc             = barcodeSvc;
-  
-  auto particleGun               = std::make_shared<FW::ParticleGun>(
+  particleGunCfg.randomNumberSvc = randomNumberSvc;
+  particleGunCfg.barcodeSvc      = barcodeSvc;
+
+  auto particleGun = std::make_shared<FW::ParticleGun>(
       particleGunCfg, Acts::getDefaultLogger("ParticleGun", logLevel));
 
   // Now read the evgen config & set the missing parts

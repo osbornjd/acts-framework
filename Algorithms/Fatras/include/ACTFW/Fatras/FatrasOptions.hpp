@@ -30,9 +30,10 @@ namespace Options {
   void
   addFatrasOptions(AOPT& opt)
   {
-    opt.add_options()("fatras-sim-particles",
-                      po::value<std::string>()->default_value("fatras-particles"),
-                      "The collection of simulated particles.")(
+    opt.add_options()(
+        "fatras-sim-particles",
+        po::value<std::string>()->default_value("fatras-particles"),
+        "The collection of simulated particles.")(
         "fatras-sim-hits",
         po::value<std::string>()->default_value("fatras-hits"),
         "The collection of simulated hits")(

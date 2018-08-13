@@ -27,9 +27,9 @@
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
+#include "FatrasDigitizationBase.hpp"
 #include "FatrasEvgenBase.hpp"
 #include "FatrasSimulationBase.hpp"
-#include "FatrasDigitizationBase.hpp"
 
 namespace po = boost::program_options;
 
@@ -75,7 +75,7 @@ fatrasExample(int                argc,
   // Add program specific options: input / output
   desc.add_options()("evg-input-type",
                      po::value<std::string>()->default_value("pythia"),
-                     "Type of evgen input 'gun', 'pythia'");                     
+                     "Type of evgen input 'gun', 'pythia'");
 
   // Add specific options for this geometry
   geometryOptions(desc);
@@ -104,40 +104,32 @@ fatrasExample(int                argc,
   sequencer.addServices({randomNumberSvc});
   // Create the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
-  auto barcodeSvc = std::make_shared<FW::BarcodeSvc>(
+  auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
       barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
   // Add it to the sequencer
   sequencer.addServices({barcodeSvc});
 
   // Get the tracking geometry
   auto tGeometry = trackingGeometry(vm);
-  
+
   // (A) EVGEN
   // Setup the evgen input to the simulation
-  setupEvgenInput<po::variables_map>(vm,
-                                     sequencer,
-                                     barcodeSvc,
-                                     randomNumberSvc);
+  setupEvgenInput<po::variables_map>(
+      vm, sequencer, barcodeSvc, randomNumberSvc);
 
   // (B) SIMULATION
   // Setup the simulation
-  setupSimulation<po::variables_map>(vm, 
-                                     sequencer,
-                                     tGeometry,
-                                     barcodeSvc,
-                                     randomNumberSvc);
-  
+  setupSimulation<po::variables_map>(
+      vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
+
   // (C) DIGITIZATION
-  // Setup the digitization 
-  setupDigitization<po::variables_map>(vm,
-                                       sequencer,
-                                       barcodeSvc,
-                                       randomNumberSvc);                                       
+  // Setup the digitization
+  setupDigitization<po::variables_map>(
+      vm, sequencer, barcodeSvc, randomNumberSvc);
 
   // (D) TRUTH TRACKING
 
   // (E) PATTERN RECOGNITION
-
 
   // Initiate the run
   sequencer.run(nEvents);

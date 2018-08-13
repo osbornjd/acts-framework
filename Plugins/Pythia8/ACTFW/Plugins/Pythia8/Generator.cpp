@@ -71,11 +71,11 @@ FW::GPythia8::Generator::read(std::vector<Fatras::Vertex>& processVertices,
 {
   // pythia8 is not thread safe and needs to be protected
   std::lock_guard<std::mutex> lock(m_read_mutex);
-  
+
   // get the algorithm and event driven random number seed and set it
-  // set the seed at initial call 
-  if (context){
-    auto seed = m_cfg.randomNumberSvc->generateSeed(*context);  
+  // set the seed at initial call
+  if (context) {
+    auto seed = m_cfg.randomNumberSvc->generateSeed(*context);
     m_pythia8.rndm.init(seed);
     ACTS_DEBUG("Random number seed for Pythia8 set to:" << seed);
   }

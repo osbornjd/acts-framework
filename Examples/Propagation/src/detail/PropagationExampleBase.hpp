@@ -14,7 +14,8 @@
 #include "ACTFW/Common/GeometryOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/Root/RootPropagationWriter.hpp"
+#include "ACTFW/Plugins/Obj/ObjPropagationStepsWriter.hpp"
+#include "ACTFW/Plugins/Root/RootPropagationStepsWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
@@ -198,21 +199,39 @@ propagationExample(int                argc,
     setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   }
 
-  auto psCollection = vm["prop-step-collection"].as<std::string>();  
+  // ---------------------------------------------------------------------------------
+  // Output directory
+  std::string outputDir    = vm["output-dir"].template as<std::string>();
+  auto        psCollection = vm["prop-step-collection"].as<std::string>();
 
   if (vm["output-root"].template as<bool>()) {
     // Write the propagation steps as ROOT TTree
-    FW::Root::RootPropagationWriter::Config pstepWriterRootConfig;
+    FW::Root::RootPropagationStepsWriter::Config pstepWriterRootConfig;
     pstepWriterRootConfig.collection = psCollection;
-    pstepWriterRootConfig.filePath   = FW::joinPaths(
-        pstepWriterRootConfig.filePath, psCollection+".root");
-    auto pstepWriterRoot = std::make_shared<FW::Root::RootPropagationWriter>(
-        pstepWriterRootConfig);
+    pstepWriterRootConfig.filePath
+        = FW::joinPaths(outputDir, psCollection + ".root");
+    auto pstepWriterRoot
+        = std::make_shared<FW::Root::RootPropagationStepsWriter>(
+            pstepWriterRootConfig);
     if (sequencer.addWriters({pstepWriterRoot}) != FW::ProcessCode::SUCCESS)
       return -1;
   }
 
-  // 
+  if (vm["output-obj"].template as<bool>()) {
+
+    using PropagationSteps = Acts::detail::Step;
+    using ObjPropagationStepsWriter
+        = FW::Obj::ObjPropagationStepsWriter<PropagationSteps>;
+
+    // Write the propagation steps as Obj TTree
+    ObjPropagationStepsWriter::Config pstepWriterObjConfig;
+    pstepWriterObjConfig.collection = psCollection;
+    pstepWriterObjConfig.outputDir  = outputDir;
+    auto pstepWriteObj
+        = std::make_shared<ObjPropagationStepsWriter>(pstepWriterObjConfig);
+    if (sequencer.addWriters({pstepWriteObj}) != FW::ProcessCode::SUCCESS)
+      return -1;
+  }
 
   // Initiate the run
   sequencer.run(nEvents);

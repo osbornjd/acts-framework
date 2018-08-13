@@ -22,17 +22,17 @@ namespace FW {
 namespace Options {
 
   /// Common evgen options, with an evg prefix
-  /// 
+  ///
   /// @tparam aopt_t is the templated options object (from boost)
   template <typename aopt_t>
   void
   addEvgenReaderOptions(aopt_t& opt)
   {
-    opt.add_options()
-       ("evg-collection",
+    opt.add_options()(
+        "evg-collection",
         po::value<std::string>()->default_value("evgen-particles"),
-        "Collection name of the generated particles.")
-        ("evg-shuffle",
+        "Collection name of the generated particles.")(
+        "evg-shuffle",
         po::value<bool>()->default_value(false),
         "Shuffle the order of events after reading.")(
         "evg-pileup",
@@ -49,7 +49,7 @@ namespace Options {
   }
 
   /// Read the evgen options and return a Config file
-  /// 
+  ///
   /// @tparam vmap_t is the templated options map (from boost)
   template <typename vmap_t>
   FW::EvgenReader::Config
@@ -57,16 +57,18 @@ namespace Options {
   {
     FW::EvgenReader::Config readEvgenConfig;
     // the evgen Collection
-    readEvgenConfig.evgenCollection 
-      = vm["evg-collection"].template as<std::string>();
+    readEvgenConfig.evgenCollection
+        = vm["evg-collection"].template as<std::string>();
     // the pileup Poisson parameter
     readEvgenConfig.pileupPoissonParameter
         = vm["evg-pileup"].template as<int>();
     // vertex parameters
     auto vtpars = vm["evg-vertex-xy-range"].template as<read_range>();
     auto vzpars = vm["evg-vertex-z-range"].template as<read_range>();
-    readEvgenConfig.vertexTParameters = {{vtpars[0] * au::_mm, vtpars[1] * au::_mm}};
-    readEvgenConfig.vertexZParameters = {{vzpars[0] * au::_mm, vzpars[1] * au::_mm}};
+    readEvgenConfig.vertexTParameters
+        = {{vtpars[0] * au::_mm, vtpars[1] * au::_mm}};
+    readEvgenConfig.vertexZParameters
+        = {{vzpars[0] * au::_mm, vzpars[1] * au::_mm}};
     // shuffle the event or not
     readEvgenConfig.shuffleEvents = vm["evg-shuffle"].template as<bool>();
     // return the config

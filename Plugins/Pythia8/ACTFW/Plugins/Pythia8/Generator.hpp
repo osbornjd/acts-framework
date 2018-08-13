@@ -19,9 +19,9 @@
 #include "ACTFW/Readers/IReaderT.hpp"
 
 namespace FW {
-  
-using InputReader = IReaderT<std::vector<Fatras::Vertex>>;  
-  
+
+using InputReader = IReaderT<std::vector<Fatras::Vertex>>;
+
 namespace GPythia8 {
 
   /// @class IParticleReader

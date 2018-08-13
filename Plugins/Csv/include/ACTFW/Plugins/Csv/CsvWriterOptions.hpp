@@ -54,53 +54,49 @@ namespace Options {
 
   /// Read the CSV options and return a Config file for the TrackingGeometry
   /// writing
-  /// 
-  /// @tparam amap_t Type of the map object for reading out 
+  ///
+  /// @tparam amap_t Type of the map object for reading out
   ///
   /// @param map Object for the options to be read out
   /// @param name Name of the TrackingGeometryWriter to be constructed
   template <typename amap_t>
   FW::Csv::CsvTrackingGeometryWriter::Config
-  readCsvTrackingGeometryWriterConfig(const amap_t& vm, 
-        const std::string& name = "CsvTrackingGeometryWriter")
+  readCsvTrackingGeometryWriterConfig(const amap_t&      vm,
+                                      const std::string& name
+                                      = "CsvTrackingGeometryWriter")
   {
     FW::Csv::CsvTrackingGeometryWriter::Config objTgConfig(name,
                                                            Acts::Logging::INFO);
-    objTgConfig.filePrefix 
-      = vm["csv-tg-fileheader"].template as<std::string>();
-    objTgConfig.layerPrefix 
-      = vm["csv-tg-layerheader"].template as<std::string>();
+    objTgConfig.filePrefix = vm["csv-tg-fileheader"].template as<std::string>();
+    objTgConfig.layerPrefix
+        = vm["csv-tg-layerheader"].template as<std::string>();
     // Return the config object
     return objTgConfig;
   }
 
   /// Read the CSV options and return a Config file for the Surface
   /// writing
-  /// 
-  /// @tparam amap_t Type of the map object for reading out 
+  ///
+  /// @tparam amap_t Type of the map object for reading out
   ///
   /// @param map Object for the options to be read out
   /// @param name Name of the SurfaceWriter to be constructed
   template <typename amap_t>
   FW::Csv::CsvSurfaceWriter::Config
-  readCsvSurfaceWriterConfig(const amap_t& vm, 
-          const std::string& name = "CSVSurfaceWriter")
+  readCsvSurfaceWriterConfig(const amap_t&      vm,
+                             const std::string& name = "CSVSurfaceWriter")
   {
-    FW::Csv::CsvSurfaceWriter::Config objSfConfig(name,
-                                                  Acts::Logging::INFO);
+    FW::Csv::CsvSurfaceWriter::Config objSfConfig(name, Acts::Logging::INFO);
 
-    objSfConfig.filePrefix 
-      = vm["csv-sf-fileheader"].template as<std::string>();
+    objSfConfig.filePrefix = vm["csv-sf-fileheader"].template as<std::string>();
     objSfConfig.outputPrecision
-      = vm["csv-sf-outputPrecission"].template as<int>();
-    objSfConfig.outputScalor
-      = vm["csv-sf-outputScalor"].template as<double>();
-    objSfConfig.outputBounds
-       = vm["csv-sf-outputBounds"].template as<bool>();
-    objSfConfig.outputSensitive 
-      = vm["csv-sf-outputSensitive"].template as<bool>();
-    objSfConfig.outputLayerSurface 
-      = vm["csv-sf-outputLayers"].template as<bool>();
+        = vm["csv-sf-outputPrecission"].template as<int>();
+    objSfConfig.outputScalor = vm["csv-sf-outputScalor"].template as<double>();
+    objSfConfig.outputBounds = vm["csv-sf-outputBounds"].template as<bool>();
+    objSfConfig.outputSensitive
+        = vm["csv-sf-outputSensitive"].template as<bool>();
+    objSfConfig.outputLayerSurface
+        = vm["csv-sf-outputLayers"].template as<bool>();
     // Return the config object
     return objSfConfig;
   }

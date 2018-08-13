@@ -16,13 +16,12 @@
 #include "ACTFW/Extrapolation/ExtrapolationAlgorithm.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/Plugins/Obj/ObjExCellWriter.hpp"
+#include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/Root/RootExCellWriter.hpp"
-#include "ACTFW/Plugins/Obj/ObjExCellWriter.hpp"
-
 
 namespace po = boost::program_options;
 
@@ -111,18 +110,19 @@ extrapolationExample(int                argc,
   // Append the algorithm
   sequencer.appendEventAlgorithms({extrapolationAlg});
 
-  // ---------------------------------------------------------------------------------  
+  // ---------------------------------------------------------------------------------
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
-  auto ecc = vm["ext-charged-cells"].as<std::string>();
-  auto ecn = vm["ext-neutral-cells"].as<std::string>();
+  auto        ecc       = vm["ext-charged-cells"].as<std::string>();
+  auto        ecn       = vm["ext-neutral-cells"].as<std::string>();
 
   // Write ROOT TTree(s)
-  if (vm["output-root"].as<bool>()){    
-    
+  if (vm["output-root"].as<bool>()) {
+
     // Ec for charged particles
-    FW::Root::RootExCellWriter<Acts::TrackParameters>::Config eccWriterRootConfig;
-    eccWriterRootConfig.filePath       = FW::joinPaths(outputDir, ecc+".obj");
+    FW::Root::RootExCellWriter<Acts::TrackParameters>::Config
+        eccWriterRootConfig;
+    eccWriterRootConfig.filePath       = FW::joinPaths(outputDir, ecc + ".obj");
     eccWriterRootConfig.treeName       = ecc;
     eccWriterRootConfig.collection     = ecc;
     eccWriterRootConfig.writeBoundary  = false;
@@ -134,8 +134,9 @@ extrapolationExample(int                argc,
             eccWriterRootConfig);
 
     // Ec for neutral particles
-    FW::Root::RootExCellWriter<Acts::NeutralParameters>::Config ecnWriterRootConfig;
-    ecnWriterRootConfig.filePath       = FW::joinPaths(outputDir, ecn+".obj");
+    FW::Root::RootExCellWriter<Acts::NeutralParameters>::Config
+        ecnWriterRootConfig;
+    ecnWriterRootConfig.filePath       = FW::joinPaths(outputDir, ecn + ".obj");
     ecnWriterRootConfig.treeName       = ecn;
     ecnWriterRootConfig.collection     = ecn;
     ecnWriterRootConfig.writeBoundary  = false;
@@ -148,10 +149,10 @@ extrapolationExample(int                argc,
     // Add the writers
     sequencer.addWriters({eccWriterRoot, ecnWriterRoot});
   }
-  
+
   // Write OBJ Files
-  if (vm["output-root"].as<bool>()){    
-    
+  if (vm["output-root"].as<bool>()) {
+
     // Ec for charged particles
     FW::Obj::ObjExCellWriter<Acts::TrackParameters>::Config eccWriterObjConfig;
     eccWriterObjConfig.collection = ecc;
@@ -161,7 +162,8 @@ extrapolationExample(int                argc,
             eccWriterObjConfig);
 
     // Ec for neutral particles
-    FW::Obj::ObjExCellWriter<Acts::NeutralParameters>::Config ecnWriterObjConfig;
+    FW::Obj::ObjExCellWriter<Acts::NeutralParameters>::Config
+        ecnWriterObjConfig;
     ecnWriterObjConfig.collection = ecn;
     ecnWriterObjConfig.outputDir  = outputDir;
     auto ecnWriterObj
@@ -171,7 +173,7 @@ extrapolationExample(int                argc,
     // Add the writers
     sequencer.addWriters({eccWriterObj, ecnWriterObj});
   }
-  
+
   // Initiate the run
   sequencer.run(nEvents);
   // Return 0 for success

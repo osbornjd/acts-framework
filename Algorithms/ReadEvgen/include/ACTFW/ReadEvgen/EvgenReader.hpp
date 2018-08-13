@@ -38,7 +38,7 @@ public:
     /// the hard scatter reader (optional)
     std::shared_ptr<InputReader> hardscatterEventReader = nullptr;
     /// the pileup reader (optional)
-    std::shared_ptr<InputReader> pileupEventReader      = nullptr;
+    std::shared_ptr<InputReader> pileupEventReader = nullptr;
     /// name of the output collection
     std::string evgenCollection = "EvgenParticles";
     /// the Poisson parameter for pileup generation

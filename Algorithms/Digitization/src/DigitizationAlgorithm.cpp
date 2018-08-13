@@ -50,7 +50,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
 {
   // Prepare the input data collection
   const FW::DetectorData<geo_id_value, Fatras::SensitiveHit>* simHits = nullptr;
-  
+
   // Read it from the event store
   if (context.eventStore.get(m_cfg.simulatedHitCollection, simHits)
       == FW::ProcessCode::ABORT)
