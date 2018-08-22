@@ -35,15 +35,15 @@ namespace Data {
   ///
   /// @param dData The detector data map
   /// @param volumeKey The identifier for the detector volume
-  /// @param layerKey The identifier for the layer 
+  /// @param layerKey The identifier for the layer
   /// @param moduleKey The identifier for the module
   template <typename identifier_t, typename data_t>
   void
-  insert(DetectorData<identifier_t, data_t>& dData, 
-                      identifier_t volumeKey,
-                      identifier_t layerKey,
-                      identifier_t moduleKey,
-                      data_t obj)
+  insert(DetectorData<identifier_t, data_t>& dData,
+         identifier_t volumeKey,
+         identifier_t layerKey,
+         identifier_t moduleKey,
+         data_t       obj)
   {
     // find if the volume has an entry
     auto volumeData = dData.find(volumeKey);
@@ -70,14 +70,14 @@ namespace Data {
     (moduleData->second).push_back(std::move(obj));
   };
 
-  /// @brief Read and return the module data 
+  /// @brief Read and return the module data
   ///
   /// @tparam identifier_t Type of the identifier key
   /// @tparam data_t Type of the object to be filled in
   ///
   /// @param dData The detector data map
   /// @param volumeKey The identifier for the detector volume
-  /// @param layerKey The identifier for the layer 
+  /// @param layerKey The identifier for the layer
   /// @param moduleKey The identifier for the module
   template <typename identifier_t, typename data_t>
   const ModuleData<identifier_t>*
@@ -99,20 +99,20 @@ namespace Data {
     return (&(moduleData->second));
   };
 
-  /// @brief Read and return the layer data 
+  /// @brief Read and return the layer data
   ///
   /// @tparam identifier_t Type of the identifier key
   /// @tparam data_t Type of the object to be filled in
   ///
   /// @param dData The detector data map
   /// @param volumeKey The identifier for the detector volume
-  /// @param layerKey The identifier for the layer 
+  /// @param layerKey The identifier for the layer
   /// @param moduleKey The identifier for the module
   template <typename identifier_t, typename data_t>
   const LayerData<identifier_t, data_t>*
-  read(DetectorData<identifier_t, data_t>& dData, 
-      identifier_t volumeKey,
-      identifier_t layerKey)
+  read(DetectorData<identifier_t, data_t>& dData,
+       identifier_t volumeKey,
+       identifier_t layerKey)
   {
     // find if the volume has an entry
     auto volumeData = dData.find(volumeKey);
@@ -124,5 +124,5 @@ namespace Data {
     return (&(layerData->second));
   };
 
-} // namespace Data
-} // namespace FW
+}  // namespace Data
+}  // namespace FW

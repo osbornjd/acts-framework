@@ -10,8 +10,8 @@
 
 #include <mutex>
 #include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 #include "TFile.h"
 #include "TTree.h"
@@ -26,10 +26,11 @@ namespace Root {
   /// to avoid immense long vectors, each cluster is one entry
   /// in the root file
   class RootSimHitWriter
-      : public WriterT<DetectorData<geo_id_value, Data::SimHit<Data::Particle> > >
+      : public WriterT<DetectorData<geo_id_value, Data::SimHit<Data::Particle>>>
   {
   public:
-    using Base = WriterT<DetectorData<geo_id_value, Data::SimHit<Data::Particle> > >;
+    using Base
+        = WriterT<DetectorData<geo_id_value, Data::SimHit<Data::Particle>>>;
     struct Config
     {
       std::string collection;             ///< cluster collection to write
@@ -54,13 +55,13 @@ namespace Root {
   protected:
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
-    /// 
+    ///
     /// @param ctx The Algorithm context
-    /// @param simhits The simulation hits collection to we written out 
+    /// @param simhits The simulation hits collection to we written out
     ProcessCode
     writeT(const AlgorithmContext& ctx,
-           const DetectorData< geo_id_value, Data::SimHit<Data::Particle> >& simhits)
-        final override;
+           const DetectorData<geo_id_value, Data::SimHit<Data::Particle>>&
+               simhits) final override;
 
   private:
     Config     m_cfg;         ///< the configuration object

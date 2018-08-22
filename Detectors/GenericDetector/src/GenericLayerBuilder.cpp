@@ -10,12 +10,12 @@
 #include <iostream>
 #include "ACTFW/GenericDetector/GenericDetectorElement.hpp"
 #include "Acts/Detector/DetectorElementBase.hpp"
-#include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
-#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
 #include "Acts/Layers/ProtoLayer.hpp"
 #include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
 #include "Acts/Material/Material.hpp"
 #include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
+#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
 #include "Acts/Surfaces/PlanarBounds.hpp"
 #include "Acts/Surfaces/PlaneSurface.hpp"
 #include "Acts/Surfaces/RadialBounds.hpp"
@@ -29,7 +29,7 @@
 
 FW::Generic::GenericLayerBuilder::GenericLayerBuilder(
     const FW::Generic::GenericLayerBuilder::Config& glbConfig,
-    std::unique_ptr<const Acts::Logger>       log)
+    std::unique_ptr<const Acts::Logger>             log)
   : Acts::ILayerBuilder()
   , m_nLayers()
   , m_cLayers()
@@ -184,11 +184,11 @@ FW::Generic::GenericLayerBuilder::constructLayers()
         // create the module
         Acts::DetectorElementBase* module
             = new FW::Generic::GenericDetectorElement(moduleIdentifier,
-                                                moduleTransform,
-                                                moduleBounds,
-                                                moduleThickness,
-                                                moduleMaterialPtr,
-                                                moduleDigitizationPtr);
+                                                      moduleTransform,
+                                                      moduleBounds,
+                                                      moduleThickness,
+                                                      moduleMaterialPtr,
+                                                      moduleDigitizationPtr);
         // register the surface
         sVector.push_back(&module->surface());
         // store the module
@@ -219,11 +219,11 @@ FW::Generic::GenericLayerBuilder::constructLayers()
           // everything is set for the next module
           Acts::DetectorElementBase* bsmodule
               = new FW::Generic::GenericDetectorElement(moduleIdentifier,
-                                                  moduleTransform,
-                                                  moduleBounds,
-                                                  moduleThickness,
-                                                  moduleMaterialPtr,
-                                                  moduleDigitizationPtr);
+                                                        moduleTransform,
+                                                        moduleBounds,
+                                                        moduleThickness,
+                                                        moduleMaterialPtr,
+                                                        moduleDigitizationPtr);
           // register the backside as bin member
           std::vector<const Acts::DetectorElementBase*> bsbinmember = {module};
           std::vector<const Acts::DetectorElementBase*> binmember = {bsmodule};
@@ -403,18 +403,18 @@ FW::Generic::GenericLayerBuilder::constructLayers()
           // create the module
           FW::Generic::GenericDetectorElement* nmodule
               = new FW::Generic::GenericDetectorElement(nModuleIdentifier,
-                                                  nModuleTransform,
-                                                  moduleBounds,
-                                                  moduleThickness,
-                                                  moduleMaterialPtr,
-                                                  moduleDigitizationPtr);
+                                                        nModuleTransform,
+                                                        moduleBounds,
+                                                        moduleThickness,
+                                                        moduleMaterialPtr,
+                                                        moduleDigitizationPtr);
           FW::Generic::GenericDetectorElement* pmodule
               = new FW::Generic::GenericDetectorElement(pModuleIdentifier,
-                                                  pModuleTransform,
-                                                  moduleBounds,
-                                                  moduleThickness,
-                                                  moduleMaterialPtr,
-                                                  moduleDigitizationPtr);
+                                                        pModuleTransform,
+                                                        moduleBounds,
+                                                        moduleThickness,
+                                                        moduleMaterialPtr,
+                                                        moduleDigitizationPtr);
           // memory management - we need a detector store to hold them somewhere
           // @todo add detector store facility
           m_posnegModule.push_back(nmodule);
@@ -422,8 +422,10 @@ FW::Generic::GenericLayerBuilder::constructLayers()
           // now deal with the potential backside
           if (m_cfg.posnegModuleBacksideGap.size()) {
             // ncrease the counter @todo switch to identifier service
-            nModuleIdentifier = Identifier(Identifier::identifier_type(++imodule));
-            pModuleIdentifier = Identifier(Identifier::identifier_type(++imodule));
+            nModuleIdentifier
+                = Identifier(Identifier::identifier_type(++imodule));
+            pModuleIdentifier
+                = Identifier(Identifier::identifier_type(++imodule));
             // the new centers
             nModuleCenter = nModuleCenter
                 + m_cfg.posnegModuleBacksideGap.at(ipnl).at(ipnR)
@@ -455,19 +457,21 @@ FW::Generic::GenericLayerBuilder::constructLayers()
                 mutablePModuleTransform);
             // everything is set for the next module
             FW::Generic::GenericDetectorElement* bsnmodule
-                = new FW::Generic::GenericDetectorElement(nModuleIdentifier,
-                                                    nModuleTransform,
-                                                    moduleBounds,
-                                                    moduleThickness,
-                                                    moduleMaterialPtr,
-                                                    moduleDigitizationPtr);
+                = new FW::Generic::GenericDetectorElement(
+                    nModuleIdentifier,
+                    nModuleTransform,
+                    moduleBounds,
+                    moduleThickness,
+                    moduleMaterialPtr,
+                    moduleDigitizationPtr);
             FW::Generic::GenericDetectorElement* bspmodule
-                = new FW::Generic::GenericDetectorElement(pModuleIdentifier,
-                                                    pModuleTransform,
-                                                    moduleBounds,
-                                                    moduleThickness,
-                                                    moduleMaterialPtr,
-                                                    moduleDigitizationPtr);
+                = new FW::Generic::GenericDetectorElement(
+                    pModuleIdentifier,
+                    pModuleTransform,
+                    moduleBounds,
+                    moduleThickness,
+                    moduleMaterialPtr,
+                    moduleDigitizationPtr);
             // register the backside of the binmembers
             std::vector<const Acts::DetectorElementBase*> bspbinmember
                 = {pmodule};

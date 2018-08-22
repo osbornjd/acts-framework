@@ -23,31 +23,30 @@ typedef unsigned long long Identifier;
 #endif
 
 namespace Acts {
-  class DigitizationModule;
+class DigitizationModule;
 }
 
 namespace FW {
-  namespace Detector {
-    // @brief The detector element parent 
-    class DetectorElementParent {
-    
-      public :
-    
-        // Virtual destructor
-        virtual ~DetectorElementParent() = default;
-    
-        /// Identifier
-        virtual Identifier
-        identifier() const = 0;
+namespace Detector {
+  // @brief The detector element parent
+  class DetectorElementParent
+  {
 
-        /// Return the DigitizationModule
-        /// @return optionally the DigitizationModule
-        virtual std::shared_ptr<const Acts::DigitizationModule>
-        digitizationModule() const = 0;
-    
-    };
-  
-  } // end of namespace Detector
+  public:
+    // Virtual destructor
+    virtual ~DetectorElementParent() = default;
+
+    /// Identifier
+    virtual Identifier
+    identifier() const = 0;
+
+    /// Return the DigitizationModule
+    /// @return optionally the DigitizationModule
+    virtual std::shared_ptr<const Acts::DigitizationModule>
+    digitizationModule() const = 0;
+  };
+
+}  // end of namespace Detector
 }  // end of namespace FW
 
 // now define the parent

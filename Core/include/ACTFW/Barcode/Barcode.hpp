@@ -9,6 +9,6 @@
 #pragma once
 
 namespace FW {
-  // barcodes
-  typedef unsigned long barcode_type;
+// barcodes
+typedef unsigned long barcode_type;
 }

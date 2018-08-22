@@ -143,20 +143,19 @@ FW::Root::RootPlanarClusterWriter::writeT(
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
           for (auto& sPartilce : hitIdentifier.truthParticles()) {
-             // positon
-             const Acts::Vector3D& sPosition = sPartilce->position();
-             const Acts::Vector3D& sMomentum = sPartilce->position();
-             // local position to be calculated
-             Acts::Vector2D lPosition;
-             clusterSurface.globalToLocal(sPosition, sMomentum, lPosition);
-             // fill the variables
-             m_t_gx.push_back(sPosition.x());
-             m_t_gy.push_back(sPosition.y());
-             m_t_gz.push_back(sPosition.z());
-             m_t_lx.push_back(lPosition.x());
-             m_t_ly.push_back(lPosition.y());
-             m_t_barcode.push_back(sPartilce->barcode());
-
+            // positon
+            const Acts::Vector3D& sPosition = sPartilce->position();
+            const Acts::Vector3D& sMomentum = sPartilce->position();
+            // local position to be calculated
+            Acts::Vector2D lPosition;
+            clusterSurface.globalToLocal(sPosition, sMomentum, lPosition);
+            // fill the variables
+            m_t_gx.push_back(sPosition.x());
+            m_t_gy.push_back(sPosition.y());
+            m_t_gz.push_back(sPosition.z());
+            m_t_lx.push_back(lPosition.x());
+            m_t_ly.push_back(lPosition.y());
+            m_t_barcode.push_back(sPartilce->barcode());
           }
           // fill the tree
           m_outputTree->Fill();

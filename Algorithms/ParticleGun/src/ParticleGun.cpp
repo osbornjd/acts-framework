@@ -40,8 +40,8 @@ FW::ParticleGun::ParticleGun(const Config&                       cfg,
 
 FW::ProcessCode
 FW::ParticleGun::read(std::vector<Data::Vertex>& vertices,
-                      size_t                       skip,
-                      const AlgorithmContext*      context)
+                      size_t                     skip,
+                      const AlgorithmContext*    context)
 {
   if (!context) {
     ACTS_FATAL("Missing AlgorithmContext for ParticleGun generator");

@@ -9,16 +9,16 @@
 #pragma once
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/SimHit.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Fatras/FatrasAlgorithm.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
-#include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
+#include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
@@ -40,7 +40,7 @@
 #include "Fatras/Selectors/SelectorHelpers.hpp"
 
 typedef FW::Data::SimHit<FW::Data::Particle> FatrasHit;
-typedef std::vector<FW::Data::Vertex> FatrasEvent;
+typedef std::vector<FW::Data::Vertex>        FatrasEvent;
 
 /// Simple struct to select sensitive surfaces
 struct SurfaceSelector
@@ -137,26 +137,27 @@ setupSimulationAlgorithm(
 
   typedef Fatras::PhysicsList<> PhysicsList;
 
-  typedef Fatras::Interactor<FW::RandomEngine, 
-                             FW::Data::Particle,
-                             FW::Data::SimHit<FW::Data::Particle>,
-                             FW::Data::SimHitCreator,
-                             SurfaceSelector, 
-                             PhysicsList> 
-                             ChargedInteractor;
-                             
   typedef Fatras::Interactor<FW::RandomEngine,
                              FW::Data::Particle,
                              FW::Data::SimHit<FW::Data::Particle>,
-                             FW::Data::SimHitCreator> 
-                             NeutralInteractor;
+                             FW::Data::SimHitCreator,
+                             SurfaceSelector,
+                             PhysicsList>
+      ChargedInteractor;
+
+  typedef Fatras::Interactor<FW::RandomEngine,
+                             FW::Data::Particle,
+                             FW::Data::SimHit<FW::Data::Particle>,
+                             FW::Data::SimHitCreator>
+      NeutralInteractor;
 
   typedef Fatras::Simulator<ChargedPropagator,
                             ChargedSelector,
                             ChargedInteractor,
                             NeutralPropagator,
                             NeutralSelector,
-                            NeutralInteractor> FatrasSimulator;
+                            NeutralInteractor>
+      FatrasSimulator;
 
   FatrasSimulator fatrasSimulator(cPropagator, nPropagator);
 

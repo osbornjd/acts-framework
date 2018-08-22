@@ -80,9 +80,8 @@ FW::Root::RootParticleWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootParticleWriter::writeT(
-    const AlgorithmContext&            ctx,
-    const std::vector<Data::Vertex>& vertices)
+FW::Root::RootParticleWriter::writeT(const AlgorithmContext&          ctx,
+                                     const std::vector<Data::Vertex>& vertices)
 {
 
   if (!m_outputFile) return ProcessCode::SUCCESS;

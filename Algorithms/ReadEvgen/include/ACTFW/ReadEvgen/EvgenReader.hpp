@@ -11,9 +11,9 @@
 #include <array>
 #include <memory>
 
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace FW {

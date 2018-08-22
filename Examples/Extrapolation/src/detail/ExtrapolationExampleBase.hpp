@@ -57,7 +57,7 @@ extrapolationExample(int                argc,
   FW::Options::addExtrapolationOptions<po::options_description>(desc);
   // Add the output options
   FW::Options::addOutputOptions<po::options_description>(desc);
-  
+
   // Add specific options for this geometry
   geometryOptions(desc);
 

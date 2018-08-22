@@ -94,13 +94,14 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
   auto processVertex
       = [&evgen, &pCounter, &eCounter](const Acts::Vector3D& shift,
                                        Data::Vertex& vertex,
-                                       BarcodeSvc&     barcodeSvc) -> void {
+                                       BarcodeSvc&   barcodeSvc) -> void {
     // shift the vertex
     vertex.position = vertex.position + shift;
     // shift and assign barcodes to outgoing particles
     for (auto& op : vertex.out) {
       // shift the particle position by the smeared vertex & set barcode
-      op.place(op.position() + shift,barcodeSvc.generate(eCounter, pCounter++));
+      op.place(op.position() + shift,
+               barcodeSvc.generate(eCounter, pCounter++));
     }
     // store the hard scatter vertices
     evgen.push_back(vertex);

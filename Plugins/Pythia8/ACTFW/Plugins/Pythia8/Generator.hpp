@@ -14,8 +14,8 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <Pythia8/Pythia.h>
 
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 
 namespace FW {
@@ -57,9 +57,9 @@ namespace GPythia8 {
     /// @copydoc FW::IReaderT::read(std::vector<Data::Vertex>& pProperties,size_t,const FW::AlgorithmContext*)
     // clang-format on
     FW::ProcessCode
-    read(std::vector<Data::Vertex>& pProperties,
-         size_t                       skip    = 0,
-         const FW::AlgorithmContext*  context = nullptr) final override;
+    read(std::vector<Data::Vertex>&  pProperties,
+         size_t                      skip    = 0,
+         const FW::AlgorithmContext* context = nullptr) final override;
 
   private:
     /// Private access to the logging instance

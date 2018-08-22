@@ -165,9 +165,10 @@ for (size_t id = 0; id < plbConfig.posnegLayerPositionsZ.size(); ++id) {
 plbConfig.posnegModulePositions = plbPosnegModulePositions;
 
 // define the builder
-auto pixelLayerBuilder = std::make_shared<const FW::Generic::GenericLayerBuilder>(
-    plbConfig,
-    Acts::getDefaultLogger("PixelLayerBuilder", layerLLevel));
+auto pixelLayerBuilder
+    = std::make_shared<const FW::Generic::GenericLayerBuilder>(
+        plbConfig,
+        Acts::getDefaultLogger("PixelLayerBuilder", layerLLevel));
 //-------------------------------------------------------------------------------------
 // build the pixel volume
 Acts::CylinderVolumeBuilder::Config pvbConfig;
@@ -337,9 +338,10 @@ for (size_t id = 0; id < sslbConfig.posnegLayerPositionsZ.size(); ++id) {
 sslbConfig.posnegModulePositions = sslbPosnegModulePositions;
 
 // define the builder
-auto sstripLayerBuilder = std::make_shared<const FW::Generic::GenericLayerBuilder>(
-    sslbConfig,
-    Acts::getDefaultLogger("SStripLayerBuilder", layerLLevel));
+auto sstripLayerBuilder
+    = std::make_shared<const FW::Generic::GenericLayerBuilder>(
+        sslbConfig,
+        Acts::getDefaultLogger("SStripLayerBuilder", layerLLevel));
 //-------------------------------------------------------------------------------------
 // build the pixel volume
 Acts::CylinderVolumeBuilder::Config ssvbConfig;
@@ -477,9 +479,10 @@ for (size_t id = 0; id < lslbConfig.posnegLayerPositionsZ.size(); ++id) {
 lslbConfig.posnegModulePositions = lssbPosnegModulePositions;
 
 // define the builder
-auto lstripLayerBuilder = std::make_shared<const FW::Generic::GenericLayerBuilder>(
-    lslbConfig,
-    Acts::getDefaultLogger("LStripLayerBuilder", layerLLevel));
+auto lstripLayerBuilder
+    = std::make_shared<const FW::Generic::GenericLayerBuilder>(
+        lslbConfig,
+        Acts::getDefaultLogger("LStripLayerBuilder", layerLLevel));
 //-------------------------------------------------------------------------------------
 // build the pixel volume
 Acts::CylinderVolumeBuilder::Config lsvbConfig;

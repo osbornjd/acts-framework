@@ -70,7 +70,7 @@ namespace Options {
   }
 
   /// Read the particle gun options and return a Config file
-  /// 
+  ///
   /// @tparam amap_t Type of the map object
   ///
   /// @param vm The map object

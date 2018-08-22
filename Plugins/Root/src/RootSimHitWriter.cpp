@@ -18,7 +18,7 @@
 
 FW::Root::RootSimHitWriter::RootSimHitWriter(
     const FW::Root::RootSimHitWriter::Config& cfg,
-    Acts::Logging::Level                         level)
+    Acts::Logging::Level                      level)
   : Base(cfg.collection, "RootSimHitWriter", level), m_cfg(cfg)
 {
   // An input collection name and tree name must be specified
@@ -52,7 +52,7 @@ FW::Root::RootSimHitWriter::endRun()
 FW::ProcessCode
 FW::Root::RootSimHitWriter::writeT(
     const AlgorithmContext& ctx,
-    const FW::DetectorData<geo_id_value, Data::SimHit<Data::Particle> >& fhits)
+    const FW::DetectorData<geo_id_value, Data::SimHit<Data::Particle>>& fhits)
 {
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);

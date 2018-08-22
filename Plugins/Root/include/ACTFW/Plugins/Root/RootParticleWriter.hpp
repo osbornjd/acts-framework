@@ -10,8 +10,8 @@
 
 #include <mutex>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Framework/WriterT.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/Framework/WriterT.hpp"
 
 class TFile;
 class TTree;
@@ -53,24 +53,24 @@ namespace Root {
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
-    writeT(const AlgorithmContext&            ctx,
+    writeT(const AlgorithmContext&          ctx,
            const std::vector<Data::Vertex>& vertices) final override;
 
   private:
-    Config     m_cfg;                 ///< The config class
-    std::mutex m_writeMutex;          ///< Mutex used to protect multi-threaded writes
-    TFile*     m_outputFile;          ///< The output file
-    TTree*     m_outputTree;          ///< The output tree
-    std::vector<float> m_vx;          ///< Vertex position x
-    std::vector<float> m_vy;          ///< Vertex position y
-    std::vector<float> m_vz;          ///< Vertex position z
-    std::vector<float> m_px;          ///< Momentum position x
-    std::vector<float> m_py;          ///< Momentum position y
-    std::vector<float> m_pz;          ///< Momentum position z
-    std::vector<float> m_pT;          ///< Momentum position transverse component
-    std::vector<float> m_eta;         ///< Momentum direction eta
-    std::vector<float> m_phi;         ///< Momentum direction phi
-    std::vector<float> m_mass;        ///< Particle mass
+    Config     m_cfg;           ///< The config class
+    std::mutex m_writeMutex;    ///< Mutex used to protect multi-threaded writes
+    TFile*     m_outputFile;    ///< The output file
+    TTree*     m_outputTree;    ///< The output tree
+    std::vector<float> m_vx;    ///< Vertex position x
+    std::vector<float> m_vy;    ///< Vertex position y
+    std::vector<float> m_vz;    ///< Vertex position z
+    std::vector<float> m_px;    ///< Momentum position x
+    std::vector<float> m_py;    ///< Momentum position y
+    std::vector<float> m_pz;    ///< Momentum position z
+    std::vector<float> m_pT;    ///< Momentum position transverse component
+    std::vector<float> m_eta;   ///< Momentum direction eta
+    std::vector<float> m_phi;   ///< Momentum direction phi
+    std::vector<float> m_mass;  ///< Particle mass
     std::vector<int>   m_charge;      ///< Particle charge
     std::vector<int>   m_pdgCode;     ///< Particle pdg code
     std::vector<int>   m_barcode;     ///< Particle barcode

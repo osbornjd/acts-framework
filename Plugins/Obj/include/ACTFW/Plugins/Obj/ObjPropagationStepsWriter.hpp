@@ -89,7 +89,7 @@ namespace Obj {
 
       for (auto& steps : stepCollection) {
         // At least three points to draw
-        if (steps.size() > 2){
+        if (steps.size() > 2) {
           // We start from one
           ++vCounter;
           for (auto& step : steps) {
@@ -99,7 +99,7 @@ namespace Obj {
                << m_cfg.outputScalor * step.position.z() << '\n';
           }
           // Write out the line - only if we have at least two points created
-          size_t vBreak =  vCounter+steps.size()-1;
+          size_t vBreak = vCounter + steps.size() - 1;
           for (; vCounter < vBreak; ++vCounter)
             os << "l " << vCounter << " " << vCounter + 1 << '\n';
         }

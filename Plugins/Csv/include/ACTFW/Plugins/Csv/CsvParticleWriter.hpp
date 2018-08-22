@@ -58,11 +58,11 @@ namespace Csv {
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
-    writeT(const FW::AlgorithmContext&        ctx,
+    writeT(const FW::AlgorithmContext&      ctx,
            const std::vector<Data::Vertex>& vertices) final override;
 
   private:
-    Config m_cfg; //!< Nested configuration struct
+    Config m_cfg;  //!< Nested configuration struct
   };
 
 }  // namespace Csv

@@ -110,16 +110,14 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
           for (auto& sPartilce : hitIdentifier.truthParticles()) {
-             // positon
-             const Acts::Vector3D& sPosition = sPartilce->position();
-             const Acts::Vector3D& sMomentum = sPartilce->position();
-                          osTruth << hitId << "," << sPartilce->barcode() << ",";
-             osTruth << sPosition.x() << "," 
-                     << sPosition.y() << "," 
-                     << sPosition.z() << ',';
-             osTruth << sMomentum.x() << "," 
-                     << sMomentum.y() << ","
-                     << sMomentum.z() << '\n';
+            // positon
+            const Acts::Vector3D& sPosition = sPartilce->position();
+            const Acts::Vector3D& sMomentum = sPartilce->position();
+            osTruth << hitId << "," << sPartilce->barcode() << ",";
+            osTruth << sPosition.x() << "," << sPosition.y() << ","
+                    << sPosition.z() << ',';
+            osTruth << sMomentum.x() << "," << sMomentum.y() << ","
+                    << sMomentum.z() << '\n';
           }
         }
       }

@@ -25,7 +25,7 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
 }
 
 FW::ProcessCode
-FW::Csv::CsvParticleWriter::writeT(const FW::AlgorithmContext&        ctx,
+FW::Csv::CsvParticleWriter::writeT(const FW::AlgorithmContext&      ctx,
                                    const std::vector<Data::Vertex>& vertices)
 {
   std::string pathOs = perEventFilepath(

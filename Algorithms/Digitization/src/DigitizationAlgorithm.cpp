@@ -13,16 +13,16 @@
 
 #include "ACTFW/Barcode/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Detector/DetectorElementBase.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleStepper.hpp"
 #include "Acts/Plugins/Digitization/Segmentation.hpp"
-#include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
@@ -49,8 +49,8 @@ FW::ProcessCode
 FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
 {
   // Prepare the input data collection
-  const FW::DetectorData<geo_id_value, 
-                         Data::SimHit<Data::Particle> >* simHits = nullptr;
+  const FW::DetectorData<geo_id_value, Data::SimHit<Data::Particle>>* simHits
+      = nullptr;
 
   // Read it from the event store
   if (context.eventStore.get(m_cfg.simulatedHitCollection, simHits)
@@ -84,7 +84,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
           // get the surface
           const Acts::Surface& hitSurface = (*hit.surface);
           // get the associated particle from the hit
-          const Data::Particle* hitParticle = &hit.particle;
+          const Data::Particle*              hitParticle = &hit.particle;
           std::vector<const Data::Particle*> hitParticles{hitParticle};
           // get the DetectorElement
           auto hitDetElement = hitSurface.associatedDetectorElement();
@@ -157,13 +157,14 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
               geoID.add(binSerialized, Acts::GeometryID::channel_mask);
 
               // create the planar cluster
-              Acts::PlanarModuleCluster pCluster(hitSurface,
-                    Identifier(Identifier::identifier_type(geoID.value()),
-                               hitParticles),
-                    std::move(cov),
-                    localX,
-                    localY,
-                    std::move(usedCells));
+              Acts::PlanarModuleCluster pCluster(
+                  hitSurface,
+                  Identifier(Identifier::identifier_type(geoID.value()),
+                             hitParticles),
+                  std::move(cov),
+                  localX,
+                  localY,
+                  std::move(usedCells));
 
               // insert into the cluster map
               FW::Data::insert(planarClusters,
