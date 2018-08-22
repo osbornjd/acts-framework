@@ -22,7 +22,7 @@ main()
 
   // create the tracking geometry as a shared pointer
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
-      = FWGen::buildGenericDetector(
+      = FW::Generic::buildGenericDetector(
           geo - surface - loglevel, layerLogLevel, volumeLogLevel, 3);
 
   // set up the magnetic field

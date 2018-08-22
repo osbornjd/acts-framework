@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <Fatras/Kernel/Definitions.hpp>
 #include <fstream>
 #include "ACTFW/Framework/WriterT.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
@@ -86,20 +85,25 @@ namespace Obj {
       }
 
       // Initialize the vertex counter
-      unsigned int vCounter = 1;
+      unsigned int vCounter = 0;
 
       for (auto& steps : stepCollection) {
-        for (auto& step : steps) {
-          // write the space point
-          os << "v " << m_cfg.outputScalor * step.position.x() << ", "
-             << m_cfg.outputScalor * step.position.y() << ", "
-             << m_cfg.outputScalor * step.position.z() << '\n';
+        // At least three points to draw
+        if (steps.size() > 2){
+          // We start from one
+          ++vCounter;
+          for (auto& step : steps) {
+            // Write the space point
+            os << "v " << m_cfg.outputScalor * step.position.x() << ", "
+               << m_cfg.outputScalor * step.position.y() << ", "
+               << m_cfg.outputScalor * step.position.z() << '\n';
+          }
+          // Write out the line - only if we have at least two points created
+          size_t vBreak =  vCounter+steps.size()-1;
+          for (; vCounter < vBreak; ++vCounter)
+            os << "l " << vCounter << " " << vCounter + 1 << '\n';
         }
-        // write out the line - only if we have at least two points created
-        for (; vCounter < vCounter + steps.size(); ++vCounter)
-          os << "l " << vCounter << " " << vCounter + 1 << '\n';
       }
-
       return FW::ProcessCode::SUCCESS;
     }
   };

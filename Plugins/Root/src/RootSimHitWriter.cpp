@@ -1,25 +1,25 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootFatrasHitWriter.hpp"
+#include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
 #include <ios>
 #include <stdexcept>
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Digitization/DigitizationModule.hpp"
-#include "Acts/Digitization/PlanarModuleCluster.hpp"
-#include "Acts/Digitization/Segmentation.hpp"
+#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Plugins/Digitization/Segmentation.hpp"
 
-FW::Root::RootFatrasHitWriter::RootFatrasHitWriter(
-    const FW::Root::RootFatrasHitWriter::Config& cfg,
+FW::Root::RootSimHitWriter::RootSimHitWriter(
+    const FW::Root::RootSimHitWriter::Config& cfg,
     Acts::Logging::Level                         level)
-  : Base(cfg.collection, "RootFatrasHitWriter", level), m_cfg(cfg)
+  : Base(cfg.collection, "RootSimHitWriter", level), m_cfg(cfg)
 {
   // An input collection name and tree name must be specified
   if (m_cfg.collection.empty()) {
@@ -35,13 +35,13 @@ FW::Root::RootFatrasHitWriter::RootFatrasHitWriter(
   }
 }
 
-FW::Root::RootFatrasHitWriter::~RootFatrasHitWriter()
+FW::Root::RootSimHitWriter::~RootSimHitWriter()
 {
   m_outputFile->Close();
 }
 
 FW::ProcessCode
-FW::Root::RootFatrasHitWriter::endRun()
+FW::Root::RootSimHitWriter::endRun()
 {
   ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
                                         << m_cfg.filePath
@@ -50,9 +50,9 @@ FW::Root::RootFatrasHitWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootFatrasHitWriter::writeT(
+FW::Root::RootSimHitWriter::writeT(
     const AlgorithmContext& ctx,
-    const FW::DetectorData<geo_id_value, Fatras::SensitiveHit>& fhits)
+    const FW::DetectorData<geo_id_value, Data::SimHit<Data::Particle> >& fhits)
 {
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);
@@ -66,7 +66,7 @@ FW::Root::RootFatrasHitWriter::writeT(
   treeName += std::to_string(eventNr);
 
   TTree* outputTree
-      = new TTree(treeName.c_str(), "TTree from RootFatrasHitWriter");
+      = new TTree(treeName.c_str(), "TTree from RootSimHitWriter");
   if (!outputTree) throw std::bad_alloc();
 
   // Set the branches

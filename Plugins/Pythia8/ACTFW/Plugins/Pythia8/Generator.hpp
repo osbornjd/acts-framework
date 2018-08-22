@@ -12,15 +12,15 @@
 #include <mutex>
 
 #include <Acts/Utilities/Logger.hpp>
-#include <Fatras/Kernel/Particle.hpp>
 #include <Pythia8/Pythia.h>
 
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 
 namespace FW {
 
-using InputReader = IReaderT<std::vector<Fatras::Vertex>>;
+using InputReader = IReaderT<std::vector<Data::Vertex>>;
 
 namespace GPythia8 {
 
@@ -54,10 +54,10 @@ namespace GPythia8 {
     name() const final override;
 
     // clang-format off
-    /// @copydoc FW::IReaderT::read(std::vector<Fatras::Vertex>& pProperties,size_t,const FW::AlgorithmContext*)
+    /// @copydoc FW::IReaderT::read(std::vector<Data::Vertex>& pProperties,size_t,const FW::AlgorithmContext*)
     // clang-format on
     FW::ProcessCode
-    read(std::vector<Fatras::Vertex>& pProperties,
+    read(std::vector<Data::Vertex>& pProperties,
          size_t                       skip    = 0,
          const FW::AlgorithmContext*  context = nullptr) final override;
 

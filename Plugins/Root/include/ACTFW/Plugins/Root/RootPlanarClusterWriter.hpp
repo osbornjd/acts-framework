@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <Acts/Digitization/PlanarModuleCluster.hpp>
+#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
 #include <mutex>
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"

@@ -39,7 +39,7 @@ volumeBuilders.push_back(beamPipeVolumeBuilder);
 // Pixel detector
 //-------------------------------------------------------------------------------------
 // configure pixel layer builder
-FWGen::GenericLayerBuilder::Config plbConfig;
+FW::Generic::GenericLayerBuilder::Config plbConfig;
 plbConfig.layerCreator        = layerCreator;
 plbConfig.layerIdentification = "Pixel";
 // fill necessary vectors for configuration
@@ -165,7 +165,7 @@ for (size_t id = 0; id < plbConfig.posnegLayerPositionsZ.size(); ++id) {
 plbConfig.posnegModulePositions = plbPosnegModulePositions;
 
 // define the builder
-auto pixelLayerBuilder = std::make_shared<const FWGen::GenericLayerBuilder>(
+auto pixelLayerBuilder = std::make_shared<const FW::Generic::GenericLayerBuilder>(
     plbConfig,
     Acts::getDefaultLogger("PixelLayerBuilder", layerLLevel));
 //-------------------------------------------------------------------------------------
@@ -217,7 +217,7 @@ volumeBuilders.push_back(pstVolumeBuilder);
 // STRIPS
 // ----------------------------------------------------------------------------
 // configure short strip layer builder
-FWGen::GenericLayerBuilder::Config sslbConfig;
+FW::Generic::GenericLayerBuilder::Config sslbConfig;
 sslbConfig.layerCreator        = layerCreator;
 sslbConfig.layerIdentification = "SStrip";
 // fill necessary vectors for configuration
@@ -337,7 +337,7 @@ for (size_t id = 0; id < sslbConfig.posnegLayerPositionsZ.size(); ++id) {
 sslbConfig.posnegModulePositions = sslbPosnegModulePositions;
 
 // define the builder
-auto sstripLayerBuilder = std::make_shared<const FWGen::GenericLayerBuilder>(
+auto sstripLayerBuilder = std::make_shared<const FW::Generic::GenericLayerBuilder>(
     sslbConfig,
     Acts::getDefaultLogger("SStripLayerBuilder", layerLLevel));
 //-------------------------------------------------------------------------------------
@@ -362,7 +362,7 @@ volumeBuilders.push_back(sstripVolumeBuilder);
 //-------------------------------------------------------------------------------------
 
 // configure short strip layer builder
-FWGen::GenericLayerBuilder::Config lslbConfig;
+FW::Generic::GenericLayerBuilder::Config lslbConfig;
 lslbConfig.layerCreator        = layerCreator;
 lslbConfig.layerIdentification = "LStrip";
 // fill necessary vectors for configuration
@@ -477,7 +477,7 @@ for (size_t id = 0; id < lslbConfig.posnegLayerPositionsZ.size(); ++id) {
 lslbConfig.posnegModulePositions = lssbPosnegModulePositions;
 
 // define the builder
-auto lstripLayerBuilder = std::make_shared<const FWGen::GenericLayerBuilder>(
+auto lstripLayerBuilder = std::make_shared<const FW::Generic::GenericLayerBuilder>(
     lslbConfig,
     Acts::getDefaultLogger("LStripLayerBuilder", layerLLevel));
 //-------------------------------------------------------------------------------------

@@ -82,7 +82,7 @@ FW::Root::RootParticleWriter::endRun()
 FW::ProcessCode
 FW::Root::RootParticleWriter::writeT(
     const AlgorithmContext&            ctx,
-    const std::vector<Fatras::Vertex>& vertices)
+    const std::vector<Data::Vertex>& vertices)
 {
 
   if (!m_outputFile) return ProcessCode::SUCCESS;
@@ -113,22 +113,22 @@ FW::Root::RootParticleWriter::writeT(
   // loop over the process vertices
   for (auto& vertex : vertices) {
     auto& vtx = vertex.position;
-    for (auto& particle : vertex.out) {
+    for (auto& particle : vertex.outgoing()) {
       /// collect the information
-      m_vx.push_back(particle.position.x());
-      m_vy.push_back(particle.position.y());
-      m_vz.push_back(particle.position.z());
-      m_eta.push_back(particle.momentum.eta());
-      m_phi.push_back(particle.momentum.phi());
-      m_px.push_back(particle.momentum.x());
-      m_py.push_back(particle.momentum.y());
-      m_pz.push_back(particle.momentum.z());
-      m_pT.push_back(particle.momentum.perp());
-      m_charge.push_back(particle.q);
-      m_mass.push_back(particle.m);
-      m_pdgCode.push_back(particle.pdg);
+      m_vx.push_back(particle.position().x());
+      m_vy.push_back(particle.position().y());
+      m_vz.push_back(particle.position().z());
+      m_eta.push_back(particle.momentum().eta());
+      m_phi.push_back(particle.momentum().phi());
+      m_px.push_back(particle.momentum().x());
+      m_py.push_back(particle.momentum().y());
+      m_pz.push_back(particle.momentum().z());
+      m_pT.push_back(particle.momentum().perp());
+      m_charge.push_back(particle.q());
+      m_mass.push_back(particle.m());
+      m_pdgCode.push_back(particle.pdg());
 
-      auto barcode = particle.barcode;
+      auto barcode = particle.barcode();
 
       m_barcode.push_back(barcode);
       // decode using the barcode service

@@ -10,9 +10,9 @@
 
 #include <array>
 #include "ACTFW/Readers/IReaderT.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
-#include "Fatras/Kernel/Particle.hpp"
 
 using range = std::array<double, 2>;
 
@@ -21,7 +21,7 @@ namespace FW {
 class BarcodeSvc;
 class RandomNumbersSvc;
 
-using InputReader = IReaderT<std::vector<Fatras::Vertex>>;
+using InputReader = IReaderT<std::vector<Data::Vertex>>;
 
 /// @class ParticleGun
 ///
@@ -78,16 +78,16 @@ public:
   }
 
   // clang-format off
-  /// @copydoc FW::IReaderT::read(std::vector<Fatras::Vertex>& pProperties,size_t,const FW::AlgorithmContext*)
+  /// @copydoc FW::IReaderT::read(std::vector<Data::Vertex>& pProperties,size_t,const FW::AlgorithmContext*)
   // clang-format on
   FW::ProcessCode
-  read(std::vector<Fatras::Vertex>& pProperties,
+  read(std::vector<Data::Vertex>& pProperties,
        size_t                       skip    = 0,
        const FW::AlgorithmContext*  context = nullptr) final override;
 
 private:
-  Config                              m_cfg;
-  std::unique_ptr<const Acts::Logger> m_logger;
+  Config                              m_cfg;    /// configuration object
+  std::unique_ptr<const Acts::Logger> m_logger; /// private logger instance 
 
   /// Private access to the logging instance
   const Acts::Logger&

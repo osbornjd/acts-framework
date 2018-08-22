@@ -1,6 +1,6 @@
-// This file is part of the Acts project.
+// This file is part of the ACTS project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 ACTS project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -117,12 +117,13 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     // mapped
     // hand over modules to ACTS
     Acts::ActsExtension::Config layConfig;
-    layConfig.isLayer               = true;
-    layConfig.axes                  = "YxZ";
-    layConfig.materialBins1         = 100;
-    layConfig.materialBins2         = 100;
-    layConfig.layerMaterialPosition = Acts::LayerMaterialPos::outer;
-    Acts::ActsExtension* detlayer   = new Acts::ActsExtension(layConfig);
+    layConfig.isLayer = true;
+    layConfig.axes    = "YxZ";
+    /// @todo re-enable material mapping
+    //  layConfig.materialBins1         = 100;
+    //  layConfig.materialBins2         = 100;
+    //  layConfig.layerMaterialPosition = Acts::LayerMaterialPos::outer;
+    Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
     lay_det.addExtension<Acts::IActsExtension>(detlayer);
     // Place layer volume
     PlacedVolume placedLayer = tube_vol.placeVolume(layer_vol);

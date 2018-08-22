@@ -10,8 +10,8 @@
 #include <ios>
 #include <iostream>
 #include <stdexcept>
-#include "Acts/Digitization/CartesianSegmentation.hpp"
-#include "Acts/Digitization/DigitizationModule.hpp"
+#include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
+#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
 #include "Acts/Layers/Layer.hpp"
 #include "Acts/Surfaces/CylinderBounds.hpp"
 #include "Acts/Surfaces/PlanarBounds.hpp"

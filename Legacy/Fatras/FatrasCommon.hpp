@@ -21,7 +21,7 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Digitization/PlanarModuleStepper.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleStepper.hpp"
 
 /// Setup extrapolation and digitization.
 ///

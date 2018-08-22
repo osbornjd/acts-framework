@@ -17,6 +17,11 @@ else()
   set(USE_OPENMP_DEFAULT on)
 endif()
 
+# Use the framework identifier instead of the bare ACTS one
+add_definitions(-DACTS_CORE_IDENTIFIER_PLUGIN="${CMAKE_CURRENT_SOURCE_DIR}/Core/include/ACTFW/EventData/SimIdentifier.hpp")
+# Use the framework detector element parent on top of the ACTS one
+add_definitions(-DACTS_DETECTOR_ELEMENT_BASE_EXTENSION="${CMAKE_CURRENT_SOURCE_DIR}/Detectors/Common/DetectorElementParent.hpp")
+
 option(USE_DD4HEP "Build DD4hep-based code" off)
 option(USE_GEANT4 "Build Geant4-based code" off)
 option(USE_FATRAS "Build Fatras-based code" off)
@@ -24,6 +29,7 @@ option(USE_OPENMP "Build framework with OpenMP enabled" ${USE_OPENMP_DEFAULT})
 option(USE_PYTHIA8 "Build Pythia8-based code" off)
 option(USE_LEGACY "Use Legacy code from acts-core" on)
 option(BUILD_ACTS "Build acts-core as submodule" on)
+option(BUILD_FATRAS "Build acts-fatras as submodule" on)
 
 # determine build-flag dependent components
 set(DD4hep_COMPONENTS DDCore DDSegmentation)
@@ -86,6 +92,7 @@ if(BUILD_ACTS)
   set(ACTS_BUILD_INTEGRATION_TESTS OFF CACHE BOOL "Build ACTS integration tests")
   set(ACTS_BUILD_DD4HEP_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build ACTS DD4HEP plugins")
   set(ACTS_BUILD_MATERIAL_PLUGIN ON CACHE BOOL "Build ACTS Material plugins")
+  set(ACTS_BUILD_DIGITZATION_PLUGIN ON CACHE BOOL "Build ACTS Digitization plugins")
   set(ACTS_BUILD_TGEO_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build ACTS TGeo plugins")
   add_subdirectory(external/acts-core)
 else()
@@ -108,8 +115,8 @@ function(add_subdirectory_if path)
 endfunction()
 
 add_subdirectory(Core)
-add_subdirectory(Algorithms)
 add_subdirectory(Detectors)
+add_subdirectory(Algorithms)
 add_subdirectory(Plugins)
 add_subdirectory(Examples)
 add_subdirectory(Legacy)

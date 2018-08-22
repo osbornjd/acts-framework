@@ -1,21 +1,17 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-/// @file
-/// @date 2016-05-23 Initial version
-/// @date 2017-08-07 Rewrite with new interfaces
 
 #pragma once
 
 #include <mutex>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "Fatras/Kernel/Particle.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 
 class TFile;
 class TTree;
@@ -26,10 +22,10 @@ namespace Root {
   /// Write out a particles associated to process vertices into a TTree
   ///
   /// Each entry in the TTree corresponds to the particles in one event.
-  class RootParticleWriter final : public WriterT<std::vector<Fatras::Vertex>>
+  class RootParticleWriter final : public WriterT<std::vector<Data::Vertex>>
   {
   public:
-    using Base = WriterT<std::vector<Fatras::Vertex>>;
+    using Base = WriterT<std::vector<Data::Vertex>>;
     struct Config
     {
       std::string collection;              ///< particle collection to write
@@ -52,37 +48,37 @@ namespace Root {
     endRun() final override;
 
   protected:
-    /// write method called by the base class
+    /// @brief Write method called by the base class
     /// @param [in] ctx is the algorithm context for consistency
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
     writeT(const AlgorithmContext&            ctx,
-           const std::vector<Fatras::Vertex>& vertices) final override;
+           const std::vector<Data::Vertex>& vertices) final override;
 
   private:
-    Config     m_cfg;         ///< the config class
-    std::mutex m_writeMutex;  ///< mutex used to protect multi-threaded writes
-    TFile*     m_outputFile;  ///< the output file
-    TTree*     m_outputTree;  ///< the output tree
-    std::vector<float> m_vx;
-    std::vector<float> m_vy;
-    std::vector<float> m_vz;
-    std::vector<float> m_px;
-    std::vector<float> m_py;
-    std::vector<float> m_pz;
-    std::vector<float> m_pT;
-    std::vector<float> m_eta;
-    std::vector<float> m_phi;
-    std::vector<float> m_mass;
-    std::vector<int>   m_charge;
-    std::vector<int>   m_pdgCode;
-    std::vector<int>   m_barcode;
-    std::vector<int>   m_vertex;
-    std::vector<int>   m_primary;
-    std::vector<int>   m_generation;
-    std::vector<int>   m_secondary;
-    std::vector<int>   m_process;
+    Config     m_cfg;                 ///< The config class
+    std::mutex m_writeMutex;          ///< Mutex used to protect multi-threaded writes
+    TFile*     m_outputFile;          ///< The output file
+    TTree*     m_outputTree;          ///< The output tree
+    std::vector<float> m_vx;          ///< Vertex position x
+    std::vector<float> m_vy;          ///< Vertex position y
+    std::vector<float> m_vz;          ///< Vertex position z
+    std::vector<float> m_px;          ///< Momentum position x
+    std::vector<float> m_py;          ///< Momentum position y
+    std::vector<float> m_pz;          ///< Momentum position z
+    std::vector<float> m_pT;          ///< Momentum position transverse component
+    std::vector<float> m_eta;         ///< Momentum direction eta
+    std::vector<float> m_phi;         ///< Momentum direction phi
+    std::vector<float> m_mass;        ///< Particle mass
+    std::vector<int>   m_charge;      ///< Particle charge
+    std::vector<int>   m_pdgCode;     ///< Particle pdg code
+    std::vector<int>   m_barcode;     ///< Particle barcode
+    std::vector<int>   m_vertex;      ///< Barcode vertex generation
+    std::vector<int>   m_primary;     ///< Barcode primary identifcation
+    std::vector<int>   m_generation;  ///< Barcode generation
+    std::vector<int>   m_secondary;   ///< Barcode secondary identification
+    std::vector<int>   m_process;     ///< Barcode process production
   };
 
 }  // namespace Root

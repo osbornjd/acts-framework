@@ -8,7 +8,7 @@
 
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Plugins/DD4hepPlugins/ConvertDD4hepDetector.hpp"
+#include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
 #include "Acts/Tools/CylinderVolumeHelper.hpp"
 #include "Acts/Tools/LayerArrayCreator.hpp"

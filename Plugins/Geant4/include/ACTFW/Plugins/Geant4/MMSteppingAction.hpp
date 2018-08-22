@@ -14,7 +14,7 @@
 #define ACTFW_PLUGINS_GEANT4_MMSTEPPINGACTION_H
 
 #include <vector>
-#include "Acts/Plugins/MaterialPlugins/MaterialStep.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialStep.hpp"
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
 

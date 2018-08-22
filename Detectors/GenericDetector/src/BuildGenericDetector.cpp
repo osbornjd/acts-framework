@@ -24,7 +24,9 @@
 #include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
 #include "Acts/Utilities/Units.hpp"
 
-namespace FWGen {
+namespace FW {
+
+namespace Generic {
 
 std::unique_ptr<const Acts::TrackingGeometry>
 buildGenericDetector(Acts::Logging::Level surfaceLLevel,
@@ -209,4 +211,6 @@ modulePositionsRing(double z,
   return rPositions;
 }
 
-}  // namespace FWGen
+} // end of namespace Generic
+
+}  // end of namespace FW

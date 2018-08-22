@@ -19,7 +19,7 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "Acts/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 #include "Acts/EventData/Measurement.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Extrapolator/MaterialInteractor.hpp"

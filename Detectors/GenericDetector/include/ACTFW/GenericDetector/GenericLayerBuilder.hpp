@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef AGEN_GENERICDETECTOR_GENERICLAYERBUILDER_H
-#define AGEN_GENERICDETECTOR_GENERICLAYERBUILDER_H 1
+#pragma once
 
 #include "Acts/Layers/Layer.hpp"
 #include "Acts/Material/Material.hpp"
@@ -23,7 +22,9 @@ class Surface;
 class DetecorElementBase;
 }
 
-namespace FWGen {
+namespace FW {
+
+namespace Generic {
 
 typedef std::pair<const Acts::Surface*, Acts::Vector3D> SurfacePosition;
 
@@ -201,28 +202,29 @@ private:
 };
 
 inline const Acts::LayerVector
-FWGen::GenericLayerBuilder::positiveLayers() const
+FW::Generic::GenericLayerBuilder::positiveLayers() const
 {
   return m_pLayers;
 }
 
 inline const Acts::LayerVector
-FWGen::GenericLayerBuilder::negativeLayers() const
+FW::Generic::GenericLayerBuilder::negativeLayers() const
 {
   return m_nLayers;
 }
 
 inline const Acts::LayerVector
-FWGen::GenericLayerBuilder::centralLayers() const
+FW::Generic::GenericLayerBuilder::centralLayers() const
 {
   return m_cLayers;
 }
 
-inline FWGen::GenericLayerBuilder::Config
-FWGen::GenericLayerBuilder::getConfiguration() const
+inline FW::Generic::GenericLayerBuilder::Config
+FW::Generic::GenericLayerBuilder::getConfiguration() const
 {
   return m_cfg;
 }
-}  // namespace
 
-#endif  // AGEN_GENERICDETECTOR_GENERICLAYERBUILDER_H
+} // end of namespace Generic
+
+}  // end of namespace FW

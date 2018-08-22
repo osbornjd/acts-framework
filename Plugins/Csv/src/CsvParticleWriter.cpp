@@ -26,7 +26,7 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
 
 FW::ProcessCode
 FW::Csv::CsvParticleWriter::writeT(const FW::AlgorithmContext&        ctx,
-                                   const std::vector<Fatras::Vertex>& vertices)
+                                   const std::vector<Data::Vertex>& vertices)
 {
   std::string pathOs = perEventFilepath(
       m_cfg.outputDir, m_cfg.outputFileName, ctx.eventNumber);
@@ -57,18 +57,18 @@ FW::Csv::CsvParticleWriter::writeT(const FW::AlgorithmContext&        ctx,
   // write one line per particle
   os << std::setprecision(m_cfg.outputPrecision);
   for (auto& vertex : vertices) {
-    for (auto& particle : vertex.out) {
-      os << particle.barcode << ",";
-      os << particle.position.x() << ",";
-      os << particle.position.y() << ",";
-      os << particle.position.z() << ",";
-      os << particle.momentum.x() << ",";
-      os << particle.momentum.y() << ",";
-      os << particle.momentum.z() << ",";
-      os << particle.q;
+    for (auto& particle : vertex.outgoing()) {
+      os << particle.barcode() << ",";
+      os << particle.position().x() << ",";
+      os << particle.position().y() << ",";
+      os << particle.position().z() << ",";
+      os << particle.momentum().x() << ",";
+      os << particle.momentum().y() << ",";
+      os << particle.momentum().z() << ",";
+      os << particle.q();
       // add the hits per particle
       if (hitsPerParticle) {
-        auto hppEntry = hitsPerParticle->find(particle.barcode);
+        auto hppEntry = hitsPerParticle->find(particle.barcode());
         int  nhits    = 0;
         if (hppEntry != hitsPerParticle->end()) {
           nhits = hppEntry->second;

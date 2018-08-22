@@ -9,9 +9,9 @@
 #pragma once
 
 #include <vector>
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "Fatras/Kernel/Particle.hpp"
 
 namespace FW {
 namespace Csv {
@@ -30,10 +30,10 @@ namespace Csv {
   ///     event000000002-particles.csv
   ///
   /// and each line in the file corresponds to one particle.
-  class CsvParticleWriter : public WriterT<std::vector<Fatras::Vertex>>
+  class CsvParticleWriter : public WriterT<std::vector<Data::Vertex>>
   {
   public:
-    using Base = WriterT<std::vector<Fatras::Vertex>>;
+    using Base = WriterT<std::vector<Data::Vertex>>;
 
     struct Config
     {
@@ -53,12 +53,16 @@ namespace Csv {
                       Acts::Logging::Level level = Acts::Logging::INFO);
 
   protected:
+    /// @brief Write method called by the base class
+    /// @param [in] ctx is the algorithm context for consistency
+    /// @param [in] vertices is the process vertex collection for the
+    /// particles to be attached
     ProcessCode
     writeT(const FW::AlgorithmContext&        ctx,
-           const std::vector<Fatras::Vertex>& vertices) final override;
+           const std::vector<Data::Vertex>& vertices) final override;
 
   private:
-    Config m_cfg;
+    Config m_cfg; //!< Nested configuration struct
   };
 
 }  // namespace Csv

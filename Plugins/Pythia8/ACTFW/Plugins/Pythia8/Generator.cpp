@@ -34,7 +34,7 @@ private:
 
 FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
                                    std::unique_ptr<const Acts::Logger> mlogger)
-  : FW::IReaderT<std::vector<Fatras::Vertex>>()
+  : FW::IReaderT<std::vector<Data::Vertex>>()
   , m_cfg(cfg)
   , m_logger(std::move(mlogger))
 {
@@ -65,7 +65,7 @@ FW::GPythia8::Generator::name() const
 }
 
 FW::ProcessCode
-FW::GPythia8::Generator::read(std::vector<Fatras::Vertex>& processVertices,
+FW::GPythia8::Generator::read(std::vector<Data::Vertex>& processVertices,
                               size_t                       skip,
                               const FW::AlgorithmContext*  context)
 {
@@ -96,7 +96,7 @@ FW::GPythia8::Generator::read(std::vector<Fatras::Vertex>& processVertices,
 
   // the last vertex
   Acts::Vector3D                lastVertex(0., 0., 0.);
-  std::vector<Fatras::Particle> particlesOut;
+  std::vector<Data::Particle> particlesOut;
   // reserve the maximum amount
   particlesOut.reserve(np);
 
@@ -121,7 +121,7 @@ FW::GPythia8::Generator::read(std::vector<Fatras::Vertex>& processVertices,
       // flush if vertices are different
       if (vertex != lastVertex && particlesOut.size()) {
         // create the process vertex, push it
-        Fatras::Vertex pVertex(lastVertex, {}, particlesOut);
+        Data::Vertex pVertex(lastVertex, {}, particlesOut);
         processVertices.push_back(pVertex);
         // reset and reserve the particle vector
         particlesOut.clear();
@@ -134,14 +134,14 @@ FW::GPythia8::Generator::read(std::vector<Fatras::Vertex>& processVertices,
       Acts::Vector3D position(vx, vy, vz);
       // the particle should be ready now
       particlesOut.push_back(
-          Fatras::Particle(position, momentum, mass, charge, pdg));
+          Data::Particle(position, momentum, mass, charge, pdg));
     }  // final state partice
   }    // particle loop
 
   // flush a last time time
   if (particlesOut.size()) {
     // create the process vertex, push it
-    Fatras::Vertex pVertex(lastVertex, {}, particlesOut);
+    Data::Vertex pVertex(lastVertex, {}, particlesOut);
     processVertices.push_back(pVertex);
   }
   // return success

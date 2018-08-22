@@ -10,8 +10,10 @@
 #include <ios>
 #include <stdexcept>
 
-#include <Acts/Digitization/PlanarModuleCluster.hpp>
+#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
 #include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/SimIdentifier.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
@@ -103,25 +105,22 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
             osDetails << hitId << "," << cell.channel0 << "," << cell.channel1
                       << "," << cell.data << '\n';
           }
-
-          // Truth handling needs to be sorted out !
-          //
+          /// Hit identifier
+          Identifier hitIdentifier = cluster.identifier();
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
-          // for (auto& tVertex : cluster.truthVertices()) {
-          //  for (auto& tIngoing : tVertex.incomingParticles()){
-          //    // positon
-          //    Acts::Vector3D vPosition = tVertex.position();
-          //    // create the local angles talpha, tbeta
-          //    osTruth << hitId << "," << tIngoing.barcode() << ",";
-          //    osTruth << vPosition.x() << "," << vPosition.y() << "," <<
-          //    vPosition.z() <<',';
-          //    osTruth << tIngoing.momentum().x() << "," <<
-          //    tIngoing.momentum().y() <<  "," << tIngoing.momentum().z()<<
-          //    '\n';
-          //
-          //    }
-          //}
+          for (auto& sPartilce : hitIdentifier.truthParticles()) {
+             // positon
+             const Acts::Vector3D& sPosition = sPartilce->position();
+             const Acts::Vector3D& sMomentum = sPartilce->position();
+                          osTruth << hitId << "," << sPartilce->barcode() << ",";
+             osTruth << sPosition.x() << "," 
+                     << sPosition.y() << "," 
+                     << sPosition.z() << ',';
+             osTruth << sMomentum.x() << "," 
+                     << sMomentum.y() << ","
+                     << sMomentum.z() << '\n';
+          }
         }
       }
     }

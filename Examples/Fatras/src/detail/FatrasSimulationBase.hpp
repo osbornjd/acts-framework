@@ -14,9 +14,11 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
-#include "ACTFW/Plugins/Root/RootFatrasHitWriter.hpp"
+#include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
@@ -30,17 +32,15 @@
 #include "Acts/Propagator/detail/DebugOutputActor.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
-#include "Fatras/Kernel/Definitions.hpp"
 #include "Fatras/Kernel/Interactor.hpp"
-#include "Fatras/Kernel/Particle.hpp"
 #include "Fatras/Kernel/SelectorList.hpp"
 #include "Fatras/Kernel/Simulator.hpp"
 #include "Fatras/Selectors/ChargeSelectors.hpp"
 #include "Fatras/Selectors/KinematicCasts.hpp"
 #include "Fatras/Selectors/SelectorHelpers.hpp"
 
-typedef Fatras::SensitiveHit        FatrasHit;
-typedef std::vector<Fatras::Vertex> FatrasEvent;
+typedef FW::Data::SimHit<FW::Data::Particle> FatrasHit;
+typedef std::vector<FW::Data::Vertex> FatrasEvent;
 
 /// Simple struct to select sensitive surfaces
 struct SurfaceSelector
@@ -137,17 +137,26 @@ setupSimulationAlgorithm(
 
   typedef Fatras::PhysicsList<> PhysicsList;
 
-  typedef Fatras::Interactor<FW::RandomEngine, SurfaceSelector, PhysicsList>
-                                               ChargedInteractor;
-  typedef Fatras::Interactor<FW::RandomEngine> NeutralInteractor;
+  typedef Fatras::Interactor<FW::RandomEngine, 
+                             FW::Data::Particle,
+                             FW::Data::SimHit<FW::Data::Particle>,
+                             FW::Data::SimHitCreator,
+                             SurfaceSelector, 
+                             PhysicsList> 
+                             ChargedInteractor;
+                             
+  typedef Fatras::Interactor<FW::RandomEngine,
+                             FW::Data::Particle,
+                             FW::Data::SimHit<FW::Data::Particle>,
+                             FW::Data::SimHitCreator> 
+                             NeutralInteractor;
 
   typedef Fatras::Simulator<ChargedPropagator,
                             ChargedSelector,
                             ChargedInteractor,
                             NeutralPropagator,
                             NeutralSelector,
-                            NeutralInteractor>
-      FatrasSimulator;
+                            NeutralInteractor> FatrasSimulator;
 
   FatrasSimulator fatrasSimulator(cPropagator, nPropagator);
 
@@ -200,13 +209,13 @@ setupSimulationAlgorithm(
         = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
 
     // Write simulated hits as ROOT TTree
-    FW::Root::RootFatrasHitWriter::Config fhitWriterRootConfig;
+    FW::Root::RootSimHitWriter::Config fhitWriterRootConfig;
     fhitWriterRootConfig.collection = fatrasConfig.simulatedHitCollection;
     fhitWriterRootConfig.filePath   = FW::joinPaths(
         outputDir, fatrasConfig.simulatedHitCollection + ".root");
     fhitWriterRootConfig.treeName = fatrasConfig.simulatedHitCollection;
     auto fhitWriterRoot
-        = std::make_shared<FW::Root::RootFatrasHitWriter>(fhitWriterRootConfig);
+        = std::make_shared<FW::Root::RootSimHitWriter>(fhitWriterRootConfig);
 
     sequencer.addWriters({pWriterRoot, fhitWriterRoot});
   }

@@ -10,11 +10,13 @@
 #include <ios>
 #include <stdexcept>
 #include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/SimIdentifier.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Digitization/DigitizationModule.hpp"
-#include "Acts/Digitization/PlanarModuleCluster.hpp"
-#include "Acts/Digitization/Segmentation.hpp"
+#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Plugins/Digitization/Segmentation.hpp"
 
 FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
     const FW::Root::RootPlanarClusterWriter::Config& cfg,
@@ -135,24 +137,27 @@ FW::Root::RootPlanarClusterWriter::writeT(
               m_cell_ly.push_back(cellLocalPosition.y());
             }
           }
-          // get the truth parameters - @todo new truth association
-          //
-          // for (auto& tvertex : cluster.truthVertices()) {
-          //   auto& tposition = tvertex.position();
-          //   for (auto& tparticle : tvertex.incomingParticles()) {
-          //     // truth global position
-          //     m_t_gx.push_back(tposition.x());
-          //     m_t_gy.push_back(tposition.y());
-          //     m_t_gz.push_back(tposition.z());
-          //     // local position
-          //     auto&          tmomentum = tparticle.momentum();
-          //     Acts::Vector2D lposition;
-          //     clusterSurface.globalToLocal(tposition, tmomentum, lposition);
-          //     m_t_lx.push_back(lposition.x());
-          //     m_t_ly.push_back(lposition.y());
-          //     m_t_barcode.push_back(tparticle.barcode());
-          //   }
-          // }
+          // get the truth parameters
+          /// Hit identifier
+          Identifier hitIdentifier = cluster.identifier();
+          // write hit-particle truth association
+          // each hit can have multiple particles, e.g. in a dense environment
+          for (auto& sPartilce : hitIdentifier.truthParticles()) {
+             // positon
+             const Acts::Vector3D& sPosition = sPartilce->position();
+             const Acts::Vector3D& sMomentum = sPartilce->position();
+             // local position to be calculated
+             Acts::Vector2D lPosition;
+             clusterSurface.globalToLocal(sPosition, sMomentum, lPosition);
+             // fill the variables
+             m_t_gx.push_back(sPosition.x());
+             m_t_gy.push_back(sPosition.y());
+             m_t_gz.push_back(sPosition.z());
+             m_t_lx.push_back(lPosition.x());
+             m_t_ly.push_back(lPosition.y());
+             m_t_barcode.push_back(sPartilce->barcode());
+
+          }
           // fill the tree
           m_outputTree->Fill();
           // now reset

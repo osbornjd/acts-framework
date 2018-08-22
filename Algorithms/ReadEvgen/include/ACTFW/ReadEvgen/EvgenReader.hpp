@@ -13,8 +13,8 @@
 
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "Fatras/Kernel/Particle.hpp"
 
 namespace FW {
 
@@ -22,7 +22,7 @@ class WhiteBoard;
 class RandomNumbersSvc;
 class BarcodeSvc;
 
-using InputReader = IReaderT<std::vector<Fatras::Vertex>>;
+using InputReader = IReaderT<std::vector<Data::Vertex>>;
 
 /// @class EvgenReader
 ///

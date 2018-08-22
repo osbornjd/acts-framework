@@ -12,6 +12,7 @@
 #include <memory>
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Common/GeometryOptions.hpp"
+#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Obj/ObjPropagationStepsWriter.hpp"
@@ -151,7 +152,9 @@ propagationExample(int                argc,
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
   // Add the fatras options
   FW::Options::addPropagationOptions<po::options_description>(desc);
-
+  // Add the output options
+  FW::Options::addOutputOptions<po::options_description>(desc);
+  
   // Add specific options for this geometry
   geometryOptions(desc);
 

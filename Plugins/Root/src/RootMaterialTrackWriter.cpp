@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
-#include "Acts/Plugins/MaterialPlugins/MaterialStep.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialStep.hpp"
 
 #include <ios>
 #include <iostream>

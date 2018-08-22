@@ -12,8 +12,8 @@ add_subdirectory(Geometry)
 add_subdirectory(BField)
 
 # Particle gun and Event reading
-add_subdirectory_if(ParticleGun USE_FATRAS)
-add_subdirectory_if(ReadEvgen USE_FATRAS AND USE_PYTHIA8)
+add_subdirectory(ParticleGun)
+add_subdirectory_if(ReadEvgen USE_PYTHIA8)
 
 # Propagation (new style) and Extrapolation (legacy)
 add_subdirectory(Propagation)

@@ -90,7 +90,7 @@ main(int argc, char* argv[])
 
   // generic detector as geometry
   std::shared_ptr<const Acts::TrackingGeometry> geometry
-      = FWGen::buildGenericDetector(logLevel, logLevel, logLevel, 3);
+      = FW::Generic::buildGenericDetector(logLevel, logLevel, logLevel, 3);
 
   // setup event loop
   FW::Sequencer sequencer({});

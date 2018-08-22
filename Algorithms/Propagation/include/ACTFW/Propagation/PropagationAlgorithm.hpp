@@ -24,7 +24,6 @@
 #include "Acts/Propagator/detail/DebugOutputActor.hpp"
 #include "Acts/Propagator/detail/StandardAbortConditions.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
-//#include "Acts/Propagator/detail/LoopAborter.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Units.hpp"

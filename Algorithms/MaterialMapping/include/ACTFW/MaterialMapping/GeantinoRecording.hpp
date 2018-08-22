@@ -14,7 +14,7 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "G4RunManager.hh"
 

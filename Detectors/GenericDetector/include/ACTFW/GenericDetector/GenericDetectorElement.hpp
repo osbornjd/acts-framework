@@ -6,12 +6,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef AGD_GENERICDETECTORELEMENT_GENERICDETECTORELEMENT
-#define AGD_GENERICDETECTORELEMENT_GENERICDETECTORELEMENT 1
+#pragma once 
 
 #include "Acts/Detector/DetectorElementBase.hpp"
 #include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/Identifier.hpp"
+
+/// Set the identifier PLUGIN
+#ifdef ACTS_CORE_IDENTIFIER_PLUGIN
+#include ACTS_CORE_IDENTIFIER_PLUGIN
+#else
+typedef unsigned long long Identifier;
+#endif
 
 namespace Acts {
 class Surface;
@@ -21,7 +26,9 @@ class SurfaceMaterial;
 class DigitizationModule;
 }
 
-namespace FWGen {
+namespace FW {
+
+namespace Generic {
 
 /// @class GenericDetectorElement
 ///
@@ -65,37 +72,26 @@ public:
 
   /// Identifier
   Identifier
-  identify() const final override;
+  identifier() const ACTS_DETECTOR_ELEMENT_IDENTIFY_SPECIFIER;
 
   /// Return local to global transform associated with this identifier
   ///
   /// @note this is called from the surface().transform() in the PROXY mode
-  ///
-  /// @param identifier is ignored for this simple detector element
   const Acts::Transform3D&
-  transform(const Identifier& identifier = Identifier()) const final override;
+  transform() const final override;
 
   /// Return surface associated with this identifier,
-  ///
-  /// @param identifier is ignored in this case
-  ///
-  /// @param identifier is ignored for this simple detector element
   const Acts::Surface&
-  surface(const Identifier& identifier = Identifier()) const final override;
-
-  /// Returns the full list of all detection surfaces associated
-  /// to this detector element
-  const std::vector<std::shared_ptr<const Acts::Surface>>&
-  surfaces() const final override;
+  surface() const final override;
 
   /// Return the DigitizationModule
   /// @return optionally the DigitizationModule
   std::shared_ptr<const Acts::DigitizationModule>
-  digitizationModule() const final override;
+  digitizationModule() const ACTS_DETECTOR_ELEMENT_DIGIMODULE_SPECIFIER;
 
   /// Set the identifier after construction (sometimes needed)
   void
-  assignIdentifier(const Identifier& identifier) final override;
+  assignIdentifier(const Identifier& identifier);
 
   /// The maximal thickness of the detector element wrt normal axis
   double
@@ -112,8 +108,6 @@ private:
   /// the element thickness
   double m_elementThickness;
 
-  /// the cache for the surfaces
-  std::vector<std::shared_ptr<const Acts::Surface>> m_elementSurfaces;
   /// store either
   std::shared_ptr<const Acts::PlanarBounds> m_elementPlanarBounds;
   std::shared_ptr<const Acts::DiscBounds>   m_elementDiscBounds;
@@ -124,47 +118,41 @@ private:
 };
 
 inline std::shared_ptr<const Acts::DigitizationModule>
-FWGen::GenericDetectorElement::digitizationModule() const
+FW::Generic::GenericDetectorElement::digitizationModule() const
 {
   return m_digitizationModule;
 }
 
 inline void
-FWGen::GenericDetectorElement::assignIdentifier(const Identifier& identifier)
+FW::Generic::GenericDetectorElement::assignIdentifier(const Identifier& identifier)
 {
   m_elementIdentifier = identifier;
 }
 
 inline Identifier
-FWGen::GenericDetectorElement::identify() const
+FW::Generic::GenericDetectorElement::identifier() const
 {
   return m_elementIdentifier;
 }
 
 inline const Acts::Transform3D&
-FWGen::GenericDetectorElement::transform(const Identifier&) const
+FW::Generic::GenericDetectorElement::transform() const
 {
   return *m_elementTransform;
 }
 
 inline const Acts::Surface&
-FWGen::GenericDetectorElement::surface(const Identifier&) const
+FW::Generic::GenericDetectorElement::surface() const
 {
   return *m_elementSurface;
 }
 
-inline const std::vector<std::shared_ptr<const Acts::Surface>>&
-FWGen::GenericDetectorElement::surfaces() const
-{
-  return m_elementSurfaces;
-}
-
 inline double
-FWGen::GenericDetectorElement::thickness() const
+FW::Generic::GenericDetectorElement::thickness() const
 {
   return m_elementThickness;
 }
 
-}  // end of ns
+} // end of namespace Generic
 
-#endif
+}  // end of namespace FW

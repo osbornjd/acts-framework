@@ -13,19 +13,19 @@
 
 #include "ACTFW/Barcode/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Detector/DetectorElementBase.hpp"
-#include "Acts/Digitization/DigitizationModule.hpp"
-#include "Acts/Digitization/PlanarModuleCluster.hpp"
-#include "Acts/Digitization/PlanarModuleStepper.hpp"
-#include "Acts/Digitization/Segmentation.hpp"
+#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleStepper.hpp"
+#include "Acts/Plugins/Digitization/Segmentation.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
-#include "Fatras/Kernel/Definitions.hpp"
-#include "Fatras/Kernel/Particle.hpp"
 
 FW::DigitizationAlgorithm::DigitizationAlgorithm(
     const FW::DigitizationAlgorithm::Config& cfg,
@@ -49,7 +49,8 @@ FW::ProcessCode
 FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
 {
   // Prepare the input data collection
-  const FW::DetectorData<geo_id_value, Fatras::SensitiveHit>* simHits = nullptr;
+  const FW::DetectorData<geo_id_value, 
+                         Data::SimHit<Data::Particle> >* simHits = nullptr;
 
   // Read it from the event store
   if (context.eventStore.get(m_cfg.simulatedHitCollection, simHits)
@@ -82,6 +83,9 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
         for (auto& hit : sData.second) {
           // get the surface
           const Acts::Surface& hitSurface = (*hit.surface);
+          // get the associated particle from the hit
+          const Data::Particle* hitParticle = &hit.particle;
+          std::vector<const Data::Particle*> hitParticles{hitParticle};
           // get the DetectorElement
           auto hitDetElement = hitSurface.associatedDetectorElement();
           if (hitDetElement) {
@@ -145,7 +149,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
               Acts::ActsSymMatrixD<2> cov;
               cov << 0.05, 0., 0.05, 0.;
 
-              // create the indetifier
+              // create the geometry basedindetifier
               Acts::GeometryID geoID(0);
               geoID.add(volumeKey, Acts::GeometryID::volume_mask);
               geoID.add(layerKey, Acts::GeometryID::layer_mask);
@@ -154,11 +158,12 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
 
               // create the planar cluster
               Acts::PlanarModuleCluster pCluster(hitSurface,
-                                                 Identifier(geoID.value()),
-                                                 std::move(cov),
-                                                 localX,
-                                                 localY,
-                                                 std::move(usedCells));
+                    Identifier(Identifier::identifier_type(geoID.value()),
+                               hitParticles),
+                    std::move(cov),
+                    localX,
+                    localY,
+                    std::move(usedCells));
 
               // insert into the cluster map
               FW::Data::insert(planarClusters,

@@ -8,9 +8,10 @@
 
 #pragma once
 
-#include <Fatras/Kernel/Definitions.hpp>
 #include <mutex>
 #include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 #include "TFile.h"
 #include "TTree.h"
@@ -19,16 +20,16 @@ namespace FW {
 
 namespace Root {
 
-  /// @class RootFatrasHitWriter
+  /// @class RootSimHitWriter
   ///
   /// Write out a planar cluster collection into a root file
   /// to avoid immense long vectors, each cluster is one entry
   /// in the root file
-  class RootFatrasHitWriter
-      : public WriterT<DetectorData<geo_id_value, Fatras::SensitiveHit>>
+  class RootSimHitWriter
+      : public WriterT<DetectorData<geo_id_value, Data::SimHit<Data::Particle> > >
   {
   public:
-    using Base = WriterT<DetectorData<geo_id_value, Fatras::SensitiveHit>>;
+    using Base = WriterT<DetectorData<geo_id_value, Data::SimHit<Data::Particle> > >;
     struct Config
     {
       std::string collection;             ///< cluster collection to write
@@ -40,11 +41,11 @@ namespace Root {
     /// Constructor with
     /// @param cfg configuration struct
     /// @param output logging level
-    RootFatrasHitWriter(const Config&        cfg,
-                        Acts::Logging::Level level = Acts::Logging::INFO);
+    RootSimHitWriter(const Config&        cfg,
+                     Acts::Logging::Level level = Acts::Logging::INFO);
 
     /// Virtual destructor
-    ~RootFatrasHitWriter() override;
+    ~RootSimHitWriter() override;
 
     /// End-of-run hook
     ProcessCode
@@ -53,9 +54,12 @@ namespace Root {
   protected:
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
+    /// 
+    /// @param ctx The Algorithm context
+    /// @param simhits The simulation hits collection to we written out 
     ProcessCode
     writeT(const AlgorithmContext& ctx,
-           const DetectorData<geo_id_value, Fatras::SensitiveHit>& clusters)
+           const DetectorData< geo_id_value, Data::SimHit<Data::Particle> >& simhits)
         final override;
 
   private:

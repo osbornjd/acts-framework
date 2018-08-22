@@ -11,7 +11,7 @@
 #include <iostream>
 #include <utility>
 #include "ACTFW/Utilities/Options.hpp"
-#include "Acts/Plugins/TGeoPlugins/TGeoLayerBuilder.hpp"
+#include "Acts/Plugins/TGeo/TGeoLayerBuilder.hpp"
 #include "Acts/Utilities/Units.hpp"
 
 namespace po = boost::program_options;

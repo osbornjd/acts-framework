@@ -37,7 +37,7 @@ FW::ProcessCode
 FW::EvgenReader::skip(size_t nEvents)
 {
   // there is a hard scatter evgen reader
-  std::vector<Fatras::Vertex> skipEvents;
+  std::vector<Data::Vertex> skipEvents;
   if (m_cfg.hardscatterEventReader
       && m_cfg.hardscatterEventReader->read(skipEvents, nEvents)
           == FW::ProcessCode::ABORT) {
@@ -65,10 +65,10 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
                             m_cfg.vertexZParameters[1]);
 
   // prepare the output collection
-  std::vector<Fatras::Vertex> evgen;
+  std::vector<Data::Vertex> evgen;
 
   // get the hard scatter if you have it
-  std::vector<Fatras::Vertex> hardscatterEvent;
+  std::vector<Data::Vertex> hardscatterEvent;
   // Always provide the context to the hard scatter Event
   const AlgorithmContext* contextPtr = &ctx;
   if (m_cfg.hardscatterEventReader
@@ -93,16 +93,14 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
   // lambda for vertex processing
   auto processVertex
       = [&evgen, &pCounter, &eCounter](const Acts::Vector3D& shift,
-                                       Fatras::Vertex& vertex,
+                                       Data::Vertex& vertex,
                                        BarcodeSvc&     barcodeSvc) -> void {
     // shift the vertex
     vertex.position = vertex.position + shift;
     // shift and assign barcodes to outgoing particles
     for (auto& op : vertex.out) {
-      // shift the particle position by the smeared vertex
-      op.position = op.position + shift;
-      // generate the new barcode, and assign it
-      op.barcode = barcodeSvc.generate(eCounter, pCounter++);
+      // shift the particle position by the smeared vertex & set barcode
+      op.place(op.position() + shift,barcodeSvc.generate(eCounter, pCounter++));
     }
     // store the hard scatter vertices
     evgen.push_back(vertex);
@@ -132,7 +130,7 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
     // Get the vertices per pileup event
     // only provide the Context for the initial call to set the seed
     contextPtr = ipue ? nullptr : &ctx;
-    std::vector<Fatras::Vertex> pileupEvent;
+    std::vector<Data::Vertex> pileupEvent;
     if (m_cfg.pileupEventReader
         && m_cfg.pileupEventReader->read(pileupEvent, 0, contextPtr)
             == FW::ProcessCode::ABORT) {

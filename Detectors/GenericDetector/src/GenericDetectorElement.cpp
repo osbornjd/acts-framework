@@ -12,7 +12,7 @@
 #include "Acts/Surfaces/PlanarBounds.hpp"
 #include "Acts/Surfaces/PlaneSurface.hpp"
 
-FWGen::GenericDetectorElement::GenericDetectorElement(
+FW::Generic::GenericDetectorElement::GenericDetectorElement(
     const Identifier                                identifier,
     std::shared_ptr<const Acts::Transform3D>        transform,
     std::shared_ptr<const Acts::PlanarBounds>       pBounds,
@@ -24,7 +24,6 @@ FWGen::GenericDetectorElement::GenericDetectorElement(
   , m_elementTransform(std::move(transform))
   , m_elementSurface(new Acts::PlaneSurface(pBounds, *this))
   , m_elementThickness(thickness)
-  , m_elementSurfaces({m_elementSurface})
   , m_elementPlanarBounds(std::move(pBounds))
   , m_elementDiscBounds(nullptr)
   , m_digitizationModule(dModule)
@@ -34,7 +33,7 @@ FWGen::GenericDetectorElement::GenericDetectorElement(
   mutableSurface->setAssociatedMaterial(material);
 }
 
-FWGen::GenericDetectorElement::GenericDetectorElement(
+FW::Generic::GenericDetectorElement::GenericDetectorElement(
     const Identifier                             identifier,
     std::shared_ptr<const Acts::Transform3D>     transform,
     std::shared_ptr<const Acts::DiscBounds>      dBounds,
@@ -45,7 +44,6 @@ FWGen::GenericDetectorElement::GenericDetectorElement(
   , m_elementTransform(std::move(transform))
   , m_elementSurface(new Acts::DiscSurface(dBounds, *this))
   , m_elementThickness(thickness)
-  , m_elementSurfaces({m_elementSurface})
   , m_elementPlanarBounds(nullptr)
   , m_elementDiscBounds(std::move(dBounds))
 {

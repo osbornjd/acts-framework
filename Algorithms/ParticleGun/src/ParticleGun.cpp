@@ -39,7 +39,7 @@ FW::ParticleGun::ParticleGun(const Config&                       cfg,
 }
 
 FW::ProcessCode
-FW::ParticleGun::read(std::vector<Fatras::Vertex>& vertices,
+FW::ParticleGun::read(std::vector<Data::Vertex>& vertices,
                       size_t                       skip,
                       const AlgorithmContext*      context)
 {
@@ -59,7 +59,7 @@ FW::ParticleGun::read(std::vector<Fatras::Vertex>& vertices,
   UniformDist chargeDist(0., 1.);
 
   // the particles
-  std::vector<Fatras::Particle> particles;
+  std::vector<Data::Particle> particles;
   for (size_t ip = 0; ip < m_cfg.nParticles; ip++) {
     // generate random parameters
     double d0  = d0Dist(rng);
@@ -87,7 +87,7 @@ FW::ParticleGun::read(std::vector<Fatras::Vertex>& vertices,
   ACTS_DEBUG("Generated 1 vertex with " << particles.size() << " particles.");
   // the vertices
   vertices.push_back(
-      Fatras::Vertex(Acts::Vector3D(0., 0., 0.), {}, std::move(particles)));
+      Data::Vertex(Acts::Vector3D(0., 0., 0.), {}, std::move(particles)));
 
   return FW::ProcessCode::SUCCESS;
 }

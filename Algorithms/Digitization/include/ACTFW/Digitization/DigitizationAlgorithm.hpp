@@ -39,9 +39,10 @@ class RandomNumbersSvc;
 /// If a resolution file is given, this is used either
 /// to smear with a gaussian distribution, or to fill
 /// the covariance matrix
-class DigitizationAlgorithm : public FW::BareAlgorithm
+class DigitizationAlgorithm : public BareAlgorithm
 {
 public:
+  /// Nested configuration struct
   struct Config
   {
     /// input hit collection

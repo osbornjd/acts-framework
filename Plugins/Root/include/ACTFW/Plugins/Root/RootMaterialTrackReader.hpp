@@ -13,7 +13,7 @@
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
-#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
 

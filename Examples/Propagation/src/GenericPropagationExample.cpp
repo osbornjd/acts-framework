@@ -39,7 +39,7 @@ struct GenericGeometry
     Acts::Logging::Level volumeLogLevel
         = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
     /// return the generic detector
-    return FWGen::buildGenericDetector(
+    return FW::Generic::buildGenericDetector(
         surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
   }
 };

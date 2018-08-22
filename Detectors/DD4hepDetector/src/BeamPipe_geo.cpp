@@ -1,6 +1,6 @@
-// This file is part of the Acts project.
+// This file is part of the ACTS project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 ACTS project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -43,4 +43,4 @@ create_element(Detector& lcdd, xml_h e, SensitiveDetector sens)
   return beamtube;
 }
 
-DECLARE_DETELEMENT(BeamTube, create_element)
+DECLARE_DETELEMENT(BeamPipe, create_element)

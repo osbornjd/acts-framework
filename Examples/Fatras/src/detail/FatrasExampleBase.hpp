@@ -22,8 +22,6 @@
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Pythia8/GeneratorOptions.hpp"
-#include "ACTFW/Plugins/Root/RootFatrasHitWriter.hpp"
-#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"

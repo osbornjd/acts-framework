@@ -16,7 +16,7 @@
 #include "ACTFW/Plugins/Obj/ObjSpacePointWriter.hpp"
 #include "ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "Acts/Digitization/PlanarModuleStepper.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleStepper.hpp"
 
 template <typename vmap_t>
 void

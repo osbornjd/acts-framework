@@ -14,7 +14,7 @@
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Material/Material.hpp"
 #include "Acts/Material/MaterialProperties.hpp"
-#include "Acts/Plugins/TGeoPlugins/TGeoDetectorElement.hpp"
+#include "Acts/Plugins/TGeo/TGeoDetectorElement.hpp"
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
 #include "Acts/Tools/CylinderVolumeHelper.hpp"
 #include "Acts/Tools/LayerArrayCreator.hpp"

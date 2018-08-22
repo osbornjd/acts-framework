@@ -17,7 +17,9 @@ namespace Acts {
 class TrackingGeometry;
 }
 
-namespace FWGen {
+namespace FW {
+  
+namespace Generic {
 
 /// Global method to build the generic tracking geometry
 /// @param lvl is the debug logging level
@@ -74,4 +76,6 @@ modulePositionsDisc(double                     z,
                     double                     outerRadius,
                     const std::vector<size_t>& discBinning,
                     const std::vector<double>& moduleHalfLength);
-}
+
+} // end of namespace Generic
+} // end of namespace FW

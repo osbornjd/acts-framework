@@ -14,7 +14,7 @@
 #define ACTFW_PLUGINS_GEANT4_MMEVENTACTION_H
 
 #include <memory>
-#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 

@@ -23,10 +23,14 @@ namespace FW {
 
 namespace Options {
 
-  /// the particle gun options, the are prefixes with gp
-  template <class AOPT>
+  /// The particle gun options, the are prefixes with gp
+  ///
+  /// @tparam aopt_t Type of the options object
+  ///
+  /// @param opt the options object to be parsed
+  template <typename aopt_t>
   void
-  addParticleGunOptions(AOPT& opt)
+  addParticleGunOptions(aopt_t& opt)
   {
     opt.add_options()("pg-nparticles",
                       po::value<size_t>()->default_value(100.),
@@ -65,10 +69,14 @@ namespace Options {
         "over by simply seperating the values by space");
   }
 
-  /// read the particle gun options and return a Config file
-  template <class AMAP>
+  /// Read the particle gun options and return a Config file
+  /// 
+  /// @tparam amap_t Type of the map object
+  ///
+  /// @param vm The map object
+  template <typename amap_t>
   FW::ParticleGun::Config
-  readParticleGunConfig(const AMAP& vm)
+  readParticleGunConfig(const amap_t& vm)
   {
     // read the reange as vector (missing istream for std::array)
     auto d0r  = vm["pg-d0-range"].template as<read_range>();

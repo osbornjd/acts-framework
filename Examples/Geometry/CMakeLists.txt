@@ -1,12 +1,12 @@
 # generic detector
-add_executable(ACTFWGenericGeometryExample src/GenericGeometryExample)
-target_include_directories(ACTFWGenericGeometryExample PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWGenericGeometryExample PRIVATE Acts::Core)
-target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFramework ACTFWExamplesCommon)
-target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFWObjPlugin ACTFWCsvPlugin ACTFWGenericDetector)
-target_link_libraries(ACTFWGenericGeometryExample PRIVATE ${Boost_LIBRARIES})
+add_executable(ACTFWGenericericGeometryExample src/GenericGeometryExample)
+target_include_directories(ACTFWGenericericGeometryExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWGenericericGeometryExample PRIVATE Acts::Core)
+target_link_libraries(ACTFWGenericericGeometryExample PRIVATE ACTFramework ACTFWExamplesCommon)
+target_link_libraries(ACTFWGenericericGeometryExample PRIVATE ACTFWObjPlugin ACTFWCsvPlugin ACTFWGenericericDetector)
+target_link_libraries(ACTFWGenericericGeometryExample PRIVATE ${Boost_LIBRARIES})
 
-install(TARGETS ACTFWGenericGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS ACTFWGenericericGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # generic detector
 add_executable(ACTFWRootGeometryExample src/RootGeometryExample)

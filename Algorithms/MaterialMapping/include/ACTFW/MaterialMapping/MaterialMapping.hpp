@@ -18,8 +18,8 @@
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "Acts/Layers/Layer.hpp"
 #include "Acts/Material/SurfaceMaterial.hpp"
-#include "Acts/Plugins/MaterialPlugins/MaterialMapper.hpp"
-#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialMapper.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace FW {

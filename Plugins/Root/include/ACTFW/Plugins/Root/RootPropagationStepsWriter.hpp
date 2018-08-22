@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <Fatras/Kernel/Definitions.hpp>
 #include <mutex>
 #include "ACTFW/Framework/WriterT.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"

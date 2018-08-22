@@ -1,11 +1,11 @@
 file (GLOB_RECURSE src_files "src/*.*pp")
 
-add_executable(ACTFWGenericPropagationExample src/GenericPropagationExample.cpp)
-target_include_directories(ACTFWGenericPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWGenericPropagationExample PRIVATE Acts::Core)
-target_link_libraries(ACTFWGenericPropagationExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWGenericDetector ACTFWPropagation)
-target_link_libraries(ACTFWGenericPropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
-target_link_libraries(ACTFWGenericPropagationExample PRIVATE ${Boost_LIBRARIES})
+add_executable(ACTFWGenericericPropagationExample src/GenericPropagationExample.cpp)
+target_include_directories(ACTFWGenericericPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWGenericericPropagationExample PRIVATE Acts::Core)
+target_link_libraries(ACTFWGenericericPropagationExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWGenericericDetector ACTFWPropagation)
+target_link_libraries(ACTFWGenericericPropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
+target_link_libraries(ACTFWGenericericPropagationExample PRIVATE ${Boost_LIBRARIES})
 
 
 add_executable(ACTFWRootPropagationExample src/RootPropagationExample.cpp)
