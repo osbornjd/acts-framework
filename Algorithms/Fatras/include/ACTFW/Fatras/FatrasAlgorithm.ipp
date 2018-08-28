@@ -27,7 +27,7 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
   // Create an algorithm local random number generator
   RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
-  // read Particles from input collection
+  // Read Particles from input collection
   const event_collection_t* inputEvent = nullptr;
   if (context.eventStore.get(m_cfg.inputEventCollection, inputEvent)
       == FW::ProcessCode::ABORT)
@@ -37,7 +37,7 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
                                  << inputEvent->size()
                                  << " vertices");
 
-  // output: simulated particles attached to their process vertices
+  // Output: simulated particles attached to their process vertices
   // we start with a copy of the current event
   event_collection_t simulatedEvent(*inputEvent);
 
@@ -51,23 +51,23 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
     void
     insert(hit_t hit)
     {
-      /// decode the geometry ID values
+      /// Decode the geometry ID values
       auto         geoID    = hit.surface->geoID();
       geo_id_value volumeID = geoID.value(Acts::GeometryID::volume_mask);
       geo_id_value layerID  = geoID.value(Acts::GeometryID::layer_mask);
       geo_id_value moduleID = geoID.value(Acts::GeometryID::sensitive_mask);
-      /// insert the simulate hit into the collection
+      /// Insert the simulate hit into the collection
       FW::Data::insert(hits, volumeID, layerID, moduleID, std::move(hit));
     }
   };
 
-  // create the hit collection
+  // Create the hit collection
   HitCollection simulatedHits;
 
-  // the simulation call
+  // The simulation call
   m_cfg.simulator(rng, simulatedEvent, simulatedHits);
 
-  // write simulated data to the event store
+  // Write simulated data to the event store
   // - the simulated particles
   if (context.eventStore.add(m_cfg.simulatedEventCollection,
                              std::move(simulatedEvent))
@@ -75,7 +75,7 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
     return FW::ProcessCode::ABORT;
   }
 
-  // - the soimulated hits
+  // The simulated hits
   if (context.eventStore.add(m_cfg.simulatedHitCollection,
                              std::move(simulatedHits.hits))
       == FW::ProcessCode::ABORT) {

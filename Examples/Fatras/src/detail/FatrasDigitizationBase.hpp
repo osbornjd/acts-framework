@@ -29,9 +29,9 @@ setupDigitization(vmap_t&                               vm,
   auto logLevel = FW::Options::readLogLevel<vmap_t>(vm);
 
   // Set the module stepper
-  Acts::PlanarModuleStepper::Config pmStepperConfig;
-  auto pmStepper = std::make_shared<Acts::PlanarModuleStepper>(
-      pmStepperConfig, Acts::getDefaultLogger("PlanarModuleStepper", logLevel));
+  auto pmStepper = 
+    std::make_shared<Acts::PlanarModuleStepper>(
+      Acts::getDefaultLogger("PlanarModuleStepper", logLevel));
 
   // Read the digitization configuration
   auto digiConfig = FW::Options::readDigitizationConfig(vm);

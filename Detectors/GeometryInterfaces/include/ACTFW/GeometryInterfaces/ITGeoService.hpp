@@ -10,8 +10,7 @@
 // ITGeoService.hpp
 ///////////////////////////////////////////////////////////////////
 
-#ifndef GEOMETRYINTERFACES_ITGEOSERVICE_H
-#define GEOMETRYINTERFACES_ITGEOSERVICE_H
+#pragma once
 
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -39,4 +38,3 @@ public:
       = 0;
 };
 }
-#endif  // GEOMETRYINTERFACES_ITGEOSERVICE_H

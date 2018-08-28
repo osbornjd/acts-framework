@@ -74,6 +74,7 @@ FW::ParticleGun::read(std::vector<Data::Vertex>& vertices,
     // create momentum from random parameters
     Acts::Vector3D momentum(
         pt * std::cos(phi), pt * std::sin(phi), pt * std::sinh(eta));
+    
     // flip charge and PID if asked for
     int flip = (!m_cfg.randomCharge || chargeDist(rng) < 0.5) ? 1 : -1;
     // the particle should be ready now

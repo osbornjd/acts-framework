@@ -70,11 +70,11 @@ struct SurfaceSelector
   bool
   operator()(const Acts::Surface& surface) const
   {
-    if (selectPassive) return true;
     if (selectSensitive && surface.associatedDetectorElement()) {
       return true;
     }
     if (selectMaterial && surface.associatedMaterial()) return true;
+    if (selectPassive) return true;
     return false;
   }
 };
@@ -160,6 +160,7 @@ setupSimulationAlgorithm(
       FatrasSimulator;
 
   FatrasSimulator fatrasSimulator(cPropagator, nPropagator);
+  fatrasSimulator.debug = vm["fatras-debug-output"].template as<bool>();
 
   using FatrasAlgorithm
       = FW::FatrasAlgorithm<FatrasSimulator, FatrasEvent, FatrasHit>;

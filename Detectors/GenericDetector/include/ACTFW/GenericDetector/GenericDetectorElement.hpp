@@ -10,20 +10,15 @@
 
 #include "Acts/Detector/DetectorElementBase.hpp"
 #include "Acts/Utilities/Definitions.hpp"
-
-/// Set the identifier PLUGIN
-#ifdef ACTS_CORE_IDENTIFIER_PLUGIN
-#include ACTS_CORE_IDENTIFIER_PLUGIN
-#else
-typedef unsigned long long Identifier;
-#endif
+#include "Acts/Plugins/Identification/Identifier.hpp"
+#include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
 
 namespace Acts {
-class Surface;
-class PlanarBounds;
-class DiscBounds;
-class SurfaceMaterial;
-class DigitizationModule;
+  class Surface;
+  class PlanarBounds;
+  class DiscBounds;
+  class SurfaceMaterial;
+  class DigitizationModule;
 }
 
 namespace FW {
@@ -35,7 +30,7 @@ namespace Generic {
   /// This is a lightweight type of detector element,
   /// it simply implements the base class.
   ///
-  class GenericDetectorElement : public Acts::DetectorElementBase
+  class GenericDetectorElement : public Acts::IdentifiedDetectorElement
   {
   public:
     /// Constructor for single sided detector element
@@ -52,7 +47,7 @@ namespace Generic {
         std::shared_ptr<const Acts::PlanarBounds>       pBounds,
         double                                          thickness,
         std::shared_ptr<const Acts::SurfaceMaterial>    material = nullptr,
-        std::shared_ptr<const Acts::DigitizationModule> dModule  = nullptr);
+        std::shared_ptr<const Acts::DigitizationModule> digitzationModule = nullptr);
 
     /// Constructor for single sided detector element
     /// - bound to a Disc Surface
@@ -67,11 +62,12 @@ namespace Generic {
                            std::shared_ptr<const Acts::DiscBounds>  dBounds,
                            double                                   thickness,
                            std::shared_ptr<const Acts::SurfaceMaterial> material
-                           = nullptr);
+                           = nullptr,
+                          std::shared_ptr<const Acts::DigitizationModule> digitzationModule = nullptr);
 
     /// Identifier
     Identifier
-    identifier() const ACTS_DETECTOR_ELEMENT_IDENTIFY_SPECIFIER;
+    identifier() const override final;
 
     /// Return local to global transform associated with this identifier
     ///
@@ -83,11 +79,6 @@ namespace Generic {
     const Acts::Surface&
     surface() const final override;
 
-    /// Return the DigitizationModule
-    /// @return optionally the DigitizationModule
-    std::shared_ptr<const Acts::DigitizationModule>
-    digitizationModule() const ACTS_DETECTOR_ELEMENT_DIGIMODULE_SPECIFIER;
-
     /// Set the identifier after construction (sometimes needed)
     void
     assignIdentifier(const Identifier& identifier);
@@ -95,6 +86,10 @@ namespace Generic {
     /// The maximal thickness of the detector element wrt normal axis
     double
     thickness() const final override;
+    
+    /// Retrieve the DigitizationModule
+    const std::shared_ptr<const Acts::DigitizationModule>
+    digitizationModule() const final override;
 
   private:
     /// the element representation
@@ -106,21 +101,16 @@ namespace Generic {
     std::shared_ptr<const Acts::Surface> m_elementSurface;
     /// the element thickness
     double m_elementThickness;
-
     /// store either
-    std::shared_ptr<const Acts::PlanarBounds> m_elementPlanarBounds;
-    std::shared_ptr<const Acts::DiscBounds>   m_elementDiscBounds;
+    std::shared_ptr<const Acts::PlanarBounds> 
+      m_elementPlanarBounds = nullptr;
+    std::shared_ptr<const Acts::DiscBounds>   
+      m_elementDiscBounds = nullptr;
+    /// The Digitization module
+    std::shared_ptr<const Acts::DigitizationModule> 
+      m_digitizationModule = nullptr;
 
-    // the digitization module, it's shared because many
-    // elements could potentiall have the same readout infrastructure
-    std::shared_ptr<const Acts::DigitizationModule> m_digitizationModule;
   };
-
-  inline std::shared_ptr<const Acts::DigitizationModule>
-  FW::Generic::GenericDetectorElement::digitizationModule() const
-  {
-    return m_digitizationModule;
-  }
 
   inline void
   FW::Generic::GenericDetectorElement::assignIdentifier(
@@ -151,6 +141,12 @@ namespace Generic {
   FW::Generic::GenericDetectorElement::thickness() const
   {
     return m_elementThickness;
+  }
+  
+  inline const std::shared_ptr<const Acts::DigitizationModule>
+  FW::Generic::GenericDetectorElement::digitizationModule() const
+  {
+    return m_digitizationModule;
   }
 
 }  // end of namespace Generic

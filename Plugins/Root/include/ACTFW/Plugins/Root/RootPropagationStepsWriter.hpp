@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -22,19 +22,30 @@ namespace Root {
 
   /// @class RootPropagationStepsWriter
   ///
-  /// Write out the steps of test propgations for stepping validation
+  /// Write out the steps of test propgations for stepping validation, 
+  /// each step sequence is one entry in the  in the root file for optimised 
+  /// data writing speed.
+  /// The event number is part of the written data.
+  ///
+  /// A common file can be provided for to the writer to attach his TTree,
+  /// this is done by setting the Config::rootFile pointer to an existing file
+  ///
+  /// Safe to use from multiple writer threads - uses a std::mutex lock.  
   class RootPropagationStepsWriter
       : public WriterT<std::vector<PropagationSteps>>
   {
   public:
     using Base = WriterT<std::vector<PropagationSteps>>;
+    
+    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection
-          = "propagation_steps";          ///< particle collection to write
-      std::string filePath = "";          ///< path of the output file
-      std::string fileMode = "RECREATE";  ///< file access mode
-      std::string treeName = "propagation_steps";  ///< name of the output tree
+          = "propagation_steps";                  ///< particle collection to write
+      std::string filePath = "";                  ///< path of the output file
+      std::string fileMode = "RECREATE";          ///< file access mode
+      std::string treeName = "propagation_steps"; ///< name of the output tree
+      TFile*      rootFile   = nullptr;           ///< common root file 
     };
 
     /// Constructor with
@@ -54,15 +65,19 @@ namespace Root {
   protected:
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
+    /// 
+    /// @param ctx The Algorithm context with per event information 
+    /// @param steps is the data to be written out
     ProcessCode
     writeT(const AlgorithmContext&              ctx,
            const std::vector<PropagationSteps>& steps) final override;
 
   private:
-    Config     m_cfg;         ///< the configuration object
-    std::mutex m_writeMutex;  ///< protect multi-threaded writes
-    TFile*     m_outputFile;  ///< the output file
-
+    Config             m_cfg;          ///< the configuration object
+    std::mutex         m_writeMutex;   ///< protect multi-threaded writes
+    TFile*             m_outputFile;   ///< the output file name
+    TTree*             m_outputTree;   ///< the output tree
+    int                m_eventNr;      ///< the event number of
     std::vector<int>   m_volumeID;     ///< volume identifier
     std::vector<int>   m_boundaryID;   ///< boundary identifier
     std::vector<int>   m_layerID;      ///< layer identifier if
@@ -76,7 +91,7 @@ namespace Root {
     std::vector<float> m_dz;           ///< global direction z
     std::vector<int>   m_step_type;    ///< step type
     std::vector<float> m_step_acc;     ///< accuracy
-    std::vector<float> m_step_act;     ///< actor
+    std::vector<float> m_step_act;     ///< actor check 
     std::vector<float> m_step_abt;     ///< aborter
     std::vector<float> m_step_usr;     ///< user
   };

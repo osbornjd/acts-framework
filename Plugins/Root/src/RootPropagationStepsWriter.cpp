@@ -19,7 +19,9 @@
 FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
     const FW::Root::RootPropagationStepsWriter::Config& cfg,
     Acts::Logging::Level                                level)
-  : Base(cfg.collection, "RootPropagationStepsWriter", level), m_cfg(cfg)
+  : Base(cfg.collection, "RootPropagationStepsWriter", level)
+  , m_cfg(cfg)
+  , m_outputFile(cfg.rootFile)
 {
   // An input collection name and tree name must be specified
   if (m_cfg.collection.empty()) {
@@ -29,21 +31,54 @@ FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
   }
 
   // Setup ROOT I/O
-  m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
-  if (!m_outputFile) {
-    throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
+  if (m_outputFile == nullptr){
+    m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+    if (m_outputFile == nullptr) {
+      throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
+    }
   }
+  m_outputFile->cd();
+  
+  m_outputTree
+      = new TTree(m_cfg.treeName.c_str(), "TTree from RootPropagationStepsWriter");
+  if (m_outputTree == nullptr) throw std::bad_alloc();
+  
+  // Set the branches
+  m_outputTree->Branch("event_nr", &m_eventNr);
+  m_outputTree->Branch("volume_id", &m_volumeID);
+  m_outputTree->Branch("boundary_id", &m_boundaryID);
+  m_outputTree->Branch("layer_id", &m_layerID);
+  m_outputTree->Branch("approach_id", &m_approachID);
+  m_outputTree->Branch("sensitive_id", &m_sensitiveID);
+  m_outputTree->Branch("g_x", &m_x);
+  m_outputTree->Branch("g_y", &m_y);
+  m_outputTree->Branch("g_z", &m_z);
+  m_outputTree->Branch("d_x", &m_dx);
+  m_outputTree->Branch("d_y", &m_dy);
+  m_outputTree->Branch("d_z", &m_dz);
+  m_outputTree->Branch("type", &m_step_type);
+  m_outputTree->Branch("step_acc", &m_step_acc);
+  m_outputTree->Branch("step_act", &m_step_act);
+  m_outputTree->Branch("step_abt", &m_step_abt);
+  m_outputTree->Branch("step_usr", &m_step_usr);
+  
 }
 
 FW::Root::RootPropagationStepsWriter::~RootPropagationStepsWriter()
 {
-  m_outputFile->Close();
+  /// Close the file if it's yours
+  if (m_cfg.rootFile == nullptr) {
+    m_outputFile->Close();
+  }
 }
 
 FW::ProcessCode
 FW::Root::RootPropagationStepsWriter::endRun()
 {
-  ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
+  // Write the tree
+  m_outputFile->cd();
+  m_outputTree->Write();
+  ACTS_VERBOSE("Wrote particles to tree '" << m_cfg.treeName << "' in '"
                                         << m_cfg.filePath
                                         << "'");
   return ProcessCode::SUCCESS;
@@ -54,60 +89,16 @@ FW::Root::RootPropagationStepsWriter::writeT(
     const AlgorithmContext&              ctx,
     const std::vector<PropagationSteps>& stepCollection)
 {
-  // exclusive access to the tree
+  // Exclusive access to the tree while writing 
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // we get the event number
-  int eventNr = ctx.eventNumber;
-
-  m_outputFile->cd();
-
-  std::string treeName = m_cfg.treeName.c_str();
-  treeName += std::to_string(eventNr);
-
-  TTree* outputTree
-      = new TTree(treeName.c_str(), "TTree from RootPropagationStepsWriter");
-  if (!outputTree) throw std::bad_alloc();
-
-  // Set the branches
-  outputTree->Branch("step_volumeID", &m_volumeID);
-  outputTree->Branch("step_boundaryID", &m_boundaryID);
-  outputTree->Branch("step_layerID", &m_layerID);
-  outputTree->Branch("step_approachID", &m_approachID);
-  outputTree->Branch("step_sensitiveID", &m_sensitiveID);
-  outputTree->Branch("step_g_x", &m_x);
-  outputTree->Branch("step_g_y", &m_y);
-  outputTree->Branch("step_g_z", &m_z);
-  outputTree->Branch("step_d_x", &m_dx);
-  outputTree->Branch("step_d_y", &m_dy);
-  outputTree->Branch("step_d_z", &m_dz);
-  outputTree->Branch("step_type", &m_step_type);
-  outputTree->Branch("step_acc", &m_step_acc);
-  outputTree->Branch("step_act", &m_step_act);
-  outputTree->Branch("step_abt", &m_step_abt);
-  outputTree->Branch("step_usr", &m_step_usr);
+  m_eventNr = ctx.eventNumber;
 
   using ag = Acts::GeometryID;
 
   // loop over the step vector of each test propagation in this
   for (auto& steps : stepCollection) {
-    // clear the vector
-    m_volumeID.clear();
-    m_boundaryID.clear();
-    m_layerID.clear();
-    m_approachID.clear();
-    m_sensitiveID.clear();
-    m_x.clear();
-    m_y.clear();
-    m_z.clear();
-    m_dx.clear();
-    m_dy.clear();
-    m_dz.clear();
-    m_step_type.clear();
-    m_step_acc.clear();
-    m_step_act.clear();
-    m_step_abt.clear();
-    m_step_usr.clear();
 
     // loop over single steps
     for (auto& step : steps) {
@@ -152,11 +143,10 @@ FW::Root::RootPropagationStepsWriter::writeT(
       double actor    = step.stepSize.value(cs::actor);
       double aborter  = step.stepSize.value(cs::aborter);
       double user     = step.stepSize.value(cs::user);
-
-      double act2 = actor * actor;
-      double acc2 = accuracy * accuracy;
-      double abo2 = aborter * aborter;
-      double usr2 = user * user;
+      double act2     = actor * actor;
+      double acc2     = accuracy * accuracy;
+      double abo2     = aborter * aborter;
+      double usr2     = user * user;
 
       // todo - fold with direction
       if (act2 < acc2 && act2 < abo2 && act2 < usr2) {
@@ -175,8 +165,7 @@ FW::Root::RootPropagationStepsWriter::writeT(
       m_step_abt.push_back(aborter);
       m_step_usr.push_back(user);
     }
-    outputTree->Fill();
+    m_outputTree->Fill();
   }
-  outputTree->Write();
   return FW::ProcessCode::SUCCESS;
 }

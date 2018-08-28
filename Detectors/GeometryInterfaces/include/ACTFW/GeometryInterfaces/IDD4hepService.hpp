@@ -10,8 +10,7 @@
 /// IDD4hepService.hpp
 ///////////////////////////////////////////////////////////////////
 
-#ifndef GEOMETRYINTERFACES_IDD4HEPSERVICE_H
-#define GEOMETRYINTERFACES_IDD4HEPSERVICE_H
+#pragma once
 
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -44,4 +43,3 @@ public:
       = 0;
 };
 }
-#endif  // GEOMETRYINTERFACES_IDD4HEPSERVICE_H

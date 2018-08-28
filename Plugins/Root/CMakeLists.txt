@@ -41,7 +41,7 @@ set(srcs include/ACTFW/Plugins/Root/RootExCellWriter.hpp
 add_library(ACTFWRootPlugin SHARED ${srcs}) # G__Material.cxx)
 target_include_directories(ACTFWRootPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(ACTFWRootPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
-target_link_libraries(ACTFWRootPlugin PUBLIC Acts::Core Acts::DigitizationPlugin) # Acts::MaterialPlugin)
+target_link_libraries(ACTFWRootPlugin PUBLIC Acts::Core Acts::DigitizationPlugin IdentificationPlugin) # Acts::MaterialPlugin)
 target_link_libraries(ACTFWRootPlugin PUBLIC ACTFramework ACTFWPropagation)
 target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ACTFWRootPlugin PUBLIC Threads::Threads)

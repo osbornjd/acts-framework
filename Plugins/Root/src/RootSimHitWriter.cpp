@@ -19,7 +19,9 @@
 FW::Root::RootSimHitWriter::RootSimHitWriter(
     const FW::Root::RootSimHitWriter::Config& cfg,
     Acts::Logging::Level                      level)
-  : Base(cfg.collection, "RootSimHitWriter", level), m_cfg(cfg)
+  : Base(cfg.collection, "RootSimHitWriter", level)
+  , m_cfg(cfg)
+  , m_outputFile(cfg.rootFile)
 {
   // An input collection name and tree name must be specified
   if (m_cfg.collection.empty()) {
@@ -29,21 +31,47 @@ FW::Root::RootSimHitWriter::RootSimHitWriter(
   }
 
   // Setup ROOT I/O
-  m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
-  if (!m_outputFile) {
-    throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
+  if (m_cfg.rootFile == nullptr){
+    m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+    if (!m_outputFile) {
+      throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
+    }
   }
+  
+  m_outputFile->cd();
+  m_outputTree
+      = new TTree(m_cfg.treeName.c_str(), "TTree from RootSimHitWriter");
+  if (m_outputTree == nullptr) throw std::bad_alloc();
+
+  // Set the branches
+  m_outputTree->Branch("volume_id",  &m_volumeID);
+  m_outputTree->Branch("layer_id",   &m_layerID);
+  m_outputTree->Branch("surface_id", &m_surfaceID);
+  m_outputTree->Branch("g_x", &m_x);
+  m_outputTree->Branch("g_y", &m_y);
+  m_outputTree->Branch("g_z", &m_z);
+  m_outputTree->Branch("d_x", &m_dx);
+  m_outputTree->Branch("d_y", &m_dy);
+  m_outputTree->Branch("d_z", &m_dz);
+  m_outputTree->Branch("value", &m_value);
+
 }
 
 FW::Root::RootSimHitWriter::~RootSimHitWriter()
 {
-  m_outputFile->Close();
+  /// Close the file if it's yours
+  if (m_cfg.rootFile == nullptr) {
+    m_outputFile->Close();
+  }
 }
 
 FW::ProcessCode
 FW::Root::RootSimHitWriter::endRun()
 {
-  ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
+  // Write the tree
+  m_outputFile->cd();
+  m_outputTree->Write();
+  ACTS_VERBOSE("Wrote particles to tree '" << m_cfg.treeName << "' in '"
                                         << m_cfg.filePath
                                         << "'");
   return ProcessCode::SUCCESS;
@@ -54,39 +82,18 @@ FW::Root::RootSimHitWriter::writeT(
     const AlgorithmContext& ctx,
     const FW::DetectorData<geo_id_value, Data::SimHit<Data::Particle>>& fhits)
 {
-  // exclusive access to the tree
+  // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
-  // we get the event number
-  int eventNr = ctx.eventNumber;
+  // Get the event number
+  m_eventNr = ctx.eventNumber;
 
-  m_outputFile->cd();
-
-  std::string treeName = m_cfg.treeName.c_str();
-  treeName += std::to_string(eventNr);
-
-  TTree* outputTree
-      = new TTree(treeName.c_str(), "TTree from RootSimHitWriter");
-  if (!outputTree) throw std::bad_alloc();
-
-  // Set the branches
-  outputTree->Branch("volumeID", &m_volumeID);
-  outputTree->Branch("layerID", &m_layerID);
-  outputTree->Branch("surfaceID", &m_surfaceID);
-  outputTree->Branch("g_x", &m_x);
-  outputTree->Branch("g_y", &m_y);
-  outputTree->Branch("g_z", &m_z);
-  outputTree->Branch("d_x", &m_dx);
-  outputTree->Branch("d_y", &m_dy);
-  outputTree->Branch("d_z", &m_dz);
-  outputTree->Branch("value", &m_value);
-
-  // loop over the planar fatras hits in this event
+  // Loop over the planar fatras hits in this event
   for (auto& volumeData : fhits) {
     for (auto& layerData : volumeData.second) {
       for (auto& moduleData : layerData.second) {
         for (auto& hit : moduleData.second) {
-          // volume / layer and surface identification
+          // Volume / layer and surface identification
           m_volumeID  = volumeData.first;
           m_layerID   = layerData.first;
           m_surfaceID = moduleData.first;
@@ -97,12 +104,11 @@ FW::Root::RootSimHitWriter::writeT(
           m_dy        = hit.direction.y();
           m_dz        = hit.direction.z();
           m_value     = hit.value;
-          // fill the tree
-          outputTree->Fill();
+          // Fill the tree
+          m_outputTree->Fill();
         }
       }
     }
   }
-  outputTree->Write();
   return FW::ProcessCode::SUCCESS;
 }

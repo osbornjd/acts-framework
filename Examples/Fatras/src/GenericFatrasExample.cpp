@@ -14,7 +14,10 @@
 /// @brief adding some specific options for this geometry type
 struct GenericOptions
 {
-
+  /// @brief operator to be called to add options for the generic detector
+  ///
+  // @tparam options_t Type of the options object
+  ///@param opt Options object
   template <typename options_t>
   void
   operator()(options_t& opt)
@@ -25,10 +28,16 @@ struct GenericOptions
 /// @brief geometry getter, the operator() will be called int he example base
 struct GenericGeometry
 {
-
-  template <typename options_t>
+  /// @brief operator called to construct the tracking geometry
+  ///
+  /// @tparam variable_map_t Type of the variable map template for parameters
+  ///
+  /// @param vm the parameter map object
+  ///
+  /// @return a closed TrackingGeometry object
+  template <typename variable_map_t>
   std::shared_ptr<const Acts::TrackingGeometry>
-  operator()(options_t& vm)
+  operator()(variable_map_t& vm)
   {
     // --------------------------------------------------------------------------------
     // set geometry building logging level
@@ -44,6 +53,10 @@ struct GenericGeometry
   }
 };
 
+/// @brief main executable
+///
+/// @param argc The argument count
+/// @param argv The argument list
 int
 main(int argc, char* argv[])
 {

@@ -13,6 +13,7 @@
 #include "Acts/Layers/Layer.hpp"
 #include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
+#include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
 #include "Acts/Surfaces/CylinderBounds.hpp"
 #include "Acts/Surfaces/PlanarBounds.hpp"
 #include "Acts/Surfaces/RadialBounds.hpp"
@@ -97,7 +98,9 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
       ACTS_VERBOSE(">>Csv: Writing out a PlaneSurface ");
       // get thickness and value store
       if (surface.associatedDetectorElement()) {
-        auto detElement = surface.associatedDetectorElement();
+        auto detElement 
+          = dynamic_cast<const Acts::IdentifiedDetectorElement*>
+              (surface.associatedDetectorElement());
         // get thickness and bounds
         double thickness = detElement->thickness();
         (*m_cfg.outputStream) << "," << thickness << ",";

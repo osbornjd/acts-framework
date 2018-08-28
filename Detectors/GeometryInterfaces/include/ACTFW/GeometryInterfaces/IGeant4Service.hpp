@@ -10,8 +10,7 @@
 /// IGeant4Service.hpp
 ///////////////////////////////////////////////////////////////////
 
-#ifndef GEOMETRYINTERFACES_IGEANTSERVICE_H
-#define GEOMETRYINTERFACES_IGEANTSERVICE_H
+#pragma once
 
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -38,4 +37,3 @@ public:
       = 0;
 };
 }
-#endif  // GEOMETRYINTERFACES_IGEANTSERVICE_H

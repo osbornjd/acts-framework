@@ -223,7 +223,7 @@ FW::Generic::GenericLayerBuilder::constructLayers()
                                                         moduleBounds,
                                                         moduleThickness,
                                                         moduleMaterialPtr,
-                                                        moduleDigitizationPtr);
+                                                        moduleDigitizationPtr);                                              
           // register the backside as bin member
           std::vector<const Acts::DetectorElementBase*> bsbinmember = {module};
           std::vector<const Acts::DetectorElementBase*> binmember = {bsmodule};
@@ -406,15 +406,13 @@ FW::Generic::GenericLayerBuilder::constructLayers()
                                                         nModuleTransform,
                                                         moduleBounds,
                                                         moduleThickness,
-                                                        moduleMaterialPtr,
-                                                        moduleDigitizationPtr);
+                                                        moduleMaterialPtr);
           FW::Generic::GenericDetectorElement* pmodule
               = new FW::Generic::GenericDetectorElement(pModuleIdentifier,
                                                         pModuleTransform,
                                                         moduleBounds,
                                                         moduleThickness,
-                                                        moduleMaterialPtr,
-                                                        moduleDigitizationPtr);
+                                                        moduleMaterialPtr);
           // memory management - we need a detector store to hold them somewhere
           // @todo add detector store facility
           m_posnegModule.push_back(nmodule);
@@ -462,16 +460,14 @@ FW::Generic::GenericLayerBuilder::constructLayers()
                     nModuleTransform,
                     moduleBounds,
                     moduleThickness,
-                    moduleMaterialPtr,
-                    moduleDigitizationPtr);
+                    moduleMaterialPtr);
             FW::Generic::GenericDetectorElement* bspmodule
                 = new FW::Generic::GenericDetectorElement(
                     pModuleIdentifier,
                     pModuleTransform,
                     moduleBounds,
                     moduleThickness,
-                    moduleMaterialPtr,
-                    moduleDigitizationPtr);
+                    moduleMaterialPtr);
             // register the backside of the binmembers
             std::vector<const Acts::DetectorElementBase*> bspbinmember
                 = {pmodule};

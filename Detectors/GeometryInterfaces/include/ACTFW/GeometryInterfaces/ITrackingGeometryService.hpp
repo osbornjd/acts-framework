@@ -10,8 +10,7 @@
 // ITrackingGeometryService.hpp
 ///////////////////////////////////////////////////////////////////
 
-#ifndef GEOMETRYINTERFACES_ITRACKINGGEOMETRYSERVICE_H
-#define GEOMETRYINTERFACES_ITRACKINGGEOMETRYSERVICE_H
+#pragma
 
 #include <memory>
 #include "ACTFW/Framework/IService.hpp"
@@ -42,4 +41,3 @@ public:
   trackingGeometry() = 0;
 };
 }
-#endif  // GEOMETRYINTERFACES_ITRACKINGGEOMETRYSERVICE_H

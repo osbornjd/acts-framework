@@ -184,7 +184,7 @@ namespace Data {
     const Acts::Vector3D&
     momentum() const
     {
-      return m_position;
+      return m_momentum;
     }
 
     /// @brief Access methods: p

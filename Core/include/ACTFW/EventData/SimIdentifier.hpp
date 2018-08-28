@@ -28,7 +28,7 @@ namespace Data {
     typedef long long          identifier_diff;
 
     /// Default constructor
-    SimIdentifier();
+    SimIdentifier() = default;
 
     /// Constructor from identifier_type
     ///
@@ -44,11 +44,11 @@ namespace Data {
     /// Copy constructor
     ///
     /// @param other is the source identifier
-    SimIdentifier(const SimIdentifier& other);
+    SimIdentifier(const SimIdentifier& other) = default;
 
     /// @param old is the assigment parameter
     SimIdentifier&
-    operator=(const SimIdentifier& old);
+    operator=(const SimIdentifier& old) = default;
 
     /// @param value is the assigment parameter
     SimIdentifier&
@@ -102,13 +102,6 @@ namespace Data {
         = {};  //!< the attached particles
   };
 
-  inline SimIdentifier::SimIdentifier() : m_id(0) {}
-
-  inline SimIdentifier::SimIdentifier(const SimIdentifier& other)
-    : m_id(other.m_id)
-  {
-  }
-
   inline SimIdentifier::SimIdentifier(identifier_type value)
     : m_id(value), m_truthParticles()
   {
@@ -119,15 +112,6 @@ namespace Data {
       std::vector<const SimParticle*> truthParticles)
     : m_id(value), m_truthParticles(std::move(truthParticles))
   {
-  }
-
-  inline SimIdentifier&
-  SimIdentifier::operator=(const SimIdentifier& other)
-  {
-    if (&other != this) {
-      m_id = other.m_id;
-    }
-    return (*this);
   }
 
   inline SimIdentifier&

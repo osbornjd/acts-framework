@@ -23,6 +23,7 @@
 #include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleStepper.hpp"
 #include "Acts/Plugins/Digitization/Segmentation.hpp"
+#include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
@@ -87,7 +88,9 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
           const Data::Particle*              hitParticle = &hit.particle;
           std::vector<const Data::Particle*> hitParticles{hitParticle};
           // get the DetectorElement
-          auto hitDetElement = hitSurface.associatedDetectorElement();
+          auto hitDetElement 
+            = dynamic_cast<const Acts::IdentifiedDetectorElement*>
+                (hitSurface.associatedDetectorElement());
           if (hitDetElement) {
             // get the digitization module
             auto hitDigitizationModule = hitDetElement->digitizationModule();

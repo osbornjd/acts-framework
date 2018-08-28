@@ -21,11 +21,21 @@ namespace Root {
 
   /// Write out a particles associated to process vertices into a TTree
   ///
-  /// Each entry in the TTree corresponds to the particles in one event.
+  /// Safe to use from multiple writer threads - uses a std::mutex lock.
+  ///
+  /// Each entry in the TTree corresponds to one particle for optimum writing
+  /// speed. The event number is part of the written data.
+  ///
+  /// A common file can be provided for to the writer to attach his TTree,
+  /// this is done by setting the Config::rootFile pointer to an existing file
+  ///
+  /// Safe to use from multiple writer threads - uses a std::mutex lock.
   class RootParticleWriter final : public WriterT<std::vector<Data::Vertex>>
   {
   public:
     using Base = WriterT<std::vector<Data::Vertex>>;
+    
+    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection;              ///< particle collection to write
@@ -34,9 +44,13 @@ namespace Root {
       std::string treeName = "particles";  ///< name of the output tree
       std::shared_ptr<FW::BarcodeSvc>
           barcodeSvc;  ///< the barcode service to decode (optional)
+      TFile*      rootFile   = nullptr;    ///< common root file 
     };
 
     /// Constructor
+    ///
+    /// @param cfg Configuration struct
+    /// @param level Message level declaration 
     RootParticleWriter(const Config&        cfg,
                        Acts::Logging::Level level = Acts::Logging::INFO);
 
@@ -49,7 +63,7 @@ namespace Root {
 
   protected:
     /// @brief Write method called by the base class
-    /// @param [in] ctx is the algorithm context for consistency
+    /// @param [in] ctx is the algorithm context for event information
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
@@ -57,28 +71,29 @@ namespace Root {
            const std::vector<Data::Vertex>& vertices) final override;
 
   private:
-    Config     m_cfg;           ///< The config class
-    std::mutex m_writeMutex;    ///< Mutex used to protect multi-threaded writes
-    TFile*     m_outputFile;    ///< The output file
-    TTree*     m_outputTree;    ///< The output tree
-    std::vector<float> m_vx;    ///< Vertex position x
-    std::vector<float> m_vy;    ///< Vertex position y
-    std::vector<float> m_vz;    ///< Vertex position z
-    std::vector<float> m_px;    ///< Momentum position x
-    std::vector<float> m_py;    ///< Momentum position y
-    std::vector<float> m_pz;    ///< Momentum position z
-    std::vector<float> m_pT;    ///< Momentum position transverse component
-    std::vector<float> m_eta;   ///< Momentum direction eta
-    std::vector<float> m_phi;   ///< Momentum direction phi
-    std::vector<float> m_mass;  ///< Particle mass
-    std::vector<int>   m_charge;      ///< Particle charge
-    std::vector<int>   m_pdgCode;     ///< Particle pdg code
-    std::vector<int>   m_barcode;     ///< Particle barcode
-    std::vector<int>   m_vertex;      ///< Barcode vertex generation
-    std::vector<int>   m_primary;     ///< Barcode primary identifcation
-    std::vector<int>   m_generation;  ///< Barcode generation
-    std::vector<int>   m_secondary;   ///< Barcode secondary identification
-    std::vector<int>   m_process;     ///< Barcode process production
+    Config     m_cfg;                 ///< The config class
+    std::mutex m_writeMutex;          ///< Mutex used to protect multi-threaded writes
+    TFile*     m_outputFile{nullptr}; ///< The output file
+    TTree*     m_outputTree{nullptr}; ///< The output tree
+    int        m_eventNr{0};          ///< the event number of
+    float      m_vx{0.};              ///< Vertex position x
+    float      m_vy{0.};              ///< Vertex position y
+    float      m_vz{0.};              ///< Vertex position z
+    float      m_px{0.};              ///< Momentum position x
+    float      m_py{0.};              ///< Momentum position y
+    float      m_pz{0.};              ///< Momentum position z
+    float      m_pT{0.};              ///< Momentum position transverse component
+    float      m_eta{0.};             ///< Momentum direction eta
+    float      m_phi{0.};             ///< Momentum direction phi
+    float      m_mass{0.};            ///< Particle mass
+    int        m_charge{0};           ///< Particle charge
+    int        m_pdgCode{0};          ///< Particle pdg code
+    int        m_barcode{0};          ///< Particle barcode
+    int        m_vertex{0};           ///< Barcode vertex generation
+    int        m_primary{0};          ///< Barcode primary identifcation
+    int        m_generation{0};       ///< Barcode generation
+    int        m_secondary{0};        ///< Barcode secondary identification
+    int        m_process{0};          ///< Barcode process production
   };
 
 }  // namespace Root

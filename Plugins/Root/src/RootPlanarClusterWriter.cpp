@@ -17,11 +17,14 @@
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 #include "Acts/Plugins/Digitization/Segmentation.hpp"
+#include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
 
 FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
     const FW::Root::RootPlanarClusterWriter::Config& cfg,
     Acts::Logging::Level                             level)
-  : Base(cfg.collection, "RootPlanarClusterWriter", level), m_cfg(cfg)
+  : Base(cfg.collection, "RootPlanarClusterWriter", level)
+  , m_cfg(cfg)
+  , m_outputFile(cfg.rootFile)
 {
   // An input collection name and tree name must be specified
   if (m_cfg.collection.empty()) {
@@ -31,20 +34,22 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
   }
 
   // Setup ROOT I/O
-  m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
-  if (!m_outputFile) {
-    throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
+  if (m_outputFile == nullptr){
+    m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+    if (m_outputFile == nullptr) {
+      throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
+    }
   }
   m_outputFile->cd();
   m_outputTree
       = new TTree(m_cfg.treeName.c_str(), "TTree from RootPlanarClusterWriter");
-  if (!m_outputTree) throw std::bad_alloc();
+  if (m_outputTree == nullptr) throw std::bad_alloc();
 
   // Set the branches
   m_outputTree->Branch("event_nr", &m_eventNr);
-  m_outputTree->Branch("volumeID", &m_volumeID);
-  m_outputTree->Branch("layerID", &m_layerID);
-  m_outputTree->Branch("surfaceID", &m_surfaceID);
+  m_outputTree->Branch("volume_id", &m_volumeID);
+  m_outputTree->Branch("layer_id", &m_layerID);
+  m_outputTree->Branch("surface_id", &m_surfaceID);
   m_outputTree->Branch("g_x", &m_x);
   m_outputTree->Branch("g_y", &m_y);
   m_outputTree->Branch("g_z", &m_z);
@@ -67,12 +72,16 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
 
 FW::Root::RootPlanarClusterWriter::~RootPlanarClusterWriter()
 {
-  m_outputFile->Close();
+  /// Close the file if it's yours
+  if (m_cfg.rootFile == nullptr) {
+    m_outputFile->Close();
+  }
 }
 
 FW::ProcessCode
 FW::Root::RootPlanarClusterWriter::endRun()
 {
+  // Write the tree
   m_outputFile->cd();
   m_outputTree->Write();
   ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
@@ -86,10 +95,12 @@ FW::Root::RootPlanarClusterWriter::writeT(
     const AlgorithmContext& ctx,
     const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& clusters)
 {
-  // exclusive access to the tree
+  // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
+  // Get the event number
+  m_eventNr   = ctx.eventNumber;
 
-  // loop over the planar clusters in this event
+  // Loop over the planar clusters in this event
   for (auto& volumeData : clusters) {
     for (auto& layerData : volumeData.second) {
       for (auto& moduleData : layerData.second) {
@@ -107,7 +118,6 @@ FW::Root::RootPlanarClusterWriter::writeT(
           // transform local into global position information
           clusterSurface.localToGlobal(local, mom, pos);
           // identification
-          m_eventNr   = ctx.eventNumber;
           m_volumeID  = volumeData.first;
           m_layerID   = layerData.first;
           m_surfaceID = moduleData.first;
@@ -120,7 +130,9 @@ FW::Root::RootPlanarClusterWriter::writeT(
           m_cov_ly    = 0.;  // @todo fill in
           // get the cells and run through them
           const auto& cells    = cluster.digitizationCells();
-          auto detectorElement = clusterSurface.associatedDetectorElement();
+          auto detectorElement 
+            = dynamic_cast<const Acts::IdentifiedDetectorElement*>
+                (clusterSurface.associatedDetectorElement());
           for (auto& cell : cells) {
             // cell identification
             m_cell_IDx.push_back(cell.channel0);

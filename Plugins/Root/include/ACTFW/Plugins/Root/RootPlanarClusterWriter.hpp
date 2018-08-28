@@ -23,18 +23,27 @@ namespace Root {
   ///
   /// Write out a planar cluster collection into a root file
   /// to avoid immense long vectors, each cluster is one entry
-  /// in the root file
+  /// in the root file for optimised data writing speed
+  /// The event number is part of the written data.
+  ///
+  /// A common file can be provided for to the writer to attach his TTree,
+  /// this is done by setting the Config::rootFile pointer to an existing file
+  ///
+  /// Safe to use from multiple writer threads - uses a std::mutex lock.
   class RootPlanarClusterWriter
       : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
   {
   public:
     using Base = WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>;
+    
+    /// @brief The nested configuration struct
     struct Config
     {
-      std::string collection;             ///< particle collection to write
-      std::string filePath;               ///< path of the output file
-      std::string fileMode = "RECREATE";  ///< file access mode
-      std::string treeName = "clusters";  ///< name of the output tree
+      std::string collection = "";         ///< particle collection to write
+      std::string filePath   = "";         ///< path of the output file
+      std::string fileMode   = "RECREATE"; ///< file access mode
+      std::string treeName   = "clusters"; ///< name of the output tree
+      TFile*      rootFile   = nullptr;    ///< common root file 
     };
 
     /// Constructor with
@@ -53,6 +62,9 @@ namespace Root {
   protected:
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
+    ///
+    /// @param ctx The Algorithm context with per event information 
+    /// @param clusters is the data to be written out
     ProcessCode
     writeT(const AlgorithmContext& ctx,
            const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
@@ -80,7 +92,7 @@ namespace Root {
     std::vector<float> m_cell_ly;     ///< local cell position y
     std::vector<float> m_cell_data;   ///< local cell position y
 
-    // optional the truth position
+    // (optional) the truth position
     std::vector<float> m_t_gx;       ///< truth position global x
     std::vector<float> m_t_gy;       ///< truth position global y
     std::vector<float> m_t_gz;       ///< truth position global z

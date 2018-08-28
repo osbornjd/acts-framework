@@ -1,4 +1,4 @@
-// This file is part of the Acts project.
+// This file is part of the ACTS project.
 //
 // Copyright (C) 2017 Acts project team
 //
@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef DD4HEP_GEOMETRYSERVICE_H
-#define DD4HEP_GEOMETRYSERVICE_H 1
+#pragma once
 
 #include <memory>
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -24,21 +23,21 @@ namespace FW {
 
 namespace DD4hep {
 
-  /// @class GeometryService
+  /// @class DD4hepGeometryService
   ///
   /// @brief service creating geometries from dd4hep input
   ///
-  /// The GeometryService creates the DD4hep, the TGeo and the ACTS
+  /// The DD4hepGeometryService creates the DD4hep, the TGeo and the ACTS
   /// TrackingGeometry
   /// from DD4hep xml input. The geometries are created only on demand.
 
-  class GeometryService : public FW::IDD4hepService,
+  class DD4hepGeometryService : public FW::IDD4hepService,
                           public FW::ITGeoService,
                           public FW::ITrackingGeometryService
   {
   public:
     /// @class Config
-    /// nested config file of the GeometryService
+    /// nested config file of the DD4hepGeometryService
     class Config
     {
     public:
@@ -70,25 +69,13 @@ namespace DD4hep {
       /// layers (e.g. barrel, endcap volumes) have no specific shape
       /// (assemblies)
       double envelopeZ;
-      ///  Flag indicating if the
-      /// Acts::DigitizationModule (needed for Acts geometric digitization) will
-      /// be
-      /// build for every single sensitive DD4hep DetElement translating
-      /// directly
-      /// the
-      /// DD4hep Segmentation.
-      /// @attention Turning on this flag can be very time and memory consuming!
-      /// If
-      /// different modules are sharing the same segmentation (which will be the
-      /// case
-      /// most of the times) please use the
-      /// Acts::ActsExtension(std::shared_ptr<const DigitizationModule>)
-      /// constructor.
-      /// More information on the usage can be found
-      /// in the description of the Acts::ActsExtension class.
-      bool buildDigitizationModules;
 
-      Config(const std::string&   lname = "GeometryService",
+      double defaultLayerThickness;
+
+      std::function<void(std::vector<dd4hep::DetElement>& detectors)>
+          sortDetectors;
+
+      Config(const std::string&   lname = "DD4hepGeometryService",
              Acts::Logging::Level level = Acts::Logging::INFO)
         : logger(Acts::getDefaultLogger(lname, level))
         , xmlFileNames()
@@ -99,15 +86,14 @@ namespace DD4hep {
         , bTypeZ(Acts::equidistant)
         , envelopeR(0.)
         , envelopeZ(0.)
-        , buildDigitizationModules(false)
       {
       }
     };
     /// Constructor
-    GeometryService(const Config& cfg);
+    DD4hepGeometryService(const Config& cfg);
 
     /// Virtual destructor
-    ~GeometryService() override;
+    ~DD4hepGeometryService() override;
 
     /// Framework name() method
     std::string
@@ -159,5 +145,3 @@ namespace DD4hep {
 
 }  // namespace DD4hep
 }  // namespace FW
-
-#endif  // DD4HEP_GEOMETRYSERVICE_H

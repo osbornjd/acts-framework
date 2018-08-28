@@ -1,18 +1,19 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "detail/ExtrapolationExampleBase.hpp"
+#include <boost/program_options.hpp>
+#include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
+#include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
+#include "detail/PropagationExampleBase.hpp"
+
 
 /// @brief adding some specific options for this geometry type
-struct GenericOptions
+struct DD4hepOptions
 {
   /// @brief operator to be called to add options for the generic detector
   ///
@@ -22,13 +23,13 @@ struct GenericOptions
   void
   operator()(options_t& opt)
   {
+    FW::Options::addDD4hepOptions(opt);
   }
 };
 
 /// @brief geometry getter, the operator() will be called int he example base
-struct GenericGeometry
+struct DD4hepGeometry
 {
-
   /// @brief operator called to construct the tracking geometry
   ///
   /// @tparam variable_map_t Type of the variable map template for parameters
@@ -40,17 +41,14 @@ struct GenericGeometry
   std::shared_ptr<const Acts::TrackingGeometry>
   operator()(variable_map_t& vm)
   {
-    // --------------------------------------------------------------------------------
-    // set geometry building logging level
-    Acts::Logging::Level surfaceLogLevel = Acts::Logging::Level(
-        vm["geo-surface-loglevel"].template as<size_t>());
-    Acts::Logging::Level layerLogLevel
-        = Acts::Logging::Level(vm["geo-layer-loglevel"].template as<size_t>());
-    Acts::Logging::Level volumeLogLevel
-        = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
-    /// return the generic detector
-    return FW::Generic::buildGenericDetector(
-        surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
+    // read the detector config & dd4hep detector
+    auto dd4HepDetectorConfig
+        = FW::Options::readDD4hepConfig<po::variables_map>(vm);
+    auto geometrySvc
+        = std::make_shared<FW::DD4hep::DD4hepGeometryService>(dd4HepDetectorConfig);
+    std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
+        = geometrySvc->trackingGeometry();
+    return dd4tGeometry;
   }
 };
 
@@ -62,8 +60,9 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  GenericOptions  genericOptions;
-  GenericGeometry genericGeometry;
+  DD4hepOptions  dd4HepOptions;
+  DD4hepGeometry dd4HepGeometry;
   // now process it
-  return extrapolationExample(argc, argv, genericOptions, genericGeometry);
+  return propagationExample(argc, argv, dd4HepOptions, dd4HepGeometry);
+
 }

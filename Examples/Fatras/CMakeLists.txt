@@ -1,28 +1,50 @@
 file(GLOB_RECURSE src_files "src/*.*pp")
 
-add_executable(ACTFWGenericericFatrasExample src/GenericFatrasExample.cpp)
-target_include_directories(ACTFWGenericericFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWGenericericFatrasExample PRIVATE Acts::Core Acts::Legacy Fatras::Core)
+add_executable(ACTFWGenericFatrasExample src/GenericFatrasExample.cpp)
+target_include_directories(ACTFWGenericFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE Acts::Core Acts::Legacy Fatras::Core)
 
-target_link_libraries(ACTFWGenericericFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
-target_link_libraries(ACTFWGenericericFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
-target_link_libraries(ACTFWGenericericFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
-target_link_libraries(ACTFWGenericericFatrasExample PRIVATE ACTFWGenericericDetector)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWGenericDetector)
 
-target_link_libraries(ACTFWGenericericFatrasExample PRIVATE ${Boost_LIBRARIES})
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ${Boost_LIBRARIES})
 
-install(TARGETS ACTFWGenericericFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS ACTFWGenericFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+# TGEO based detector
+if (USE_TGEO)
+  add_executable(ACTFWRootFatrasExample src/RootFatrasExample.cpp)
+  target_include_directories(ACTFWRootFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE Acts::Core Acts::Legacy Fatras::Core)
+  
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon)
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWRootDetector)
+  
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ${Boost_LIBRARIES})
+  
+  install(TARGETS ACTFWRootFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
-add_executable(ACTFWRootFatrasExample src/RootFatrasExample.cpp)
-target_include_directories(ACTFWRootFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWRootFatrasExample PRIVATE Acts::Core Acts::Legacy Fatras::Core)
+# DD4hep detector
+if (USE_DD4HEP)
+  add_executable(ACTFWDD4hepFatrasExample src/DD4hepFatrasExample.cpp)
+  target_include_directories(ACTFWDD4hepFatrasExample PRIVATE ${DD4hep_INCLUDE_DIRS})
+  target_include_directories(ACTFWDD4hepFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})  
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE Acts::Core Acts::Legacy Fatras::Core)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFramework  ACTFWExamplesCommon)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFWDD4hepDetector)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ${DD4hep_LIBRARIES})
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ${Boost_LIBRARIES})
 
-target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
-target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
-target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
-target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWRootDetector)
+  install(TARGETS ACTFWDD4hepFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
-target_link_libraries(ACTFWRootFatrasExample PRIVATE ${Boost_LIBRARIES})
-
-install(TARGETS ACTFWRootFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

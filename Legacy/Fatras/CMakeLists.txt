@@ -14,7 +14,7 @@ target_link_libraries(ACTFWParticleGunCommon PUBLIC ACTFWCsvPlugin ACTFWJsonPlug
 
 add_executable(ACTFWFatrasGun FatrasGun.cpp)
 target_include_directories(ACTFWFatrasGun PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWGenericericDetector)
+target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWGenericDetector)
 target_link_libraries(ACTFWFatrasGun PUBLIC ACTSCore FatrasCore ACTFramework)
 target_link_libraries(ACTFWFatrasGun PUBLIC  ACTFWParticleGun ACTFWFatras ACTFWDigitization ACTFWExtrapolation ACTFWTruthTracking)
 target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWBFieldPlugin ACTFWRootPlugin)

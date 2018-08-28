@@ -55,8 +55,10 @@ setupEvgenInput(vmap_t&                               vm,
     particleGunCfg.barcodeSvc      = barcodeSvc;
     particleGunCfg.randomNumberSvc = randomNumberSvc;
     particleGunCfg.nEvents         = nEvents;
-    signalEventReader = std::make_shared<FW::ParticleGun>(particleGunCfg);
-
+    signalEventReader 
+      = std::make_shared<FW::ParticleGun>(
+      particleGunCfg,
+      Acts::getDefaultLogger("ParticleGun", logLevel));
   } else {
     // Read Signal generator
     pythia8Configs.first.randomNumberSvc = randomNumberSvc;

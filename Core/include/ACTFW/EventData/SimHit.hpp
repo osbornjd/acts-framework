@@ -62,6 +62,7 @@ namespace Data {
                const particle_t&   simParticle) const
     {
       SimHit<particle_t> simHit;
+      simHit.surface   = state.navigation.currentSurface;
       simHit.position  = state.stepping.position();
       simHit.direction = state.stepping.direction();
       simHit.value     = value;

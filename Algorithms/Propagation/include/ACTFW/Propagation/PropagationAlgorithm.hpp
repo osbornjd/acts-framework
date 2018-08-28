@@ -101,13 +101,13 @@ public:
 private:
   Config m_cfg;  ///< the config class
 
-  /// private helper method to create a corrleated covariance matrix
+  /// Private helper method to create a corrleated covariance matrix
   /// @param[in] rnd is the random engine
   /// @param[in] gauss is a gaussian distribution to draw from
   std::unique_ptr<Acts::ActsSymMatrixD<5>>
   generateCovariance(FW::RandomEngine& rnd, FW::GaussDist& gauss) const;
 
-  /// the templated execute test method for
+  /// Templated execute test method for
   /// charged and netural particles
   /// @param [in] startParameters the start parameters
   template <typename parameters_t>
@@ -116,12 +116,12 @@ private:
               double pathLength = std::numeric_limits<double>::max()) const
   {
 
-    ACTS_DEBUG("Test extrapolation starts");
+    ACTS_DEBUG("Test propagation/extrapolation starts");
 
-    // this is the outside in mode
+    // This is the outside in mode
     if (m_cfg.mode == 0) {
 
-      // the step length logger for testing & end of world aborter
+      // The step length logger for testing & end of world aborter
       typedef Acts::detail::SteppingLogger    SteppingLogger;
       typedef Acts::detail::DebugOutputActor  DebugOutput;
       typedef Acts::detail::EndOfWorldReached EndOfWorld;

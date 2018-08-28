@@ -14,7 +14,10 @@
 /// @brief adding some specific options for this geometry type
 struct RootOptions
 {
-
+  /// @brief operator to be called to add options for the generic detector
+  ///
+  // @tparam options_t Type of the options object
+  ///@param opt Options object
   template <typename options_t>
   void
   operator()(options_t& opt)
@@ -28,7 +31,14 @@ struct RootGeometry
 {
 
   std::vector<std::shared_ptr<const Acts::TGeoDetectorElement>> detElementStore;
-
+  
+  /// @brief operator called to construct the tracking geometry
+  ///
+  /// @tparam variable_map_t Type of the variable map template for parameters
+  ///
+  /// @param vm the parameter map object
+  ///
+  /// @return a closed TrackingGeometry object
   template <typename variable_map_t>
   std::shared_ptr<const Acts::TrackingGeometry>
   operator()(variable_map_t& vm)

@@ -28,16 +28,16 @@ namespace Options {
                       po::value<std::string>()->default_value(""),
                       "Output directory location.")(
         "output-root",
-        po::value<bool>()->default_value(true),
+        po::value<bool>()->default_value(false),
         "Switch on to write '.root' output file(s).")(
         "output-csv",
-        po::value<bool>()->default_value(true),
+        po::value<bool>()->default_value(false),
         "Switch on to write '.csv' output file(s).")(
         "output-obj",
-        po::value<bool>()->default_value(true),
+        po::value<bool>()->default_value(false),
         "Switch on to write '.obj' ouput file(s).")(
         "output-json",
-        po::value<bool>()->default_value(true),
+        po::value<bool>()->default_value(false),
         "Switch on to write '.json' ouput file(s).");
   }
 }  // namespace Options
