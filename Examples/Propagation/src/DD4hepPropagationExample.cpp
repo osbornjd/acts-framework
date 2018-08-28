@@ -11,7 +11,6 @@
 #include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
 #include "detail/PropagationExampleBase.hpp"
 
-
 /// @brief adding some specific options for this geometry type
 struct DD4hepOptions
 {
@@ -44,8 +43,8 @@ struct DD4hepGeometry
     // read the detector config & dd4hep detector
     auto dd4HepDetectorConfig
         = FW::Options::readDD4hepConfig<po::variables_map>(vm);
-    auto geometrySvc
-        = std::make_shared<FW::DD4hep::DD4hepGeometryService>(dd4HepDetectorConfig);
+    auto geometrySvc = std::make_shared<FW::DD4hep::DD4hepGeometryService>(
+        dd4HepDetectorConfig);
     std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
         = geometrySvc->trackingGeometry();
     return dd4tGeometry;
@@ -64,5 +63,4 @@ main(int argc, char* argv[])
   DD4hepGeometry dd4HepGeometry;
   // now process it
   return propagationExample(argc, argv, dd4HepOptions, dd4HepGeometry);
-
 }

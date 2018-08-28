@@ -27,7 +27,7 @@ FW::Root::RootParticleWriter::RootParticleWriter(
   }
 
   // Setup ROOT I/O
-  if (m_outputFile == nullptr){
+  if (m_outputFile == nullptr) {
     m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
     if (m_outputFile == nullptr) {
       throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
@@ -39,9 +39,9 @@ FW::Root::RootParticleWriter::RootParticleWriter(
     throw std::bad_alloc();
   else {
     // I/O parameters
-    m_outputTree->Branch("event_nr",&m_eventNr);
-    m_outputTree->Branch("eta",&m_eta);
-    m_outputTree->Branch("phi",&m_phi);
+    m_outputTree->Branch("event_nr", &m_eventNr);
+    m_outputTree->Branch("eta", &m_eta);
+    m_outputTree->Branch("phi", &m_phi);
     m_outputTree->Branch("vx", &m_vx);
     m_outputTree->Branch("vy", &m_vy);
     m_outputTree->Branch("vz", &m_vz);
@@ -92,36 +92,36 @@ FW::Root::RootParticleWriter::writeT(const AlgorithmContext&          ctx,
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // Get the event number
-  m_eventNr   = ctx.eventNumber;
-  
+  m_eventNr = ctx.eventNumber;
+
   // loop over the process vertices
   for (auto& vertex : vertices) {
     auto& vtx = vertex.position;
     for (auto& particle : vertex.outgoing()) {
       /// collect the information
-      m_vx       = particle.position().x();
-      m_vy       = particle.position().y();
-      m_vz       = particle.position().z();
-      m_eta      = particle.momentum().eta();
-      m_phi      = particle.momentum().phi();
-      m_px       = particle.momentum().x();
-      m_py       = particle.momentum().y();
-      m_pz       = particle.momentum().z();
-      m_pT       = particle.momentum().perp();
-      m_charge   = particle.q();
-      m_mass     = particle.m();
-      m_pdgCode  = particle.pdg();
+      m_vx      = particle.position().x();
+      m_vy      = particle.position().y();
+      m_vz      = particle.position().z();
+      m_eta     = particle.momentum().eta();
+      m_phi     = particle.momentum().phi();
+      m_px      = particle.momentum().x();
+      m_py      = particle.momentum().y();
+      m_pz      = particle.momentum().z();
+      m_pT      = particle.momentum().perp();
+      m_charge  = particle.q();
+      m_mass    = particle.m();
+      m_pdgCode = particle.pdg();
 
       auto barcode = particle.barcode();
-      m_barcode = barcode;
+      m_barcode    = barcode;
       // decode using the barcode service
       if (m_cfg.barcodeSvc) {
         // the barcode service
-        m_vertex      = m_cfg.barcodeSvc->vertex(barcode);
-        m_primary     = m_cfg.barcodeSvc->primary(barcode);
-        m_generation  = m_cfg.barcodeSvc->generate(barcode);
-        m_secondary   = m_cfg.barcodeSvc->secondary(barcode);
-        m_process     = m_cfg.barcodeSvc->process(barcode);
+        m_vertex     = m_cfg.barcodeSvc->vertex(barcode);
+        m_primary    = m_cfg.barcodeSvc->primary(barcode);
+        m_generation = m_cfg.barcodeSvc->generate(barcode);
+        m_secondary  = m_cfg.barcodeSvc->secondary(barcode);
+        m_process    = m_cfg.barcodeSvc->process(barcode);
       }
       m_outputTree->Fill();
     }

@@ -88,9 +88,9 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
           const Data::Particle*              hitParticle = &hit.particle;
           std::vector<const Data::Particle*> hitParticles{hitParticle};
           // get the DetectorElement
-          auto hitDetElement 
-            = dynamic_cast<const Acts::IdentifiedDetectorElement*>
-                (hitSurface.associatedDetectorElement());
+          auto hitDetElement
+              = dynamic_cast<const Acts::IdentifiedDetectorElement*>(
+                  hitSurface.associatedDetectorElement());
           if (hitDetElement) {
             // get the digitization module
             auto hitDigitizationModule = hitDetElement->digitizationModule();

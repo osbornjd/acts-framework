@@ -34,7 +34,7 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
   }
 
   // Setup ROOT I/O
-  if (m_outputFile == nullptr){
+  if (m_outputFile == nullptr) {
     m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
     if (m_outputFile == nullptr) {
       throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
@@ -98,7 +98,7 @@ FW::Root::RootPlanarClusterWriter::writeT(
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
   // Get the event number
-  m_eventNr   = ctx.eventNumber;
+  m_eventNr = ctx.eventNumber;
 
   // Loop over the planar clusters in this event
   for (auto& volumeData : clusters) {
@@ -129,10 +129,10 @@ FW::Root::RootPlanarClusterWriter::writeT(
           m_cov_lx    = 0.;  // @todo fill in
           m_cov_ly    = 0.;  // @todo fill in
           // get the cells and run through them
-          const auto& cells    = cluster.digitizationCells();
-          auto detectorElement 
-            = dynamic_cast<const Acts::IdentifiedDetectorElement*>
-                (clusterSurface.associatedDetectorElement());
+          const auto& cells = cluster.digitizationCells();
+          auto        detectorElement
+              = dynamic_cast<const Acts::IdentifiedDetectorElement*>(
+                  clusterSurface.associatedDetectorElement());
           for (auto& cell : cells) {
             // cell identification
             m_cell_IDx.push_back(cell.channel0);

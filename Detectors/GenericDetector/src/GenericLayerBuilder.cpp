@@ -223,7 +223,7 @@ FW::Generic::GenericLayerBuilder::constructLayers()
                                                         moduleBounds,
                                                         moduleThickness,
                                                         moduleMaterialPtr,
-                                                        moduleDigitizationPtr);                                              
+                                                        moduleDigitizationPtr);
           // register the backside as bin member
           std::vector<const Acts::DetectorElementBase*> bsbinmember = {module};
           std::vector<const Acts::DetectorElementBase*> binmember = {bsmodule};
@@ -455,19 +455,17 @@ FW::Generic::GenericLayerBuilder::constructLayers()
                 mutablePModuleTransform);
             // everything is set for the next module
             FW::Generic::GenericDetectorElement* bsnmodule
-                = new FW::Generic::GenericDetectorElement(
-                    nModuleIdentifier,
-                    nModuleTransform,
-                    moduleBounds,
-                    moduleThickness,
-                    moduleMaterialPtr);
+                = new FW::Generic::GenericDetectorElement(nModuleIdentifier,
+                                                          nModuleTransform,
+                                                          moduleBounds,
+                                                          moduleThickness,
+                                                          moduleMaterialPtr);
             FW::Generic::GenericDetectorElement* bspmodule
-                = new FW::Generic::GenericDetectorElement(
-                    pModuleIdentifier,
-                    pModuleTransform,
-                    moduleBounds,
-                    moduleThickness,
-                    moduleMaterialPtr);
+                = new FW::Generic::GenericDetectorElement(pModuleIdentifier,
+                                                          pModuleTransform,
+                                                          moduleBounds,
+                                                          moduleThickness,
+                                                          moduleMaterialPtr);
             // register the backside of the binmembers
             std::vector<const Acts::DetectorElementBase*> bspbinmember
                 = {pmodule};

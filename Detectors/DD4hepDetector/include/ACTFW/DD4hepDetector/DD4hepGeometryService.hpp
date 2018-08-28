@@ -32,8 +32,8 @@ namespace DD4hep {
   /// from DD4hep xml input. The geometries are created only on demand.
 
   class DD4hepGeometryService : public FW::IDD4hepService,
-                          public FW::ITGeoService,
-                          public FW::ITrackingGeometryService
+                                public FW::ITGeoService,
+                                public FW::ITrackingGeometryService
   {
   public:
     /// @class Config

@@ -34,7 +34,7 @@ namespace Root {
   {
   public:
     using Base = WriterT<std::vector<Data::Vertex>>;
-    
+
     /// @brief The nested configuration struct
     struct Config
     {
@@ -43,14 +43,14 @@ namespace Root {
       std::string fileMode = "RECREATE";   ///< file access mode
       std::string treeName = "particles";  ///< name of the output tree
       std::shared_ptr<FW::BarcodeSvc>
-          barcodeSvc;  ///< the barcode service to decode (optional)
-      TFile*      rootFile   = nullptr;    ///< common root file 
+             barcodeSvc;          ///< the barcode service to decode (optional)
+      TFile* rootFile = nullptr;  ///< common root file
     };
 
     /// Constructor
     ///
     /// @param cfg Configuration struct
-    /// @param level Message level declaration 
+    /// @param level Message level declaration
     RootParticleWriter(const Config&        cfg,
                        Acts::Logging::Level level = Acts::Logging::INFO);
 
@@ -71,29 +71,29 @@ namespace Root {
            const std::vector<Data::Vertex>& vertices) final override;
 
   private:
-    Config     m_cfg;                 ///< The config class
-    std::mutex m_writeMutex;          ///< Mutex used to protect multi-threaded writes
-    TFile*     m_outputFile{nullptr}; ///< The output file
-    TTree*     m_outputTree{nullptr}; ///< The output tree
-    int        m_eventNr{0};          ///< the event number of
-    float      m_vx{0.};              ///< Vertex position x
-    float      m_vy{0.};              ///< Vertex position y
-    float      m_vz{0.};              ///< Vertex position z
-    float      m_px{0.};              ///< Momentum position x
-    float      m_py{0.};              ///< Momentum position y
-    float      m_pz{0.};              ///< Momentum position z
-    float      m_pT{0.};              ///< Momentum position transverse component
-    float      m_eta{0.};             ///< Momentum direction eta
-    float      m_phi{0.};             ///< Momentum direction phi
-    float      m_mass{0.};            ///< Particle mass
-    int        m_charge{0};           ///< Particle charge
-    int        m_pdgCode{0};          ///< Particle pdg code
-    int        m_barcode{0};          ///< Particle barcode
-    int        m_vertex{0};           ///< Barcode vertex generation
-    int        m_primary{0};          ///< Barcode primary identifcation
-    int        m_generation{0};       ///< Barcode generation
-    int        m_secondary{0};        ///< Barcode secondary identification
-    int        m_process{0};          ///< Barcode process production
+    Config     m_cfg;         ///< The config class
+    std::mutex m_writeMutex;  ///< Mutex used to protect multi-threaded writes
+    TFile*     m_outputFile{nullptr};  ///< The output file
+    TTree*     m_outputTree{nullptr};  ///< The output tree
+    int        m_eventNr{0};           ///< the event number of
+    float      m_vx{0.};               ///< Vertex position x
+    float      m_vy{0.};               ///< Vertex position y
+    float      m_vz{0.};               ///< Vertex position z
+    float      m_px{0.};               ///< Momentum position x
+    float      m_py{0.};               ///< Momentum position y
+    float      m_pz{0.};               ///< Momentum position z
+    float      m_pT{0.};         ///< Momentum position transverse component
+    float      m_eta{0.};        ///< Momentum direction eta
+    float      m_phi{0.};        ///< Momentum direction phi
+    float      m_mass{0.};       ///< Particle mass
+    int        m_charge{0};      ///< Particle charge
+    int        m_pdgCode{0};     ///< Particle pdg code
+    int        m_barcode{0};     ///< Particle barcode
+    int        m_vertex{0};      ///< Barcode vertex generation
+    int        m_primary{0};     ///< Barcode primary identifcation
+    int        m_generation{0};  ///< Barcode generation
+    int        m_secondary{0};   ///< Barcode secondary identification
+    int        m_process{0};     ///< Barcode process production
   };
 
 }  // namespace Root

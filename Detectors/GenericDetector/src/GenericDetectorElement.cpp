@@ -34,11 +34,11 @@ FW::Generic::GenericDetectorElement::GenericDetectorElement(
 }
 
 FW::Generic::GenericDetectorElement::GenericDetectorElement(
-    const Identifier                             identifier,
-    std::shared_ptr<const Acts::Transform3D>     transform,
-    std::shared_ptr<const Acts::DiscBounds>      dBounds,
-    double                                       thickness,
-    std::shared_ptr<const Acts::SurfaceMaterial> material,
+    const Identifier                                identifier,
+    std::shared_ptr<const Acts::Transform3D>        transform,
+    std::shared_ptr<const Acts::DiscBounds>         dBounds,
+    double                                          thickness,
+    std::shared_ptr<const Acts::SurfaceMaterial>    material,
     std::shared_ptr<const Acts::DigitizationModule> digitizationModule)
   : Acts::IdentifiedDetectorElement()
   , m_elementIdentifier(std::move(identifier))
@@ -47,7 +47,7 @@ FW::Generic::GenericDetectorElement::GenericDetectorElement(
   , m_elementThickness(thickness)
   , m_elementPlanarBounds(nullptr)
   , m_elementDiscBounds(std::move(dBounds))
-  , m_digitizationModule(digitizationModule)      
+  , m_digitizationModule(digitizationModule)
 {
   auto mutableSurface
       = std::const_pointer_cast<Acts::Surface>(m_elementSurface);

@@ -31,7 +31,7 @@ struct RootGeometry
 {
 
   std::vector<std::shared_ptr<const Acts::TGeoDetectorElement>> detElementStore;
-  
+
   /// @brief operator called to construct the tracking geometry
   ///
   /// @tparam variable_map_t Type of the variable map template for parameters

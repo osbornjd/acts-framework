@@ -22,30 +22,30 @@ namespace Root {
 
   /// @class RootPropagationStepsWriter
   ///
-  /// Write out the steps of test propgations for stepping validation, 
-  /// each step sequence is one entry in the  in the root file for optimised 
+  /// Write out the steps of test propgations for stepping validation,
+  /// each step sequence is one entry in the  in the root file for optimised
   /// data writing speed.
   /// The event number is part of the written data.
   ///
   /// A common file can be provided for to the writer to attach his TTree,
   /// this is done by setting the Config::rootFile pointer to an existing file
   ///
-  /// Safe to use from multiple writer threads - uses a std::mutex lock.  
+  /// Safe to use from multiple writer threads - uses a std::mutex lock.
   class RootPropagationStepsWriter
       : public WriterT<std::vector<PropagationSteps>>
   {
   public:
     using Base = WriterT<std::vector<PropagationSteps>>;
-    
+
     /// @brief The nested configuration struct
     struct Config
     {
       std::string collection
-          = "propagation_steps";                  ///< particle collection to write
-      std::string filePath = "";                  ///< path of the output file
-      std::string fileMode = "RECREATE";          ///< file access mode
-      std::string treeName = "propagation_steps"; ///< name of the output tree
-      TFile*      rootFile   = nullptr;           ///< common root file 
+          = "propagation_steps";          ///< particle collection to write
+      std::string filePath = "";          ///< path of the output file
+      std::string fileMode = "RECREATE";  ///< file access mode
+      std::string treeName = "propagation_steps";  ///< name of the output tree
+      TFile*      rootFile = nullptr;              ///< common root file
     };
 
     /// Constructor with
@@ -65,8 +65,8 @@ namespace Root {
   protected:
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
-    /// 
-    /// @param ctx The Algorithm context with per event information 
+    ///
+    /// @param ctx The Algorithm context with per event information
     /// @param steps is the data to be written out
     ProcessCode
     writeT(const AlgorithmContext&              ctx,
@@ -91,7 +91,7 @@ namespace Root {
     std::vector<float> m_dz;           ///< global direction z
     std::vector<int>   m_step_type;    ///< step type
     std::vector<float> m_step_acc;     ///< accuracy
-    std::vector<float> m_step_act;     ///< actor check 
+    std::vector<float> m_step_act;     ///< actor check
     std::vector<float> m_step_abt;     ///< aborter
     std::vector<float> m_step_usr;     ///< user
   };

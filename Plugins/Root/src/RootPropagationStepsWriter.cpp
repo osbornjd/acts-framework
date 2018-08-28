@@ -31,18 +31,18 @@ FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
   }
 
   // Setup ROOT I/O
-  if (m_outputFile == nullptr){
+  if (m_outputFile == nullptr) {
     m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
     if (m_outputFile == nullptr) {
       throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
     }
   }
   m_outputFile->cd();
-  
-  m_outputTree
-      = new TTree(m_cfg.treeName.c_str(), "TTree from RootPropagationStepsWriter");
+
+  m_outputTree = new TTree(m_cfg.treeName.c_str(),
+                           "TTree from RootPropagationStepsWriter");
   if (m_outputTree == nullptr) throw std::bad_alloc();
-  
+
   // Set the branches
   m_outputTree->Branch("event_nr", &m_eventNr);
   m_outputTree->Branch("volume_id", &m_volumeID);
@@ -61,7 +61,6 @@ FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
   m_outputTree->Branch("step_act", &m_step_act);
   m_outputTree->Branch("step_abt", &m_step_abt);
   m_outputTree->Branch("step_usr", &m_step_usr);
-  
 }
 
 FW::Root::RootPropagationStepsWriter::~RootPropagationStepsWriter()
@@ -79,8 +78,8 @@ FW::Root::RootPropagationStepsWriter::endRun()
   m_outputFile->cd();
   m_outputTree->Write();
   ACTS_VERBOSE("Wrote particles to tree '" << m_cfg.treeName << "' in '"
-                                        << m_cfg.filePath
-                                        << "'");
+                                           << m_cfg.filePath
+                                           << "'");
   return ProcessCode::SUCCESS;
 }
 
@@ -89,7 +88,7 @@ FW::Root::RootPropagationStepsWriter::writeT(
     const AlgorithmContext&              ctx,
     const std::vector<PropagationSteps>& stepCollection)
 {
-  // Exclusive access to the tree while writing 
+  // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // we get the event number

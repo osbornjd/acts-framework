@@ -47,11 +47,10 @@ namespace Options {
         po::value<bool>()->default_value(true),
         "Switch on multiple scattering")(
         "fatras-em-conversions",
-         po::value<bool>()->default_value(false),
-         "Switch on gamma conversions")(
-        "fatras-had-interaction",
         po::value<bool>()->default_value(false),
-        "Switch on hadronic interaction")(
+        "Switch on gamma conversions")("fatras-had-interaction",
+                                       po::value<bool>()->default_value(false),
+                                       "Switch on hadronic interaction")(
         "fatras-debug-output",
         po::value<bool>()->default_value(false),
         "Switch on debug output on/off");

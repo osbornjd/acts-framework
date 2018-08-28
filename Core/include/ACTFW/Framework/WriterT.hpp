@@ -86,8 +86,8 @@ private:
 
 template <typename write_data_t>
 FW::WriterT<write_data_t>::WriterT(std::string          objectName,
-                        std::string          writerName,
-                        Acts::Logging::Level level)
+                                   std::string          writerName,
+                                   Acts::Logging::Level level)
   : m_objectName(std::move(objectName))
   , m_writerName(std::move(writerName))
   , m_logger(Acts::getDefaultLogger(m_writerName, level))
@@ -122,4 +122,3 @@ FW::WriterT<write_data_t>::write(const AlgorithmContext& ctx)
     return ProcessCode::ABORT;
   return writeT(ctx, *object);
 }
-

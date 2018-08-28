@@ -121,7 +121,8 @@ namespace Options {
               << logLevel << std::endl;
     // DETECTOR configuration:
     // --------------------------------------------------------------------------------
-    FW::DD4hep::DD4hepGeometryService::Config gsConfig("GeometryService", logLevel);
+    FW::DD4hep::DD4hepGeometryService::Config gsConfig("GeometryService",
+                                                       logLevel);
     gsConfig.xmlFileNames = vm["dd4hep-input"].template as<read_strings>();
     gsConfig.bTypePhi     = Acts::equidistant;
     gsConfig.bTypeR       = Acts::arbitrary;

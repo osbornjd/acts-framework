@@ -98,9 +98,8 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
       ACTS_VERBOSE(">>Csv: Writing out a PlaneSurface ");
       // get thickness and value store
       if (surface.associatedDetectorElement()) {
-        auto detElement 
-          = dynamic_cast<const Acts::IdentifiedDetectorElement*>
-              (surface.associatedDetectorElement());
+        auto detElement = dynamic_cast<const Acts::IdentifiedDetectorElement*>(
+            surface.associatedDetectorElement());
         // get thickness and bounds
         double thickness = detElement->thickness();
         (*m_cfg.outputStream) << "," << thickness << ",";

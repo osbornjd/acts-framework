@@ -37,7 +37,7 @@ namespace Root {
   public:
     using Base
         = WriterT<DetectorData<geo_id_value, Data::SimHit<Data::Particle>>>;
-    
+
     /// @brief The nested configuration struct
     struct Config
     {
@@ -45,7 +45,7 @@ namespace Root {
       std::string filePath;               ///< path of the output file
       std::string fileMode = "RECREATE";  ///< file access mode
       std::string treeName = "hits";      ///< name of the output tree
-      TFile*      rootFile   = nullptr;    ///< common root file 
+      TFile*      rootFile = nullptr;     ///< common root file
     };
 
     /// Constructor with
@@ -65,7 +65,7 @@ namespace Root {
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
     ///
-    /// @param ctx The Algorithm context with per event information 
+    /// @param ctx The Algorithm context with per event information
     /// @param simhits The simulation hits collection to we written out
     ProcessCode
     writeT(const AlgorithmContext& ctx,

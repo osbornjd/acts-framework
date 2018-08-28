@@ -9,16 +9,16 @@
 #pragma once
 
 #include "Acts/Detector/DetectorElementBase.hpp"
-#include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Plugins/Identification/Identifier.hpp"
 #include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
+#include "Acts/Plugins/Identification/Identifier.hpp"
+#include "Acts/Utilities/Definitions.hpp"
 
 namespace Acts {
-  class Surface;
-  class PlanarBounds;
-  class DiscBounds;
-  class SurfaceMaterial;
-  class DigitizationModule;
+class Surface;
+class PlanarBounds;
+class DiscBounds;
+class SurfaceMaterial;
+class DigitizationModule;
 }
 
 namespace FW {
@@ -47,7 +47,8 @@ namespace Generic {
         std::shared_ptr<const Acts::PlanarBounds>       pBounds,
         double                                          thickness,
         std::shared_ptr<const Acts::SurfaceMaterial>    material = nullptr,
-        std::shared_ptr<const Acts::DigitizationModule> digitzationModule = nullptr);
+        std::shared_ptr<const Acts::DigitizationModule> digitzationModule
+        = nullptr);
 
     /// Constructor for single sided detector element
     /// - bound to a Disc Surface
@@ -57,13 +58,14 @@ namespace Generic {
     /// @param dBounds is the planar bounds for the disc like detector element
     /// @param thickness is the module thickness
     /// @param material is the (optional) Surface material associated to it
-    GenericDetectorElement(const Identifier                         identifier,
-                           std::shared_ptr<const Acts::Transform3D> transform,
-                           std::shared_ptr<const Acts::DiscBounds>  dBounds,
-                           double                                   thickness,
-                           std::shared_ptr<const Acts::SurfaceMaterial> material
-                           = nullptr,
-                          std::shared_ptr<const Acts::DigitizationModule> digitzationModule = nullptr);
+    GenericDetectorElement(
+        const Identifier                                identifier,
+        std::shared_ptr<const Acts::Transform3D>        transform,
+        std::shared_ptr<const Acts::DiscBounds>         dBounds,
+        double                                          thickness,
+        std::shared_ptr<const Acts::SurfaceMaterial>    material = nullptr,
+        std::shared_ptr<const Acts::DigitizationModule> digitzationModule
+        = nullptr);
 
     /// Identifier
     Identifier
@@ -86,7 +88,7 @@ namespace Generic {
     /// The maximal thickness of the detector element wrt normal axis
     double
     thickness() const final override;
-    
+
     /// Retrieve the DigitizationModule
     const std::shared_ptr<const Acts::DigitizationModule>
     digitizationModule() const final override;
@@ -102,14 +104,11 @@ namespace Generic {
     /// the element thickness
     double m_elementThickness;
     /// store either
-    std::shared_ptr<const Acts::PlanarBounds> 
-      m_elementPlanarBounds = nullptr;
-    std::shared_ptr<const Acts::DiscBounds>   
-      m_elementDiscBounds = nullptr;
+    std::shared_ptr<const Acts::PlanarBounds> m_elementPlanarBounds = nullptr;
+    std::shared_ptr<const Acts::DiscBounds>   m_elementDiscBounds   = nullptr;
     /// The Digitization module
-    std::shared_ptr<const Acts::DigitizationModule> 
-      m_digitizationModule = nullptr;
-
+    std::shared_ptr<const Acts::DigitizationModule> m_digitizationModule
+        = nullptr;
   };
 
   inline void
@@ -142,7 +141,7 @@ namespace Generic {
   {
     return m_elementThickness;
   }
-  
+
   inline const std::shared_ptr<const Acts::DigitizationModule>
   FW::Generic::GenericDetectorElement::digitizationModule() const
   {

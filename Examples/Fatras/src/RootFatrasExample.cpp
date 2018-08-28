@@ -8,8 +8,8 @@
 
 #include "ACTFW/RootDetector/BuildRootDetector.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Utilities/Logger.hpp"
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
+#include "Acts/Utilities/Logger.hpp"
 #include "detail/FatrasExampleBase.hpp"
 
 /// @brief adding some specific options for this geometry type

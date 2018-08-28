@@ -44,8 +44,8 @@ struct DD4hepGeometry
     // read the detector config & dd4hep detector
     auto dd4HepDetectorConfig
         = FW::Options::readDD4hepConfig<po::variables_map>(vm);
-    auto geometrySvc
-        = std::make_shared<FW::DD4hep::DD4hepGeometryService>(dd4HepDetectorConfig);
+    auto geometrySvc = std::make_shared<FW::DD4hep::DD4hepGeometryService>(
+        dd4HepDetectorConfig);
     std::shared_ptr<const Acts::TrackingGeometry> dd4tGeometry
         = geometrySvc->trackingGeometry();
     return dd4tGeometry;

@@ -48,7 +48,8 @@ namespace Data {
 
     /// @param old is the assigment parameter
     SimIdentifier&
-    operator=(const SimIdentifier& old) = default;
+    operator=(const SimIdentifier& old)
+        = default;
 
     /// @param value is the assigment parameter
     SimIdentifier&

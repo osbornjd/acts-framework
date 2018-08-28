@@ -12,13 +12,13 @@
 template <typename parameters_t>
 FW::ProcessCode
 FW::Root::RootExCellWriter<parameters_t>::writeT(
-    const FW::AlgorithmContext&                    ctx,
+    const FW::AlgorithmContext&                               ctx,
     const std::vector<Acts::ExtrapolationCell<parameters_t>>& ecells)
 {
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
   // Get the event number
-  m_eventNr   = ctx.eventNumber;
+  m_eventNr = ctx.eventNumber;
 
   const unsigned int reservedSteps = m_cfg.reservedSteps;
 
@@ -149,10 +149,11 @@ FW::Root::RootExCellWriter<parameters_t>::writeT(
 template <typename parameters_t>
 FW::Root::RootExCellWriter<parameters_t>::RootExCellWriter(
     const FW::Root::RootExCellWriter<parameters_t>::Config& cfg,
-    Acts::Logging::Level                         level)
-  : FW::WriterT<std::vector<Acts::ExtrapolationCell<parameters_t>>>(cfg.collection,
-                                                         "RootExCellWriter",
-                                                         level)
+    Acts::Logging::Level                                    level)
+  : FW::WriterT<std::vector<Acts::ExtrapolationCell<parameters_t>>>(
+        cfg.collection,
+        "RootExCellWriter",
+        level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
@@ -164,15 +165,15 @@ FW::Root::RootExCellWriter<parameters_t>::RootExCellWriter(
   }
 
   // Setup ROOT I/O
-  if (m_outputFile == nullptr){
+  if (m_outputFile == nullptr) {
     m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
     if (!m_outputFile) {
       throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
     }
     m_outputFile->cd();
-  } else 
-  m_outputTree
-      = new TTree(m_cfg.treeName.c_str(), "TTree from RootPlanarClusterWriter");
+  } else
+    m_outputTree = new TTree(m_cfg.treeName.c_str(),
+                             "TTree from RootPlanarClusterWriter");
   if (!m_outputTree) throw std::bad_alloc();
 
   // Event parameters
@@ -220,7 +221,7 @@ template <typename parameters_t>
 FW::Root::RootExCellWriter<parameters_t>::~RootExCellWriter()
 {
   // Only close the root file that you created yourself
-  if (m_cfg.rootFile == nullptr){
+  if (m_cfg.rootFile == nullptr) {
     m_outputFile->Close();
   }
 }
@@ -232,6 +233,7 @@ FW::Root::RootExCellWriter<parameters_t>::endRun()
   m_outputFile->cd();
   m_outputTree->Write();
   ACTS_VERBOSE("Wrote particles to tree '" << m_cfg.treeName << "' in '"
-                                           << m_cfg.filePath << "'");
+                                           << m_cfg.filePath
+                                           << "'");
   return ProcessCode::SUCCESS;
 }
