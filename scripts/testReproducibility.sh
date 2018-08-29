@@ -21,7 +21,7 @@ if [[ $ARGC -lt 2 ]]; then
 fi
 
 # Compute the name of the example executable
-executable=ACTFW$1Example $2 --output-root=true
+executable=ACTFW$1Example -n=$2 --output-root=true
 
 # Compute the output file names
 for ((i = 3; i <= $ARGC; i++)); do
