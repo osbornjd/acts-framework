@@ -84,4 +84,4 @@ reproducibility_generic_propagation:
   script:
     - source install/bin/setup.sh
     - cd scripts
-    - ./testReproducibility.sh GenericPropagation 20 propagation-steps
+    - ./testReproducibility.sh GenericPropagation 10 propagation-steps
