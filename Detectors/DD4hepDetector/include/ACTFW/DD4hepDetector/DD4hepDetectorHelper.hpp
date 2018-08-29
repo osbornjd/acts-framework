@@ -1,4 +1,4 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
 // Copyright (C) 2017 Acts project team
 //
@@ -12,8 +12,8 @@
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
 #include "Acts/Surfaces/RectangleBounds.hpp"
 #include "Acts/Surfaces/TrapezoidBounds.hpp"
-#include "DD4hep/Segmentations.h"
 #include "DD4hep/CartesianGridXY.h"
+#include "DD4hep/Segmentations.h"
 
 /// In case several sensitive modules have the same segmentation it can and
 /// should be shared between these modules to save memory and time.
