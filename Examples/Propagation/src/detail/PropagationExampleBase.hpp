@@ -239,5 +239,5 @@ propagationExample(int                argc,
   // Initiate the run
   sequencer.run(nEvents);
   // Return success code
-  return 1;
+  return 0;
 }

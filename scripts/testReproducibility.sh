@@ -21,7 +21,7 @@ if [[ $ARGC -lt 2 ]]; then
 fi
 
 # Compute the name of the example executable
-executable=ACTFW$1Example -n=$2 --output-root=true
+executable="ACTFW$1Example -n=${2} --output-root=true"
 
 # Compute the output file names
 for ((i = 3; i <= $ARGC; i++)); do
@@ -35,7 +35,7 @@ for output in "${outputs[@]}"; do
 done
 
 # Run the example in multi-threaded mode
-eval "$executable"
+eval $executable
 result=$?
 if [[ result -ne 0 ]]; then
   echo "Multi-threaded run failed!"
@@ -48,7 +48,7 @@ for output in "${outputs[@]}"; do
 done
 
 # Run the example in single-threaded mode
-eval "OMP_NUM_THREADS=1 $executable"
+eval "OMP_NUM_THREADS=1 ${executable}"
 result=$?
 if [[ result -ne 0 ]]; then
   echo "Single-threaded run failed!"
