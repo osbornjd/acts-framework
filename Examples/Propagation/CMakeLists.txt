@@ -7,6 +7,8 @@ target_link_libraries(ACTFWGenericPropagationExample PRIVATE ACTFramework ACTFWE
 target_link_libraries(ACTFWGenericPropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
 target_link_libraries(ACTFWGenericPropagationExample PRIVATE ${Boost_LIBRARIES})
 
+install(TARGETS ACTFWGenericPropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 # TGEO based detector
 if (USE_TGEO)
   add_executable(ACTFWRootPropagationExample src/RootPropagationExample.cpp)
@@ -16,6 +18,7 @@ if (USE_TGEO)
   target_link_libraries(ACTFWRootPropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
   target_link_libraries(ACTFWRootPropagationExample PRIVATE ${Boost_LIBRARIES})
 
+  install(TARGETS ACTFWRootPropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 # DD4hep detector
