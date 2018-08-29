@@ -69,19 +69,19 @@ hello_world:
     - source install/bin/setup.sh
     - ACTFWHelloWorldExample
 
-generic_extrapolation:
+generic_propagation:
   stage: test
   tags:
     - cvmfs
   script:
     - source install/bin/setup.sh
-    - ACTFWGenericExtrapolationExample
+    - ACTFWGenericPropagationExample
 
-reproducibility_generic_extrapolation:
+reproducibility_generic_propagation:
   stage: test
   tags:
     - cvmfs
   script:
     - source install/bin/setup.sh
     - cd scripts
-    - ./testReproducibility.sh GenericExtrapolation excells_charged
+    - ./testReproducibility.sh GenericPropagation 20 propagation-steps

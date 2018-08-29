@@ -99,6 +99,24 @@ FW::Root::RootPropagationStepsWriter::writeT(
   // loop over the step vector of each test propagation in this
   for (auto& steps : stepCollection) {
 
+    // clear the vectors for each collection
+    m_volumeID.clear();
+    m_boundaryID.clear();
+    m_layerID.clear();
+    m_approachID.clear();
+    m_sensitiveID.clear();
+    m_x.clear();
+    m_y.clear();
+    m_z.clear();
+    m_dx.clear();
+    m_dy.clear();
+    m_dz.clear();
+    m_step_type.clear();
+    m_step_acc.clear();
+    m_step_act.clear();
+    m_step_abt.clear();
+    m_step_usr.clear();
+
     // loop over single steps
     for (auto& step : steps) {
       // the identification of the step
