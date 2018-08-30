@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "Acts/Utilities/Logger.hpp"
@@ -22,7 +23,7 @@ class WhiteBoard;
 class RandomNumbersSvc;
 class BarcodeSvc;
 
-using InputReader = IReaderT<std::vector<Data::Vertex>>;
+using InputReader = IReaderT<std::vector<Data::SimVertex<>>>;
 
 /// @class EvgenReader
 ///

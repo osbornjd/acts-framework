@@ -21,12 +21,9 @@ namespace FW {
 /// Typedef the pdg code
 typedef int pdg_type;
 
-// Typedef the process code
-typedef unsigned int process_code;
-
 namespace Data {
 
-  /// @brief Particle information struct for phsycis process samplers:
+  /// @brief Particle information struct for physics process samplers:
   /// - all quatities are calculated at first construction as they may
   ///   be used by downstream samplers
   ///
@@ -36,23 +33,24 @@ namespace Data {
   {
 
   public:
-    /// Default
+    /// @brief Default Constructor not allowed
     SimParticle() = default;
 
     /// @brief Construct a particle consistently
     ///
-    /// @param pposition The particle position at construction
-    /// @param pmomentum The particle momentum at construction
-    /// @param pm The particle mass
-    /// @param pq The partilce charge
-    /// @param pbarcode The particle barcode
+    /// @param position The particle position at construction
+    /// @param momentum The particle momentum at construction
+    /// @param m The particle mass
+    /// @param q The partilce charge
+    /// @param barcode The particle barcode
+    /// @param tStamp is the current time stamp
     SimParticle(const Acts::Vector3D& position,
                 const Acts::Vector3D& momentum,
                 double                m,
                 double                q,
-                pdg_type              pdg       = 0,
-                barcode_type          barcode   = 0,
-                double                startTime = 0.)
+                pdg_type              pdg     = 0,
+                barcode_type          barcode = 0,
+                double                tStamp  = 0.)
       : m_position(position)
       , m_momentum(momentum)
       , m_m(m)
@@ -61,12 +59,15 @@ namespace Data {
       , m_pT(momentum.perp())
       , m_pdg(pdg)
       , m_barcode(barcode)
-      , m_timeStamp(startTime)
+      , m_timeStamp(tStamp)
     {
       m_E     = std::sqrt(m_p * m_p + m_m * m_m);
       m_beta  = (m_p / m_E);
       m_gamma = (m_E / m_m);
     }
+
+    /// Default
+    SimParticle(const SimParticle& sp) = default;
 
     /// @brief Set the limits
     ///
@@ -308,97 +309,6 @@ namespace Data {
 
     bool m_alive = true;  //!< the particle is alive
   };
-
-  /// @brief Vertex information struct for phsycis process samplers:
-  /// - all quatities are calculated at first construction as they may
-  ///   be used by downstream samplers
-  ///
-  /// @note if a sampler changes one of the parameters, consistency
-  /// can be broken, so it should update the rest (no checking done)
-  template <typename particle_t>
-  struct SimVertex
-  {
-
-    /// The vertex position
-    Acts::Vector3D position = Acts::Vector3D(0., 0., 0.);
-
-    /// The ingoing particles in the vertex
-    std::vector<particle_t> in = {};
-
-    /// The outgoing particles from the vertex
-    std::vector<particle_t> out = {};
-
-    /// An optional process code
-    process_code processCode = 9;
-
-    /// An optional time stamp
-    double timeStamp = 0.;
-
-    /// Default
-    SimVertex() = default;
-
-    /// @brief Construct a particle consistently
-    ///
-    /// @param ertex The vertex position
-    /// @param in The ingoing particles - copy
-    /// @param out The outgoing particles (copy - can we do a move ?)
-    /// @param vprocess The process code
-    /// @param time The time stamp of this vertex
-    SimVertex(const Acts::Vector3D&          vertex,
-              const std::vector<particle_t>& ingoing  = {},
-              std::vector<particle_t>        outgoing = {},
-              process_code                   process  = 0,
-              double                         time     = 0.)
-      : position(vertex)
-      , in(ingoing)
-      , out(outgoing)
-      , processCode(process)
-      , timeStamp(time)
-    {
-    }
-
-    /// Forward the particle access to the outgoing particles: begin
-    ///
-    /// @tparam particle_t Type of the particle
-    typename std::vector<particle_t>::iterator
-    outgoing_begin()
-    {
-      return out.begin();
-    }
-
-    /// Forward the particle access to the outgoing particles: end
-    ///
-    /// @tparam particle_t Type of the particle
-    typename std::vector<particle_t>::iterator
-    outgoing_end()
-    {
-      return out.end();
-    }
-
-    // Outgoing particles
-    const std::vector<particle_t>&
-    outgoing() const
-    {
-      return out;
-    }
-
-    /// Forward the particle access to the outgoing particles: insert
-    ///
-    /// @tparam particle_t Type of the particle
-    ///
-    /// @param inparticles are the particles to be inserted
-    typename std::vector<particle_t>::iterator
-    outgoing_insert(const std::vector<particle_t>& inparticles)
-    {
-      return out.insert(out.end(), inparticles.begin(), inparticles.end());
-    }
-  };
-
-  /// Typedef for particle w/o external truth link
-  typedef SimParticle Particle;
-
-  /// Typef for vertex w/o external truth link
-  typedef SimVertex<Particle> Vertex;
 
 }  // end of namespace Data
 }  // end of namespace FW

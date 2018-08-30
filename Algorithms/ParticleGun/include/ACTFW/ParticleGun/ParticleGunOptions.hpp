@@ -17,8 +17,6 @@
 
 namespace po = boost::program_options;
 
-namespace au = Acts::units;
-
 namespace FW {
 
 namespace Options {
@@ -87,13 +85,18 @@ namespace Options {
     // particle gun as generator
     FW::ParticleGun::Config particleGunConfig;
     particleGunConfig.nParticles = vm["pg-nparticles"].template as<size_t>();
-    particleGunConfig.d0Range    = {{d0r[0] * au::_mm, d0r[1] * au::_mm}};
-    particleGunConfig.z0Range    = {{z0r[0] * au::_mm, z0r[1] * au::_mm}};
-    particleGunConfig.phiRange   = {{phir[0], phir[1]}};
-    particleGunConfig.etaRange   = {{etar[0], etar[1]}};
-    particleGunConfig.ptRange    = {{ptr[0] * au::_GeV, ptr[1] * au::_GeV}};
-    particleGunConfig.mass   = vm["pg-mass"].template as<double>() * au::_MeV;
-    particleGunConfig.charge = vm["pg-charge"].template as<double>() * au::_e;
+    particleGunConfig.d0Range
+        = {{d0r[0] * Acts::units::_mm, d0r[1] * Acts::units::_mm}};
+    particleGunConfig.z0Range
+        = {{z0r[0] * Acts::units::_mm, z0r[1] * Acts::units::_mm}};
+    particleGunConfig.phiRange = {{phir[0], phir[1]}};
+    particleGunConfig.etaRange = {{etar[0], etar[1]}};
+    particleGunConfig.ptRange
+        = {{ptr[0] * Acts::units::_GeV, ptr[1] * Acts::units::_GeV}};
+    particleGunConfig.mass
+        = vm["pg-mass"].template as<double>() * Acts::units::_MeV;
+    particleGunConfig.charge
+        = vm["pg-charge"].template as<double>() * Acts::units::_e;
     particleGunConfig.randomCharge = vm["pg-chargeflip"].template as<bool>();
     particleGunConfig.pID          = vm["pg-pdg"].template as<int>();
     // return the config object

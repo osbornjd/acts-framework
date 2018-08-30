@@ -79,7 +79,8 @@ FW::Root::RootSimHitWriter::endRun()
 FW::ProcessCode
 FW::Root::RootSimHitWriter::writeT(
     const AlgorithmContext& ctx,
-    const FW::DetectorData<geo_id_value, Data::SimHit<Data::Particle>>& fhits)
+    const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>&
+        fhits)
 {
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);

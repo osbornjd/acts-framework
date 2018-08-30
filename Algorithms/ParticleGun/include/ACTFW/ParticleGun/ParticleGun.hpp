@@ -10,6 +10,7 @@
 
 #include <array>
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
@@ -21,7 +22,7 @@ namespace FW {
 class BarcodeSvc;
 class RandomNumbersSvc;
 
-using InputReader = IReaderT<std::vector<Data::Vertex>>;
+using ParticleReader = IReaderT<std::vector<Data::SimVertex<>>>;
 
 /// @class ParticleGun
 ///
@@ -32,7 +33,7 @@ using InputReader = IReaderT<std::vector<Data::Vertex>>;
 /// in a given range. It fills a vector of particle properties for feeding into
 /// fast simulation.
 ///
-class ParticleGun : public InputReader
+class ParticleGun : public ParticleReader
 {
 public:
   struct Config
@@ -78,12 +79,12 @@ public:
   }
 
   // clang-format off
-  /// @copydoc FW::IReaderT::read(std::vector<Data::Vertex>& pProperties,size_t,const FW::AlgorithmContext*)
+  /// @copydoc FW::IReaderT::read(std::vector< Data::SimVertex<> >& svertices, size_t, const FW::AlgorithmContext*)
   // clang-format on
   FW::ProcessCode
-  read(std::vector<Data::Vertex>&  pProperties,
-       size_t                      skip    = 0,
-       const FW::AlgorithmContext* context = nullptr) final override;
+  read(std::vector<Data::SimVertex<>>& svertices,
+       size_t                          skip    = 0,
+       const FW::AlgorithmContext*     context = nullptr) final override;
 
 private:
   Config                              m_cfg;     /// configuration object

@@ -11,6 +11,7 @@
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Fatras/FatrasAlgorithm.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -39,8 +40,8 @@
 #include "Fatras/Selectors/KinematicCasts.hpp"
 #include "Fatras/Selectors/SelectorHelpers.hpp"
 
-typedef FW::Data::SimHit<FW::Data::Particle> FatrasHit;
-typedef std::vector<FW::Data::Vertex>        FatrasEvent;
+typedef FW::Data::SimHit<FW::Data::SimParticle> FatrasHit;
+typedef std::vector<FW::Data::SimVertex<>>      FatrasEvent;
 
 /// Simple struct to select sensitive surfaces
 struct SurfaceSelector
@@ -138,16 +139,16 @@ setupSimulationAlgorithm(
   typedef Fatras::PhysicsList<> PhysicsList;
 
   typedef Fatras::Interactor<FW::RandomEngine,
-                             FW::Data::Particle,
-                             FW::Data::SimHit<FW::Data::Particle>,
+                             FW::Data::SimParticle,
+                             FW::Data::SimHit<FW::Data::SimParticle>,
                              FW::Data::SimHitCreator,
                              SurfaceSelector,
                              PhysicsList>
       ChargedInteractor;
 
   typedef Fatras::Interactor<FW::RandomEngine,
-                             FW::Data::Particle,
-                             FW::Data::SimHit<FW::Data::Particle>,
+                             FW::Data::SimParticle,
+                             FW::Data::SimHit<FW::Data::SimParticle>,
                              FW::Data::SimHitCreator>
       NeutralInteractor;
 

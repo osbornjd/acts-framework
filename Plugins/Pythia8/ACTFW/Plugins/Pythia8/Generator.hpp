@@ -15,12 +15,13 @@
 #include <Pythia8/Pythia.h>
 
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 
 namespace FW {
 
-using InputReader = IReaderT<std::vector<Data::Vertex>>;
+using InputReader = IReaderT<std::vector<Data::SimVertex<>>>;
 
 namespace GPythia8 {
 
@@ -54,12 +55,12 @@ namespace GPythia8 {
     name() const final override;
 
     // clang-format off
-    /// @copydoc FW::IReaderT::read(std::vector<Data::Vertex>& pProperties,size_t,const FW::AlgorithmContext*)
+    /// @copydoc FW::IReaderT::read(std::vector< SimVertex >& sVertices,size_t,const FW::AlgorithmContext*)
     // clang-format on
     FW::ProcessCode
-    read(std::vector<Data::Vertex>&  pProperties,
-         size_t                      skip    = 0,
-         const FW::AlgorithmContext* context = nullptr) final override;
+    read(std::vector<Data::SimVertex<>>& sVertices,
+         size_t                          skip    = 0,
+         const FW::AlgorithmContext*     context = nullptr) final override;
 
   private:
     /// Private access to the logging instance

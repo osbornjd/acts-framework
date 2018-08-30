@@ -15,6 +15,7 @@
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Detector/DetectorElementBase.hpp"
@@ -50,7 +51,7 @@ FW::ProcessCode
 FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
 {
   // Prepare the input data collection
-  const FW::DetectorData<geo_id_value, Data::SimHit<Data::Particle>>* simHits
+  const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>* simHits
       = nullptr;
 
   // Read it from the event store
@@ -85,8 +86,8 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
           // get the surface
           const Acts::Surface& hitSurface = (*hit.surface);
           // get the associated particle from the hit
-          const Data::Particle*              hitParticle = &hit.particle;
-          std::vector<const Data::Particle*> hitParticles{hitParticle};
+          const Data::SimParticle*              hitParticle = &hit.particle;
+          std::vector<const Data::SimParticle*> hitParticles{hitParticle};
           // get the DetectorElement
           auto hitDetElement
               = dynamic_cast<const Acts::IdentifiedDetectorElement*>(

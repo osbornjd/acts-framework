@@ -6,10 +6,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/Framework/WhiteBoard.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
-
 template <typename simulator_t, typename event_collection_t, typename hit_t>
 FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::FatrasAlgorithm(
     const Config&        cfg,
@@ -41,28 +37,8 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
   // we start with a copy of the current event
   event_collection_t simulatedEvent(*inputEvent);
 
-  // nested hit collection struct to shield fatras from FW data structures
-  struct HitCollection
-  {
-    /// The actual hit collection
-    FW::DetectorData<geo_id_value, hit_t> hits;
-
-    /// The hit inserter method
-    void
-    insert(hit_t hit)
-    {
-      /// Decode the geometry ID values
-      auto         geoID    = hit.surface->geoID();
-      geo_id_value volumeID = geoID.value(Acts::GeometryID::volume_mask);
-      geo_id_value layerID  = geoID.value(Acts::GeometryID::layer_mask);
-      geo_id_value moduleID = geoID.value(Acts::GeometryID::sensitive_mask);
-      /// Insert the simulate hit into the collection
-      FW::Data::insert(hits, volumeID, layerID, moduleID, std::move(hit));
-    }
-  };
-
   // Create the hit collection
-  HitCollection simulatedHits;
+  HitCollection<hit_t> simulatedHits;
 
   // The simulation call
   m_cfg.simulator(rng, simulatedEvent, simulatedHits);

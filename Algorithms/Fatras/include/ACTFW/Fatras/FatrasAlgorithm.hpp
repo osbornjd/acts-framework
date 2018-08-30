@@ -11,14 +11,40 @@
 #include <cmath>
 #include <limits>
 #include <memory>
+#include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "Acts/Utilities/GeometryID.hpp"
+
+namespace FW {
+
+// @brief Nested hit collection struct to shield fatras from FW data structures
+template <typename hit_t>
+struct HitCollection
+{
+  /// The actual hit collection
+  FW::DetectorData<geo_id_value, hit_t> hits;
+
+  /// The hit inserter method
+  void
+  insert(hit_t hit)
+  {
+    /// Decode the geometry ID values
+    auto         geoID    = hit.surface->geoID();
+    geo_id_value volumeID = geoID.value(Acts::GeometryID::volume_mask);
+    geo_id_value layerID  = geoID.value(Acts::GeometryID::layer_mask);
+    geo_id_value moduleID = geoID.value(Acts::GeometryID::sensitive_mask);
+    /// Insert the simulate hit into the collection
+    FW::Data::insert(hits, volumeID, layerID, moduleID, std::move(hit));
+  }
+};
 
 /// @class FatrasAlgorithm
 ///
 /// The fatras algorithm runs the fast track simulation using the
-/// Extrapolator from the acts-core toolkit.
+/// Propagator from the acts-core toolkit.
 ///
 /// Random numbers are reset per event using the event context
 ///
@@ -26,8 +52,6 @@
 /// @tparam event_collection_t  The event collection type
 /// @tparam particle_collection_t The Paritlce type
 /// @tparam hit_t The hit Type
-namespace FW {
-
 template <typename simulator_t, typename event_collection_t, typename hit_t>
 class FatrasAlgorithm : public BareAlgorithm
 {

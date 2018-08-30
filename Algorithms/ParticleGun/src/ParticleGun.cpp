@@ -18,7 +18,7 @@
 
 FW::ParticleGun::ParticleGun(const Config&                       cfg,
                              std::unique_ptr<const Acts::Logger> lgr)
-  : m_cfg(cfg), m_logger(std::move(lgr))
+  : ParticleReader(), m_cfg(cfg), m_logger(std::move(lgr))
 {
   // Check that all mandatory configuration parameters are present
   if (!m_cfg.randomNumberSvc) {
@@ -39,9 +39,9 @@ FW::ParticleGun::ParticleGun(const Config&                       cfg,
 }
 
 FW::ProcessCode
-FW::ParticleGun::read(std::vector<Data::Vertex>& vertices,
-                      size_t                     skip,
-                      const AlgorithmContext*    context)
+FW::ParticleGun::read(std::vector<Data::SimVertex<>>& vertices,
+                      size_t                          skip,
+                      const AlgorithmContext*         context)
 {
   if (!context) {
     ACTS_FATAL("Missing AlgorithmContext for ParticleGun generator");
@@ -59,7 +59,7 @@ FW::ParticleGun::read(std::vector<Data::Vertex>& vertices,
   UniformDist chargeDist(0., 1.);
 
   // the particles
-  std::vector<Data::Particle> particles;
+  std::vector<Data::SimParticle> particles;
   for (size_t ip = 0; ip < m_cfg.nParticles; ip++) {
     // generate random parameters
     double d0  = d0Dist(rng);
@@ -67,7 +67,6 @@ FW::ParticleGun::read(std::vector<Data::Vertex>& vertices,
     double phi = phiDist(rng);
     double eta = etaDist(rng);
     double pt  = ptDist(rng);
-    // auto   bc  = m_cfg.barcodeSvc->generate(ip);
     // create vertex from random parameters
     Acts::Vector3D vertex(d0 * std::sin(phi), d0 * -std::cos(phi), z0);
 
@@ -83,12 +82,12 @@ FW::ParticleGun::read(std::vector<Data::Vertex>& vertices,
                            m_cfg.mass,
                            flip * m_cfg.charge,
                            flip * m_cfg.pID,
-                           ip);
+                           ip + 1);
   }
   ACTS_DEBUG("Generated 1 vertex with " << particles.size() << " particles.");
   // the vertices
   vertices.push_back(
-      Data::Vertex(Acts::Vector3D(0., 0., 0.), {}, std::move(particles)));
+      Data::SimVertex<>(Acts::Vector3D(0., 0., 0.), {}, std::move(particles)));
 
   return FW::ProcessCode::SUCCESS;
 }

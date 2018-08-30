@@ -6,17 +6,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_BARCODE_BARCODESVC_H
-#define ACTFW_BARCODE_BARCODESVC_H
+#pragma once
 
 #include <array>
 #include <string>
 
+#include "ACTFW/Barcode/Barcode.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "Barcode.hpp"
 
 namespace FW {
 
@@ -137,5 +136,3 @@ FW::BarcodeSvc::process(FW::barcode_type barcode) const
 {
   return ACTS_BIT_DECODE(barcode, m_cfg.process_mask);
 }
-
-#endif  // ACTFW_RANDOM_RANDOMNUMBERSSVC_H

@@ -113,49 +113,7 @@ private:
   template <typename parameters_t>
   std::vector<Acts::detail::Step>
   executeTest(const parameters_t& startParameters,
-              double pathLength = std::numeric_limits<double>::max()) const
-  {
-
-    ACTS_DEBUG("Test propagation/extrapolation starts");
-
-    // This is the outside in mode
-    if (m_cfg.mode == 0) {
-
-      // The step length logger for testing & end of world aborter
-      typedef Acts::detail::SteppingLogger    SteppingLogger;
-      typedef Acts::detail::DebugOutputActor  DebugOutput;
-      typedef Acts::detail::EndOfWorldReached EndOfWorld;
-
-      // Action list and abort list
-      typedef Acts::ActionList<SteppingLogger, DebugOutput> ActionList;
-      typedef Acts::AbortList<EndOfWorld> AbortConditions;
-
-      // Create the propagation options
-      typename propagator_t::template Options<ActionList, AbortConditions>
-          options;
-      options.pathLimit = pathLength;
-      options.debug     = m_cfg.debugOutput;
-
-      // Activate loop protection at some pt value
-      options.loopProtection
-          = (startParameters.momentum().perp() < m_cfg.ptLoopers);
-
-      // Set a maximum step size
-      options.maxStepSize = m_cfg.maxStepSize;
-
-      // Propagate using the propagator
-      const auto& result = m_cfg.propagator.propagate(startParameters, options);
-      auto steppingResults = result.template get<SteppingLogger::result_type>();
-
-      if (m_cfg.debugOutput) {
-        auto debugOutput = result.template get<DebugOutput::result_type>();
-        ACTS_VERBOSE(debugOutput.debugString);
-      }
-
-      return steppingResults.steps;
-    }
-    return std::vector<Acts::detail::Step>();
-  }
+              double pathLength = std::numeric_limits<double>::max()) const;
 };
 
 #include "PropagationAlgorithm.ipp"

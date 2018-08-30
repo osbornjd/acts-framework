@@ -15,7 +15,7 @@
 FW::Root::RootParticleWriter::RootParticleWriter(
     const FW::Root::RootParticleWriter::Config& cfg,
     Acts::Logging::Level                        level)
-  : Base(cfg.collection, "RootParticleWriter", level)
+  : ParticleWriter(cfg.collection, "RootParticleWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
@@ -82,8 +82,9 @@ FW::Root::RootParticleWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootParticleWriter::writeT(const AlgorithmContext&          ctx,
-                                     const std::vector<Data::Vertex>& vertices)
+FW::Root::RootParticleWriter::writeT(
+    const AlgorithmContext&               ctx,
+    const std::vector<Data::SimVertex<>>& vertices)
 {
 
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;

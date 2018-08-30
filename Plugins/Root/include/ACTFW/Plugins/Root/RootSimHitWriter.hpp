@@ -12,6 +12,7 @@
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 #include "TFile.h"
 #include "TTree.h"
@@ -32,11 +33,12 @@ namespace Root {
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
   class RootSimHitWriter
-      : public WriterT<DetectorData<geo_id_value, Data::SimHit<Data::Particle>>>
+      : public WriterT<DetectorData<geo_id_value,
+                                    Data::SimHit<Data::SimParticle>>>
   {
   public:
     using Base
-        = WriterT<DetectorData<geo_id_value, Data::SimHit<Data::Particle>>>;
+        = WriterT<DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>;
 
     /// @brief The nested configuration struct
     struct Config
@@ -69,7 +71,7 @@ namespace Root {
     /// @param simhits The simulation hits collection to we written out
     ProcessCode
     writeT(const AlgorithmContext& ctx,
-           const DetectorData<geo_id_value, Data::SimHit<Data::Particle>>&
+           const DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>&
                simhits) final override;
 
   private:

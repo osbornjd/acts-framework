@@ -15,8 +15,7 @@
 
 /// @file
 
-#ifndef ACTFW_CONCURRENCY_PARALLEL_FOR_H
-#define ACTFW_CONCURRENCY_PARALLEL_FOR_H 1
+#pragma once
 
 #include <boost/optional.hpp>
 #include <boost/variant/get.hpp>
@@ -192,5 +191,3 @@ namespace Details {
   } while (false);
 }
 }
-
-#endif  // ACTFW_CONCURRENCY_PARALLEL_FOR_H

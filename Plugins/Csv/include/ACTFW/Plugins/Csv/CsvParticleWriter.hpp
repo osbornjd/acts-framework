@@ -10,11 +10,15 @@
 
 #include <vector>
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 namespace Csv {
+
+  using SimVertex      = Data::SimVertex<Data::SimParticle>;
+  using ParticleWriter = WriterT<std::vector<Data::SimVertex<>>>;
 
   /// Write out a the particles associated to a list of process vertices,
   /// the particles are in comma-separated-value format.
@@ -30,11 +34,9 @@ namespace Csv {
   ///     event000000002-particles.csv
   ///
   /// and each line in the file corresponds to one particle.
-  class CsvParticleWriter : public WriterT<std::vector<Data::Vertex>>
+  class CsvParticleWriter : public ParticleWriter
   {
   public:
-    using Base = WriterT<std::vector<Data::Vertex>>;
-
     struct Config
     {
       std::string collection;           ///< which collection to write
@@ -58,8 +60,8 @@ namespace Csv {
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
-    writeT(const FW::AlgorithmContext&      ctx,
-           const std::vector<Data::Vertex>& vertices) final override;
+    writeT(const FW::AlgorithmContext&           ctx,
+           const std::vector<Data::SimVertex<>>& vertices) final override;
 
   private:
     Config m_cfg;  //!< Nested configuration struct

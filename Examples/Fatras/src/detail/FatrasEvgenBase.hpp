@@ -36,7 +36,7 @@ setupEvgenInput(vmap_t&                               vm,
   // Define which
   auto evgenInput = vm["evg-input-type"].template as<std::string>();
 
-  using SignalReader = FW::IReaderT<std::vector<FW::Data::Vertex>>;
+  using SignalReader = FW::IReaderT<std::vector<FW::Data::SimVertex<>>>;
 
   // The signal & pile-up event reader
   std::shared_ptr<SignalReader> signalEventReader = nullptr;

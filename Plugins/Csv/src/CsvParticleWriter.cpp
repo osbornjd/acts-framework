@@ -17,7 +17,7 @@
 FW::Csv::CsvParticleWriter::CsvParticleWriter(
     const FW::Csv::CsvParticleWriter::Config& cfg,
     Acts::Logging::Level                      level)
-  : Base(cfg.collection, "CsvParticleWriter", level), m_cfg(cfg)
+  : ParticleWriter(cfg.collection, "CsvParticleWriter", level), m_cfg(cfg)
 {
   if (m_cfg.collection.empty()) {
     throw std::invalid_argument("Missing input collection");
@@ -25,8 +25,9 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
 }
 
 FW::ProcessCode
-FW::Csv::CsvParticleWriter::writeT(const FW::AlgorithmContext&      ctx,
-                                   const std::vector<Data::Vertex>& vertices)
+FW::Csv::CsvParticleWriter::writeT(
+    const FW::AlgorithmContext&           ctx,
+    const std::vector<Data::SimVertex<>>& vertices)
 {
   std::string pathOs = perEventFilepath(
       m_cfg.outputDir, m_cfg.outputFileName, ctx.eventNumber);

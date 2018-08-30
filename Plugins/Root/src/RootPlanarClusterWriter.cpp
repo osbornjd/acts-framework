@@ -12,6 +12,7 @@
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"

@@ -16,9 +16,9 @@ if (USE_TGEO)
   target_link_libraries(ACTFWRootGeometryExample PRIVATE ACTFramework ACTFWExamplesCommon)
   target_link_libraries(ACTFWRootGeometryExample PRIVATE ACTFWObjPlugin ACTFWCsvPlugin ACTFWRootDetector)
   target_link_libraries(ACTFWRootGeometryExample PRIVATE ${Boost_LIBRARIES})
-endif()
 
-install(TARGETS ACTFWRootGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS ACTFWRootGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
 # DD4hep detector
 if (USE_DD4HEP)

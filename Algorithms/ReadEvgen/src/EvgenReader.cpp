@@ -37,7 +37,7 @@ FW::ProcessCode
 FW::EvgenReader::skip(size_t nEvents)
 {
   // there is a hard scatter evgen reader
-  std::vector<Data::Vertex> skipEvents;
+  std::vector<Data::SimVertex<>> skipEvents;
   if (m_cfg.hardscatterEventReader
       && m_cfg.hardscatterEventReader->read(skipEvents, nEvents)
           == FW::ProcessCode::ABORT) {
@@ -65,10 +65,10 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
                             m_cfg.vertexZParameters[1]);
 
   // prepare the output collection
-  std::vector<Data::Vertex> evgen;
+  std::vector<Data::SimVertex<>> evgen;
 
   // get the hard scatter if you have it
-  std::vector<Data::Vertex> hardscatterEvent;
+  std::vector<Data::SimVertex<>> hardscatterEvent;
   // Always provide the context to the hard scatter Event
   const AlgorithmContext* contextPtr = &ctx;
   if (m_cfg.hardscatterEventReader
@@ -93,8 +93,8 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
   // lambda for vertex processing
   auto processVertex
       = [&evgen, &pCounter, &eCounter](const Acts::Vector3D& shift,
-                                       Data::Vertex& vertex,
-                                       BarcodeSvc&   barcodeSvc) -> void {
+                                       Data::SimVertex<>& vertex,
+                                       BarcodeSvc&        barcodeSvc) -> void {
     // shift the vertex
     vertex.position = vertex.position + shift;
     // shift and assign barcodes to outgoing particles
@@ -131,7 +131,7 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
     // Get the vertices per pileup event
     // only provide the Context for the initial call to set the seed
     contextPtr = ipue ? nullptr : &ctx;
-    std::vector<Data::Vertex> pileupEvent;
+    std::vector<Data::SimVertex<>> pileupEvent;
     if (m_cfg.pileupEventReader
         && m_cfg.pileupEventReader->read(pileupEvent, 0, contextPtr)
             == FW::ProcessCode::ABORT) {
