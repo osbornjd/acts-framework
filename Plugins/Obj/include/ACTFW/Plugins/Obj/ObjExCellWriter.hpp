@@ -17,8 +17,8 @@
 #include "ACTFW/Plugins/Obj/ObjHelper.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
-#include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 

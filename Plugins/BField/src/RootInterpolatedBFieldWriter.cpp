@@ -11,10 +11,9 @@
 #include <sstream>
 #include <stdexcept>
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "TFile.h"
-#include "Acts/Utilities/Helpers.hpp"
-
 
 void
 FW::BField::RootInterpolatedBFieldWriter::run(
