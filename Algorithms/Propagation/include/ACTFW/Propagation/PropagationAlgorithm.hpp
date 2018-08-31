@@ -95,6 +95,7 @@ public:
 
   /// Framework execute method
   /// @param [in] the algorithm context for event consistency
+  /// @return is a process code indicating succes or not
   FW::ProcessCode
   execute(AlgorithmContext ctx) const final override;
 
@@ -109,7 +110,12 @@ private:
 
   /// Templated execute test method for
   /// charged and netural particles
+  ///
+  // @tparam parameters_t type of the parameters objects (charged/neutra;)
+  ///
   /// @param [in] startParameters the start parameters
+  ///
+  /// @return collection of Propagation steps for further analysis
   template <typename parameters_t>
   std::vector<Acts::detail::Step>
   executeTest(const parameters_t& startParameters,
