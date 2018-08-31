@@ -18,7 +18,7 @@ namespace po = boost::program_options;
 namespace FW {
 namespace Options {
 
-  /// @brief the common output options that are added to the 
+  /// @brief the common output options that are added to the
   /// job options
   ///
   /// @tparam aopt_t Type of the options object, bound to boost API
