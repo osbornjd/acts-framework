@@ -158,7 +158,7 @@ FW::Root::RootPlanarClusterWriter::writeT(
           for (auto& sPartilce : hitIdentifier.truthParticles()) {
             // positon
             const Acts::Vector3D& sPosition = sPartilce->position();
-            const Acts::Vector3D& sMomentum = sPartilce->position();
+            const Acts::Vector3D& sMomentum = sPartilce->momentum();
             // local position to be calculated
             Acts::Vector2D lPosition;
             clusterSurface.globalToLocal(sPosition, sMomentum, lPosition);
