@@ -57,7 +57,7 @@ public:
     /// the charge of the particle
     double charge = 0.;
     /// the pdg type of the particle
-    int pID = 0.;
+    pdg_type pID = 0;
     // randomize the charge (indicates PID flip)
     bool randomCharge = false;
     // FW random number service
