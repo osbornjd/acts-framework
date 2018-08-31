@@ -18,7 +18,11 @@ namespace po = boost::program_options;
 namespace FW {
 namespace Options {
 
-  /// the particle gun options, the are prefixes with gp
+  /// @brief the common output options that are added to the 
+  /// job options
+  ///
+  /// @tparam aopt_t Type of the options object, bound to boost API
+  /// @param [in] opt The options object for attaching specific options
   template <typename aopt_t>
   void
   addOutputOptions(aopt_t& opt)
