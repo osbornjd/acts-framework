@@ -33,7 +33,7 @@ namespace Data {
   {
 
   public:
-    /// @brief Default Constructor not allowed
+    /// @brief Default Constructor
     SimParticle() = default;
 
     /// @brief Construct a particle consistently
@@ -143,8 +143,8 @@ namespace Data {
     bool
     update(const Acts::Vector3D& position,
            const Acts::Vector3D& momentum,
-           double                deltaPahtX0 = 0.,
-           double                deltaPahtL0 = 0.,
+           double                deltaPathX0 = 0.,
+           double                deltaPathL0 = 0.,
            double                deltaTime   = 0.)
     {
       m_position = position;
@@ -158,8 +158,8 @@ namespace Data {
         m_gamma = (m_E / m_m);
 
         // set parameters and check limits
-        m_pathInX0 += deltaPahtX0;
-        m_pathInL0 += deltaPahtL0;
+        m_pathInX0 += deltaPathX0;
+        m_pathInL0 += deltaPathL0;
         m_timeStamp += deltaTime;
         if (m_pathInX0 >= m_limitInX0 || m_pathInL0 >= m_limitInL0
             || m_timeStamp > m_timeLimit) {

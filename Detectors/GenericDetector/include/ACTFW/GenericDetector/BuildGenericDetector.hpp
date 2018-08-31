@@ -24,6 +24,7 @@ namespace Generic {
   /// Global method to build the generic tracking geometry
   /// @param lvl is the debug logging level
   /// @param version is the detector version
+  /// return a unique vector to the tracking geometry
   std::unique_ptr<const Acts::TrackingGeometry>
   buildGenericDetector(Acts::Logging::Level surfaceLLevel = Acts::Logging::INFO,
                        Acts::Logging::Level layerLLevel   = Acts::Logging::INFO,
@@ -32,7 +33,6 @@ namespace Generic {
 
   /// Helper method for positioning
   /// @param radius is the cylinder radius
-  /// @param tilt is the nominal layer radius
   /// @param zStagger is the radial staggering along z
   /// @param moduleHalfLength is the module length (longitudinal)
   /// @param lOverlap is the overlap of the modules (longitudinal)

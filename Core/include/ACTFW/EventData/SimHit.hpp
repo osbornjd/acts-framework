@@ -54,6 +54,8 @@ namespace Data {
     /// @param value the simulated value
     /// @param time is the timeStamp
     /// @param particle the particle for the truth link
+    ///
+    /// @return a SimHit object that is created from input parameters
     template <typename propagator_state_t, typename particle_t>
     SimHit<particle_t>
     operator()(propagator_state_t& state,

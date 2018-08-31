@@ -6,6 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#pragma once
+
 #include <boost/program_options.hpp>
 #include <cstdlib>
 #include <iostream>
@@ -22,7 +24,11 @@ namespace FW {
 
 namespace Options {
 
-  /// the particle gun options, the are prefixes with gp
+  /// The particle gun options, the are prefixes with gp
+  ///
+  /// @tparam options_t Type of the options object (bound to boost API)
+  ///
+  /// @param opt The provided object, where root specific options are attached
   template <typename options_t>
   void
   addRootGeometryOptions(options_t& opt)
@@ -77,7 +83,14 @@ namespace Options {
                    "along the series.");
   }
 
-  /// read the particle gun options and return a Config file
+  /// @brief Read the specific options for the ROOT detector
+  ///
+  /// @tparam variable_map_t Type of the variable matp to read out
+  ///
+  /// @param vm The variable map containing the options
+  /// @param layerCreator The provide layer creator
+  ///
+  /// @return a configuration object for a TGeoLayerBuilder
   template <typename variable_map_t>
   std::vector<Acts::TGeoLayerBuilder::Config>
   readRootLayerBuilderConfigs(

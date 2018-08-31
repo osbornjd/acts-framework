@@ -1,5 +1,4 @@
-#ifndef DETCOMMON_DETUTILS_H
-#define DETCOMMON_DETUTILS_H
+#pragma once
 
 // DD4hep
 #include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
@@ -94,6 +93,11 @@ namespace utils {
                           double gridSizeX,
                           double gridSizeZ);
 
+  /// @brief Retrieves the the node componetn  from a mother by the string names  
+  /// @param mother The Handle to the mother volume
+  /// @param nodeName The name of the note
+  /// @param attrName The name of the Atribute
+  /// @param attrValue The attribute value   
   dd4hep::xml::Component
   getNodeByStrAttr(const dd4hep::xml::Handle_t& mother,
                    const std::string&           nodeName,
@@ -108,4 +112,4 @@ namespace utils {
                            const double&                 defaultValue);
 }
 }
-#endif /* DETCOMMON_DETUTILS_H */
+

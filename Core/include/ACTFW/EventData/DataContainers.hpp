@@ -37,6 +37,7 @@ namespace Data {
   /// @param volumeKey The identifier for the detector volume
   /// @param layerKey The identifier for the layer
   /// @param moduleKey The identifier for the module
+  /// @param obj The data object to be stored
   template <typename identifier_t, typename data_t>
   void
   insert(DetectorData<identifier_t, data_t>& dData,
