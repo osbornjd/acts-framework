@@ -19,7 +19,13 @@ namespace FW {
 
 namespace Options {
 
-  // Digitization options
+  /// @brief Digitization options
+  /// Adds specific digitization options to the boost::program_options
+  ///
+  /// @tparam aopt_t Type of the options object (API bound to boost)
+  ///
+  /// @param [in] opt_t The options object where the specific digitization
+  /// options are attached to
   template <typename aopt_t>
   void
   addDigitizationOptions(aopt_t& opt)
@@ -35,7 +41,10 @@ namespace Options {
         "Name of the resolution file (root format).");
   }
 
-  /// Read the digitization options and return a Config object
+  ///@brief  Read the digitization options and return a Config object
+  ///
+  ///@tparam omap_t Type of the options map
+  ///@param vm the options map to be read out
   template <typename omap_t>
   DigitizationAlgorithm::Config
   readDigitizationConfig(const omap_t& vm)

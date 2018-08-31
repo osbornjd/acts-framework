@@ -153,7 +153,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
               Acts::ActsSymMatrixD<2> cov;
               cov << 0.05, 0., 0.05, 0.;
 
-              // create the geometry basedindetifier
+              // create the geometry based Idnetifier
               Acts::GeometryID geoID(0);
               geoID.add(volumeKey, Acts::GeometryID::volume_mask);
               geoID.add(layerKey, Acts::GeometryID::layer_mask);

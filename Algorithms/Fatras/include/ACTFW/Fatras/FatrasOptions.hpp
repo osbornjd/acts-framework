@@ -24,11 +24,15 @@ namespace Options {
 
   /// @brief read the Fatras options
   ///
-  /// They need the read-evgen
-  /// options associated with the Fatras simulation
-  template <typename AOPT>
+  /// Adding Fatras specific options to the Options package
+  ///
+  /// @tparam aopt_t Type of the options object (API bound to boost)
+  ///
+  /// @param [in] opt_t The options object where the specific digitization
+  /// options are attached to
+  template <typename aopt_t>
   void
-  addFatrasOptions(AOPT& opt)
+  addFatrasOptions(aopt_t& opt)
   {
     opt.add_options()(
         "fatras-sim-particles",
@@ -56,7 +60,10 @@ namespace Options {
         "Switch on debug output on/off");
   }
 
-  /// read the evgen options and return a Config file
+  /// @brief read the fatras specific options and return a Config file
+  ///
+  ///@tparam omap_t Type of the options map
+  ///@param vm the options map to be read out
   template <typename AMAP,
             typename simulator_t,
             typename event_collection_t,

@@ -20,7 +20,9 @@
 
 namespace FW {
 
-// @brief Nested hit collection struct to shield fatras from FW data structures
+/// @brief Nested hit collection struct to shield fatras from FW data structures
+///
+/// @tparam hit_t Type of the hit objects
 template <typename hit_t>
 struct HitCollection
 {
@@ -28,6 +30,8 @@ struct HitCollection
   FW::DetectorData<geo_id_value, hit_t> hits;
 
   /// The hit inserter method
+  ///
+  /// @param [in] hit The hit object to be inserted
   void
   insert(hit_t hit)
   {
@@ -50,7 +54,6 @@ struct HitCollection
 ///
 /// @tparam simulator_t The Fatras simulation kernel type
 /// @tparam event_collection_t  The event collection type
-/// @tparam particle_collection_t The Paritlce type
 /// @tparam hit_t The hit Type
 template <typename simulator_t, typename event_collection_t, typename hit_t>
 class FatrasAlgorithm : public BareAlgorithm
@@ -61,7 +64,7 @@ public:
 
     /// @brief Config constructor with propagator type
     ///
-    /// @param fsimulator Propagator object for charged particles
+    /// @param[in] fsimulator Propagator object for charged particles
     Config(simulator_t fsimulator) : simulator(std::move(fsimulator)) {}
 
     /// The simulation kernel
