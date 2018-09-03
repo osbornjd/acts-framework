@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,8 +9,7 @@
 ///////////////////////////////////////////////////////////////////
 // IReaderT.h
 ///////////////////////////////////////////////////////////////////
-#ifndef ACTFW_READERS_IREADERT_H
-#define ACTFW_READERS_IREADERT_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -22,15 +21,15 @@ namespace FW {
 
 /// @class IWriterT
 ///
-/// Interface to readin an object
-template <class T>
+/// Interface to read in an templated object
+template <typename T>
 class IReaderT : public IService
 {
 public:
   /// Virtual destructor
   virtual ~IReaderT() = default;
 
-  /// the write method
+  /// The Read interface method
   /// @param object is the thing to be read back in
   /// @param skip The events to be skipped
   /// @param context The algorithm context in case it is needed (e.g. random
@@ -43,4 +42,3 @@ public:
       = 0;
 };
 }
-#endif  // ACTFW_READERS_IREADERT_H

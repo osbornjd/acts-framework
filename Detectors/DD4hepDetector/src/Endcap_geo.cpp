@@ -1,13 +1,14 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "Acts/Plugins/DD4hepPlugins/ActsExtension.hpp"
-#include "Acts/Plugins/DD4hepPlugins/IActsExtension.hpp"
+#include "ACTFW/DD4hepDetector/DD4hepDetectorHelper.hpp"
+#include "Acts/Plugins/DD4hep/ActsExtension.hpp"
+#include "Acts/Plugins/DD4hep/IActsExtension.hpp"
 #include "DD4hep/DetFactoryHelper.h"
 
 using namespace std;
@@ -77,13 +78,13 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
         mod_vol.setVisAttributes(lcdd, x_module.visStr());
 
         // create the Acts::DigitizationModule (needed to do geometric
-        // digitization) for all modules which have the same segmentation
+        // digitization) for all modules which have digitization module
         auto digiModule
-            = Acts::trapezoidalDigiModule(x_module.x1(),
-                                          x_module.x2(),
-                                          x_module.length(),
-                                          x_module.thickness(),
-                                          sens.readout().segmentation());
+            = FW::DD4hep::trapezoidalDigiModule(x_module.x1(),
+                                                x_module.x2(),
+                                                x_module.length(),
+                                                x_module.thickness(),
+                                                sens.readout().segmentation());
 
         // the sensitive placed components to be used later to create the
         // DetElements
@@ -107,13 +108,14 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
           comp_vol.setVisAttributes(lcdd, x_comp.visStr());
 
           // create the Acts::DigitizationModule (needed to do geometric
-          // digitization) for all modules which have the same segmentation
-          digiComponent
-              = Acts::trapezoidalDigiModule(x_comp.x1(),
-                                            x_comp.x2(),
-                                            x_comp.length(),
-                                            x_comp.thickness(),
-                                            sens.readout().segmentation());
+          // digitization) for all modules which have the sdigitization
+          // compoenent
+          digiComponent = FW::DD4hep::trapezoidalDigiModule(
+              x_comp.x1(),
+              x_comp.x2(),
+              x_comp.length(),
+              x_comp.thickness(),
+              sens.readout().segmentation());
 
           // Set Sensitive Volumes sensitive
           if (x_comp.isSensitive()) comp_vol.setSensitiveDetector(sens);
@@ -181,12 +183,13 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     // mapped
     // hand over modules to ACTS
     Acts::ActsExtension::Config layConfig;
-    layConfig.isLayer               = true;
-    layConfig.axes                  = "XZy";
-    layConfig.materialBins1         = 50;
-    layConfig.materialBins2         = 50;
-    layConfig.layerMaterialPosition = Acts::LayerMaterialPos::inner;
-    Acts::ActsExtension* detlayer   = new Acts::ActsExtension(layConfig);
+    layConfig.isLayer = true;
+    layConfig.axes    = "XZy";
+    ///@todo re-enable material mapping
+    // layConfig.materialBins1         = 50;
+    // layConfig.materialBins2         = 50;
+    // layConfig.layerMaterialPosition = Acts::LayerMaterialPos::inner;
+    Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
     lay_det.addExtension<Acts::IActsExtension>(detlayer);
     // Placed Layer Volume
     Position     layer_pos(0., 0., x_layer.z());

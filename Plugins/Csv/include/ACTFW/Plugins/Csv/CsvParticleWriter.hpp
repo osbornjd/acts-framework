@@ -1,25 +1,24 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-05-23 Initial version
-/// @date 2017-08-07 Rewrite with new interfaces
+#pragma once
 
-#ifndef ACTFW_CSVPARTICLERITER_H
-#define ACTFW_CSVPARTICLERITER_H
-#include <Acts/EventData/ParticleDefinitions.hpp>
-#include <Acts/Utilities/Logger.hpp>
 #include <vector>
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 namespace Csv {
+
+  using SimVertex      = Data::SimVertex<Data::SimParticle>;
+  using ParticleWriter = WriterT<std::vector<Data::SimVertex<>>>;
 
   /// Write out a the particles associated to a list of process vertices,
   /// the particles are in comma-separated-value format.
@@ -35,18 +34,18 @@ namespace Csv {
   ///     event000000002-particles.csv
   ///
   /// and each line in the file corresponds to one particle.
-  class CsvParticleWriter : public WriterT<std::vector<Acts::ProcessVertex>>
+  class CsvParticleWriter : public ParticleWriter
   {
   public:
-    using Base = WriterT<std::vector<Acts::ProcessVertex>>;
-
     struct Config
     {
       std::string collection;           ///< which collection to write
       std::string outputDir;            ///< where to place output files
+      std::string outputFileName;       ///< output file name
       size_t      outputPrecision = 6;  ///< floating point precision
-      /// the barcode service to decode/endcode barcode
-      std::shared_ptr<FW::BarcodeSvc> barcodeSvc;
+
+      /// try to get the hits per particle map
+      std::string hitsPerParticleCollection = "";
     };
 
     /// constructor
@@ -56,15 +55,17 @@ namespace Csv {
                       Acts::Logging::Level level = Acts::Logging::INFO);
 
   protected:
+    /// @brief Write method called by the base class
+    /// @param [in] ctx is the algorithm context for consistency
+    /// @param [in] vertices is the process vertex collection for the
+    /// particles to be attached
     ProcessCode
-    writeT(const FW::AlgorithmContext&             ctx,
-           const std::vector<Acts::ProcessVertex>& particles) final override;
+    writeT(const FW::AlgorithmContext&           ctx,
+           const std::vector<Data::SimVertex<>>& vertices) final override;
 
   private:
-    Config m_cfg;
+    Config m_cfg;  //!< Nested configuration struct
   };
 
 }  // namespace Csv
 }  // namespace FW
-
-#endif  // ACTFW_CSVPARTICLERITER_H

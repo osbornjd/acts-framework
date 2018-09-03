@@ -1,19 +1,50 @@
-add_library(ACTFWParticleGunCommon STATIC FatrasCommon.cpp FatrasCommon.cpp)
+file(GLOB_RECURSE src_files "src/*.*pp")
 
-target_include_directories(ACTFWParticleGunCommon PUBLIC ${ROOT_INCLUDE_DIRS})
-target_include_directories(ACTFWParticleGunCommon PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(ACTFWParticleGunCommon PUBLIC Acts::Core)
-target_link_libraries(ACTFWParticleGunCommon PUBLIC ACTFramework ACTFWExtrapolation ACTFWDigitization ACTFWParticleGun)
-target_link_libraries(ACTFWParticleGunCommon PUBLIC ACTFWCsvPlugin ACTFWJsonPlugin ACTFWObjPlugin ACTFWRootPlugin ACTFWBFieldPlugin)
+add_executable(ACTFWGenericFatrasExample src/GenericFatrasExample.cpp)
+target_include_directories(ACTFWGenericFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE Acts::Core Acts::Legacy Fatras::Core)
 
-add_executable(ACTFWFatrasGun FatrasGun.cpp)
-target_include_directories(ACTFWFatrasGun PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWParticleGunCommon)
-target_link_libraries(ACTFWFatrasGun PUBLIC ACTFWGenericDetector)
-target_link_libraries(ACTFWFatrasGun PRIVATE ${Boost_LIBRARIES})
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWGenericDetector)
 
-install(TARGETS ACTFWFatrasGun RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+target_link_libraries(ACTFWGenericFatrasExample PRIVATE ${Boost_LIBRARIES})
 
-add_subdirectory_if(DD4hep USE_DD4HEP)
-add_subdirectory_if(Pythia8 USE_PYTHIA8)
-add_subdirectory_if(Pythia8DD4hep USE_PYTHIA8 AND USE_DD4HEP)
+install(TARGETS ACTFWGenericFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# TGEO based detector
+if (USE_TGEO)
+  add_executable(ACTFWRootFatrasExample src/RootFatrasExample.cpp)
+  target_include_directories(ACTFWRootFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE Acts::Core Acts::Legacy Fatras::Core)
+  
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon)
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWRootDetector)
+  
+  target_link_libraries(ACTFWRootFatrasExample PRIVATE ${Boost_LIBRARIES})
+  
+  install(TARGETS ACTFWRootFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
+# DD4hep detector
+if (USE_DD4HEP)
+  add_executable(ACTFWDD4hepFatrasExample src/DD4hepFatrasExample.cpp)
+  target_include_directories(ACTFWDD4hepFatrasExample PRIVATE ${DD4hep_INCLUDE_DIRS})
+  target_include_directories(ACTFWDD4hepFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})  
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE Acts::Core Acts::Legacy Fatras::Core)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFramework  ACTFWExamplesCommon)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ACTFWDD4hepDetector)
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ${DD4hep_LIBRARIES})
+  target_link_libraries(ACTFWDD4hepFatrasExample PRIVATE ${Boost_LIBRARIES})
+
+  install(TARGETS ACTFWDD4hepFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+

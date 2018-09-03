@@ -1,17 +1,12 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2017-07-25
-/// @author Moritz Kiehnn <msmk@cern.ch>
-
-#ifndef ACTFW_IREADER_H
-#define ACTFW_IREADER_H
+#pragma once
 
 #include <string>
 #include "ACTFW/Framework/AlgorithmContext.hpp"
@@ -47,5 +42,3 @@ public:
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_IREADER_H

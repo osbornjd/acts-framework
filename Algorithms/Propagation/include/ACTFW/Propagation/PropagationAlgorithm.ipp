@@ -1,14 +1,14 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-template <typename PropagatorA, typename PropagatorB, typename PropagatorE>
+template <typename propagator_t>
 std::unique_ptr<Acts::ActsSymMatrixD<5>>
-PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::generateCovariance(
+PropagationAlgorithm<propagator_t>::generateCovariance(
     FW::RandomEngine& rnd,
     FW::GaussDist&    gauss) const
 {
@@ -29,243 +29,126 @@ PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::generateCovariance(
   return nullptr;
 }
 
-template <typename PropagatorA, typename PropagatorB, typename PropagatorE>
-PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::
-    PropagationAlgorithm(const PropagationAlgorithm<PropagatorA,
-                                                    PropagatorB,
-                                                    PropagatorE>::Config& cfg,
-                         Acts::Logging::Level loglevel)
+template <typename propagator_t>
+PropagationAlgorithm<propagator_t>::PropagationAlgorithm(
+    const PropagationAlgorithm<propagator_t>::Config& cfg,
+    Acts::Logging::Level                              loglevel)
   : BareAlgorithm("PropagationAlgorithm", loglevel), m_cfg(cfg)
 {
-  m_optionsA.max_path_length = m_cfg.pathLimit;
-  m_optionsB.max_path_length = m_cfg.pathLimit;
-  // create the surface
-  m_surface = std::make_unique<Acts::CylinderSurface>(
-      nullptr, 2. * m_cfg.pathLimit, std::numeric_limits<double>::max());
-  // create the radial surfaces
-  for (auto& r : m_cfg.cylinderRadii) {
-    m_radialSurfaces.push_back(std::make_unique<Acts::CylinderSurface>(
-        nullptr, r, std::numeric_limits<double>::max()));
-  }
 }
 
-template <typename PropagatorA, typename PropagatorB, typename PropagatorE>
-ProcessCode
-PropagationAlgorithm<PropagatorA, PropagatorB, PropagatorE>::execute(
-    AlgorithmContext ctx) const
+/// Templated execute test method for
+/// charged and netural particles
+/// @param [in] startParameters the start parameters
+template <typename propagator_t>
+template <typename parameters_t>
+std::vector<Acts::detail::Step>
+PropagationAlgorithm<propagator_t>::executeTest(
+    const parameters_t& startParameters,
+    double              pathLength) const
 {
 
-  ACTS_DEBUG("::execute() called for event " << ctx.eventNumber);
-  ACTS_VERBOSE("Test  mode configuration is: " << m_cfg.testMode);
+  ACTS_DEBUG("Test propagation/extrapolation starts");
 
-  // Create a random number generator
-  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
-  // Spawn some random number distributions
-  FW::GaussDist gauss(0., 1.);
+  // This is the outside in mode
+  if (m_cfg.mode == 0) {
 
-  // read particles from input collection
-  const std::vector<Acts::ProcessVertex>* evgen = nullptr;
-  if (ctx.eventStore.get(m_cfg.evgenCollection, evgen) == ProcessCode::ABORT)
-    return ProcessCode::ABORT;
+    // The step length logger for testing & end of world aborter
+    typedef Acts::detail::SteppingLogger    SteppingLogger;
+    typedef Acts::detail::DebugOutputActor  DebugOutput;
+    typedef Acts::detail::EndOfWorldReached EndOfWorld;
 
-  ACTS_DEBUG("read collection '" << m_cfg.evgenCollection << "' with "
-                                 << evgen->size()
-                                 << " vertices");
+    // Action list and abort list
+    typedef Acts::ActionList<SteppingLogger, DebugOutput> ActionList;
+    typedef Acts::AbortList<EndOfWorld> AbortConditions;
 
-  // loop over the vertices
-  size_t evertices = 0;
+    // Create the propagation options
+    typename propagator_t::template Options<ActionList, AbortConditions>
+        options;
+    options.pathLimit = pathLength;
+    options.debug     = m_cfg.debugOutput;
 
-  // prepare the output collection
-  std::vector<std::vector<TrackParametersPtr>> tParametersCollection;
+    // Activate loop protection at some pt value
+    options.loopProtection
+        = (startParameters.momentum().perp() < m_cfg.ptLoopers);
 
-  for (auto& evtx : (*evgen)) {
-    ACTS_DEBUG("Processing event vertex no. " << evertices++);
-    // vertex is outside cut
-    if (evtx.position().perp() > m_cfg.maxD0) {
-      ACTS_VERBOSE("Process vertex is outside the transverse cut. Skipping.");
-      continue;
+    // Set a maximum step size
+    options.maxStepSize = m_cfg.maxStepSize;
+
+    // Propagate using the propagator
+    const auto& result   = m_cfg.propagator.propagate(startParameters, options);
+    auto steppingResults = result.template get<SteppingLogger::result_type>();
+
+    if (m_cfg.debugOutput) {
+      auto debugOutput = result.template get<DebugOutput::result_type>();
+      ACTS_VERBOSE(debugOutput.debugString);
     }
-    // the simulated particles associated to this vertex
-    std::vector<Acts::ParticleProperties> sparticles;
-    // the generated particles
-    auto& gparticles = evtx.outgoingParticles();
 
-    std::copy_if(gparticles.begin(),
-                 gparticles.end(),
-                 std::back_inserter(sparticles),
-                 [=](const auto& particle) {
-                   return (std::abs(particle.momentum().eta()) < m_cfg.maxEta)
-                       && (m_cfg.minPt < particle.momentum().perp());
-                 });
-    ACTS_DEBUG("Skipped   particles: " << gparticles.size()
-                   - sparticles.size());
-    ACTS_DEBUG("Simulated particles: " << sparticles.size());
+    return steppingResults.steps;
+  }
+  return std::vector<Acts::detail::Step>();
+}
 
-    // the associated perigee for this vertex
-    const auto& vertex = evtx.position();
+template <typename propagator_t>
+ProcessCode
+PropagationAlgorithm<propagator_t>::execute(AlgorithmContext context) const
+{
+  // Create a random number generator
+  FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
-    // loop over particles and run the test
-    for (const auto& particle : sparticles) {
-      // create the output collection
-      std::vector<TrackParametersPtr> tParameters;
-      // this is the momentum
-      const auto& momentum = particle.momentum();
-      double      charge   = particle.charge();
-      // execute the test for charged particles
-      if (particle.charge()) {
-        // get a covaraince matrix for transport
-        std::unique_ptr<Acts::ActsSymMatrixD<5>> cov
-            = generateCovariance(rng, gauss);
-        Acts::CurvilinearParameters sParameters(
-            std::move(cov), vertex, momentum, charge);
-        // record the start paramters
-        auto sPars = sParameters.clone();
-        tParameters.push_back(std::move(TrackParametersPtr(sPars)));
-        // the path length test
-        if (m_cfg.testMode == pathLength) {
-          ACTS_VERBOSE("Testing path length propagation ...");
-          // the first propagation
-          if (m_cfg.propagatorA)
-            propagateAB(*m_cfg.propagatorA,
-                        m_optionsA,
-                        sParameters,
-                        nullptr,
-                        tParameters);
-          // the second propagation
-          if (m_cfg.propagatorB)
-            propagateAB(*m_cfg.propagatorB,
-                        m_optionsB,
-                        sParameters,
-                        nullptr,
-                        tParameters);
-          // the IPropagatorEngine - needs surface due to old design
-          auto sf = m_surface.get();
-          if (m_cfg.propagatorE)
-            propagateE(*m_cfg.propagatorE, sParameters, *sf, tParameters);
-        }
+  // Setup random number distributions for some quantities
+  FW::GaussDist   d0Dist(0., m_cfg.d0Sigma);
+  FW::GaussDist   z0Dist(0., m_cfg.z0Sigma);
+  FW::UniformDist phiDist(m_cfg.phiRange.first, m_cfg.phiRange.second);
+  FW::UniformDist etaDist(m_cfg.etaRange.first, m_cfg.etaRange.second);
+  FW::UniformDist ptDist(m_cfg.ptRange.first, m_cfg.ptRange.second);
+  FW::UniformDist qDist(0., 1.);
 
-        // the kalman filter test
-        if (m_cfg.testMode == kalman) {
-          ACTS_VERBOSE("Testing kalman filter like propagation ...");
-          // the first propagtor to be tested
-          if (m_cfg.propagatorA) {
-            // last surface for cross-check
-            const Acts::Surface* lSurface = NULL;
-            // initial parameters
-            const Acts::TrackParameters* parameters = &(sParameters);
-            // cache creation
-            typename PropagatorA::cache_type cacheA(sParameters);
-            size_t                           npars = tParameters.size();
-            // loop over surfaces
-            for (auto& surface : m_radialSurfaces) {
-              if (m_cfg.cacheCall) {
-                propagateCacheAB(*m_cfg.propagatorA,
-                                 cacheA,
-                                 m_optionsA,
-                                 *parameters,
-                                 *(surface.get()),
-                                 tParameters);
-              } else {
-                propagateAB(*m_cfg.propagatorA,
-                            m_optionsA,
-                            *parameters,
-                            surface.get(),
-                            tParameters);
-              }
-              // indicate success  ful propagation
-              size_t cpars = tParameters.size();
-              if (npars != cpars) {
-                lSurface   = surface.get();
-                parameters = tParameters[cpars - 1].get();
-                npars      = cpars;
-              }
-            }
-            // start to end propagation
-            if (lSurface)
-              propagateAB(*(m_cfg.propagatorA.get()),
-                          m_optionsA,
-                          sParameters,
-                          lSurface,
-                          tParameters);
-          }
-          //// the second propagtor to be tested
-          // if (m_cfg.propagatorB){
-          //  // initial parameters
-          //  const Acts::TrackParameters* parameters = &(sParameters);
-          //  // cache creation
-          //  typename Propagator::Cache cacheB(sParameters)
-          //  size_t npars = tParameters.size();
-          //  // loop over surfaces
-          //  for (auto& surface : m_radialSurfaces){
-          //    if (m_cfg.cacheCall) propagateCacheAB(m_cfg.propagatorB,
-          //                                           *parameters,
-          //                                           surface.get(),
-          //                                           cacheB,
-          //                                           m_optionsB,
-          //                                           tParameters);
-          //    else propagateAB((m_cfg.propagatorB,
-          //                      *parameters,
-          //                      surface.get(),
-          //                      m_optionsB,
-          //                      tParameters);
-          //   // indicate successful propagation
-          //   size_t cpars = tParameters.size();
-          //   if (npars != cpars){
-          //     lSurface = surface.get();
-          //     parameters = tParameters[cpars-1].get();
-          //     npars = cpars;
-          //   }
-          //  }
-          //  // start to end propagation
-          //  propagateCacheAB(m_cfg.propagatorB,
-          //                   sParameters,
-          //                   lSurface,
-          //                   cacheB,
-          //                   m_optionsB,
-          //                   tParameters);
-          //}
+  Acts::PerigeeSurface surface({0., 0., 0.});
 
-          // test the same thing with the PropagatorE
-          if (m_cfg.propagatorE) {
-            // last surface for cross-check
-            const Acts::Surface* lSurface = NULL;
-            // initial parameters
-            const Acts::TrackParameters* parameters = &(sParameters);
-            size_t                       npars      = tParameters.size();
-            // loop over surfaces
-            for (auto& surface : m_radialSurfaces) {
-              propagateE(*m_cfg.propagatorE,
-                         *parameters,
-                         *(surface.get()),
-                         tParameters);
-              // indicate success  ful propagation
-              size_t cpars = tParameters.size();
-              if (npars != cpars) {
-                lSurface   = surface.get();
-                parameters = tParameters[cpars - 1].get();
-                npars      = cpars;
-              }
-            }
-            // start to end propagation
-            if (lSurface)
-              propagateE(*(m_cfg.propagatorE.get()),
-                         *parameters,
-                         *lSurface,
-                         tParameters);
-          }
-        }
-      }  // charged particle
-      // write out collection
-      tParametersCollection.push_back(std::move(tParameters));
-    }  // loop over particles per vertex
-  }    // loop over event vertices
+  std::vector<std::vector<Acts::detail::Step>> propagationSteps;
+  propagationSteps.reserve(m_cfg.ntests);
 
-  // - the extrapolation cells - charged - if configured
-  if (m_cfg.trackParametersCollection != ""
-      && ctx.eventStore.add(m_cfg.trackParametersCollection,
-                            std::move(tParametersCollection))
-          == ProcessCode::ABORT) {
-    return ProcessCode::ABORT;
+  // loop over number of particles
+  for (size_t it = 0; it < m_cfg.ntests; ++it) {
+    /// get the d0 and z0
+    double d0     = d0Dist(rng);
+    double z0     = z0Dist(rng);
+    double phi    = phiDist(rng);
+    double eta    = etaDist(rng);
+    double theta  = 2 * atan(exp(-eta));
+    double pt     = ptDist(rng);
+    double p      = pt / sin(theta);
+    double charge = qDist(rng) > 0.5 ? 1. : -1.;
+    double qop    = charge / p;
+    // parameters
+    Acts::ActsVectorD<5> pars;
+    pars << d0, z0, phi, theta, qop;
+    // some screen output
+    std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+
+    // execute the test for charged particles
+    std::vector<Acts::detail::Step> testSteps;
+    if (charge) {
+      // charged extrapolation - with hit recording
+      Acts::BoundParameters startParameters(
+          std::move(cov), std::move(pars), surface);
+      testSteps = executeTest<Acts::TrackParameters>(startParameters);
+    } else {
+      // execute the test for neeutral particles
+      Acts::NeutralBoundParameters neutralParameters(
+          std::move(cov), std::move(pars), surface);
+      testSteps = executeTest<Acts::NeutralParameters>(neutralParameters);
+    }
+    propagationSteps.push_back(testSteps);
+  }
+
+  // write simulated data to the event store
+  // - the simulated particles
+  if (context.eventStore.add(m_cfg.propagationStepCollection,
+                             std::move(propagationSteps))
+      == FW::ProcessCode::ABORT) {
+    return FW::ProcessCode::ABORT;
   }
 
   return ProcessCode::SUCCESS;

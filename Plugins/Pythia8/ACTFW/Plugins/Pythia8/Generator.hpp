@@ -1,25 +1,28 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_PYTHIA8GENERATOR_H
-#define ACTFW_PYTHIA8GENERATOR_H
+#pragma once
 
 #include <memory>
 #include <mutex>
 
-#include <Acts/EventData/ParticleDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Pythia8/Pythia.h>
 
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 
 namespace FW {
+
+using InputReader = IReaderT<std::vector<Data::SimVertex<>>>;
+
 namespace GPythia8 {
 
   /// @class IParticleReader
@@ -27,7 +30,7 @@ namespace GPythia8 {
   /// Interface class that fills a vector of process vertices
   /// proerties for feeding into the fast simulation
   ///
-  class Generator : public FW::IReaderT<std::vector<Acts::ProcessVertex>>
+  class Generator : public InputReader
   {
   public:
     struct Config
@@ -37,7 +40,7 @@ namespace GPythia8 {
       double cmsEnergy = 14000.;  ///< center of mass energy
       std::vector<std::string> processStrings
           = {{"HardQCD:all = on"}};  ///< pocesses
-      std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+      std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
     };
 
     /// Constructor
@@ -52,12 +55,12 @@ namespace GPythia8 {
     name() const final override;
 
     // clang-format off
-    /// @copydoc FW::IReaderT::read(std::vector<Acts::ProcessVertex>&,size_t,const FW::AlgorithmContext*)
+    /// @copydoc FW::IReaderT::read(std::vector< SimVertex >& sVertices,size_t,const FW::AlgorithmContext*)
     // clang-format on
     FW::ProcessCode
-    read(std::vector<Acts::ProcessVertex>& pProperties,
-         size_t                            skip    = 0,
-         const FW::AlgorithmContext*       context = nullptr) final override;
+    read(std::vector<Data::SimVertex<>>& sVertices,
+         size_t                          skip    = 0,
+         const FW::AlgorithmContext*     context = nullptr) final override;
 
   private:
     /// Private access to the logging instance
@@ -78,5 +81,3 @@ namespace GPythia8 {
   };
 }  // namespace GPythia8
 }  // namespace FW
-
-#endif  // ACTFW_PYTHIA8GENERATOR_H

@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,12 +10,12 @@
 
 #include <Acts/Utilities/Units.hpp>
 #include <TDatabasePDG.h>
-
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 // wrapper of framework RandomEngine in Pythia8 interface
 
 namespace {
+
 class FrameworkRndmEngine : public Pythia8::RndmEngine
 {
 public:
@@ -34,11 +34,11 @@ private:
 
 FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
                                    std::unique_ptr<const Acts::Logger> mlogger)
-  : FW::IReaderT<std::vector<Acts::ProcessVertex>>()
+  : FW::IReaderT<std::vector<Data::SimVertex<>>>()
   , m_cfg(cfg)
   , m_logger(std::move(mlogger))
 {
-  if (!m_cfg.randomNumbers) {
+  if (!m_cfg.randomNumberSvc) {
     throw std::invalid_argument("Missing random numbers service");
   }
 
@@ -47,12 +47,14 @@ FW::GPythia8::Generator::Generator(const FW::GPythia8::Generator::Config& cfg,
     ACTS_VERBOSE("Setting string " << pString << " to Pythia8");
     m_pythia8.readString(pString.c_str());
   }
-
   // Set arguments in Settings database.
   m_pythia8.settings.mode("Beams:idA", m_cfg.pdgBeam0);
   m_pythia8.settings.mode("Beams:idB", m_cfg.pdgBeam1);
   m_pythia8.settings.mode("Beams:frameType", 1);
   m_pythia8.settings.parm("Beams:eCM", m_cfg.cmsEnergy);
+
+  // Set the random seed from configuration
+  m_pythia8.readString("Random:setSeed = on");
   m_pythia8.init();
 }
 
@@ -63,21 +65,20 @@ FW::GPythia8::Generator::name() const
 }
 
 FW::ProcessCode
-FW::GPythia8::Generator::read(std::vector<Acts::ProcessVertex>& processVertices,
-                              size_t                            skip,
-                              const FW::AlgorithmContext*       context)
+FW::GPythia8::Generator::read(std::vector<Data::SimVertex<>>& processVertices,
+                              size_t                          skip,
+                              const FW::AlgorithmContext*     context)
 {
-  if (!context) {
-    ACTS_FATAL("Missing AlgorithmContext for Pythia8 generator");
-    return ProcessCode::ABORT;
-  }
-
   // pythia8 is not thread safe and needs to be protected
   std::lock_guard<std::mutex> lock(m_read_mutex);
 
-  // use per-event random number generator
-  FrameworkRndmEngine rndm(m_cfg.randomNumbers->spawnGenerator(*context));
-  m_pythia8.setRndmEnginePtr(&rndm);
+  // get the algorithm and event driven random number seed and set it
+  // set the seed at initial call
+  if (context) {
+    auto seed = m_cfg.randomNumberSvc->generateSeed(*context);
+    m_pythia8.rndm.init(seed);
+    ACTS_DEBUG("Random number seed for Pythia8 set to:" << seed);
+  }
 
   // skip if needed
   if (skip) {
@@ -85,22 +86,19 @@ FW::GPythia8::Generator::read(std::vector<Acts::ProcessVertex>& processVertices,
     return FW::ProcessCode::SUCCESS;
   }
 
+  ACTS_VERBOSE("Calling Pythia8 event generation ... ");
+
   // the actual event
   m_pythia8.next();
   int np = m_pythia8.event.size() - 1;
 
+  ACTS_DEBUG("Pythia8 generated " << np << " particles.");
+
   // the last vertex
-  Acts::Vector3D                        lastVertex(0., 0., 0.);
-  std::vector<Acts::ParticleProperties> particlesOut;
+  Acts::Vector3D                 lastVertex(0., 0., 0.);
+  std::vector<Data::SimParticle> particlesOut;
   // reserve the maximum amount
   particlesOut.reserve(np);
-  // The counter and offset
-  int i;
-  int ioff = 0;
-  // setting the offset for event it = 90
-  if (m_pythia8.event[0].id() == 90) {
-    ioff = -1;
-  }
 
   // Particle loop
   for (int ip = 0; ip < np; ip++) {
@@ -123,7 +121,7 @@ FW::GPythia8::Generator::read(std::vector<Acts::ProcessVertex>& processVertices,
       // flush if vertices are different
       if (vertex != lastVertex && particlesOut.size()) {
         // create the process vertex, push it
-        Acts::ProcessVertex pVertex(lastVertex, 0., 0., {}, particlesOut);
+        Data::SimVertex<> pVertex(lastVertex, {}, particlesOut);
         processVertices.push_back(pVertex);
         // reset and reserve the particle vector
         particlesOut.clear();
@@ -133,16 +131,17 @@ FW::GPythia8::Generator::read(std::vector<Acts::ProcessVertex>& processVertices,
       lastVertex = vertex;
       // unit conversion - should be done with Acts::units
       Acts::Vector3D momentum(px, py, pz);
+      Acts::Vector3D position(vx, vy, vz);
       // the particle should be ready now
       particlesOut.push_back(
-          Acts::ParticleProperties(momentum, mass, charge, pdg));
+          Data::SimParticle(position, momentum, mass, charge, pdg));
     }  // final state partice
   }    // particle loop
 
   // flush a last time time
   if (particlesOut.size()) {
     // create the process vertex, push it
-    Acts::ProcessVertex pVertex(lastVertex, 0., 0., {}, particlesOut);
+    Data::SimVertex<> pVertex(lastVertex, {}, particlesOut);
     processVertices.push_back(pVertex);
   }
   // return success

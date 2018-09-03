@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,7 +19,7 @@
 //  Author     : F.Gaede
 //
 //====================================================================
-#include "Acts/Plugins/DD4hepPlugins/ActsExtension.hpp"
+#include "Acts/Plugins/DD4hep/ActsExtension.hpp"
 #include "DD4hep/DetFactoryHelper.h"
 
 using namespace dd4hep;

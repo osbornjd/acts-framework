@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,15 +9,18 @@
 #include <ios>
 #include <stdexcept>
 
-template <class T>
+template <typename parameters_t>
 FW::ProcessCode
-FW::Root::RootExCellWriter<T>::writeT(
-    const FW::AlgorithmContext&                    ctx,
-    const std::vector<Acts::ExtrapolationCell<T>>& ecells)
+FW::Root::RootExCellWriter<parameters_t>::writeT(
+    const FW::AlgorithmContext&                               ctx,
+    const std::vector<Acts::ExtrapolationCell<parameters_t>>& ecells)
 {
-
-  // exclusive access to the tree
+  // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
+  // Get the event number
+  m_eventNr = ctx.eventNumber;
+
+  const unsigned int reservedSteps = m_cfg.reservedSteps;
 
   // loop over all the extrapolation cells
   for (auto& eCell : ecells) {
@@ -37,36 +40,36 @@ FW::Root::RootExCellWriter<T>::writeT(
     m_s_volumeID.clear();
     m_s_layerID.clear();
     m_s_surfaceID.clear();
-    m_s_positionX.reserve(MAXSTEPS);
-    m_s_positionY.reserve(MAXSTEPS);
-    m_s_positionZ.reserve(MAXSTEPS);
-    m_s_positionR.reserve(MAXSTEPS);
-    m_s_volumeID.reserve(MAXSTEPS);
-    m_s_layerID.reserve(MAXSTEPS);
-    m_s_surfaceID.reserve(MAXSTEPS);
+    m_s_positionX.reserve(reservedSteps);
+    m_s_positionY.reserve(reservedSteps);
+    m_s_positionZ.reserve(reservedSteps);
+    m_s_positionR.reserve(reservedSteps);
+    m_s_volumeID.reserve(reservedSteps);
+    m_s_layerID.reserve(reservedSteps);
+    m_s_surfaceID.reserve(reservedSteps);
 
     // - for the sensitive
     if (m_cfg.writeSensitive) {
       m_s_sensitive.clear();
       m_s_localposition0.clear();
       m_s_localposition1.clear();
-      m_s_sensitive.reserve(MAXSTEPS);
-      m_s_localposition0.reserve(MAXSTEPS);
-      m_s_localposition1.reserve(MAXSTEPS);
+      m_s_sensitive.reserve(reservedSteps);
+      m_s_localposition0.reserve(reservedSteps);
+      m_s_localposition1.reserve(reservedSteps);
     }
     // - for the material
     if (m_cfg.writeMaterial) {
       m_s_material.clear();
       m_s_materialX0.clear();
       m_s_materialL0.clear();
-      m_s_material.reserve(MAXSTEPS);
-      m_s_materialX0.reserve(MAXSTEPS);
-      m_s_materialL0.reserve(MAXSTEPS);
+      m_s_material.reserve(reservedSteps);
+      m_s_materialX0.reserve(reservedSteps);
+      m_s_materialL0.reserve(reservedSteps);
     }
     // - for the boundary
     if (m_cfg.writeBoundary) {
       m_s_boundary.clear();
-      m_s_boundary.reserve(MAXSTEPS);
+      m_s_boundary.reserve(reservedSteps);
     }
     // the number of sensitive hits per event
     m_hits = 0;
@@ -74,7 +77,7 @@ FW::Root::RootExCellWriter<T>::writeT(
     for (auto& es : eCell.extrapolationSteps) {
       if (es.parameters) {
         /// step parameters
-        const T& pars = (*es.parameters);
+        const parameters_t& pars = (*es.parameters);
         /// type information
         int material = es.configuration.checkMode(
             Acts::ExtrapolationMode::CollectMaterial);
@@ -143,16 +146,16 @@ FW::Root::RootExCellWriter<T>::writeT(
   return FW::ProcessCode::SUCCESS;
 }
 
-template <class T>
-FW::Root::RootExCellWriter<T>::RootExCellWriter(
-    const FW::Root::RootExCellWriter<T>::Config& cfg,
-    Acts::Logging::Level                         level)
-  : FW::WriterT<std::vector<Acts::ExtrapolationCell<T>>>(cfg.collection,
-                                                         "RootExCellWriter",
-                                                         level)
+template <typename parameters_t>
+FW::Root::RootExCellWriter<parameters_t>::RootExCellWriter(
+    const FW::Root::RootExCellWriter<parameters_t>::Config& cfg,
+    Acts::Logging::Level                                    level)
+  : FW::WriterT<std::vector<Acts::ExtrapolationCell<parameters_t>>>(
+        cfg.collection,
+        "RootExCellWriter",
+        level)
   , m_cfg(cfg)
-  , m_outputFile(nullptr)
-  , m_outputTree(nullptr)
+  , m_outputFile(cfg.rootFile)
 {
   // Validate the configuration
   if (m_cfg.collection.empty()) {
@@ -162,14 +165,19 @@ FW::Root::RootExCellWriter<T>::RootExCellWriter(
   }
 
   // Setup ROOT I/O
-  m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
-  if (!m_outputFile) {
-    throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
-  }
-  m_outputFile->cd();
-  m_outputTree
-      = new TTree(m_cfg.treeName.c_str(), "TTree from RootPlanarClusterWriter");
+  if (m_outputFile == nullptr) {
+    m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
+    if (!m_outputFile) {
+      throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
+    }
+    m_outputFile->cd();
+  } else
+    m_outputTree = new TTree(m_cfg.treeName.c_str(),
+                             "TTree from RootPlanarClusterWriter");
   if (!m_outputTree) throw std::bad_alloc();
+
+  // Event parameters
+  m_outputTree->Branch("event_nr", &m_eventNr);
 
   // Initial parameters
   m_outputTree->Branch("eta", &m_eta);
@@ -209,19 +217,23 @@ FW::Root::RootExCellWriter<T>::RootExCellWriter(
   m_outputTree->Branch("hits", &m_hits);
 }
 
-template <class T>
-FW::Root::RootExCellWriter<T>::~RootExCellWriter()
+template <typename parameters_t>
+FW::Root::RootExCellWriter<parameters_t>::~RootExCellWriter()
 {
-  m_outputFile->Close();
+  // Only close the root file that you created yourself
+  if (m_cfg.rootFile == nullptr) {
+    m_outputFile->Close();
+  }
 }
 
-template <class T>
+template <typename parameters_t>
 FW::ProcessCode
-FW::Root::RootExCellWriter<T>::endRun()
+FW::Root::RootExCellWriter<parameters_t>::endRun()
 {
   m_outputFile->cd();
   m_outputTree->Write();
-  // ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
-  //                                      << m_cfg.filePath << "'");
+  ACTS_VERBOSE("Wrote particles to tree '" << m_cfg.treeName << "' in '"
+                                           << m_cfg.filePath
+                                           << "'");
   return ProcessCode::SUCCESS;
 }

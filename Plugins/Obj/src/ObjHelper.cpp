@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,12 +10,12 @@
 #include <vector>
 
 void
-FWObj::FWObjHelper::writeVTN(std::ofstream&        stream,
-                             VtnCounter&           vtnCounter,
-                             double                scalor,
-                             const Acts::Vector3D& vertex,
-                             const std::string&    vtntype,
-                             bool                  point)
+FW::Obj::writeVTN(std::ofstream&        stream,
+                  VtnCounter&           vtnCounter,
+                  double                scalor,
+                  const Acts::Vector3D& vertex,
+                  const std::string&    vtntype,
+                  bool                  point)
 {
   // in case you make a point
   unsigned int cp = 0;
@@ -40,10 +40,9 @@ FWObj::FWObjHelper::writeVTN(std::ofstream&        stream,
 }
 
 void
-FWObj::FWObjHelper::constructVerticalFaces(
-    std::ofstream&                   stream,
-    unsigned int                     start,
-    const std::vector<unsigned int>& vsides)
+FW::Obj::constructVerticalFaces(std::ofstream&                   stream,
+                                unsigned int                     start,
+                                const std::vector<unsigned int>& vsides)
 {
   // construct the vertical faces
   size_t       nsides = vsides.size();
@@ -67,12 +66,12 @@ FWObj::FWObjHelper::constructVerticalFaces(
 }
 
 void
-FWObj::FWObjHelper::writePlanarFace(std::ofstream& stream,
-                                    VtnCounter&    vtnCounter,
-                                    double         scalor,
-                                    const std::vector<Acts::Vector3D>& vertices,
-                                    double                           thickness,
-                                    const std::vector<unsigned int>& vsides)
+FW::Obj::writePlanarFace(std::ofstream&                     stream,
+                         VtnCounter&                        vtnCounter,
+                         double                             scalor,
+                         const std::vector<Acts::Vector3D>& vertices,
+                         double                             thickness,
+                         const std::vector<unsigned int>&   vsides)
 {
   // minimum 3 vertices needed
   if (vertices.size() < 3) return;
@@ -112,14 +111,14 @@ FWObj::FWObjHelper::writePlanarFace(std::ofstream& stream,
 }
 
 void
-FWObj::FWObjHelper::writeTube(std::ofstream&           stream,
-                              VtnCounter&              vtnCounter,
-                              double                   scalor,
-                              unsigned int             nSegments,
-                              const Acts::Transform3D& transform,
-                              double                   r,
-                              double                   hZ,
-                              double                   thickness)
+FW::Obj::writeTube(std::ofstream&           stream,
+                   VtnCounter&              vtnCounter,
+                   double                   scalor,
+                   unsigned int             nSegments,
+                   const Acts::Transform3D& transform,
+                   double                   r,
+                   double                   hZ,
+                   double                   thickness)
 {
   // flip along plus/minus and declare the faces
   std::vector<int> flip   = {-1, 1};
@@ -193,4 +192,25 @@ FWObj::FWObjHelper::writeTube(std::ofstream&           stream,
       stream << iside + cvc + (2 * iphi) + 1 + (2 * nSegments) << ntphr << '\n';
     }
   }
+}
+
+// Bezier interpolation, see documentation
+Acts::Vector3D
+FW::Obj::calculateBezierPoint(double                t,
+                              const Acts::Vector3D& p0,
+                              const Acts::Vector3D& p1,
+                              const Acts::Vector3D& p2,
+                              const Acts::Vector3D& p3)
+{
+  double u   = 1. - t;
+  double tt  = t * t;
+  double uu  = u * u;
+  double uuu = uu * u;
+  double ttt = tt * t;
+
+  Acts::Vector3D p = uuu * p0;  // first term
+  p += 3 * uu * t * p1;         // second term
+  p += 3 * u * tt * p2;         // third term
+  p += ttt * p3;                // fourth term
+  return p;
 }

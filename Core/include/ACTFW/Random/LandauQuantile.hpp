@@ -1,15 +1,16 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef landau_quantile_HPP
-#define landau_quantile_HPP 1
+#pragma once
 
-static double
+#include <limits>
+
+static inline double
 landau_quantile(double z, double xi)
 {
   // LANDAU quantile : algorithm from CERNLIB G110 ranlan
@@ -216,5 +217,3 @@ landau_quantile(double z, double xi)
   }
   return xi * ranlan;
 }
-
-#endif

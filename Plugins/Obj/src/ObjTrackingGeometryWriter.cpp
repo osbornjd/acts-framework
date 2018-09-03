@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,23 +9,26 @@
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include <iostream>
 #include "ACTFW/Writers/IWriterT.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Layers/Layer.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 
-FWObj::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
-    const FWObj::ObjTrackingGeometryWriter::Config& cfg)
+FW::Obj::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
+    const FW::Obj::ObjTrackingGeometryWriter::Config& cfg)
   : FW::IWriterT<Acts::TrackingGeometry>(), m_cfg(cfg)
 {
 }
 
 std::string
-FWObj::ObjTrackingGeometryWriter::name() const
+FW::Obj::ObjTrackingGeometryWriter::name() const
 {
   return m_cfg.name;
 }
 
 FW::ProcessCode
-FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
+FW::Obj::ObjTrackingGeometryWriter::write(
+    const Acts::TrackingGeometry& tGeometry)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingGeometry object called.");
   // get the world volume
@@ -37,7 +40,7 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
 
 /// process this volume
 void
-FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
+FW::Obj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingVolume object called.");
   // get the confined layers and process them
@@ -54,10 +57,13 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       for (auto writer : m_cfg.surfaceWriters) {
         // get name and writer
         auto writerName = writer->name();
+        // and break
+        ACTS_VERBOSE(">>Obj: The writer name is: " << writerName);
+        ACTS_VERBOSE(">>Obj: The volume name is: " << volumeName);
         if (volumeName.find(writerName) != std::string::npos) {
           // asign the writer
           surfaceWriter = writer;
-          // and break
+          // break the loop
           break;
         }
       }
@@ -76,10 +82,13 @@ FWObj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       }
       // check for sensitive surfaces
       if (layer->surfaceArray() && surfaceWriter) {
+        ACTS_VERBOSE(">>Obj: There are "
+                     << layer->surfaceArray()->surfaces().size()
+                     << " surfaces.");
         // surfaces
-        surfaceWriter->write(m_cfg.sensitiveGroupPrefix);
+        // surfaceWriter->write(m_cfg.sensitiveGroupPrefix);
         // loop over the surface
-        for (auto surface : layer->surfaceArray()->surfaces()) {
+        for (auto& surface : layer->surfaceArray()->surfaces()) {
           if (surface
               && (surfaceWriter->write(*surface)) == FW::ProcessCode::ABORT)
             return;

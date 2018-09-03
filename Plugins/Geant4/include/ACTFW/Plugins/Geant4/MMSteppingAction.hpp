@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -14,7 +14,7 @@
 #define ACTFW_PLUGINS_GEANT4_MMSTEPPINGACTION_H
 
 #include <vector>
-#include "Acts/Plugins/MaterialPlugins/MaterialStep.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialStep.hpp"
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
 
@@ -44,7 +44,7 @@ namespace G4 {
 
     /// Interface Method doing the step
     /// @note it creates and collects the MaterialStep entities
-    /// @param step is teh Geant4 step of the particle
+    /// @param step is the Geant4 step of the particle
     void
     UserSteppingAction(const G4Step* step) final override;
 

@@ -55,7 +55,7 @@ build:
   script:
     - mkdir build
     - cd build
-    - cmake -GNinja -DUSE_DD4HEP=on -DUSE_GEANT4=on -DUSE_PYTHIA8=on -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+    - cmake -GNinja -DUSE_FATRAS=on -DUSE_TGEO=on -DUSE_DD4HEP=on -DUSE_GEANT4=on -DUSE_PYTHIA8=on -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
     - cmake --build . -- install
   artifacts:
     paths:
@@ -69,19 +69,19 @@ hello_world:
     - source install/bin/setup.sh
     - ACTFWHelloWorldExample
 
-generic_extrapolation:
+generic_propagation:
   stage: test
   tags:
     - cvmfs
   script:
     - source install/bin/setup.sh
-    - ACTFWGenericExtrapolationExample
+    - ACTFWGenericPropagationExample
 
-reproducibility_generic_extrapolation:
+reproducibility_generic_propagation:
   stage: test
   tags:
     - cvmfs
   script:
     - source install/bin/setup.sh
     - cd scripts
-    - ./testReproducibility.sh GenericExtrapolation excells_charged
+    - ./testReproducibility.sh GenericPropagation 10 propagation-steps

@@ -1,15 +1,15 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <boost/program_options.hpp>
+#include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Framework/StandardOptions.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
 #include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
@@ -19,7 +19,7 @@
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Plugins/MaterialPlugins/MaterialMapper.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialMapper.hpp"
 
 namespace po = boost::program_options;
 

@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -29,8 +29,8 @@ using namespace dd4hep;
 // using namespace DD4hep::DDRec;
 // using namespace DDSurfaces;
 
-#include "Acts/Plugins/DD4hepPlugins/ActsExtension.hpp"
-#include "Acts/Plugins/DD4hepPlugins/IActsExtension.hpp"
+#include "Acts/Plugins/DD4hep/ActsExtension.hpp"
+#include "Acts/Plugins/DD4hep/IActsExtension.hpp"
 #include "Acts/Utilities/Units.hpp"
 
 static Ref_t

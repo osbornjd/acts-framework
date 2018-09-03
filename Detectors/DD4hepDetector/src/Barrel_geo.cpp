@@ -1,13 +1,14 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "Acts/Plugins/DD4hepPlugins/ActsExtension.hpp"
-#include "Acts/Plugins/DD4hepPlugins/IActsExtension.hpp"
+#include "ACTFW/DD4hepDetector/DD4hepDetectorHelper.hpp"
+#include "Acts/Plugins/DD4hep/ActsExtension.hpp"
+#include "Acts/Plugins/DD4hep/IActsExtension.hpp"
 #include "DD4hep/DetFactoryHelper.h"
 
 using namespace std;
@@ -71,10 +72,10 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
       // create the Acts::DigitizationModule (needed to do geometric
       // digitization) for all modules which have the same segmentation
       auto digiModule
-          = Acts::rectangleDigiModule(x_module.length(),
-                                      x_module.width(),
-                                      x_module.thickness(),
-                                      sens.readout().segmentation());
+          = FW::DD4hep::rectangleDigiModule(x_module.length(),
+                                            x_module.width(),
+                                            x_module.thickness(),
+                                            sens.readout().segmentation());
 
       // Visualization
       mod_vol.setVisAttributes(lcdd, x_module.visStr());
@@ -117,12 +118,13 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     // mapped
     // hand over modules to ACTS
     Acts::ActsExtension::Config layConfig;
-    layConfig.isLayer               = true;
-    layConfig.axes                  = "YxZ";
-    layConfig.materialBins1         = 100;
-    layConfig.materialBins2         = 100;
-    layConfig.layerMaterialPosition = Acts::LayerMaterialPos::outer;
-    Acts::ActsExtension* detlayer   = new Acts::ActsExtension(layConfig);
+    layConfig.isLayer = true;
+    layConfig.axes    = "YxZ";
+    /// @todo re-enable material mapping
+    //  layConfig.materialBins1         = 100;
+    //  layConfig.materialBins2         = 100;
+    //  layConfig.layerMaterialPosition = Acts::LayerMaterialPos::outer;
+    Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
     lay_det.addExtension<Acts::IActsExtension>(detlayer);
     // Place layer volume
     PlacedVolume placedLayer = tube_vol.placeVolume(layer_vol);

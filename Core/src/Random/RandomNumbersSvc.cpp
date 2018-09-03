@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -32,11 +32,17 @@ FW::RandomNumbersSvc::name() const
 FW::RandomEngine
 FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext& context) const
 {
+  return RandomEngine(generateSeed(context));
+}
+
+const unsigned int
+FW::RandomNumbersSvc::generateSeed(const AlgorithmContext& context) const
+{
   // use Cantor pairing function to generate a unique generator id from
   // algorithm and event number to get a consistent seed
   // see https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
   const unsigned int k1 = context.algorithmNumber;
   const unsigned int k2 = context.eventNumber;
   const unsigned int id = (k1 + k2) * (k1 + k2 + 1) / 2 + k2;
-  return RandomEngine(m_cfg.seed + id);
+  return m_cfg.seed + id;
 }

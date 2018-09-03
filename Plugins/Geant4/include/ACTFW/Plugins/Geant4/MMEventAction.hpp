@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -14,7 +14,7 @@
 #define ACTFW_PLUGINS_GEANT4_MMEVENTACTION_H
 
 #include <memory>
-#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 

@@ -1,13 +1,12 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_OPTIONS_PARTICLEGUNOPTIONS_HPP
-#define ACTFW_OPTIONS_PARTICLEGUNOPTIONS_HPP
+#pragma once
 
 #include <cstdlib>
 #include <iostream>
@@ -18,16 +17,18 @@
 
 namespace po = boost::program_options;
 
-namespace au = Acts::units;
-
 namespace FW {
 
 namespace Options {
 
-  /// the particle gun options, the are prefixes with gp
-  template <class AOPT>
+  /// The particle gun options, the are prefixes with gp
+  ///
+  /// @tparam aopt_t Type of the options object
+  ///
+  /// @param opt the options object to be parsed
+  template <typename aopt_t>
   void
-  addParticleGunOptions(AOPT& opt)
+  addParticleGunOptions(aopt_t& opt)
   {
     opt.add_options()("pg-nparticles",
                       po::value<size_t>()->default_value(100.),
@@ -44,50 +45,58 @@ namespace Options {
         "pg-chargeflip",
         po::value<bool>()->default_value(true),
         "flip the charge (and change PDG accordingly).")(
-        "pg-d0range",
+        "pg-d0-range",
         po::value<read_range>()->multitoken()->default_value({0., 0.}),
         "range in which the d0 parameter is simulated in [mm]. Please hand"
         "over by simply seperating the values by space")(
-        "pg-z0range",
+        "pg-z0-range",
         po::value<read_range>()->multitoken()->default_value({0., 0.}),
         "range in which the z0 parameter is simulated in [mm]. Please hand"
         "over by simply seperating the values by space")(
-        "pg-phirange",
+        "pg-phi-range",
         po::value<read_range>()->multitoken()->default_value({-M_PI, M_PI}),
         "range in which the phi0 parameter is simulated. Please hand over by "
         "simply seperating the values by space")(
-        "pg-etarange",
+        "pg-eta-range",
         po::value<read_range>()->multitoken()->default_value({-4., 4.}),
         "range in which the eta parameter is simulated. Please hand over by "
         "simply seperating the values by space")(
-        "pg-ptrange",
-        po::value<read_range>()->multitoken()->default_value({100., 1e5}),
-        "range in which the pt in [MeV] parameter is simulated. Please hand "
+        "pg-pt-range",
+        po::value<read_range>()->multitoken()->default_value({0.1, 1e3}),
+        "range in which the pt in [GeV] parameter is simulated. Please hand "
         "over by simply seperating the values by space");
   }
 
-  /// read the particle gun options and return a Config file
-  template <class AMAP>
+  /// Read the particle gun options and return a Config file
+  ///
+  /// @tparam amap_t Type of the map object
+  ///
+  /// @param vm The map object
+  template <typename amap_t>
   FW::ParticleGun::Config
-  readParticleGunConfig(const AMAP& vm)
+  readParticleGunConfig(const amap_t& vm)
   {
     // read the reange as vector (missing istream for std::array)
-    auto d0r  = vm["pg-d0range"].template as<read_range>();
-    auto z0r  = vm["pg-z0range"].template as<read_range>();
-    auto phir = vm["pg-phirange"].template as<read_range>();
-    auto etar = vm["pg-etarange"].template as<read_range>();
-    auto ptr  = vm["pg-ptrange"].template as<read_range>();
+    auto d0r  = vm["pg-d0-range"].template as<read_range>();
+    auto z0r  = vm["pg-z0-range"].template as<read_range>();
+    auto phir = vm["pg-phi-range"].template as<read_range>();
+    auto etar = vm["pg-eta-range"].template as<read_range>();
+    auto ptr  = vm["pg-pt-range"].template as<read_range>();
     // particle gun as generator
     FW::ParticleGun::Config particleGunConfig;
-    particleGunConfig.evgenCollection = "EvgenParticles";
     particleGunConfig.nParticles = vm["pg-nparticles"].template as<size_t>();
-    particleGunConfig.d0Range    = {{d0r[0] * au::_mm, d0r[1] * au::_mm}};
-    particleGunConfig.z0Range    = {{z0r[0] * au::_mm, z0r[1] * au::_mm}};
-    particleGunConfig.phiRange   = {{phir[0], phir[1]}};
-    particleGunConfig.etaRange   = {{etar[0], etar[1]}};
-    particleGunConfig.ptRange    = {{ptr[0] * au::_MeV, ptr[1] * au::_MeV}};
-    particleGunConfig.mass   = vm["pg-mass"].template as<double>() * au::_MeV;
-    particleGunConfig.charge = vm["pg-charge"].template as<double>() * au::_e;
+    particleGunConfig.d0Range
+        = {{d0r[0] * Acts::units::_mm, d0r[1] * Acts::units::_mm}};
+    particleGunConfig.z0Range
+        = {{z0r[0] * Acts::units::_mm, z0r[1] * Acts::units::_mm}};
+    particleGunConfig.phiRange = {{phir[0], phir[1]}};
+    particleGunConfig.etaRange = {{etar[0], etar[1]}};
+    particleGunConfig.ptRange
+        = {{ptr[0] * Acts::units::_GeV, ptr[1] * Acts::units::_GeV}};
+    particleGunConfig.mass
+        = vm["pg-mass"].template as<double>() * Acts::units::_MeV;
+    particleGunConfig.charge
+        = vm["pg-charge"].template as<double>() * Acts::units::_e;
     particleGunConfig.randomCharge = vm["pg-chargeflip"].template as<bool>();
     particleGunConfig.pID          = vm["pg-pdg"].template as<int>();
     // return the config object
@@ -95,5 +104,3 @@ namespace Options {
   }
 }
 }
-
-#endif  // ACTFW_OPTIONS_PARTICLEGUNOPTIONS_HPP

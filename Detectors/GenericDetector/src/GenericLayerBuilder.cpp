@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2016 ACTS project team
+// Copyright (C) 2016-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,12 +10,12 @@
 #include <iostream>
 #include "ACTFW/GenericDetector/GenericDetectorElement.hpp"
 #include "Acts/Detector/DetectorElementBase.hpp"
-#include "Acts/Digitization/CartesianSegmentation.hpp"
-#include "Acts/Digitization/DigitizationModule.hpp"
 #include "Acts/Layers/ProtoLayer.hpp"
 #include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
 #include "Acts/Material/Material.hpp"
 #include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
+#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
 #include "Acts/Surfaces/PlanarBounds.hpp"
 #include "Acts/Surfaces/PlaneSurface.hpp"
 #include "Acts/Surfaces/RadialBounds.hpp"
@@ -27,9 +27,9 @@
 #include "Acts/Utilities/BinnedArray.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 
-FWGen::GenericLayerBuilder::GenericLayerBuilder(
-    const FWGen::GenericLayerBuilder::Config& glbConfig,
-    std::unique_ptr<const Acts::Logger>       log)
+FW::Generic::GenericLayerBuilder::GenericLayerBuilder(
+    const FW::Generic::GenericLayerBuilder::Config& glbConfig,
+    std::unique_ptr<const Acts::Logger>             log)
   : Acts::ILayerBuilder()
   , m_nLayers()
   , m_cLayers()
@@ -43,8 +43,8 @@ FWGen::GenericLayerBuilder::GenericLayerBuilder(
 }
 
 void
-FWGen::GenericLayerBuilder::setConfiguration(
-    const FWGen::GenericLayerBuilder::Config& glbConfig)
+FW::Generic::GenericLayerBuilder::setConfiguration(
+    const FW::Generic::GenericLayerBuilder::Config& glbConfig)
 {
   // @todo check consistency
   // copy the configuration
@@ -52,14 +52,14 @@ FWGen::GenericLayerBuilder::setConfiguration(
 }
 
 void
-FWGen::GenericLayerBuilder::setLogger(
+FW::Generic::GenericLayerBuilder::setLogger(
     std::unique_ptr<const Acts::Logger> newLogger)
 {
   m_logger = std::move(newLogger);
 }
 
 void
-FWGen::GenericLayerBuilder::constructLayers()
+FW::Generic::GenericLayerBuilder::constructLayers()
 {
   size_t imodule = 0;
   // ----------------------- central layers -------------------------
@@ -177,18 +177,18 @@ FWGen::GenericLayerBuilder::constructLayers()
         // count the modules
         ++imodule;
         Identifier moduleIdentifier
-            = Identifier(Identifier::value_type(imodule));
+            = Identifier(Identifier::identifier_type(imodule));
         // Finalize the transform
         auto moduleTransform = std::const_pointer_cast<const Acts::Transform3D>(
             mutableModuleTransform);
         // create the module
         Acts::DetectorElementBase* module
-            = new FWGen::GenericDetectorElement(moduleIdentifier,
-                                                moduleTransform,
-                                                moduleBounds,
-                                                moduleThickness,
-                                                moduleMaterialPtr,
-                                                moduleDigitizationPtr);
+            = new FW::Generic::GenericDetectorElement(moduleIdentifier,
+                                                      moduleTransform,
+                                                      moduleBounds,
+                                                      moduleThickness,
+                                                      moduleMaterialPtr,
+                                                      moduleDigitizationPtr);
         // register the surface
         sVector.push_back(&module->surface());
         // store the module
@@ -200,7 +200,7 @@ FWGen::GenericLayerBuilder::constructLayers()
           // ncrease the counter @todo switch to identifier service
           ++imodule;
           // create the module identifier
-          moduleIdentifier = Identifier(Identifier::value_type(imodule));
+          moduleIdentifier = Identifier(Identifier::identifier_type(imodule));
           moduleCenter     = moduleCenter
               + m_cfg.centralModuleBacksideGap.at(icl) * moduleLocalZ;
           mutableModuleTransform = std::shared_ptr<Acts::Transform3D>(
@@ -218,12 +218,12 @@ FWGen::GenericLayerBuilder::constructLayers()
               mutableModuleTransform);
           // everything is set for the next module
           Acts::DetectorElementBase* bsmodule
-              = new FWGen::GenericDetectorElement(moduleIdentifier,
-                                                  moduleTransform,
-                                                  moduleBounds,
-                                                  moduleThickness,
-                                                  moduleMaterialPtr,
-                                                  moduleDigitizationPtr);
+              = new FW::Generic::GenericDetectorElement(moduleIdentifier,
+                                                        moduleTransform,
+                                                        moduleBounds,
+                                                        moduleThickness,
+                                                        moduleMaterialPtr,
+                                                        moduleDigitizationPtr);
           // register the backside as bin member
           std::vector<const Acts::DetectorElementBase*> bsbinmember = {module};
           std::vector<const Acts::DetectorElementBase*> binmember = {bsmodule};
@@ -397,24 +397,22 @@ FWGen::GenericLayerBuilder::constructLayers()
                   pModuleRotation, pModuleCenter)));
           // create the modules identifier @todo Idenfier service
           Identifier nModuleIdentifier
-              = Identifier(Identifier::value_type(2 * imodule));
+              = Identifier(Identifier::identifier_type(2 * imodule));
           Identifier pModuleIdentifier
-              = Identifier(Identifier::value_type(2 * imodule + 1));
+              = Identifier(Identifier::identifier_type(2 * imodule + 1));
           // create the module
-          FWGen::GenericDetectorElement* nmodule
-              = new FWGen::GenericDetectorElement(nModuleIdentifier,
-                                                  nModuleTransform,
-                                                  moduleBounds,
-                                                  moduleThickness,
-                                                  moduleMaterialPtr,
-                                                  moduleDigitizationPtr);
-          FWGen::GenericDetectorElement* pmodule
-              = new FWGen::GenericDetectorElement(pModuleIdentifier,
-                                                  pModuleTransform,
-                                                  moduleBounds,
-                                                  moduleThickness,
-                                                  moduleMaterialPtr,
-                                                  moduleDigitizationPtr);
+          FW::Generic::GenericDetectorElement* nmodule
+              = new FW::Generic::GenericDetectorElement(nModuleIdentifier,
+                                                        nModuleTransform,
+                                                        moduleBounds,
+                                                        moduleThickness,
+                                                        moduleMaterialPtr);
+          FW::Generic::GenericDetectorElement* pmodule
+              = new FW::Generic::GenericDetectorElement(pModuleIdentifier,
+                                                        pModuleTransform,
+                                                        moduleBounds,
+                                                        moduleThickness,
+                                                        moduleMaterialPtr);
           // memory management - we need a detector store to hold them somewhere
           // @todo add detector store facility
           m_posnegModule.push_back(nmodule);
@@ -422,8 +420,10 @@ FWGen::GenericLayerBuilder::constructLayers()
           // now deal with the potential backside
           if (m_cfg.posnegModuleBacksideGap.size()) {
             // ncrease the counter @todo switch to identifier service
-            nModuleIdentifier = Identifier(Identifier::value_type(++imodule));
-            pModuleIdentifier = Identifier(Identifier::value_type(++imodule));
+            nModuleIdentifier
+                = Identifier(Identifier::identifier_type(++imodule));
+            pModuleIdentifier
+                = Identifier(Identifier::identifier_type(++imodule));
             // the new centers
             nModuleCenter = nModuleCenter
                 + m_cfg.posnegModuleBacksideGap.at(ipnl).at(ipnR)
@@ -454,20 +454,18 @@ FWGen::GenericLayerBuilder::constructLayers()
             pModuleTransform = std::const_pointer_cast<const Acts::Transform3D>(
                 mutablePModuleTransform);
             // everything is set for the next module
-            FWGen::GenericDetectorElement* bsnmodule
-                = new FWGen::GenericDetectorElement(nModuleIdentifier,
-                                                    nModuleTransform,
-                                                    moduleBounds,
-                                                    moduleThickness,
-                                                    moduleMaterialPtr,
-                                                    moduleDigitizationPtr);
-            FWGen::GenericDetectorElement* bspmodule
-                = new FWGen::GenericDetectorElement(pModuleIdentifier,
-                                                    pModuleTransform,
-                                                    moduleBounds,
-                                                    moduleThickness,
-                                                    moduleMaterialPtr,
-                                                    moduleDigitizationPtr);
+            FW::Generic::GenericDetectorElement* bsnmodule
+                = new FW::Generic::GenericDetectorElement(nModuleIdentifier,
+                                                          nModuleTransform,
+                                                          moduleBounds,
+                                                          moduleThickness,
+                                                          moduleMaterialPtr);
+            FW::Generic::GenericDetectorElement* bspmodule
+                = new FW::Generic::GenericDetectorElement(pModuleIdentifier,
+                                                          pModuleTransform,
+                                                          moduleBounds,
+                                                          moduleThickness,
+                                                          moduleMaterialPtr);
             // register the backside of the binmembers
             std::vector<const Acts::DetectorElementBase*> bspbinmember
                 = {pmodule};

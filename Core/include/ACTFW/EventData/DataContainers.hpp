@@ -1,21 +1,12 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-//
-//  DataContainers.hpp
-//  ACTFW
-//
-//  Created by Andreas Salzburger on 17/05/16.
-//
-//
-
-#ifndef ACTFW_EVENTDATA_DATACONTAINERS_H
-#define ACTFW_EVENTDATA_DATACONTAINERS_H
+#pragma once
 
 #include <map>
 #include <vector>
@@ -26,51 +17,75 @@ namespace FW {
 ///
 /// internal map structure is
 /// { volume : layer : module , data }
-template <class T>
-using ModuleData = std::vector<T>;
-template <class U, class T>
-using LayerData = std::map<U, ModuleData<T>>;
-template <class U, class T>
-using VolumeData = std::map<U, LayerData<U, T>>;
-template <class U, class T>
-using DetectorData = std::map<U, VolumeData<U, T>>;
+template <typename data_t>
+using ModuleData = std::vector<data_t>;
+template <typename identifier_t, typename data_t>
+using LayerData = std::map<identifier_t, ModuleData<data_t>>;
+template <typename identifier_t, typename data_t>
+using VolumeData = std::map<identifier_t, LayerData<identifier_t, data_t>>;
+template <typename identifier_t, typename data_t>
+using DetectorData = std::map<identifier_t, VolumeData<identifier_t, data_t>>;
 
 namespace Data {
 
-  // insert (& create container if necessary)
-  template <class U, class T>
+  /// @brief Insert (& create container if necessary)
+  ///
+  /// @tparam identifier_t Type of the identifier key
+  /// @tparam data_t Type of the object to be filled in
+  ///
+  /// @param dData The detector data map
+  /// @param volumeKey The identifier for the detector volume
+  /// @param layerKey The identifier for the layer
+  /// @param moduleKey The identifier for the module
+  /// @param obj The data object to be stored
+  template <typename identifier_t, typename data_t>
   void
-  insert(DetectorData<U, T>& dData, U volumeKey, U layerKey, U moduleKey, T obj)
+  insert(DetectorData<identifier_t, data_t>& dData,
+         identifier_t volumeKey,
+         identifier_t layerKey,
+         identifier_t moduleKey,
+         data_t       obj)
   {
     // find if the volume has an entry
     auto volumeData = dData.find(volumeKey);
     if (volumeData == dData.end()) {
       // insert at the volumeKey
-      dData[volumeKey] = FW::VolumeData<U, T>();
+      dData[volumeKey] = FW::VolumeData<identifier_t, data_t>();
       volumeData       = dData.find(volumeKey);
     }
     // find the layer data
     auto layerData = (volumeData->second).find(layerKey);
     if (layerData == (volumeData->second).end()) {
       // insert a layer key for this
-      (volumeData->second)[layerKey] = FW::LayerData<U, T>();
+      (volumeData->second)[layerKey] = FW::LayerData<identifier_t, data_t>();
       layerData                      = (volumeData->second).find(layerKey);
     }
     // find the module data
     auto moduleData = (layerData->second).find(moduleKey);
     if (moduleData == (layerData->second).end()) {
       // insert the module for this
-      (layerData->second)[moduleKey] = FW::ModuleData<T>();
+      (layerData->second)[moduleKey] = FW::ModuleData<data_t>();
       moduleData                     = (layerData->second).find(moduleKey);
     }
     // and now push back
     (moduleData->second).push_back(std::move(obj));
   };
 
-  // read (& return)
-  template <class U, class T>
-  const ModuleData<T>*
-  read(DetectorData<U, T>& dData, U volumeKey, U layerKey, U moduleKey)
+  /// @brief Read and return the module data
+  ///
+  /// @tparam identifier_t Type of the identifier key
+  /// @tparam data_t Type of the object to be filled in
+  ///
+  /// @param dData The detector data map
+  /// @param volumeKey The identifier for the detector volume
+  /// @param layerKey The identifier for the layer
+  /// @param moduleKey The identifier for the module
+  template <typename identifier_t, typename data_t>
+  const ModuleData<identifier_t>*
+  read(DetectorData<identifier_t, data_t>& dData,
+       identifier_t volumeKey,
+       identifier_t layerKey,
+       identifier_t moduleKey)
   {
     // find if the volume has an entry
     auto volumeData = dData.find(volumeKey);
@@ -85,10 +100,20 @@ namespace Data {
     return (&(moduleData->second));
   };
 
-  // read (& return)
-  template <class U, class T>
-  const LayerData<U, T>*
-  read(DetectorData<U, T>& dData, U volumeKey, U layerKey)
+  /// @brief Read and return the layer data
+  ///
+  /// @tparam identifier_t Type of the identifier key
+  /// @tparam data_t Type of the object to be filled in
+  ///
+  /// @param dData The detector data map
+  /// @param volumeKey The identifier for the detector volume
+  /// @param layerKey The identifier for the layer
+  /// @param moduleKey The identifier for the module
+  template <typename identifier_t, typename data_t>
+  const LayerData<identifier_t, data_t>*
+  read(DetectorData<identifier_t, data_t>& dData,
+       identifier_t volumeKey,
+       identifier_t layerKey)
   {
     // find if the volume has an entry
     auto volumeData = dData.find(volumeKey);
@@ -100,7 +125,5 @@ namespace Data {
     return (&(layerData->second));
   };
 
-}  // end of namespace Data
-}
-
-#endif  // ACTFW_EVENTDATA_DATACONTAINERS_H
+}  // namespace Data
+}  // namespace FW

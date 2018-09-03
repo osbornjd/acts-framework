@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,17 +11,20 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/Barcode/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/SimHit.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Detector/DetectorElementBase.hpp"
-#include "Acts/Digitization/DigitizationModule.hpp"
-#include "Acts/Digitization/PlanarModuleCluster.hpp"
-#include "Acts/Digitization/PlanarModuleStepper.hpp"
-#include "Acts/Digitization/Segmentation.hpp"
-#include "Acts/EventData/ParticleDefinitions.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleStepper.hpp"
+#include "Acts/Plugins/Digitization/Segmentation.hpp"
+#include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
@@ -31,13 +34,13 @@ FW::DigitizationAlgorithm::DigitizationAlgorithm(
     Acts::Logging::Level                     level)
   : FW::BareAlgorithm("DigitizationAlgorithm", level), m_cfg(cfg)
 {
-  if (m_cfg.simulatedHitsCollection.empty()) {
+  if (m_cfg.simulatedHitCollection.empty()) {
     throw std::invalid_argument("Missing input hits collection");
-  } else if (m_cfg.spacePointsCollection.empty()) {
+  } else if (m_cfg.spacePointCollection.empty()) {
     throw std::invalid_argument("Missing output space points collection");
-  } else if (m_cfg.clustersCollection.empty()) {
+  } else if (m_cfg.clusterCollection.empty()) {
     throw std::invalid_argument("Missing output clusters collection");
-  } else if (!m_cfg.randomNumbers) {
+  } else if (!m_cfg.randomNumberSvc) {
     throw std::invalid_argument("Missing random numbers service");
   } else if (!m_cfg.planarModuleStepper) {
     throw std::invalid_argument("Missing planar module stepper");
@@ -45,31 +48,28 @@ FW::DigitizationAlgorithm::DigitizationAlgorithm(
 }
 
 FW::ProcessCode
-FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
+FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
 {
-  // prepare the input data
-  const FW::DetectorData<geo_id_value,
-                         std::pair<std::unique_ptr<const Acts::TrackParameters>,
-                                   barcode_type>>* hitData
+  // Prepare the input data collection
+  const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>* simHits
       = nullptr;
-  // read and go
-  if (ctx.eventStore.get(m_cfg.simulatedHitsCollection, hitData)
+
+  // Read it from the event store
+  if (context.eventStore.get(m_cfg.simulatedHitCollection, simHits)
       == FW::ProcessCode::ABORT)
     return FW::ProcessCode::ABORT;
 
-  ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitsCollection
+  ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
                                     << "' from event store.");
 
-  // the particle mass table
-  Acts::ParticleMasses pMasses;
-
-  // prepare the output data: Clusters
+  // Prepare the output data: Clusters
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
-  // perpare the second output data : SpacePoints
+
+  // Prepare the second output data : Truth SpacePoints (for debugging)
   FW::DetectorData<geo_id_value, Acts::Vector3D> spacePoints;
 
   // now digitise
-  for (auto& vData : (*hitData)) {
+  for (auto& vData : (*simHits)) {
     auto volumeKey = vData.first;
     ACTS_DEBUG("- Processing Volume Data collection for volume with ID "
                << volumeKey);
@@ -83,12 +83,15 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
                    << moduleKey);
         // get the hit parameters
         for (auto& hit : sData.second) {
-          auto hitParameters   = hit.first.get();
-          auto particleBarcode = hit.second;
           // get the surface
-          const Acts::Surface& hitSurface = hitParameters->referenceSurface();
+          const Acts::Surface& hitSurface = (*hit.surface);
+          // get the associated particle from the hit
+          const Data::SimParticle*              hitParticle = &hit.particle;
+          std::vector<const Data::SimParticle*> hitParticles{hitParticle};
           // get the DetectorElement
-          auto hitDetElement = hitSurface.associatedDetectorElement();
+          auto hitDetElement
+              = dynamic_cast<const Acts::IdentifiedDetectorElement*>(
+                  hitSurface.associatedDetectorElement());
           if (hitDetElement) {
             // get the digitization module
             auto hitDigitizationModule = hitDetElement->digitizationModule();
@@ -99,18 +102,18 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
               double lorentzShift = thickness * tan(lorentzAngle);
               lorentzShift *= -(hitDigitizationModule->readoutDirection());
               // parameters
-              auto           pars     = hitParameters->parameters();
-              auto           position = hitParameters->position();
-              auto           momentum = hitParameters->momentum();
-              Acts::Vector2D localIntersection(pars[Acts::ParDef::eLOC_0],
-                                               pars[Acts::ParDef::eLOC_1]);
-              Acts::Vector3D localDirection(
-                  hitSurface.transform().inverse().linear() * momentum);
-              // position
+              auto invTransfrom = hitSurface.transform().inverse();
+              // local intersection / direction
+              Acts::Vector3D localIntersect3D(invTransfrom * hit.position);
+              Acts::Vector2D localIntersection(localIntersect3D.x(),
+                                               localIntersect3D.y());
+              Acts::Vector3D localDirection(invTransfrom.linear()
+                                            * hit.direction);
+              // now calculate the steps through the silicon
               std::vector<Acts::DigitizationStep> dSteps
                   = m_cfg.planarModuleStepper->cellSteps(*hitDigitizationModule,
                                                          localIntersection,
-                                                         localDirection.unit());
+                                                         localDirection);
               // everything under threshold or edge effects
               if (!dSteps.size()) continue;
               /// let' create a cluster - centroid method
@@ -127,9 +130,9 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
                 localY += dStep.stepLength * dStep.stepCellCenter.y();
                 totalPath += dStep.stepLength;
                 usedCells.push_back(
-                    std::move(Acts::DigitizationCell(dStep.stepCell.channel0,
-                                                     dStep.stepCell.channel1,
-                                                     dStep.stepLength)));
+                    Acts::DigitizationCell(dStep.stepCell.channel0,
+                                           dStep.stepCell.channel1,
+                                           dStep.stepLength));
               }
               // divide by the total path
               localX /= totalPath;
@@ -144,39 +147,28 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
               // @todo remove unneccesary conversion
               size_t bin0          = binUtility.bin(localPosition, 0);
               size_t bin1          = binUtility.bin(localPosition, 1);
-              size_t binSerialized = binUtility.serialize({bin0, bin1, 0});
+              size_t binSerialized = binUtility.serialize({{bin0, bin1, 0}});
 
               // the covariance is currently set to 0.
               Acts::ActsSymMatrixD<2> cov;
-              cov << 0., 0., 0., 0.;
+              cov << 0.05, 0., 0.05, 0.;
 
-              // create the indetifier
+              // create the geometry based Idnetifier
               Acts::GeometryID geoID(0);
               geoID.add(volumeKey, Acts::GeometryID::volume_mask);
               geoID.add(layerKey, Acts::GeometryID::layer_mask);
               geoID.add(moduleKey, Acts::GeometryID::sensitive_mask);
               geoID.add(binSerialized, Acts::GeometryID::channel_mask);
-              // create the truth for this - assume here muons
-              Acts::ParticleProperties pProperties(
-                  momentum, pMasses.mass[Acts::muon], 1., 13, particleBarcode);
-              // the associated process vertex
-              Acts::ProcessVertex pVertex(position, 0., 0, {pProperties}, {});
 
               // create the planar cluster
-              Acts::PlanarModuleCluster pCluster(hitSurface,
-                                                 Identifier(geoID.value()),
-                                                 std::move(cov),
-                                                 localX,
-                                                 localY,
-                                                 std::move(usedCells),
-                                                 {pVertex});
-
-              // insert into the space point map
-              FW::Data::insert(spacePoints,
-                               volumeKey,
-                               layerKey,
-                               moduleKey,
-                               hitParameters->position());
+              Acts::PlanarModuleCluster pCluster(
+                  hitSurface,
+                  Identifier(Identifier::identifier_type(geoID.value()),
+                             hitParticles),
+                  std::move(cov),
+                  localX,
+                  localY,
+                  std::move(usedCells));
 
               // insert into the cluster map
               FW::Data::insert(planarClusters,
@@ -193,12 +185,12 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext ctx) const
   }            // volume loop
 
   // write the SpacePoints to the EventStore
-  if (ctx.eventStore.add(m_cfg.spacePointsCollection, std::move(spacePoints))
+  if (context.eventStore.add(m_cfg.spacePointCollection, std::move(spacePoints))
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }
   // write the clusters to the EventStore
-  if (ctx.eventStore.add(m_cfg.clustersCollection, std::move(planarClusters))
+  if (context.eventStore.add(m_cfg.clusterCollection, std::move(planarClusters))
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }

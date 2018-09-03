@@ -1,17 +1,12 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-05-23 Initial version
-/// @date 2017-08-07 Rewrite with new interfaces
-
-#ifndef ACTFW_OBJSPACEPOINTWRITER_H
-#define ACTFW_OBJSPACEPOINTWRITER_H
+#pragma once
 
 #include <fstream>
 
@@ -31,6 +26,7 @@ namespace Obj {
   ///     event000000001-spacepoints.obj
   ///     event000000002-spacepoints.obj
   ///
+  /// One Thread per write call and hence thread safe
   template <typename T>
   class ObjSpacePointWriter : public WriterT<DetectorData<geo_id_value, T>>
   {
@@ -55,6 +51,7 @@ namespace Obj {
 
   private:
     Config m_cfg;
+
     // required for C++ to find `logger()` with the default look-up
     const Acts::Logger&
     logger() const
@@ -110,5 +107,3 @@ FW::Obj::ObjSpacePointWriter<T>::writeT(
   }
   return ProcessCode::SUCCESS;
 }
-
-#endif  // ACTFW_OBJSPACEPOINTWRITER_H

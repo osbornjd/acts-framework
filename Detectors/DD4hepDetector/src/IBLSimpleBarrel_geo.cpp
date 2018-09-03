@@ -1,13 +1,13 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "Acts/Plugins/DD4hepPlugins/ActsExtension.hpp"
-#include "Acts/Plugins/DD4hepPlugins/IActsExtension.hpp"
+#include "Acts/Plugins/DD4hep/ActsExtension.hpp"
+#include "Acts/Plugins/DD4hep/IActsExtension.hpp"
 #include "DD4hep/DetFactoryHelper.h"
 
 using namespace std;
@@ -197,11 +197,12 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     // mapped
     // hand over modules to ACTS
     Acts::ActsExtension::Config layConfig;
-    layConfig.isLayer               = true;
-    layConfig.materialBins1         = 100;
-    layConfig.materialBins2         = 100;
-    layConfig.layerMaterialPosition = Acts::LayerMaterialPos::inner;
-    Acts::ActsExtension* detlayer   = new Acts::ActsExtension(layConfig);
+    layConfig.isLayer = true;
+    ///@todo re-enable material mapping
+    // layConfig.materialBins1         = 100;
+    // layConfig.materialBins2         = 100;
+    // layConfig.layerMaterialPosition = Acts::LayerMaterialPos::inner;
+    Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
     lay_det.addExtension<Acts::IActsExtension>(detlayer);
     // Place layer volume
     PlacedVolume placedLayer = tube_vol.placeVolume(layer_vol);

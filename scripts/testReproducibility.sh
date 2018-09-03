@@ -12,7 +12,7 @@ set -uo pipefail
 ARGC=$#
 if [[ $ARGC -lt 2 ]]; then
   echo ""
-  echo " Usage: "$0" <example> <output1> [<output2> ...]"
+  echo " Usage: "$0" <example> <nevents> <output1> [<output2> ...]"
   echo ""
   echo " <example> is the example name (which is the executable name without the leading 'ACTFW' and the trailing 'Example')"
   echo " <outputN> is the output name (which is the output file name without the trailing '.root')"
@@ -21,10 +21,10 @@ if [[ $ARGC -lt 2 ]]; then
 fi
 
 # Compute the name of the example executable
-executable=ACTFW$1Example
+executable="ACTFW$1Example -n $2 --output-root true"
 
 # Compute the output file names
-for ((i = 2; i <= $ARGC; i++)); do
+for ((i = 3; i <= $ARGC; i++)); do
   eval output=\$${i}.root
   eval outputs[$i]=$output
 done
@@ -35,7 +35,7 @@ for output in "${outputs[@]}"; do
 done
 
 # Run the example in multi-threaded mode
-eval "$executable"
+eval "${executable}"
 result=$?
 if [[ result -ne 0 ]]; then
   echo "Multi-threaded run failed!"
@@ -48,7 +48,7 @@ for output in "${outputs[@]}"; do
 done
 
 # Run the example in single-threaded mode
-eval "OMP_NUM_THREADS=1 $executable"
+eval "OMP_NUM_THREADS=1 ${executable}"
 result=$?
 if [[ result -ne 0 ]]; then
   echo "Single-threaded run failed!"

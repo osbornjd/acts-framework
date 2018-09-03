@@ -1,21 +1,20 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_OBJ_PLUGINS_HELPER_H
-#define ACTFW_OBJ_PLUGINS_HELPER_H
+#pragma once
 
 #include <fstream>
 #include <vector>
 #include "Acts/Utilities/Definitions.hpp"
 
-namespace FWObj {
+namespace FW {
 
-namespace FWObjHelper {
+namespace Obj {
 
   /// This is the counter struct for keeping track of the vertices
   struct VtnCounter
@@ -72,8 +71,21 @@ namespace FWObjHelper {
             double                   hZ,
             double                   thickness = 0.);
 
-}  // enf of namespace
+  /// Helper method for bezier line interpolation
+  ///
+  /// @param t is the step parameter along the line
+  /// @param p0 anker point
+  /// @param p1 is p0 + direction@p0
+  /// @param p2 is p2 - direction@p2
+  /// @param p3 is second anker poit
+  ///
+  /// @return the bezier point
+  Acts::Vector3D
+  calculateBezierPoint(double                t,
+                       const Acts::Vector3D& p0,
+                       const Acts::Vector3D& p1,
+                       const Acts::Vector3D& p2,
+                       const Acts::Vector3D& p3);
 
-}  // end of namespace Obj
-
-#endif  // ACTFW_OBJ_PLUGINS_HELPER_H
+}  // namespace Obj
+}  // namespace FW

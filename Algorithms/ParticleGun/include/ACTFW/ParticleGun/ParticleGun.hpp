@@ -1,17 +1,17 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
-#define ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H
+#pragma once
 
 #include <array>
-#include "ACTFW/Framework/BareAlgorithm.hpp"
-#include "Acts/EventData/ParticleDefinitions.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
+#include "ACTFW/Readers/IReaderT.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
 
@@ -22,23 +22,26 @@ namespace FW {
 class BarcodeSvc;
 class RandomNumbersSvc;
 
+using ParticleReader = IReaderT<std::vector<Data::SimVertex<>>>;
+
 /// @class ParticleGun
 ///
-/// Particle gun implementation of the IParticleReader. It can be used as
+/// Particle gun implementation of the IReader. It can be used as
 /// particle input for the Fatras example.
+///
 /// It generates particles of given type with random momentum and random vertex
 /// in a given range. It fills a vector of particle properties for feeding into
 /// fast simulation.
 ///
-class ParticleGun : public BareAlgorithm
+class ParticleGun : public ParticleReader
 {
 public:
   struct Config
   {
-    /// output collection for generated particles
-    std::string evgenCollection;
+    /// number of events
+    size_t nEvents = 1;
     /// number of particles
-    size_t nParticles = 0;
+    size_t nParticles = 1;
     /// low, high for d0 range
     range d0Range = {{0., 1 * Acts::units::_mm}};
     /// low, high for z0 range
@@ -54,26 +57,45 @@ public:
     /// the charge of the particle
     double charge = 0.;
     /// the pdg type of the particle
-    pdg_type pID = 0.;
+    pdg_type pID = 0;
     // randomize the charge (indicates PID flip)
     bool randomCharge = false;
     // FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
-    std::shared_ptr<FW::BarcodeSvc>       barcodes      = nullptr;
+    std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
+    std::shared_ptr<FW::BarcodeSvc>       barcodeSvc      = nullptr;
   };
 
   /// Constructor
   /// @param cfg is the configuration class
-  ParticleGun(const Config&        cfg,
-              Acts::Logging::Level level = Acts::Logging::INFO);
+  ParticleGun(const Config&                       cfg,
+              std::unique_ptr<const Acts::Logger> logger
+              = Acts::getDefaultLogger("ParticleGun", Acts::Logging::INFO));
 
-  ProcessCode
-  execute(AlgorithmContext ctx) const;
+  /// Framework name() method
+  std::string
+  name() const final override
+  {
+    return "ParticleGun";
+  }
+
+  // clang-format off
+  /// @copydoc FW::IReaderT::read(std::vector< Data::SimVertex<> >& svertices, size_t, const FW::AlgorithmContext*)
+  // clang-format on
+  FW::ProcessCode
+  read(std::vector<Data::SimVertex<>>& svertices,
+       size_t                          skip    = 0,
+       const FW::AlgorithmContext*     context = nullptr) final override;
 
 private:
-  Config m_cfg;
+  Config                              m_cfg;     /// configuration object
+  std::unique_ptr<const Acts::Logger> m_logger;  /// private logger instance
+
+  /// Private access to the logging instance
+  const Acts::Logger&
+  logger() const
+  {
+    return *m_logger;
+  }
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_ALGORITHMS_FATRAS_PARTICLEGUN_H

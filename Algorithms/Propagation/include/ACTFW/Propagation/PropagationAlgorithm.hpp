@@ -1,13 +1,12 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_ALGORITHMS_PROPAGATIONALGORITHM_H
-#define ACTFW_ALGORITHMS_PROPAGATIONALGORITHM_H
+#pragma once
 
 #include <cmath>
 #include <limits>
@@ -17,66 +16,76 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "Acts/EventData/ParticleDefinitions.hpp"
+#include "Acts/EventData/NeutralParameters.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/Extrapolation/ExtrapolationCell.hpp"
-#include "Acts/Surfaces/CylinderSurface.hpp"
+#include "Acts/Extrapolator/Navigator.hpp"
+#include "Acts/Propagator/AbortList.hpp"
+#include "Acts/Propagator/ActionList.hpp"
+#include "Acts/Propagator/detail/DebugOutputActor.hpp"
+#include "Acts/Propagator/detail/StandardAbortConditions.hpp"
+#include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Units.hpp"
 
-typedef std::unique_ptr<const Acts::TrackParameters> TrackParametersPtr;
-
 /// @brief this test algorithm performs test propagation
-/// with the Acts::propagation::Propagator(s) and compares
-/// them to the Acts::IPropagationEngine
+/// within the Acts::Propagator
 ///
-/// There are three test modes availaible that run exclusively
-/// - pathLength test, i.e. propagation starts from curvilinear
-///   to curvilinear and stops at a certain path length
-/// - kalman, i.e. propagation in a sequential manner
-/// @todo:
-/// - surface, i.e. propagation from surface to another surface
-
+/// If the propagator is equipped appropriately, it can
+/// also be used to test the Extrapolator within the geomtetry
+///
+/// @tparam propagator_t Type of the Propagator to be tested
 namespace FW {
 
-template <typename PropagatorA, typename PropagatorB, typename PropagatorE>
+template <typename propagator_t>
 class PropagationAlgorithm : public BareAlgorithm
 {
 public:
-  // the test mode for this propagation test
-  enum TestMode { pathLength = 0, kalman = 1 };
-
   struct Config
   {
-    /// the particles input collections
-    std::string evgenCollection = "";
-    // output collection to be written
-    std::string trackParametersCollection = "";
-    /// @todo remove later and replace by particle selector
-    double maxD0  = std::numeric_limits<double>::max();
-    double maxEta = std::numeric_limits<double>::max();
-    double minPt  = 0.0;
+    // create a config object with the propagator
+    Config(propagator_t prop) : propagator(std::move(prop)) {}
+
     /// the propagors to be tested
-    std::shared_ptr<PropagatorA> propagatorA = nullptr;
-    std::shared_ptr<PropagatorB> propagatorB = nullptr;
-    std::shared_ptr<PropagatorE> propagatorE = nullptr;
-    /// the pathLimit test
-    double pathLimit = std::numeric_limits<double>::max();
-    /// the radii for testing
-    std::vector<double> cylinderRadii;
-    /// which type to be done
-    bool cacheCall = true;
-    /// the mode how to run this tests
-    TestMode testMode = pathLength;
+    propagator_t propagator;
+
+    /// how to set it up
+    std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
+
+    /// proapgation mode
+    int mode = 0;
+    /// debug output
+    bool debugOutput = false;
+    /// number of particles
+    size_t ntests = 100;
+    /// d0 gaussian sigma
+    double d0Sigma = 15. * Acts::units::_um;
+    /// z0 gaussian sigma
+    double z0Sigma = 55. * Acts::units::_mm;
+    /// phi range
+    std::pair<double, double> phiRange = {-M_PI, M_PI};
+    /// eta range
+    std::pair<double, double> etaRange = {-4., 4.};
+    /// pt range
+    std::pair<double, double> ptRange
+        = {100. * Acts::units::_MeV, 100. * Acts::units::_GeV};
+    /// looper protection
+    double ptLoopers = 300. * Acts::units::_MeV;
+
+    /// Max step size steering
+    double maxStepSize = 1. * Acts::units::_mm;
+
+    /// the step collection to be stored
+    std::string propagationStepCollection = "PropagationSteps";
+
     /// covariance transport
     bool covarianceTransport = true;
+
     /// the covariance values
     Acts::ActsVectorD<5> covariances = Acts::ActsVectorD<5>::Zero();
+
     /// the correlation terms
     Acts::ActsSymMatrixD<5> correlations = Acts::ActsSymMatrixD<5>::Identity();
-    /// FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
   };
 
   /// Constructor
@@ -86,108 +95,33 @@ public:
 
   /// Framework execute method
   /// @param [in] the algorithm context for event consistency
+  /// @return is a process code indicating succes or not
   FW::ProcessCode
   execute(AlgorithmContext ctx) const final override;
 
 private:
-  /// private helper method to create a corrleated covariance matrix
+  Config m_cfg;  ///< the config class
+
+  /// Private helper method to create a corrleated covariance matrix
   /// @param[in] rnd is the random engine
   /// @param[in] gauss is a gaussian distribution to draw from
   std::unique_ptr<Acts::ActsSymMatrixD<5>>
   generateCovariance(FW::RandomEngine& rnd, FW::GaussDist& gauss) const;
 
-  /// propagate from type A or B
-  /// @tparam[in] prop is the propgator of type A or B
-  /// @tparam[in] opt is the Option of type A or B
-  /// @param[in] pars is the TrackParameters to start from
-  /// @param[in] sf is the optional surface
-  /// @param[in,out] res is the resut vector
-  /// @todo remove parameter template when all stepper can swallow all types
-  template <typename PropagatorAB, typename OptionsAB, typename Parameters>
-  void
-  propagateAB(const PropagatorAB&              prop,
-              const OptionsAB&                 opt,
-              const Parameters&                pars,
-              const Acts::Surface*             sf,
-              std::vector<TrackParametersPtr>& res) const
-  {
-    TrackParametersPtr p = nullptr;
-    if (sf)
-      p = prop.propagate(pars, *sf, opt).endParameters;
-    else
-      p = prop.propagate(pars, opt).endParameters;
-    // screen output and storing in result vector
-    if (p) {
-      const auto& pos = p->position();
-      ACTS_VERBOSE("Intersection = " << pos.x() << "," << pos.y() << ","
-                                     << pos.z())
-      res.push_back(std::move(p));
-    }
-  }
-
-  /// propagate from type A or B
-  /// @tparam[in] prop is the propgator of type A or B
-  /// @tparam[in] cache is the propagator cache
-  /// @tparam[in] opt is the Option of type A or B
-  /// @param[in] pars is the TrackParameters to start from
-  /// @param[in] sf is the optional surface
-  /// @param[in,out] res is the resut vector
-  template <typename PropagatorAB, typename OptionsAB, typename Parameters>
-  void
-  propagateCacheAB(const PropagatorAB&                prop,
-                   typename PropagatorAB::cache_type& cache,
-                   const OptionsAB&                   opt,
-                   const Parameters&                  pars,
-                   const Acts::Surface&               sf,
-                   std::vector<TrackParametersPtr>&   res) const
-  {
-    TrackParametersPtr p = prop.propagate(pars, sf, opt).endParameters;
-    if (p) {
-      const auto& pos = p->position();
-      ACTS_VERBOSE("Intersection = " << pos.x() << "," << pos.y() << ","
-                                     << pos.z())
-      res.push_back(std::move(p));
-    }
-  }
-
-  /// propagate from type A or B
-  /// @tparam[in] prop is the propgator of type A or B
-  /// @param[in] pars is the TrackParameters to start from
-  /// @param[in] sf is the  surface
-  /// @param[in,out] res is the resut vector
-  template <typename Propagator>
-  void
-  propagateE(const Propagator&                prop,
-             const Acts::TrackParameters&     pars,
-             const Acts::Surface&             sf,
-             std::vector<TrackParametersPtr>& res) const
-  {
-    Acts::ExtrapolationCell<Acts::TrackParameters> ec(pars);
-    ec.pathLimit = m_cfg.pathLimit;
-    auto statusB = prop.propagate(ec, sf);
-    if (ec.endParameters) {
-      const auto& pos = ec.endParameters->position();
-      ACTS_VERBOSE("Intersection = " << pos.x() << "," << pos.y() << ","
-                                     << pos.z());
-      res.push_back(std::move(ec.endParameters));
-    }
-  }
-
-  Config m_cfg;  ///< the config class
-
-  /// the run options
-  typename PropagatorA::template Options<> m_optionsA;
-  typename PropagatorB::template Options<> m_optionsB;
-
-  /// the test surface - helper surface indicating event horizon (end of world)
-  std::unique_ptr<Acts::CylinderSurface> m_surface = nullptr;
-
-  /// the test surfaces for the Kalman Fitter emulation
-  std::vector<std::unique_ptr<Acts::CylinderSurface>> m_radialSurfaces;
+  /// Templated execute test method for
+  /// charged and netural particles
+  ///
+  // @tparam parameters_t type of the parameters objects (charged/neutra;)
+  ///
+  /// @param [in] startParameters the start parameters
+  ///
+  /// @return collection of Propagation steps for further analysis
+  template <typename parameters_t>
+  std::vector<Acts::detail::Step>
+  executeTest(const parameters_t& startParameters,
+              double pathLength = std::numeric_limits<double>::max()) const;
 };
 
 #include "PropagationAlgorithm.ipp"
 
 }  // namespace FW
-
-#endif  // ACTFW_ALGORITHMS_PROPAGATIONALGORITHM_H

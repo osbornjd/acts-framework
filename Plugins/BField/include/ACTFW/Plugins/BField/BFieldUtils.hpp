@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -116,7 +116,7 @@ namespace BField {
         double      BFieldUnit   = Acts::units::_T,
         size_t      nPoints      = 1000,
         bool        firstOctant  = false);
-  }  // end of namespace txt
+  }  // namespace txt
 
   namespace root {
     /// Method to setup the FieldMapper
@@ -209,9 +209,9 @@ namespace BField {
         double      lengthUnit   = Acts::units::_mm,
         double      BFieldUnit   = Acts::units::_T,
         bool        firstOctant  = false);
-  }  // end of namespace root
+  }  // namespace root
 
-}  // end of namespace BField
+}  // namespace BField
 
-}  // end of namespace FW
+}  // namespace FW
 #endif  // ACTFW_BFIELD_TXTBFIELDUTILS_HPP

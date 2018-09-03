@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -68,9 +68,14 @@ public:
   /// and multiple uses of a given RNG seed, this should only be done once per
   /// Algorithm invocation, after what the generator object should be reused.
   ///
+  /// It calls generateSeed() for an event driven seed
+  ///
   /// @param context is the AlgorithmContext of the host algorithm
   RandomEngine
   spawnGenerator(const AlgorithmContext& context) const;
+
+  const unsigned int
+  generateSeed(const AlgorithmContext& context) const;
 
   /// Ask for the seed
   unsigned int

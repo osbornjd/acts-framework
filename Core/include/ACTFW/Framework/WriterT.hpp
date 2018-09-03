@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,8 +10,7 @@
 /// @date 2017-08-07
 /// @author Moritz Kiehnn <msmk@cern.ch>
 
-#ifndef ACTFW_OBJECTWRITERT_H
-#define ACTFW_OBJECTWRITERT_H
+#pragma once
 
 #include <memory>
 #include <string>
@@ -38,7 +37,7 @@ namespace FW {
 ///
 /// Default no-op implementations for `initialize` and `finalize` are provided
 /// but can be overriden by the user.
-template <typename T>
+template <typename write_data_t>
 class WriterT : public IWriter
 {
 public:
@@ -68,7 +67,7 @@ protected:
   ///        consistency
   /// @tparam [in] is the templeted collection to be written
   virtual ProcessCode
-  writeT(const AlgorithmContext& ctx, const T& t)
+  writeT(const AlgorithmContext& ctx, const write_data_t& t)
       = 0;
 
   const Acts::Logger&
@@ -85,10 +84,10 @@ private:
 
 }  // namespace FW
 
-template <typename T>
-FW::WriterT<T>::WriterT(std::string          objectName,
-                        std::string          writerName,
-                        Acts::Logging::Level level)
+template <typename write_data_t>
+FW::WriterT<write_data_t>::WriterT(std::string          objectName,
+                                   std::string          writerName,
+                                   Acts::Logging::Level level)
   : m_objectName(std::move(objectName))
   , m_writerName(std::move(writerName))
   , m_logger(Acts::getDefaultLogger(m_writerName, level))
@@ -100,28 +99,26 @@ FW::WriterT<T>::WriterT(std::string          objectName,
   }
 }
 
-template <typename T>
+template <typename write_data_t>
 inline std::string
-FW::WriterT<T>::name() const
+FW::WriterT<write_data_t>::name() const
 {
   return m_writerName;
 }
 
-template <typename T>
+template <typename write_data_t>
 inline FW::ProcessCode
-FW::WriterT<T>::endRun()
+FW::WriterT<write_data_t>::endRun()
 {
   return ProcessCode::SUCCESS;
 }
 
-template <typename T>
+template <typename write_data_t>
 inline FW::ProcessCode
-FW::WriterT<T>::write(const AlgorithmContext& ctx)
+FW::WriterT<write_data_t>::write(const AlgorithmContext& ctx)
 {
-  const T* object = nullptr;
+  const write_data_t* object = nullptr;
   if (ctx.eventStore.get(m_objectName, object) != ProcessCode::SUCCESS)
     return ProcessCode::ABORT;
   return writeT(ctx, *object);
 }
-
-#endif  // ACTFW_OBJECTWRITERT_H

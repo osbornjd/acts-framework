@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -15,8 +15,7 @@
 
 /// @file
 
-#ifndef ACTFW_CONCURRENCY_PARALLEL_FOR_H
-#define ACTFW_CONCURRENCY_PARALLEL_FOR_H 1
+#pragma once
 
 #include <boost/optional.hpp>
 #include <boost/variant/get.hpp>
@@ -154,6 +153,8 @@ namespace Details {
       auto exception = boost::get<std::exception_ptr>(std::move(exit_reason));
       std::rethrow_exception(std::move(exception));
     }
+    // return an optional<T>() as default
+    return boost::optional<T>();
   }
 
 /// The following macro is the out-of-order multithreaded equivalent of the
@@ -190,5 +191,3 @@ namespace Details {
   } while (false);
 }
 }
-
-#endif  // ACTFW_CONCURRENCY_PARALLEL_FOR_H

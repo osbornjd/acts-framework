@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -70,7 +70,7 @@ FW::Root::RootIndexedMaterialWriter::write(
 
   ACTS_INFO("Writing out map at " << tdName);
 
-  size_t bins0, bins1 = 0;
+  size_t bins0 = 0, bins1 = 0;
   // understand what sort of material you have in mind
   Acts::BinnedSurfaceMaterial* bsm
       = dynamic_cast<Acts::BinnedSurfaceMaterial*>(ism.second);

@@ -1,13 +1,12 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_PLUGINS_ROOTEXCELLWRITER_H
-#define ACTFW_PLUGINS_ROOTEXCELLWRITER_H
+#pragma once
 
 #include <TFile.h>
 #include <TTree.h>
@@ -18,12 +17,6 @@
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
-class TFile;
-
-#ifndef MAXSTEPS
-#define MAXSTEPS 100
-#endif
-
 namespace FW {
 
 namespace Root {
@@ -31,15 +24,26 @@ namespace Root {
   /// @class ExtrapolationCellWriter
   ///
   /// A root based implementation to write out extrapolation steps.
+  /// This is the Legacy equivalent of the PropgationSteps writer.
   ///
-  /// Safe to use from multiple writer threads.
+  /// The event number is part of the written data.
   ///
-  template <class T>
+  /// A common file can be provided for to the writer to attach his TTree,
+  /// this is done by setting the Config::rootFile pointer to an existing file
+  ///
+  /// @tparam parameters_t Type of the track parameters
+  ///
+  /// Safe to use from multiple writer threads - uses a std::mutex lock.
+  template <typename parameters_t>
   class RootExCellWriter
-      : public FW::WriterT<std::vector<Acts::ExtrapolationCell<T>>>
+      : public FW::WriterT<std::vector<Acts::ExtrapolationCell<parameters_t>>>
   {
   public:
-    using Base = FW::WriterT<std::vector<Acts::ExtrapolationCell<T>>>;
+    using Base
+        = FW::WriterT<std::vector<Acts::ExtrapolationCell<parameters_t>>>;
+
+    using FW::WriterT<std::vector<Acts::ExtrapolationCell<parameters_t>>>::
+        logger;
 
     ///  @struct ExtrapolationStep
     ///  this holds the information to be written out
@@ -50,9 +54,7 @@ namespace Root {
       float type;        ///< type of the step
     };
 
-    // @struct Config
-    //
-    // The nested config class
+    /// @brief  The nested config class
     struct Config
     {
     public:
@@ -60,15 +62,18 @@ namespace Root {
       std::string filePath;               ///< path of the output file
       std::string fileMode = "RECREATE";  ///< file access mode
       std::string treeName
-          = "extrapolation_cells";  ///< name of the output tree
-      bool writeSensitive;
-      bool writeMaterial;
-      bool writePassive;
-      bool writeBoundary;
+          = "extrapolation_cells";       ///< name of the output tree
+      TFile* rootFile       = nullptr;   ///< common root file
+      bool   writeSensitive = true;      ///< indiciation to write out sensitive
+      bool   writeMaterial  = true;      ///< indiciation to write out material
+      bool   writePassive   = true;      ///< indiciation to write out passive
+      bool   writeBoundary  = true;      ///< indiciation to write out boundary
+      unsigned int reservedSteps = 100;  ///< number of steps to be expected
     };
 
     /// Constructor
     /// @param cfg is the configuration class
+    /// @param level The log level of the writer
     RootExCellWriter(const Config&        cfg,
                      Acts::Logging::Level level = Acts::Logging::INFO);
 
@@ -81,21 +86,25 @@ namespace Root {
 
   protected:
     /// The protected writeT method, called by the WriterT base
+    ///
+    /// @tparam parameters_t Type of the parameters object
+    ///
     /// @param [in] ctx is the algorithm context for event consistency
     /// @param [in] ecells are the celss to be written out
     ProcessCode
-    writeT(
-        const FW::AlgorithmContext&                    ctx,
-        const std::vector<Acts::ExtrapolationCell<T>>& ecells) final override;
+    writeT(const FW::AlgorithmContext&                               ctx,
+           const std::vector<Acts::ExtrapolationCell<parameters_t>>& ecells)
+        final override;
 
-    Config             m_cfg;           ///< the config class
-    std::mutex         m_writeMutex;    ///< protect multi-threaded writes
-    TFile*             m_outputFile;    ///< the output file
-    TTree*             m_outputTree;    ///< the output tree
-    float              m_eta;           ///< global eta start
-    float              m_phi;           ///< global phi start
-    float              m_materialX0;    ///< material in X0
-    float              m_materialL0;    ///< material in L0
+    Config             m_cfg;         ///< the config class
+    std::mutex         m_writeMutex;  ///< protect multi-threaded writes
+    TFile*             m_outputFile{nullptr};  ///< the output file
+    TTree*             m_outputTree{nullptr};  ///< the output tree
+    int                m_eventNr;              ///< the event number of
+    float              m_eta;                  ///< global eta start
+    float              m_phi;                  ///< global phi start
+    float              m_materialX0;           ///< material in X0
+    float              m_materialL0;           ///< material in L0
     std::vector<float> m_s_positionX;   ///< global position x of the step
     std::vector<float> m_s_positionY;   ///< global position y of the step
     std::vector<float> m_s_positionZ;   ///< global position z of the step
@@ -119,5 +128,3 @@ namespace Root {
 }  // namespace FW
 
 #include "RootExCellWriter.ipp"
-
-#endif  // ACTFW_PLUGINS_ROOTEXCELLWRITER_H
