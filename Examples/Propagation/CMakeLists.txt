@@ -2,7 +2,7 @@ file (GLOB_RECURSE src_files "src/*.*pp")
 
 add_executable(ACTFWGenericPropagationExample src/GenericPropagationExample.cpp)
 target_include_directories(ACTFWGenericPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWGenericPropagationExample PRIVATE Acts::Core)
+target_link_libraries(ACTFWGenericPropagationExample PRIVATE ActsCore)
 target_link_libraries(ACTFWGenericPropagationExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWPropagation ACTFWGenericDetector)
 target_link_libraries(ACTFWGenericPropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
 target_link_libraries(ACTFWGenericPropagationExample PRIVATE ${Boost_LIBRARIES})
