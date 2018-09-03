@@ -130,8 +130,8 @@ namespace Obj {
       auto sPosition = eCell.startParameters->position();
       auto sMomentum = eCell.startParameters->momentum();
       // The momentum & vertex cut
-      if (Acts::LA::perp(sMomentum) < m_cfg.outputPtCut) continue;
-      if (Acts::LA::perp(sPosition) > m_cfg.outputMaxVr) continue;
+      if (Acts::VectorHelpers::perp(sMomentum) < m_cfg.outputPtCut) continue;
+      if (Acts::VectorHelpers::perp(sPosition) > m_cfg.outputMaxVr) continue;
 
       // Remember the first counter - for obj lines
       size_t fCounter = vCounter;

@@ -48,6 +48,7 @@ PropagationAlgorithm<propagator_t>::executeTest(
     double              pathLength) const
 {
 
+  using Acts::VectorHelpers::perp;
   ACTS_DEBUG("Test propagation/extrapolation starts");
 
   // This is the outside in mode
@@ -70,7 +71,7 @@ PropagationAlgorithm<propagator_t>::executeTest(
 
     // Activate loop protection at some pt value
     options.loopProtection
-        = (startParameters.momentum().perp() < m_cfg.ptLoopers);
+        = (perp(startParameters.momentum()) < m_cfg.ptLoopers);
 
     // Set a maximum step size
     options.maxStepSize = m_cfg.maxStepSize;

@@ -28,8 +28,8 @@ FW::Root::RootExCellWriter<parameters_t>::writeT(
   for (auto& eCell : ecells) {
     // the event paramters
     auto sMomentum = eCell.startParameters->momentum();
-    m_eta          = Acts::LA::eta(sMomentum);
-    m_phi          = Acts::LA::phi(sMomentum);
+    m_eta          = Acts::VectorHelpers::eta(sMomentum);
+    m_phi          = Acts::VectorHelpers::phi(sMomentum);
     m_materialX0   = eCell.materialX0;
     m_materialL0   = eCell.materialL0;
 
@@ -123,7 +123,7 @@ FW::Root::RootExCellWriter<parameters_t>::writeT(
           m_s_positionX.push_back(pars.position().x());
           m_s_positionY.push_back(pars.position().y());
           m_s_positionZ.push_back(pars.position().z());
-          m_s_positionR.push_back(Acts::LA::perp(pars.position()));
+          m_s_positionR.push_back(Acts::VectorHelpers::perp(pars.position()));
 
           /// local position information - only makes sense for sensitive really
           if (m_cfg.writeSensitive) {

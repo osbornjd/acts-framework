@@ -13,7 +13,9 @@
 #include <stdexcept>
 #include "Acts/Utilities/Helpers.hpp"
 
-namespace LA = Acts::LA;
+using Acts::VectorHelpers::eta;
+using Acts::VectorHelpers::phi;
+using Acts::VectorHelpers::perp;
 
 FW::Root::RootParticleWriter::RootParticleWriter(
     const FW::Root::RootParticleWriter::Config& cfg,
@@ -106,12 +108,12 @@ FW::Root::RootParticleWriter::writeT(
       m_vx      = particle.position().x();
       m_vy      = particle.position().y();
       m_vz      = particle.position().z();
-      m_eta     = LA::eta(particle.momentum());
-      m_phi     = LA::phi(particle.momentum());
+      m_eta     = eta(particle.momentum());
+      m_phi     = phi(particle.momentum());
       m_px      = particle.momentum().x();
       m_py      = particle.momentum().y();
       m_pz      = particle.momentum().z();
-      m_pT      = LA::perp(particle.momentum());
+      m_pT      = perp(particle.momentum());
       m_charge  = particle.q();
       m_mass    = particle.m();
       m_pdgCode = particle.pdg();

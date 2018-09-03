@@ -57,7 +57,7 @@ namespace Data {
       , m_m(m)
       , m_q(q)
       , m_p(momentum.norm())
-      , m_pT(Acts::LA::perp(momentum))
+      , m_pT(Acts::VectorHelpers::perp(momentum))
       , m_pdg(pdg)
       , m_barcode(barcode)
       , m_timeStamp(tStamp)
@@ -103,7 +103,7 @@ namespace Data {
     scatter(Acts::Vector3D nmomentum)
     {
       m_momentum = std::move(nmomentum);
-      m_pT       = Acts::LA::perp(m_momentum);
+      m_pT       = Acts::VectorHelpers::perp(m_momentum);
     }
 
     /// @brief Update the particle with applying energy loss
@@ -126,7 +126,7 @@ namespace Data {
       m_E -= deltaE;
       m_p        = std::sqrt(m_E * m_E - m_m * m_m);
       m_momentum = m_p * m_momentum.normalized();
-      m_pT       = Acts::LA::perp(m_momentum);
+      m_pT       = Acts::VectorHelpers::perp(m_momentum);
       m_beta     = (m_p / m_E);
       m_gamma    = (m_E / m_m);
     }
@@ -152,7 +152,7 @@ namespace Data {
       m_momentum = momentum;
       m_p        = momentum.norm();
       if (m_p) {
-        m_pT = Acts::LA::perp(momentum);
+        m_pT = Acts::VectorHelpers::perp(momentum);
         m_E  = std::sqrt(m_p * m_p + m_m * m_m);
         m_timeStamp += deltaTime;
         m_beta  = (m_p / m_E);

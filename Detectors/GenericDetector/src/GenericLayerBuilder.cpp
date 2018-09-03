@@ -27,7 +27,9 @@
 #include "Acts/Utilities/BinnedArray.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 
-namespace LA = Acts::LA;
+using Acts::VectorHelpers::eta;
+using Acts::VectorHelpers::phi;
+using Acts::VectorHelpers::perp;
 
 FW::Generic::GenericLayerBuilder::GenericLayerBuilder(
     const FW::Generic::GenericLayerBuilder::Config& glbConfig,
@@ -149,7 +151,7 @@ FW::Generic::GenericLayerBuilder::constructLayers()
       // loop over the position, create the modules
       for (auto& moduleCenter : m_cfg.centralModulePositions.at(icl)) {
         // create the association transform
-        double modulePhi = LA::phi(moduleCenter);
+        double modulePhi = phi(moduleCenter);
         // the local z axis is the normal vector
         Acts::Vector3D moduleLocalZ(
             cos(modulePhi + modulePhiTilt), sin(modulePhi + modulePhiTilt), 0.);
@@ -364,7 +366,7 @@ FW::Generic::GenericLayerBuilder::constructLayers()
         // low loop over the phi positions and build the stuff
         for (auto& ringModulePosition : discModulePositions) {
           // the module transform from the position
-          double modulePhi = LA::phi(ringModulePosition);
+          double modulePhi = phi(ringModulePosition);
           // the center position of the modules
           Acts::Vector3D pModuleCenter(ringModulePosition);
           // take the mirrored position wrt x/y

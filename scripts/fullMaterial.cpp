@@ -113,7 +113,7 @@ fullMaterial(std::string inFile,
     std::vector<Acts::MaterialStep> steps = mrecord.materialSteps();
     float                           theta = mrecord.theta();
     float                           eta   = -log(tan(theta * 0.5));
-    float                           phi   = LA::phi(mrecord);
+    float                           phi   = VectorHelpers::phi(mrecord);
 
     float thickness = 0.;
     float rho       = 0.;
