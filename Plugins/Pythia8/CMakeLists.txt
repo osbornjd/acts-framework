@@ -1,5 +1,5 @@
-add_library(ACTFWPluginPythia8 SHARED ACTFW/Plugins/Pythia8/Generator.cpp)
-target_include_directories(ACTFWPluginPythia8 PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
+add_library(ACTFWPluginPythia8 SHARED src/Generator.cpp)
+target_include_directories(ACTFWPluginPythia8 PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/include $<INSTALL_INTERFACE:include>)
 target_include_directories(ACTFWPluginPythia8 PUBLIC ${ROOT_INCLUDE_DIRS} ${Pythia8_INCLUDE_DIR})
 target_link_libraries(ACTFWPluginPythia8 PRIVATE ACTFramework ActsCore)
 target_link_libraries(ACTFWPluginPythia8 PRIVATE ${ROOT_LIBRARIES} Pythia8)

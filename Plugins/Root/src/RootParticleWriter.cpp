@@ -7,10 +7,13 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 #include <TFile.h>
 #include <TTree.h>
 #include <ios>
 #include <stdexcept>
+
+namespace LA = Acts::LA;
 
 FW::Root::RootParticleWriter::RootParticleWriter(
     const FW::Root::RootParticleWriter::Config& cfg,
@@ -103,12 +106,12 @@ FW::Root::RootParticleWriter::writeT(
       m_vx      = particle.position().x();
       m_vy      = particle.position().y();
       m_vz      = particle.position().z();
-      m_eta     = particle.momentum().eta();
-      m_phi     = particle.momentum().phi();
+      m_eta     = LA::eta(particle.momentum());
+      m_phi     = LA::phi(particle.momentum());
       m_px      = particle.momentum().x();
       m_py      = particle.momentum().y();
       m_pz      = particle.momentum().z();
-      m_pT      = particle.momentum().perp();
+      m_pT      = LA::perp(particle.momentum());
       m_charge  = particle.q();
       m_mass    = particle.m();
       m_pdgCode = particle.pdg();

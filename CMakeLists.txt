@@ -41,6 +41,8 @@ if(USE_DD4HEP)
 endif()
 if(USE_PYTHIA8)
   list(APPEND ROOT_COMPONENTS EG)
+  # needs fatras
+  set(USE_FATRAS ON)
 endif()
 
 # use install paths consistent w/ ACTS

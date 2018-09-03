@@ -9,6 +9,8 @@
 #include <ios>
 #include <stdexcept>
 
+#include "Acts/Utilities/Helpers.hpp"
+
 template <typename parameters_t>
 FW::ProcessCode
 FW::Root::RootExCellWriter<parameters_t>::writeT(
@@ -26,8 +28,8 @@ FW::Root::RootExCellWriter<parameters_t>::writeT(
   for (auto& eCell : ecells) {
     // the event paramters
     auto sMomentum = eCell.startParameters->momentum();
-    m_eta          = sMomentum.eta();
-    m_phi          = sMomentum.phi();
+    m_eta          = Acts::LA::eta(sMomentum);
+    m_phi          = Acts::LA::phi(sMomentum);
     m_materialX0   = eCell.materialX0;
     m_materialL0   = eCell.materialL0;
 
@@ -121,7 +123,7 @@ FW::Root::RootExCellWriter<parameters_t>::writeT(
           m_s_positionX.push_back(pars.position().x());
           m_s_positionY.push_back(pars.position().y());
           m_s_positionZ.push_back(pars.position().z());
-          m_s_positionR.push_back(pars.position().perp());
+          m_s_positionR.push_back(Acts::LA::perp(pars.position()));
 
           /// local position information - only makes sense for sensitive really
           if (m_cfg.writeSensitive) {
