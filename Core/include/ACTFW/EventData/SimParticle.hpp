@@ -266,20 +266,34 @@ namespace Data {
       return m_limitInX0;
     }
 
-    /// @brief Access methods: pdg code
+    /// @brief Access methods: path/L0
     const double
     pathInL0() const
     {
       return m_limitInX0;
     }
 
-    /// @brief Access methods: barcode
+    /// @brief Access methods: limit/L0
     const double
     limitInL0() const
     {
       return m_limitInL0;
     }
-
+    
+    /// @brief Access methods: time stamp
+    const double
+    timeStamp() const
+    {
+      return m_timeStamp;
+    }
+    
+    /// @brief Access methods: limit/time
+    const double
+    limitTime() const
+    {
+      return m_limitTime;
+    }
+    
     /// @brief boolean operator indicating the particle to be alive
     operator bool() { return m_alive; }
 
