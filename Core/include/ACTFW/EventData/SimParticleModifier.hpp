@@ -11,6 +11,7 @@
 #include <cmath>
 #include <vector>
 #include "ACTFW/Barcode/Barcode.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
