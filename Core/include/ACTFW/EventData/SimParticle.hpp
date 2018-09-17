@@ -39,12 +39,13 @@ namespace Data {
 
     /// @brief Construct a particle consistently
     ///
-    /// @param position The particle position at construction
-    /// @param momentum The particle momentum at construction
-    /// @param m The particle mass
-    /// @param q The partilce charge
-    /// @param barcode The particle barcode
-    /// @param tStamp is the current time stamp
+    /// @param [in] positionThe particle position at construction
+    /// @param [in] momentum The particle momentum at construction
+    /// @param [in] m The particle mass
+    /// @param [in] q The partilce charge
+    /// @param [in] pdg PDG code of the particle
+    /// @param [in] barcode The particle barcode
+    /// @param [in] tStamp is the current time stamp
     SimParticle(const Acts::Vector3D& position,
                 const Acts::Vector3D& momentum,
                 double                m,
@@ -72,9 +73,9 @@ namespace Data {
 
     /// @brief Set the limits
     ///
-    /// @param x0Limit the limit in X0 to be passed
-    /// @param l0Limit the limit in L0 to be passed
-    /// @param timeLimit the readout time limit to be passed
+    /// @param [in] x0Limit the limit in X0 to be passed
+    /// @param [in] l0Limit the limit in L0 to be passed
+    /// @param [in] timeLimit the readout time limit to be passed
     void
     setLimits(double x0Limit,
               double l0Limit,
@@ -85,9 +86,11 @@ namespace Data {
       m_timeLimit = timeLimit;
     }
 
-    /// @brief Place the particle int he detector and set barcode
+    /// @brief Place the particle in the detector and set barcode
     ///
-    /// @param deltaE is the energy loss to be applied
+    /// @param [in] positon Position of the particle
+    /// @param [in] barcode Barcode of the particle
+    /// @param [in] timeStamp Age of the particle
     void
     place(Acts::Vector3D position, barcode_type barcode, double timeStamp = 0.)
     {
@@ -96,9 +99,9 @@ namespace Data {
       m_timeStamp = timeStamp;
     }
 
-    /// @brief Update the particle with applying energy loss
+    /// @brief Update the particle with applying scattering
     ///
-    /// @param deltaE is the energy loss to be applied
+    /// @param [in] nmomentum New momentum of the particle
     void
     scatter(Acts::Vector3D nmomentum)
     {
@@ -108,7 +111,7 @@ namespace Data {
 
     /// @brief Update the particle with applying energy loss
     ///
-    /// @param deltaE is the energy loss to be applied
+    /// @param [in] deltaE is the energy loss to be applied
     void
     energyLoss(double deltaE)
     {
@@ -134,11 +137,11 @@ namespace Data {
     /// @brief Update the particle with a new position and momentum,
     /// this corresponds to a step update
     ///
-    /// @param position New position after update
-    /// @param momentum New momentum after update
-    /// @param deltaPathX0 passed since last step
-    /// @param deltaPathL0 passed since last step
-    /// @param deltaTime The time elapsed
+    /// @param [in] position New position after update
+    /// @param [in] momentum New momentum after update
+    /// @param [in] deltaPathX0 passed since last step
+    /// @param [in] deltaPathL0 passed since last step
+    /// @param [in] deltaTime The time elapsed
     ///
     /// @return break condition
     bool
@@ -169,13 +172,28 @@ namespace Data {
       }
       return !m_alive;
     }
+    
+	  /// @brief Boost the particle
+	  /// Source: http://www.apc.univ-paris7.fr/~franco/g4doxy4.10/html/_lorentz_vector_8cc_source.html - boost(double bx, double by, double bz)
+	  ///
+	  /// @param [in] boostVector Direction and value of the boost
+	  void boost(const Acts::Vector3D& boostVector)
+	  {
+			double b2 = boostVector.squaredNorm();
+			double ggamma = 1.0 / std::sqrt(1.0 - b2);
+			double bp = boostVector.x() * momentum().x() + boostVector.y() * momentum().y() + boostVector.z() * momentum().z();
+			double gamma2 = b2 > 0 ? (ggamma - 1.0) / b2 : 0.0;
+			
+			m_momentum = {momentum().x() + gamma2 * bp * boostVector.x() + ggamma * boostVector.x() * E(),
+						momentum().y() + gamma2 * bp * boostVector.y() + ggamma * boostVector.y() * E(),
+						momentum().z() + gamma2 * bp * boostVector.z() + ggamma * boostVector.z() * E()};
+			m_E = ggamma * (E() + bp);
+	}
 
-    /// @bref boost the particle
-    // void boost(){
-    //
-    // }
 
     /// @brief Access methods: position
+    ///
+    /// @return Position of the particle
     const Acts::Vector3D&
     position() const
     {
@@ -183,6 +201,8 @@ namespace Data {
     }
 
     /// @brief Access methods: momentum
+    ///
+    /// @return Momentum of the particle
     const Acts::Vector3D&
     momentum() const
     {
@@ -190,6 +210,8 @@ namespace Data {
     }
 
     /// @brief Access methods: p
+    ///
+    /// @return Magnitude of the momentum of the particle
     const double
     p() const
     {
@@ -197,6 +219,8 @@ namespace Data {
     }
 
     /// @brief Access methods: pT
+    ///
+    /// @return Transverse momentum of the particle
     const double
     pT() const
     {
@@ -204,6 +228,8 @@ namespace Data {
     }
 
     /// @brief Access methods: E
+    ///
+    /// @return Energy of the particle
     const double
     E() const
     {
@@ -211,6 +237,8 @@ namespace Data {
     }
 
     /// @brief Access methods: m
+    ///
+    /// @return Mass of the particle
     const double
     m() const
     {
@@ -218,6 +246,8 @@ namespace Data {
     }
 
     /// @brief Access methods: beta
+    ///
+    /// @return Beta value of the particle
     const double
     beta() const
     {
@@ -225,6 +255,8 @@ namespace Data {
     }
 
     /// @brief Access methods: gamma
+    ///
+    /// @return Gamma value of the particle
     const double
     gamma() const
     {
@@ -232,6 +264,8 @@ namespace Data {
     }
 
     /// @brief Access methods: charge
+    ///
+    /// @return Charge of the particle
     const double
     q() const
     {
@@ -239,6 +273,8 @@ namespace Data {
     }
 
     /// @brief Access methods: pdg code
+    ///
+    /// @return PDG code of the particle
     const pdg_type
     pdg() const
     {
@@ -246,6 +282,8 @@ namespace Data {
     }
 
     /// @brief Access methods: barcode
+    ///
+    /// @return Barcode of the particle
     const barcode_type
     barcode() const
     {
@@ -253,6 +291,8 @@ namespace Data {
     }
 
     /// @brief Access methods: path/X0
+    ///
+    /// @return Passed path in X0 of the particle
     const double
     pathInX0() const
     {
@@ -260,6 +300,8 @@ namespace Data {
     }
 
     /// @brief Access methods: limit/X0
+    ///
+    /// @return Path limit in X0 of the particle
     const double
     limitInX0() const
     {
@@ -267,6 +309,8 @@ namespace Data {
     }
 
     /// @brief Access methods: path/L0
+    ///
+    /// @return Passed path in L0 of the particle
     const double
     pathInL0() const
     {
@@ -274,6 +318,8 @@ namespace Data {
     }
 
     /// @brief Access methods: limit/L0
+    ///
+    /// @return Path limit in L0 of the particle
     const double
     limitInL0() const
     {
@@ -281,6 +327,8 @@ namespace Data {
     }
     
     /// @brief Access methods: time stamp
+    ///
+    /// @return Age of the particle
     const double
     timeStamp() const
     {
@@ -288,6 +336,8 @@ namespace Data {
     }
     
     /// @brief Access methods: limit/time
+    ///
+    /// @return Maximum age of the particle
     const double
     limitTime() const
     {
