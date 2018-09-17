@@ -32,8 +32,8 @@ namespace Data {
   /// can be broken, so it should update the rest (no checking done)
   class SimParticle
   {
-	
-	friend class SimParticleModifier;
+
+    friend class SimParticleModifier;
 
   public:
     /// @brief Default Constructor
@@ -207,7 +207,7 @@ namespace Data {
     {
       return m_limitInL0;
     }
-    
+
     /// @brief Access methods: time stamp
     ///
     /// @return Age of the particle
@@ -216,7 +216,7 @@ namespace Data {
     {
       return m_timeStamp;
     }
-    
+
     /// @brief Access methods: limit/time
     ///
     /// @return Maximum age of the particle
@@ -225,7 +225,7 @@ namespace Data {
     {
       return m_timeLimit;
     }
-    
+
     /// @brief boolean operator indicating the particle to be alive
     operator bool() { return m_alive; }
 

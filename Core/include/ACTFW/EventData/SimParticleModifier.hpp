@@ -38,9 +38,10 @@ namespace Data {
     /// @param [in] l0Limit the limit in L0 to be passed
     /// @param [in] timeLimit the readout time limit to be passed
     void
-    setLimits(SimParticle& particle, double x0Limit,
-              double l0Limit,
-              double timeLimit = std::numeric_limits<double>::max())
+    setLimits(SimParticle& particle,
+              double       x0Limit,
+              double       l0Limit,
+              double       timeLimit = std::numeric_limits<double>::max())
     {
       particle.m_limitInX0 = x0Limit;
       particle.m_limitInL0 = l0Limit;
@@ -54,7 +55,10 @@ namespace Data {
     /// @param [in] barcode Barcode of the particle
     /// @param [in] timeStamp Age of the particle
     void
-    place(SimParticle& particle, Acts::Vector3D position, barcode_type barcode, double timeStamp = 0.)
+    place(SimParticle&   particle,
+          Acts::Vector3D position,
+          barcode_type   barcode,
+          double         timeStamp = 0.)
     {
       particle.m_position  = std::move(position);
       particle.m_barcode   = barcode;
@@ -91,7 +95,8 @@ namespace Data {
       }
       // updatet the parameters
       particle.m_E -= deltaE;
-      particle.m_p        = std::sqrt(particle.m_E * particle.m_E - particle.m_m * particle.m_m);
+      particle.m_p = std::sqrt(particle.m_E * particle.m_E
+                               - particle.m_m * particle.m_m);
       particle.m_momentum = particle.m_p * particle.m_momentum.unit();
       particle.m_pT       = particle.m_momentum.perp();
       particle.m_beta     = (particle.m_p / particle.m_E);
@@ -110,7 +115,8 @@ namespace Data {
     ///
     /// @return break condition
     bool
-    update(SimParticle& particle, const Acts::Vector3D& position,
+    update(SimParticle&          particle,
+           const Acts::Vector3D& position,
            const Acts::Vector3D& momentum,
            double                deltaPathX0 = 0.,
            double                deltaPathL0 = 0.,
@@ -121,7 +127,8 @@ namespace Data {
       particle.m_p        = momentum.mag();
       if (particle.m_p) {
         particle.m_pT = momentum.perp();
-        particle.m_E  = std::sqrt(particle.m_p * particle.m_p + particle.m_m * particle.m_m);
+        particle.m_E  = std::sqrt(particle.m_p * particle.m_p
+                                 + particle.m_m * particle.m_m);
         particle.m_timeStamp += deltaTime;
         particle.m_beta  = (particle.m_p / particle.m_E);
         particle.m_gamma = (particle.m_E / particle.m_m);
@@ -130,31 +137,41 @@ namespace Data {
         particle.m_pathInX0 += deltaPathX0;
         particle.m_pathInL0 += deltaPathL0;
         particle.m_timeStamp += deltaTime;
-        if (particle.m_pathInX0 >= particle.m_limitInX0 || particle.m_pathInL0 >= particle.m_limitInL0
+        if (particle.m_pathInX0 >= particle.m_limitInX0
+            || particle.m_pathInL0 >= particle.m_limitInL0
             || particle.m_timeStamp > particle.m_timeLimit) {
           particle.m_alive = false;
         }
       }
       return !particle.m_alive;
     }
-    
-	  /// @brief Boost the particle
-	  /// Source: http://www.apc.univ-paris7.fr/~franco/g4doxy4.10/html/_lorentz_vector_8cc_source.html - boost(double bx, double by, double bz)
-	  ///
-	  /// @param [in, out] particle Particle that is manipulated
-	  /// @param [in] boostVector Direction and value of the boost
-	  void boost(SimParticle& particle, const Acts::Vector3D& boostVector)
-	  {
-			double b2 = boostVector.squaredNorm();
-			double ggamma = 1.0 / std::sqrt(1.0 - b2);
-			double bp = boostVector.x() * particle.m_momentum.x() + boostVector.y() * particle.m_momentum.y() + boostVector.z() * particle.m_momentum.z();
-			double gamma2 = b2 > 0 ? (ggamma - 1.0) / b2 : 0.0;
-			
-			particle.m_momentum = {particle.m_momentum.x() + gamma2 * bp * boostVector.x() + ggamma * boostVector.x() * particle.m_E,
-						particle.m_momentum.y() + gamma2 * bp * boostVector.y() + ggamma * boostVector.y() * particle.m_E,
-						particle.m_momentum.z() + gamma2 * bp * boostVector.z() + ggamma * boostVector.z() * particle.m_E};
-			particle.m_E = ggamma * (particle.m_E + bp);
-	}
+
+    /// @brief Boost the particle
+    /// Source:
+    /// http://www.apc.univ-paris7.fr/~franco/g4doxy4.10/html/_lorentz_vector_8cc_source.html
+    /// - boost(double bx, double by, double bz)
+    ///
+    /// @param [in, out] particle Particle that is manipulated
+    /// @param [in] boostVector Direction and value of the boost
+    void
+    boost(SimParticle& particle, const Acts::Vector3D& boostVector)
+    {
+      double b2     = boostVector.squaredNorm();
+      double ggamma = 1.0 / std::sqrt(1.0 - b2);
+      double bp     = boostVector.x() * particle.m_momentum.x()
+          + boostVector.y() * particle.m_momentum.y()
+          + boostVector.z() * particle.m_momentum.z();
+      double gamma2 = b2 > 0 ? (ggamma - 1.0) / b2 : 0.0;
+
+      particle.m_momentum
+          = {particle.m_momentum.x() + gamma2 * bp * boostVector.x()
+                 + ggamma * boostVector.x() * particle.m_E,
+             particle.m_momentum.y() + gamma2 * bp * boostVector.y()
+                 + ggamma * boostVector.y() * particle.m_E,
+             particle.m_momentum.z() + gamma2 * bp * boostVector.z()
+                 + ggamma * boostVector.z() * particle.m_E};
+      particle.m_E = ggamma * (particle.m_E + bp);
+    }
   };
 
 }  // end of namespace Data

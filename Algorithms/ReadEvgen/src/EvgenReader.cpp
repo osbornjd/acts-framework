@@ -9,11 +9,11 @@
 #include <iostream>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/SimParticleModifier.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/ReadEvgen/EvgenReader.hpp"
-#include "ACTFW/EventData/SimParticleModifier.hpp"
 
 FW::EvgenReader::EvgenReader(const Config&                       cfg,
                              std::unique_ptr<const Acts::Logger> logger)
@@ -91,20 +91,21 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
   // the particle counter
   barcode_type pCounter = 0;
 
-	Data::SimParticleModifier simPartMod;
+  Data::SimParticleModifier simPartMod;
 
   // lambda for vertex processing
-  auto processVertex
-      = [&evgen, &pCounter, &eCounter, &simPartMod](const Acts::Vector3D& shift,
-                                       Data::SimVertex<>& vertex,
-                                       BarcodeSvc&        barcodeSvc) -> void {
+  auto processVertex = [&evgen, &pCounter, &eCounter, &simPartMod](
+      const Acts::Vector3D& shift,
+      Data::SimVertex<>&    vertex,
+      BarcodeSvc&           barcodeSvc) -> void {
     // shift the vertex
     vertex.position = vertex.position + shift;
-    
+
     // shift and assign barcodes to outgoing particles
     for (auto& op : vertex.out) {
       // shift the particle position by the smeared vertex & set barcode
-      simPartMod.place(op, op.position() + shift, barcodeSvc.generate(eCounter, pCounter++));
+      simPartMod.place(
+          op, op.position() + shift, barcodeSvc.generate(eCounter, pCounter++));
     }
     // store the hard scatter vertices
     evgen.push_back(vertex);
