@@ -32,6 +32,8 @@ namespace Data {
   /// can be broken, so it should update the rest (no checking done)
   class SimParticle
   {
+	
+	friend class SimParticleModifier;
 
   public:
     /// @brief Default Constructor
@@ -70,126 +72,6 @@ namespace Data {
 
     /// Default
     SimParticle(const SimParticle& sp) = default;
-
-    /// @brief Set the limits
-    ///
-    /// @param [in] x0Limit the limit in X0 to be passed
-    /// @param [in] l0Limit the limit in L0 to be passed
-    /// @param [in] timeLimit the readout time limit to be passed
-    void
-    setLimits(double x0Limit,
-              double l0Limit,
-              double timeLimit = std::numeric_limits<double>::max())
-    {
-      m_limitInX0 = x0Limit;
-      m_limitInL0 = l0Limit;
-      m_timeLimit = timeLimit;
-    }
-
-    /// @brief Place the particle in the detector and set barcode
-    ///
-    /// @param [in] positon Position of the particle
-    /// @param [in] barcode Barcode of the particle
-    /// @param [in] timeStamp Age of the particle
-    void
-    place(Acts::Vector3D position, barcode_type barcode, double timeStamp = 0.)
-    {
-      m_position  = std::move(position);
-      m_barcode   = barcode;
-      m_timeStamp = timeStamp;
-    }
-
-    /// @brief Update the particle with applying scattering
-    ///
-    /// @param [in] nmomentum New momentum of the particle
-    void
-    scatter(Acts::Vector3D nmomentum)
-    {
-      m_momentum = std::move(nmomentum);
-      m_pT       = Acts::VectorHelpers::perp(m_momentum);
-    }
-
-    /// @brief Update the particle with applying energy loss
-    ///
-    /// @param [in] deltaE is the energy loss to be applied
-    void
-    energyLoss(double deltaE)
-    {
-      // particle falls to rest
-      if (m_E - deltaE < m_m) {
-        m_E        = m_m;
-        m_p        = 0.;
-        m_pT       = 0.;
-        m_beta     = 0.;
-        m_gamma    = 1.;
-        m_momentum = Acts::Vector3D(0., 0., 0.);
-        m_alive    = false;
-      }
-      // updatet the parameters
-      m_E -= deltaE;
-      m_p        = std::sqrt(m_E * m_E - m_m * m_m);
-      m_momentum = m_p * m_momentum.normalized();
-      m_pT       = Acts::VectorHelpers::perp(m_momentum);
-      m_beta     = (m_p / m_E);
-      m_gamma    = (m_E / m_m);
-    }
-
-    /// @brief Update the particle with a new position and momentum,
-    /// this corresponds to a step update
-    ///
-    /// @param [in] position New position after update
-    /// @param [in] momentum New momentum after update
-    /// @param [in] deltaPathX0 passed since last step
-    /// @param [in] deltaPathL0 passed since last step
-    /// @param [in] deltaTime The time elapsed
-    ///
-    /// @return break condition
-    bool
-    update(const Acts::Vector3D& position,
-           const Acts::Vector3D& momentum,
-           double                deltaPathX0 = 0.,
-           double                deltaPathL0 = 0.,
-           double                deltaTime   = 0.)
-    {
-      m_position = position;
-      m_momentum = momentum;
-      m_p        = momentum.norm();
-      if (m_p) {
-        m_pT = Acts::VectorHelpers::perp(momentum);
-        m_E  = std::sqrt(m_p * m_p + m_m * m_m);
-        m_timeStamp += deltaTime;
-        m_beta  = (m_p / m_E);
-        m_gamma = (m_E / m_m);
-
-        // set parameters and check limits
-        m_pathInX0 += deltaPathX0;
-        m_pathInL0 += deltaPathL0;
-        m_timeStamp += deltaTime;
-        if (m_pathInX0 >= m_limitInX0 || m_pathInL0 >= m_limitInL0
-            || m_timeStamp > m_timeLimit) {
-          m_alive = false;
-        }
-      }
-      return !m_alive;
-    }
-    
-	  /// @brief Boost the particle
-	  /// Source: http://www.apc.univ-paris7.fr/~franco/g4doxy4.10/html/_lorentz_vector_8cc_source.html - boost(double bx, double by, double bz)
-	  ///
-	  /// @param [in] boostVector Direction and value of the boost
-	  void boost(const Acts::Vector3D& boostVector)
-	  {
-			double b2 = boostVector.squaredNorm();
-			double ggamma = 1.0 / std::sqrt(1.0 - b2);
-			double bp = boostVector.x() * momentum().x() + boostVector.y() * momentum().y() + boostVector.z() * momentum().z();
-			double gamma2 = b2 > 0 ? (ggamma - 1.0) / b2 : 0.0;
-			
-			m_momentum = {momentum().x() + gamma2 * bp * boostVector.x() + ggamma * boostVector.x() * E(),
-						momentum().y() + gamma2 * bp * boostVector.y() + ggamma * boostVector.y() * E(),
-						momentum().z() + gamma2 * bp * boostVector.z() + ggamma * boostVector.z() * E()};
-			m_E = ggamma * (E() + bp);
-	}
-
 
     /// @brief Access methods: position
     ///
@@ -341,7 +223,7 @@ namespace Data {
     const double
     limitTime() const
     {
-      return m_limitTime;
+      return m_timeLimit;
     }
     
     /// @brief boolean operator indicating the particle to be alive
