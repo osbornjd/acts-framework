@@ -42,7 +42,7 @@ namespace Data {
     setLimits(SimParticle& particle,
               double       x0Limit,
               double       l0Limit,
-              double       timeLimit = std::numeric_limits<double>::max())
+              double       timeLimit = std::numeric_limits<double>::max()) const
     {
       particle.m_limitInX0 = x0Limit;
       particle.m_limitInL0 = l0Limit;
@@ -59,7 +59,7 @@ namespace Data {
     place(SimParticle&   particle,
           Acts::Vector3D position,
           barcode_type   barcode,
-          double         timeStamp = 0.)
+          double         timeStamp = 0.) const
     {
       particle.m_position  = std::move(position);
       particle.m_barcode   = barcode;
@@ -71,7 +71,7 @@ namespace Data {
     /// @param [in, out] particle Particle that is manipulated
     /// @param [in] nmomentum New momentum of the particle
     void
-    scatter(SimParticle& particle, Acts::Vector3D& nmomentum)
+    scatter(SimParticle& particle, Acts::Vector3D& nmomentum) const
     {
       particle.m_momentum = std::move(nmomentum);
       particle.m_pT       = particle.m_momentum.perp();
@@ -82,7 +82,7 @@ namespace Data {
     /// @param [in, out] particle Particle that is manipulated
     /// @param [in] deltaE is the energy loss to be applied
     void
-    energyLoss(SimParticle& particle, double deltaE)
+    energyLoss(SimParticle& particle, double deltaE) const
     {
       // particle falls to rest
       if (particle.m_E - deltaE < particle.m_m) {
@@ -121,7 +121,7 @@ namespace Data {
            const Acts::Vector3D& momentum,
            double                deltaPathX0 = 0.,
            double                deltaPathL0 = 0.,
-           double                deltaTime   = 0.)
+           double                deltaTime   = 0.) const
     {
       particle.m_position = position;
       particle.m_momentum = momentum;
@@ -155,7 +155,7 @@ namespace Data {
     /// @param [in, out] particle Particle that is manipulated
     /// @param [in] boostVector Direction and value of the boost
     void
-    boost(SimParticle& particle, const Acts::Vector3D& boostVector)
+    boost(SimParticle& particle, const Acts::Vector3D& boostVector) const
     {
       double b2     = boostVector.squaredNorm();
       double ggamma = 1.0 / std::sqrt(1.0 - b2);

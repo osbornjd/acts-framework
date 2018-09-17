@@ -11,6 +11,7 @@
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimParticleModifier.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Fatras/FatrasAlgorithm.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
@@ -140,6 +141,7 @@ setupSimulationAlgorithm(
 
   typedef Fatras::Interactor<FW::RandomEngine,
                              FW::Data::SimParticle,
+                             FW::Data::SimParticleModifier,
                              FW::Data::SimHit<FW::Data::SimParticle>,
                              FW::Data::SimHitCreator,
                              SurfaceSelector,
@@ -148,6 +150,7 @@ setupSimulationAlgorithm(
 
   typedef Fatras::Interactor<FW::RandomEngine,
                              FW::Data::SimParticle,
+                             FW::Data::SimParticleModifier,
                              FW::Data::SimHit<FW::Data::SimParticle>,
                              FW::Data::SimHitCreator>
       NeutralInteractor;
