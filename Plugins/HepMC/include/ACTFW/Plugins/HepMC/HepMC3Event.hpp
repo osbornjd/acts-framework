@@ -17,8 +17,8 @@
 #include "HepPID/ParticleIDMethods.hh"
 
 #include "ACTFW/Utilities/SimEvent.hpp"
-#include "ACTFW/Utilities/SimParticle.hpp"
-#include "ACTFW/Utilities/SimVertex.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 
 namespace FW {
 
@@ -90,7 +90,7 @@ public:
   /// @param particle new particle that will be added
   void
   addParticle(std::shared_ptr<HepMC::GenEvent>          event,
-              std::shared_ptr<Acts::ParticleProperties> particle);
+              std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Adds a new vertex
   /// @param event event in HepMC data type
@@ -98,7 +98,7 @@ public:
   /// @note The statuses are not represented in Acts and therefore set to 0
   void
   addVertex(std::shared_ptr<HepMC::GenEvent>           event,
-            const std::shared_ptr<Acts::ProcessVertex> vertex);
+            const std::shared_ptr<Data::SimVertex> vertex);
   ///
   /// Remover
   ///
@@ -108,7 +108,7 @@ public:
   /// @param particle particle that will be removed
   void
   removeParticle(std::shared_ptr<HepMC::GenEvent>                 event,
-                 const std::shared_ptr<Acts::ParticleProperties>& particle);
+                 const std::shared_ptr<Data::SimParticle>& particle);
 
   /// @brief Removes a vertex from the record
   /// @note The identification of the vertex is potentially unstable (c.f.
@@ -117,7 +117,7 @@ public:
   /// @param vertex vertex that will be removed
   void
   removeVertex(std::shared_ptr<HepMC::GenEvent>            event,
-               const std::shared_ptr<Acts::ProcessVertex>& vertex);
+               const std::shared_ptr<Data::SimVertex>& vertex);
 
   ///
   /// Getter
@@ -150,41 +150,41 @@ public:
   /// @brief Get list of particles
   /// @param event event in HepMC data type
   /// @return List of particles
-  std::vector<std::unique_ptr<Acts::ParticleProperties>>
+  std::vector<std::unique_ptr<Data::SimParticle>>
   particles(const std::shared_ptr<HepMC::GenEvent> event);
 
   /// @brief Get list of vertices
   /// @param event event in HepMC data type
   /// @return List of vertices
-  std::vector<std::unique_ptr<Acts::ProcessVertex>>
+  std::vector<std::unique_ptr<Data::SimVertex>>
   vertices(const std::shared_ptr<HepMC::GenEvent> event);
 
   /// @brief Get beam particles
   /// @param event event in HepMC data type
   /// @return List of beam particles
-  std::vector<std::unique_ptr<Acts::ParticleProperties>>
+  std::vector<std::unique_ptr<Data::SimParticle>>
   beams(const std::shared_ptr<HepMC::GenEvent> event);
 
   /// @brief Get final state particles
   /// @param event event in HepMC data type
   /// @return List of final state particles
-  std::vector<std::unique_ptr<Acts::ParticleProperties>>
+  std::vector<std::unique_ptr<Data::SimParticle>>
   finalState(const std::shared_ptr<HepMC::GenEvent> event);
 
 private:
-  /// @brief Converts an Acts::ParticleProperties into HepMC::GenParticle
+  /// @brief Converts an Data::SimParticle into HepMC::GenParticle
   /// @note The conversion ignores HepMC status codes
   /// @param actsParticle Acts particle that will be converted
   /// @return converted particle
   HepMC::GenParticlePtr
-  actsParticleToGen(std::shared_ptr<Acts::ParticleProperties> actsParticle);
+  actsParticleToGen(std::shared_ptr<Data::SimParticle> actsParticle);
 
   /// @brief Converts an Acts vertex to a HepMC::GenVertexPtr
   /// @note The conversion ignores HepMC status codes
   /// @param actsVertex Acts vertex that will be converted
   /// @return Converted Acts vertex to HepMC::GenVertexPtr
   HepMC::GenVertexPtr
-  createGenVertex(const std::shared_ptr<Acts::ProcessVertex>& actsVertex);
+  createGenVertex(const std::shared_ptr<Data::SimVertex>& actsVertex);
 
   /// @brief Compares an Acts vertex with a HepMC::GenVertex
   /// @note An Acts vertex does not store a barcode. Therefore the content of
@@ -197,7 +197,7 @@ private:
   /// @param genVertex HepMC::GenVertex
   /// @return boolean result if both vertices are identical
   bool
-  compareVertices(const std::shared_ptr<Acts::ProcessVertex>& actsVertex,
+  compareVertices(const std::shared_ptr<Data::SimVertex>& actsVertex,
                   const HepMC::GenVertexPtr&                  genVertex);
 };
 }  // FW

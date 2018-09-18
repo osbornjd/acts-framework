@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "ACTFW/Utilities/SimParticle.hpp"
-#include "ACTFW/Utilities/SimVertex.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "HepMC/FourVector.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
@@ -32,8 +32,8 @@ public:
   /// @brief Returns the particle translated into Acts
   /// @param particle HepMC::GenParticle particle
   /// @return corresponding Acts particle
-  std::unique_ptr<Acts::ParticleProperties>
-  particleProperties(const std::shared_ptr<HepMC::GenParticle> particle);
+  std::unique_ptr<Data::SimParticle>
+  particle(const std::shared_ptr<HepMC::GenParticle> particle);
 
   /// @brief Returns the id of the particle translated into Acts
   /// @param particle HepMC::GenParticle particle
@@ -44,13 +44,13 @@ public:
   /// @brief Returns the production vertex of the particle translated into Acts
   /// @param particle HepMC::GenParticle particle
   /// @return production vertex of the particle
-  std::unique_ptr<Acts::ProcessVertex>
+  std::unique_ptr<Data::SimVertex>
   productionVertex(const std::shared_ptr<HepMC::GenParticle> particle);
 
   /// @brief Returns the end vertex of the particle translated into Acts
   /// @param particle HepMC::GenParticle particle
   /// @return end vertex of the particle
-  std::unique_ptr<Acts::ProcessVertex>
+  std::unique_ptr<Data::SimVertex>
   endVertex(const std::shared_ptr<HepMC::GenParticle> particle);
 
   /// @brief Returns the PDG code of a particle translated into Acts
