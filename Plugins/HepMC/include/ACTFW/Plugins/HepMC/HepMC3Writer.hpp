@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "ACTFW/Utilities/SimWriter.hpp"
+#include "ACTFW/Utilities/SimulatedWriter.hpp"
 #include "HepMC/GenEvent.h"
 #include "HepMC/WriterAscii.h"
 

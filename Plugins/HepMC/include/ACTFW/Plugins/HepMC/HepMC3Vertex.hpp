@@ -31,7 +31,7 @@ public:
   /// @brief Returns a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return corresponding Acts vertex
-  std::unique_ptr<Data::SimVertex>
+  std::unique_ptr<Data::SimVertex<>>
   processVertex(const std::shared_ptr<HepMC::GenVertex> vertex);
 
   /// @brief Returns a boolean expression if a vertex is in an event translated
@@ -118,21 +118,21 @@ private:
   std::vector<Data::SimParticle>
   genParticlesToActs(const std::vector<HepMC::GenParticlePtr>& genParticles);
 
-  /// @brief Converts an Acts::ParticleProperties into HepMC::GenParticle
+  /// @brief Converts an Data::SimParticle into HepMC::GenParticle
   /// @note The conversion ignores HepMC status codes
   /// @param actsParticle Acts particle that will be converted
   /// @return converted particle
   HepMC::GenParticlePtr
-  actsParticleToGen(std::shared_ptr<Acts::ParticleProperties> actsParticle);
+  actsParticleToGen(std::shared_ptr<Data::SimParticle> actsParticle);
 
   /// @brief Finds a HepMC::GenParticle from a list that matches an
-  /// Acts::ParticleProperties object
+  /// Data::SimParticle object
   /// @param genParticles list of HepMC particles
   /// @param actsParticle Acts particle
   /// @return HepMC particle that matched with the Acts particle or nullptr if
   /// no match was found
   HepMC::GenParticlePtr
   matchParticles(const std::vector<HepMC::GenParticlePtr>& genParticles,
-                 std::shared_ptr<Acts::ParticleProperties> actsParticle);
+                 std::shared_ptr<Data::SimParticle> actsParticle);
 };
 }  // FW

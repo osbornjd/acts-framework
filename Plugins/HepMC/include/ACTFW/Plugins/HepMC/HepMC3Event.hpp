@@ -8,15 +8,16 @@
 
 #pragma once
 
-#include "ACTS/EventData/ParticleDefinitions.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Utilities/Units.hpp"
 #include "HepMC/FourVector.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 #include "HepPID/ParticleIDMethods.hh"
 
-#include "ACTFW/Utilities/SimEvent.hpp"
+#include "ACTFW/Utilities/SimulatedEvent.hpp"
+#include "ACTFW/Utilities/SimulatedParticle.hpp"
+#include "ACTFW/Utilities/SimulatedVertex.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 
@@ -98,7 +99,7 @@ public:
   /// @note The statuses are not represented in Acts and therefore set to 0
   void
   addVertex(std::shared_ptr<HepMC::GenEvent>           event,
-            const std::shared_ptr<Data::SimVertex> vertex);
+            const std::shared_ptr<Data::SimVertex<>> vertex);
   ///
   /// Remover
   ///
@@ -117,7 +118,7 @@ public:
   /// @param vertex vertex that will be removed
   void
   removeVertex(std::shared_ptr<HepMC::GenEvent>            event,
-               const std::shared_ptr<Data::SimVertex>& vertex);
+               const std::shared_ptr<Data::SimVertex<>>& vertex);
 
   ///
   /// Getter
@@ -156,7 +157,7 @@ public:
   /// @brief Get list of vertices
   /// @param event event in HepMC data type
   /// @return List of vertices
-  std::vector<std::unique_ptr<Data::SimVertex>>
+  std::vector<std::unique_ptr<Data::SimVertex<>>>
   vertices(const std::shared_ptr<HepMC::GenEvent> event);
 
   /// @brief Get beam particles
@@ -184,7 +185,7 @@ private:
   /// @param actsVertex Acts vertex that will be converted
   /// @return Converted Acts vertex to HepMC::GenVertexPtr
   HepMC::GenVertexPtr
-  createGenVertex(const std::shared_ptr<Data::SimVertex>& actsVertex);
+  createGenVertex(const std::shared_ptr<Data::SimVertex<>>& actsVertex);
 
   /// @brief Compares an Acts vertex with a HepMC::GenVertex
   /// @note An Acts vertex does not store a barcode. Therefore the content of
@@ -197,7 +198,7 @@ private:
   /// @param genVertex HepMC::GenVertex
   /// @return boolean result if both vertices are identical
   bool
-  compareVertices(const std::shared_ptr<Data::SimVertex>& actsVertex,
+  compareVertices(const std::shared_ptr<Data::SimVertex<>>& actsVertex,
                   const HepMC::GenVertexPtr&                  genVertex);
 };
 }  // FW

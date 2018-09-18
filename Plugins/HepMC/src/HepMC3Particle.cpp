@@ -8,11 +8,11 @@
 
 #include "ACTFW/Plugins/HepMC/HepMC3Particle.hpp"
 
-std::unique_ptr<Data::SimParticle>
-FW::SimulatedParticle<HepMC::GenParticle>::particleProperties(
+std::unique_ptr<FW::Data::SimParticle>
+FW::SimulatedParticle<HepMC::GenParticle>::particle(
     const std::shared_ptr<HepMC::GenParticle> particle)
 {
-  return std::move(std::make_unique<Acts::ParticleProperties>(
+  return std::move(std::make_unique<Data::SimParticle>(
       Data::SimParticle({0., 0., 0.}, {particle->momentum().x(),
                                 particle->momentum().y(),
                                 particle->momentum().z()},
@@ -29,7 +29,7 @@ FW::SimulatedParticle<HepMC::GenParticle>::id(
   return particle->id();
 }
 
-std::unique_ptr<Data::SimVertex>
+std::unique_ptr<FW::Data::SimVertex<>>
 FW::SimulatedParticle<HepMC::GenParticle>::productionVertex(
     const std::shared_ptr<HepMC::GenParticle> particle)
 {
@@ -43,7 +43,7 @@ FW::SimulatedParticle<HepMC::GenParticle>::productionVertex(
     return nullptr;
 }
 
-std::unique_ptr<Data::SimVertex>
+std::unique_ptr<FW::Data::SimVertex<>>
 FW::SimulatedParticle<HepMC::GenParticle>::endVertex(
     const std::shared_ptr<HepMC::GenParticle> particle)
 {

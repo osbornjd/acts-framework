@@ -9,7 +9,6 @@
 #pragma once
 
 #include <memory>
-#include "ACTS/EventData/ParticleDefinitions.hpp"
 
 #ifdef USE_HEPMC3
 #include "ACTFW/Plugins/HepMC/HepMC3Vertex.hpp"

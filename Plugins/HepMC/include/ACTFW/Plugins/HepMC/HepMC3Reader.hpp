@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "ACTFW/Utilities/SimReader.hpp"
+#include "ACTFW/Utilities/SimulatedReader.hpp"
 #include "HepMC/GenEvent.h"
 #include "HepMC/ReaderAscii.h"
 
