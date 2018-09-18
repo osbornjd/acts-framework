@@ -7,7 +7,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include "Acts/Utilities/Helpers.hpp"
 #include <TFile.h>
 #include <TTree.h>
 #include <ios>

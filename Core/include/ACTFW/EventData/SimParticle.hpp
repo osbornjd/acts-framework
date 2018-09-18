@@ -16,7 +16,6 @@
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
-#include "Acts/Utilities/Helpers.hpp"
 
 namespace FW {
 

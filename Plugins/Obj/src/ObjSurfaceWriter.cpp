@@ -99,8 +99,8 @@ FW::Obj::ObjSurfaceWriter::write(const AlgorithmContext& context,
                  << cylinderBounds->r());
     // name the object
     auto layerID = surface.geoID().value(Acts::GeometryID::layer_mask);
-    (*(m_cfg.outputStream))
-        << " o Cylinder_" << std::to_string(layerID) << '\n';
+    (*(m_cfg.outputStream)) << " o Cylinder_" << std::to_string(layerID)
+                            << '\n';
     // output to the file
     Obj::writeTube(*(m_cfg.outputStream),
                    m_vtnCounter,
