@@ -1,6 +1,6 @@
-// This file is part of the ACTS project.
+// This file is part of the Acts project.
 //
-// Copyright (C) 2017 ACTS project team
+// Copyright (C) 2017 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,15 +10,15 @@
 #include <ios>
 #include <iostream>
 #include <stdexcept>
-#include "ACTS/Layers/Layer.hpp"
-#include "ACTS/Surfaces/CylinderBounds.hpp"
-#include "ACTS/Surfaces/PlanarBounds.hpp"
-#include "ACTS/Surfaces/RadialBounds.hpp"
-#include "ACTS/Surfaces/SurfaceBounds.hpp"
-#include "ACTS/Utilities/GeometryID.hpp"
+#include "Acts/Layers/Layer.hpp"
+#include "Acts/Surfaces/CylinderBounds.hpp"
+#include "Acts/Surfaces/PlanarBounds.hpp"
+#include "Acts/Surfaces/RadialBounds.hpp"
+#include "Acts/Surfaces/SurfaceBounds.hpp"
+#include "Acts/Utilities/GeometryID.hpp"
 
-FWObj::ObjSurfaceWriter::ObjSurfaceWriter(
-    const FWObj::ObjSurfaceWriter::Config& cfg)
+FW::Obj::ObjSurfaceWriter::ObjSurfaceWriter(
+    const FW::Obj::ObjSurfaceWriter::Config& cfg)
   : FW::IWriterT<Acts::Surface>(), m_cfg(cfg)
 {
   // Validate the configuration
@@ -35,17 +35,16 @@ FWObj::ObjSurfaceWriter::ObjSurfaceWriter(
 }
 
 std::string
-FWObj::ObjSurfaceWriter::name() const
+FW::Obj::ObjSurfaceWriter::name() const
 {
   return m_cfg.name;
 }
 
 FW::ProcessCode
-FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
+FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
 {
   std::lock_guard<std::mutex> lock(m_write_mutex);
 
-  // check
   ACTS_DEBUG(">>Obj: Writer for Surface object called.");
 
   auto scalor = m_cfg.outputScalor;
@@ -81,12 +80,12 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
       vfaces    = {1, 1, 1, 1};
     }
     // output to file
-    FWObjHelper::writePlanarFace(*(m_cfg.outputStream),
-                                 m_vtnCounter,
-                                 scalor,
-                                 vertices,
-                                 thickness,
-                                 vfaces);
+    Obj::writePlanarFace(*(m_cfg.outputStream),
+                         m_vtnCounter,
+                         scalor,
+                         vertices,
+                         thickness,
+                         vfaces);
     (*(m_cfg.outputStream)) << '\n';
   }
 
@@ -99,17 +98,17 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
                  << cylinderBounds->r());
     // name the object
     auto layerID = surface.geoID().value(Acts::GeometryID::layer_mask);
-    (*(m_cfg.outputStream))
-        << " o Cylinder_" << std::to_string(layerID) << '\n';
+    (*(m_cfg.outputStream)) << " o Cylinder_" << std::to_string(layerID)
+                            << '\n';
     // output to the file
-    FWObjHelper::writeTube(*(m_cfg.outputStream),
-                           m_vtnCounter,
-                           scalor,
-                           m_cfg.outputPhiSegemnts,
-                           sTransform,
-                           cylinderBounds->r(),
-                           cylinderBounds->halflengthZ(),
-                           m_cfg.outputThickness);
+    Obj::writeTube(*(m_cfg.outputStream),
+                   m_vtnCounter,
+                   scalor,
+                   m_cfg.outputPhiSegemnts,
+                   sTransform,
+                   cylinderBounds->r(),
+                   cylinderBounds->halflengthZ(),
+                   m_cfg.outputThickness);
     (*(m_cfg.outputStream)) << '\n';
   }
 
@@ -127,14 +126,14 @@ FWObj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     double rMax      = radialBounds->rMax();
     double thickness = rMax - rMin;
     // output to the file
-    FWObjHelper::writeTube(*(m_cfg.outputStream),
-                           m_vtnCounter,
-                           scalor,
-                           m_cfg.outputPhiSegemnts,
-                           sTransform,
-                           0.5 * (rMin + rMax),
-                           m_cfg.outputThickness,
-                           thickness);
+    Obj::writeTube(*(m_cfg.outputStream),
+                   m_vtnCounter,
+                   scalor,
+                   m_cfg.outputPhiSegemnts,
+                   sTransform,
+                   0.5 * (rMin + rMax),
+                   m_cfg.outputThickness,
+                   thickness);
     (*(m_cfg.outputStream)) << '\n';
   }
 
