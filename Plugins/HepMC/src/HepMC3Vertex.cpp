@@ -18,8 +18,8 @@ FW::SimulatedVertex<HepMC::GenVertex>::genParticlesToActs(
   std::vector<Data::SimParticle> actsParticles;
   // Translate all particles
   for (auto& genParticle : genParticles)
-    actsParticles.push_back(*(simPart.particle(
-        std::make_shared<HepMC::GenParticle>(*genParticle))));
+    actsParticles.push_back(*(
+        simPart.particle(std::make_shared<HepMC::GenParticle>(*genParticle))));
   return actsParticles;
 }
 
@@ -101,7 +101,7 @@ FW::SimulatedVertex<HepMC::GenVertex>::actsParticleToGen(
 
 void
 FW::SimulatedVertex<HepMC::GenVertex>::addParticleIn(
-    std::shared_ptr<HepMC::GenVertex>         vertex,
+    std::shared_ptr<HepMC::GenVertex>  vertex,
     std::shared_ptr<Data::SimParticle> particle)
 {
   vertex->add_particle_in(actsParticleToGen(particle));
@@ -109,7 +109,7 @@ FW::SimulatedVertex<HepMC::GenVertex>::addParticleIn(
 
 void
 FW::SimulatedVertex<HepMC::GenVertex>::addParticleOut(
-    std::shared_ptr<HepMC::GenVertex>         vertex,
+    std::shared_ptr<HepMC::GenVertex>  vertex,
     std::shared_ptr<Data::SimParticle> particle)
 {
   vertex->add_particle_out(actsParticleToGen(particle));
@@ -118,7 +118,7 @@ FW::SimulatedVertex<HepMC::GenVertex>::addParticleOut(
 HepMC::GenParticlePtr
 FW::SimulatedVertex<HepMC::GenVertex>::matchParticles(
     const std::vector<HepMC::GenParticlePtr>& genParticles,
-    std::shared_ptr<Data::SimParticle> actsParticle)
+    std::shared_ptr<Data::SimParticle>        actsParticle)
 {
   const barcode_type id = actsParticle->barcode();
   // Search HepMC::GenParticle with the same id as the Acts particle
@@ -131,7 +131,7 @@ FW::SimulatedVertex<HepMC::GenVertex>::matchParticles(
 
 void
 FW::SimulatedVertex<HepMC::GenVertex>::removeParticleIn(
-    std::shared_ptr<HepMC::GenVertex>         vertex,
+    std::shared_ptr<HepMC::GenVertex>  vertex,
     std::shared_ptr<Data::SimParticle> particle)
 {
   // Remove particle if it exists
@@ -142,7 +142,7 @@ FW::SimulatedVertex<HepMC::GenVertex>::removeParticleIn(
 
 void
 FW::SimulatedVertex<HepMC::GenVertex>::removeParticleOut(
-    std::shared_ptr<HepMC::GenVertex>         vertex,
+    std::shared_ptr<HepMC::GenVertex>  vertex,
     std::shared_ptr<Data::SimParticle> particle)
 {
   // Remove particle if it exists

@@ -15,11 +15,11 @@
 #include "HepMC/GenVertex.h"
 #include "HepPID/ParticleIDMethods.hh"
 
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Utilities/SimulatedEvent.hpp"
 #include "ACTFW/Utilities/SimulatedParticle.hpp"
 #include "ACTFW/Utilities/SimulatedVertex.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimVertex.hpp"
 
 namespace FW {
 
@@ -90,7 +90,7 @@ public:
   /// @param event event in HepMC data type
   /// @param particle new particle that will be added
   void
-  addParticle(std::shared_ptr<HepMC::GenEvent>          event,
+  addParticle(std::shared_ptr<HepMC::GenEvent>   event,
               std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Adds a new vertex
@@ -98,7 +98,7 @@ public:
   /// @param vertex new vertex that will be added
   /// @note The statuses are not represented in Acts and therefore set to 0
   void
-  addVertex(std::shared_ptr<HepMC::GenEvent>           event,
+  addVertex(std::shared_ptr<HepMC::GenEvent>         event,
             const std::shared_ptr<Data::SimVertex<>> vertex);
   ///
   /// Remover
@@ -108,7 +108,7 @@ public:
   /// @param event event in HepMC data type
   /// @param particle particle that will be removed
   void
-  removeParticle(std::shared_ptr<HepMC::GenEvent>                 event,
+  removeParticle(std::shared_ptr<HepMC::GenEvent>          event,
                  const std::shared_ptr<Data::SimParticle>& particle);
 
   /// @brief Removes a vertex from the record
@@ -117,7 +117,7 @@ public:
   /// @param event event in HepMC data type
   /// @param vertex vertex that will be removed
   void
-  removeVertex(std::shared_ptr<HepMC::GenEvent>            event,
+  removeVertex(std::shared_ptr<HepMC::GenEvent>          event,
                const std::shared_ptr<Data::SimVertex<>>& vertex);
 
   ///
@@ -199,6 +199,6 @@ private:
   /// @return boolean result if both vertices are identical
   bool
   compareVertices(const std::shared_ptr<Data::SimVertex<>>& actsVertex,
-                  const HepMC::GenVertexPtr&                  genVertex);
+                  const HepMC::GenVertexPtr&                genVertex);
 };
 }  // FW

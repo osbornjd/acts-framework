@@ -13,13 +13,14 @@ FW::SimulatedParticle<HepMC::GenParticle>::particle(
     const std::shared_ptr<HepMC::GenParticle> particle)
 {
   return std::move(std::make_unique<Data::SimParticle>(
-      Data::SimParticle({0., 0., 0.}, {particle->momentum().x(),
-                                particle->momentum().y(),
-                                particle->momentum().z()},
-                               particle->generated_mass(),
-                               HepPID::charge(particle->pid()),
-                               particle->pid(),
-                               particle->id())));
+      Data::SimParticle({0., 0., 0.},
+                        {particle->momentum().x(),
+                         particle->momentum().y(),
+                         particle->momentum().z()},
+                        particle->generated_mass(),
+                        HepPID::charge(particle->pid()),
+                        particle->pid(),
+                        particle->id())));
 }
 
 int
