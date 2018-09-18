@@ -8,6 +8,7 @@
 
 #include <ios>
 #include <stdexcept>
+#include "Acts/Utilities/Helpers.hpp"
 
 #include "Acts/Utilities/Helpers.hpp"
 
