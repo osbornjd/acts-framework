@@ -17,6 +17,7 @@ FW::Root::RootExCellWriter<parameters_t>::writeT(
     const FW::AlgorithmContext&                               ctx,
     const std::vector<Acts::ExtrapolationCell<parameters_t>>& ecells)
 {
+
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
   // Get the event number
@@ -169,13 +170,13 @@ FW::Root::RootExCellWriter<parameters_t>::RootExCellWriter(
   // Setup ROOT I/O
   if (m_outputFile == nullptr) {
     m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
-    if (!m_outputFile) {
+    if (m_outputFile == nullptr) {
       throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
     }
     m_outputFile->cd();
-  } else
-    m_outputTree = new TTree(m_cfg.treeName.c_str(),
-                             "TTree from RootPlanarClusterWriter");
+  }
+  m_outputTree
+      = new TTree(m_cfg.treeName.c_str(), "TTree from RootPlanarClusterWriter");
   if (!m_outputTree) throw std::bad_alloc();
 
   // Event parameters
