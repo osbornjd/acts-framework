@@ -131,11 +131,13 @@ namespace DD4hep {
     dd4hep::CartesianGridXY cartesianGrid = segmentation;
     if (cartesianGrid.isValid()) {
       // the Acts segmentation of the DigitizationModule
-      size_t bins0 = (cartesianGrid.gridSizeX() != 0)
-          ? halflengthX / cartesianGrid.gridSizeX()
+      double gridSizeX = cartesianGrid.gridSizeX() * scalor;
+      double gridSizeY = cartesianGrid.gridSizeY() * scalor;
+      size_t bins0     = (cartesianGrid.gridSizeX() != 0)
+          ? (2 * halflengthX) / gridSizeX
           : 0;
       size_t bins1 = (cartesianGrid.gridSizeY() != 0)
-          ? halflengthY / cartesianGrid.gridSizeY()
+          ? (2 * halflengthY) / gridSizeY
           : 0;
 
       std::shared_ptr<const Acts::CartesianSegmentation> actsSegmentation
@@ -181,11 +183,13 @@ namespace DD4hep {
     dd4hep::CartesianGridXY cartesianGrid = segmentation;
     if (cartesianGrid.isValid()) {
       // the Acts segmentation of the DigitizationModule
-      size_t bins0 = (cartesianGrid.gridSizeX() != 0)
-          ? maxHalflengthX / cartesianGrid.gridSizeX()
+      double gridSizeX = cartesianGrid.gridSizeX() * scalor;
+      double gridSizeY = cartesianGrid.gridSizeY() * scalor;
+      size_t bins0     = (cartesianGrid.gridSizeX() != 0)
+          ? (2 * maxHalflengthX) / gridSizeX
           : 0;
       size_t bins1 = (cartesianGrid.gridSizeY() != 0)
-          ? halflengthY / cartesianGrid.gridSizeY()
+          ? (2 * halflengthY) / gridSizeY
           : 0;
 
       std::shared_ptr<const Acts::CartesianSegmentation> actsSegmentation
