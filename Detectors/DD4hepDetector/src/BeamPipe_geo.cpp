@@ -24,11 +24,7 @@ create_element(Detector& lcdd, xml_h e, SensitiveDetector sens)
   volConfig.isBeampipe           = true;
   Acts::ActsExtension* detvolume = new Acts::ActsExtension(volConfig);
   beamtube.addExtension<Acts::IActsExtension>(detvolume);
-  // get status for the RecoGeometry
-  xml_comp_t x_status = x_det.child(_U(status));
-  int        status   = x_status.id();
-  // add Extension to Detlement for the RecoGeometry
-  // @TODO
+
   dd4hep::xml::Dimension x_det_dim(x_det.dimensions());
   Tube   tube_shape(x_det_dim.rmin(), x_det_dim.rmax(), x_det_dim.z());
   Volume tube_vol(
