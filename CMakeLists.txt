@@ -41,6 +41,8 @@ if(USE_DD4HEP)
 endif()
 if(USE_PYTHIA8)
   list(APPEND ROOT_COMPONENTS EG)
+  # needs fatras
+  set(USE_FATRAS ON)
 endif()
 
 # use install paths consistent w/ ACTS
@@ -98,10 +100,9 @@ if(BUILD_ACTS)
   add_subdirectory(external/acts-core)
 else()
   message(STATUS "Using external Acts core installation")
-  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialPlugin TGeoPlugin DD4hepPlugin IdentifierPlugin DigitizationPlugin)
+  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin IdentificationPlugin TGeoPlugin DD4hepPlugin DigitizationPlugin)
 endif()
 
-add_subdirectory_if(external/acts-fatras USE_FATRAS)
 
 # simplify handling of optional components
 # all arguments after the path are evaluated in the if(...) context
@@ -114,6 +115,8 @@ function(add_subdirectory_if path)
     message(STATUS "Disable component '${_name}'")
   endif()
 endfunction()
+
+add_subdirectory_if(external/acts-fatras USE_FATRAS)
 
 add_subdirectory(Core)
 add_subdirectory(Detectors)

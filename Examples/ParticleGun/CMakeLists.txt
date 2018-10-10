@@ -4,7 +4,7 @@ add_executable(ACTFWParticleGunExample ${src_files})
 target_include_directories(ACTFWParticleGunExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWParticleGunExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWParticleGun ACTFWReadEvgen)
 target_link_libraries(ACTFWParticleGunExample PRIVATE ACTFWRootPlugin ACTFWCsvPlugin)
-target_link_libraries(ACTFWParticleGunExample PRIVATE Acts::Core Fatras::Core)
+target_link_libraries(ACTFWParticleGunExample PRIVATE ActsCore FatrasCore)
 target_link_libraries(ACTFWParticleGunExample PRIVATE ${Boost_LIBRARIES})
 
 install(TARGETS ACTFWParticleGunExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

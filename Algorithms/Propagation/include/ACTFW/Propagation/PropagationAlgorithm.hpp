@@ -26,6 +26,7 @@
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
 
 /// @brief this test algorithm performs test propagation

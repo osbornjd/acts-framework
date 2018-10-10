@@ -17,6 +17,7 @@
 #include "ACTFW/Plugins/Obj/ObjHelper.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
@@ -129,22 +130,22 @@ namespace Obj {
       auto sPosition = eCell.startParameters->position();
       auto sMomentum = eCell.startParameters->momentum();
       // The momentum & vertex cut
-      if (sMomentum.perp() < m_cfg.outputPtCut) continue;
-      if (sPosition.perp() > m_cfg.outputMaxVr) continue;
+      if (Acts::VectorHelpers::perp(sMomentum) < m_cfg.outputPtCut) continue;
+      if (Acts::VectorHelpers::perp(sPosition) > m_cfg.outputMaxVr) continue;
 
       // Remember the first counter - for obj lines
       size_t fCounter = vCounter;
 
       // Loop over extrapolation steps - add bezier points
       auto lPosition  = eCell.startParameters->position();
-      auto lDirection = sMomentum.unit();
+      auto lDirection = sMomentum.normalized();
 
       for (auto& es : eCell.extrapolationSteps) {
         if (es.parameters) {
           // Take the step parameters
           const T& pars       = (*es.parameters);
           auto     tPosition  = pars.position();
-          auto     tDirection = pars.momentum().unit();
+          auto     tDirection = pars.momentum().normalized();
           // Don't write the start position another time
           if (tPosition == sPosition) continue;
           // Write the start parameters because
@@ -161,7 +162,7 @@ namespace Obj {
           if (m_cfg.outputBezierSegment > 0.) {
             // construct P1 and P2
             // we take the nominal distance divided by segments
-            double nDist = (tPosition - lPosition).mag();
+            double nDist = (tPosition - lPosition).norm();
             // calculate the number of segments
             size_t segments = size_t(nDist / m_cfg.outputBezierSegment);
             if (segments > 1) {

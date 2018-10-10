@@ -27,6 +27,10 @@
 #include "Acts/Utilities/BinnedArray.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 
+using Acts::VectorHelpers::eta;
+using Acts::VectorHelpers::phi;
+using Acts::VectorHelpers::perp;
+
 FW::Generic::GenericLayerBuilder::GenericLayerBuilder(
     const FW::Generic::GenericLayerBuilder::Config& glbConfig,
     std::unique_ptr<const Acts::Logger>             log)
@@ -147,7 +151,7 @@ FW::Generic::GenericLayerBuilder::constructLayers()
       // loop over the position, create the modules
       for (auto& moduleCenter : m_cfg.centralModulePositions.at(icl)) {
         // create the association transform
-        double modulePhi = moduleCenter.phi();
+        double modulePhi = phi(moduleCenter);
         // the local z axis is the normal vector
         Acts::Vector3D moduleLocalZ(
             cos(modulePhi + modulePhiTilt), sin(modulePhi + modulePhiTilt), 0.);
@@ -163,9 +167,9 @@ FW::Generic::GenericLayerBuilder::constructLayers()
         moduleRotation.col(1) = moduleLocalY;
         moduleRotation.col(2) = moduleLocalZ;
         // get the moduleTransform
-        std::shared_ptr<Acts::Transform3D> mutableModuleTransform(
-            new Acts::Transform3D(
-                Acts::getTransformFromRotTransl(moduleRotation, moduleCenter)));
+        std::shared_ptr<Acts::Transform3D> mutableModuleTransform
+            = std::make_shared<Acts::Transform3D>(
+                Acts::Translation3D(moduleCenter) * moduleRotation);
         // stereo angle if necessary
         if (m_cfg.centralModuleFrontsideStereo.size()
             && m_cfg.centralModuleFrontsideStereo.at(icl) != 0.) {
@@ -203,9 +207,8 @@ FW::Generic::GenericLayerBuilder::constructLayers()
           moduleIdentifier = Identifier(Identifier::identifier_type(imodule));
           moduleCenter     = moduleCenter
               + m_cfg.centralModuleBacksideGap.at(icl) * moduleLocalZ;
-          mutableModuleTransform = std::shared_ptr<Acts::Transform3D>(
-              new Acts::Transform3D(Acts::getTransformFromRotTransl(
-                  moduleRotation, moduleCenter)));
+          mutableModuleTransform = std::make_shared<Acts::Transform3D>(
+              Acts::Translation3D(moduleCenter) * moduleRotation);
           // apply the stereo
           if (m_cfg.centralModuleBacksideStereo.size()) {
             // twist by the stereo angle
@@ -363,7 +366,7 @@ FW::Generic::GenericLayerBuilder::constructLayers()
         // low loop over the phi positions and build the stuff
         for (auto& ringModulePosition : discModulePositions) {
           // the module transform from the position
-          double modulePhi = ringModulePosition.phi();
+          double modulePhi = phi(ringModulePosition);
           // the center position of the modules
           Acts::Vector3D pModuleCenter(ringModulePosition);
           // take the mirrored position wrt x/y
@@ -389,12 +392,12 @@ FW::Generic::GenericLayerBuilder::constructLayers()
           pModuleRotation.col(1) = moduleLocalY;
           pModuleRotation.col(2) = pModuleLocalZ;
           // the transforms for the two modules
-          std::shared_ptr<const Acts::Transform3D> nModuleTransform(
-              new Acts::Transform3D(Acts::getTransformFromRotTransl(
-                  nModuleRotation, nModuleCenter)));
-          std::shared_ptr<const Acts::Transform3D> pModuleTransform(
-              new Acts::Transform3D(Acts::getTransformFromRotTransl(
-                  pModuleRotation, pModuleCenter)));
+          std::shared_ptr<const Acts::Transform3D> nModuleTransform
+              = std::make_shared<const Acts::Transform3D>(
+                  Acts::Translation3D(nModuleCenter) * nModuleRotation);
+          std::shared_ptr<const Acts::Transform3D> pModuleTransform
+              = std::make_shared<const Acts::Transform3D>(
+                  Acts::Translation3D(pModuleCenter) * pModuleRotation);
           // create the modules identifier @todo Idenfier service
           Identifier nModuleIdentifier
               = Identifier(Identifier::identifier_type(2 * imodule));
@@ -432,12 +435,10 @@ FW::Generic::GenericLayerBuilder::constructLayers()
                 + m_cfg.posnegModuleBacksideGap.at(ipnl).at(ipnR)
                     * pModuleLocalZ;
             // the new transforms
-            auto mutableNModuleTransform = std::shared_ptr<Acts::Transform3D>(
-                new Acts::Transform3D(Acts::getTransformFromRotTransl(
-                    nModuleRotation, nModuleCenter)));
-            auto mutablePModuleTransform = std::shared_ptr<Acts::Transform3D>(
-                new Acts::Transform3D(Acts::getTransformFromRotTransl(
-                    pModuleRotation, pModuleCenter)));
+            auto mutableNModuleTransform = std::make_shared<Acts::Transform3D>(
+                Acts::Translation3D(nModuleCenter) * nModuleRotation);
+            auto mutablePModuleTransform = std::make_shared<Acts::Transform3D>(
+                Acts::Translation3D(pModuleCenter) * pModuleRotation);
             // apply the stereo
             if (m_cfg.posnegModuleBacksideStereo.size()) {
               // twist by the stereo angle

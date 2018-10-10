@@ -70,7 +70,8 @@ PropagationAlgorithm<propagator_t>::executeTest(
 
     // Activate loop protection at some pt value
     options.loopProtection
-        = (startParameters.momentum().perp() < m_cfg.ptLoopers);
+        = (Acts::VectorHelpers::perp(startParameters.momentum())
+           < m_cfg.ptLoopers);
 
     // Set a maximum step size
     options.maxStepSize = m_cfg.maxStepSize;

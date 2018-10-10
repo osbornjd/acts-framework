@@ -11,6 +11,7 @@
 #include <sstream>
 #include <stdexcept>
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "TFile.h"
 
@@ -237,7 +238,7 @@ FW::BField::RootInterpolatedBFieldWriter::run(
             z           = raw_z / Acts::units::_mm;
             r           = raw_r / Acts::units::_mm;
             Bz          = bField.z() / Acts::units::_T;
-            Br          = bField.perp() / Acts::units::_T;
+            Br          = VectorHelpers::perp(bField) / Acts::units::_T;
             outputTree->Fill();
           }
         }
