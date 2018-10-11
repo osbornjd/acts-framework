@@ -84,18 +84,18 @@ namespace Root {
     float      m_px{0.};               ///< Momentum position x
     float      m_py{0.};               ///< Momentum position y
     float      m_pz{0.};               ///< Momentum position z
-    float      m_pT{0.};         ///< Momentum position transverse component
-    float      m_eta{0.};        ///< Momentum direction eta
-    float      m_phi{0.};        ///< Momentum direction phi
-    float      m_mass{0.};       ///< Particle mass
-    int        m_charge{0};      ///< Particle charge
-    int        m_pdgCode{0};     ///< Particle pdg code
-    int        m_barcode{0};     ///< Particle barcode
-    int        m_vertex{0};      ///< Barcode vertex generation
-    int        m_primary{0};     ///< Barcode primary identifcation
-    int        m_generation{0};  ///< Barcode generation
-    int        m_secondary{0};   ///< Barcode secondary identification
-    int        m_process{0};     ///< Barcode process production
+    float      m_pT{0.};            ///< Momentum position transverse component
+    float      m_eta{0.};           ///< Momentum direction eta
+    float      m_phi{0.};           ///< Momentum direction phi
+    float      m_mass{0.};          ///< Particle mass
+    int        m_charge{0};         ///< Particle charge
+    int        m_pdgCode{0};        ///< Particle pdg code
+    unsigned long m_barcode{0};     ///< Particle barcode
+    int           m_vertex{0};      ///< Barcode vertex generation
+    int           m_primary{0};     ///< Barcode primary identifcation
+    int           m_generation{0};  ///< Barcode generation
+    int           m_secondary{0};   ///< Barcode secondary identification
+    int           m_process{0};     ///< Barcode process production
   };
 
 }  // namespace Root

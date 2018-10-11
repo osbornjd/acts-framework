@@ -57,7 +57,7 @@ FW::Root::RootParticleWriter::RootParticleWriter(
     m_outputTree->Branch("charge", &m_charge);
     m_outputTree->Branch("mass", &m_mass);
     m_outputTree->Branch("pdg", &m_pdgCode);
-    m_outputTree->Branch("barcode", &m_barcode);
+    m_outputTree->Branch("barcode", &m_barcode, "barcode/l");
     m_outputTree->Branch("vertex", &m_vertex);
     m_outputTree->Branch("primary", &m_primary);
     m_outputTree->Branch("generation", &m_generation);
