@@ -124,11 +124,11 @@ extrapolationExample(int                argc,
     // Ec for charged particles
     FW::Root::RootExCellWriter<Acts::TrackParameters>::Config
         eccWriterRootConfig;
-    eccWriterRootConfig.filePath       = FW::joinPaths(outputDir, ecc + ".obj");
-    eccWriterRootConfig.treeName       = ecc;
-    eccWriterRootConfig.collection     = ecc;
-    eccWriterRootConfig.writeBoundary  = false;
-    eccWriterRootConfig.writeMaterial  = true;
+    eccWriterRootConfig.filePath      = FW::joinPaths(outputDir, ecc + ".root");
+    eccWriterRootConfig.treeName      = ecc;
+    eccWriterRootConfig.collection    = ecc;
+    eccWriterRootConfig.writeBoundary = false;
+    eccWriterRootConfig.writeMaterial = true;
     eccWriterRootConfig.writeSensitive = true;
     eccWriterRootConfig.writePassive   = true;
     auto eccWriterRoot
@@ -138,11 +138,11 @@ extrapolationExample(int                argc,
     // Ec for neutral particles
     FW::Root::RootExCellWriter<Acts::NeutralParameters>::Config
         ecnWriterRootConfig;
-    ecnWriterRootConfig.filePath       = FW::joinPaths(outputDir, ecn + ".obj");
-    ecnWriterRootConfig.treeName       = ecn;
-    ecnWriterRootConfig.collection     = ecn;
-    ecnWriterRootConfig.writeBoundary  = false;
-    ecnWriterRootConfig.writeMaterial  = true;
+    ecnWriterRootConfig.filePath      = FW::joinPaths(outputDir, ecn + ".root");
+    ecnWriterRootConfig.treeName      = ecn;
+    ecnWriterRootConfig.collection    = ecn;
+    ecnWriterRootConfig.writeBoundary = false;
+    ecnWriterRootConfig.writeMaterial = true;
     ecnWriterRootConfig.writeSensitive = true;
     ecnWriterRootConfig.writePassive   = true;
     auto ecnWriterRoot
@@ -153,7 +153,7 @@ extrapolationExample(int                argc,
   }
 
   // Write OBJ Files
-  if (vm["output-root"].as<bool>()) {
+  if (vm["output-obj"].as<bool>()) {
 
     // Ec for charged particles
     FW::Obj::ObjExCellWriter<Acts::TrackParameters>::Config eccWriterObjConfig;
