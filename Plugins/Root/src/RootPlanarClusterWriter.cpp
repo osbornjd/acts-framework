@@ -155,10 +155,10 @@ FW::Root::RootPlanarClusterWriter::writeT(
           Identifier hitIdentifier = cluster.identifier();
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
-          for (auto& sPartilce : hitIdentifier.truthParticles()) {
+          for (auto& sParticle : hitIdentifier.truthParticles()) {
             // positon
-            const Acts::Vector3D& sPosition = sPartilce->position();
-            const Acts::Vector3D& sMomentum = sPartilce->momentum();
+            const Acts::Vector3D& sPosition = sParticle->position();
+            const Acts::Vector3D& sMomentum = sParticle->momentum();
             // local position to be calculated
             Acts::Vector2D lPosition;
             clusterSurface.globalToLocal(sPosition, sMomentum, lPosition);
@@ -168,7 +168,7 @@ FW::Root::RootPlanarClusterWriter::writeT(
             m_t_gz.push_back(sPosition.z());
             m_t_lx.push_back(lPosition.x());
             m_t_ly.push_back(lPosition.y());
-            m_t_barcode.push_back(sPartilce->barcode());
+            m_t_barcode.push_back(sParticle->barcode());
           }
           // fill the tree
           m_outputTree->Fill();
