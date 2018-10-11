@@ -68,7 +68,7 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
   m_outputTree->Branch("truth_g_z", &m_t_gz);
   m_outputTree->Branch("truth_l_x", &m_t_lx);
   m_outputTree->Branch("truth_l_y", &m_t_ly);
-  m_outputTree->Branch("truth_barcode", &m_t_barcode);
+  m_outputTree->Branch("truth_barcode", &m_t_barcode, "truth_barcode/l");
 }
 
 FW::Root::RootPlanarClusterWriter::~RootPlanarClusterWriter()

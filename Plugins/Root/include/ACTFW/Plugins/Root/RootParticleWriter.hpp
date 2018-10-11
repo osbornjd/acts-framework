@@ -90,7 +90,7 @@ namespace Root {
     float      m_mass{0.};       ///< Particle mass
     int        m_charge{0};      ///< Particle charge
     int        m_pdgCode{0};     ///< Particle pdg code
-    int        m_barcode{0};     ///< Particle barcode
+    unsigned long m_barcode{0};  ///< Particle barcode
     int        m_vertex{0};      ///< Barcode vertex generation
     int        m_primary{0};     ///< Barcode primary identifcation
     int        m_generation{0};  ///< Barcode generation
