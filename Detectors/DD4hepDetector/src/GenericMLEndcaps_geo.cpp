@@ -15,9 +15,11 @@ using namespace std;
 using namespace dd4hep;
 
 /**
- Constructor for a disc like endcap volume, possibly containing layers and the
- layers possibly containing modules. Both endcaps, the positive and negative can
- be build with this constructor. Atlas like style
+ Constructor for a disc two like endcap volumes, possibly containing layers and
+ the layers possibly containing modules. Both endcaps, the positive and negative
+ can be build with this constructor. Atlas like style. This constructor was
+ specifically introduced for the TrackML detector, building both the endcap on
+ the negative and the positive side.
  */
 
 static Ref_t
@@ -44,11 +46,12 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
   // go trough possible layers
   size_t layerNumber = 0;
   for (xml_coll_t j(xml, _U(layer)); j; ++j) {
-    xml_comp_t x_layer      = j;
-    double     layerRmin    = x_layer.inner_r();
-    double     layerRmax    = x_layer.outer_r();
-    double     layerLength  = x_layer.dz();
-    double     ringStaggerZ = x_layer.z_offset();
+    xml_comp_t x_layer = j;
+    // get the dimensions of the layer;
+    double layerRmin    = x_layer.inner_r();
+    double layerRmax    = x_layer.outer_r();
+    double layerLength  = x_layer.dz();
+    double ringStaggerZ = x_layer.z_offset();
     // Create Volume and DetElement for Layer
     string layerName = detName + _toString((int)layerNumber, "layer%d");
     Volume layerVolume(layerName,
@@ -60,16 +63,20 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     int radialModuleCounter = 0;
     // go trough possible modules
     if (x_layer.hasChild(_U(module))) {
+      // radial placement of modules
       for (xml_coll_t i(x_layer, _U(module)); i; i++) {
         // The module
-        xml_comp_t x_module    = i;
-        int        repeat      = x_module.repeat();
-        double     deltaphi    = 2. * M_PI / repeat;
-        double     minPhi      = -M_PI + 0.5 * deltaphi;
-        double     radius      = x_module.radius();
-        double     staggerZ    = x_module.z_offset();
-        double     subStaggerZ = x_module.dz();
-        double     zPosRing = (radialModuleCounter % 2) ? (0.5 * ringStaggerZ)
+        xml_comp_t x_module = i;
+        // information for placement in phi
+        int    phiRepeat = x_module.repeat();
+        double deltaphi  = 2. * M_PI / phiRepeat;
+        double minPhi    = -M_PI + 0.5 * deltaphi;
+        // information for placement in r
+        double radius = x_module.radius();
+        // information for placement in z
+        double staggerZ    = x_module.z_offset();
+        double subStaggerZ = x_module.dz();
+        double zPosRing    = (radialModuleCounter % 2) ? (0.5 * ringStaggerZ)
                                                     : (-0.5 * ringStaggerZ);
         size_t moduleNumber = 0;
 
@@ -97,7 +104,7 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
         std::vector<PlacedVolume> sensComponents;
         // the possible digitization module
         std::shared_ptr<const Acts::DigitizationModule> digiComponent = nullptr;
-        // go through possible components
+        // go through possible components - currently not used
         int compNumber = 0;
         for (xml_coll_t comp(x_module, _U(module_component)); comp; comp++) {
           xml_comp_t x_comp = comp;
@@ -135,30 +142,34 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
           ++compNumber;
         }
 
-        // Place the Modules
-        for (int iphi = 0; iphi < repeat; iphi++) {
-          string zname = _toString((int)iphi, "z%d");
-
-          double phi         = minPhi + deltaphi / dd4hep::rad * iphi;
-          string module_name = zname
-              + _toString((int)(repeat * radialModuleCounter + moduleNumber),
+        // Place the modules in phi
+        for (int iphi = 0; iphi < phiRepeat; iphi++) {
+          // the phi position of the module
+          double phi = minPhi + deltaphi / dd4hep::rad * iphi;
+          // the unique module name
+          string module_name
+              = _toString((int)(phiRepeat * radialModuleCounter + moduleNumber),
                           "module%d");
-
+          // the z position of the module (with alterning stagger for subsequent
+          // modules)
           double zPos = (iphi % 2) ? (zPosRing - 0.5 * staggerZ)
                                    : (zPosRing + 0.5 * staggerZ);
-
-          if (subStaggerZ != 0 && !(repeat % 4)) {
+          // phi stagger affects 0 vs 1, 2 vs 3 ... etc
+          // -> only works if it is a %4
+          // phi sub stagger affects 2 vs 4, 1 vs 3 etc.
+          if (subStaggerZ != 0 && !(phiRepeat % 4)) {
+            // switch sides
             if (!(iphi % 4))
               zPos += subStaggerZ;
             else if (!((iphi + 1) % 4))
               zPos -= subStaggerZ;
           }
-
+          // the podition of the module
           Position trans(radius * cos(phi), radius * sin(phi), zPos);
           // Create the module DetElement
           DetElement moduleDetector(lay_det,
                                     module_name,
-                                    repeat * radialModuleCounter
+                                    phiRepeat * radialModuleCounter
                                         + moduleNumber);
           // Set Sensitive Volumes sensitive
           if (x_module.isSensitive()) {
@@ -182,14 +193,13 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
             compDetector.setPlacement(sensComp);
             compNumber++;
           }
-          Rotation3D rotation1(1., 0., 0., 0., 1., 0., 0., 0., 1.);
           // Place Module Box Volumes in layer
-          Transform3D transf1(
+          Transform3D transf(
               RotationX(0.5 * M_PI) * RotationY(phi + 0.5 * M_PI), trans);
           PlacedVolume placedmodule
-              = layerVolume.placeVolume(moduleVolume, rotation1 * transf1);
+              = layerVolume.placeVolume(moduleVolume, transf);
           placedmodule.addPhysVolID(
-              "module", repeat * radialModuleCounter + moduleNumber);
+              "module", phiRepeat * radialModuleCounter + moduleNumber);
           // assign module DetElement to the placed module volume
           moduleDetector.setPlacement(placedmodule);
           ++moduleNumber;
@@ -242,10 +252,6 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
       = lcdd.pickMotherVolume(endcapDetector).placeVolume(endcapVolume);
   motherVolume.addPhysVolID("system", x_det.id());
   endcapDetector.setPlacement(motherVolume);
-  /*  PlacedVolume placedTube
-        = mother_vol.placeVolume(endcapVolume, endcap_transform);
-    placedTube.addPhysVolID("system", endcapDetector.id());
-    endcapDetector.setPlacement(placedTube);*/
 
   return endcapDetector;
 }

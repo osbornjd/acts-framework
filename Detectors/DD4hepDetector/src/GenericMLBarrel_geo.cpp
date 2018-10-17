@@ -16,7 +16,8 @@ using namespace dd4hep;
 
 /**
  Constructor for a cylindrical barrel volume, possibly containing layers and the
- layers possibly containing modules. In Atlas style
+ layers possibly containing modules. In Atlas style. This constructor was
+ specifically introduced for the TrackML detector.
 */
 
 static Ref_t
@@ -55,20 +56,20 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     layerVolume.setVisAttributes(lcdd, x_layer.visStr());
     // go trough possible modules
     if (x_layer.hasChild(_U(module))) {
-
-      xml_comp_t x_module = x_layer.child(_U(module));
-      int        repeat   = x_module.repeat();
-      double     deltaphi = 2. * M_PI / repeat;
-      double     phiTilt  = x_module.phi_tilt();
-      // slices in z
+      // the module describing the module dimensions
+      xml_comp_t x_module         = x_layer.child(_U(module));
+      double     modHalfLength    = x_module.length();
+      double     modHalfWidth     = x_module.width();
+      double     modHalfThickness = x_module.thickness();
+      // informations for the placement and tilt in phi
+      int    phiRepeat = x_module.repeat();
+      double deltaphi  = 2. * M_PI / phiRepeat;
+      double phiTilt   = x_module.phi_tilt();
+      // informarions for he placement in z
       xml_comp_t x_slice  = x_layer.child(_U(slice));
-      int        zrepeat  = x_slice.repeat();
+      int        zRepeat  = x_slice.repeat();
       double     zOverlap = x_slice.dz();
       double     rOffset  = x_slice.offset();  // half offset
-
-      double modHalfLength    = x_module.length();
-      double modHalfWidth     = x_module.width();
-      double modHalfThickness = x_module.thickness();
 
       // Create the module volume
       Volume modVolume("module",
@@ -77,7 +78,6 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
 
       // create the Acts::DigitizationModule (needed to do geometric
       // digitization) for all modules which have the same segmentation
-
       auto digiModule
           = FW::DD4hep::rectangleDigiModule(modHalfLength,
                                             modHalfWidth,
@@ -88,38 +88,46 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
       modVolume.setVisAttributes(lcdd, x_module.visStr());
       size_t moduleNumber = 0;
       // Place the Modules in z
-      double dz = (2 * modHalfLength - zOverlap);  // half overlap and length
-      double startz = -((zrepeat - 1) * 0.5 * dz);
-
-      for (int iphi = 0; iphi < zrepeat; iphi++) {
-        double r     = ((layerRmax + layerRmin) * 0.5);
-        string zname = _toString((int)iphi, "z%d");
-        double z     = startz + iphi * dz;
-
-        if (iphi % 2 == 0) {
+      // the distance between the modules in z
+      double dz = (2 * modHalfLength - zOverlap);
+      // the start value in z
+      double startz = -((zRepeat - 1) * 0.5 * dz);
+      // place in z
+      for (int iz = 0; iz < zRepeat; iz++) {
+        // to be added later to the module name
+        string zname = _toString((int)iz, "z%d");
+        // the radial position of the module
+        double r = ((layerRmax + layerRmin) * 0.5);
+        // alterning radial offset for each subsequent module
+        if (iz % 2 == 0) {
           r += (0.5 * rOffset);
         } else {
           r -= (0.5 * rOffset);
         }
+        // current z position
+        double z = startz + iz * dz;
+        // start phi position
         double minPhi = -M_PI + 0.5 * deltaphi / dd4hep::rad;
         // Place the modules in phi
-        for (int i = 0; i < repeat; ++i) {
-          double   phi         = minPhi + deltaphi * i;
-          string   module_name = zname + _toString((int)i, "module%d");
+        for (int iphi = 0; iphi < phiRepeat; ++iphi) {
+          // the unique module name
+          string module_name = zname + _toString((int)iphi, "module%d");
+          // the phi position
+          double phi = minPhi + deltaphi * iphi;
+          // the position of the module within the layer
           Position trans(r * cos(phi), r * sin(phi), z);
           // Create the module DetElement
           DetElement moduleDetector(layerDetector, module_name, moduleNumber);
           // Set Sensitive Volmes sensitive
           if (x_module.isSensitive()) {
             modVolume.setSensitiveDetector(sens);
-
             // create and attach the extension with the shared digitzation
             // module
             Acts::ActsExtension* moduleExtension
                 = new Acts::ActsExtension(digiModule);
             moduleDetector.addExtension<Acts::IActsExtension>(moduleExtension);
           }
-          // Place Module Box Volumes in layer
+          // Place Module Box Volumes in layer adding a tilt in phi
           PlacedVolume placedmodule = layerVolume.placeVolume(
               modVolume,
               Transform3D(RotationY(0.5 * M_PI) * RotationX(-phi - phiTilt),
@@ -131,14 +139,13 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
         }
       }
     }
-    // set granularity of layer material mapping and where material should be
-    // mapped
+    // todo set granularity of layer material mapping and where material should
+    // be mapped
     // hand over modules to ACTS
     Acts::ActsExtension::Config layConfig;
     layConfig.isLayer   = true;
-    layConfig.envelopeR = 2.;
-    layConfig.envelopeZ = 2.;  // maybe change later
-
+    layConfig.envelopeR = 2. * Acts::units::_mm;
+    layConfig.envelopeZ = 2. * Acts::units::_mm;  // maybe change later
     Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
     layerDetector.addExtension<Acts::IActsExtension>(detlayer);
     // Place layer volume
