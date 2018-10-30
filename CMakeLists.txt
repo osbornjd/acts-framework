@@ -63,6 +63,7 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
 find_package(Boost 1.64 REQUIRED COMPONENTS program_options)
 find_package(ROOT 6.10 REQUIRED COMPONENTS ${ROOT_COMPONENTS})
+link_libraries(ROOT::Geom)
 
 # optional packages
 
