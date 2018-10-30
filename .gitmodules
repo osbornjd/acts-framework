@@ -4,3 +4,6 @@
 [submodule "acts-fatras"]
 	path = external/acts-fatras
 	url = ../acts-fatras.git
+[submodule "external/tricktrack"]
+	path = external/tricktrack
+	url = https://github.com/vvolkl/TrickTrack
