@@ -22,3 +22,4 @@ add_subdirectory_if(Extrapolation USE_LEGACY)
 # Fatras example for fast simulation, digitization truth/full tracking
 add_subdirectory_if(Fatras USE_FATRAS AND USE_PYTHIA8)
 
+add_subdirectory_if(TrickTrack USE_TRICKTRACK)
