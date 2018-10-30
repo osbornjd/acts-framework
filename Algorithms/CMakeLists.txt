@@ -8,3 +8,4 @@ add_subdirectory(Propagation)
 
 add_subdirectory(Fatras)
 
+add_subdirectory(Seeding)

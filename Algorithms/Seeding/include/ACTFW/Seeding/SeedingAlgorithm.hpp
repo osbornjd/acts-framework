@@ -14,7 +14,66 @@
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
+#include "tricktrack/HitChainMaker.h"
+#include "tricktrack/HitDoublets.h"
+#include "tricktrack/SpacePoint.h"
+#include "tricktrack/TripletFilter.h"
+#include "tricktrack/CMGraphUtils.h"
+#include "tricktrack/CMCell.h"
+
+
+
 namespace FWE {
+
+using Hit = tricktrack::SpacePoint<size_t>;
+using namespace tricktrack;
+
+void findTripletsForTest( std::vector<Hit>
+                             barrel0,
+                         std::vector<Hit>
+                             barrel1,
+                         std::vector<Hit>
+                             barrel2,
+                         std::vector<CMCell<Hit>::CMntuplet>& foundTracklets) {
+
+  std::vector<HitDoublets<Hit>*> doublets;
+  auto doublet1 = new HitDoublets<Hit>(barrel0, barrel1);
+  auto doublet2 = new HitDoublets<Hit>(barrel1, barrel2);
+  doublets.push_back(doublet1);
+  doublets.push_back(doublet2);
+
+  for (const auto& p0 : barrel0) {
+    for (const auto& p1 : barrel1) {
+      doublets[0]->add(p0.identifier(), p1.identifier());
+    }
+  }
+  for (const auto& p1 : barrel1) {
+    for (const auto& p2 : barrel2) {
+      doublets[1]->add(p1.identifier(), p2.identifier());
+    }
+  }
+  
+  CMGraph g = createGraph({{"innerlayer", "middleLayer", "outerLayer"}});
+
+
+  
+  auto automaton = new HitChainMaker<Hit>(g);
+
+  // create 
+  TripletFilter<Hit> ff = std::bind(defaultGeometricFilter<Hit>, std::placeholders::_1,
+  std::placeholders::_2,  
+                                    0.8, // ptmin 
+                                    0.,  // region_origin_x
+                                    0.,  // region_origin_y
+                                    0.002, // region_origin_radius
+                                    0.2, // phiCut
+                                    0.8, // hardPtCut
+                                    0.2  // thetaCut
+                                    );
+  automaton->createAndConnectCells(doublets, ff);
+  automaton->evolve(3);
+  automaton->findNtuplets(foundTracklets, 3);
+}
 
 /// @class Algorithm
 ///
@@ -53,5 +112,7 @@ private:
 };
 
 }  // namespace FWE
+
+#include "SeedingAlgorithm.ipp"
 
 #endif
