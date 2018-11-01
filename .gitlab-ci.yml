@@ -71,77 +71,123 @@ build_vanilla:
     - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
     - cmake --build . -- install
 
-hello_world:
+.examples: &example_base
   stage: test
   tags:
     - cvmfs
-  script:
+  before_script:
     - source install/bin/setup.sh
+
+
+hello_world:
+  <<: *example_base
+  script:
     - ACTFWHelloWorldExample
 
 generic_propagation:
-  stage: test
-  tags:
-    - cvmfs
+  <<: *example_base
   script:
-    - source install/bin/setup.sh
     - ACTFWGenericPropagationExample
 
 bfieldaccess_example:
-  stage: test
-  tags:
-    - cvmfs
+  <<: *example_base
   script:
-    - source install/bin/setup.sh
     - ACTFWBFieldAccessExample
 
 generic_extrapolation_example:
-  stage: test
-  tags:
-    - cvmfs
+  <<: *example_base
   script:
-    - source install/bin/setup.sh
     - ACTFWGenericExtrapolationExample
 
 particle_gun_example:
-  stage: test
-  tags:
-    - cvmfs
+  <<: *example_base
   script:
-    - source install/bin/setup.sh
     - ACTFWParticleGunExample
 
 whiteboard_example:
-  stage: test
-  tags:
-    - cvmfs
+  <<: *example_base
   script:
-    - source install/bin/setup.sh
     - ACTFWWhiteBoardExample
 
 bfield_example:
-  stage: test
-  tags:
-    - cvmfs
+  <<: *example_base
   script:
-    - source install/bin/setup.sh
     - ACTFWBFieldExample
 
 generic_geometry_example:
-  stage: test
-  tags:
-    - cvmfs
+  <<: *example_base
   script:
-    - source install/bin/setup.sh
     - ACTFWGenericGeometryExample
 
 random_number_example:
-  stage: test
-  tags:
-    - cvmfs
+  <<: *example_base
   script:
-    - source install/bin/setup.sh
     - ACTFWRandomNumberExample
+
+dd4hep_extrapolation_example:
+  <<: *example_base
+  script:
+    - ACTFWDD4hepExtrapolationExample
+
+dd4hep_fatras_example:
+  <<: *example_base
+  script:
+    - ACTFWDD4hepFatrasExample
+
+dd4hep_geometry_example:
+  <<: *example_base
+  script:
+    - ACTFWDD4hepGeometryExample
+
+dd4hep_propagation_example:
+  <<: *example_base
+  script:
+    - ACTFWDD4hepPropagationExample
+
+fatras_energy_loss_tests:
+  <<: *example_base
+  script:
+    - FatrasEnergyLossTests
+
+fatras_kinematic_casts_tests:
+  <<: *example_base
+  script:
+    - FatrasKinematicCastsTests
+
+fatras_limit_selectors_tests:
+  <<: *example_base
+  script:
+    - FatrasLimitSelectorsTests
+      
+fatras_pdg_selectors_tests:
+  <<: *example_base
+  script:
+    - FatrasPdgSelectorsTests
+
+fatras_physics_list_tests:
+  <<: *example_base
+  script:
+    - FatrasPhysicsListTests
+
+fatras_process_tests:
+  <<: *example_base
+  script:
+    - FatrasProcessTests
+
+fatras_scattering_tests:
+  <<: *example_base
+  script:
+    - FatrasScatteringTests
+
+fatras_selector_helpers_tests:
+  <<: *example_base
+  script:
+    - FatrasSelectorHelpersTests
+      
+fatras_selector_list_tests:
+  <<: *example_base
+  script:
+    - FatrasSelectorListTests
 
 reproducibility_generic_propagation:
   stage: test
