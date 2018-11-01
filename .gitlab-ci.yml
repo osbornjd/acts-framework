@@ -59,6 +59,7 @@ build:
     - cmake --build . -- install
   artifacts:
     paths:
+      - build
       - install
 
 build_vanilla:
@@ -76,7 +77,8 @@ build_vanilla:
   tags:
     - cvmfs
   before_script:
-    - source install/bin/setup.sh
+    - set +e && source CI/setup_lcg92.sh; set -e
+    - export PATH=$PWD/build/bin:$PATH
 
 
 hello_world:
