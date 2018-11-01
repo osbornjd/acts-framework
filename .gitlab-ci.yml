@@ -61,6 +61,16 @@ build:
     paths:
       - install
 
+build_vanilla:
+  stage: build
+  tags:
+    - cvmfs
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+    - cmake --build . -- install
+
 hello_world:
   stage: test
   tags:
@@ -76,6 +86,62 @@ generic_propagation:
   script:
     - source install/bin/setup.sh
     - ACTFWGenericPropagationExample
+
+bfieldaccess_example:
+  stage: test
+  tags:
+    - cvmfs
+  script:
+    - source install/bin/setup.sh
+    - ACTFWBFieldAccessExample
+
+generic_extrapolation_example:
+  stage: test
+  tags:
+    - cvmfs
+  script:
+    - source install/bin/setup.sh
+    - ACTFWGenericExtrapolationExample
+
+particle_gun_example:
+  stage: test
+  tags:
+    - cvmfs
+  script:
+    - source install/bin/setup.sh
+    - ACTFWParticleGunExample
+
+whiteboard_example:
+  stage: test
+  tags:
+    - cvmfs
+  script:
+    - source install/bin/setup.sh
+    - ACTFWWhiteBoardExample
+
+bfield_example:
+  stage: test
+  tags:
+    - cvmfs
+  script:
+    - source install/bin/setup.sh
+    - ACTFWBFieldExample
+
+generic_geometry_example:
+  stage: test
+  tags:
+    - cvmfs
+  script:
+    - source install/bin/setup.sh
+    - ACTFWGenericGeometryExample
+
+random_number_example:
+  stage: test
+  tags:
+    - cvmfs
+  script:
+    - source install/bin/setup.sh
+    - ACTFWRandomNumberExample
 
 reproducibility_generic_propagation:
   stage: test
