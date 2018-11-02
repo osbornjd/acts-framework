@@ -91,11 +91,6 @@ generic_propagation:
   script:
     - ACTFWGenericPropagationExample
 
-bfieldaccess_example:
-  <<: *example_base
-  script:
-    - ACTFWBFieldAccessExample
-
 generic_extrapolation_example:
   <<: *example_base
   script:
@@ -110,11 +105,6 @@ whiteboard_example:
   <<: *example_base
   script:
     - ACTFWWhiteBoardExample
-
-bfield_example:
-  <<: *example_base
-  script:
-    - ACTFWBFieldExample
 
 generic_geometry_example:
   <<: *example_base
@@ -145,51 +135,6 @@ dd4hep_propagation_example:
   <<: *example_base
   script:
     - ACTFWDD4hepPropagationExample
-
-fatras_energy_loss_tests:
-  <<: *example_base
-  script:
-    - FatrasEnergyLossTests
-
-fatras_kinematic_casts_tests:
-  <<: *example_base
-  script:
-    - FatrasKinematicCastsTests
-
-fatras_limit_selectors_tests:
-  <<: *example_base
-  script:
-    - FatrasLimitSelectorsTests
-      
-fatras_pdg_selectors_tests:
-  <<: *example_base
-  script:
-    - FatrasPdgSelectorsTests
-
-fatras_physics_list_tests:
-  <<: *example_base
-  script:
-    - FatrasPhysicsListTests
-
-fatras_process_tests:
-  <<: *example_base
-  script:
-    - FatrasProcessTests
-
-fatras_scattering_tests:
-  <<: *example_base
-  script:
-    - FatrasScatteringTests
-
-fatras_selector_helpers_tests:
-  <<: *example_base
-  script:
-    - FatrasSelectorHelpersTests
-      
-fatras_selector_list_tests:
-  <<: *example_base
-  script:
-    - FatrasSelectorListTests
 
 reproducibility_generic_propagation:
   stage: test
