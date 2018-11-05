@@ -31,7 +31,7 @@ option(BUILD_ACTS "Build acts-core as submodule" on)
 add_definitions(-DACTS_CORE_IDENTIFIER_PLUGIN="${CMAKE_CURRENT_SOURCE_DIR}/Core/include/ACTFW/EventData/SimIdentifier.hpp")
 
 # determine build-flag dependent components
-set(DD4hep_COMPONENTS DDCore DDSegmentation)
+set(DD4hep_COMPONENTS DDCore)
 if(USE_GEANT4)
   list(APPEND DD4hep_COMPONENTS DDG4)
 endif()
