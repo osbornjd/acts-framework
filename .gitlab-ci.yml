@@ -12,7 +12,7 @@ image: gitlab-registry.cern.ch/acts/machines/slc6:latest
 before_script:
     # CI executor uses fail on error by default
     # setup scripts do not like that
-    - set +e && source CI/setup_lcg92.sh; set -e
+    - set +e && source CI/setup_lcg94.sh; set -e
 
 format:
   stage: check
@@ -77,7 +77,7 @@ build_vanilla:
   tags:
     - cvmfs
   before_script:
-    - set +e && source CI/setup_lcg92.sh; set -e
+    - set +e && source CI/setup_lcg94.sh; set -e
     - export PATH=$PWD/build/bin:$PATH
 
 
