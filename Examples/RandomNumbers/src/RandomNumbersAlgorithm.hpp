@@ -39,7 +39,7 @@ public:
   RandomNumbersAlgorithm(const Config&        cnf,
                          Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Framework execode method
+  /// Framework execute method
   FW::ProcessCode
   execute(const AlgorithmContext& context) const final override;
 

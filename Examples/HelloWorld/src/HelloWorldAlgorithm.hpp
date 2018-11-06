@@ -23,7 +23,7 @@ public:
   /// Constructor
   HelloWorldAlgorithm(Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Framework execode method
+  /// Framework execute method
   /// @param [in] context is the Algorithm context for event consistency
   FW::ProcessCode
   execute(const AlgorithmContext& context) const final override;

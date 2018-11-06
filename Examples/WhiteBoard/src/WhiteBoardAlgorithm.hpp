@@ -42,7 +42,8 @@ public:
   WhiteBoardAlgorithm(const Config&        cfg,
                       Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Framework execode method
+
+  /// Framework execute method
   ///
   /// @param context is the AlgorithmContext context
   FW::ProcessCode
