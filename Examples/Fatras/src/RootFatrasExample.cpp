@@ -27,7 +27,7 @@ struct RootOptions
   }
 };
 
-/// @brief geometry getter, the operator() will be called int he example base
+/// @brief geometry getter, the operator() will be called in the example base
 struct RootGeometry
 {
 

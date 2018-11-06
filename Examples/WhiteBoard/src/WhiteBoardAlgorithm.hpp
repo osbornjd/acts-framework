@@ -44,7 +44,7 @@ public:
   WhiteBoardAlgorithm(const Config&        cfg,
                       Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Framework execode method
+  /// Framework execute method
   FW::ProcessCode
   execute(FW::AlgorithmContext ctx) const final override;
 

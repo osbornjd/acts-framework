@@ -21,6 +21,7 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/ReadEvgen/EvgenReader.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
+#include "VertexingAlgorithm.hpp"
 
 namespace po = boost::program_options;
 
@@ -90,6 +91,12 @@ main(int argc, char* argv[])
   auto readEvgen = std::make_shared<FW::EvgenReader>(
       readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
 
+  // Add the vertexing algorithm
+  FWE::VertexingAlgorithm::Config vtxCfg;
+  vtxCfg.collection = readEvgenCfg.evgenCollection;
+  //TODO: use make_shared instead of new
+  std::shared_ptr<FW::IAlgorithm> vtxAlgo(new FWE::VertexingAlgorithm(vtxCfg, logLevel));
+
   // Output directory
   std::string outputDir = vm["output-dir"].as<std::string>();
 
@@ -121,7 +128,7 @@ main(int argc, char* argv[])
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({randomNumberSvc});
   sequencer.addReaders({readEvgen});
-  sequencer.appendEventAlgorithms({});
+  sequencer.appendEventAlgorithms({vtxAlgo});
   if (pWriterRoot) sequencer.addWriters({pWriterRoot});
   if (pWriterCsv) sequencer.addWriters({pWriterCsv});
   sequencer.run(nEvents);
