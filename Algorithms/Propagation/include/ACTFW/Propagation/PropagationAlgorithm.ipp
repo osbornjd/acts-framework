@@ -63,8 +63,7 @@ PropagationAlgorithm<propagator_t>::executeTest(
     typedef Acts::AbortList<EndOfWorld> AbortConditions;
 
     // Create the propagation options
-    typename propagator_t::template Options<ActionList, AbortConditions>
-        options;
+    Acts::PropagatorOptions<ActionList, AbortConditions> options;
     options.pathLimit = pathLength;
     options.debug     = m_cfg.debugOutput;
 
