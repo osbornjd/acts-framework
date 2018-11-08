@@ -10,6 +10,7 @@
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Surfaces/PlaneSurface.hpp"
+#include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
@@ -34,13 +35,22 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	FW::Data::SimVertex<> vtx = (*inputEvent)[0];
 
 	// Define initial position and momentum for a toy particle
-	Acts::Vector3D pos(0.,0.,0.);
+	Acts::Vector3D pos(10.,10.,0.);
 	Acts::Vector3D mom(10.,0.,0.);
 
 	Acts::CurvilinearParameters start(nullptr, pos, mom, 0);
 
+	/*
 	// Create PlaneSurface w/o bounds in direction of particle momentum
-	Acts::PlaneSurface endSurface(Acts::Vector3D(10.,0.,0.), Acts::Vector3D(1.,0.,0.));
+	Acts::PlaneSurface endSurface(Acts::Vector3D(15.,0.,0.), Acts::Vector3D(1.,0.,0.));
+	*/
+
+	// Define perigee surface center coordinates
+	double pgSrfX = 0.;
+	double pgSrfY = 0.;
+	double pgSrfZ = 0.;
+
+	Acts::PerigeeSurface endSurface(Acts::Vector3D(pgSrfX, pgSrfY, pgSrfZ));
 
 	// Set up b-field and stepper
 	Acts::ConstantBField bField(Acts::Vector3D(0.,0.,0.));
@@ -50,9 +60,23 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator(stepper);
 
 	// Set up propagator options
-	propagator.PropagatorOptions<> options;
-
+	Acts::PropagatorOptions<> options;
+	// Run propagator
 	const auto result = propagator.propagate(start, endSurface, options);
+
+	// Obtain position of closest approach
+	const auto& tp     = result.endParameters;
+	const Acts::Vector3D& closestApp = tp->position();
+	
+	double x = closestApp[Acts::eX];
+	double y = closestApp[Acts::eY];
+	double z = closestApp[Acts::eZ];
+
+	// Calculate corresponding Perigee params
+	double d0 = std::sqrt( std::pow(x - pgSrfX,2) + std::pow(y - pgSrfY,2));
+	double z0 = std::abs(z - pgSrfZ);
+
+	std::cout << d0 << " " << z0 << std::endl;
 
 	// Iterate over all particle emerging from current vertex // TODO: use iterator?
 	for (auto const& particle : vtx.out){
@@ -62,8 +86,19 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 			
 			//do stuff
 		}
-		std::cout << particle.q() << std::endl;
+		//std::cout << particle.q() << std::endl;
 	}
 
 	return FW::ProcessCode::SUCCESS;
 }
+
+
+
+
+
+
+
+
+
+
+
