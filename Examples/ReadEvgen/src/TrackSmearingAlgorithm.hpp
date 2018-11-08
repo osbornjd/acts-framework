@@ -6,8 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_EXAMPLES_VERTEXING_H
-#define ACTFW_EXAMPLES_VERTEXING_H
+#ifndef ACTFW_EXAMPLES_TRACKSMEARING_H
+#define ACTFW_EXAMPLES_TRACKSMEARING_H
 
 #include <memory>
 
@@ -24,7 +24,7 @@ namespace FWE {
 /// @tparam event_collection_t  The event collection type
 /// @tparam hit_t The hit Type
 
-class VertexingAlgorithm : public FW::BareAlgorithm
+class TrackSmearingAlgorithm : public FW::BareAlgorithm
 {
 public:
 	struct Config
@@ -33,7 +33,7 @@ public:
 	};
 
 	/// Constructor
-	VertexingAlgorithm(const Config& cfg, Acts::Logging::Level level = Acts::Logging::INFO);
+	TrackSmearingAlgorithm(const Config& cfg, Acts::Logging::Level level = Acts::Logging::INFO);
 
 	/// Framework execute method
 	/// @param [in] context is the Algorithm context for event consistency
@@ -49,4 +49,4 @@ private:
 } // namespace FWE
 
 
-#endif // ACTFW_EXAMPLES_VERTEXING_H
+#endif // ACTFW_EXAMPLES_TRACKSMEARING_H
