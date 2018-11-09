@@ -15,6 +15,8 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
+#include "ACTFW/Random/RandomNumberDistributions.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 
 namespace FWE {
@@ -30,6 +32,7 @@ public:
 	struct Config
 	{
 		std::string collection; 		///< which collection to write
+		std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
 	};
 
 	/// Constructor

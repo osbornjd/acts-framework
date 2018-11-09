@@ -94,6 +94,7 @@ main(int argc, char* argv[])
   // Add the vertexing algorithm
   FWE::TrackSmearingAlgorithm::Config trksmrCfg;
   trksmrCfg.collection = readEvgenCfg.evgenCollection;
+  trksmrCfg.randomNumberSvc = randomNumberSvc;
   //TODO: use make_shared instead of new
   std::shared_ptr<FW::IAlgorithm> trksmrAlgo(new FWE::TrackSmearingAlgorithm(trksmrCfg, logLevel));
 
