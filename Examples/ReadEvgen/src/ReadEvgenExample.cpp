@@ -91,7 +91,7 @@ main(int argc, char* argv[])
   auto readEvgen = std::make_shared<FW::EvgenReader>(
       readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
 
-  // Add the vertexing algorithm
+  // Add the track smearing algorithm
   FWE::TrackSmearingAlgorithm::Config trksmrCfg;
   trksmrCfg.collection = readEvgenCfg.evgenCollection;
   trksmrCfg.randomNumberSvc = randomNumberSvc;

@@ -10,6 +10,7 @@
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Units.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Surfaces/PlaneSurface.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
@@ -41,6 +42,15 @@ FWE::TrackSmearingAlgorithm::TrackSmearingAlgorithm(const Config& cfg, Acts::Log
 FW::ProcessCode
 FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 {
+	// Define parameter for pt-dependent IP resolution
+	// of the form sigma_d/z(p_t[GeV]) = A*exp(-B*p_t[GeV]) + C
+	static const double ipResA = 100.7439 * Acts::units::_um;
+	static const double ipResB = 0.23055;
+	static const double ipResC = 20. * Acts::units::_um;
+
+	std::cout << ipResC << std::endl;
+
+	// Create and fill input event
 	const std::vector<FW::Data::SimVertex<>>* inputEvent = nullptr;
 	if (context.eventStore.get(m_cfg.collection, inputEvent) == FW::ProcessCode::ABORT)
 	{
@@ -67,7 +77,6 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 
 	// Create random number generator and spawn gaussian distribution
 	FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
-	FW::GaussDist	 gaussDist(0.,1.);
 
 	// Get first vertex of event
 	FW::Data::SimVertex<> vtx = (*inputEvent)[0];
@@ -76,39 +85,55 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	std::cout << vtx.out.size() << " particle emerging from vertex" << std::endl;
 	int i = 0;
 	for (auto const& particle : vtx.out){
-		// Only charged particles
-		if (particle.q() !=0) 
+		// Calculate pseudo-rapidity
+		double eta = Acts::VectorHelpers::eta(particle.momentum());
+		// Only charged particles for |eta| < 3.0
+		if (particle.q() !=0 && std::abs(eta) < 3.0) 
 		{
+
 			// Define start track params
-			//Acts::CurvilinearParameters 
-			//	start(nullptr, particle.position(), particle.momentum(), particle.q());
-
 			Acts::CurvilinearParameters 
-				start(nullptr, Acts::Vector3D(-100.,10.,0.), Acts::Vector3D(10.,0.,0.), 0.);
-
+				start(nullptr, particle.position(), particle.momentum(), particle.q());
+			/*
+			std::cout << "particle " << i << std::endl;
+			std::cout << "type: " << particle.pdg() << std::endl;
+			std::cout << "pos: " << particle.position()/Acts::units::_um << std::endl;
+			std::cout << "mom: " << particle.momentum()/Acts::units::_GeV << std::endl;
+			//Acts::CurvilinearParameters 
+			//	start(nullptr, Acts::Vector3D(-100.,10.,0.), Acts::Vector3D(10.,0.,0.), 0.);
+			*/
 			// Run propagator
 			const auto result = propagator.propagate(start, endSurface, options);
-			// Obtain position of closest approach
-			const auto& tp     = result.endParameters;
-			std::cout << "HERE 4 " << std::endl;
-			const Acts::Vector3D& closestApp = tp->position();
-			std::cout << "HERE 5 " << std::endl;
+
+			if (result.status == Acts::Status::SUCCESS){
+				// Obtain position of closest approach
+				const Acts::Vector3D& closestApp = result.endParameters->position();
+				const double& x = closestApp[Acts::eX];
+				const double& y = closestApp[Acts::eY];
+				const double& z = closestApp[Acts::eZ];
+
+				// Calculate corresponding Perigee params
+				double d0 = std::sqrt(std::pow(x - pgSrfX,2) + std::pow(y - pgSrfY,2));
+				double z0 = std::abs(z - pgSrfZ);
+
+				// Calculate pt-dependent IP resolution
+				const double pclPt = 
+						Acts::VectorHelpers::perp(particle.momentum())/Acts::units::_GeV;
+				const double ipRes = ipResA * std::exp(-ipResB*pclPt) + ipResC;
+
+				std::cout << "pt: " << pclPt << ", ipRes: " << ipRes << std::endl;
+
+				FW::GaussDist gaussDist_d0(d0, ipRes);
+				FW::GaussDist gaussDist_z0(z0, ipRes);
+				const double smeared_d0 =	 gaussDist_d0(rng);
+				const double smeared_z0 =	 gaussDist_z0(rng);
+
+				i++;
+				std::cout << "d0=" << d0 << ", z0=" << z0 << std::endl;
+				std::cout << "new d0: " << smeared_d0 << ", new z0: " << smeared_z0 << std::endl;
+				std::cout << "##################" << std::endl;
+			}
 			
-			double x = closestApp[Acts::eX];
-			double y = closestApp[Acts::eY];
-			double z = closestApp[Acts::eZ];
-
-			std::cout << "closestApproach: " << x << " " << y << " " << z << std::endl;
-
-			// Calculate corresponding Perigee params
-			double d0 = std::sqrt(std::pow(x - pgSrfX,2) + std::pow(y - pgSrfY,2));
-			double z0 = std::abs(z - pgSrfZ);
-
-			double rnGauss = gaussDist(rng);
-			std::cout << "RN: " << rnGauss << std::endl;
-
-			i++;
-			std::cout << "particle " << i << ", d0=" << d0 << ", z0=" << z0 << std::endl;
 			
 		}
 		//std::cout << particle.q() << std::endl;
