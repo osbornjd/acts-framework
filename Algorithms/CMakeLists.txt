@@ -1,5 +1,5 @@
 
-add_subdirectory_if(Digitization USE_TGEO)
+add_subdirectory(Digitization)
 # particle gun and generated event reading 
 add_subdirectory(ParticleGun)
 add_subdirectory(ReadEvgen)
