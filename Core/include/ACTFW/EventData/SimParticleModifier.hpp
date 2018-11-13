@@ -15,8 +15,8 @@
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
-#include "Acts/Utilities/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace FW {
 
@@ -75,7 +75,7 @@ namespace Data {
     scatter(SimParticle& particle, Acts::Vector3D& nmomentum) const
     {
       particle.m_momentum = std::move(nmomentum);
-      particle.m_pT       = VectorHelpers::perp(particle.m_momentum);
+      particle.m_pT       = Acts::VectorHelpers::perp(particle.m_momentum);
     }
 
     /// @brief Update the particle with applying energy loss
@@ -100,7 +100,7 @@ namespace Data {
       particle.m_p        = std::sqrt(particle.m_E * particle.m_E
                                - particle.m_m * particle.m_m);
       particle.m_momentum = particle.m_p * particle.m_momentum.normalized();
-      particle.m_pT       = VectorHelpers::perp(particle.m_momentum);
+      particle.m_pT       = Acts::VectorHelpers::perp(particle.m_momentum);
       particle.m_beta     = (particle.m_p / particle.m_E);
       particle.m_gamma    = (particle.m_E / particle.m_m);
     }
@@ -128,7 +128,7 @@ namespace Data {
       particle.m_momentum = momentum;
       particle.m_p        = momentum.norm();
       if (particle.m_p) {
-        particle.m_pT = VectorHelpers::perp(momentum);
+        particle.m_pT = Acts::VectorHelpers::perp(momentum);
         particle.m_E  = std::sqrt(particle.m_p * particle.m_p
                                  + particle.m_m * particle.m_m);
         particle.m_timeStamp += deltaTime;
