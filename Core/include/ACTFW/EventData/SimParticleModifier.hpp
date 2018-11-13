@@ -97,7 +97,7 @@ namespace Data {
       }
       // updatet the parameters
       particle.m_E -= deltaE;
-      particle.m_p        = std::sqrt(particle.m_E * particle.m_E
+      particle.m_p = std::sqrt(particle.m_E * particle.m_E
                                - particle.m_m * particle.m_m);
       particle.m_momentum = particle.m_p * particle.m_momentum.normalized();
       particle.m_pT       = Acts::VectorHelpers::perp(particle.m_momentum);
