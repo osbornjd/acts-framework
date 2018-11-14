@@ -48,8 +48,6 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	static const double ipResB = 0.23055;
 	static const double ipResC = 20. * Acts::units::_um;
 
-	std::cout << ipResC << std::endl;
-
 	// Create and fill input event
 	const std::vector<FW::Data::SimVertex<>>* inputEvent = nullptr;
 	if (context.eventStore.get(m_cfg.collection, inputEvent) == FW::ProcessCode::ABORT)
@@ -58,15 +56,15 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	}
 
 	// Define perigee surface center coordinates
-	double pgSrfX = 0.;
-	double pgSrfY = 0.;
-	double pgSrfZ = 0.;
+	const double pgSrfX = 0.;
+	const double pgSrfY = 0.;
+	const double pgSrfZ = 0.;
 
-	//Acts::PlaneSurface   endSurface(Acts::Vector3D(10.,0.,0.), Acts::Vector3D(1.,0.,0.));
-	Acts::PerigeeSurface endSurface(Acts::Vector3D(pgSrfX, pgSrfY, pgSrfZ));
+	//Acts::PlaneSurface   perigeeSurface(Acts::Vector3D(10.,0.,0.), Acts::Vector3D(1.,0.,0.));
+	Acts::PerigeeSurface perigeeSurface(Acts::Vector3D(pgSrfX, pgSrfY, pgSrfZ));
 
 	// Set up b-field and stepper
-	Acts::ConstantBField bField(Acts::Vector3D(0.,1.5,0.)*Acts::units::_T);
+	Acts::ConstantBField bField(Acts::Vector3D(0.,0.,0.)*Acts::units::_T);
 	Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
 	
 	// Set up propagator with void navigator
@@ -81,62 +79,55 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	// Get first vertex of event
 	FW::Data::SimVertex<> vtx = (*inputEvent)[0];
 
+	// Initialize vector to be filled with smeared tracks
+	std::vector<Acts::BoundParameters> smrdTrksVec;
+
 	// Iterate over all particle emerging from current vertex // TODO: use iterator?
-	std::cout << vtx.out.size() << " particle emerging from vertex" << std::endl;
-	int i = 0;
 	for (auto const& particle : vtx.out){
+
+		const Acts::Vector3D& ptclMom = particle.momentum();
 		// Calculate pseudo-rapidity
-		double eta = Acts::VectorHelpers::eta(particle.momentum());
+		const double eta = Acts::VectorHelpers::eta(ptclMom);
 		// Only charged particles for |eta| < 3.0
 		if (particle.q() !=0 && std::abs(eta) < 3.0) 
 		{
-
 			// Define start track params
 			Acts::CurvilinearParameters 
-				start(nullptr, particle.position(), particle.momentum(), particle.q());
-			/*
-			std::cout << "particle " << i << std::endl;
-			std::cout << "type: " << particle.pdg() << std::endl;
-			std::cout << "pos: " << particle.position()/Acts::units::_um << std::endl;
-			std::cout << "mom: " << particle.momentum()/Acts::units::_GeV << std::endl;
-			//Acts::CurvilinearParameters 
-			//	start(nullptr, Acts::Vector3D(-100.,10.,0.), Acts::Vector3D(10.,0.,0.), 0.);
-			*/
+				start(nullptr, particle.position(), ptclMom, particle.q());
+
 			// Run propagator
-			const auto result = propagator.propagate(start, endSurface, options);
+			const auto result = propagator.propagate(start, perigeeSurface, options);
 
 			if (result.status == Acts::Status::SUCCESS){
-				// Obtain position of closest approach
-				const Acts::Vector3D& closestApp = result.endParameters->position();
-				const double& x = closestApp[Acts::eX];
-				const double& y = closestApp[Acts::eY];
-				const double& z = closestApp[Acts::eZ];
 
-				// Calculate corresponding Perigee params
-				double d0 = std::sqrt(std::pow(x - pgSrfX,2) + std::pow(y - pgSrfY,2));
-				double z0 = std::abs(z - pgSrfZ);
+				const auto& perigeeParameters = result.endParameters->parameters(); // d0, z0, phi, theta , ,q/p
 
 				// Calculate pt-dependent IP resolution
 				const double pclPt = 
-						Acts::VectorHelpers::perp(particle.momentum())/Acts::units::_GeV;
+						Acts::VectorHelpers::perp(ptclMom)/Acts::units::_GeV;
 				const double ipRes = ipResA * std::exp(-ipResB*pclPt) + ipResC;
 
-				std::cout << "pt: " << pclPt << ", ipRes: " << ipRes << std::endl;
+				// except for IP resolution, following variances are rough guesses
+				// Gaussian distribution for IP resolution
+				FW::GaussDist gaussDist_IP(0., ipRes);
+				// Gaussian distribution for angular resolution
+				FW::GaussDist gaussDist_angular(0., 0.1);
+				// Gaussian distribution for q/p (momentum) resolution
+				FW::GaussDist gaussDist_qp(0., 0.1*perigeeParameters[4]);
 
-				FW::GaussDist gaussDist_d0(d0, ipRes);
-				FW::GaussDist gaussDist_z0(z0, ipRes);
-				const double smeared_d0 =	 gaussDist_d0(rng);
-				const double smeared_z0 =	 gaussDist_z0(rng);
+				const double smrd_d0 	= perigeeParameters[0] + gaussDist_IP(rng);
+				const double smrd_z0	= perigeeParameters[1] + gaussDist_IP(rng);
+				const double smrd_phi 	= perigeeParameters[2] + gaussDist_angular(rng);
+				const double smrd_theta	= perigeeParameters[3] + gaussDist_angular(rng);
+				const double srmd_qp	= perigeeParameters[4] + gaussDist_qp(rng);
 
-				i++;
-				std::cout << "d0=" << d0 << ", z0=" << z0 << std::endl;
-				std::cout << "new d0: " << smeared_d0 << ", new z0: " << smeared_z0 << std::endl;
-				std::cout << "##################" << std::endl;
+				Acts::TrackParametersBase::ParVector_t paramVec;
+				paramVec << smrd_d0, smrd_z0, smrd_phi, smrd_theta, srmd_qp;
+
+				// Fill vector of smeared tracks
+				smrdTrksVec.push_back(Acts::BoundParameters(nullptr, paramVec, perigeeSurface));
 			}
-			
-			
 		}
-		//std::cout << particle.q() << std::endl;
 	}
 
 	return FW::ProcessCode::SUCCESS;
