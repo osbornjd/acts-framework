@@ -31,7 +31,8 @@ class TrackSmearingAlgorithm : public FW::BareAlgorithm
 public:
 	struct Config
 	{
-		std::string collection; 		///< which collection to write
+		std::string collection; 						///< Input particle collection
+		std::string collectionOut = "paramCollection"; 	///< Collection of smeared output track parameter
 		std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
 	};
 

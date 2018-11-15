@@ -17,6 +17,7 @@
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
 #include "ACTFW/Plugins/Pythia8/GeneratorOptions.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
+#include "ACTFW/Plugins/Root/RootTrackParameterWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/ReadEvgen/EvgenReader.hpp"
@@ -123,6 +124,13 @@ main(int argc, char* argv[])
         = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
   }
 
+  std::shared_ptr<FW::Root::RootTrackParameterWriter> trkParamWriterRoot = nullptr;
+  FW::Root::RootTrackParameterWriter::Config trkParamWriterRootConfig;
+  trkParamWriterRootConfig.collection = trksmrCfg.collectionOut;
+  trkParamWriterRootConfig.filePath   = trksmrCfg.collectionOut + ".root";
+  trkParamWriterRoot = std::make_shared<FW::Root::RootTrackParameterWriter>(trkParamWriterRootConfig);
+
+
   // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
   // Now create the sequencer
@@ -132,6 +140,7 @@ main(int argc, char* argv[])
   sequencer.appendEventAlgorithms({trksmrAlgo});
   if (pWriterRoot) sequencer.addWriters({pWriterRoot});
   if (pWriterCsv) sequencer.addWriters({pWriterCsv});
+  sequencer.addWriters({trkParamWriterRoot});
   sequencer.run(nEvents);
 
   return 0;
