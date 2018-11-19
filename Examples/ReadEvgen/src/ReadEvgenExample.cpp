@@ -125,10 +125,13 @@ main(int argc, char* argv[])
   }
 
   std::shared_ptr<FW::Root::RootTrackParameterWriter> trkParamWriterRoot = nullptr;
-  FW::Root::RootTrackParameterWriter::Config trkParamWriterRootConfig;
-  trkParamWriterRootConfig.collection = trksmrCfg.collectionOut;
-  trkParamWriterRootConfig.filePath   = trksmrCfg.collectionOut + ".root";
-  trkParamWriterRoot = std::make_shared<FW::Root::RootTrackParameterWriter>(trkParamWriterRootConfig);
+  if (vm["output-trackparams"].as<bool>()) {
+    FW::Root::RootTrackParameterWriter::Config trkParamWriterRootConfig;
+    trkParamWriterRootConfig.collection = trksmrCfg.collectionOut;
+    trkParamWriterRootConfig.filePath   = trksmrCfg.collectionOut + ".root";
+    trkParamWriterRoot = std::make_shared<FW::Root::RootTrackParameterWriter>(trkParamWriterRootConfig);
+  }
+  
 
 
   // Create the config object for the sequencer
@@ -140,7 +143,7 @@ main(int argc, char* argv[])
   sequencer.appendEventAlgorithms({trksmrAlgo});
   if (pWriterRoot) sequencer.addWriters({pWriterRoot});
   if (pWriterCsv) sequencer.addWriters({pWriterCsv});
-  sequencer.addWriters({trkParamWriterRoot});
+  if (trkParamWriterRoot) sequencer.addWriters({trkParamWriterRoot});
   sequencer.run(nEvents);
 
   return 0;
