@@ -90,8 +90,8 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 			const Acts::Vector3D& ptclMom = particle.momentum();
 			// Calculate pseudo-rapidity
 			const double eta = Acts::VectorHelpers::eta(ptclMom);
-			// Only charged particles for |eta| < 3.0
-			if (particle.q() !=0 && std::abs(eta) < 3.0) 
+			// Only charged particles for |eta| < 2.5
+			if (particle.q() !=0 && std::abs(eta) < 2.5) 
 			{
 				// Define start track params
 				Acts::CurvilinearParameters 
@@ -103,6 +103,10 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 				if (result.status == Acts::Status::SUCCESS){
 
 					const auto& perigeeParameters = result.endParameters->parameters(); // d0, z0, phi, theta,q/p
+
+					if (std::abs(perigeeParameters[0]) > 50 || std::abs(perigeeParameters[1]) > 100){
+						continue;
+					}
 
 					// Calculate pt-dependent IP resolution
 					const double pclPt = 
@@ -128,7 +132,6 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 
 					// Fill vector of smeared tracks
 					smrdTrksVec.push_back(Acts::BoundParameters(nullptr, paramVec, perigeeSurface));
-					std::cout << smrdTrksVec.size() << std::endl;
 				}
 			}
 		}
