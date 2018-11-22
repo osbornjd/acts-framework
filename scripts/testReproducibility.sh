@@ -48,7 +48,7 @@ for output in "${outputs[@]}"; do
 done
 
 # Run the example in single-threaded mode
-eval "OMP_NUM_THREADS=1 ${executable}"
+eval "ACTSFW_NUM_THREADS=1 ${executable}"
 result=$?
 if [[ result -ne 0 ]]; then
   echo "Single-threaded run failed!"

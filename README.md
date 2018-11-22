@@ -6,13 +6,12 @@ for production usage.
 ## Build requirements
 
 The framework can be build in different configurations. The minimal setup
-requires a C++14 compatible compiler with OpenMP support and all requirements
-of the ACTS library. Additional packages might be required depending on
-which of the following built options
+requires a C++14 compatible compiler, the Intel TBB library, ROOT, and all
+requirements of the core ACTS library. Additional packages might be required
+depending on which of the following built options
 
 *   USE_DD4HEP
 *   USE_GEANT4
-*   USE_OPENMP (on by default)
 *   USE_PYTHIA8
 
 are activated/deactivated during the configuration step, e.g. as `cmake
