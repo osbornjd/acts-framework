@@ -32,26 +32,6 @@ using UniformDist  = std::uniform_real_distribution<double>;
 using RandomEngine = std::mt19937;
 
 template <typename field_t>
-Acts::Vector3D
-accessFieldCell(field_t&                       bField,
-                Acts::concept::AnyFieldCell<>& cell,
-                size_t                         istep,
-                const Acts::Vector3D&          position)
-{
-  if (!istep || !cell.isInside(position)) {
-    cell = bField.getFieldCell(position);
-  }  // get the field from the cell
-  return cell.getField(position);
-}
-
-template <typename field_t>
-Acts::Vector3D
-accessFieldDirect(field_t& bField, const Acts::Vector3D& position)
-{
-  return std::move(bField.getField(position));
-}
-
-template <typename field_t>
 void
 accessStepWise(field_t& bField,
                size_t   events,
@@ -66,8 +46,8 @@ accessStepWise(field_t& bField,
 {
   std::cout << "[>>>] Start: step-wise access pattern ... " << std::endl;
   size_t mismatched = 0;
-  // get the field cell
-  auto cell = bField.getFieldCell(Acts::Vector3D{0., 0., 0.});
+  // initialize the field cache
+  typename field_t::Cache bCache;
   // boost display
   size_t totalSteps = events * theta_steps * phi_steps * access_steps;
   boost::progress_display show_progress(totalSteps);
@@ -87,12 +67,11 @@ accessStepWise(field_t& bField,
         for (size_t istep = 0; istep < access_steps; ++istep) {
           Acts::Vector3D position = currentStep * dir;
           // access the field directly
-          auto field_direct = accessFieldDirect<field_t>(bField, position);
+          auto field_direct = bField.getField(position);
           // access the field with the cell
-          auto field_cell
-              = accessFieldCell<field_t>(bField, cell, istep, position);
+          auto field_from_cache = bField.getField(position, bCache);
           // check
-          if (!field_direct.isApprox(field_cell)) {
+          if (!field_direct.isApprox(field_from_cache)) {
             ++mismatched;
           }
           // increase the step
@@ -118,8 +97,8 @@ accessRandom(field_t& bField, size_t totalSteps, double radius)
   UniformDist  yDist(-radius, radius);
   UniformDist  zDist(-radius, radius);
 
-  // get the field cell
-  auto cell = bField.getFieldCell(Acts::Vector3D{0., 0., 0.});
+  // initialize the field cache
+  typename field_t::Cache bCache;
   boost::progress_display show_progress(totalSteps);
 
   // the event loop
@@ -127,11 +106,11 @@ accessRandom(field_t& bField, size_t totalSteps, double radius)
   for (size_t istep = 0; istep < totalSteps; ++istep) {
     Acts::Vector3D position(xDist(rng), yDist(rng), zDist(rng));
     // access the field directly
-    auto field_direct = accessFieldDirect(bField, position);
+    auto field_direct = bField.getField(position);
     // access the field with the cell
-    auto field_cell = accessFieldCell(bField, cell, istep, position);
+    auto field_from_cache = bField.getField(position, bCache);
     // check
-    if (!field_direct.isApprox(field_cell)) {
+    if (!field_direct.isApprox(field_from_cache)) {
       ++mismatched;
     }
     // show the progress bar

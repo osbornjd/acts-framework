@@ -13,6 +13,7 @@
 #include <vector>
 #include "ACTFW/GenericDetector/GenericLayerBuilder.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
 #include "Acts/Material/Material.hpp"
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
 #include "Acts/Tools/CylinderVolumeHelper.hpp"
