@@ -46,24 +46,15 @@ FW::G4::MMEventAction::BeginOfEventAction(const G4Event*)
 void
 FW::G4::MMEventAction::EndOfEventAction(const G4Event* event)
 {
-  Acts::MaterialStep::Position pos(event->GetPrimaryVertex()->GetX0(),
-                                   event->GetPrimaryVertex()->GetY0(),
-                                   event->GetPrimaryVertex()->GetZ0());
+  const auto*          rawPos = event->GetPrimaryVertex();
+  const Acts::Vector3D pos(rawPos->GetX0(), rawPos->GetY0(), rawPos->GetZ0());
   // access the initial direction of the track
-  G4ThreeVector dir   = MMPrimaryGeneratorAction::Instance()->direction();
-  double        theta = dir.theta();
-  double        phi   = dir.phi();
-  // loop over the material steps and add up the material
-  double tX0 = 0;
-  double tL0 = 0;
-  for (auto& mstep : MMSteppingAction::Instance()->materialSteps()) {
-    tX0 += mstep.materialProperties().thicknessInX0();
-    tL0 += mstep.materialProperties().thicknessInL0();
-  }
-  // create the MaterialTrack
-  Acts::MaterialTrack mtrecord(
-      pos, theta, phi, MMSteppingAction::Instance()->materialSteps(), tX0, tL0);
-  // write out the MaterialTrack of one event
+  G4ThreeVector rawDir = MMPrimaryGeneratorAction::Instance()->direction();
+  const Acts::Vector3D dir(rawDir.x(), rawDir.y(), rawDir.z());
+  // create the RecordedMaterialTrack
+  Acts::RecordedMaterialTrack mtrecord(
+      pos, dir, MMSteppingAction::Instance()->materialSteps());
+  // write out the RecordedMaterialTrack of one event
   m_records.push_back(mtrecord);
 }
 

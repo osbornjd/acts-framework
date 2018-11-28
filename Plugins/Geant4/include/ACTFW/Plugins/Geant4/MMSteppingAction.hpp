@@ -14,7 +14,7 @@
 #define ACTFW_PLUGINS_GEANT4_MMSTEPPINGACTION_H
 
 #include <vector>
-#include "Acts/Plugins/MaterialMapping/MaterialStep.hpp"
+#include "Acts/Plugins/MaterialMapping/RecordedMaterialTrack.hpp"
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
 
@@ -23,7 +23,7 @@ namespace G4 {
 
   /// @class MMSteppingAction
   ///
-  /// @brief Collects the MaterialStep entities
+  /// @brief Collects the RecordedMaterialProperties entities
   ///
   /// The MMSteppingAction class is the implementation of the
   /// Geant4 class SteppingAction. It creates extracts the weighted material
@@ -43,7 +43,7 @@ namespace G4 {
     Instance();
 
     /// Interface Method doing the step
-    /// @note it creates and collects the MaterialStep entities
+    /// @note it creates and collects the RecordedMaterialProperties entities
     /// @param step is the Geant4 step of the particle
     void
     UserSteppingAction(const G4Step* step) final override;
@@ -53,8 +53,8 @@ namespace G4 {
     void
     Reset();
 
-    /// Access to the collected MaterialStep entities
-    std::vector<Acts::MaterialStep>
+    /// Access to the collected RecordedMaterialProperties entities
+    std::vector<Acts::RecordedMaterialProperties>
     materialSteps()
     {
       return m_steps;
@@ -64,8 +64,8 @@ namespace G4 {
     /// Instance of the SteppingAction
     static MMSteppingAction* fgInstance;
 
-    /// The collected MaterialStep entities
-    std::vector<Acts::MaterialStep> m_steps;
+    /// The collected RecordedMaterialProperties entities
+    std::vector<Acts::RecordedMaterialProperties> m_steps;
   };
 
 }  // namespace G4

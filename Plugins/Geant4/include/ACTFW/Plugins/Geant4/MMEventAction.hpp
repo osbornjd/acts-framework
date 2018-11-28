@@ -14,7 +14,7 @@
 #define ACTFW_PLUGINS_GEANT4_MMEVENTACTION_H
 
 #include <memory>
-#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/RecordedMaterialTrack.hpp"
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 
@@ -29,7 +29,7 @@ namespace G4 {
   /// @brief Writes out material track records
   ///
   /// The MMEventAction class is the realization of the Geant4 class
-  /// G4UserEventAction and is writing out the collected MaterialTrack
+  /// G4UserEventAction and is writing out the collected RecordedMaterialTrack
   /// entities needed for material mapping once per event.
   ///
   class MMEventAction : public G4UserEventAction
@@ -63,7 +63,7 @@ namespace G4 {
     Reset();
 
     // Access the material track records
-    std::vector<Acts::MaterialTrack> const
+    std::vector<Acts::RecordedMaterialTrack> const
     MaterialTracks();
 
   private:
@@ -71,10 +71,10 @@ namespace G4 {
     static MMEventAction* fgInstance;
 
     /// The materialTrackWriter
-    std::vector<Acts::MaterialTrack> m_records;
+    std::vector<Acts::RecordedMaterialTrack> m_records;
   };
 
-  inline std::vector<Acts::MaterialTrack> const
+  inline std::vector<Acts::RecordedMaterialTrack> const
   MMEventAction::MaterialTracks()
   {
     auto rrecords = m_records;
