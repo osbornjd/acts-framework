@@ -1,0 +1,23 @@
+<materials>
+
+  <element Z="18" formula="LAr" name="LAr" >
+  <atom type="A" unit="g/mol" value="39.9477" />
+ </element>
+ <material formula="LAr" name="LiquidArgon" state="liquid" >
+  <RL type="X0" unit="cm" value="14.0" />
+  <NIL type="lambda" unit="cm" value="83.7" />
+  <D type="density" unit="g/cm3" value="1.4" />
+  <composite n="1" ref="LAr" />
+ </material>
+
+ <element Z="82" formula="Pb" name="Pb" >
+  <atom type="A" unit="g/mol" value="207.217" />
+ </element>
+ <material formula="Pb" name="Lead" state="solid" >
+  <RL type="X0" unit="cm" value="0.561253" />
+  <NIL type="lambda" unit="cm" value="18.2607" />
+  <D type="density" unit="g/cm3" value="11.35" />
+  <composite n="1" ref="Pb" />
+ </material>
+ 
+</materials>

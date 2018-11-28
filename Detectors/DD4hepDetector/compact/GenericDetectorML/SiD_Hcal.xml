@@ -1,0 +1,22 @@
+<lccdd>
+  <!--  Definition of the used visualization attributes    -->
+  <display>
+    <vis name="HcalBarrelVis"    alpha="1" r="0.0"  g="0.3"  b="0.8" showDaughters="true" visible="false"/>
+    <vis name="HcalStavesVis"    alpha="1" r="0.0"  g="0.0"  b="0.1" showDaughters="true" visible="false"/>
+    <vis name="HcalAbsorberVis"  alpha="1" r="0.0"  g="0.4"  b="0.6" showDaughters="true" visible="true"/>
+    <vis name="HcalAbsorberVis2"  alpha="1" r="0.5"  g="0.4"  b="0.6" showDaughters="true" visible="true"/>
+  </display>
+
+<detectors>
+  <detector id="HcalBarrel_ID" name="HcalBarrel" type="ACTS_CaloBarrel" readout="HcalBarrelHits" vis="HcalBarrelVis" calorimeterType="HAD_BARREL" material="Steel235">
+	
+    <comment>Hadron Calorimeter Barrel</comment>
+    <dimensions numsides="(int) CaloSides" rmin="HcalBarrel_rmin" rmax="HcalBarrel_rmax" z="HcalBarrel_zmax*2"/>
+    <staves vis="HcalStavesVis"/>
+    <layer vis="HcalAbsorberVis" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin1" rmax="HcalBarrel_rmax1" material="Lead"/>
+    <layer vis="HcalAbsorberVis2" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin2" rmax="HcalBarrel_rmax2" material="Lead"/>
+    <layer vis="HcalAbsorberVis" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin3" rmax="HcalBarrel_rmax3" material="Lead"/>
+    <layer vis="HcalAbsorberVis2" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin4" rmax="HcalBarrel_rmax4" material="Lead"/>
+  </detector>
+</detectors>
+</lccdd>

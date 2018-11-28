@@ -1,0 +1,29 @@
+<lccdd>
+  <!--  Definition of the used visualization attributes    -->
+  <display>
+    <vis name="HcalBarrelVis"    alpha="1" r="0.0"  g="0.3"  b="0.8" showDaughters="true" visible="false"/>
+    <vis name="HcalStavesVis"    alpha="1" r="0.0"  g="0.0"  b="0.1" showDaughters="true" visible="false"/>
+    <vis name="HcalAbsorberVis"  alpha="1" r="0.4"  g="0.4"  b="0.6" showDaughters="true" visible="true"/>
+  </display>
+  
+  <!--  Definition of the readout segmentation/definition  -->
+  <readouts>
+    <readout name="HcalBarrelHits">
+      <segmentation type="CartesianGridXY" grid_size_x="3.0*cm" grid_size_y="3.0*cm" />
+      <id>system:8,barrel:3,module:6,layer:8,slice:5,x:32:-16,y:-16</id>
+    </readout>
+  </readouts>
+
+<detectors>
+  <detector id="HcalBarrel_ID" name="HcalBarrel" type="DD4hep_PolyhedraBarrelCalorimeter2" readout="HcalBarrelHits" vis="HcalBarrelVis" calorimeterType="HAD_BARREL" gap="0.*cm" material="Steel235">
+
+    <comment>Hadron Calorimeter Barrel</comment>
+    <dimensions numsides="(int) CaloSides" rmin="HcalBarrel_rmin" z="HcalBarrel_zmax*2"/>
+    <staves vis="HcalStavesVis"/>
+    <layer repeat="4">
+      <slice material="Lead" thickness="48.75*cm" vis="HcalAbsorberVis"/>
+    </layer>
+  </detector>
+</detectors>
+
+</lccdd>
