@@ -162,7 +162,7 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
 
               // create the planar cluster
               Acts::PlanarModuleCluster pCluster(
-                  hitSurface,
+                  hitSurface.getSharedPtr(),
                   Identifier(Identifier::identifier_type(geoID.value()),
                              hitParticles),
                   std::move(cov),
