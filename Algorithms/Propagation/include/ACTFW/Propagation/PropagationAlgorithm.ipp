@@ -104,7 +104,9 @@ PropagationAlgorithm<propagator_t>::execute(AlgorithmContext context) const
   FW::UniformDist ptDist(m_cfg.ptRange.first, m_cfg.ptRange.second);
   FW::UniformDist qDist(0., 1.);
 
-  std::shared_ptr<const Acts::PerigeeSurface> surface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3D(0., 0., 0.));
+  std::shared_ptr<const Acts::PerigeeSurface> surface
+      = Acts::Surface::makeShared<Acts::PerigeeSurface>(
+          Acts::Vector3D(0., 0., 0.));
 
   std::vector<std::vector<Acts::detail::Step>> propagationSteps;
   propagationSteps.reserve(m_cfg.ntests);

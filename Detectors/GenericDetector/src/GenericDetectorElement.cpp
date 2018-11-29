@@ -22,7 +22,8 @@ FW::Generic::GenericDetectorElement::GenericDetectorElement(
   : Acts::IdentifiedDetectorElement()
   , m_elementIdentifier(std::move(identifier))
   , m_elementTransform(std::move(transform))
-  , m_elementSurface(Acts::Surface::makeShared<Acts::PlaneSurface>(pBounds, *this))
+  , m_elementSurface(
+        Acts::Surface::makeShared<Acts::PlaneSurface>(pBounds, *this))
   , m_elementThickness(thickness)
   , m_elementPlanarBounds(std::move(pBounds))
   , m_elementDiscBounds(nullptr)
@@ -43,7 +44,8 @@ FW::Generic::GenericDetectorElement::GenericDetectorElement(
   : Acts::IdentifiedDetectorElement()
   , m_elementIdentifier(std::move(identifier))
   , m_elementTransform(std::move(transform))
-  , m_elementSurface(Acts::Surface::makeShared<Acts::DiscSurface>(dBounds, *this))
+  , m_elementSurface(
+        Acts::Surface::makeShared<Acts::DiscSurface>(dBounds, *this))
   , m_elementThickness(thickness)
   , m_elementPlanarBounds(nullptr)
   , m_elementDiscBounds(std::move(dBounds))
