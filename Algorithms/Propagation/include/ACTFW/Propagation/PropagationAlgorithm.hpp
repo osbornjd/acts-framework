@@ -21,6 +21,7 @@
 #include "Acts/Extrapolator/Navigator.hpp"
 #include "Acts/Propagator/AbortList.hpp"
 #include "Acts/Propagator/ActionList.hpp"
+#include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/detail/DebugOutputActor.hpp"
 #include "Acts/Propagator/detail/StandardAbortConditions.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"

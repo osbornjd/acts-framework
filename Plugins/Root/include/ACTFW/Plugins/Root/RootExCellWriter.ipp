@@ -111,10 +111,8 @@ FW::Root::RootExCellWriter<parameters_t>::writeT(
             double materialStepL0 = 0.;
             if (es.material) {
               // assign the material
-              materialStepX0
-                  = es.materialScaling * es.material->thicknessInX0();
-              materialStepX0
-                  = es.materialScaling * es.material->thicknessInL0();
+              materialStepX0 = es.materialScaling * es.material.thicknessInX0();
+              materialStepX0 = es.materialScaling * es.material.thicknessInL0();
             }
             m_s_materialX0.push_back(materialStepX0);
             m_s_materialX0.push_back(materialStepL0);

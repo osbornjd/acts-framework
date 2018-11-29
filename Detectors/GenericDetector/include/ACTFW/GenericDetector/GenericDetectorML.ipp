@@ -16,7 +16,8 @@ bplConfig.centralLayerRadii       = std::vector<double>(1, 19.);
 bplConfig.centralLayerHalflengthZ = std::vector<double>(1, 3000.);
 bplConfig.centralLayerThickness   = std::vector<double>(1, 0.8);
 bplConfig.centralLayerMaterial
-    = {Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 0.8)};
+    = {std::make_shared<Acts::HomogeneousSurfaceMaterial>(
+        Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 0.8))};
 auto beamPipeBuilder = std::make_shared<const Acts::PassiveLayerBuilder>(
     bplConfig,
     Acts::getDefaultLogger("BeamPipeLayerBuilder", layerLLevel));
@@ -201,7 +202,8 @@ pstConfig.centralLayerRadii       = std::vector<double>(1, 200.);
 pstConfig.centralLayerHalflengthZ = std::vector<double>(1, 2800.);
 pstConfig.centralLayerThickness   = std::vector<double>(1, 1.8);
 pstConfig.centralLayerMaterial
-    = {Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 1.8)};
+    = {std::make_shared<Acts::HomogeneousSurfaceMaterial>(
+        Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 1.8))};
 auto pstBuilder = std::make_shared<const Acts::PassiveLayerBuilder>(
     pstConfig,
     Acts::getDefaultLogger("PSTBuilder", layerLLevel));

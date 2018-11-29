@@ -77,14 +77,12 @@ FW::G4::MMSteppingAction::UserSteppingAction(const G4Step* step)
        G4cout << "rho: " << rho << G4endl;
        G4cout << "steplength: " << steplength << G4endl;*/
 
-    // create the Materialstep
-    const Acts::MaterialStep::Position pos(
-        step->GetPreStepPoint()->GetPosition().x(),
-        step->GetPreStepPoint()->GetPosition().y(),
-        step->GetPreStepPoint()->GetPosition().z());
+    // create the RecordedMaterialProperties
+    const auto&          rawPos = step->GetPreStepPoint()->GetPosition();
+    const Acts::Vector3D pos(rawPos.x(), rawPos.y(), rawPos.z());
     const Acts::MaterialProperties matprop(X0, L0, A, Z, rho, steplength);
-    Acts::MaterialStep             mstep = Acts::MaterialStep(matprop, pos);
-    m_steps.push_back(mstep);
+    const Acts::RecordedMaterialProperties recMatProp(matprop, pos);
+    m_steps.push_back(recMatProp);
   }
 }
 
