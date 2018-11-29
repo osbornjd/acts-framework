@@ -11,7 +11,6 @@
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Surfaces/PlaneSurface.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
@@ -19,6 +18,10 @@
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include <iostream>
+
+#include "Vertex.hpp"
+#include "LinearizedTrack.hpp"
+#include "LinearizedTrackFactory.hpp"
 
 struct Config
   {
@@ -60,11 +63,10 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	const double pgSrfY = 0.;
 	const double pgSrfZ = 0.;
 
-	//Acts::PlaneSurface   perigeeSurface(Acts::Vector3D(10.,0.,0.), Acts::Vector3D(1.,0.,0.));
 	Acts::PerigeeSurface perigeeSurface(Acts::Vector3D(pgSrfX, pgSrfY, pgSrfZ));
 
 	// Set up b-field and stepper
-	Acts::ConstantBField bField(Acts::Vector3D(0.,0.,0.)*Acts::units::_T);
+	Acts::ConstantBField bField(Acts::Vector3D(0.,0.,1.)*Acts::units::_T);
 	Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
 	
 	// Set up propagator with void navigator
@@ -104,7 +106,11 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 
 					const auto& perigeeParameters = result.endParameters->parameters(); // d0, z0, phi, theta,q/p
 
-					if (std::abs(perigeeParameters[0]) > 50 || std::abs(perigeeParameters[1]) > 100){
+					if (std::abs(perigeeParameters[0]) > 30 || std::abs(perigeeParameters[1]) > 200){
+						std::cout << "d0 = " << perigeeParameters[0] << std::endl;
+						std::cout << "z0 = " << perigeeParameters[1] << std::endl;
+						std::cout << "eta = " << eta << std::endl;
+						std::cout << "#########" << std::endl;
 						continue;
 					}
 
@@ -137,11 +143,19 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 		}
 	}
 
+	std::cout << smrdTrksVec[0] << std::endl;
+	std::cout << "#######" << std::endl;
+
+	LinearizedTrackFactory trackfac;
+	LinearizedTrack* lt = trackfac.linearizeTrack(&smrdTrksVec[0], Acts::Vector3D(0.,0.,0.));
+	std::cout << lt->linearizationPoint() << std::endl;
+
 	if(context.eventStore.add(m_cfg.collectionOut, std::move(smrdTrksVec))
 		!= FW::ProcessCode::SUCCESS)
 	{
 		return FW::ProcessCode::ABORT;
 	}
+
 	
 	return FW::ProcessCode::SUCCESS;
 }

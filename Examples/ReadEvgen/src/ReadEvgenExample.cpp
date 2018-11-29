@@ -73,9 +73,9 @@ main(int argc, char* argv[])
       pythia8Configs.first,
       Acts::getDefaultLogger("HardScatterPythia8Generator", logLevel));
   // The pileup generator
-  auto puPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
-      pythia8Configs.second,
-      Acts::getDefaultLogger("PileUpPythia8Generator", logLevel));
+  //auto puPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
+    //  pythia8Configs.second,
+    //  Acts::getDefaultLogger("PileUpPythia8Generator", logLevel));
   // Create the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
   auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
@@ -83,7 +83,7 @@ main(int argc, char* argv[])
   // Now read the evgen config & set the missing parts
   auto readEvgenCfg                   = FW::Options::readEvgenConfig(vm);
   readEvgenCfg.hardscatterEventReader = hsPythiaGenerator;
-  readEvgenCfg.pileupEventReader      = puPythiaGenerator;
+  //readEvgenCfg.pileupEventReader      = puPythiaGenerator; //disable PU
   readEvgenCfg.randomNumberSvc        = randomNumberSvc;
   readEvgenCfg.barcodeSvc             = barcodeSvc;
   readEvgenCfg.nEvents                = nEvents;

@@ -3,13 +3,13 @@
  *
  * Class for linear expansion of track parameters in vicinity of vertex
  *
- * Drom ATHENA code: The measurement equation is linearized in the following way: 
+ * From ATHENA code: The measurement equation is linearized in the following way: 
  *
- * q_k= A_k (x_k - x_0k) + B_k (p_k - p_0k) + c_k
+ * F_k= D_k (x_k - x_0k) + E_k (p_k - p_0k) + F^0_k
  *
- * where q_k are the parameters at perigee nearest to the lin point, 
+ * where F_k are the parameters at perigee nearest to the lin point, 
  * x_k is the position of the vertex, p_k the track momentum at the vertex,
- * and c_k is the constant term of expansion. A_k and B_k are matrices
+ * and F^0_k is the constant term of expansion. D_k and E_k are matrices
  * of derivatives, denoted hereafter as "positionJacobian" and "momentumJacobian"
  * respectively.
 
@@ -20,7 +20,7 @@
 
 #include "Acts/Utilities/Definitions.hpp"
 
-class LinearizedTrack
+class LinearizedTrack // TODO inherit from TrackParametersBase
 {
 public:
 
