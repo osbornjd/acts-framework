@@ -77,10 +77,11 @@ namespace Options {
     opt.add_options()(
         "dd4hep-input",
         po::value<read_strings>()->multitoken()->default_value(
-            {"file:Detectors/DD4hepDetector/compact/FCChhBaseline/"
-             "FCChh_DectEmptyMaster.xml",
-             "file:Detectors/DD4hepDetector/compact/FCChhBaseline/"
-             "Tracker.xml"}),
+            //~ {"file:Detectors/DD4hepDetector/compact/FCChhBaseline/"
+             //~ "FCChh_DectEmptyMaster.xml",
+             //~ "file:Detectors/DD4hepDetector/compact/FCChhBaseline/"
+             //~ "Tracker.xml"}),
+            {"file:/afs/cern.ch/user/f/fklimpel/acts-framework/Detectors/DD4hepDetector/compact/GenericDetectorML/GenericDetectorML.xml"}),
         "The locations of the input DD4hep files, use 'file:foo.xml'. In case "
         "you want to read in multiple files, just seperate the strings by "
         "space.")("dd4hep-envelopeR",

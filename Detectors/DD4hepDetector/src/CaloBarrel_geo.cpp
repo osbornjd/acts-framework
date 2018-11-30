@@ -23,23 +23,18 @@ using namespace std;
 using namespace dd4hep;
 using namespace dd4hep::detail;
 
-static Ref_t create_detector(Detector& description, xml_h e, SensitiveDetector sens)  {
-  static double tolerance = 0e0;
-  Layering      layering (e);
+static Ref_t create_element(Detector& description, xml_h e, SensitiveDetector sens)  {
   xml_det_t     x_det     = e;
   Material      air       = description.air();
   int           det_id    = x_det.id();
   string        det_name  = x_det.nameStr();
-  xml_comp_t    x_staves  = x_det.staves();
   xml_comp_t    x_dim     = x_det.dimensions();
-  int           nsides    = x_dim.numsides();
-  double        inner_r   = x_dim.rmin();
-  double        dphi      = (2*M_PI/nsides);
-  double        hphi      = dphi/2;
-  double        mod_z     = layering.totalThickness();
-  double        outer_r   = inner_r + mod_z;
-  double        totThick  = mod_z;
   DetElement    sdet      (det_name,det_id);
+
+  Acts::ActsExtension::Config volConfig;
+  volConfig.isBarrel           = true;
+  Acts::ActsExtension* detvolume = new Acts::ActsExtension(volConfig);
+  sdet.addExtension<Acts::IActsExtension>(detvolume);
 
   Volume        motherVol = description.pickMotherVolume(sdet);
   dd4hep::Tube   envShape(x_dim.rmin(), x_dim.rmax(), x_dim.z());
@@ -50,21 +45,17 @@ static Ref_t create_detector(Detector& description, xml_h e, SensitiveDetector s
   sdet.setPlacement(envPhys);
   sdet.setVisAttributes(description, x_det.visStr(), envelope);
 
-  DetElement    stave_det("stave0",det_id);
-  double dx = 0.0; //mod_z / std::sin(dphi); // dx per layer
-
   sens.setType("calorimeter");
-  { 
     // Loop over the sets of layer elements in the detector.
     int l_num = 1;
-    for(xml_coll_t li(x_det,_U(layer)); li; ++li)  {
+    for(xml_coll_t li(x_det,_U(detector)); li; ++li)  {
       xml_comp_t x_layer = li;
 		dd4hep::Tube   layerShape(x_layer.rmin(), x_layer.rmax(), x_layer.dz());
 		std::string    layerName = dd4hep::xml::_toString(l_num, "layer%d");
 		dd4hep::Volume layerVolume(layerName, layerShape, description.material(x_layer.materialStr()));
 		// Create layer detector element
-		dd4hep::DetElement lay_det(stave_det, layerName, l_num);
-
+		dd4hep::DetElement lay_det(sdet, layerName, l_num);
+  
 		if (x_layer.hasAttr(_U(vis))) {
 		  layerVolume.setVisAttributes(description, x_layer.visStr());
 		}
@@ -86,10 +77,9 @@ static Ref_t create_detector(Detector& description, xml_h e, SensitiveDetector s
 		lay_det.setPlacement(placedLayerVolume);
 		l_num++;
     }
-  }
 
   return sdet;
 }
 
-DECLARE_DETELEMENT(ACTS_CaloBarrel, create_detector)
-DECLARE_DEPRECATED_DETELEMENT(CaloBarrel, create_detector)
+DECLARE_DETELEMENT(ACTS_CaloBarrel, create_element)
+DECLARE_DEPRECATED_DETELEMENT(CaloBarrel, create_element)
