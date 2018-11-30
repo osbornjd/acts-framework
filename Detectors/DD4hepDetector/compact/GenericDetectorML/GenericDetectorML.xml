@@ -304,26 +304,18 @@
 		</readout>
     </readouts>
 
-
-<!--
   <include ref="GenericDetectorML_pixel.xml"/>
   <include ref="GenericDetectorML_ShortStrip.xml"/>
   <include ref="GenericDetectorML_LongStrip.xml"/>
--->
 
   <comment>Calorimeters</comment>
   <include ref="SiD_Ecal.xml"/>
-<!--
   <include ref="SiD_Hcal.xml"/>
--->
 
     <detectors>
-<!--
         <detector id="0" name="beampipe" type="BeamPipe">
             <dimensions rmin="BeamPipe_rmin" rmax="BeamPipe_rmax" z="BeamPipe_hLength" vis="violet" material="Be"/>
         </detector>
--->
-<!--
         <detector id="1" name="Pixel" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
             <composite name="Barrel0"/>
             <composite name="EndCap0"/>
@@ -336,12 +328,6 @@
             <composite name="Barrel2"/>
             <composite name="EndCap2"/>
         </detector>
--->
-<!--
-        <detector id="4" name="Ecal" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
-			<composite name="EcalBarrel"/>
-		</detector>
--->
     </detectors>
 
   <fields>
