@@ -94,7 +94,7 @@ generic_propagation:
 generic_fatras_example:
   <<: *example_base
   script:
-    - ACTFWGenericPropagationExample
+    - ACTFWGenericFatrasExample
   allow_failure: true
 
 root_fatras_example:
