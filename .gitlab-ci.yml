@@ -91,11 +91,6 @@ generic_propagation:
   script:
     - ACTFWGenericPropagationExample
 
-generic_extrapolation_example:
-  <<: *example_base
-  script:
-    - ACTFWGenericExtrapolationExample
-
 particle_gun_example:
   <<: *example_base
   script:
@@ -115,11 +110,6 @@ random_number_example:
   <<: *example_base
   script:
     - ACTFWRandomNumberExample
-
-dd4hep_extrapolation_example:
-  <<: *example_base
-  script:
-    - ACTFWDD4hepExtrapolationExample
 
 dd4hep_fatras_example:
   <<: *example_base
