@@ -91,6 +91,18 @@ generic_propagation:
   script:
     - ACTFWGenericPropagationExample
 
+generic_fatras_example:
+  <<: *example_base
+  script:
+    - ACTFWGenericPropagationExample
+  allow_failure: true
+
+root_fatras_example:
+  <<: *example_base
+  script:
+    - ACTFWRootFatrasExample
+  allow_failure: true
+
 particle_gun_example:
   <<: *example_base
   script:
@@ -115,6 +127,7 @@ dd4hep_fatras_example:
   <<: *example_base
   script:
     - ACTFWDD4hepFatrasExample
+  allow_failure: true
 
 dd4hep_geometry_example:
   <<: *example_base
