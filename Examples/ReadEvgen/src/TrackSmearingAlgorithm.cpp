@@ -137,19 +137,35 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 					paramVec << smrd_d0, smrd_z0, smrd_phi, smrd_theta, srmd_qp;
 
 					// Fill vector of smeared tracks
-					smrdTrksVec.push_back(Acts::BoundParameters(nullptr, paramVec, perigeeSurface));
+					std::unique_ptr<Acts::ActsSymMatrixD<5>> covMat = std::make_unique<Acts::ActsSymMatrixD<5>>();
+					covMat->setZero();
+					smrdTrksVec.push_back(Acts::BoundParameters(std::move(covMat), paramVec, perigeeSurface));
 				}
 			}
 		}
 	}
 
 	std::cout << smrdTrksVec[0] << std::endl;
-	std::cout << "#######" << std::endl;
+
+	std::cout << "............" << std::endl;
 
 	LinearizedTrackFactory trackfac;
-	LinearizedTrack* lt = trackfac.linearizeTrack(&smrdTrksVec[0], Acts::Vector3D(0.,0.,0.));
+	LinearizedTrack* lt = trackfac.linearizeTrack(&smrdTrksVec[0], Acts::Vector3D(10.,0.,0.));
+	std::cout << "####### 1" << std::endl;
+	std::cout << lt->parametersAtPCA() << std::endl;
+	std::cout << "####### 2" << std::endl;
+	std::cout << lt->covarianceAtPCA() << std::endl;
+	std::cout << "####### 3" << std::endl;
 	std::cout << lt->linearizationPoint() << std::endl;
-
+	std::cout << "####### 4" << std::endl;
+	std::cout << lt->positionJacobian() << std::endl;
+	std::cout << "####### 5" << std::endl;
+	std::cout << lt->momentumJacobian() << std::endl;
+	std::cout << "####### 6" << std::endl;
+	std::cout << lt->momentumAtPCA() << std::endl;
+	std::cout << "####### 7" << std::endl;
+	std::cout << lt->constantTerm() << std::endl;
+  
 	if(context.eventStore.add(m_cfg.collectionOut, std::move(smrdTrksVec))
 		!= FW::ProcessCode::SUCCESS)
 	{

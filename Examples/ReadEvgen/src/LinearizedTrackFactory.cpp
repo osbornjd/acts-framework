@@ -44,7 +44,6 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
 		parCovarianceAtPCA = *params->covariance();
 	}
 
-	
 	 //phi_v and functions  
     double phi_v = paramsAtPCA(Acts::ParID_t::ePHI);
     double sin_phi_v = sin(phi_v);
@@ -63,13 +62,16 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
 
     // TODO, retrieve B-field
     // B-field z-component
-    double B_z = 0; // TODO
+    double B_z = 1. * Acts::units::_T; // TODO
 
     double rho;
     // Curvature is infinite w/o b field
-    if (B_z == 0. || std::abs(q_ov_p) < 1.e-15) rho = 1.e+15;
-    else rho = sin_th / (q_ov_p * B_z); // TODO: check units
-
+    if (B_z == 0. || std::abs(q_ov_p) < 1.e-15)
+    {
+   		rho = 1.e+15;
+    } 
+    else rho = std::abs(Acts::units::Nat2SI<Acts::units::MOMENTUM>(sin_th * 1/q_ov_p * Acts::units::_GeV) / B_z) * Acts::units::_mm; // rho in _mm
+   
     double X = positionAtPCA(0) - linPoint.x() + rho*sin_phi_v;
     double Y = positionAtPCA(1) - linPoint.y() - rho*cos_phi_v;
     double S2 = (X * X + Y * Y);
@@ -139,10 +141,6 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
     // Last two rows:
     momentumJacobian(3,1) = 1.;
     momentumJacobian(4,2) = 1.;
-
-
-	 
-
 
     // const term F(V_0, p_0) in Talyor expansion
     Acts::ActsVectorD<5> constTerm = 
