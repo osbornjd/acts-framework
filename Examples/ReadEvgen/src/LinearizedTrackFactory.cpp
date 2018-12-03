@@ -16,6 +16,7 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
 
 	const Acts::PerigeeSurface perigeeSurface(linPoint);
 
+	// TODO: obtain real b-field
 	// Set up b-field and stepper
 	Acts::ConstantBField bField(Acts::Vector3D(0.,0.,1.)*Acts::units::_T);
 	Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
@@ -60,9 +61,8 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
 
     Acts::Vector3D momentumAtPCA(phi_v, th, q_ov_p);
 
-    // TODO, retrieve B-field
-    // B-field z-component
-    double B_z = 1. * Acts::units::_T; // TODO
+    // get B-field z-component at current position
+    double B_z = bField.getField(linPoint)[Acts::eZ];
 
     double rho;
     // Curvature is infinite w/o b field
