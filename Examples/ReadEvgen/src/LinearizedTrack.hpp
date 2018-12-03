@@ -47,8 +47,6 @@ public:
 	/// Assignment operator
 	LinearizedTrack& operator= (const LinearizedTrack&);
 
-	/// Clone method
-	LinearizedTrack* clone() const;
 
 	/// Default constructor
 	virtual ~LinearizedTrack();

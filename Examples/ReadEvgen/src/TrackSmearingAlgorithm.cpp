@@ -22,6 +22,7 @@
 #include "Vertex.hpp"
 #include "LinearizedTrack.hpp"
 #include "LinearizedTrackFactory.hpp"
+#include "FullVertexFitter.hpp"
 
 struct Config
   {
@@ -145,7 +146,15 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 		}
 	}
 
-	std::cout << smrdTrksVec[0] << std::endl;
+	std::cout << smrdTrksVec.size() << std::endl;
+
+	FullVertexFitter vf;
+
+	Vertex v1 = vf.fit(smrdTrksVec,  Acts::Vector3D(0.,0.,0.));
+
+	std::cout << v1.position() << std::endl;
+
+	/*
 
 	std::cout << "............" << std::endl;
 
@@ -166,6 +175,8 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	std::cout << "####### 7" << std::endl;
 	std::cout << lt->constantTerm() << std::endl;
   
+	*/
+
 	if(context.eventStore.add(m_cfg.collectionOut, std::move(smrdTrksVec))
 		!= FW::ProcessCode::SUCCESS)
 	{

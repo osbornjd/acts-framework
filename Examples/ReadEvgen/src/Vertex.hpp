@@ -2,8 +2,7 @@
 /// Class describing a vertex
 ///
 
-#ifndef VERTEX_H
-#define VERTEX_H
+#pragma once
 
 #include "Acts/Utilities/Definitions.hpp"
 
@@ -32,5 +31,3 @@ private:
 	Acts::ActsSymMatrixD<3> m_covariance;
 
 };
-
-#endif

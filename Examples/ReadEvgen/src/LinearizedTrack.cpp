@@ -1,5 +1,6 @@
 
 #include "LinearizedTrack.hpp"
+#include <iostream>
 
 LinearizedTrack::LinearizedTrack()
 {
@@ -56,6 +57,5 @@ LinearizedTrack& LinearizedTrack::operator= (const LinearizedTrack& other)
 	return *this;
 }
 
-// TODO: implement clone method
 
 LinearizedTrack::~LinearizedTrack() {}
