@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -35,8 +35,8 @@ FW::GeantinoRecording::GeantinoRecording(
     /// Access the geometry from the gdml file
     ACTS_INFO(
         "received Geant4 geometry from GDML file: " << m_cfg.gdmlFile.c_str());
-    FW::G4::MMDetectorConstruction* detConstruction
-        = new FW::G4::MMDetectorConstruction();
+    FW::Geant4::MMDetectorConstruction* detConstruction
+        = new FW::Geant4::MMDetectorConstruction();
     detConstruction->setGdmlInput(m_cfg.gdmlFile.c_str());
     m_runManager->SetUserInitialization(
         detConstruction);  // constructs detector (calls Construct in
@@ -47,12 +47,12 @@ FW::GeantinoRecording::GeantinoRecording(
 
   /// Now set up the Geant4 simulation
   m_runManager->SetUserInitialization(new FTFP_BERT);
-  m_runManager->SetUserAction(new FW::G4::MMPrimaryGeneratorAction(
+  m_runManager->SetUserAction(new FW::Geant4::MMPrimaryGeneratorAction(
       "geantino", 1000., m_cfg.seed1, m_cfg.seed2));
-  FW::G4::MMRunAction* runaction = new FW::G4::MMRunAction();
+  FW::Geant4::MMRunAction* runaction = new FW::Geant4::MMRunAction();
   m_runManager->SetUserAction(runaction);
-  m_runManager->SetUserAction(new FW::G4::MMEventAction());
-  m_runManager->SetUserAction(new FW::G4::MMSteppingAction());
+  m_runManager->SetUserAction(new FW::Geant4::MMEventAction());
+  m_runManager->SetUserAction(new FW::Geant4::MMSteppingAction());
   m_runManager->Initialize();
 }
 
@@ -63,7 +63,7 @@ FW::ProcessCode FW::GeantinoRecording::execute(FW::AlgorithmContext) const
   m_runManager->BeamOn(m_cfg.tracksPerEvent);
   ///
   std::vector<Acts::MaterialTrack> mtrecords
-      = FW::G4::MMEventAction::Instance()->MaterialTracks();
+      = FW::Geant4::MMEventAction::Instance()->MaterialTracks();
   ACTS_INFO("Received " << mtrecords.size()
                         << " MaterialTracks. Writing them now onto file...");
   // write to the file

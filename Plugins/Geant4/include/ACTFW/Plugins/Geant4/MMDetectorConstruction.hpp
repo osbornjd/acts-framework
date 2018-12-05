@@ -1,13 +1,12 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_PLUGINS_GEANT4_MMDETECTORCONSTRUCTION_H
-#define ACTFW_PLUGINS_GEANT4_MMDETECTORCONSTRUCTION_H
+#pragma once
 
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
@@ -19,7 +18,8 @@ class G4VPhysicalVolume;
 class TGeoNode;
 
 namespace FW {
-namespace G4 {
+
+namespace Geant4 {
 
   /// @class MMDetectorConstruction
   ///
@@ -32,7 +32,7 @@ namespace G4 {
   {
   public:
     /// Constructor
-    MMDetectorConstruction();
+    MMDetectorConstruction() = default;
 
     /// Construct method
     /// @return the world volume as G4VPhysicalVolume
@@ -51,10 +51,8 @@ namespace G4 {
     setGdmlInput(std::string gdmlFile);
 
   private:
-    TGeoNode*    m_tgeoNode;
-    std::string* m_gdmlFile;
+    TGeoNode*   m_tgeoNode = nullptr;
+    std::string m_gdmlFile = "";
   };
-}  // namespace G4
+}  // namespace Geant4
 }  // namespace FW
-
-#endif  // ACTFW_PLUGINS_GEANT4_MMDETECTORCONSTRUCTION_H

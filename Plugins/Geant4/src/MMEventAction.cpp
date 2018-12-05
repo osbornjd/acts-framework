@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,16 +13,16 @@
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 
-FW::G4::MMEventAction* FW::G4::MMEventAction::fgInstance = nullptr;
+FW::Geant4::MMEventAction* FW::Geant4::MMEventAction::fgInstance = nullptr;
 
-FW::G4::MMEventAction*
-FW::G4::MMEventAction::Instance()
+FW::Geant4::MMEventAction*
+FW::Geant4::MMEventAction::Instance()
 {
   // Static acces function via G4RunManager
   return fgInstance;
 }
 
-FW::G4::MMEventAction::MMEventAction() : G4UserEventAction()
+FW::Geant4::MMEventAction::MMEventAction() : G4UserEventAction()
 {
   if (fgInstance) {
     throw std::logic_error("Attempted to duplicate a singleton");
@@ -31,20 +31,20 @@ FW::G4::MMEventAction::MMEventAction() : G4UserEventAction()
   }
 }
 
-FW::G4::MMEventAction::~MMEventAction()
+FW::Geant4::MMEventAction::~MMEventAction()
 {
   fgInstance = nullptr;
 }
 
 void
-FW::G4::MMEventAction::BeginOfEventAction(const G4Event*)
+FW::Geant4::MMEventAction::BeginOfEventAction(const G4Event*)
 {
   // reset the collection of material steps
   MMSteppingAction::Instance()->Reset();
 }
 
 void
-FW::G4::MMEventAction::EndOfEventAction(const G4Event* event)
+FW::Geant4::MMEventAction::EndOfEventAction(const G4Event* event)
 {
   const auto*          rawPos = event->GetPrimaryVertex();
   const Acts::Vector3D pos(rawPos->GetX0(), rawPos->GetY0(), rawPos->GetZ0());
@@ -59,6 +59,6 @@ FW::G4::MMEventAction::EndOfEventAction(const G4Event* event)
 }
 
 void
-FW::G4::MMEventAction::Reset()
+FW::Geant4::MMEventAction::Reset()
 {
 }

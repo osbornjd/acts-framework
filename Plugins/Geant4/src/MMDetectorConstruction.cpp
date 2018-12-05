@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,13 +10,8 @@
 #include "G4GDMLParser.hh"
 #include "TGeoManager.h"
 
-FW::G4::MMDetectorConstruction::MMDetectorConstruction()
-  : G4VUserDetectorConstruction(), m_tgeoNode(nullptr), m_gdmlFile(nullptr)
-{
-}
-
 G4VPhysicalVolume*
-FW::G4::MMDetectorConstruction::Construct()
+FW::Geant4::MMDetectorConstruction::Construct()
 {
   if (m_tgeoNode) {
     // Import geometry from Root to VGM
@@ -31,22 +26,22 @@ FW::G4::MMDetectorConstruction::Construct()
          G4VPhysicalVolume* world = g4Factory.World();
          return world;*/
     return nullptr;
-  } else if (m_gdmlFile) {
+  } else if (m_gdmlFile != "") {
     G4GDMLParser parser;
-    parser.Read(*m_gdmlFile);
+    parser.Read(m_gdmlFile);
     return parser.GetWorldVolume();
   } else
     return nullptr;  // and error Message
 }
 
 void
-FW::G4::MMDetectorConstruction::setTGeoGeometry(TGeoNode* tgeoNode)
+FW::Geant4::MMDetectorConstruction::setTGeoGeometry(TGeoNode* tgeoNode)
 {
   m_tgeoNode = tgeoNode;
 }
 
 void
-FW::G4::MMDetectorConstruction::setGdmlInput(std::string gdmlFile)
+FW::Geant4::MMDetectorConstruction::setGdmlInput(std::string gdmlFile)
 {
-  m_gdmlFile = new std::string(gdmlFile);
+  m_gdmlFile = gdmlFile;
 }

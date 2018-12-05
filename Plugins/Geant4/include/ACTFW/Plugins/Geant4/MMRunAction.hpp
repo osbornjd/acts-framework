@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,8 +10,7 @@
 // MMRunAction.h
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ACTFW_PLUGINS_GEANT4_MMRUNACTION_H
-#define ACTFW_PLUGINS_GEANT4_MMRUNACTION_H
+#pragma once
 
 #include <memory>
 #include "G4UserRunAction.hh"
@@ -20,7 +19,7 @@
 class G4Run;
 
 namespace FW {
-namespace G4 {
+namespace Geant4 {
 
   /// @class MMRunAction
   ///
@@ -56,7 +55,5 @@ namespace G4 {
     /// Instance of the EventAction
     static MMRunAction* fgInstance;
   };
-}  // namespace G4
+}  // namespace Geant4
 }  // namespace FW
-
-#endif  // ACTFW_PLUGINS_GEANT4_MMRUNACTION_H

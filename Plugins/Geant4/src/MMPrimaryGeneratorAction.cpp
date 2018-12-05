@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,10 +16,11 @@
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
 
-FW::G4::MMPrimaryGeneratorAction* FW::G4::MMPrimaryGeneratorAction::fgInstance
+FW::Geant4::MMPrimaryGeneratorAction*
+    FW::Geant4::MMPrimaryGeneratorAction::fgInstance
     = nullptr;
 
-FW::G4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
+FW::Geant4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
     const G4String& particleName,
     G4double        energy,
     G4int           randomSeed1,
@@ -46,20 +47,20 @@ FW::G4::MMPrimaryGeneratorAction::MMPrimaryGeneratorAction(
   CLHEP::HepRandom::getTheEngine()->setSeed(randomSeed1, randomSeed2);
 }
 
-FW::G4::MMPrimaryGeneratorAction::~MMPrimaryGeneratorAction()
+FW::Geant4::MMPrimaryGeneratorAction::~MMPrimaryGeneratorAction()
 {
   fgInstance = nullptr;
 }
 
-FW::G4::MMPrimaryGeneratorAction*
-FW::G4::MMPrimaryGeneratorAction::Instance()
+FW::Geant4::MMPrimaryGeneratorAction*
+FW::Geant4::MMPrimaryGeneratorAction::Instance()
 {
   // Static acces function via G4RunManager
   return fgInstance;
 }
 
 void
-FW::G4::MMPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
+FW::Geant4::MMPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   // this function is called at the begining of event
   G4double phi   = -M_PI + G4UniformRand() * 2. * M_PI;

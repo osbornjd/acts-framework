@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,8 +10,7 @@
 // MMMaterialStepAction.h
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ACTFW_PLUGINS_GEANT4_MMSTEPPINGACTION_H
-#define ACTFW_PLUGINS_GEANT4_MMSTEPPINGACTION_H
+#pragma once
 
 #include <vector>
 #include "Acts/Plugins/MaterialMapping/RecordedMaterialTrack.hpp"
@@ -19,7 +18,7 @@
 #include "globals.hh"
 
 namespace FW {
-namespace G4 {
+namespace Geant4 {
 
   /// @class MMSteppingAction
   ///
@@ -65,10 +64,8 @@ namespace G4 {
     static MMSteppingAction* fgInstance;
 
     /// The collected RecordedMaterialProperties entities
-    std::vector<Acts::RecordedMaterialProperties> m_steps;
+    std::vector<Acts::RecordedMaterialProperties> m_steps = {};
   };
 
-}  // namespace G4
+}  // namespace Geant4
 }  // namespace FW
-
-#endif  // ACTFW_PLUGINS_GEANT4_MMSTEPPINGACTION_H

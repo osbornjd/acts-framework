@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,16 +12,18 @@
 #include "G4Material.hh"
 #include "G4Step.hh"
 
-FW::G4::MMSteppingAction* FW::G4::MMSteppingAction::fgInstance = nullptr;
+FW::Geant4::MMSteppingAction* FW::Geant4::MMSteppingAction::fgInstance
+    = nullptr;
 
-FW::G4::MMSteppingAction*
-FW::G4::MMSteppingAction::Instance()
+FW::Geant4::MMSteppingAction*
+FW::Geant4::MMSteppingAction::Instance()
 {
   // Static acces function via G4RunManager
   return fgInstance;
 }
 
-FW::G4::MMSteppingAction::MMSteppingAction() : G4UserSteppingAction(), m_steps()
+FW::Geant4::MMSteppingAction::MMSteppingAction()
+  : G4UserSteppingAction(), m_steps()
 // m_volMgr(MaterialRunAction::Instance()->getGeant4VolumeManager())
 {
   if (fgInstance) {
@@ -31,13 +33,13 @@ FW::G4::MMSteppingAction::MMSteppingAction() : G4UserSteppingAction(), m_steps()
   }
 }
 
-FW::G4::MMSteppingAction::~MMSteppingAction()
+FW::Geant4::MMSteppingAction::~MMSteppingAction()
 {
   fgInstance = nullptr;
 }
 
 void
-FW::G4::MMSteppingAction::UserSteppingAction(const G4Step* step)
+FW::Geant4::MMSteppingAction::UserSteppingAction(const G4Step* step)
 {
   // get the material
   G4Material* material = step->GetPreStepPoint()->GetMaterial();
@@ -87,7 +89,7 @@ FW::G4::MMSteppingAction::UserSteppingAction(const G4Step* step)
 }
 
 void
-FW::G4::MMSteppingAction::Reset()
+FW::Geant4::MMSteppingAction::Reset()
 {
   m_steps.clear();
 }

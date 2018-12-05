@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,8 +10,7 @@
 // MMPrimaryGeneratorAction.h
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ACTFW_PLUGINS_GEANT4_MMPRIMARYGENERATORACTION_H
-#define ACTFW_PLUGINS_GEANT4_MMPRIMARYGENERATORACTION_H
+#pragma once
 
 #include <memory>
 #include "G4SystemOfUnits.hh"
@@ -23,7 +22,7 @@ class G4ParticleGun;
 class G4Event;
 
 namespace FW {
-namespace G4 {
+namespace Geant4 {
 
   /// @class MMPrimaryGeneratorAction
   ///
@@ -75,12 +74,11 @@ namespace G4 {
     std::unique_ptr<G4ParticleGun> fParticleGun;
 
     /// position to be returned
-    G4ThreeVector m_position;
+    G4ThreeVector m_position{0., 0., 0.};
+
     /// direction to be returned
-    G4ThreeVector m_direction;
+    G4ThreeVector m_direction{1., 0., 0.};
   };
 
-}  // namespace G4
+}  // namespace Geant4
 }  // namespace FW
-
-#endif  // GEANT4MATERIALMAPPING_MMPRIMARYGENERATORACTION_H
