@@ -33,12 +33,12 @@
 
 namespace po = boost::program_options;
 
-/// @brief Propgation setup
+/// @brief Propagation setup
 ///
 /// @tparam sequencer_t Type of the sequencer of the framework
 /// @tparam bfield_t Type of the magnetic field
 ///
-/// @param sequencer The framework sequencer, Propgation algorithm to be added
+/// @param sequencer The framework sequencer, Propagation algorithm to be added
 /// @param bfield The bfield object needed for the Stepper & propagagor
 /// @param vm The program options for the log file
 /// @param randomNumberSvc The framework random number engine
@@ -47,7 +47,7 @@ namespace po = boost::program_options;
 /// @return a process code
 template <typename sequencer_t, typename bfield_t>
 FW::ProcessCode
-setupPropgation(sequencer_t&                                  sequencer,
+setupPropagation(sequencer_t&                                  sequencer,
                 bfield_t                                      bfield,
                 po::variables_map&                            vm,
                 std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
@@ -77,11 +77,11 @@ setupPropgation(sequencer_t&                                  sequencer,
   return FW::ProcessCode::SUCCESS;
 }
 
-/// @brief Straight Line Propgation setup
+/// @brief Straight Line Propagation setup
 ///
 /// @tparam sequencer_t Type of the sequencer of the framework
 ///
-/// @param sequencer The framework sequencer, Propgation algorithm to be added
+/// @param sequencer The framework sequencer, Propagation algorithm to be added
 /// @param vm The program options for the log file
 /// @param randomNumberSvc The framework random number engine
 /// @param tGeometry The TrackingGeometry object
@@ -89,7 +89,7 @@ setupPropgation(sequencer_t&                                  sequencer,
 /// @return a process code
 template <typename sequencer_t>
 FW::ProcessCode
-setupStraightLinePropgation(
+setupStraightLinePropagation(
     sequencer_t&                                  sequencer,
     po::variables_map&                            vm,
     std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
@@ -189,17 +189,17 @@ propagationExample(int                argc,
 
   if (vm["prop-stepper"].template as<int>() == 0) {
     // Straight line stepper was chosen
-    setupStraightLinePropgation(sequencer, vm, randomNumberSvc, tGeometry);
+    setupStraightLinePropagation(sequencer, vm, randomNumberSvc, tGeometry);
   } else if (bField.first) {
     // Define the interpolated b-field
     using BField = Acts::SharedBField<Acts::InterpolatedBFieldMap>;
     BField fieldMap(bField.first);
-    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else {
     // Create the constant  field
     using CField = Acts::ConstantBField;
     CField fieldMap(*bField.second);
-    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   }
 
   // ---------------------------------------------------------------------------------

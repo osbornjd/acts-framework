@@ -19,6 +19,7 @@
 #include "Acts/EventData/NeutralParameters.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
+#include "Acts/Extrapolator/MaterialInteractor.hpp"
 #include "Acts/Propagator/AbortList.hpp"
 #include "Acts/Propagator/ActionList.hpp"
 #include "Acts/Propagator/Propagator.hpp"
@@ -39,25 +40,49 @@
 /// @tparam propagator_t Type of the Propagator to be tested
 namespace FW {
 
+// Using some short hands for Recorded Material
+using RecordedMaterial = Acts::MaterialInteractor::result_type;
+
+// And recorded material track
+// - this is start:  position, start momentum
+//   and the Recorded material 
+using RecordedMaterialTrack 
+  = std::pair< std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
+
+// Finally the output of the propagation test
+using PropagationOutput =
+  std::pair< std::vector<Acts::detail::Step>, RecordedMaterial >;
+    
 template <typename propagator_t>
 class PropagationAlgorithm : public BareAlgorithm
 {
 public:
+  
+
+  /// @brief Nested config structs that shapes the behavior
   struct Config
   {
-    // create a config object with the propagator
+    // Create a config object with the propagator
     Config(propagator_t prop) : propagator(std::move(prop)) {}
 
-    /// the propagors to be tested
+    /// The propagor type to be tested
     propagator_t propagator;
 
-    /// how to set it up
+    /// A RandomNumber service to use
     std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
 
-    /// proapgation mode
     int mode = 0;
-    /// debug output
-    bool debugOutput = false;
+    
+    /// Debug screen output
+    bool debugOutput                = false;
+   
+    /// Modify the behavior of the material interaction: energy loss
+    bool energyLoss                 = false;
+    /// Modify the behavior of the material interaction: scattering
+    bool multipleScattering         = false;
+    /// Modify the behavior of the material interaction: record
+    bool recordMaterialInteractions = false;
+    
     /// number of particles
     size_t ntests = 100;
     /// d0 gaussian sigma
@@ -77,16 +102,19 @@ public:
     /// Max step size steering
     double maxStepSize = 1. * Acts::units::_mm;
 
-    /// the step collection to be stored
-    std::string propagationStepCollection = "PropagationSteps";
+    /// The step collection to be stored
+    std::string propagationStepCollection  = "PropagationSteps";
 
-    /// covariance transport
+    /// The material collection to be stored
+    std::string propagationMaterialCollection = "RecordedMaterialTracks";
+
+    /// Covariance transport
     bool covarianceTransport = true;
 
-    /// the covariance values
+    /// The covariance values
     Acts::ActsVectorD<5> covariances = Acts::ActsVectorD<5>::Zero();
 
-    /// the correlation terms
+    /// The correlation terms
     Acts::ActsSymMatrixD<5> correlations = Acts::ActsSymMatrixD<5>::Identity();
   };
 
@@ -119,7 +147,7 @@ private:
   ///
   /// @return collection of Propagation steps for further analysis
   template <typename parameters_t>
-  std::vector<Acts::detail::Step>
+  PropagationOutput
   executeTest(const parameters_t& startParameters,
               double pathLength = std::numeric_limits<double>::max()) const;
 };
