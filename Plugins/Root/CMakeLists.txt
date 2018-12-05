@@ -19,7 +19,7 @@ set(srcs include/ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp
 add_library(ACTFWRootPlugin SHARED ${srcs}) 
 target_include_directories(ACTFWRootPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_include_directories(ACTFWRootPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
-target_link_libraries(ACTFWRootPlugin PUBLIC ActsCore ActsDigitizationPlugin IdentificationPlugin ActsMaterialMappingPlugin)
+target_link_libraries(ACTFWRootPlugin PUBLIC ActsCore ActsDigitizationPlugin IdentificationPlugin)
 target_link_libraries(ACTFWRootPlugin PUBLIC ACTFramework ACTFWPropagation)
 target_link_libraries(ACTFWRootPlugin PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ACTFWRootPlugin PUBLIC Threads::Threads)

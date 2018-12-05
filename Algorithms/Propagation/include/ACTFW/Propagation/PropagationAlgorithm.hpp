@@ -18,8 +18,8 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/EventData/NeutralParameters.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/Extrapolator/Navigator.hpp"
 #include "Acts/Extrapolator/MaterialInteractor.hpp"
+#include "Acts/Extrapolator/Navigator.hpp"
 #include "Acts/Propagator/AbortList.hpp"
 #include "Acts/Propagator/ActionList.hpp"
 #include "Acts/Propagator/Propagator.hpp"
@@ -45,20 +45,18 @@ using RecordedMaterial = Acts::MaterialInteractor::result_type;
 
 // And recorded material track
 // - this is start:  position, start momentum
-//   and the Recorded material 
-using RecordedMaterialTrack 
-  = std::pair< std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
+//   and the Recorded material
+using RecordedMaterialTrack
+    = std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
 
 // Finally the output of the propagation test
-using PropagationOutput =
-  std::pair< std::vector<Acts::detail::Step>, RecordedMaterial >;
-    
+using PropagationOutput
+    = std::pair<std::vector<Acts::detail::Step>, RecordedMaterial>;
+
 template <typename propagator_t>
 class PropagationAlgorithm : public BareAlgorithm
 {
 public:
-  
-
   /// @brief Nested config structs that shapes the behavior
   struct Config
   {
@@ -72,17 +70,17 @@ public:
     std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
 
     int mode = 0;
-    
+
     /// Debug screen output
-    bool debugOutput                = false;
-   
+    bool debugOutput = false;
+
     /// Modify the behavior of the material interaction: energy loss
-    bool energyLoss                 = false;
+    bool energyLoss = false;
     /// Modify the behavior of the material interaction: scattering
-    bool multipleScattering         = false;
+    bool multipleScattering = false;
     /// Modify the behavior of the material interaction: record
     bool recordMaterialInteractions = false;
-    
+
     /// number of particles
     size_t ntests = 100;
     /// d0 gaussian sigma
@@ -103,7 +101,7 @@ public:
     double maxStepSize = 1. * Acts::units::_mm;
 
     /// The step collection to be stored
-    std::string propagationStepCollection  = "PropagationSteps";
+    std::string propagationStepCollection = "PropagationSteps";
 
     /// The material collection to be stored
     std::string propagationMaterialCollection = "RecordedMaterialTracks";

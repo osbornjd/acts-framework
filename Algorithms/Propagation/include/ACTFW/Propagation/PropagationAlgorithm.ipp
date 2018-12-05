@@ -56,16 +56,15 @@ PropagationAlgorithm<propagator_t>::executeTest(
   if (m_cfg.mode == 0) {
 
     // The step length logger for testing & end of world aborter
-    using MaterialInteractor  =  Acts::MaterialInteractor;        
-    using SteppingLogger      =  Acts::detail::SteppingLogger;    
-    using DebugOutput         =  Acts::detail::DebugOutputActor;  
-    using EndOfWorld          =  Acts::detail::EndOfWorldReached; 
+    using MaterialInteractor = Acts::MaterialInteractor;
+    using SteppingLogger     = Acts::detail::SteppingLogger;
+    using DebugOutput        = Acts::detail::DebugOutputActor;
+    using EndOfWorld         = Acts::detail::EndOfWorldReached;
 
     // Action list and abort list
-    using Actors = Acts::ActionList<SteppingLogger, 
-                                    MaterialInteractor, 
-                                    DebugOutput>;
-    using Aborters =  Acts::AbortList<EndOfWorld>;
+    using Actors
+        = Acts::ActionList<SteppingLogger, MaterialInteractor, DebugOutput>;
+    using Aborters = Acts::AbortList<EndOfWorld>;
 
     // Create the propagation options
     Acts::PropagatorOptions<Actors, Aborters> options;
@@ -87,7 +86,7 @@ PropagationAlgorithm<propagator_t>::executeTest(
     options.maxStepSize = m_cfg.maxStepSize;
 
     // Propagate using the propagator
-    const auto& result   = m_cfg.propagator.propagate(startParameters, options);
+    const auto& result = m_cfg.propagator.propagate(startParameters, options);
     auto& steppingResults = result.template get<SteppingLogger::result_type>();
 
     if (m_cfg.debugOutput) {
@@ -97,8 +96,9 @@ PropagationAlgorithm<propagator_t>::executeTest(
     // Set the stepping result
     pOutput.first = std::move(steppingResults.steps);
     // Also set the material recording result - if configured
-    if (m_cfg.recordMaterialInteractions){
-      auto materialResult = result.template get<MaterialInteractor::result_type>();
+    if (m_cfg.recordMaterialInteractions) {
+      auto materialResult
+          = result.template get<MaterialInteractor::result_type>();
       pOutput.second = std::move(materialResult);
     }
   }
@@ -124,7 +124,7 @@ PropagationAlgorithm<propagator_t>::execute(AlgorithmContext context) const
       = Acts::Surface::makeShared<Acts::PerigeeSurface>(
           Acts::Vector3D(0., 0., 0.));
 
-  // The propagation steps 
+  // The propagation steps
   std::vector<std::vector<Acts::detail::Step>> propagationSteps;
   propagationSteps.reserve(m_cfg.ntests);
 
@@ -151,9 +151,9 @@ PropagationAlgorithm<propagator_t>::execute(AlgorithmContext context) const
     pars << d0, z0, phi, theta, qop;
     // some screen output
     std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
-    
-    Acts::Vector3D sPosition(0.,0.,0.);
-    Acts::Vector3D sMomentum(0.,0.,0.);
+
+    Acts::Vector3D sPosition(0., 0., 0.);
+    Acts::Vector3D sMomentum(0., 0., 0.);
 
     // execute the test for charged particles
     PropagationOutput pOutput;
@@ -176,18 +176,18 @@ PropagationAlgorithm<propagator_t>::execute(AlgorithmContext context) const
     }
     // Record the propagator steps
     propagationSteps.push_back(std::move(pOutput.first));
-    if (m_cfg.recordMaterialInteractions 
-        && pOutput.second.materialInteractions.size()){
-        // Create a recorded material track
-        RecordedMaterialTrack rmTrack;
-        // Start position 
-        rmTrack.first.first  = std::move(sPosition);
-        // Start momentum
-        rmTrack.first.second = std::move(sMomentum);
-        // The material 
-        rmTrack.second =  std::move(pOutput.second);
-        // push it it
-        recordedMaterial.push_back(std::move(rmTrack));
+    if (m_cfg.recordMaterialInteractions
+        && pOutput.second.materialInteractions.size()) {
+      // Create a recorded material track
+      RecordedMaterialTrack rmTrack;
+      // Start position
+      rmTrack.first.first = std::move(sPosition);
+      // Start momentum
+      rmTrack.first.second = std::move(sMomentum);
+      // The material
+      rmTrack.second = std::move(pOutput.second);
+      // push it it
+      recordedMaterial.push_back(std::move(rmTrack));
     }
   }
 
@@ -198,10 +198,10 @@ PropagationAlgorithm<propagator_t>::execute(AlgorithmContext context) const
     return FW::ProcessCode::ABORT;
   }
   // Write the recorded material to the event store
-  if (m_cfg.recordMaterialInteractions &&  
-      context.eventStore.add(m_cfg.propagationMaterialCollection,
-                              std::move(recordedMaterial))
-      == FW::ProcessCode::ABORT) {
+  if (m_cfg.recordMaterialInteractions
+      && context.eventStore.add(m_cfg.propagationMaterialCollection,
+                                std::move(recordedMaterial))
+          == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }
 

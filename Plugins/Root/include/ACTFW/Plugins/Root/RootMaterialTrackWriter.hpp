@@ -12,9 +12,20 @@
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "Acts/Plugins/MaterialMapping/RecordedMaterialTrack.hpp"
+#include "Acts/Extrapolator/MaterialInteractor.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "TTree.h"
+
+namespace Acts {
+// Using some short hands for Recorded Material
+using RecordedMaterial = MaterialInteractor::result_type;
+
+// And recorded material track
+// - this is start:  position, start momentum
+//   and the Recorded material
+using RecordedMaterialTrack
+    = std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
+}
 
 namespace FW {
 
@@ -49,8 +60,6 @@ namespace Root {
     RootMaterialTrackWriter(const Config&        cfg,
                             Acts::Logging::Level level = Acts::Logging::INFO);
 
-    RootMaterialTrackWriter(const Config& cfg);
-
     /// Virtual destructor
     ~RootMaterialTrackWriter() override;
 
@@ -82,9 +91,9 @@ namespace Root {
     float m_v_x;    ///< start global x
     float m_v_y;    ///< start global y
     float m_v_z;    ///< start global z
-    float m_v_dx;   ///< start global direction x
-    float m_v_dy;   ///< start global direction y
-    float m_v_dz;   ///< start global direction z
+    float m_v_px;   ///< start global momentum x
+    float m_v_py;   ///< start global momentum y
+    float m_v_pz;   ///< start global momentum z
     float m_v_phi;  ///< start phi direction
     float m_v_eta;  ///< start eta direction
     float m_tX0;    ///< thickness in X0/L0

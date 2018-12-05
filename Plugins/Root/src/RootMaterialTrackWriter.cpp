@@ -50,14 +50,16 @@ FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
   m_outputTree->Branch("v_x", &m_v_x);
   m_outputTree->Branch("v_y", &m_v_y);
   m_outputTree->Branch("v_z", &m_v_z);
-  m_outputTree->Branch("v_dx", &m_v_dx);
-  m_outputTree->Branch("v_dy", &m_v_dy);
-  m_outputTree->Branch("v_dz", &m_v_dz);
+  m_outputTree->Branch("v_dx", &m_v_px);
+  m_outputTree->Branch("v_dy", &m_v_py);
+  m_outputTree->Branch("v_dz", &m_v_pz);
   m_outputTree->Branch("v_phi", &m_v_phi);
   m_outputTree->Branch("v_eta", &m_v_eta);
+  m_outputTree->Branch("t_X0", &m_tX0);
+  m_outputTree->Branch("t_L0", &m_tL0);
   m_outputTree->Branch("mat_x", &m_step_x);
-  m_outputTree->Branch("mat_x", &m_step_y);
-  m_outputTree->Branch("mat_x", &m_step_z);
+  m_outputTree->Branch("mat_y", &m_step_y);
+  m_outputTree->Branch("mat_z", &m_step_z);
   m_outputTree->Branch("mat_step_length", &m_step_length);
   m_outputTree->Branch("mat_X0", &m_step_X0);
   m_outputTree->Branch("mat_L0", &m_step_L0);
@@ -104,47 +106,46 @@ FW::Root::RootMaterialTrackWriter::writeT(
     m_step_rho.clear();
 
     // reserve the vector then
-    size_t msteps = mtrack.recordedMaterialProperties().size();
-    m_step_x.reserve(msteps);
-    m_step_y.reserve(msteps);
-    m_step_z.reserve(msteps);
-    m_step_length.reserve(msteps);
-    m_step_X0.reserve(msteps);
-    m_step_L0.reserve(msteps);
-    m_step_A.reserve(msteps);
-    m_step_Z.reserve(msteps);
-    m_step_rho.reserve(msteps);
+    size_t mints = mtrack.second.materialInteractions.size();
+    m_step_x.reserve(mints);
+    m_step_y.reserve(mints);
+    m_step_z.reserve(mints);
+    m_step_length.reserve(mints);
+    m_step_X0.reserve(mints);
+    m_step_L0.reserve(mints);
+    m_step_A.reserve(mints);
+    m_step_Z.reserve(mints);
+    m_step_rho.reserve(mints);
 
     // reset the global counter
-    m_tX0 = 0.;
-    m_tL0 = 0.;
+    m_tX0 = mtrack.second.materialInX0;
+    m_tL0 = mtrack.second.materialInL0;
 
     // set the track information at vertex
-    m_v_x   = mtrack.position().x();
-    m_v_y   = mtrack.position().y();
-    m_v_z   = mtrack.position().z();
-    m_v_dx  = mtrack.direction().x();
-    m_v_dy  = mtrack.direction().y();
-    m_v_dz  = mtrack.direction().z();
-    m_v_phi = phi(mtrack.direction());
-    m_v_eta = eta(mtrack.direction());
+    m_v_x   = mtrack.first.first.x();
+    m_v_y   = mtrack.first.first.y();
+    m_v_z   = mtrack.first.first.z();
+    m_v_px  = mtrack.first.second.x();
+    m_v_py  = mtrack.first.second.y();
+    m_v_pz  = mtrack.first.second.z();
+    m_v_phi = phi(mtrack.first.second);
+    m_v_eta = eta(mtrack.first.second);
 
     // an now loop over the material
-    for (auto& mstep : mtrack.recordedMaterialProperties()) {
+    for (auto& mint : mtrack.second.materialInteractions) {
       // the material step position information
-      m_step_x.push_back(mstep.second.x());
-      m_step_y.push_back(mstep.second.y());
-      m_step_z.push_back(mstep.second.z());
+      m_step_x.push_back(mint.position.x());
+      m_step_y.push_back(mint.position.y());
+      m_step_z.push_back(mint.position.z());
       // the material information
-      auto mprops = mstep.first;
-      m_step_length.push_back(mprops.thickness());
+      const auto& mprops = mint.materialProperties;
+      m_step_length.push_back(mprops.thickness() * mint.pathCorrection);
       m_step_X0.push_back(mprops.averageX0());
       m_step_L0.push_back(mprops.averageL0());
       m_step_A.push_back(mprops.averageA());
       m_step_Z.push_back(mprops.averageZ());
       m_step_rho.push_back(mprops.averageRho());
     }
-
     // write to
     m_outputTree->Fill();
   }

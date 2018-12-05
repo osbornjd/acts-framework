@@ -15,8 +15,7 @@
 #include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/Obj/ObjPropagationStepsWriter.hpp"
-#include "ACTFW/Plugins/Root/RootPropagationStepsWriter.hpp"
+#include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
@@ -120,7 +119,8 @@ setupStraightLinePropagation(
   return FW::ProcessCode::SUCCESS;
 }
 
-/// The Propagation example
+/// @brief The material validation example, it runs a propagation
+/// and then writes out the material information
 ///
 /// @tparam geometry_getter_t Type of the geometry getter struct
 ///
@@ -130,10 +130,10 @@ setupStraightLinePropagation(
 ///
 template <typename geometry_options_t, typename geometry_getter_t>
 int
-propagationExample(int                argc,
-                   char*              argv[],
-                   geometry_options_t geometryOptions,
-                   geometry_getter_t  trackingGeometry)
+materialValidationExample(int                argc,
+                          char*              argv[],
+                          geometry_options_t geometryOptions,
+                          geometry_getter_t  trackingGeometry)
 {
 
   // Create the config object for the sequencer
@@ -204,35 +204,19 @@ propagationExample(int                argc,
 
   // ---------------------------------------------------------------------------------
   // Output directory
-  std::string outputDir    = vm["output-dir"].template as<std::string>();
-  auto        psCollection = vm["prop-step-collection"].as<std::string>();
+  std::string outputDir     = vm["output-dir"].template as<std::string>();
+  auto        matCollection = vm["prop-material-collection"].as<std::string>();
 
   if (vm["output-root"].template as<bool>()) {
     // Write the propagation steps as ROOT TTree
-    FW::Root::RootPropagationStepsWriter::Config pstepWriterRootConfig;
-    pstepWriterRootConfig.collection = psCollection;
-    pstepWriterRootConfig.filePath
-        = FW::joinPaths(outputDir, psCollection + ".root");
-    auto pstepWriterRoot
-        = std::make_shared<FW::Root::RootPropagationStepsWriter>(
-            pstepWriterRootConfig);
-    if (sequencer.addWriters({pstepWriterRoot}) != FW::ProcessCode::SUCCESS)
-      return -1;
-  }
-
-  if (vm["output-obj"].template as<bool>()) {
-
-    using PropagationSteps = Acts::detail::Step;
-    using ObjPropagationStepsWriter
-        = FW::Obj::ObjPropagationStepsWriter<PropagationSteps>;
-
-    // Write the propagation steps as Obj TTree
-    ObjPropagationStepsWriter::Config pstepWriterObjConfig;
-    pstepWriterObjConfig.collection = psCollection;
-    pstepWriterObjConfig.outputDir  = outputDir;
-    auto pstepWriteObj
-        = std::make_shared<ObjPropagationStepsWriter>(pstepWriterObjConfig);
-    if (sequencer.addWriters({pstepWriteObj}) != FW::ProcessCode::SUCCESS)
+    FW::Root::RootMaterialTrackWriter::Config matTrackWriterRootConfig;
+    matTrackWriterRootConfig.collection = matCollection;
+    matTrackWriterRootConfig.filePath
+        = FW::joinPaths(outputDir, matCollection + ".root");
+    auto matTrackWriterRoot
+        = std::make_shared<FW::Root::RootMaterialTrackWriter>(
+            matTrackWriterRootConfig);
+    if (sequencer.addWriters({matTrackWriterRoot}) != FW::ProcessCode::SUCCESS)
       return -1;
   }
 

@@ -21,7 +21,6 @@ namespace FW {
 
 namespace Options {
 
-
   /// @brief ExtrapolationAlgorithm options
   ///
   /// @tparam aopt_t Type of the options class from boost
@@ -107,11 +106,11 @@ namespace Options {
     read_range iptr  = vm["prop-pt-range"].template as<read_range>();
 
     /// Material interaction behavior
-    pAlgConfig.energyLoss          = vm["prop-energyloss"].template as<bool>();
-    pAlgConfig.multipleScattering  = vm["prop-scattering"].template as<bool>();
-    pAlgConfig.recordMaterialInteractions 
-      = vm["prop-record-material"].template as<bool>();
-        
+    pAlgConfig.energyLoss         = vm["prop-energyloss"].template as<bool>();
+    pAlgConfig.multipleScattering = vm["prop-scattering"].template as<bool>();
+    pAlgConfig.recordMaterialInteractions
+        = vm["prop-record-material"].template as<bool>();
+
     /// Create the config for the Extrapoaltion algorithm
     pAlgConfig.debugOutput = vm["prop-debug"].template as<bool>();
     pAlgConfig.ntests      = vm["prop-ntests"].template as<size_t>();
