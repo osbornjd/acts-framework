@@ -46,14 +46,18 @@ FW::Geant4::MMEventAction::BeginOfEventAction(const G4Event*)
 void
 FW::Geant4::MMEventAction::EndOfEventAction(const G4Event* event)
 {
-  const auto*          rawPos = event->GetPrimaryVertex();
-  const Acts::Vector3D pos(rawPos->GetX0(), rawPos->GetY0(), rawPos->GetZ0());
+
+  const auto* rawPos = event->GetPrimaryVertex();
   // access the initial direction of the track
   G4ThreeVector rawDir = MMPrimaryGeneratorAction::Instance()->direction();
-  const Acts::Vector3D dir(rawDir.x(), rawDir.y(), rawDir.z());
   // create the RecordedMaterialTrack
-  Acts::RecordedMaterialTrack mtrecord(
-      pos, dir, MMSteppingAction::Instance()->materialSteps());
+  Acts::RecordedMaterialTrack mtrecord;
+  mtrecord.first.first
+      = Acts::Vector3D(rawPos->GetX0(), rawPos->GetY0(), rawPos->GetZ0());
+  mtrecord.first.second = Acts::Vector3D(rawDir.x(), rawDir.y(), rawDir.z());
+  mtrecord.second.materialInteractions
+      = MMSteppingAction::Instance()->materialSteps();
+
   // write out the RecordedMaterialTrack of one event
   m_records.push_back(mtrecord);
 }

@@ -80,11 +80,12 @@ FW::Geant4::MMSteppingAction::UserSteppingAction(const G4Step* step)
        G4cout << "steplength: " << steplength << G4endl;*/
 
     // create the RecordedMaterialProperties
-    const auto&          rawPos = step->GetPreStepPoint()->GetPosition();
-    const Acts::Vector3D pos(rawPos.x(), rawPos.y(), rawPos.z());
-    const Acts::MaterialProperties matprop(X0, L0, A, Z, rho, steplength);
-    const Acts::RecordedMaterialProperties recMatProp(matprop, pos);
-    m_steps.push_back(recMatProp);
+    const auto&               rawPos = step->GetPreStepPoint()->GetPosition();
+    Acts::MaterialInteraction mInteraction;
+    mInteraction.position = Acts::Vector3D(rawPos.x(), rawPos.y(), rawPos.z());
+    mInteraction.materialProperties
+        = Acts::MaterialProperties(X0, L0, A, Z, rho, steplength);
+    m_steps.push_back(mInteraction);
   }
 }
 

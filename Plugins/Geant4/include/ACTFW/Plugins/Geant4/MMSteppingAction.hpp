@@ -13,7 +13,7 @@
 #pragma once
 
 #include <vector>
-#include "Acts/Plugins/MaterialMapping/RecordedMaterialTrack.hpp"
+#include "Acts/Extrapolator/MaterialInteractor.hpp"
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
 
@@ -25,9 +25,8 @@ namespace Geant4 {
   /// @brief Collects the RecordedMaterialProperties entities
   ///
   /// The MMSteppingAction class is the implementation of the
-  /// Geant4 class SteppingAction. It creates extracts the weighted material
+  /// Geant4 class SteppingAction. It extracts the weighted material
   /// of every step and collects all material steps.
-
   class MMSteppingAction : public G4UserSteppingAction
   {
   public:
@@ -37,12 +36,12 @@ namespace Geant4 {
     /// Destructor
     ~MMSteppingAction() override;
 
-    /// Static access method
+    /// Static access method to the instance
     static MMSteppingAction*
     Instance();
 
-    /// Interface Method doing the step
-    /// @note it creates and collects the RecordedMaterialProperties entities
+    /// @brief Interface Method doing the step
+    /// @note it creates and collects the MaterialInteraction entities
     /// @param step is the Geant4 step of the particle
     void
     UserSteppingAction(const G4Step* step) final override;
@@ -52,8 +51,8 @@ namespace Geant4 {
     void
     Reset();
 
-    /// Access to the collected RecordedMaterialProperties entities
-    std::vector<Acts::RecordedMaterialProperties>
+    /// Access to the collected Acts::MaterialInteraction entities
+    std::vector<Acts::MaterialInteraction>
     materialSteps()
     {
       return m_steps;
@@ -63,8 +62,8 @@ namespace Geant4 {
     /// Instance of the SteppingAction
     static MMSteppingAction* fgInstance;
 
-    /// The collected RecordedMaterialProperties entities
-    std::vector<Acts::RecordedMaterialProperties> m_steps = {};
+    /// The collected Acts::MaterialInteraction entities
+    std::vector<Acts::MaterialInteraction> m_steps = {};
   };
 
 }  // namespace Geant4

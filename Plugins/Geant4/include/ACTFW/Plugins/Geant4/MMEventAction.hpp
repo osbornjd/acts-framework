@@ -13,12 +13,13 @@
 #pragma once
 
 #include <memory>
-#include "Acts/Plugins/MaterialMapping/RecordedMaterialTrack.hpp"
+#include "Acts/Extrapolator/MaterialInteractor.hpp"
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 
 /// @namespace FW::Geant4:: Namespace for geant4 material mapping
 namespace FW {
+
 namespace Geant4 {
 
   class MMSteppingAction;
