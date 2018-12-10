@@ -44,7 +44,7 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
 		positionAtPCA = params->position();
 		parCovarianceAtPCA = *params->covariance();
 	}
-
+	
 	 //phi_v and functions  
     double phi_v = paramsAtPCA(Acts::ParID_t::ePHI);
     double sin_phi_v = sin(phi_v);
@@ -57,7 +57,7 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
 
     //q over p  
     double q_ov_p = paramsAtPCA(Acts::ParID_t::eQOP);
-    double sgn_h = (q_ov_p<0)? -1:1;
+    double sgn_h = (q_ov_p<0.)? -1:1; // TODO: is that sign correct?
 
     Acts::Vector3D momentumAtPCA(phi_v, th, q_ov_p);
 
@@ -80,8 +80,8 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
     // F(V, p_i) at PCA (see Billoir paper)
     Acts::ActsVectorD<5> predParamsAtPCA;
 
-    int sgnX = X/std::abs(X);
-    int sgnY = Y/std::abs(Y);
+    int sgnX = (X<0.)? -1:1;
+    int sgnY = (Y<0.)? -1:1;
 
     double phiAtPCA;
     if(std::abs(X)>std::abs(Y)) phiAtPCA = sgn_h*sgnX* std::acos(-sgn_h * Y / S);
@@ -126,6 +126,7 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
     
     double qOvS_red = 1 - sgn_h * Q / S;
     momentumJacobian(0,1) = qOvS_red  * rho / tan_th;
+
     momentumJacobian(0,2) = - qOvS_red * rho / q_ov_p; 
     
     // Second row
@@ -146,6 +147,20 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
     Acts::ActsVectorD<5> constTerm = 
     			predParamsAtPCA - positionJacobian * positionAtPCA - momentumJacobian * momentumAtPCA;
 
+   	/*
+    //std::cout << std::setprecision(10);
+	std::cout << "paramsAtPCA: " << paramsAtPCA << std::endl;
+	std::cout << "positionAtPCA: " << positionAtPCA << std::endl;
+	std::cout << "parCovarianceAtPCA: " << parCovarianceAtPCA << std::endl;
+    std::cout << "rho = " << rho << std::endl;
+    std::cout << "X = " << X << std::endl;
+    std::cout << "Y = " << Y << std::endl;
+    std::cout << "S = " << S << std::endl;  
+    std::cout << "predParamsAtPCA: " << predParamsAtPCA << std::endl;
+   	std::cout << "positionJacobian: " << positionJacobian << std::endl;
+   	std::cout << "momentumJacobian: " << momentumJacobian << std::endl;
+   	std::cout << "constTerm: " << constTerm << std::endl;
+	*/
 
 	return new LinearizedTrack(paramsAtPCA, 
 							   parCovarianceAtPCA,
