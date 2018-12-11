@@ -133,9 +133,9 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 					// Gaussian distribution for IP resolution
 					FW::GaussDist gaussDist_IP(0., ipRes);
 					// Gaussian distribution for angular resolution
-					FW::GaussDist gaussDist_angular(0., 0.2);
+					FW::GaussDist gaussDist_angular(0., 0.1);
 					// Gaussian distribution for q/p (momentum) resolution
-					FW::GaussDist gaussDist_qp(0., 0.2*perigeeParameters[4]);
+					FW::GaussDist gaussDist_qp(0., 0.1*perigeeParameters[4]);
 
 					double rn_d0 = gaussDist_IP(rng);
 					double rn_z0 = gaussDist_IP(rng);
