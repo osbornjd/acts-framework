@@ -85,9 +85,9 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	// Initialize vector to be filled with smeared tracks
 	std::vector<Acts::BoundParameters> smrdTrksVec;
 
-	std::cout << "#################\n NEW EVENT\n";
 	Acts::Vector3D tmpVtx;
 	int count_v = 0; // count vertices
+	int count_t = 0; // count tracks at vertex
 	for (auto& vtx: (*inputEvent)){
 		count_v++;
 		if (count_v != 1) continue; // take only first vertex now
@@ -133,9 +133,9 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 					// Gaussian distribution for IP resolution
 					FW::GaussDist gaussDist_IP(0., ipRes);
 					// Gaussian distribution for angular resolution
-					FW::GaussDist gaussDist_angular(0., 0.1);
+					FW::GaussDist gaussDist_angular(0., 0.2);
 					// Gaussian distribution for q/p (momentum) resolution
-					FW::GaussDist gaussDist_qp(0., 0.1*perigeeParameters[4]);
+					FW::GaussDist gaussDist_qp(0., 0.2*perigeeParameters[4]);
 
 					double rn_d0 = gaussDist_IP(rng);
 					double rn_z0 = gaussDist_IP(rng);
@@ -143,12 +143,20 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 					double rn_th = gaussDist_angular(rng);
 					double rn_qp = gaussDist_qp(rng);
 
-					const double smrd_d0 	= perigeeParameters[0] + rn_d0;
-					const double smrd_z0	= perigeeParameters[1] + rn_z0;
-					const double smrd_phi 	= perigeeParameters[2] + rn_ph;
-					const double smrd_theta	= perigeeParameters[3] + rn_th;
-					const double srmd_qp	= perigeeParameters[4] + rn_qp;
+					double smrd_d0 	= perigeeParameters[0] + rn_d0;
+					double smrd_z0	= perigeeParameters[1] + rn_z0;
+					double smrd_phi 	= perigeeParameters[2] + rn_ph;
+					double smrd_theta	= perigeeParameters[3] + rn_th;
+					double srmd_qp	= perigeeParameters[4] + rn_qp;
 
+					// smearing can bring theta out of range ->close to beam line -> discard
+					if(smrd_theta < 0 || smrd_theta > M_PI){
+						continue;
+					}
+
+					double new_eta = -log(tan(smrd_theta/2));
+					if(std::abs(new_eta) > 2.5) continue;
+				
 					Acts::TrackParametersBase::ParVector_t paramVec;
 					paramVec << smrd_d0, smrd_z0, smrd_phi, smrd_theta, srmd_qp;
 
@@ -162,45 +170,28 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 					(*covMat)(4,4) = rn_qp*rn_qp;
 
 					smrdTrksVec.push_back(Acts::BoundParameters(std::move(covMat), paramVec, perigeeSurface));
+
+					count_t ++;
 				}
 			}
 		}
 	}
 
+
 	FullVertexFitter vf;
 
-	std::cout << "input to vertex fitter, smearedTracks: " << smrdTrksVec.size() << std::endl;
-
 	Vertex v1 = vf.fit(smrdTrksVec,  Acts::Vector3D(0,0,0));
-	std::cout << std::setprecision(8);
+	//std::cout << std::setprecision(8);
 
+	Acts::Vector3D diffVtx = tmpVtx - v1.position();
+
+	
 	std::cout << "true vertex: " << std::endl;
 	std::cout << "(" << tmpVtx[0] << "," <<  tmpVtx[1] << ","<<   tmpVtx[2] << ")" << std::endl;
 	std::cout << "fitted vertex: " << std::endl;
 	std::cout << "(" << v1.position()[0] << "," <<  v1.position()[1] << ","<<   v1.position()[2] << ")" << std::endl <<std::endl;
+	
 
-	/*
-
-	std::cout << "............" << std::endl;
-
-	LinearizedTrackFactory trackfac;
-	LinearizedTrack* lt = trackfac.linearizeTrack(&smrdTrksVec[0], Acts::Vector3D(10.,0.,0.));
-	std::cout << "####### 1" << std::endl;
-	std::cout << lt->parametersAtPCA() << std::endl;
-	std::cout << "####### 2" << std::endl;
-	std::cout << lt->covarianceAtPCA() << std::endl;
-	std::cout << "####### 3" << std::endl;
-	std::cout << lt->linearizationPoint() << std::endl;
-	std::cout << "####### 4" << std::endl;
-	std::cout << lt->positionJacobian() << std::endl;
-	std::cout << "####### 5" << std::endl;
-	std::cout << lt->momentumJacobian() << std::endl;
-	std::cout << "####### 6" << std::endl;
-	std::cout << lt->momentumAtPCA() << std::endl;
-	std::cout << "####### 7" << std::endl;
-	std::cout << lt->constantTerm() << std::endl;
-  
-	*/
 
 	if(context.eventStore.add(m_cfg.collectionOut, std::move(smrdTrksVec))
 		!= FW::ProcessCode::SUCCESS)
