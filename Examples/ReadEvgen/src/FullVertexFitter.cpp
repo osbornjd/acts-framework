@@ -38,8 +38,7 @@ namespace {
                   BCB_mat.setZero();
                   BCU_vec.setZero();
                 };
-		double chi2;
-		unsigned int ndf;
+
 		Acts::ActsSymMatrixD<3> A_mat;              // T  = sum{Di.T * Wi * Di}
 		Acts::Vector3D T_vec;              // A  = sum{Di.T * Wi * dqi}
 		Acts::ActsSymMatrixD<3> BCB_mat;       // BCB = sum{Bi * Ci^-1 * Bi.T}
@@ -57,6 +56,8 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 								 const Acts::Vector3D& startingPoint)
 {
 
+	bool debug = false;
+	
 	double chi2 = 1E10;
 	double newChi2 = 0;
 	unsigned int nTracks = paramVector.size();
@@ -78,6 +79,8 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 	{
 		billoirTracks.clear();
 
+		newChi2 = 0;
+
 		BilloirVertex billoirVertex;
 
 		int i_track = 0;
@@ -90,25 +93,20 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 				double theta 	= trackParams.parameters()[Acts::ParID_t::eTHETA];
 				double qop 		= trackParams.parameters()[Acts::ParID_t::eQOP];
 				trackMomenta.push_back(Acts::Vector3D(phi, theta, qop));
-				//std::cout << "starting momentum: phi, theta, qop:  " << phi << " " << theta << " " << qop << std::endl;
-			}
+				}
 
-			//std::cout << "####### start linearization ########" << std::endl;
 			LinearizedTrack* linTrack = linFactory.linearizeTrack(&trackParams, linPoint);
-			//std::cout << "####### end linearization ########" << std::endl;
 
 			double d0 = linTrack->parametersAtPCA()[Acts::ParID_t::eLOC_D0];
 			double z0 = linTrack->parametersAtPCA()[Acts::ParID_t::eLOC_Z0];
 			double phi = linTrack->parametersAtPCA()[Acts::ParID_t::ePHI];
 			double theta = linTrack->parametersAtPCA()[Acts::ParID_t::eTHETA];
 			double qOverP = linTrack->parametersAtPCA()[Acts::ParID_t::eQOP];
-			
-			//std::cout << "at PCA: d0, z0, phi, theta, qOverP = " << d0 << " " << z0 << " " << phi << " " << theta << " " <<qOverP << std::endl;
 
 			// calculate f(V_0,p_0)  f_d0 = f_z0 = 0
-			double f_phi = trackMomenta[i_track] ( 0 );
-			double f_theta =trackMomenta[i_track] ( 1 );
-			double f_qOverP = trackMomenta[i_track] ( 2 );
+			double f_phi = trackMomenta[i_track][0];
+			double f_theta =trackMomenta[i_track][1];
+			double f_qOverP = trackMomenta[i_track][2];
 
 			BilloirTrack currentBilloirTrack(trackParams, linTrack);
 
@@ -127,15 +125,13 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 			Acts::ActsMatrixD<5,3> E_mat;
 			E_mat = linTrack->momentumJacobian();
 
-			//std::cout << "###########" << i_track << std::endl;
-
 			// cache some matrix multiplications
 			Acts::ActsMatrixD<3,5> Dt_W_mat;
 			Dt_W_mat.setZero();
 			Acts::ActsMatrixD<3,5> Et_W_mat;
 			Et_W_mat.setZero();
-			Dt_W_mat = D_mat.transpose() * (linTrack->covarianceAtPCA()).inverse().eval();
-			Et_W_mat = E_mat.transpose() * (linTrack->covarianceAtPCA()).inverse().eval();
+			Dt_W_mat = D_mat.transpose() * (linTrack->covarianceAtPCA().inverse().eval());
+			Et_W_mat = E_mat.transpose() * (linTrack->covarianceAtPCA().inverse().eval());
 
 			// compute billoir tracks
 			currentBilloirTrack.Di_mat = D_mat;
@@ -144,14 +140,6 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 			currentBilloirTrack.Bi_mat = Dt_W_mat * E_mat; // Di.T * Wi * Ei
 			currentBilloirTrack.Ui_vec = Et_W_mat * currentBilloirTrack.delta_q; // Ei.T * Wi * dqi
 			currentBilloirTrack.Ci_inv = (Et_W_mat * E_mat).inverse().eval(); // (Ei.T * Wi * Ei)^-1
-
-			/*
-			std::cout << "Et_W_mat * E_mat " << Et_W_mat * E_mat << std::endl;
-			std::cout << "Et_W_mat" << std::endl;
-			std::cout << Et_W_mat << std::endl;
-			std::cout << "E_mat " << std::endl;
-			std::cout << E_mat <<std::endl;
-			*/
 
 			// sum up over all tracks
 			billoirVertex.T_vec += Dt_W_mat * currentBilloirTrack.delta_q; // sum{Di.T * Wi * dqi}
@@ -162,7 +150,7 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 
 			// and some summed results
 			billoirVertex.BCU_vec += currentBilloirTrack.BCi_mat * currentBilloirTrack.Ui_vec; // sum{Bi * Ci^-1 * Ui}
-			billoirVertex.BCB_mat =  billoirVertex.BCB_mat + currentBilloirTrack.BCi_mat * currentBilloirTrack.Bi_mat.transpose() ;// sum{Bi * Ci^-1 * Bi.T}
+			billoirVertex.BCB_mat += currentBilloirTrack.BCi_mat * currentBilloirTrack.Bi_mat.transpose();// sum{Bi * Ci^-1 * Bi.T}
 			
 			billoirTracks.push_back(currentBilloirTrack);
 			++i_track;
@@ -181,6 +169,7 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 		// delta_V = cov_(delta_V) * V_del;
 		Acts::Vector3D delta_V = cov_delta_V_mat * V_del;
 
+		/*--------------------------------------------------------------------------------------*/
 		/* start momentum related calculations */
 		std::vector<std::unique_ptr<Acts::ActsSymMatrixD<5>>> cov_delta_P_mat ( nTracks );
 		std::vector<double> chi2PerTrack;
@@ -189,31 +178,18 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 
 		i_track = 0;
 		for(auto& bTrack : billoirTracks){
-			
-			/*
-			std::cout << "####ci inv ###" << std::endl;
-			std::cout << bTrack.Ci_inv << std::endl;
-			std::cout << "####Ui vec ###" << std::endl;
-			std::cout << bTrack.Ui_vec << std::endl;
-			std::cout << "####Bi mat ###" << std::endl;
-			std::cout << bTrack.Bi_mat << std::endl;
-			*/
-
+	
 			Acts::Vector3D deltaP = ( bTrack.Ci_inv ) * ( bTrack.Ui_vec - bTrack.Bi_mat.transpose() * delta_V );
-			
-			//std::cout << "track: " <<  i_track << std::endl;
-			//std::cout << "deltaP: " << std::endl;
-			//std::cout << deltaP << std::endl << std::endl;
-
+	
 			// update track momenta
-			trackMomenta[i_track](0) += deltaP[0];
+			trackMomenta[i_track][0] += deltaP[0];
 
-			trackMomenta[i_track](1) += deltaP[1];
+			trackMomenta[i_track][1] += deltaP[1];
 
-			trackMomenta[i_track](2) += deltaP[2];
+			trackMomenta[i_track][2] += deltaP[2];
 
 			// TODO: correct for 2PI / PI periodicity
-			
+
 			//calculate 5x5 cov_delta_P matrix
 			// d(d0,z0,phi,theta,qOverP)/d(x,y,z,phi,theta,qOverP)-transformation matrix
 			Acts::ActsMatrixD<5,6> trans_mat;
@@ -226,19 +202,19 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 			//cov(V,V)
 			Acts::ActsSymMatrixD<3> V_V_mat; 
 			V_V_mat.setZero();  
-			V_V_mat = cov_delta_V_mat ;
+			V_V_mat = cov_delta_V_mat;
 			//std::cout<<"V_V_mat = "<<V_V_mat<<std::endl; 
 
 			//cov(V,P)
 			Acts::ActsSymMatrixD<3> 
 			V_P_mat; V_P_mat.setZero(); 
-			V_P_mat =  -cov_delta_V_mat*bTrack.Gi_mat*bTrack.Ci_inv ;
+			V_P_mat =  -cov_delta_V_mat*bTrack.Gi_mat*bTrack.Ci_inv;
 			//std::cout<<"V_P_mat = "<<V_P_mat<<std::endl;
 
 			//cov(P,P)
 			Acts::ActsSymMatrixD<3> P_P_mat; 
 			P_P_mat.setZero(); 
-			P_P_mat =  bTrack.Ci_inv + bTrack.BCi_mat.transpose() * cov_delta_V_mat*bTrack.BCi_mat ;
+			P_P_mat =  bTrack.Ci_inv + bTrack.BCi_mat.transpose() * cov_delta_V_mat*bTrack.BCi_mat;
 			//std::cout<<"P_P_mat = "<<P_P_mat<<std::endl;
 
 			Acts::ActsSymMatrixD<6> cov_mat;
@@ -255,33 +231,24 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 			
 			
 			/* Calculate chi2 per track. */
-			bTrack.chi2= ( ( bTrack.delta_q- bTrack.Di_mat*delta_V - bTrack.Ei_mat*deltaP ).transpose() 
+			bTrack.chi2= ( ( bTrack.delta_q - bTrack.Di_mat*delta_V - bTrack.Ei_mat*deltaP ).transpose() 
 				* bTrack.linTrack->covarianceAtPCA().inverse().eval() 
-				* ( bTrack.delta_q - bTrack.Di_mat*delta_V - bTrack.Ei_mat*deltaP ) );
+				* ( bTrack.delta_q - bTrack.Di_mat*delta_V - bTrack.Ei_mat*deltaP ) )[0];
 			newChi2 += bTrack.chi2;
 			//std::cout << "track " << i_track << " with chi2 " << bTrack.chi2 << std::endl;
 
 			++i_track;
 		}
 
-		/*
-		std::cout << "old linPoint: "  << std::endl;
-		std::cout << linPoint << std::endl;
-		std::cout << "delta_V " << std::endl;
-		std::cout << delta_V << std::endl;
-		*/
 		// assign new linearization point (= new vertex position in global frame)
 		linPoint += delta_V;
-
-		std::cout << "chi2: " << newChi2 << std::endl;
-		std::cout << "vertex: " << linPoint << std::endl;
 
 		if (newChi2 < chi2){
 			chi2 = newChi2;
 
 			Acts::Vector3D vertex(linPoint);
 
-			std::cout << "\tset new vertex " << vertex << " with chi2: " << chi2 << std::endl;
+			if(debug) std::cout << "\tset new vertex " << vertex << " with chi2: " << chi2 << std::endl;
 
 
 			fittedVertex->setPosition(vertex);
