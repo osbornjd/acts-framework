@@ -47,11 +47,14 @@ namespace Root {
     /// @brief The nested configuration struct
     struct Config
     {
-      std::string collection = "";          ///< particle collection to write
+      std::string collection = "";          ///< material collection to write
       std::string filePath   = "";          ///< path of the output file
       std::string fileMode   = "RECREATE";  ///< file access mode
       std::string treeName   = "materialtracks";  ///< name of the output tree
       TFile*      rootFile   = nullptr;           ///< common root file
+
+      /// Re-calculate total values from individual steps (for cross-checks)
+      bool recalculateTotals = false;
     };
 
     /// Constructor with

@@ -9,6 +9,16 @@ target_link_libraries(ACTFWGenericMaterialValidationExample PRIVATE ${Boost_LIBR
 
 install(TARGETS ACTFWGenericMaterialValidationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+add_executable(ACTFWGenericMaterialMappingExample src/GenericMaterialMapping.cpp)
+target_include_directories(ACTFWGenericMaterialMappingExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWGenericMaterialMappingExample PRIVATE ActsCore)
+target_link_libraries(ACTFWGenericMaterialMappingExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWPropagation ACTFWGenericDetector)
+target_link_libraries(ACTFWGenericMaterialMappingExample PRIVATE ACTFWRootPlugin)
+target_link_libraries(ACTFWGenericMaterialMappingExample PRIVATE ${Boost_LIBRARIES})
+
+install(TARGETS ACTFWGenericMaterialMappingExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+
 #include(${Geant4_USE_FILE})
 #
 #file (GLOB_RECURSE src_files "src/*.cpp")

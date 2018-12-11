@@ -8,69 +8,118 @@
 
 #include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
 #include <iostream>
+#include "ACTFW/Framework/WhiteBoard.hpp"
 #include "TChain.h"
 #include "TFile.h"
 
 FW::Root::RootMaterialTrackReader::RootMaterialTrackReader(
     const FW::Root::RootMaterialTrackReader::Config& cfg)
-  : FW::IReaderT<Acts::MaterialTrack>()
-  , m_cfg(cfg)
-  , m_inputChain(nullptr)
-  , m_trackRecord(new Acts::MaterialTrack)
-  , m_event(0)
+  : FW::IReader(), m_cfg(cfg), m_events(0), m_inputChain(nullptr)
 {
+
+  m_inputChain = new TChain(m_cfg.treeName.c_str());
+
+  // Set the branches
+  m_inputChain->SetBranchAddress("v_x", &m_v_x);
+  m_inputChain->SetBranchAddress("v_y", &m_v_y);
+  m_inputChain->SetBranchAddress("v_z", &m_v_z);
+  m_inputChain->SetBranchAddress("v_px", &m_v_px);
+  m_inputChain->SetBranchAddress("v_py", &m_v_py);
+  m_inputChain->SetBranchAddress("v_pz", &m_v_pz);
+  m_inputChain->SetBranchAddress("v_phi", &m_v_phi);
+  m_inputChain->SetBranchAddress("v_eta", &m_v_eta);
+  m_inputChain->SetBranchAddress("t_X0", &m_tX0);
+  m_inputChain->SetBranchAddress("t_L0", &m_tL0);
+  m_inputChain->SetBranchAddress("mat_x", &m_step_x);
+  m_inputChain->SetBranchAddress("mat_y", &m_step_y);
+  m_inputChain->SetBranchAddress("mat_z", &m_step_z);
+  m_inputChain->SetBranchAddress("mat_step_length", &m_step_length);
+  m_inputChain->SetBranchAddress("mat_X0", &m_step_X0);
+  m_inputChain->SetBranchAddress("mat_L0", &m_step_L0);
+  m_inputChain->SetBranchAddress("mat_A", &m_step_A);
+  m_inputChain->SetBranchAddress("mat_Z", &m_step_Z);
+  m_inputChain->SetBranchAddress("mat_rho", &m_step_rho);
+
+  // loop over the input files
+  for (auto inputFile : m_cfg.fileList) {
+    // add file to the input chain
+    m_inputChain->Add(inputFile.c_str());
+    ACTS_DEBUG("Adding File " << inputFile << " to tree '" << m_cfg.treeName
+                              << "'.");
+  }
+
+  m_events = m_inputChain->GetEntries();
+  ACTS_DEBUG("The full chain has " << m_events << " entries.");
 }
 
 FW::Root::RootMaterialTrackReader::~RootMaterialTrackReader()
 {
-  delete m_trackRecord;
+
+  delete m_step_x;
+  delete m_step_y;
+  delete m_step_z;
+  delete m_step_length;
+  delete m_step_X0;
+  delete m_step_L0;
+  delete m_step_A;
+  delete m_step_Z;
+  delete m_step_rho;
 }
 
 FW::ProcessCode
-FW::Root::RootMaterialTrackReader::read(Acts::MaterialTrack&        mtrc,
-                                        size_t                      skip,
-                                        const FW::AlgorithmContext* context)
+FW::Root::RootMaterialTrackReader::read(const FW::AlgorithmContext& context)
 {
-  // load the input chain
-  if (!m_inputChain) {
-    // create the input Chain
-    m_inputChain = new TChain(m_cfg.treeName.c_str());
-    // set the branch
-    int branchAddress = m_inputChain->SetBranchAddress<Acts::MaterialTrack>(
-        "MaterialTrack", &m_trackRecord);
-    ACTS_VERBOSE("Setting Branch address " << branchAddress);
-    m_inputChain->SetBranchStatus("MaterialTrack", 1);
-    // loop over the input files
-    for (auto inputFile : m_cfg.fileList) {
-      // add file to the input chain
-      m_inputChain->Add(inputFile.c_str());
-      ACTS_DEBUG("Adding File " << inputFile << " to tree '" << m_cfg.treeName
-                                << "'.");
+  // read in the material track
+  if (m_inputChain && context.eventNumber < m_events) {
+    // lock the mutex
+    std::lock_guard<std::mutex> lock(m_read_mutex);
+    // now read
+
+    // The collection to be written
+    std::vector<Acts::RecordedMaterialTrack> mtrackCollection;
+
+    for (size_t ib = 0; ib < m_cfg.batchSize; ++ib) {
+
+      // Read the correct entry: batch size * event_number + ib
+      m_inputChain->GetEntry(m_cfg.batchSize * context.eventNumber + ib);
+
+      Acts::RecordedMaterialTrack rmTrack;
+      // Fill the position and momentum
+      rmTrack.first.first  = Acts::Vector3D(m_v_x, m_v_y, m_v_z);
+      rmTrack.first.second = Acts::Vector3D(m_v_px, m_v_py, m_v_pz);
+      // Fill the individual steps
+      size_t msteps = m_step_length->size();
+      ACTS_VERBOSE("Reading " << msteps << " material steps.");
+      rmTrack.second.materialInteractions.reserve(msteps);
+      rmTrack.second.materialInX0 = 0.;
+      rmTrack.second.materialInL0 = 0.;
+
+      for (size_t is = 0; is < msteps; ++is) {
+
+        double mX0 = (*m_step_X0)[is];
+        double mL0 = (*m_step_L0)[is];
+        double s   = (*m_step_length)[is];
+
+        rmTrack.second.materialInX0 += s / mX0;
+        rmTrack.second.materialInL0 += s / mL0;
+
+        /// Fill the position & the material
+        Acts::MaterialInteraction mInteraction;
+        mInteraction.position
+            = Acts::Vector3D((*m_step_x)[is], (*m_step_y)[is], (*m_step_z)[is]);
+        mInteraction.materialProperties = Acts::MaterialProperties(
+            mX0, mL0, (*m_step_A)[is], (*m_step_Z)[is], (*m_step_rho)[is], s);
+        rmTrack.second.materialInteractions.push_back(std::move(mInteraction));
+      }
+      mtrackCollection.push_back(std::move(rmTrack));
     }
-    // Full event count
-    ACTS_DEBUG("The full chain has " << m_inputChain->GetEntries()
-                                     << " entries.");
+    // Write to the collection to the EventStore
+    if (context.eventStore.add(m_cfg.collection, std::move(mtrackCollection))
+        == FW::ProcessCode::ABORT) {
+      ACTS_ERROR("Could not write the material steps into the EventStore!");
+      return FW::ProcessCode::ABORT;
+    }
   }
-
-  // some screen output
-  if (!(m_event % 1000))
-    ACTS_DEBUG("Mapped " << m_event << " out of " << m_inputChain->GetEntries()
-                         << " entries.");
-
-  // read the entry and increase
-  if (!m_inputChain->GetEntry(skip + m_event++)) {
-    ACTS_VERBOSE("No bytes read from the File.");
-    return FW::ProcessCode::ABORT;
-  }
-
-  // some screen printout
-  ACTS_VERBOSE("Material Track Record read in with phi / theta = "
-               << m_trackRecord->phi()
-               << " / "
-               << m_trackRecord->theta());
-
-  // now assign
-  mtrc = (*m_trackRecord);
-  // return scuess
+  // Return success flag
   return FW::ProcessCode::SUCCESS;
 }

@@ -72,8 +72,9 @@ public:
   skip(size_t nEvents) final override;
 
   /// Read out data from the input stream
+  /// @param context The AlgorithmContext for synchrinisation
   FW::ProcessCode
-  read(FW::AlgorithmContext ctx) final override;
+  read(const FW::AlgorithmContext& context) final override;
 
   /// Return the number of events
   virtual size_t

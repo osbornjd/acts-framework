@@ -6,18 +6,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2017-08-03
-/// @author Moritz Kiehnn <msmk@cern.ch>
-
-#ifndef ACTFW_PATHS_H
-#define ACTFW_PATHS_H
+#pragma once
 
 #include <string>
 
 namespace FW {
 
 /// Join dir and name into one paths with correct handling of empty dirs.
+///
+/// @param dir The directory
+/// @param name The File name
 std::string
 joinPaths(const std::string& dir, const std::string& name);
 
@@ -29,6 +27,11 @@ joinPaths(const std::string& dir, const std::string& name);
 std::string
 perEventFilepath(const std::string& dir, const std::string& name, size_t event);
 
-}  // namespace FW
+/// Brief split a file list into a vector of file names to add
+///
+/// @param files The joint file list
+/// @param tag The splitting tag
+std::vector<std::string>
+splitFiles(const std::string& files, std::string tag = ",");
 
-#endif  // ACTFW_PATHS_H
+}  // namespace FW

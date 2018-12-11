@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_PLUGINS_ROOT_INDEXEDMATERIALREADER_H
-#define ACTFW_PLUGINS_ROOT_INDEXEDMATERIALREADER_H
+#pragma once
 
 #include <mutex>
 #include "ACTFW/Framework/IService.hpp"
@@ -101,5 +100,3 @@ namespace Root {
 
 }  // namespace Root
 }  // namespace FW
-
-#endif  // ACTFW_PLUGINS_ROOT_INDEXEDMATERIALREADER_H

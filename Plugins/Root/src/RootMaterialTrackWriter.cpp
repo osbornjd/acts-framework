@@ -50,9 +50,9 @@ FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
   m_outputTree->Branch("v_x", &m_v_x);
   m_outputTree->Branch("v_y", &m_v_y);
   m_outputTree->Branch("v_z", &m_v_z);
-  m_outputTree->Branch("v_dx", &m_v_px);
-  m_outputTree->Branch("v_dy", &m_v_py);
-  m_outputTree->Branch("v_dz", &m_v_pz);
+  m_outputTree->Branch("v_px", &m_v_px);
+  m_outputTree->Branch("v_py", &m_v_py);
+  m_outputTree->Branch("v_pz", &m_v_pz);
   m_outputTree->Branch("v_phi", &m_v_phi);
   m_outputTree->Branch("v_eta", &m_v_eta);
   m_outputTree->Branch("t_X0", &m_tX0);
@@ -118,8 +118,13 @@ FW::Root::RootMaterialTrackWriter::writeT(
     m_step_rho.reserve(mints);
 
     // reset the global counter
-    m_tX0 = mtrack.second.materialInX0;
-    m_tL0 = mtrack.second.materialInL0;
+    if (m_cfg.recalculateTotals) {
+      m_tX0 = 0.;
+      m_tL0 = 0.;
+    } else {
+      m_tX0 = mtrack.second.materialInX0;
+      m_tL0 = mtrack.second.materialInL0;
+    }
 
     // set the track information at vertex
     m_v_x   = mtrack.first.first.x();
@@ -139,12 +144,17 @@ FW::Root::RootMaterialTrackWriter::writeT(
       m_step_z.push_back(mint.position.z());
       // the material information
       const auto& mprops = mint.materialProperties;
-      m_step_length.push_back(mprops.thickness() * mint.pathCorrection);
+      m_step_length.push_back(mprops.thickness());
       m_step_X0.push_back(mprops.averageX0());
       m_step_L0.push_back(mprops.averageL0());
       m_step_A.push_back(mprops.averageA());
       m_step_Z.push_back(mprops.averageZ());
       m_step_rho.push_back(mprops.averageRho());
+      // re-calculate if defined to do so
+      if (m_cfg.recalculateTotals) {
+        m_tX0 += mprops.thicknessInX0();
+        m_tL0 += mprops.thicknessInL0();
+      }
     }
     // write to
     m_outputTree->Fill();

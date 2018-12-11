@@ -8,6 +8,9 @@
 
 #include "ACTFW/Utilities/Paths.hpp"
 #include <cstdio>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 std::string
 FW::joinPaths(const std::string& dir, const std::string& name)
@@ -33,4 +36,17 @@ FW::perEventFilepath(const std::string& dir,
   } else {
     return dir + '/' + prefix + name;
   }
+}
+
+std::vector<std::string>
+FW::splitFiles(const std::string& files, std::string tag)
+{
+  std::vector<std::string> fileList;
+
+  std::stringstream ss(files);
+  std::string       token;
+  while (getline(ss, token, ',')) {
+    fileList.push_back(token);
+  }
+  return fileList;
 }

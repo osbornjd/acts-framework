@@ -31,8 +31,10 @@ public:
       = 0;
 
   /// Read the next event
+  ///
+  /// @param context ist the const AlgoriothmContext
   virtual ProcessCode
-  read(AlgorithmContext context)
+  read(const AlgorithmContext& context)
       = 0;
 
   /// The number of events to be read in

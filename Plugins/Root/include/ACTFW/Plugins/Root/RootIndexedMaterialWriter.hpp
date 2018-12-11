@@ -10,8 +10,7 @@
 // RootIndexedMaterialWriter.h
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ACTFW_PLUGINS_ROOT_INDEXEDMATERIALWRITER_H
-#define ACTFW_PLUGINS_ROOT_INDEXEDMATERIALWRITER_H
+#pragma once
 
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -40,17 +39,16 @@ namespace Root {
   public:
     /// @class Config
     /// Configuration of the Writer
-    class Config
+    struct Config
     {
-    public:
       /// The name of the output tree
       std::string folderNameBase = "Material";
       /// The name of the output file
-      std::string fileName;
+      std::string fileName = "";
       /// The default logger
       std::shared_ptr<const Acts::Logger> logger;
       /// The name of the service
-      std::string name;
+      std::string name = "";
 
       Config(const std::string&   lname = "MaterialWriter",
              Acts::Logging::Level lvl   = Acts::Logging::INFO)
@@ -98,5 +96,3 @@ namespace Root {
 
 }  // namespace Root
 }  // namespace FW
-
-#endif  // ACTFW_PLUGINS_ROOT_INDEXEDMATERIALWRITER_H
