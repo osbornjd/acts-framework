@@ -180,18 +180,17 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 
 	FullVertexFitter vf;
 
-	Vertex v1 = vf.fit(smrdTrksVec,  Acts::Vector3D(0,0,0));
-	//std::cout << std::setprecision(8);
+	if (smrdTrksVec.size() > 1){
+		Vertex v1 = vf.fit(smrdTrksVec,  Acts::Vector3D(0,0,0));
 
-	Acts::Vector3D diffVtx = tmpVtx - v1.position();
+		Acts::Vector3D diffVtx = tmpVtx - v1.position();
 
+		std::cout << "true vertex:   "
+			 << "(" << tmpVtx[0] << "," <<  tmpVtx[1] << ","<<   tmpVtx[2] << ")" << std::endl;
+		std::cout << "fitted vertex: " 
+			<< "(" << v1.position()[0] << "," <<  v1.position()[1] << ","<<   v1.position()[2] << ")" << std::endl;
+	}
 	
-	std::cout << "true vertex: " << std::endl;
-	std::cout << "(" << tmpVtx[0] << "," <<  tmpVtx[1] << ","<<   tmpVtx[2] << ")" << std::endl;
-	std::cout << "fitted vertex: " << std::endl;
-	std::cout << "(" << v1.position()[0] << "," <<  v1.position()[1] << ","<<   v1.position()[2] << ")" << std::endl <<std::endl;
-	
-
 
 	if(context.eventStore.add(m_cfg.collectionOut, std::move(smrdTrksVec))
 		!= FW::ProcessCode::SUCCESS)
