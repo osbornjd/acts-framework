@@ -1,19 +1,11 @@
-//==========================================================================
-//  AIDA Detector description implementation
-//--------------------------------------------------------------------------
-// Copyright (C) Organisation europeenne pour la Recherche nucleaire (CERN)
-// All rights reserved.
+// This file is part of the Acts project.
 //
-// For the licensing terms see $DD4hepINSTALL/LICENSE.
-// For the list of contributors see $DD4hepINSTALL/doc/CREDITS.
+// Copyright (C) 2018 Acts project team
 //
-// Author     : M.Frank
-//
-//==========================================================================
-//
-// Specialized generic detector constructor
-//
-//==========================================================================
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include "Acts/Plugins/DD4hep/ActsExtension.hpp"
 #include "Acts/Plugins/DD4hep/IActsExtension.hpp"
 #include "DD4hep/DetFactoryHelper.h"
