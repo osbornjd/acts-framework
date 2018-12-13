@@ -23,6 +23,10 @@
 #include "ACTFW/Utilities/Options.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Material/Material.hpp"
+#include "Acts/Utilities/Units.hpp"
+#include "Acts/Volumes/CylinderVolumeBounds.hpp"
 
 namespace po = boost::program_options;
 
@@ -60,6 +64,42 @@ processGeometry(int                argc,
   // Now read the standard options
   auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
   auto tGeometry = trackingGeometry(vm);
+//~ std::cout << "ltv: " << tGeometry->lowestTrackingVolume({116. * Acts::units::_cm, 0., 0.})->material()->rho() 
+	//~ << "\t" << tGeometry->lowestTrackingVolume({116. * Acts::units::_cm, 0., 0.})->volumeBounds().innerRadius()
+	//~ << "\t" << tGeometry->lowestTrackingVolume({116. * Acts::units::_cm, 0., 0.})->volumeBounds().outerRadius() << std::endl;
+//~ std::cout << "ltv: " << tGeometry->lowestTrackingVolume({156. * Acts::units::_cm, 0., 0.})->material()->rho() 
+	//~ << "\t" << tGeometry->lowestTrackingVolume({156. * Acts::units::_cm, 0., 0.})->volumeBounds().innerRadius()
+	//~ << "\t" << tGeometry->lowestTrackingVolume({156. * Acts::units::_cm, 0., 0.})->volumeBounds().outerRadius() << std::endl;
+//~ std::cout << "ltv: " << tGeometry->lowestTrackingVolume({196. * Acts::units::_cm, 0., 0.})->material()->rho() 
+	//~ << "\t" << tGeometry->lowestTrackingVolume({196. * Acts::units::_cm, 0., 0.})->volumeBounds().innerRadius()
+	//~ << "\t" << tGeometry->lowestTrackingVolume({196. * Acts::units::_cm, 0., 0.})->volumeBounds().outerRadius() << std::endl;
+//~ std::cout << "ltv: " << tGeometry->lowestTrackingVolume({236. * Acts::units::_cm, 0., 0.})->material()->rho() 
+	//~ << "\t" << tGeometry->lowestTrackingVolume({236. * Acts::units::_cm, 0., 0.})->volumeBounds().innerRadius()
+	//~ << "\t" << tGeometry->lowestTrackingVolume({236. * Acts::units::_cm, 0., 0.})->volumeBounds().outerRadius() << std::endl;
+//~ std::cout << "ltv: " << tGeometry->lowestTrackingVolume({286. * Acts::units::_cm, 0., 0.})->material()->rho() 
+	//~ << "\t" << tGeometry->lowestTrackingVolume({286. * Acts::units::_cm, 0., 0.})->volumeBounds().innerRadius()
+	//~ << "\t" << tGeometry->lowestTrackingVolume({286. * Acts::units::_cm, 0., 0.})->volumeBounds().outerRadius() << std::endl;
+//~ std::cout << "ltv: " << tGeometry->lowestTrackingVolume({336. * Acts::units::_cm, 0., 0.})->material()->rho() 
+	//~ << "\t" << tGeometry->lowestTrackingVolume({336. * Acts::units::_cm, 0., 0.})->volumeBounds().innerRadius()
+	//~ << "\t" << tGeometry->lowestTrackingVolume({336. * Acts::units::_cm, 0., 0.})->volumeBounds().outerRadius() << std::endl;
+//~ std::cout << "ltv: " << tGeometry->lowestTrackingVolume({386. * Acts::units::_cm, 0., 0.})->material()->rho() 
+	//~ << "\t" << tGeometry->lowestTrackingVolume({386. * Acts::units::_cm, 0., 0.})->volumeBounds().innerRadius()
+	//~ << "\t" << tGeometry->lowestTrackingVolume({386. * Acts::units::_cm, 0., 0.})->volumeBounds().outerRadius() << std::endl;
+
+std::cout << "ltv: " << tGeometry->lowestTrackingVolume({116. * Acts::units::_cm, 0., 0.})->material()->rho() << std::endl;
+tGeometry->lowestTrackingVolume({116. * Acts::units::_cm, 0., 0.})->volumeBounds().dump(std::cout);
+std::cout << "ltv: " << tGeometry->lowestTrackingVolume({156. * Acts::units::_cm, 0., 0.})->material()->rho() << std::endl;
+tGeometry->lowestTrackingVolume({156. * Acts::units::_cm, 0., 0.})->volumeBounds().dump(std::cout);
+std::cout << "ltv: " << tGeometry->lowestTrackingVolume({196. * Acts::units::_cm, 0., 0.})->material()->rho() << std::endl;
+tGeometry->lowestTrackingVolume({196. * Acts::units::_cm, 0., 0.})->volumeBounds().dump(std::cout);
+std::cout << "ltv: " << tGeometry->lowestTrackingVolume({236. * Acts::units::_cm, 0., 0.})->material()->rho() << std::endl;
+tGeometry->lowestTrackingVolume({236. * Acts::units::_cm, 0., 0.})->volumeBounds().dump(std::cout);
+std::cout << "ltv: " << tGeometry->lowestTrackingVolume({286. * Acts::units::_cm, 0., 0.})->material()->rho() << std::endl;
+tGeometry->lowestTrackingVolume({286. * Acts::units::_cm, 0., 0.})->volumeBounds().dump(std::cout);
+std::cout << "ltv: " << tGeometry->lowestTrackingVolume({336. * Acts::units::_cm, 0., 0.})->material()->rho() << std::endl;
+tGeometry->lowestTrackingVolume({336. * Acts::units::_cm, 0., 0.})->volumeBounds().dump(std::cout);
+std::cout << "ltv: " << tGeometry->lowestTrackingVolume({386. * Acts::units::_cm, 0., 0.})->material()->rho() << std::endl;
+tGeometry->lowestTrackingVolume({386. * Acts::units::_cm, 0., 0.})->volumeBounds().dump(std::cout);
 
   // The detectors
   read_strings subDetectors = vm["geo-subdetectors"].as<read_strings>();

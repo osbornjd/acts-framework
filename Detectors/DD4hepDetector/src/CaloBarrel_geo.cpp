@@ -48,7 +48,7 @@ static Ref_t create_element(Detector& description, xml_h e, SensitiveDetector se
   sens.setType("calorimeter");
     // Loop over the sets of layer elements in the detector.
     int l_num = 1;
-    for(xml_coll_t li(x_det,_U(detector)); li; ++li)  {
+    for(xml_coll_t li(x_det,_U(volume)); li; ++li)  {
       xml_comp_t x_layer = li;
 		dd4hep::Tube   layerShape(x_layer.rmin(), x_layer.rmax(), x_layer.dz());
 		std::string    layerName = dd4hep::xml::_toString(l_num, "layer%d");
@@ -65,6 +65,7 @@ static Ref_t create_element(Detector& description, xml_h e, SensitiveDetector se
 		// Set Acts Extension
 		Acts::ActsExtension::Config layConfig;
 		layConfig.isLayer             = true;
+		layConfig.isVolume             = true;
 		Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
 		lay_det.addExtension<Acts::IActsExtension>(detlayer);
 

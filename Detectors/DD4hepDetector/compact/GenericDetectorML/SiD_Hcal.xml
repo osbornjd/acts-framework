@@ -13,10 +13,10 @@
     <comment>Hadron Calorimeter Barrel</comment>
     <dimensions numsides="(int) CaloSides" rmin="HcalBarrel_rmin" rmax="HcalBarrel_rmax" z="HcalBarrel_zmax*2"/>
     <staves vis="HcalStavesVis"/>
-    <layer vis="HcalAbsorberVis" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin1" rmax="HcalBarrel_rmax1" material="Lead"/>
-    <layer vis="HcalAbsorberVis2" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin2" rmax="HcalBarrel_rmax2" material="Lead"/>
-    <layer vis="HcalAbsorberVis" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin3" rmax="HcalBarrel_rmax3" material="Lead"/>
-    <layer vis="HcalAbsorberVis2" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin4" rmax="HcalBarrel_rmax4" material="Lead"/>
+    <volume vis="HcalAbsorberVis" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin1" rmax="HcalBarrel_rmax1" material="Lead"/>
+    <volume vis="HcalAbsorberVis2" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin2" rmax="HcalBarrel_rmax2" material="Lead"/>
+    <volume vis="HcalAbsorberVis" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin3" rmax="HcalBarrel_rmax3" material="Lead"/>
+    <volume vis="HcalAbsorberVis2" z_offset="0" dz="HcalBarrel_zmax*2" rmin="HcalBarrel_rmin4" rmax="HcalBarrel_rmax4" material="Lead"/>
   </detector>
 </detectors>
 </lccdd>

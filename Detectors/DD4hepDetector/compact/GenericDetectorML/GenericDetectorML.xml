@@ -16,7 +16,7 @@
     
     <define>
         <!--World-->
-        <constant name="world_size" value="30*m"/>
+        <constant name="world_size" value="30.*m"/>
         <constant name="world_x" value="world_size"/>
         <constant name="world_y" value="world_size"/>
         <constant name="world_z" value="world_size"/>
@@ -309,8 +309,9 @@
   <include ref="GenericDetectorML_LongStrip.xml"/>
 
   <comment>Calorimeters</comment>
-  <include ref="SiD_Ecal.xml"/>
   <include ref="SiD_Hcal.xml"/>
+  <include ref="SiD_Ecal.xml"/>
+
 
     <detectors>
         <detector id="0" name="beampipe" type="BeamPipe">

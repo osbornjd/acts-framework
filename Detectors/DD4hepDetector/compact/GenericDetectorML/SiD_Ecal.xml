@@ -11,10 +11,9 @@
     <comment>Electromagnetic Calorimeter Barrel</comment>
     <dimensions numsides="(int) CaloSides" rmin="EcalBarrel_rmin" rmax="EcalBarrel_rmax" z="EcalBarrel_zmax*2"/>
     <staves vis="EcalStaveVis"/>
-    <detector vis="EcalLayerVis" z_offset="0" dz="EcalBarrel_zmax*2" rmin="EcalBarrel_rmin1" rmax="EcalBarrel_rmax1" material="LiquidArgon"/>
-    <detector vis="EcalLayerVis2" z_offset="0" dz="EcalBarrel_zmax*2" rmin="EcalBarrel_rmin2" rmax="EcalBarrel_rmax2" material="LiquidArgon"/>
-    <detector vis="EcalLayerVis" z_offset="0" dz="EcalBarrel_zmax*2" rmin="EcalBarrel_rmin3" rmax="EcalBarrel_rmax3" material="LiquidArgon"/>
+    <volume vis="EcalLayerVis" z_offset="0" dz="EcalBarrel_zmax*2" rmin="EcalBarrel_rmin1" rmax="EcalBarrel_rmax1" material="LiquidArgon"/>
+    <volume vis="EcalLayerVis2" z_offset="0" dz="EcalBarrel_zmax*2" rmin="EcalBarrel_rmin2" rmax="EcalBarrel_rmax2" material="LiquidArgon"/>
+    <volume vis="EcalLayerVis" z_offset="0" dz="EcalBarrel_zmax*2" rmin="EcalBarrel_rmin3" rmax="EcalBarrel_rmax3" material="LiquidArgon"/>
   </detector>
 </detectors>
-
 </lccdd>
