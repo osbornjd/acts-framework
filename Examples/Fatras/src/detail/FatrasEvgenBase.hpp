@@ -44,7 +44,7 @@ setupEvgenInput(vmap_t&                               vm,
 
   // Read the pythia8 configs
   auto pythia8Configs = FW::Options::readPythia8Config<vmap_t>(vm);
-  
+
   // Check if the particle gun is to be used
   if (evgenInput == "gun") {
     // Read the particle gun configs
@@ -64,7 +64,7 @@ setupEvgenInput(vmap_t&                               vm,
         pythia8Configs.first,
         Acts::getDefaultLogger("HardScatterPythia8Generator", logLevel));
   }
-  
+
   if (vm["evg-pileup"].template as<int>()) {
     // The Pile-up generator - only if pilie-up is configured
     pythia8Configs.second.randomNumberSvc = randomNumberSvc;
