@@ -1,6 +1,6 @@
 add_subdirectory(Digitization)
 add_subdirectory(Fatras)
-#add_subdirectory_if(MaterialMapping USE_GEANT4)
+add_subdirectory(MaterialMapping)
 add_subdirectory(ParticleGun)
 add_subdirectory(Propagation)
 add_subdirectory(ReadEvgen)

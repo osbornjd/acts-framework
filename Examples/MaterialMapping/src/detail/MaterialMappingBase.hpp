@@ -15,11 +15,13 @@
 #include "ACTFW/Common/InputOptions.hpp"
 #include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/MaterialMapping/MaterialMapping.hpp"
+#include "ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
-#include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
+#include "Acts/Plugins/MaterialMapping/SurfaceMaterialMapper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
 
@@ -75,8 +77,17 @@ materialMappingExample(int                argc,
   auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
   auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
-  // Get the tracking geometry
+  // Get the tracking geometry and setup the propagator
   auto tGeometry = trackingGeometry(vm);
+  // Get a Navigator
+  Acts::Navigator navigator(tGeometry);
+
+  // Straight line stepper
+  using SlStepper  = Acts::StraightLineStepper;
+  using Propagator = Acts::Propagator<SlStepper, Acts::Navigator>;
+  // Make stepper and propagator
+  SlStepper  stepper;
+  Propagator propagator(std::move(stepper), std::move(navigator));
 
   auto matCollection = vm["input-collection"].template as<std::string>();
 
@@ -97,22 +108,30 @@ materialMappingExample(int                argc,
       return -1;
   }
 
-  // ---------------------------------------------------------------------------------
-  // Output directory & output file handling
-  std::string outputDir = vm["output-dir"].template as<std::string>();
+  /// The material mapper
+  Acts::SurfaceMaterialMapper::Config smmConfig;
+  auto smm = std::make_shared<Acts::SurfaceMaterialMapper>(
+      smmConfig,
+      std::move(propagator),
+      Acts::getDefaultLogger("SurfaceMaterialMapper", logLevel));
 
-  if (vm["output-root"].template as<bool>()) {
-    // Write the material step information as a ROOT TTree
-    FW::Root::RootMaterialTrackWriter::Config matTrackWriterRootConfig;
-    matTrackWriterRootConfig.collection = matCollection;
-    matTrackWriterRootConfig.filePath
-        = FW::joinPaths(outputDir, matCollection + "-output.root");
-    auto matTrackWriterRoot
-        = std::make_shared<FW::Root::RootMaterialTrackWriter>(
-            matTrackWriterRootConfig);
-    if (sequencer.addWriters({matTrackWriterRoot}) != FW::ProcessCode::SUCCESS)
-      return -1;
-  }
+  /// The writer of the indexed material
+  FW::Root::RootIndexedMaterialWriter::Config rimConfig(
+      "IndexedMaterialWriter");
+  auto rimRootWriter
+      = std::make_shared<FW::Root::RootIndexedMaterialWriter>(rimConfig);
+
+  /// The material mapping algorithm
+  FW::MaterialMapping::Config mmAlgConfig;
+  mmAlgConfig.materialMapper        = smm;
+  mmAlgConfig.trackingGeometry      = tGeometry;
+  mmAlgConfig.indexedMaterialWriter = rimRootWriter;
+
+  // Create the material mapping
+  auto mmAlg = std::make_shared<FW::MaterialMapping>(mmAlgConfig);
+
+  // Apend the Algorithm
+  sequencer.appendEventAlgorithms({mmAlg});
 
   // Initiate the run
   sequencer.run(nEvents);

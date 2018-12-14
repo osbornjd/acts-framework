@@ -6,20 +6,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_ALGORITHMS_MATERIALMAPPING_MATERIALMAPPING_H
-#define ACTFW_ALGORITHMS_MATERIALMAPPING_MATERIALMAPPING_H
+#pragma once
 
 #include <climits>
 #include <memory>
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Readers/IReaderT.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "Acts/Layers/Layer.hpp"
-#include "Acts/Material/SurfaceMaterial.hpp"
-#include "Acts/Plugins/MaterialMapping/MaterialMapper.hpp"
-#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/SurfaceMaterialMapper.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
@@ -28,6 +23,8 @@ class WhiteBoard;
 
 namespace Acts {
 class TrackingGeometry;
+using IndexedSurfaceMaterial
+    = std::pair<GeometryID, std::unique_ptr<const SurfaceMaterial>>;
 }
 
 namespace FW {
@@ -41,7 +38,6 @@ namespace FW {
 /// the tracking geometry
 ///
 /// In a final step, the material maps are written out for further usage
-
 class MaterialMapping : public FW::BareAlgorithm
 {
 public:
@@ -50,35 +46,35 @@ public:
   struct Config
   {
   public:
-    /// The reader to read in the MaterialTrack entities
-    std::shared_ptr<FW::IReaderT<Acts::MaterialTrack>> materialTrackReader
-        = nullptr;
-    /// The ACTS material mapper
-    std::shared_ptr<Acts::MaterialMapper> materialMapper = nullptr;
-    /// The validation writer of the material
-    std::shared_ptr<FW::IWriterT<Acts::MaterialTrack>> materialTrackWriter
-        = nullptr;
+    /// Input collection
+    std::string collection = "";
+
+    /// The ACTS surface material mapper
+    std::shared_ptr<Acts::SurfaceMaterialMapper> materialMapper = nullptr;
+
     /// The writer of the material
     std::shared_ptr<FW::IWriterT<Acts::IndexedSurfaceMaterial>>
         indexedMaterialWriter = nullptr;
+
     /// The TrackingGeometry to be mapped on
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
-    /// mapping conditions
-    size_t maximumTrackRecords = std::numeric_limits<size_t>::infinity();
   };
 
   /// Constructor
+  ///
+  /// @param cfg The configuration struct carrying the used tools
+  /// @param level The output logging level
   MaterialMapping(const Config&        cfg,
                   Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execute method
+  ///
+  /// @param context The algorithm context
   FW::ProcessCode
   execute(FW::AlgorithmContext context) const final override;
 
 private:
-  Config m_cfg;
+  Config m_cfg;  //!< internal config object
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_ALGORITHMS_MATERIALMAPPING_MATERIALMAPPING_H

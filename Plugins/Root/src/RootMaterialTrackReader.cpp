@@ -87,6 +87,7 @@ FW::Root::RootMaterialTrackReader::read(const FW::AlgorithmContext& context)
       // Fill the position and momentum
       rmTrack.first.first  = Acts::Vector3D(m_v_x, m_v_y, m_v_z);
       rmTrack.first.second = Acts::Vector3D(m_v_px, m_v_py, m_v_pz);
+
       // Fill the individual steps
       size_t msteps = m_step_length->size();
       ACTS_VERBOSE("Reading " << msteps << " material steps.");

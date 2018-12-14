@@ -10,6 +10,10 @@
 #include <ios>
 #include <iostream>
 #include <stdexcept>
+#include "Acts/Material/BinnedSurfaceMaterial.hpp"
+#include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
+#include "Acts/Utilities/BinUtility.hpp"
+#include "Acts/Utilities/BinningType.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "TFile.h"
 #include "TH2F.h"
@@ -62,20 +66,24 @@ FW::Root::RootIndexedMaterialReader::read(Acts::IndexedSurfaceMaterial& ism,
 
   // Create the directory
   std::string tdName = m_cfg.folderNameBase.c_str();
-  tdName += "_vol" + std::to_string(gvolID);
-  tdName += "_lay" + std::to_string(glayID);
-  tdName += "_app" + std::to_string(gappID);
-  tdName += "_sen" + std::to_string(gsenID);
+  tdName += m_cfg.voltag + std::to_string(gvolID);
+  tdName += m_cfg.laytag + std::to_string(glayID);
+  tdName += m_cfg.apptag + std::to_string(gappID);
+  tdName += m_cfg.sentag + std::to_string(gsenID);
 
-  // construct the names
-  std::string tName   = tdName + "/t";
-  std::string x0Name  = tdName + "/X0";
-  std::string l0Name  = tdName + "/L0";
-  std::string aName   = tdName + "/A";
-  std::string zName   = tdName + "/Z";
-  std::string rhoName = tdName + "/rho";
+  // Construct the names
+  std::string bName   = tdName + "/" + m_cfg.btag;
+  std::string vName   = tdName + "/" + m_cfg.vtag;
+  std::string tName   = tdName + "/" + m_cfg.ttag;
+  std::string x0Name  = tdName + "/" + m_cfg.x0tag;
+  std::string l0Name  = tdName + "/" + m_cfg.l0tag;
+  std::string aName   = tdName + "/" + m_cfg.atag;
+  std::string zName   = tdName + "/" + m_cfg.ztag;
+  std::string rhoName = tdName + "/" + m_cfg.rhotag;
 
-  // get the histograms
+  // Get the histograms
+  TH1F* b   = dynamic_cast<TH1F*>(m_inputFile->Get(bName.c_str()));
+  TH1F* v   = dynamic_cast<TH1F*>(m_inputFile->Get(vName.c_str()));
   TH2F* t   = dynamic_cast<TH2F*>(m_inputFile->Get(tName.c_str()));
   TH2F* x0  = dynamic_cast<TH2F*>(m_inputFile->Get(x0Name.c_str()));
   TH2F* l0  = dynamic_cast<TH2F*>(m_inputFile->Get(l0Name.c_str()));
@@ -84,24 +92,64 @@ FW::Root::RootIndexedMaterialReader::read(Acts::IndexedSurfaceMaterial& ism,
   TH2F* rho = dynamic_cast<TH2F*>(m_inputFile->Get(rhoName.c_str()));
 
   // Only go on when you have all histograms
-  if (t and x0 and l0 and A and Z and rho) {
+  if (b and v and t and x0 and l0 and A and Z and rho) {
     // Get the number of bins
     int nbins0 = t->GetNbinsX();
     int nbins1 = t->GetNbinsY();
 
-    // Get the values
-    for (int ib0 = 0; ib0 < nbins0; ++ib0) {
-      for (int ib1 = 0; ib1 < nbins1; ++ib1) {
-        double dt   = t->GetBinContent(ib0 + 1, ib1 + 1);
-        double dx0  = x0->GetBinContent(ib0 + 1, ib1 + 1);
-        double dl0  = l0->GetBinContent(ib0 + 1, ib1 + 1);
-        double da   = A->GetBinContent(ib0 + 1, ib1 + 1);
-        double dz   = Z->GetBinContent(ib0 + 1, ib1 + 1);
-        double drho = rho->GetBinContent(ib0 + 1, ib1 + 1);
+    // We need binned material properties
+    if (nbins0 * nbins1 > 1) {
+      // The material matrix
+      Acts::MaterialPropertiesMatrix materialMatrix(
+          nbins1,
+          Acts::MaterialPropertiesVector(nbins1, Acts::MaterialProperties()));
+
+      // Construct the BinUtility
+      // Bin 0 is always present
+      Acts::BinningValue bValue0 = (Acts::BinningValue)b->GetBinContent(1);
+      float              min0    = v->GetBinContent(1);
+      float              max0    = v->GetBinContent(2);
+      Acts::BinUtility   bu(nbins0, min0, max0, Acts::open, bValue0);
+      // Bin 1 is potentially present
+      if (nbins1 > 1) {
+        Acts::BinningValue bValue1 = (Acts::BinningValue)b->GetBinContent(2);
+        float              min1    = v->GetBinContent(3);
+        float              max1    = v->GetBinContent(4);
+        bu += Acts::BinUtility(nbins1, min1, max1, Acts::open, bValue1);
       }
+      // Construct the surface material
+      // Get the values
+      for (int ib0 = 1; ib0 <= nbins0; ++ib0) {
+        for (int ib1 = 1; ib1 <= nbins1; ++ib1) {
+          double dt = t->GetBinContent(ib0, ib1);
+          if (dt > 0.) {
+            double dx0  = x0->GetBinContent(ib0, ib1);
+            double dl0  = l0->GetBinContent(ib0, ib1);
+            double da   = A->GetBinContent(ib0, ib1);
+            double dz   = Z->GetBinContent(ib0, ib1);
+            double drho = rho->GetBinContent(ib0, ib1);
+            // Create material properties
+            materialMatrix[ib1][ib0]
+                = Acts::MaterialProperties(dx0, dl0, da, dz, drho, dt);
+          }
+        }
+      }
+      // Create and set the binned surface material
+      ism.second = std::make_unique<Acts::BinnedSurfaceMaterial>(
+          bu, std::move(materialMatrix));
+    } else {
+      // Only homogeneous material present
+      double dt   = t->GetBinContent(1, 1);
+      double dx0  = x0->GetBinContent(1, 1);
+      double dl0  = l0->GetBinContent(1, 1);
+      double da   = A->GetBinContent(1, 1);
+      double dz   = Z->GetBinContent(1, 1);
+      double drho = rho->GetBinContent(1, 1);
+      // Create and set the homogenous surface material
+      ism.second = std::make_unique<Acts::HomogeneousSurfaceMaterial>(
+          Acts::MaterialProperties(dx0, dl0, da, dz, drho, dt));
     }
   }
-
   // Announce success
   return FW::ProcessCode::SUCCESS;
 }

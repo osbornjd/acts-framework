@@ -18,6 +18,11 @@
 
 class TFile;
 
+namespace Acts {
+using IndexedSurfaceMaterial
+    = std::pair<GeometryID, std::unique_ptr<const SurfaceMaterial>>;
+}
+
 namespace FW {
 
 namespace Root {
@@ -42,13 +47,41 @@ namespace Root {
     public:
       /// The name of the input tree
       std::string folderNameBase = "Material";
+      /// The volume identification string
+      std::string voltag = "_vol";
+      /// The layer identification string
+      std::string laytag = "_lay";
+      /// The approach identification string
+      std::string apptag = "_app";
+      /// The sensitive identification string
+      std::string sentag = "_sen";
+      /// The binning tag
+      std::string btag = "b";
+      /// The value tag
+      std::string vtag = "v";
+      /// The thickness tag
+      std::string ttag = "t";
+      /// The x0 tag
+      std::string x0tag = "x0";
+      /// The l0 tag
+      std::string l0tag = "l0";
+      /// The A tag
+      std::string atag = "A";
+      /// The Z tag
+      std::string ztag = "Z";
+      /// The rho tag
+      std::string rhotag = "rho";
       /// The name of the input file
-      std::string fileName;
+      std::string fileName = "";
       /// The default logger
       std::shared_ptr<const Acts::Logger> logger;
       /// The name of the service
       std::string name;
 
+      /// Constructor
+      ///
+      /// @param lname Name of the writer tool
+      /// @param lvl The output logging level
       Config(const std::string&   lname = "MaterialReader",
              Acts::Logging::Level lvl   = Acts::Logging::INFO)
         : logger(Acts::getDefaultLogger(lname, lvl)), name(lname)
@@ -57,6 +90,8 @@ namespace Root {
     };
 
     /// Constructor
+    ///
+    /// @param cfg configuration struct for the reader
     RootIndexedMaterialReader(const Config& cfg);
 
     /// Virtual destructor
@@ -66,11 +101,11 @@ namespace Root {
     std::string
     name() const final override;
 
-    // clang-format off
-  /// @copydoc FW::IReaderT::read(std::vector<Acts::ParticleProperties>&,size_t,const FW::AlgorithmContext*)
-    // clang-format on
+    /// Read method
+    ///
+    /// @param ism The indexted material map
     FW::ProcessCode
-    read(Acts::IndexedSurfaceMaterial& mtrc,
+    read(Acts::IndexedSurfaceMaterial& ism,
          size_t                        skip    = 0,
          const FW::AlgorithmContext*   context = nullptr) final override;
 

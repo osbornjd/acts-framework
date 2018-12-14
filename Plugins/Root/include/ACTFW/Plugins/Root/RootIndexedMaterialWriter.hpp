@@ -17,8 +17,14 @@
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "Acts/Material/SurfaceMaterial.hpp"
 #include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "TFile.h"
+
+namespace Acts {
+using IndexedSurfaceMaterial
+    = std::pair<GeometryID, std::unique_ptr<const SurfaceMaterial>>;
+}
 
 namespace FW {
 
@@ -43,13 +49,41 @@ namespace Root {
     {
       /// The name of the output tree
       std::string folderNameBase = "Material";
+      /// The volume identification string
+      std::string voltag = "_vol";
+      /// The layer identification string
+      std::string laytag = "_lay";
+      /// The approach identification string
+      std::string apptag = "_app";
+      /// The sensitive identification string
+      std::string sentag = "_sen";
+      /// The binning tag
+      std::string btag = "b";
+      /// The value tag
+      std::string vtag = "v";
+      /// The thickness tag
+      std::string ttag = "t";
+      /// The x0 tag
+      std::string x0tag = "x0";
+      /// The l0 tag
+      std::string l0tag = "l0";
+      /// The A tag
+      std::string atag = "A";
+      /// The Z tag
+      std::string ztag = "Z";
+      /// The rho tag
+      std::string rhotag = "rho";
       /// The name of the output file
       std::string fileName = "";
       /// The default logger
       std::shared_ptr<const Acts::Logger> logger;
-      /// The name of the service
+      // The name of the writer
       std::string name = "";
 
+      /// Constructor
+      ///
+      /// @param lname Name of the writer tool
+      /// @param lvl The output logging level
       Config(const std::string&   lname = "MaterialWriter",
              Acts::Logging::Level lvl   = Acts::Logging::INFO)
         : logger(Acts::getDefaultLogger(lname, lvl)), name(lname)
@@ -58,6 +92,8 @@ namespace Root {
     };
 
     /// Constructor
+    ///
+    /// @param cfg The configuration struct
     RootIndexedMaterialWriter(const Config& cfg);
 
     /// Virtual destructor
