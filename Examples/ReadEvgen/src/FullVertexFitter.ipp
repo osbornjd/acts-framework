@@ -3,6 +3,7 @@
 #include "LinearizedTrackFactory.hpp"
 #include "TrackAtVertex.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
+#include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 
 namespace {
@@ -49,13 +50,9 @@ namespace {
 
 } // end anonymous namespace
 
-
-FullVertexFitter::FullVertexFitter(): m_maxIterations(5){};
-
-Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVector, 
-								 const Acts::Vector3D& startingPoint)
+template <typename BField>
+Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& paramVector) const
 {
-
 	bool debug = false;
 	
 	double chi2 = 1E10;
@@ -63,19 +60,21 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 	unsigned int nTracks = paramVector.size();
 
 	// Factory for linearizing tracks
-	LinearizedTrackFactory linFactory;
+
+	typename LinearizedTrackFactory<BField>::Config lt_config(m_cfg.bField);
+	LinearizedTrackFactory<BField> linFactory(lt_config);
 
 	std::vector<BilloirTrack> billoirTracks;
 
 	std::vector<Acts::Vector3D> trackMomenta;
 
-	Acts::Vector3D linPoint(startingPoint);
+	Acts::Vector3D linPoint(m_cfg.startingPoint);
 
 	std::unique_ptr<Vertex> fittedVertex = std::make_unique<Vertex>();
 
 	std::vector<TrackAtVertex> tracksAtVertex;
 
-	for(int n_iter = 0; n_iter < m_maxIterations; ++n_iter)
+	for(int n_iter = 0; n_iter < m_cfg.maxIterations; ++n_iter)
 	{
 		billoirTracks.clear();
 
@@ -169,8 +168,9 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 		// delta_V = cov_(delta_V) * V_del;
 		Acts::Vector3D delta_V = cov_delta_V_mat * V_del;
 
-		/*--------------------------------------------------------------------------------------*/
-		/* start momentum related calculations */
+		//--------------------------------------------------------------------------------------
+		// start momentum related calculations
+
 		std::vector<std::unique_ptr<Acts::ActsSymMatrixD<5>>> cov_delta_P_mat ( nTracks );
 		std::vector<double> chi2PerTrack;
 		chi2PerTrack.clear();
@@ -228,9 +228,7 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 			//          std::cout<<"trans_mat = "<<trans_mat<<std::endl;
 			cov_delta_P_mat[i_track] = std::make_unique<Acts::ActsSymMatrixD<5>>(trans_mat*cov_mat*trans_mat.transpose());
 
-			
-			
-			/* Calculate chi2 per track. */
+			// Calculate chi2 per track. 
 			bTrack.chi2= ( ( bTrack.delta_q - bTrack.Di_mat*delta_V - bTrack.Ei_mat*deltaP ).transpose() 
 				* bTrack.linTrack->covarianceAtPCA().inverse().eval() 
 				* ( bTrack.delta_q - bTrack.Di_mat*delta_V - bTrack.Ei_mat*deltaP ) )[0];
@@ -278,6 +276,6 @@ Vertex FullVertexFitter::fit(const std::vector<Acts::BoundParameters>& paramVect
 	} // end loop iterations
 
 	return *fittedVertex;
-
+	
 
 }

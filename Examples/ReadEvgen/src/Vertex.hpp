@@ -31,3 +31,4 @@ private:
 	Acts::ActsSymMatrixD<3> m_covariance;
 
 };
+

@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_EXAMPLES_TRACKSMEARING_H
-#define ACTFW_EXAMPLES_TRACKSMEARING_H
+#pragma once 
 
 #include <memory>
 
@@ -51,6 +50,3 @@ private:
 };
 
 } // namespace FWE
-
-
-#endif // ACTFW_EXAMPLES_TRACKSMEARING_H

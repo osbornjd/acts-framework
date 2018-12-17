@@ -1,15 +1,12 @@
 
 #include "LinearizedTrackFactory.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include <iostream>
 
-LinearizedTrackFactory::LinearizedTrackFactory(){};
-LinearizedTrackFactory::~LinearizedTrackFactory(){};
-
-LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParameters* params,
+template <typename BField>
+LinearizedTrack* LinearizedTrackFactory<BField>::linearizeTrack(const Acts::BoundParameters* params,
                                     const Acts::Vector3D& linPoint) const
 {
 	if (!params) return nullptr;
@@ -18,11 +15,11 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
 
 	// TODO: obtain real b-field
 	// Set up b-field and stepper
-	Acts::ConstantBField bField(Acts::Vector3D(0.,0.,1.)*Acts::units::_T);
-	Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
+	//Acts::ConstantBField bField(Acts::Vector3D(0.,0.,1.)*Acts::units::_T);
+	Acts::EigenStepper<BField> stepper(m_cfg.bField);
 	
 	// Set up propagator with void navigator
-	Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator(stepper);
+	Acts::Propagator<Acts::EigenStepper<BField>> propagator(stepper);
 
 	// Set up propagator options
 	Acts::PropagatorOptions<> options;
@@ -57,12 +54,12 @@ LinearizedTrack* LinearizedTrackFactory::linearizeTrack(const Acts::BoundParamet
 
     //q over p  
     double q_ov_p = paramsAtPCA(Acts::ParID_t::eQOP);
-    double sgn_h = (q_ov_p<0.)? -1:1; // TODO: is that sign correct?
+    double sgn_h = (q_ov_p<0.)? -1:1; 
 
     Acts::Vector3D momentumAtPCA(phi_v, th, q_ov_p);
 
     // get B-field z-component at current position
-    double B_z = bField.getField(linPoint)[Acts::eZ];
+    double B_z = m_cfg.bField.getField(linPoint)[Acts::eZ];
 
     double rho;
     // Curvature is infinite w/o b field

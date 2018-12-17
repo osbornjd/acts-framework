@@ -1,6 +1,5 @@
 
-#ifndef LINEARIZEDTRACKFACTORY_H
-#define LINEARIZEDTRACKFACTORY_H
+#pragma once
 
 #include "LinearizedTrack.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
@@ -24,18 +23,38 @@
  *
  */
 
+
+template <typename BField>
 class LinearizedTrackFactory
 {
 public:
 
-    /// Default constructor
-    LinearizedTrackFactory();
+	struct Config
+	{
+		BField bField;
 
-    /// Destructor
-    ~LinearizedTrackFactory();
+		Config(BField bIn) : 
+			bField(std::move(bIn))
+		{};
+	};
+
+    /// Constructor with BField
+    LinearizedTrackFactory(const Config& config) :
+   		m_cfg(config)
+   	{}
+
+    /// Default destructor
+    ~LinearizedTrackFactory() = default;
 
     LinearizedTrack* linearizeTrack(const Acts::BoundParameters* params,
                                     const Acts::Vector3D& linPoint) const;
+
+private:
+
+	// Configuration object
+	Config m_cfg;
+
 };
 
-#endif
+
+#include "LinearizedTrackFactory.ipp"

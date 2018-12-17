@@ -15,12 +15,11 @@
 
  */
 
-#ifndef LINEARIZEDTRACK_H
-#define LINEARIZEDTRACK_H
+#pragma once 
 
 #include "Acts/Utilities/Definitions.hpp"
 
-class LinearizedTrack // TODO inherit from TrackParametersBase
+class LinearizedTrack //TODO inherit from TrackParametersBase?
 {
 public:
 
@@ -103,5 +102,3 @@ private:
 	 Acts::Vector3D				m_MomentumAtPCA;
 	 Acts::ActsVectorD<5>		m_ConstTerm;
 };
-
-#endif

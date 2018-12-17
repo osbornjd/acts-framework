@@ -177,11 +177,12 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 		}
 	}
 
+	FullVertexFitter<Acts::ConstantBField>::Config vf_config(bField);
 
-	FullVertexFitter vf;
+	FullVertexFitter<Acts::ConstantBField> vf(vf_config);
 
 	if (smrdTrksVec.size() > 1){
-		Vertex v1 = vf.fit(smrdTrksVec,  Acts::Vector3D(0,0,0));
+		Vertex v1 = vf.fit(smrdTrksVec);
 
 		Acts::Vector3D diffVtx = tmpVtx - v1.position();
 
