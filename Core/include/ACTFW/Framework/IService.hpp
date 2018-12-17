@@ -6,13 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-05-23
-/// @author Andreas Salburger
-/// @author Moritz Kiehnn <msmk@cern.ch>
-
-#ifndef ACTFW_ISERVICE_H
-#define ACTFW_ISERVICE_H
+#pragma once
 
 #include <string>
 
@@ -49,5 +43,3 @@ public:
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_ISERVICE_H

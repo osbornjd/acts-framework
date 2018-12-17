@@ -6,14 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-05-11 Initial version
-/// @date 2017-07-27 Simplify interface
-/// @author Andreas Salzburger
-/// @author Moritz Kiehn <msmk@cern.ch>
-
-#ifndef ACTFW_BAREALGORITHM_H
-#define ACTFW_BAREALGORITHM_H
+#pragma once
 
 #include <memory>
 #include <string>
@@ -47,6 +40,8 @@ public:
   /// Framework execute method
   ///
   /// This function must be implemented by subclasses.
+  /// @param context The object that allows event consistency
+  /// in multi-threaded execution
   virtual ProcessCode
   execute(AlgorithmContext context) const override = 0;
 
@@ -63,5 +58,3 @@ private:
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_BAREALGORITHM_H

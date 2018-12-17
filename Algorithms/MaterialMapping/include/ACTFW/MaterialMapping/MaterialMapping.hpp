@@ -10,6 +10,7 @@
 
 #include <climits>
 #include <memory>
+#include <mutex>
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -31,13 +32,19 @@ namespace FW {
 
 /// @class MaterialMapping
 ///
-/// @brief Initiates material mapping
+/// @brief Initiates and executes material mapping
 ///
 /// The MaterialMapping reads in the MaterialTrack with a dedicated
 /// reader and uses the material mapper to project the material onto
 /// the tracking geometry
 ///
-/// In a final step, the material maps are written out for further usage
+/// By construction, the material mapping needs inter-event information
+/// to build the material maps of accumulated single particle views.
+/// However, running it in one single event, puts enormous pressure onto
+/// the I/O structure.
+///
+/// It therefore saves the mapping state/cache as a private member variable
+/// and is designed to be executed in a single threaded mode.
 class MaterialMapping : public FW::BareAlgorithm
 {
 public:
@@ -67,14 +74,20 @@ public:
   MaterialMapping(const Config&        cfg,
                   Acts::Logging::Level level = Acts::Logging::INFO);
 
+  /// Destructor
+  /// - it also writes out the file
+  ~MaterialMapping();
+
   /// Framework execute method
   ///
-  /// @param context The algorithm context
+  /// @param context The algorithm context for event consistency
   FW::ProcessCode
   execute(FW::AlgorithmContext context) const final override;
 
 private:
   Config m_cfg;  //!< internal config object
+  Acts::SurfaceMaterialMapper::State
+      m_mappingState;  //!< Material mapping state
 };
 
 }  // namespace FW

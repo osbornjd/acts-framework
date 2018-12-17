@@ -6,14 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-05-11 Initial version
-/// @date 2017-07-27 Clean up with simplified interfaces
-/// @author Andreas Salzburger
-/// @author Moritz Kiehn <msmk@cern.ch>
-
-#ifndef ACTFW_SEQUENCER_H
-#define ACTFW_SEQUENCER_H
+#pragma once
 
 #include <boost/optional.hpp>
 #include <memory>
@@ -113,5 +106,3 @@ private:
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_SEQUENCER_H

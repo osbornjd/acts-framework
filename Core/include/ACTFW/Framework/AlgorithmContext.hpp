@@ -6,13 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-10-26 Initial version
-/// @author Hadrien Grasland
-/// @author Moritz Kiehn <msmk@cern.ch>
-
-#ifndef ACTFW_ALGORITHMCONTEXT_H
-#define ACTFW_ALGORITHMCONTEXT_H
+#pragma once
 
 #include <memory>
 
@@ -29,5 +23,3 @@ struct AlgorithmContext
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_ALGORITHMCONTEXT_H
