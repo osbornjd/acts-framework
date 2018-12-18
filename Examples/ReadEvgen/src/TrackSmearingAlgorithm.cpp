@@ -46,6 +46,9 @@ FWE::TrackSmearingAlgorithm::TrackSmearingAlgorithm(const Config& cfg, Acts::Log
 FW::ProcessCode
 FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 {
+
+	static const double eta_cut = 3.0;
+
 	// Define parameter for pt-dependent IP resolution
 	// of the form sigma_d/z(p_t[GeV]) = A*exp(-B*p_t[GeV]) + C
 	static const double ipResA = 100.7439 * Acts::units::_um;
@@ -103,7 +106,7 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 			// Calculate pseudo-rapidity
 			const double eta = Acts::VectorHelpers::eta(ptclMom);
 			// Only charged particles for |eta| < 2.5
-			if (particle.q() !=0 && std::abs(eta) < 2.5) 
+			if (particle.q() !=0 && std::abs(eta) < eta_cut) 
 			{
 				// Define start track params
 				Acts::CurvilinearParameters 
@@ -155,7 +158,7 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 					}
 
 					double new_eta = -log(tan(smrd_theta/2));
-					if(std::abs(new_eta) > 2.5) continue;
+					if(std::abs(new_eta) > eta_cut) continue;
 				
 					Acts::TrackParametersBase::ParVector_t paramVec;
 					paramVec << smrd_d0, smrd_z0, smrd_phi, smrd_theta, srmd_qp;

@@ -7,18 +7,18 @@ class TrackAtVertex{
 public:
 
 	// Default constructor
-	TrackAtVertex();
+	//TrackAtVertex();
 
-	TrackAtVertex(double chi2perTrack, 
-				  const Acts::BoundParameters* paramsAtVertex,
-				  const Acts::BoundParameters* originalParams);
+	TrackAtVertex(const double chi2perTrack, 
+				  Acts::BoundParameters paramsAtVertex,
+				  Acts::BoundParameters originalParams);
 
 private:
 
-	double m_chi2Track;
+	const double m_chi2Track;
 
-	const Acts::BoundParameters* m_paramsAtVertex;
+	Acts::BoundParameters m_paramsAtVertex;
 
-	const Acts::BoundParameters* m_originalParams;
+	Acts::BoundParameters m_originalParams;
 
 };

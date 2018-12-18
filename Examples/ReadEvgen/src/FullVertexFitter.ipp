@@ -60,7 +60,6 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 	unsigned int nTracks = paramVector.size();
 
 	// Factory for linearizing tracks
-
 	typename LinearizedTrackFactory<BField>::Config lt_config(m_cfg.bField);
 	LinearizedTrackFactory<BField> linFactory(lt_config);
 
@@ -71,8 +70,6 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 	Acts::Vector3D linPoint(m_cfg.startingPoint);
 
 	std::unique_ptr<Vertex> fittedVertex = std::make_unique<Vertex>();
-
-	std::vector<TrackAtVertex> tracksAtVertex;
 
 	for(int n_iter = 0; n_iter < m_cfg.maxIterations; ++n_iter)
 	{
@@ -252,8 +249,7 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 			fittedVertex->setPosition(vertex);
 			fittedVertex->setCovariance(cov_delta_V_mat);
 
-			tracksAtVertex.clear();
-
+			std::vector<std::unique_ptr<TrackAtVertex>> tracksAtVertex;
 			
 			Acts::PerigeeSurface perigee(vertex);
 			int i_track = 0;
@@ -266,11 +262,14 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 				Acts::BoundParameters refittedParams(std::move(cov_delta_P_mat[i_track]), 
 									  paramVec, perigee);
 
-				tracksAtVertex.push_back(
-					TrackAtVertex(bTrack.chi2, &refittedParams, &bTrack.originalParams)
-					);
+				std::unique_ptr<TrackAtVertex> trackVx
+						= std::make_unique<TrackAtVertex>(bTrack.chi2, refittedParams, bTrack.originalParams); 
+				tracksAtVertex.push_back(std::move(trackVx));
 				++i_track;
 			}
+
+			fittedVertex->setTracksAtVertex(tracksAtVertex);
+
 		}
 
 	} // end loop iterations

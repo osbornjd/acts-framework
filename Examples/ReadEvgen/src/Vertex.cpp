@@ -6,6 +6,8 @@ Vertex::Vertex(){};
 Vertex::Vertex(const Vertex& other) :
 	m_position( other.m_position ) {};
 
+
+
 const Acts::Vector3D& Vertex::position() const{
 	return m_position;
 }
@@ -20,4 +22,8 @@ void Vertex::setPosition(const Acts::Vector3D& position){
 
 void Vertex::setCovariance(const Acts::ActsSymMatrixD<3>& covariance){
 	m_covariance = covariance;
+}
+
+void Vertex::setTracksAtVertex(std::vector<std::unique_ptr<TrackAtVertex>>& tracks){
+	m_tracksAtVertex = std::move(tracks);
 }
