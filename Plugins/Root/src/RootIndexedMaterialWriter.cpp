@@ -51,6 +51,12 @@ FW::Root::RootIndexedMaterialWriter::write(
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_write_mutex);
 
+  // Change to the output file
+  m_outputFile->cd();
+
+  // Get the Surface material
+  const Acts::SurfaceMaterial* sMaterial = ism.second.get();
+
   // get the geometry ID
   Acts::GeometryID geoID = ism.first;
   // decode the geometryID
@@ -73,7 +79,7 @@ FW::Root::RootIndexedMaterialWriter::write(
   size_t bins0 = 1, bins1 = 1;
   // understand what sort of material you have in mind
   const Acts::BinnedSurfaceMaterial* bsm
-      = dynamic_cast<const Acts::BinnedSurfaceMaterial*>(ism.second.get());
+      = dynamic_cast<const Acts::BinnedSurfaceMaterial*>(sMaterial);
   if (bsm) {
     // overwrite the bin numbers
     bins0 = bsm->binUtility().bins(0);
@@ -103,8 +109,8 @@ FW::Root::RootIndexedMaterialWriter::write(
       v->SetBinContent(3, binningData[1].min);
       v->SetBinContent(4, binningData[1].max);
     }
-    v->Write();
     b->Write();
+    v->Write();
   }
 
   TH2F* t = new TH2F(m_cfg.ttag.c_str(),
@@ -160,7 +166,7 @@ FW::Root::RootIndexedMaterialWriter::write(
   for (size_t b0 = 0; b0 < bins0; ++b0) {
     for (size_t b1 = 0; b1 < bins1; ++b1) {
       // get the material for the bin
-      auto& mat = bsm->materialProperties(b0, b1);
+      auto& mat = sMaterial->materialProperties(b0, b1);
       if (mat) {
         t->SetBinContent(b0 + 1, b1 + 1, mat.thickness());
         x0->SetBinContent(b0 + 1, b1 + 1, mat.material().X0());

@@ -16,7 +16,6 @@ FW::Root::RootMaterialTrackReader::RootMaterialTrackReader(
     const FW::Root::RootMaterialTrackReader::Config& cfg)
   : FW::IReader(), m_cfg(cfg), m_events(0), m_inputChain(nullptr)
 {
-
   m_inputChain = new TChain(m_cfg.treeName.c_str());
 
   // Set the branches
@@ -69,6 +68,8 @@ FW::Root::RootMaterialTrackReader::~RootMaterialTrackReader()
 FW::ProcessCode
 FW::Root::RootMaterialTrackReader::read(const FW::AlgorithmContext& context)
 {
+
+  ACTS_DEBUG("Trying to read recorded material from tracks.");
   // read in the material track
   if (m_inputChain && context.eventNumber < m_events) {
     // lock the mutex
@@ -82,6 +83,8 @@ FW::Root::RootMaterialTrackReader::read(const FW::AlgorithmContext& context)
 
       // Read the correct entry: batch size * event_number + ib
       m_inputChain->GetEntry(m_cfg.batchSize * context.eventNumber + ib);
+      ACTS_VERBOSE("Reading entry: " << m_cfg.batchSize * context.eventNumber
+                       + ib);
 
       Acts::RecordedMaterialTrack rmTrack;
       // Fill the position and momentum
@@ -114,6 +117,7 @@ FW::Root::RootMaterialTrackReader::read(const FW::AlgorithmContext& context)
       }
       mtrackCollection.push_back(std::move(rmTrack));
     }
+
     // Write to the collection to the EventStore
     if (context.eventStore.add(m_cfg.collection, std::move(mtrackCollection))
         == FW::ProcessCode::ABORT) {

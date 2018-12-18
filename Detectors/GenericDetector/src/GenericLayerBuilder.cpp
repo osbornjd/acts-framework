@@ -259,7 +259,7 @@ FW::Generic::GenericLayerBuilder::constructLayers()
         // central material
         if (m_cfg.centralLayerMaterialConcentration.at(icl) == 0.) {
           // the layer surface is the material surface
-          cLayer->surfaceRepresentation().setAssociatedMaterial(
+          cLayer->surfaceRepresentation().assignSurfaceMaterial(
               layerMaterialPtr);
           ACTS_VERBOSE("- and material at central layer surface.");
         } else {
@@ -271,12 +271,12 @@ FW::Generic::GenericLayerBuilder::constructLayers()
           if (m_cfg.centralLayerMaterialConcentration.at(icl) > 0) {
             auto mutableOuterSurface
                 = const_cast<Acts::Surface*>(approachSurfaces.at(1));
-            mutableOuterSurface->setAssociatedMaterial(layerMaterialPtr);
+            mutableOuterSurface->assignSurfaceMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at outer approach surface");
           } else {
             auto mutableInnerSurface
                 = const_cast<Acts::Surface*>(approachSurfaces.at(0));
-            mutableInnerSurface->setAssociatedMaterial(layerMaterialPtr);
+            mutableInnerSurface->assignSurfaceMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at inner approach surface");
           }
         }
@@ -526,9 +526,9 @@ FW::Generic::GenericLayerBuilder::constructLayers()
         if (m_cfg.posnegLayerMaterialConcentration.at(ipnl) == 0.) {
           // assign the surface material - the layer surface is the material
           // surface
-          nLayer->surfaceRepresentation().setAssociatedMaterial(
+          nLayer->surfaceRepresentation().assignSurfaceMaterial(
               layerMaterialPtr);
-          pLayer->surfaceRepresentation().setAssociatedMaterial(
+          pLayer->surfaceRepresentation().assignSurfaceMaterial(
               layerMaterialPtr);
           ACTS_VERBOSE("- and material at central layer surface.");
         } else {
@@ -542,18 +542,18 @@ FW::Generic::GenericLayerBuilder::constructLayers()
           if (m_cfg.posnegLayerMaterialConcentration.at(ipnl) > 0.) {
             auto mutableInnerNSurface
                 = const_cast<Acts::Surface*>(nApproachSurfaces.at(0));
-            mutableInnerNSurface->setAssociatedMaterial(layerMaterialPtr);
+            mutableInnerNSurface->assignSurfaceMaterial(layerMaterialPtr);
             auto mutableOuterPSurface
                 = const_cast<Acts::Surface*>(pApproachSurfaces.at(1));
-            mutableOuterPSurface->setAssociatedMaterial(layerMaterialPtr);
+            mutableOuterPSurface->assignSurfaceMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at outer approach surfaces.");
           } else {
             auto mutableOuterNSurface
                 = const_cast<Acts::Surface*>(nApproachSurfaces.at(1));
-            mutableOuterNSurface->setAssociatedMaterial(layerMaterialPtr);
+            mutableOuterNSurface->assignSurfaceMaterial(layerMaterialPtr);
             auto mutableInnerPSurface
                 = const_cast<Acts::Surface*>(pApproachSurfaces.at(0));
-            mutableInnerPSurface->setAssociatedMaterial(layerMaterialPtr);
+            mutableInnerPSurface->assignSurfaceMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at inner approach surfaces.");
           }
         }

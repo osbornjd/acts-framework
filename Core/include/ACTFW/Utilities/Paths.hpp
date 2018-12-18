@@ -32,6 +32,6 @@ perEventFilepath(const std::string& dir, const std::string& name, size_t event);
 /// @param files The joint file list
 /// @param tag The splitting tag
 std::vector<std::string>
-splitFiles(const std::string& files, std::string tag = ",");
+splitFiles(const std::string& files, char delim);
 
 }  // namespace FW

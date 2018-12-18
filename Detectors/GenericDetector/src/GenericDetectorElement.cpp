@@ -31,7 +31,7 @@ FW::Generic::GenericDetectorElement::GenericDetectorElement(
 {
   auto mutableSurface
       = std::const_pointer_cast<Acts::Surface>(m_elementSurface);
-  mutableSurface->setAssociatedMaterial(material);
+  mutableSurface->assignSurfaceMaterial(material);
 }
 
 FW::Generic::GenericDetectorElement::GenericDetectorElement(
@@ -53,5 +53,5 @@ FW::Generic::GenericDetectorElement::GenericDetectorElement(
 {
   auto mutableSurface
       = std::const_pointer_cast<Acts::Surface>(m_elementSurface);
-  mutableSurface->setAssociatedMaterial(material);
+  mutableSurface->assignSurfaceMaterial(material);
 }

@@ -34,10 +34,11 @@ namespace Root {
     /// @brief The nested configuration struct
     struct Config
     {
-      std::string collection = "";  ///< material collection to read
-      std::string filePath   = "";  ///< path of the output file
-      std::string treeName   = "materialtracks";  ///< name of the output tree
-      std::vector<std::string> fileList;  ///< The name of the input file
+      std::string collection
+          = "materialtracks";                   ///< material collection to read
+      std::string filePath = "";                ///< path of the output file
+      std::string treeName = "materialtracks";  ///< name of the output tree
+      std::vector<std::string> fileList;        ///< The name of the input file
 
       unsigned int batchSize = 1;  ///!< The number of tracks per event
 
@@ -101,7 +102,7 @@ namespace Root {
     size_t m_events = 0;
 
     /// The input tree name
-    TChain* m_inputChain;
+    TChain* m_inputChain = nullptr;
 
     float m_v_x;    ///< start global x
     float m_v_y;    ///< start global y

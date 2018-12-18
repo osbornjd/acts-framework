@@ -39,13 +39,13 @@ FW::perEventFilepath(const std::string& dir,
 }
 
 std::vector<std::string>
-FW::splitFiles(const std::string& files, std::string tag)
+FW::splitFiles(const std::string& files, char delim)
 {
   std::vector<std::string> fileList;
 
   std::stringstream ss(files);
   std::string       token;
-  while (getline(ss, token, ',')) {
+  while (getline(ss, token, delim)) {
     fileList.push_back(token);
   }
   return fileList;

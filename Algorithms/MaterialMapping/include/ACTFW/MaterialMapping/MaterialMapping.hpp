@@ -54,7 +54,7 @@ public:
   {
   public:
     /// Input collection
-    std::string collection = "";
+    std::string collection = "materialtracks";
 
     /// The ACTS surface material mapper
     std::shared_ptr<Acts::SurfaceMaterialMapper> materialMapper = nullptr;

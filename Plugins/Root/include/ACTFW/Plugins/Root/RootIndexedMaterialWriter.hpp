@@ -74,7 +74,7 @@ namespace Root {
       /// The rho tag
       std::string rhotag = "rho";
       /// The name of the output file
-      std::string fileName = "";
+      std::string fileName = "material-maps.root";
       /// The default logger
       std::shared_ptr<const Acts::Logger> logger;
       // The name of the writer

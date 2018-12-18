@@ -8,13 +8,19 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <vector>
 #include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 class TrackingGeometry;
+class SurfaceMaterial;
+
+using SurfaceMaterialMap
+    = std::map<GeometryID, std::shared_ptr<const SurfaceMaterial>>;
 }
 
 namespace FW {
@@ -26,7 +32,9 @@ namespace Generic {
   /// @param version is the detector version
   /// return a unique vector to the tracking geometry
   std::unique_ptr<const Acts::TrackingGeometry>
-  buildGenericDetector(Acts::Logging::Level surfaceLLevel = Acts::Logging::INFO,
+  buildGenericDetector(const Acts::SurfaceMaterialMap& sMaterialMap
+                       = Acts::SurfaceMaterialMap(),
+                       Acts::Logging::Level surfaceLLevel = Acts::Logging::INFO,
                        Acts::Logging::Level layerLLevel   = Acts::Logging::INFO,
                        Acts::Logging::Level volumeLLevel  = Acts::Logging::INFO,
                        size_t               version       = 0);

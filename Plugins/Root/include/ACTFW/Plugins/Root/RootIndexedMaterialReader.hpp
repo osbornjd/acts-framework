@@ -8,36 +8,34 @@
 
 #pragma once
 
+#include <map>
 #include <mutex>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "Acts/Material/SurfaceMaterial.hpp"
 #include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 class TFile;
 
 namespace Acts {
-using IndexedSurfaceMaterial
-    = std::pair<GeometryID, std::unique_ptr<const SurfaceMaterial>>;
+
+using SurfaceMaterialMap
+    = std::map<GeometryID, std::shared_ptr<const SurfaceMaterial>>;
 }
 
 namespace FW {
 
 namespace Root {
 
-  /// @class RootMaterialTrackReader
+  /// @class RootIndexedMaterialReader
   ///
-  /// @brief Reads in MaterialTrack entities from a root file
-  ///
-  /// This service is the root implementation of the ImaterialTrackReader.
-  /// It reads in a vector of MaterialTrack entities from a given root tree
-  /// of a given root file. The input file and tree are set over the
-  /// configuration
-  /// object.
+  /// @brief Read the collection of SurfaceMaterial from a file in order to
+  /// load it onto the TrackingGeometry
   class RootIndexedMaterialReader
-      : public FW::IReaderT<Acts::IndexedSurfaceMaterial>
+      : public FW::IReaderT<Acts::SurfaceMaterialMap>
   {
   public:
     /// @class Config
@@ -103,11 +101,14 @@ namespace Root {
 
     /// Read method
     ///
-    /// @param ism The indexted material map
+    /// @param surfaceMaterialMap The indexed material map collection
+    /// @param skip is the number of skip reads (0 for this reader)
+    /// @param is the AlgorithmContext pointer in case the reader would need
+    /// information about the event context (not true in this case)
     FW::ProcessCode
-    read(Acts::IndexedSurfaceMaterial& ism,
-         size_t                        skip    = 0,
-         const FW::AlgorithmContext*   context = nullptr) final override;
+    read(Acts::SurfaceMaterialMap&   sMaterialMap,
+         size_t                      skip = 0,
+         const FW::AlgorithmContext* ctx  = nullptr) final override;
 
   private:
     /// The config class

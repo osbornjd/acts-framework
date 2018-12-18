@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <boost/program_options.hpp>
 #include <cstdlib>
 #include <iostream>
 #include <utility>

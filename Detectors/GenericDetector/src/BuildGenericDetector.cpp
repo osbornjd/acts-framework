@@ -15,6 +15,7 @@
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
 #include "Acts/Material/Material.hpp"
+#include "Acts/Material/SurfaceMaterial.hpp"
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
 #include "Acts/Tools/CylinderVolumeHelper.hpp"
 #include "Acts/Tools/LayerArrayCreator.hpp"
@@ -30,10 +31,11 @@ namespace FW {
 namespace Generic {
 
   std::unique_ptr<const Acts::TrackingGeometry>
-  buildGenericDetector(Acts::Logging::Level surfaceLLevel,
-                       Acts::Logging::Level layerLLevel,
-                       Acts::Logging::Level volumeLLevel,
-                       size_t               stage)
+  buildGenericDetector(const Acts::SurfaceMaterialMap& surfaceMaterialMap,
+                       Acts::Logging::Level            surfaceLLevel,
+                       Acts::Logging::Level            layerLLevel,
+                       Acts::Logging::Level            volumeLLevel,
+                       size_t                          stage)
   {
     // configure surface array creator
     auto surfaceArrayCreator
@@ -72,6 +74,7 @@ namespace Generic {
     Acts::TrackingGeometryBuilder::Config tgConfig;
     tgConfig.trackingVolumeBuilders = volumeBuilders;
     tgConfig.trackingVolumeHelper   = cylinderVolumeHelper;
+    tgConfig.surfaceMaterialMap     = surfaceMaterialMap;
     auto cylinderGeometryBuilder
         = std::make_shared<const Acts::TrackingGeometryBuilder>(
             tgConfig,

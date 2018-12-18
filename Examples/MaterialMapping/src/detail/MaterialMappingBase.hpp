@@ -99,8 +99,10 @@ materialMappingExample(int                argc,
   if (vm["input-root"].template as<bool>()) {
     // Read the material step information from a ROOT TTree
     FW::Root::RootMaterialTrackReader::Config matTrackReaderRootConfig;
-    matTrackReaderRootConfig.collection = matCollection;
-    matTrackReaderRootConfig.fileList   = FW::splitFiles(intputFiles, ",");
+    if (not matCollection.empty()) {
+      matTrackReaderRootConfig.collection = matCollection;
+    }
+    matTrackReaderRootConfig.fileList = FW::splitFiles(intputFiles, ',');
     auto matTrackReaderRoot
         = std::make_shared<FW::Root::RootMaterialTrackReader>(
             matTrackReaderRootConfig);
