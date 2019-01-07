@@ -91,10 +91,17 @@ generic_propagation:
   script:
     - ACTFWGenericPropagationExample
 
-generic_extrapolation_example:
+generic_fatras_example:
   <<: *example_base
   script:
-    - ACTFWGenericExtrapolationExample
+    - ACTFWGenericFatrasExample
+  allow_failure: true
+
+root_fatras_example:
+  <<: *example_base
+  script:
+    - ACTFWRootFatrasExample
+  allow_failure: true
 
 particle_gun_example:
   <<: *example_base
@@ -116,15 +123,11 @@ random_number_example:
   script:
     - ACTFWRandomNumberExample
 
-dd4hep_extrapolation_example:
-  <<: *example_base
-  script:
-    - ACTFWDD4hepExtrapolationExample
-
 dd4hep_fatras_example:
   <<: *example_base
   script:
     - ACTFWDD4hepFatrasExample
+  allow_failure: true
 
 dd4hep_geometry_example:
   <<: *example_base

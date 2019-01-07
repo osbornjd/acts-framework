@@ -81,7 +81,7 @@ FW::Generic::GenericLayerBuilder::constructLayers()
       ACTS_DEBUG("Build layer " << icl << " with target radius = " << layerR);
 
       // prepare the Surface vector
-      std::vector<const Acts::Surface*> sVector;
+      std::vector<std::shared_ptr<const Acts::Surface>> sVector;
       // assign the current envelope
       double layerEnvelopeCoverZ = m_cfg.centralLayerEnvelopes.size()
           ? m_cfg.centralLayerEnvelopes.at(icl).second
@@ -194,7 +194,7 @@ FW::Generic::GenericLayerBuilder::constructLayers()
                                                       moduleMaterialPtr,
                                                       moduleDigitizationPtr);
         // register the surface
-        sVector.push_back(&module->surface());
+        sVector.push_back(module->surface().getSharedPtr());
         // store the module
         // @todo detector store facility
         m_centralModule.push_back(module);
@@ -307,8 +307,8 @@ FW::Generic::GenericLayerBuilder::constructLayers()
       // define the layer envelope
       double layerEnvelopeR = m_cfg.posnegLayerEnvelopeR.at(ipnl);
       // prepare for the r binning
-      std::vector<const Acts::Surface*> nsVector;
-      std::vector<const Acts::Surface*> psVector;
+      std::vector<std::shared_ptr<const Acts::Surface>> nsVector;
+      std::vector<std::shared_ptr<const Acts::Surface>> psVector;
       // now fill the vectors
       size_t ipnR = 0;
       for (auto& discModulePositions : m_cfg.posnegModulePositions.at(ipnl)) {
@@ -486,8 +486,8 @@ FW::Generic::GenericLayerBuilder::constructLayers()
             m_posnegModule.push_back(bspmodule);
           }
           // create the surface
-          nsVector.push_back(&nmodule->surface());
-          psVector.push_back(&pmodule->surface());
+          nsVector.push_back(nmodule->surface().getSharedPtr());
+          psVector.push_back(pmodule->surface().getSharedPtr());
         }
         // counter of rings
         ++ipnR;
