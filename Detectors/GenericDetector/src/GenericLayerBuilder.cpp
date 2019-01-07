@@ -14,8 +14,11 @@
 #include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
 #include "Acts/Material/Material.hpp"
 #include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Material/ProtoSurfaceMaterial.hpp"
 #include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
+#include "Acts/Surfaces/CylinderBounds.hpp"
+#include "Acts/Surfaces/DiscBounds.hpp"
 #include "Acts/Surfaces/PlanarBounds.hpp"
 #include "Acts/Surfaces/PlaneSurface.hpp"
 #include "Acts/Surfaces/RadialBounds.hpp"
@@ -25,6 +28,7 @@
 #include "Acts/Utilities/ApproachDescriptor.hpp"
 #include "Acts/Utilities/BinUtility.hpp"
 #include "Acts/Utilities/BinnedArray.hpp"
+#include "Acts/Utilities/BinningData.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 
 using Acts::VectorHelpers::eta;
@@ -95,18 +99,18 @@ FW::Generic::GenericLayerBuilder::constructLayers()
       std::shared_ptr<const Acts::PlanarBounds> moduleBounds(
           new Acts::RectangleBounds(moduleHalfX, moduleHalfY));
       // Identifier @todo unique Identifier - use a GenericDetector identifier
-      size_t nCetralModules = m_cfg.centralModuleBinningSchema.at(icl).first
+      size_t nCentralModules = m_cfg.centralModuleBinningSchema.at(icl).first
           * m_cfg.centralModuleBinningSchema.at(icl).second;
 
       ACTS_DEBUG("- number of modules "
-                 << nCetralModules
+                 << nCentralModules
                  << " ( from "
                  << m_cfg.centralModuleBinningSchema.at(icl).first
                  << " x "
                  << m_cfg.centralModuleBinningSchema.at(icl).second
                  << " )");
 
-      sVector.reserve(nCetralModules);
+      sVector.reserve(nCentralModules);
 
       // prepartion :
       // create digitizaiton module
@@ -142,9 +146,9 @@ FW::Generic::GenericLayerBuilder::constructLayers()
       }
 
       // confirm
-      if (m_cfg.centralModulePositions.at(icl).size() != nCetralModules) {
+      if (m_cfg.centralModulePositions.at(icl).size() != nCentralModules) {
         ACTS_WARNING("Mismatching module numbers, configuration error!");
-        ACTS_WARNING("- Binning schema suggests : " << nCetralModules);
+        ACTS_WARNING("- Binning schema suggests : " << nCentralModules);
         ACTS_WARNING("- Positions provided are  : "
                      << m_cfg.centralModulePositions.at(icl).size());
       }
@@ -250,17 +254,12 @@ FW::Generic::GenericLayerBuilder::constructLayers()
       Acts::MutableLayerPtr cLayer
           = m_cfg.layerCreator->cylinderLayer(sVector, phiBins, zBins, pl);
       // the layer is built le't see if it needs material
-      if (m_cfg.centralLayerMaterialProperties.size()) {
-        // get the material from configuration
-        Acts::MaterialProperties layerMaterialProperties
-            = m_cfg.centralLayerMaterialProperties.at(icl);
-        std::shared_ptr<const Acts::SurfaceMaterial> layerMaterialPtr(
-            new Acts::HomogeneousSurfaceMaterial(layerMaterialProperties));
+      if (m_cfg.centralLayerMaterial.size()) {
         // central material
         if (m_cfg.centralLayerMaterialConcentration.at(icl) == 0.) {
           // the layer surface is the material surface
-          cLayer->surfaceRepresentation().assignSurfaceMaterial(
-              layerMaterialPtr);
+          assignMaterial(cLayer->surfaceRepresentation(),
+                         m_cfg.centralLayerMaterial[icl]);
           ACTS_VERBOSE("- and material at central layer surface.");
         } else {
           // approach surface material
@@ -271,12 +270,14 @@ FW::Generic::GenericLayerBuilder::constructLayers()
           if (m_cfg.centralLayerMaterialConcentration.at(icl) > 0) {
             auto mutableOuterSurface
                 = const_cast<Acts::Surface*>(approachSurfaces.at(1));
-            mutableOuterSurface->assignSurfaceMaterial(layerMaterialPtr);
+            assignMaterial(*mutableOuterSurface,
+                           m_cfg.centralLayerMaterial[icl]);
             ACTS_VERBOSE("- and material at outer approach surface");
           } else {
             auto mutableInnerSurface
                 = const_cast<Acts::Surface*>(approachSurfaces.at(0));
-            mutableInnerSurface->assignSurfaceMaterial(layerMaterialPtr);
+            assignMaterial(*mutableInnerSurface,
+                           m_cfg.centralLayerMaterial[icl]);
             ACTS_VERBOSE("- and material at inner approach surface");
           }
         }
@@ -518,18 +519,15 @@ FW::Generic::GenericLayerBuilder::constructLayers()
           psVector, layerBinsR, layerBinsPhi, plp);
 
       // the layer is built le't see if it needs material
-      if (m_cfg.posnegLayerMaterialProperties.size()) {
-        std::shared_ptr<const Acts::SurfaceMaterial> layerMaterialPtr(
-            new Acts::HomogeneousSurfaceMaterial(
-                m_cfg.posnegLayerMaterialProperties[ipnl]));
+      if (m_cfg.posnegLayerMaterial.size()) {
         // central material
         if (m_cfg.posnegLayerMaterialConcentration.at(ipnl) == 0.) {
           // assign the surface material - the layer surface is the material
           // surface
-          nLayer->surfaceRepresentation().assignSurfaceMaterial(
-              layerMaterialPtr);
-          pLayer->surfaceRepresentation().assignSurfaceMaterial(
-              layerMaterialPtr);
+          assignMaterial(nLayer->surfaceRepresentation(),
+                         m_cfg.posnegLayerMaterial[ipnl]);
+          assignMaterial(pLayer->surfaceRepresentation(),
+                         m_cfg.posnegLayerMaterial[ipnl]);
           ACTS_VERBOSE("- and material at central layer surface.");
         } else {
           // approach surface material
@@ -540,20 +538,28 @@ FW::Generic::GenericLayerBuilder::constructLayers()
           auto pApproachSurfaces
               = pLayer->approachDescriptor()->containedSurfaces();
           if (m_cfg.posnegLayerMaterialConcentration.at(ipnl) > 0.) {
-            auto mutableInnerNSurface
+            auto mutableOuterNSurface
                 = const_cast<Acts::Surface*>(nApproachSurfaces.at(0));
-            mutableInnerNSurface->assignSurfaceMaterial(layerMaterialPtr);
-            auto mutableOuterPSurface
+            assignMaterial(*mutableOuterNSurface,
+                           m_cfg.posnegLayerMaterial[ipnl]);
+
+            auto mutableInnerPSurface
                 = const_cast<Acts::Surface*>(pApproachSurfaces.at(1));
-            mutableOuterPSurface->assignSurfaceMaterial(layerMaterialPtr);
+            assignMaterial(*mutableOuterNSurface,
+                           m_cfg.posnegLayerMaterial[ipnl]);
+
             ACTS_VERBOSE("- and material at outer approach surfaces.");
           } else {
             auto mutableOuterNSurface
                 = const_cast<Acts::Surface*>(nApproachSurfaces.at(1));
-            mutableOuterNSurface->assignSurfaceMaterial(layerMaterialPtr);
+            assignMaterial(*mutableOuterNSurface,
+                           m_cfg.posnegLayerMaterial[ipnl]);
+
             auto mutableInnerPSurface
                 = const_cast<Acts::Surface*>(pApproachSurfaces.at(0));
-            mutableInnerPSurface->assignSurfaceMaterial(layerMaterialPtr);
+            assignMaterial(*mutableOuterNSurface,
+                           m_cfg.posnegLayerMaterial[ipnl]);
+
             ACTS_VERBOSE("- and material at inner approach surfaces.");
           }
         }
@@ -562,5 +568,88 @@ FW::Generic::GenericLayerBuilder::constructLayers()
       m_nLayers.push_back(nLayer);
       m_pLayers.push_back(pLayer);
     }
+  }
+}
+
+/// Assign material method
+/// It checks if it is a proto material (in case so, it will adapt sizes)
+void
+FW::Generic::GenericLayerBuilder::assignMaterial(
+    Acts::Surface&                               surface,
+    std::shared_ptr<const Acts::SurfaceMaterial> sMaterial)
+{
+  // Check if it is a Proxy
+  const Acts::ProtoSurfaceMaterial* protoMaterial
+      = dynamic_cast<const Acts::ProtoSurfaceMaterial*>(sMaterial.get());
+  if (protoMaterial) {
+    // The BinUtility is the only thing we are really interested in
+    const Acts::BinUtility& smbUtility = protoMaterial->binUtility();
+    // At the time of the Proxy creation, the dimension of the BinUtility
+    // where not known, so we need to construct it here using the binning data
+    auto& binningData = smbUtility.binningData();
+    //
+    // First we need to understand if it's a Cylinder or Disc surface
+    if (surface.type() == Acts::Surface::Cylinder) {
+      // Cast to CylinderBounds
+      const Acts::CylinderBounds* cBounds
+          = dynamic_cast<const Acts::CylinderBounds*>(&(surface.bounds()));
+      // get radius and halflength in z
+      double radius = cBounds->r();
+      double halfZ  = cBounds->halflengthZ();
+      // Make a copy of first BinningData object
+      Acts::BinningData bd0(binningData[0]);
+      if (bd0.binvalue == Acts::binRPhi || binningData.size() == 2) {
+        bd0.min = -M_PI * radius;
+        bd0.max = M_PI * radius;
+      } else {
+        bd0.min = -halfZ;
+        bd0.max = halfZ;
+      }
+      // construct the updated BinUtility
+      Acts::BinUtility ubUtility(bd0);
+      if (binningData.size() == 2) {
+        Acts::BinningData bd1(binningData[1]);
+        bd1.min = -halfZ;
+        bd1.max = halfZ;
+        ubUtility += Acts::BinUtility(bd1);
+      }
+      // create new proptoMaterial
+      auto upMaterial
+          = std::make_shared<const Acts::ProtoSurfaceMaterial>(ubUtility);
+      surface.assignSurfaceMaterial(upMaterial);
+
+    } else if (surface.type() == Acts::Surface::Disc) {
+      // Cast to DiscBounds
+      const Acts::RadialBounds* cBounds
+          = dynamic_cast<const Acts::RadialBounds*>(&(surface.bounds()));
+      // get rmin and rmax
+      double rMin = cBounds->rMin();
+      double rMax = cBounds->rMax();
+
+      // Make a copy of first BinningData object
+      Acts::BinningData bd0(binningData[0]);
+      if (bd0.binvalue == Acts::binR || binningData.size() == 2) {
+        bd0.min = rMin;
+        bd0.max = rMax;
+      } else {
+        bd0.min = -M_PI;
+        bd0.max = M_PI;
+      }
+      // construct the updated BinUtility
+      Acts::BinUtility ubUtility(bd0);
+      if (binningData.size() == 2) {
+        Acts::BinningData bd1(binningData[1]);
+        bd1.min = -M_PI;
+        bd1.max = M_PI;
+        ubUtility += Acts::BinUtility(bd1);
+      }
+      // create new proptoMaterial
+      auto upMaterial
+          = std::make_shared<const Acts::ProtoSurfaceMaterial>(ubUtility);
+      surface.assignSurfaceMaterial(upMaterial);
+    }
+  } else {
+    // simply assign
+    surface.assignSurfaceMaterial(sMaterial);
   }
 }

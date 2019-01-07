@@ -17,8 +17,8 @@ struct DD4hepOptions
 {
   /// @brief operator to be called to add options for the generic detector
   ///
-  // @tparam options_t Type of the options object
-  ///@param opt Options object
+  /// @param [in,out] opt the boost option object, where the
+  /// specific option are attached
   template <typename options_t>
   void
   operator()(options_t& opt)

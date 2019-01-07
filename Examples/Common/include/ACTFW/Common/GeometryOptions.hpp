@@ -43,7 +43,7 @@ namespace Options {
         "Sub detectors for the output writing")(
         "geo-material-mode",
         po::value<size_t>()->default_value(1),
-        "Modes are: None (0) , Constructed (1), Loaded (2), Proxy (3)");
+        "Modes are: 0 (none), 1 (construct), 2 (load), 3 (proto)");
   }
 }  // namespace Options
 }  // namespace FW

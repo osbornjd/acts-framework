@@ -25,8 +25,10 @@ namespace Options {
   ///
   /// @tparam Type of the boost option object
   ///
-  /// @param defaultEvent is the number of event to be executed
-  /// @param defaultValue is the log level default value
+  /// @tparam options_t Type of the options object
+  ///
+  /// @param [in,out] opt the boost option object, where the
+  /// specific option are attached
   template <typename aopt_t>
   void
   addCommonOptions(aopt_t& opt)

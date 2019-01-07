@@ -11,6 +11,7 @@
 #include "Acts/Layers/Layer.hpp"
 #include "Acts/Material/Material.hpp"
 #include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Material/SurfaceMaterial.hpp"
 #include "Acts/Tools/ILayerBuilder.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
@@ -30,10 +31,8 @@ namespace Generic {
 
   /// @class GenericLayerBuilder
   ///
-  /// The GenericLayerBuilder is able to build cylinder & disc layers from
-  /// python
-  /// input.
-  /// This is ment for the simple detector examples.
+  /// The GenericLayerBuilder is able to build cylinder & disc layers
+  /// from direct input. This is ment for the simple detector examples.
   ///
   class GenericLayerBuilder : public Acts::ILayerBuilder
   {
@@ -55,8 +54,9 @@ namespace Generic {
       std::vector<std::pair<double, double>> centralLayerEnvelopes;
       /// the material concentration: -1 inner, 0 central, 1 outer
       std::vector<int> centralLayerMaterialConcentration;
-      /// the assigned material propertis @todo change to surface material
-      std::vector<Acts::MaterialProperties> centralLayerMaterialProperties;
+      /// the surface material / material proxies to be assigned
+      std::vector<std::shared_ptr<const Acts::SurfaceMaterial>>
+          centralLayerMaterial;
       /// the binning schema: nPhi x nZ
       std::vector<std::pair<int, int>> centralModuleBinningSchema;
       /// the module center positions
@@ -77,7 +77,7 @@ namespace Generic {
       std::vector<int> centralModuleReadoutSide;
       /// the central volume readout schema
       std::vector<double> centralModuleLorentzAngle;
-      /// the module material @todo change to surface material
+      /// the module material
       std::vector<Acts::Material> centralModuleMaterial;
       /// the module front side stereo (if exists)
       std::vector<double> centralModuleFrontsideStereo;
@@ -95,8 +95,9 @@ namespace Generic {
       std::vector<double> posnegLayerEnvelopeR;
       /// the material concentration: -1 inner, 0 central, 1 outer
       std::vector<int> posnegLayerMaterialConcentration;
-      /// the material prooperties @todo change to surface material
-      std::vector<Acts::MaterialProperties> posnegLayerMaterialProperties;
+      /// the surface material / material proxies to be assigned
+      std::vector<std::shared_ptr<const Acts::SurfaceMaterial>>
+          posnegLayerMaterial;
       /// the module center positions
       std::vector<std::vector<std::vector<Acts::Vector3D>>>
           posnegModulePositions;
@@ -118,7 +119,7 @@ namespace Generic {
       std::vector<std::vector<int>> posnegModuleReadoutSide;
       /// the central volume readout schema
       std::vector<std::vector<double>> posnegModuleLorentzAngle;
-      /// the module material @todo change to surface material
+      /// the module material
       std::vector<std::vector<Acts::Material>> posnegModuleMaterial;
       /// the module front side stereo (if exists)
       std::vector<std::vector<double>> posnegModuleFrontsideStereo;
@@ -176,8 +177,16 @@ namespace Generic {
     setLogger(std::unique_ptr<const Acts::Logger> logger);
 
   private:
+    /// The private construction method
     void
     constructLayers();
+
+    /// Assign material method
+    /// It checks if it is a material proxy (in case so, it will adapt sizes)
+    void
+    assignMaterial(
+        Acts::Surface&                               surface,
+        std::shared_ptr<const Acts::SurfaceMaterial> surfaceMaterial);
 
     Acts::LayerVector m_nLayers;  ///< layers on negative side
     Acts::LayerVector m_cLayers;  ///< layers on central side

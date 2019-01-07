@@ -28,7 +28,7 @@ FW::MaterialMapping::MaterialMapping(const FW::MaterialMapping::Config& cnf,
   }
 
   ACTS_INFO("This algorithm requires inter-event information, "
-            << " run in single-threaded mode!");
+            << "run in single-threaded mode!");
 
   // Generate and retrieve the central cache object
   m_mappingState = m_cfg.materialMapper->createState(*m_cfg.trackingGeometry);

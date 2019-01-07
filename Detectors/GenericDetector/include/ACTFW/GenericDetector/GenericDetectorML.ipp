@@ -15,9 +15,16 @@ bplConfig.layerIdentification     = "BeamPipe";
 bplConfig.centralLayerRadii       = std::vector<double>(1, 19.);
 bplConfig.centralLayerHalflengthZ = std::vector<double>(1, 3000.);
 bplConfig.centralLayerThickness   = std::vector<double>(1, 0.8);
-bplConfig.centralLayerMaterial
-    = {std::make_shared<Acts::HomogeneousSurfaceMaterial>(
-        Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 0.8))};
+if (materialMode == 1) {
+  bplConfig.centralLayerMaterial
+      = {std::make_shared<Acts::HomogeneousSurfaceMaterial>(
+          Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 0.8))};
+} else if (materialMode == 3) {
+  // The dimensions will be adapted in the mapping
+  Acts::BinUtility bpmBinning(50, 0., 0., Acts::closed, Acts::binZ);
+  bplConfig.centralLayerMaterial
+      = {std::make_shared<const Acts::ProtoSurfaceMaterial>(bpmBinning)};
+}
 auto beamPipeBuilder = std::make_shared<const Acts::PassiveLayerBuilder>(
     bplConfig,
     Acts::getDefaultLogger("BeamPipeLayerBuilder", layerLLevel));
@@ -51,9 +58,30 @@ plbConfig.layerIdentification = "Pixel";
 std::pair<double, double> pcEnvelope(2., 2.);
 // Layer material properties - thickness, X0, L0, A, Z, Rho
 Acts::MaterialProperties
-    pcmbProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 1.5 * Acts::units::_mm);
+    pbmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 1.5 * Acts::units::_mm);
 Acts::MaterialProperties
-    pcmecProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 1.5 * Acts::units::_mm);
+                                             pecmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 1.5 * Acts::units::_mm);
+std::shared_ptr<const Acts::SurfaceMaterial> pbmSurfaceMaterial  = nullptr;
+std::shared_ptr<const Acts::SurfaceMaterial> pecmSurfaceMaterial = nullptr;
+if (materialMode == 1) {
+  pbmSurfaceMaterial
+      = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(pbmProperties);
+  pecmSurfaceMaterial
+      = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+          pecmProperties);
+} else if (materialMode == 3) {
+  // The dimensions will be adapted in the mapping
+  Acts::BinUtility pbmBinning(50, 0., 0., Acts::closed, Acts::binPhi);
+  pbmBinning += Acts::BinUtility(100, 0., 0., Acts::open, Acts::binZ);
+  pbmSurfaceMaterial
+      = std::make_shared<const Acts::ProtoSurfaceMaterial>(pbmBinning);
+  // The dimensions will be adapted in the mapping
+  Acts::BinUtility pecmBinning(50, 0., 0., Acts::open, Acts::binR);
+  pecmBinning += Acts::BinUtility(50, 0., 0., Acts::closed, Acts::binPhi);
+  pecmSurfaceMaterial
+      = std::make_shared<const Acts::ProtoSurfaceMaterial>(pecmBinning);
+}
+
 // Module material - X0, L0, A, Z, Rho
 Acts::Material pcMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
 
@@ -69,15 +97,22 @@ plbConfig.centralLayerEnvelopes
     = {pcEnvelope, pcEnvelope, pcEnvelope, pcEnvelope};
 // material concentration alsways outside the modules
 plbConfig.centralLayerMaterialConcentration = {1, 1, 1, 1};
-plbConfig.centralLayerMaterialProperties
-    = {pcmbProperties, pcmbProperties, pcmbProperties, pcmbProperties};
+if (materialMode == 1 or materialMode == 3) {
+  plbConfig.centralLayerMaterial = {pbmSurfaceMaterial,
+                                    pbmSurfaceMaterial,
+                                    pbmSurfaceMaterial,
+                                    pbmSurfaceMaterial};
+}
+
 plbConfig.centralModuleBinningSchema = {{16, 14}, {32, 14}, {52, 14}, {78, 14}};
 plbConfig.centralModuleTiltPhi       = {0.14, 0.14, 0.14, 0.14};
 plbConfig.centralModuleHalfX         = {8.4, 8.4, 8.4, 8.4};
 plbConfig.centralModuleHalfY         = {36., 36., 36., 36.};
 plbConfig.centralModuleThickness     = {0.15, 0.15, 0.15, 0.15};
-plbConfig.centralModuleMaterial
-    = {pcMaterial, pcMaterial, pcMaterial, pcMaterial};
+if (materialMode == 1) {
+  plbConfig.centralModuleMaterial
+      = {pcMaterial, pcMaterial, pcMaterial, pcMaterial};
+}
 // pitch definitions
 plbConfig.centralModuleReadoutBinsX = {336, 336, 336, 336};
 plbConfig.centralModuleReadoutBinsY = {1280, 1280, 1280, 1280};
@@ -124,13 +159,15 @@ plbConfig.posnegLayerEnvelopeR = {1. * Acts::units::_mm,
 // material concentration is always behind the layer in the pixels
 plbConfig.posnegLayerMaterialConcentration = std::vector<int>(7, 0);
 // layer structure surface has pixel material properties
-plbConfig.posnegLayerMaterialProperties = {pcmecProperties,
-                                           pcmecProperties,
-                                           pcmecProperties,
-                                           pcmecProperties,
-                                           pcmecProperties,
-                                           pcmecProperties,
-                                           pcmecProperties};
+if (materialMode == 1 or materialMode == 3) {
+  plbConfig.posnegLayerMaterial = {pecmSurfaceMaterial,
+                                   pecmSurfaceMaterial,
+                                   pecmSurfaceMaterial,
+                                   pecmSurfaceMaterial,
+                                   pecmSurfaceMaterial,
+                                   pecmSurfaceMaterial,
+                                   pecmSurfaceMaterial};
+}
 std::vector<double>         perHX = {8.4, 8.4};    // half length x
 std::vector<double>         perHY = {36., 36.};    // half length y
 std::vector<size_t>         perBP = {40, 68};      // bins in phi
@@ -150,9 +187,10 @@ plbConfig.posnegModuleReadoutBinsX = std::vector<std::vector<size_t>>(7, perBX);
 plbConfig.posnegModuleReadoutBinsY = std::vector<std::vector<size_t>>(7, perBY);
 plbConfig.posnegModuleReadoutSide  = std::vector<std::vector<int>>(7, perRS);
 plbConfig.posnegModuleLorentzAngle = std::vector<std::vector<double>>(7, perLA);
-plbConfig.posnegModuleMaterial
-    = std::vector<std::vector<Acts::Material>>(7, perM);
-
+if (materialMode == 1) {
+  plbConfig.posnegModuleMaterial
+      = std::vector<std::vector<Acts::Material>>(7, perM);
+}
 // no frontside/backside
 plbConfig.posnegModuleFrontsideStereo = {};
 plbConfig.posnegModuleBacksideStereo  = {};
@@ -201,9 +239,17 @@ pstConfig.layerIdentification     = "PST";
 pstConfig.centralLayerRadii       = std::vector<double>(1, 200.);
 pstConfig.centralLayerHalflengthZ = std::vector<double>(1, 2800.);
 pstConfig.centralLayerThickness   = std::vector<double>(1, 1.8);
-pstConfig.centralLayerMaterial
-    = {std::make_shared<Acts::HomogeneousSurfaceMaterial>(
-        Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 1.8))};
+if (materialMode == 1) {
+  pstConfig.centralLayerMaterial
+      = {std::make_shared<Acts::HomogeneousSurfaceMaterial>(
+          Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 1.8))};
+} else if (materialMode == 3) {
+  // The dimensions will be adapted in the mapping
+  Acts::BinUtility pstmBinning(50, 0., 0., Acts::closed, Acts::binZ);
+  pstConfig.centralLayerMaterial
+      = {std::make_shared<const Acts::ProtoSurfaceMaterial>(pstmBinning)};
+}
+
 auto pstBuilder = std::make_shared<const Acts::PassiveLayerBuilder>(
     pstConfig,
     Acts::getDefaultLogger("PSTBuilder", layerLLevel));
@@ -239,7 +285,28 @@ std::pair<double, double> ssEnvelope(2., 2.);
 Acts::MaterialProperties
     ssbmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 2. * Acts::units::_mm);
 Acts::MaterialProperties
-    ssecmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 2.5 * Acts::units::_mm);
+                                             ssecmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 2.5 * Acts::units::_mm);
+std::shared_ptr<const Acts::SurfaceMaterial> ssbmSurfaceMaterial  = nullptr;
+std::shared_ptr<const Acts::SurfaceMaterial> ssecmSurfaceMaterial = nullptr;
+if (materialMode == 1) {
+  ssbmSurfaceMaterial
+      = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+          ssbmProperties);
+  ssecmSurfaceMaterial
+      = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+          ssecmProperties);
+} else if (materialMode == 3) {
+  // The dimensions will be adapted in the mapping
+  Acts::BinUtility ssbmBinning(50, 0., 0., Acts::closed, Acts::binPhi);
+  ssbmBinning += Acts::BinUtility(100, 0., 0., Acts::open, Acts::binZ);
+  ssbmSurfaceMaterial
+      = std::make_shared<const Acts::ProtoSurfaceMaterial>(ssbmBinning);
+  // The dimensions will be adapted in the mapping
+  Acts::BinUtility ssecmBinning(50, 0., 0., Acts::open, Acts::binR);
+  ssecmBinning += Acts::BinUtility(50, 0., 0., Acts::closed, Acts::binPhi);
+  ssecmSurfaceMaterial
+      = std::make_shared<const Acts::ProtoSurfaceMaterial>(ssecmBinning);
+}
 
 // Module material - X0, L0, A, Z, Rho
 Acts::Material ssMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
@@ -250,8 +317,12 @@ sslbConfig.centralLayerRadii          = {260., 360., 500., 660.};
 sslbConfig.centralLayerEnvelopes
     = {ssEnvelope, ssEnvelope, ssEnvelope, ssEnvelope};
 sslbConfig.centralLayerMaterialConcentration = {-1, -1, -1, -1};
-sslbConfig.centralLayerMaterialProperties
-    = {ssbmProperties, ssbmProperties, ssbmProperties, ssbmProperties};
+if (materialMode == 1 or materialMode == 3) {
+  sslbConfig.centralLayerMaterial = {ssbmSurfaceMaterial,
+                                     ssbmSurfaceMaterial,
+                                     ssbmSurfaceMaterial,
+                                     ssbmSurfaceMaterial};
+}
 sslbConfig.centralModuleBinningSchema
     = {{40, 21}, {56, 21}, {78, 21}, {102, 21}};
 sslbConfig.centralModuleTiltPhi   = {-0.15, -0.15, -0.15, -0.15};
@@ -264,8 +335,10 @@ sslbConfig.centralModuleReadoutBinsY = {90, 90, 90, 90};      // 1.2 mm strixels
 sslbConfig.centralModuleReadoutSide  = {1, 1, 1, 1};
 sslbConfig.centralModuleLorentzAngle = {0.12, 0.12, 0.12, 0.12};
 
-sslbConfig.centralModuleMaterial
-    = {ssMaterial, ssMaterial, ssMaterial, ssMaterial};
+if (materialMode == 1) {
+  sslbConfig.centralModuleMaterial
+      = {ssMaterial, ssMaterial, ssMaterial, ssMaterial};
+}
 sslbConfig.centralModuleFrontsideStereo = {};
 sslbConfig.centralModuleBacksideStereo  = {};
 sslbConfig.centralModuleBacksideGap     = {};
@@ -303,8 +376,11 @@ sslbConfig.posnegLayerPositionsZ = {1220., 1500., 1800., 2150., 2550., 2950.};
 size_t nposnegs                  = sslbConfig.posnegLayerPositionsZ.size();
 sslbConfig.posnegLayerEnvelopeR  = std::vector<double>(nposnegs, 5.);
 sslbConfig.posnegLayerMaterialConcentration = std::vector<int>(nposnegs, 0);
-sslbConfig.posnegLayerMaterialProperties
-    = std::vector<Acts::MaterialProperties>(nposnegs, ssecmProperties);
+if (materialMode == 1 or materialMode == 3) {
+  sslbConfig.posnegLayerMaterial
+      = std::vector<std::shared_ptr<const Acts::SurfaceMaterial>>(
+          nposnegs, ssecmSurfaceMaterial);
+}
 sslbConfig.posnegModuleMinHalfX
     = std::vector<std::vector<double>>(nposnegs, mrMinHx);
 sslbConfig.posnegModuleMaxHalfX
@@ -323,10 +399,10 @@ sslbConfig.posnegModuleReadoutSide
     = std::vector<std::vector<int>>(nposnegs, mrReadoutSide);
 sslbConfig.posnegModuleLorentzAngle
     = std::vector<std::vector<double>>(nposnegs, mrLorentzAngle);
-
-sslbConfig.posnegModuleMaterial
-    = std::vector<std::vector<Acts::Material>>(nposnegs, mMaterial);
-
+if (materialMode == 1) {
+  sslbConfig.posnegModuleMaterial
+      = std::vector<std::vector<Acts::Material>>(nposnegs, mMaterial);
+}
 sslbConfig.posnegModuleFrontsideStereo = {};
 sslbConfig.posnegModuleBacksideStereo  = {};
 sslbConfig.posnegModuleBacksideGap     = {};
@@ -385,7 +461,29 @@ std::pair<double, double> lsEnvelope(2., 2.);
 Acts::MaterialProperties
     lsbmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 2.5 * Acts::units::_mm);
 Acts::MaterialProperties
-    lsecmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 3.5 * Acts::units::_mm);
+                                             lsecmProperties(95.7, 465.2, 28.03, 14., 2.32e-3, 3.5 * Acts::units::_mm);
+std::shared_ptr<const Acts::SurfaceMaterial> lsbmSurfaceMaterial  = nullptr;
+std::shared_ptr<const Acts::SurfaceMaterial> lsecmSurfaceMaterial = nullptr;
+if (materialMode == 1) {
+  lsbmSurfaceMaterial
+      = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+          lsbmProperties);
+  lsecmSurfaceMaterial
+      = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+          lsecmProperties);
+} else if (materialMode == 3) {
+  // The dimensions will be adapted in the mapping
+  Acts::BinUtility lsbmBinning(50, 0., 0., Acts::closed, Acts::binPhi);
+  lsbmBinning += Acts::BinUtility(100, 0., 0., Acts::open, Acts::binZ);
+  lsbmSurfaceMaterial
+      = std::make_shared<const Acts::ProtoSurfaceMaterial>(lsbmBinning);
+  // The dimensions will be adapted in the mapping
+  Acts::BinUtility lsecmBinning(50, 0., 0., Acts::open, Acts::binR);
+  lsecmBinning += Acts::BinUtility(50, 0., 0., Acts::closed, Acts::binPhi);
+  lsecmSurfaceMaterial
+      = std::make_shared<const Acts::ProtoSurfaceMaterial>(lsecmBinning);
+}
+
 // Module material - X0, L0, A, Z, Rho
 Acts::Material lsMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
 
@@ -394,14 +492,17 @@ lslbConfig.centralLayerBinMultipliers        = {1, 1};
 lslbConfig.centralLayerRadii                 = {820., 1020.};
 lslbConfig.centralLayerEnvelopes             = {lsEnvelope, lsEnvelope};
 lslbConfig.centralLayerMaterialConcentration = {-1, -1};
-lslbConfig.centralLayerMaterialProperties    = {lsbmProperties, lsbmProperties};
-lslbConfig.centralModuleBinningSchema        = {{120, 21}, {152, 21}};
-lslbConfig.centralModuleTiltPhi              = {-0.15, -0.15};
-lslbConfig.centralModuleHalfX                = {24., 24.};
-lslbConfig.centralModuleHalfY                = {54., 54.};
-lslbConfig.centralModuleThickness            = {0.35, 0.35};
-lslbConfig.centralModuleMaterial             = {lsMaterial, lsMaterial};
-
+if (materialMode == 1 or materialMode == 3) {
+  lslbConfig.centralLayerMaterial = {lsbmSurfaceMaterial, lsbmSurfaceMaterial};
+}
+lslbConfig.centralModuleBinningSchema = {{120, 21}, {152, 21}};
+lslbConfig.centralModuleTiltPhi       = {-0.15, -0.15};
+lslbConfig.centralModuleHalfX         = {24., 24.};
+lslbConfig.centralModuleHalfY         = {54., 54.};
+lslbConfig.centralModuleThickness     = {0.35, 0.35};
+if (materialMode == 1) {
+  lslbConfig.centralModuleMaterial = {lsMaterial, lsMaterial};
+}
 lslbConfig.centralModuleReadoutBinsX = {400, 400};  // 120 um pitch
 lslbConfig.centralModuleReadoutBinsY = {10, 10};    // 10 strips = 10.8 mm
 lslbConfig.centralModuleReadoutSide  = {1, 1};
@@ -443,8 +544,11 @@ lslbConfig.posnegLayerPositionsZ = {1220., 1500., 1800., 2150., 2550., 2950.};
 nposnegs                         = lslbConfig.posnegLayerPositionsZ.size();
 lslbConfig.posnegLayerEnvelopeR  = std::vector<double>(nposnegs, 5.);
 lslbConfig.posnegLayerMaterialConcentration = std::vector<int>(nposnegs, 0);
-lslbConfig.posnegLayerMaterialProperties
-    = std::vector<Acts::MaterialProperties>(nposnegs, lsecmProperties);
+if (materialMode == 1 or materialMode == 3) {
+  lslbConfig.posnegLayerMaterial
+      = std::vector<std::shared_ptr<const Acts::SurfaceMaterial>>(
+          nposnegs, lsecmSurfaceMaterial);
+}
 lslbConfig.posnegModuleMinHalfX
     = std::vector<std::vector<double>>(nposnegs, mrMinHx);
 lslbConfig.posnegModuleMaxHalfX
@@ -463,9 +567,10 @@ lslbConfig.posnegModuleReadoutSide
     = std::vector<std::vector<int>>(nposnegs, mrReadoutSide);
 lslbConfig.posnegModuleLorentzAngle
     = std::vector<std::vector<double>>(nposnegs, mrLorentzAngle);
-
-lslbConfig.posnegModuleMaterial
-    = std::vector<std::vector<Acts::Material>>(nposnegs, mMaterial);
+if (materialMode == 1) {
+  lslbConfig.posnegModuleMaterial
+      = std::vector<std::vector<Acts::Material>>(nposnegs, mMaterial);
+}
 lslbConfig.posnegModuleFrontsideStereo = {};
 lslbConfig.posnegModuleBacksideStereo  = {};
 lslbConfig.posnegModuleBacksideGap     = {};

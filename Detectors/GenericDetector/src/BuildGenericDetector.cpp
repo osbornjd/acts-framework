@@ -15,6 +15,7 @@
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
 #include "Acts/Material/Material.hpp"
+#include "Acts/Material/ProtoSurfaceMaterial.hpp"
 #include "Acts/Material/SurfaceMaterial.hpp"
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
 #include "Acts/Tools/CylinderVolumeHelper.hpp"
@@ -24,6 +25,7 @@
 #include "Acts/Tools/SurfaceArrayCreator.hpp"
 #include "Acts/Tools/TrackingGeometryBuilder.hpp"
 #include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Utilities/BinUtility.hpp"
 #include "Acts/Utilities/Units.hpp"
 
 namespace FW {
@@ -31,7 +33,8 @@ namespace FW {
 namespace Generic {
 
   std::unique_ptr<const Acts::TrackingGeometry>
-  buildGenericDetector(const Acts::SurfaceMaterialMap& surfaceMaterialMap,
+  buildGenericDetector(int                             materialMode,
+                       const Acts::SurfaceMaterialMap& surfaceMaterialMap,
                        Acts::Logging::Level            surfaceLLevel,
                        Acts::Logging::Level            layerLLevel,
                        Acts::Logging::Level            volumeLLevel,

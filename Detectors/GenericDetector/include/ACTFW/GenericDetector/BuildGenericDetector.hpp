@@ -28,11 +28,14 @@ namespace FW {
 namespace Generic {
 
   /// Global method to build the generic tracking geometry
+  /// @param materialMode An inter flag that indicates the material building
+  /// @param sMaterialMap the surface material map to be loaded
   /// @param lvl is the debug logging level
   /// @param version is the detector version
   /// return a unique vector to the tracking geometry
   std::unique_ptr<const Acts::TrackingGeometry>
-  buildGenericDetector(const Acts::SurfaceMaterialMap& sMaterialMap
+  buildGenericDetector(int                             materialMode,
+                       const Acts::SurfaceMaterialMap& sMaterialMap
                        = Acts::SurfaceMaterialMap(),
                        Acts::Logging::Level surfaceLLevel = Acts::Logging::INFO,
                        Acts::Logging::Level layerLLevel   = Acts::Logging::INFO,

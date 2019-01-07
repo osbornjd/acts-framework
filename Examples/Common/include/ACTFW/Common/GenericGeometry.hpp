@@ -49,10 +49,16 @@ struct GenericGeometry
     Acts::Logging::Level volumeLogLevel
         = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
 
+    // check if material should be built
+    size_t materialMode = vm["geo-material-mode"].template as<size_t>();
     Acts::SurfaceMaterialMap smatmap = Acts::SurfaceMaterialMap();
 
     /// return the generic detector
-    return FW::Generic::buildGenericDetector(
-        smatmap, surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
+    return FW::Generic::buildGenericDetector(int(materialMode),
+                                             smatmap,
+                                             surfaceLogLevel,
+                                             layerLogLevel,
+                                             volumeLogLevel,
+                                             3);
   }
 };
