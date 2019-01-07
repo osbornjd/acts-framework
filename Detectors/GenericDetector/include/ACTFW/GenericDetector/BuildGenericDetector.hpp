@@ -11,16 +11,13 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include "Acts/Material/SurfaceMaterial.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 class TrackingGeometry;
-class SurfaceMaterial;
-
-using SurfaceMaterialMap
-    = std::map<GeometryID, std::shared_ptr<const SurfaceMaterial>>;
 }
 
 namespace FW {

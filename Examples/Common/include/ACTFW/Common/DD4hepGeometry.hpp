@@ -11,6 +11,7 @@
 #include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
 #include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
+#include "detail/VoidMaterialReader.hpp"
 
 /// @brief adding some specific options for this geometry type
 struct DD4hepOptions
@@ -33,13 +34,16 @@ struct DD4hepGeometry
   /// @brief operator called to construct the tracking geometry
   ///
   /// @tparam variable_map_t Type of the variable map template for parameters
+  /// @tparam material_reader_t the source for the surface material map
   ///
   /// @param vm the parameter map object
   ///
   /// @return a closed TrackingGeometry object
-  template <typename variable_map_t>
+  template <typename variable_map_t,
+            typename material_reader_t = VoidMaterialReader>
   std::shared_ptr<const Acts::TrackingGeometry>
-  operator()(variable_map_t& vm)
+  operator()(variable_map_t&   vm,
+             material_reader_t mreader = VoidMaterialReader())
   {
     // read the detector config & dd4hep detector
     auto dd4HepDetectorConfig
