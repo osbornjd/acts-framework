@@ -1,20 +1,22 @@
-
-/// Class describing a vertex
-///
+// This file is part of the Acts project.
+//
+// Copyright (C) 2016-2018 Acts project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #pragma once
 
 #include "Acts/Utilities/Definitions.hpp"
 #include "TrackAtVertex.hpp"
 
+
 class Vertex{
 
 public:
 	/// Default constructor
 	Vertex();
-
-	/// Copy constructor
-	Vertex(const Vertex& other);
 
 	Vertex(const Acts::Vector3D& position,
 		   const Acts::ActsSymMatrixD<3>& covariance,
@@ -25,6 +27,9 @@ public:
 	const Acts::Vector3D& position() const;
 	/// Return covariance
 	const Acts::ActsSymMatrixD<3>& covariance() const;
+
+	const std::vector<std::unique_ptr<TrackAtVertex>>& tracks() const;
+
 
 	/// Set 3-position
 	void setPosition(const Acts::Vector3D& position);

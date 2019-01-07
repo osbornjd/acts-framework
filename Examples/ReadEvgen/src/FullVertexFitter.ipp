@@ -1,3 +1,10 @@
+// This file is part of the Acts project.
+//
+// Copyright (C) 2016-2018 Acts project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "FullVertexFitter.hpp"
 #include "LinearizedTrackFactory.hpp"
@@ -25,8 +32,8 @@ namespace {
 		Acts::ActsSymMatrixD<3> Gi_mat;
 		Acts::ActsSymMatrixD<3> Bi_mat;     // Bi = Di.T * Wi * Ei
 		Acts::ActsSymMatrixD<3> Ci_inv;     // Ci = (Ei.T * Wi * Ei)^-1
-		Acts::Vector3D Ui_vec;     // Ui = Ei.T * Wi * dqi
-		Acts::ActsSymMatrixD<3> BCi_mat;       // BCi = Bi * Ci^-1
+		Acts::Vector3D Ui_vec;     			// Ui = Ei.T * Wi * dqi
+		Acts::ActsSymMatrixD<3> BCi_mat;    // BCi = Bi * Ci^-1
 		Acts::ActsVectorD<5> delta_q;
 	};
 
@@ -40,13 +47,11 @@ namespace {
                   BCU_vec.setZero();
                 };
 
-		Acts::ActsSymMatrixD<3> A_mat;              // T  = sum{Di.T * Wi * Di}
-		Acts::Vector3D T_vec;              // A  = sum{Di.T * Wi * dqi}
-		Acts::ActsSymMatrixD<3> BCB_mat;       // BCB = sum{Bi * Ci^-1 * Bi.T}
-		Acts::Vector3D BCU_vec;       // BCU = sum{Bi * Ci^-1 * Ui}
+		Acts::ActsSymMatrixD<3> A_mat;      // T  = sum{Di.T * Wi * Di}
+		Acts::Vector3D T_vec;               // A  = sum{Di.T * Wi * dqi}
+		Acts::ActsSymMatrixD<3> BCB_mat;    // BCB = sum{Bi * Ci^-1 * Bi.T}
+		Acts::Vector3D BCU_vec;       		// BCU = sum{Bi * Ci^-1 * Ui}
 	};
-
-
 
 } // end anonymous namespace
 
@@ -69,7 +74,7 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 
 	Acts::Vector3D linPoint(m_cfg.startingPoint);
 
-	std::unique_ptr<Vertex> fittedVertex = std::make_unique<Vertex>();
+	Vertex fittedVertex;
 
 	for(int n_iter = 0; n_iter < m_cfg.maxIterations; ++n_iter)
 	{
@@ -84,7 +89,6 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 		for(const auto& trackParams : paramVector)
 		{
 			if (n_iter == 0){
-
 				double phi 		= trackParams.parameters()[Acts::ParID_t::ePHI];
 				double theta 	= trackParams.parameters()[Acts::ParID_t::eTHETA];
 				double qop 		= trackParams.parameters()[Acts::ParID_t::eQOP];
@@ -200,20 +204,17 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 			Acts::ActsSymMatrixD<3> V_V_mat; 
 			V_V_mat.setZero();  
 			V_V_mat = cov_delta_V_mat;
-			//std::cout<<"V_V_mat = "<<V_V_mat<<std::endl; 
-
+			
 			//cov(V,P)
 			Acts::ActsSymMatrixD<3> 
 			V_P_mat; V_P_mat.setZero(); 
 			V_P_mat =  -cov_delta_V_mat*bTrack.Gi_mat*bTrack.Ci_inv;
-			//std::cout<<"V_P_mat = "<<V_P_mat<<std::endl;
-
+			
 			//cov(P,P)
 			Acts::ActsSymMatrixD<3> P_P_mat; 
 			P_P_mat.setZero(); 
 			P_P_mat =  bTrack.Ci_inv + bTrack.BCi_mat.transpose() * cov_delta_V_mat*bTrack.BCi_mat;
-			//std::cout<<"P_P_mat = "<<P_P_mat<<std::endl;
-
+			
 			Acts::ActsSymMatrixD<6> cov_mat;
 			cov_mat.setZero();
 			cov_mat.block<3,3>(0,3) = V_P_mat;
@@ -222,7 +223,6 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 			cov_mat.block<3,3>(3,3) = P_P_mat ;
 
 			// cov_delta_P calculation
-			//          std::cout<<"trans_mat = "<<trans_mat<<std::endl;
 			cov_delta_P_mat[i_track] = std::make_unique<Acts::ActsSymMatrixD<5>>(trans_mat*cov_mat*trans_mat.transpose());
 
 			// Calculate chi2 per track. 
@@ -230,24 +230,20 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 				* bTrack.linTrack->covarianceAtPCA().inverse().eval() 
 				* ( bTrack.delta_q - bTrack.Di_mat*delta_V - bTrack.Ei_mat*deltaP ) )[0];
 			newChi2 += bTrack.chi2;
-			//std::cout << "track " << i_track << " with chi2 " << bTrack.chi2 << std::endl;
-
+			
 			++i_track;
 		}
 
 		// assign new linearization point (= new vertex position in global frame)
 		linPoint += delta_V;
-
+		std::cout <<  n_iter << std::endl;
 		if (newChi2 < chi2){
 			chi2 = newChi2;
 
 			Acts::Vector3D vertex(linPoint);
 
-			if(debug) std::cout << "\tset new vertex " << vertex << " with chi2: " << chi2 << std::endl;
-
-
-			fittedVertex->setPosition(vertex);
-			fittedVertex->setCovariance(cov_delta_V_mat);
+			fittedVertex.setPosition(vertex);
+			fittedVertex.setCovariance(cov_delta_V_mat);
 
 			std::vector<std::unique_ptr<TrackAtVertex>> tracksAtVertex;
 			
@@ -267,14 +263,12 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 				tracksAtVertex.push_back(std::move(trackVx));
 				++i_track;
 			}
-
-			fittedVertex->setTracksAtVertex(tracksAtVertex);
-
+			fittedVertex.setTracksAtVertex(tracksAtVertex);
 		}
 
 	} // end loop iterations
 
-	return *fittedVertex;
+	return std::move(fittedVertex);
 	
 
 }

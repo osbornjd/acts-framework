@@ -1,9 +1,22 @@
+// This file is part of the Acts project.
+//
+// Copyright (C) 2016-2018 Acts project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+
+#pragma once 
+
+#include "Acts/Utilities/Definitions.hpp"
+
 /**
  * @class LinearizedTrack.h
  *
  * Class for linear expansion of track parameters in vicinity of vertex
  *
- * From ATHENA code: The measurement equation is linearized in the following way: 
+ * The measurement equation is linearized in the following way: 
  *
  * F_k= D_k (x_k - x_0k) + E_k (p_k - p_0k) + F^0_k
  *
@@ -15,11 +28,7 @@
 
  */
 
-#pragma once 
-
-#include "Acts/Utilities/Definitions.hpp"
-
-class LinearizedTrack //TODO inherit from TrackParametersBase?
+class LinearizedTrack
 {
 public:
 

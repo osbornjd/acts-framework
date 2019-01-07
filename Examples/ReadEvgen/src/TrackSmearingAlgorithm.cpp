@@ -47,13 +47,13 @@ FW::ProcessCode
 FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 {
 
-	static const double eta_cut = 3.0;
+	const double eta_cut = 3.0;
 
 	// Define parameter for pt-dependent IP resolution
 	// of the form sigma_d/z(p_t[GeV]) = A*exp(-B*p_t[GeV]) + C
-	static const double ipResA = 100.7439 * Acts::units::_um;
-	static const double ipResB = 0.23055;
-	static const double ipResC = 20. * Acts::units::_um;
+	const double ipResA = 100.7439 * Acts::units::_um;
+	const double ipResB = 0.23055;
+	const double ipResC = 20. * Acts::units::_um;
 
 	// Create and fill input event
 	const std::vector<FW::Data::SimVertex<>>* inputEvent = nullptr;
@@ -82,23 +82,19 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	// Create random number generator and spawn gaussian distribution
 	FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
-	// Get first vertex of event
-	//FW::Data::SimVertex<> vtx = (*inputEvent)[0];
-
 	// Initialize vector to be filled with smeared tracks
 	std::vector<Acts::BoundParameters> smrdTrksVec;
 
 	Acts::Vector3D tmpVtx;
-	int count_v = 0; // count vertices
-	int count_t = 0; // count tracks at vertex
+	int count_v = 0; // vertex count
 	for (auto& vtx: (*inputEvent)){
 		count_v++;
-		if (count_v != 1) continue; // take only first vertex now
+		// Take only first vertex now
+		if (count_v != 1) continue;
 
-		//std::cout << "true vertex position: " << vtx.position << std::endl << std::endl;
-		tmpVtx = vtx.position; //store tmp true position for debugging only
+		// Store tmp true position for debugging only
+		tmpVtx = vtx.position; 
 
-		//std::cout << count_v <<  " ntracks: " << vtx.out.size() << std::endl;
 		// Iterate over all particle emerging from current vertex
 		for (auto const& particle : vtx.out){
 
@@ -117,13 +113,9 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 
 				if (result.status == Acts::Status::SUCCESS){
 
-					const auto& perigeeParameters = result.endParameters->parameters(); // d0, z0, phi, theta,q/p
+					const auto& perigeeParameters = result.endParameters->parameters(); // (d0, z0, phi, theta,q/p)
 
 					if (std::abs(perigeeParameters[0]) > 30 || std::abs(perigeeParameters[1]) > 200){
-						std::cout << "d0 = " << perigeeParameters[0] << std::endl;
-						std::cout << "z0 = " << perigeeParameters[1] << std::endl;
-						std::cout << "eta = " << eta << std::endl;
-						std::cout << "#########" << std::endl;
 						continue;
 					}
 
@@ -159,7 +151,7 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 
 					double new_eta = -log(tan(smrd_theta/2));
 					if(std::abs(new_eta) > eta_cut) continue;
-				
+					
 					Acts::TrackParametersBase::ParVector_t paramVec;
 					paramVec << smrd_d0, smrd_z0, smrd_phi, smrd_theta, srmd_qp;
 
@@ -173,8 +165,6 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 					(*covMat)(4,4) = rn_qp*rn_qp;
 
 					smrdTrksVec.push_back(Acts::BoundParameters(std::move(covMat), paramVec, perigeeSurface));
-
-					count_t ++;
 				}
 			}
 		}
@@ -186,6 +176,7 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 
 	if (smrdTrksVec.size() > 1){
 		Vertex v1 = vf.fit(smrdTrksVec);
+		std::cout << v1.tracks().size() << std::endl;
 
 		Acts::Vector3D diffVtx = tmpVtx - v1.position();
 
@@ -193,6 +184,10 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 			 << "(" << tmpVtx[0] << "," <<  tmpVtx[1] << ","<<   tmpVtx[2] << ")" << std::endl;
 		std::cout << "fitted vertex: " 
 			<< "(" << v1.position()[0] << "," <<  v1.position()[1] << ","<<   v1.position()[2] << ")" << std::endl;
+	
+		Acts::BoundParameters par = v1.tracks()[0].get()->fittedPerigee();
+		std::cout << v1.tracks()[0].get()->chi2() << std::endl;
+
 	}
 	
 
