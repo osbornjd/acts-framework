@@ -8,36 +8,36 @@
 
 #include "Vertex.hpp"
 
-Vertex::Vertex(){};
+Acts::Vertex::Vertex(){};
 
-Vertex::Vertex(const Acts::Vector3D& position,
+Acts::Vertex::Vertex(const Acts::Vector3D& position,
 		   const Acts::ActsSymMatrixD<3>& covariance,
-		   std::vector<std::unique_ptr<TrackAtVertex>>& tracks) :
+		   std::vector<std::unique_ptr<Acts::TrackAtVertex>>& tracks) :
 	m_position(position),
 	m_covariance(covariance),
 	m_tracksAtVertex(std::move(tracks))
 	{}
 
-const Acts::Vector3D& Vertex::position() const{
+const Acts::Vector3D& Acts::Vertex::position() const{
 	return m_position;
 }
 
-const Acts::ActsSymMatrixD<3>& Vertex::covariance() const{
+const Acts::ActsSymMatrixD<3>& Acts::Vertex::covariance() const{
 	return m_covariance;
 }
 
-const std::vector<std::unique_ptr<TrackAtVertex>>& Vertex::tracks() const{
+const std::vector<std::unique_ptr<Acts::TrackAtVertex>>& Acts::Vertex::tracks() const{
 	return m_tracksAtVertex;
 }
 
-void Vertex::setPosition(const Acts::Vector3D& position){
+void Acts::Vertex::setPosition(const Acts::Vector3D& position){
 	m_position = position;
 }
 
-void Vertex::setCovariance(const Acts::ActsSymMatrixD<3>& covariance){
+void Acts::Vertex::setCovariance(const Acts::ActsSymMatrixD<3>& covariance){
 	m_covariance = covariance;
 }
 
-void Vertex::setTracksAtVertex(std::vector<std::unique_ptr<TrackAtVertex>>& tracks){
+void Acts::Vertex::setTracksAtVertex(std::vector<std::unique_ptr<Acts::TrackAtVertex>>& tracks){
 	m_tracksAtVertex = std::move(tracks);
 }

@@ -9,7 +9,7 @@
 #include "LinearizedTrack.hpp"
 #include <iostream>
 
-LinearizedTrack::LinearizedTrack()
+Acts::LinearizedTrack::LinearizedTrack()
 {
 	m_ParamsAtPCA.setZero();
 	m_ParCovarianceAtPCA.setZero();
@@ -21,7 +21,7 @@ LinearizedTrack::LinearizedTrack()
 	m_ConstTerm.setZero();
 }
 
-LinearizedTrack::LinearizedTrack(const LinearizedTrack& other) :
+Acts::LinearizedTrack::LinearizedTrack(const Acts::LinearizedTrack& other) :
 m_ParamsAtPCA(other.m_ParamsAtPCA),
 m_ParCovarianceAtPCA(other.m_ParCovarianceAtPCA),
 m_LinPoint(other.m_LinPoint),
@@ -31,7 +31,7 @@ m_PositionAtPCA(other.m_PositionAtPCA),
 m_MomentumAtPCA(other.m_MomentumAtPCA),
 m_ConstTerm(other.m_ConstTerm) {}
  
-LinearizedTrack::LinearizedTrack(const Acts::ActsVectorD<5>& paramsAtPCA,
+Acts::LinearizedTrack::LinearizedTrack(const Acts::ActsVectorD<5>& paramsAtPCA,
 								const Acts::ActsSymMatrixD<5>& parCovarianceAtPCA,
 								const Acts::Vector3D& linPoint,
 								const Acts::ActsMatrixD<5,3>& positionJacobian,
@@ -48,7 +48,7 @@ m_PositionAtPCA(positionAtPCA),
 m_MomentumAtPCA(momentumAtPCA),
 m_ConstTerm(constTerm) {}
 
-LinearizedTrack& LinearizedTrack::operator= (const LinearizedTrack& other)
+Acts::LinearizedTrack& Acts::LinearizedTrack::operator= (const Acts::LinearizedTrack& other)
 {
 	if(this!=&other)
 	{
@@ -65,4 +65,4 @@ LinearizedTrack& LinearizedTrack::operator= (const LinearizedTrack& other)
 }
 
 
-LinearizedTrack::~LinearizedTrack() {}
+Acts::LinearizedTrack::~LinearizedTrack() {}

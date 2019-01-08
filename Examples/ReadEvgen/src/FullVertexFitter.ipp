@@ -17,7 +17,7 @@ namespace {
 
 	struct BilloirTrack
 	{
-		BilloirTrack(const Acts::BoundParameters& params, LinearizedTrack* lTrack) :
+		BilloirTrack(const Acts::BoundParameters& params, Acts::LinearizedTrack* lTrack) :
 			originalParams(params),
 			linTrack(lTrack) 
 		{}
@@ -25,7 +25,7 @@ namespace {
         BilloirTrack(const BilloirTrack& arg) = default;
        
 		const Acts::BoundParameters originalParams;
-		LinearizedTrack* linTrack;
+		Acts::LinearizedTrack* linTrack;
 		double chi2;
 		Acts::ActsMatrixD<5,3> Di_mat;
 		Acts::ActsMatrixD<5,3> Ei_mat;
@@ -56,7 +56,7 @@ namespace {
 } // end anonymous namespace
 
 template <typename BField>
-Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& paramVector) const
+Acts::Vertex Acts::FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& paramVector) const
 {
 	bool debug = false;
 	
@@ -65,8 +65,8 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 	unsigned int nTracks = paramVector.size();
 
 	// Factory for linearizing tracks
-	typename LinearizedTrackFactory<BField>::Config lt_config(m_cfg.bField);
-	LinearizedTrackFactory<BField> linFactory(lt_config);
+	typename Acts::LinearizedTrackFactory<BField>::Config lt_config(m_cfg.bField);
+	Acts::LinearizedTrackFactory<BField> linFactory(lt_config);
 
 	std::vector<BilloirTrack> billoirTracks;
 
@@ -74,7 +74,7 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 
 	Acts::Vector3D linPoint(m_cfg.startingPoint);
 
-	Vertex fittedVertex;
+	Acts::Vertex fittedVertex;
 
 	for(int n_iter = 0; n_iter < m_cfg.maxIterations; ++n_iter)
 	{
@@ -93,7 +93,7 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 				double qop 		= trackParams.parameters()[Acts::ParID_t::eQOP];
 				trackMomenta.push_back(Acts::Vector3D(phi, theta, qop));
 				}
-			LinearizedTrack* linTrack = linFactory.linearizeTrack(&trackParams, linPoint);
+			Acts::LinearizedTrack* linTrack = linFactory.linearizeTrack(&trackParams, linPoint);
 			double d0 = linTrack->parametersAtPCA()[Acts::ParID_t::eLOC_D0];
 			double z0 = linTrack->parametersAtPCA()[Acts::ParID_t::eLOC_Z0];
 			double phi = linTrack->parametersAtPCA()[Acts::ParID_t::ePHI];
@@ -232,14 +232,14 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 		if (newChi2 < chi2){
 			chi2 = newChi2;
 
-			Acts::Vector3D vertex(linPoint);
+			Acts::Vector3D vertexPos(linPoint);
 
-			fittedVertex.setPosition(vertex);
+			fittedVertex.setPosition(vertexPos);
 			fittedVertex.setCovariance(cov_delta_V_mat);
 
-			std::vector<std::unique_ptr<TrackAtVertex>> tracksAtVertex;
+			std::vector<std::unique_ptr<Acts::TrackAtVertex>> tracksAtVertex;
 			
-			std::shared_ptr<Acts::PerigeeSurface> perigee = std::make_shared<Acts::PerigeeSurface>(vertex);
+			std::shared_ptr<Acts::PerigeeSurface> perigee = std::make_shared<Acts::PerigeeSurface>(vertexPos);
 
 			int i_track = 0;
 			for(auto& bTrack : billoirTracks){
@@ -251,8 +251,8 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 				Acts::BoundParameters refittedParams(std::move(cov_delta_P_mat[i_track]), 
 									  paramVec, perigee);
 
-				std::unique_ptr<TrackAtVertex> trackVx
-						= std::make_unique<TrackAtVertex>(bTrack.chi2, refittedParams, bTrack.originalParams); 
+				std::unique_ptr<Acts::TrackAtVertex> trackVx
+						= std::make_unique<Acts::TrackAtVertex>(bTrack.chi2, refittedParams, bTrack.originalParams); 
 				tracksAtVertex.push_back(std::move(trackVx));
 				++i_track;
 			}

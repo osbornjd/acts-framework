@@ -168,12 +168,12 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 		}
 	}
 
-	FullVertexFitter<Acts::ConstantBField>::Config vf_config(bField);
+	Acts::FullVertexFitter<Acts::ConstantBField>::Config vf_config(bField);
 
-	FullVertexFitter<Acts::ConstantBField> vf(vf_config);
+	Acts::FullVertexFitter<Acts::ConstantBField> vf(vf_config);
 
 	if (smrdTrksVec.size() > 1){
-		Vertex v1 = vf.fit(smrdTrksVec);
+		Acts::Vertex v1 = vf.fit(smrdTrksVec);
 		//std::cout << v1.tracks().size() << std::endl;
 
 		Acts::Vector3D diffVtx = tmpVtx - v1.position();

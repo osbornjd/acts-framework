@@ -11,6 +11,7 @@
 #include "Acts/Utilities/Definitions.hpp"
 #include "TrackAtVertex.hpp"
 
+namespace Acts{
 
 class Vertex{
 
@@ -20,7 +21,7 @@ public:
 
 	Vertex(const Acts::Vector3D& position,
 		   const Acts::ActsSymMatrixD<3>& covariance,
-		   std::vector<std::unique_ptr<TrackAtVertex>>& tracks);
+		   std::vector<std::unique_ptr<Acts::TrackAtVertex>>& tracks);
 
 
 	/// Return 3-position
@@ -28,7 +29,7 @@ public:
 	/// Return covariance
 	const Acts::ActsSymMatrixD<3>& covariance() const;
 
-	const std::vector<std::unique_ptr<TrackAtVertex>>& tracks() const;
+	const std::vector<std::unique_ptr<Acts::TrackAtVertex>>& tracks() const;
 
 
 	/// Set 3-position
@@ -37,11 +38,13 @@ public:
 	void setCovariance(const Acts::ActsSymMatrixD<3>& covariance);
 	/// Set tracks at vertex
 	void setTracksAtVertex(
-		std::vector<std::unique_ptr<TrackAtVertex>>& tracks);
+		std::vector<std::unique_ptr<Acts::TrackAtVertex>>& tracks);
 
 private:
 	Acts::Vector3D 			m_position;
 	Acts::ActsSymMatrixD<3> m_covariance;
-	std::vector<std::unique_ptr<TrackAtVertex>> m_tracksAtVertex;
+	std::vector<std::unique_ptr<Acts::TrackAtVertex>> m_tracksAtVertex;
 };
+
+} // namespace Acts
 

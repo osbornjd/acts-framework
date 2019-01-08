@@ -11,6 +11,8 @@
 
 #include "Acts/Utilities/Definitions.hpp"
 
+namespace Acts{
+
 /**
  * @class LinearizedTrack.h
  *
@@ -25,7 +27,6 @@
  * and F^0_k is the constant term of expansion. D_k and E_k are matrices
  * of derivatives, denoted hereafter as "positionJacobian" and "momentumJacobian"
  * respectively.
-
  */
 
 class LinearizedTrack
@@ -111,3 +112,5 @@ private:
 	 Acts::Vector3D				m_MomentumAtPCA;
 	 Acts::ActsVectorD<5>		m_ConstTerm;
 };
+
+} // namespace Acts

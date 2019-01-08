@@ -10,6 +10,8 @@
 
 #include "Acts/EventData/TrackParameters.hpp"
 
+namespace Acts{
+
 class TrackAtVertex{
 public:
 
@@ -44,3 +46,5 @@ private:
 	/// Original perigee
 	Acts::BoundParameters m_originalParams;
 };
+
+} // namespace Acts

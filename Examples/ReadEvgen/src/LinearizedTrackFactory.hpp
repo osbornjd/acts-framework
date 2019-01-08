@@ -11,6 +11,9 @@
 #include "LinearizedTrack.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Utilities/Definitions.hpp"
+
+namespace Acts{
+
 /**
  * @class LinearizedTrackFactory
  * From ATHENA:
@@ -29,7 +32,6 @@
  * respectively.
  *
  */
-
 
 template <typename BField>
 class LinearizedTrackFactory
@@ -63,5 +65,6 @@ private:
 
 };
 
+} // namespace Acts
 
 #include "LinearizedTrackFactory.ipp"

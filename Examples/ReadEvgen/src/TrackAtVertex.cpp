@@ -9,21 +9,21 @@
 #include "TrackAtVertex.hpp"
 
 
-TrackAtVertex::TrackAtVertex(const double& chi2perTrack, 	
+Acts::TrackAtVertex::TrackAtVertex(const double& chi2perTrack, 	
 				  const Acts::BoundParameters& paramsAtVertex,
 				  const Acts::BoundParameters& originalParams) :
 m_chi2Track(chi2perTrack),
 m_paramsAtVertex(paramsAtVertex),
 m_originalParams(originalParams){}
 
-const double TrackAtVertex::chi2() const {
+const double Acts::TrackAtVertex::chi2() const {
 	return m_chi2Track;
 }
 
-const Acts::BoundParameters& TrackAtVertex::fittedPerigee() const {
+const Acts::BoundParameters& Acts::TrackAtVertex::fittedPerigee() const {
 	return m_paramsAtVertex;
 }
 
-const Acts::BoundParameters& TrackAtVertex::originalPerigee() const {
+const Acts::BoundParameters& Acts::TrackAtVertex::originalPerigee() const {
 	return m_originalParams;
 }

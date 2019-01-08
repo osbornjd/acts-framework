@@ -12,7 +12,7 @@
 #include "Acts/Propagator/Propagator.hpp"
 
 template <typename BField>
-LinearizedTrack* LinearizedTrackFactory<BField>::linearizeTrack(const Acts::BoundParameters* params,
+Acts::LinearizedTrack* Acts::LinearizedTrackFactory<BField>::linearizeTrack(const Acts::BoundParameters* params,
                                     const Acts::Vector3D& linPoint) const
 {
 	if (!params) return nullptr;
@@ -148,7 +148,7 @@ LinearizedTrack* LinearizedTrackFactory<BField>::linearizeTrack(const Acts::Boun
     Acts::ActsVectorD<5> constTerm = 
     			predParamsAtPCA - positionJacobian * positionAtPCA - momentumJacobian * momentumAtPCA;
 
-	return new LinearizedTrack(paramsAtPCA, 
+	return new Acts::LinearizedTrack(paramsAtPCA, 
 							   parCovarianceAtPCA,
 							   linPoint, 
 							   positionJacobian, 

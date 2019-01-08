@@ -11,6 +11,7 @@
 #include "Vertex.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 
+namespace Acts{
 
 template <typename BField>
 class FullVertexFitter
@@ -61,11 +62,13 @@ public:
 	/// Fit method, fitting vertex for provided tracks
 	/// @param paramVector Vector of tracks to fit vertex to
 	/// @return Fitted vertex
-	Vertex fit(const std::vector<Acts::BoundParameters>& paramVector) const;
+	Acts::Vertex fit(const std::vector<Acts::BoundParameters>& paramVector) const;
 
 private:
 	/// Configuration object
 	Config m_cfg;
 };
+
+} // namespace Acts
 
 #include "FullVertexFitter.ipp"
