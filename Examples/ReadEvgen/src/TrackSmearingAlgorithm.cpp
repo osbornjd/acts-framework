@@ -63,11 +63,9 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	}
 
 	// Define perigee surface center coordinates
-	const double pgSrfX = 0.;
-	const double pgSrfY = 0.;
-	const double pgSrfZ = 0.;
+	const Acts::Vector3D surfaceCenter(0.,0.,0.);
 
-	Acts::PerigeeSurface perigeeSurface(Acts::Vector3D(pgSrfX, pgSrfY, pgSrfZ));
+	std::shared_ptr<Acts::PerigeeSurface> perigeeSurface = std::make_shared<Acts::PerigeeSurface>(surfaceCenter);
 
 	// Set up b-field and stepper
 	Acts::ConstantBField bField(Acts::Vector3D(0.,0.,1.)*Acts::units::_T);
@@ -109,7 +107,7 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 					start(nullptr, particle.position(), ptclMom, particle.q());
 
 				// Run propagator
-				const auto result = propagator.propagate(start, perigeeSurface, options);
+				const auto result = propagator.propagate(start, *perigeeSurface, options);
 
 				if (result.status == Acts::Status::SUCCESS){
 

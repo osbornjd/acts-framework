@@ -17,11 +17,8 @@ LinearizedTrack* LinearizedTrackFactory<BField>::linearizeTrack(const Acts::Boun
 {
 	if (!params) return nullptr;
 
-	const Acts::PerigeeSurface perigeeSurface(linPoint);
+    const std::shared_ptr<Acts::PerigeeSurface> perigeeSurface = std::make_shared<Acts::PerigeeSurface>(linPoint);
 
-	// TODO: obtain real b-field
-	// Set up b-field and stepper
-	//Acts::ConstantBField bField(Acts::Vector3D(0.,0.,1.)*Acts::units::_T);
 	Acts::EigenStepper<BField> stepper(m_cfg.bField);
 	
 	// Set up propagator with void navigator
@@ -35,7 +32,7 @@ LinearizedTrack* LinearizedTrackFactory<BField>::linearizeTrack(const Acts::Boun
 	Acts::ActsSymMatrixD<5> parCovarianceAtPCA;
 
 	// Do the propagation to linPoint
-	const auto& result = propagator.propagate(*params, perigeeSurface, options);
+	const auto& result = propagator.propagate(*params, *perigeeSurface, options);
 	if (result.status == Acts::Status::SUCCESS){
 		paramsAtPCA = result.endParameters->parameters();
 		positionAtPCA = result.endParameters->position();

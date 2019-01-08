@@ -83,7 +83,6 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 		newChi2 = 0;
 
 		BilloirVertex billoirVertex;
-
 		int i_track = 0;
 		// iterate over all tracks
 		for(const auto& trackParams : paramVector)
@@ -94,9 +93,7 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 				double qop 		= trackParams.parameters()[Acts::ParID_t::eQOP];
 				trackMomenta.push_back(Acts::Vector3D(phi, theta, qop));
 				}
-
 			LinearizedTrack* linTrack = linFactory.linearizeTrack(&trackParams, linPoint);
-
 			double d0 = linTrack->parametersAtPCA()[Acts::ParID_t::eLOC_D0];
 			double z0 = linTrack->parametersAtPCA()[Acts::ParID_t::eLOC_Z0];
 			double phi = linTrack->parametersAtPCA()[Acts::ParID_t::ePHI];
@@ -107,7 +104,6 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 			double f_phi = trackMomenta[i_track][0];
 			double f_theta =trackMomenta[i_track][1];
 			double f_qOverP = trackMomenta[i_track][2];
-
 			BilloirTrack currentBilloirTrack(trackParams, linTrack);
 
 			//calculate delta_q[i]
@@ -124,7 +120,6 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 			// momentum jacobian (E matrix)
 			Acts::ActsMatrixD<5,3> E_mat;
 			E_mat = linTrack->momentumJacobian();
-
 			// cache some matrix multiplications
 			Acts::ActsMatrixD<3,5> Dt_W_mat;
 			Dt_W_mat.setZero();
@@ -176,7 +171,6 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 		std::vector<double> chi2PerTrack;
 		chi2PerTrack.clear();
 
-
 		i_track = 0;
 		for(auto& bTrack : billoirTracks){
 	
@@ -224,7 +218,6 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 
 			// cov_delta_P calculation
 			cov_delta_P_mat[i_track] = std::make_unique<Acts::ActsSymMatrixD<5>>(trans_mat*cov_mat*trans_mat.transpose());
-
 			// Calculate chi2 per track. 
 			bTrack.chi2= ( ( bTrack.delta_q - bTrack.Di_mat*delta_V - bTrack.Ei_mat*deltaP ).transpose() 
 				* bTrack.linTrack->covarianceAtPCA().inverse().eval() 
@@ -236,7 +229,6 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 
 		// assign new linearization point (= new vertex position in global frame)
 		linPoint += delta_V;
-		
 		if (newChi2 < chi2){
 			chi2 = newChi2;
 
@@ -247,7 +239,8 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 
 			std::vector<std::unique_ptr<TrackAtVertex>> tracksAtVertex;
 			
-			Acts::PerigeeSurface perigee(vertex);
+			std::shared_ptr<Acts::PerigeeSurface> perigee = std::make_shared<Acts::PerigeeSurface>(vertex);
+
 			int i_track = 0;
 			for(auto& bTrack : billoirTracks){
 
@@ -265,9 +258,7 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 			}
 			fittedVertex.setTracksAtVertex(tracksAtVertex);
 		}
-
 	} // end loop iterations
-
 	return std::move(fittedVertex);
 	
 
