@@ -176,7 +176,7 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 
 	if (smrdTrksVec.size() > 1){
 		Vertex v1 = vf.fit(smrdTrksVec);
-		std::cout << v1.tracks().size() << std::endl;
+		//std::cout << v1.tracks().size() << std::endl;
 
 		Acts::Vector3D diffVtx = tmpVtx - v1.position();
 
@@ -186,7 +186,7 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 			<< "(" << v1.position()[0] << "," <<  v1.position()[1] << ","<<   v1.position()[2] << ")" << std::endl;
 	
 		Acts::BoundParameters par = v1.tracks()[0].get()->fittedPerigee();
-		std::cout << v1.tracks()[0].get()->chi2() << std::endl;
+		//std::cout << v1.tracks()[0].get()->chi2() << std::endl;
 
 	}
 	

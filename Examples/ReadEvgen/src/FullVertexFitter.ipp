@@ -236,7 +236,7 @@ Vertex FullVertexFitter<BField>::fit(const std::vector<Acts::BoundParameters>& p
 
 		// assign new linearization point (= new vertex position in global frame)
 		linPoint += delta_V;
-		std::cout <<  n_iter << std::endl;
+		
 		if (newChi2 < chi2){
 			chi2 = newChi2;
 
