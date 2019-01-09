@@ -6,17 +6,32 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Framework/Sequencer.hpp"
 #include <algorithm>
-#include "ACTFW/Concurrency/parallel_for.hpp"
+#include <exception>
+
+#include <tbb/tbb.h>
+
+#include <TROOT.h>
+
+#include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "TROOT.h"
 
 FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
                          std::unique_ptr<const Acts::Logger> logger)
-  : m_cfg(cfg), m_logger(std::move(logger))
+  : m_cfg(cfg)
+  , m_logger(std::move(logger))
+  , m_tbb_init(tbb::task_scheduler_init::deferred)
 {
   ROOT::EnableThreadSafety();
+
+  const char* num_threads_str = getenv("ACTSFW_NUM_THREADS");
+  int         num_threads;
+  if (num_threads_str) {
+    num_threads = std::stoi(num_threads_str);
+  } else {
+    num_threads = tbb::task_scheduler_init::automatic;
+  }
+  m_tbb_init.initialize(num_threads);
 }
 
 FW::ProcessCode
@@ -147,33 +162,37 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 
   // Execute the event loop
   ACTS_INFO("Run the event loop");
-  ACTFW_PARALLEL_FOR(ievent, 0, numEvents, {
-    const size_t event = skip + ievent;
-    ACTS_INFO("start event " << event);
+  tbb::parallel_for(
+      tbb::blocked_range<size_t>(skip, numEvents + skip),
+      [&](const tbb::blocked_range<size_t>& r) {
+        for (size_t event = r.begin(); event != r.end(); ++event) {
+          ACTS_INFO("start event " << event);
 
-    // Setup the event and algorithm context
-    WhiteBoard eventStore(Acts::getDefaultLogger(
-        "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
-    size_t ialg = 0;
+          // Setup the event and algorithm context
+          WhiteBoard eventStore(Acts::getDefaultLogger(
+              "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
+          size_t ialg = 0;
 
-    // read everything in
-    for (auto& rdr : m_readers) {
-      if (rdr->read({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
-        return ProcessCode::ABORT;
-    }
-    // process all algorithms
-    for (auto& alg : m_algorithms) {
-      if (alg->execute({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
-        return ProcessCode::ABORT;
-    }
-    // write out results
-    for (auto& wrt : m_writers) {
-      if (wrt->write({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
-        return ProcessCode::ABORT;
-    }
+          // read everything in
+          for (auto& rdr : m_readers) {
+            if (rdr->read({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
+              throw std::runtime_error("Failed to read input data");
+          }
+          // process all algorithms
+          for (auto& alg : m_algorithms) {
+            if (alg->execute({ialg++, event, eventStore})
+                != ProcessCode::SUCCESS)
+              throw std::runtime_error("Failed to process event data");
+          }
+          // write out results
+          for (auto& wrt : m_writers) {
+            if (wrt->write({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
+              throw std::runtime_error("Failed to write output data");
+          }
 
-    ACTS_INFO("event " << event << " done");
-  })
+          ACTS_INFO("event " << event << " done");
+        }
+      });
 
   // Call endRun() for writers and services
   ACTS_INFO("Running end-of-run hooks of writers and services");

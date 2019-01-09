@@ -18,6 +18,7 @@
 #include <boost/optional.hpp>
 #include <memory>
 #include <string>
+#include <tbb/task_scheduler_init.h>
 #include <vector>
 #include "ACTFW/Framework/IAlgorithm.hpp"
 #include "ACTFW/Framework/IReader.hpp"
@@ -102,6 +103,7 @@ private:
   std::vector<std::shared_ptr<IAlgorithm>> m_algorithms;
   Config                                   m_cfg;
   std::unique_ptr<const Acts::Logger>      m_logger;
+  tbb::task_scheduler_init                 m_tbb_init;
 
   const Acts::Logger&
   logger() const
