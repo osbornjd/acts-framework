@@ -17,7 +17,6 @@
 #include "Acts/Propagator/Propagator.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include <iostream>
 
 #include "Vertex.hpp"
 #include "LinearizedTrack.hpp"
@@ -42,6 +41,10 @@ FWE::TrackSmearingAlgorithm::TrackSmearingAlgorithm(const Config& cfg, Acts::Log
   : FW::BareAlgorithm("TrackSmearing", level), m_cfg(cfg)
 {
 }
+
+
+
+
 
 FW::ProcessCode
 FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
@@ -80,18 +83,23 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	// Create random number generator and spawn gaussian distribution
 	FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
-	// Initialize vector to be filled with smeared tracks
-	std::vector<Acts::BoundParameters> smrdTrksVec;
+	// typedef for simplicity
+	using BoundParamsVector = std::vector<Acts::BoundParameters>;
 
-	Acts::Vector3D tmpVtx;
+	// Vector to store smrdTracksAtVtx for all vertices of event
+	std::vector<BoundParamsVector> smrdTrackCollection;
+
+	// Vector to store true vertices positions
+	std::vector<Acts::Vector3D> trueVertices;
+
 	int count_v = 0; // vertex count
 	for (auto& vtx: (*inputEvent)){
 		count_v++;
 		// Take only first vertex now
-		if (count_v != 1) continue;
+		//if (count_v != 1) continue;
 
-		// Store tmp true position for debugging only
-		tmpVtx = vtx.position; 
+		// Vector to store smeared tracks at current vertex
+		BoundParamsVector smrdTracksAtVtx;
 
 		// Iterate over all particle emerging from current vertex
 		for (auto const& particle : vtx.out){
@@ -162,34 +170,54 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 					(*covMat)(3,3) = rn_th*rn_th;
 					(*covMat)(4,4) = rn_qp*rn_qp;
 
-					smrdTrksVec.push_back(Acts::BoundParameters(std::move(covMat), paramVec, perigeeSurface));
+					smrdTracksAtVtx.push_back(Acts::BoundParameters(std::move(covMat), paramVec, perigeeSurface));
 				}
 			}
 		}
+
+		if(!smrdTracksAtVtx.empty()){
+			smrdTrackCollection.push_back(smrdTracksAtVtx);
+
+			// Store true vertex position for debugging only
+			trueVertices.push_back(vtx.position); 
+		}
 	}
 
-	Acts::FullVertexFitter<Acts::ConstantBField>::Config vf_config(bField);
+	assert(smrdTrackCollection.size() == trueVertices.size());
 
-	Acts::FullVertexFitter<Acts::ConstantBField> vf(vf_config);
+	std::cout << "Total amount of vertices in event: " << trueVertices.size() << std::endl;
 
-	if (smrdTrksVec.size() > 1){
-		Acts::Vertex v1 = vf.fit(smrdTrksVec);
-		//std::cout << v1.tracks().size() << std::endl;
+	Acts::FullVertexFitter<Acts::ConstantBField>::Config vertexFitterCfg(bField);
 
-		Acts::Vector3D diffVtx = tmpVtx - v1.position();
+	Acts::FullVertexFitter<Acts::ConstantBField> vertexFitter(vertexFitterCfg);
 
-		std::cout << "true vertex:   "
-			 << "(" << tmpVtx[0] << "," <<  tmpVtx[1] << ","<<   tmpVtx[2] << ")" << std::endl;
-		std::cout << "fitted vertex: " 
-			<< "(" << v1.position()[0] << "," <<  v1.position()[1] << ","<<   v1.position()[2] << ")" << std::endl;
-	
-		Acts::BoundParameters par = v1.tracks()[0].get()->fittedPerigee();
-		//std::cout << v1.tracks()[0].get()->chi2() << std::endl;
+	for(int event_idx = 0; event_idx < smrdTrackCollection.size(); ++event_idx){
 
+		BoundParamsVector currentParamVectorAtVtx = smrdTrackCollection[event_idx];
+		if (currentParamVectorAtVtx.size() > 1){
+
+			Acts::Vector3D currentTrueVtx = trueVertices[event_idx];
+
+			std::cout << "Event " << event_idx << ",vertex with " << currentParamVectorAtVtx.size() << " tracks" << std::endl;
+
+			Acts::Vertex v1 = vertexFitter.fit(currentParamVectorAtVtx);
+			//std::cout << v1.tracks().size() << std::endl;
+
+			Acts::Vector3D diffVtx = currentTrueVtx - v1.position();
+
+			std::cout << "true vertex:   "
+				 << "(" << currentTrueVtx[0] << "," <<  currentTrueVtx[1] << ","<<   currentTrueVtx[2] << ")" << std::endl;
+			std::cout << "fitted vertex: " 
+				<< "(" << v1.position()[0] << "," <<  v1.position()[1] << ","<<   v1.position()[2] << ")\n" << std::endl;
+		
+			Acts::BoundParameters par = v1.tracks()[0].get()->fittedPerigee();
+			//std::cout << v1.tracks()[0].get()->chi2() << std::endl;
+
+		}
 	}
 	
 
-	if(context.eventStore.add(m_cfg.collectionOut, std::move(smrdTrksVec))
+	if(context.eventStore.add(m_cfg.collectionOut, std::move(smrdTrackCollection))
 		!= FW::ProcessCode::SUCCESS)
 	{
 		return FW::ProcessCode::ABORT;
