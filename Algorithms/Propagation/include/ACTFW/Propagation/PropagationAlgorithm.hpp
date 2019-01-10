@@ -23,7 +23,7 @@
 #include "Acts/Propagator/ActionList.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/detail/DebugOutputActor.hpp"
-#include "Acts/Propagator/detail/StandardAbortConditions.hpp"
+#include "Acts/Propagator/detail/StandardAborters.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Utilities/Definitions.hpp"
