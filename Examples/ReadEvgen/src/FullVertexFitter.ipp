@@ -178,12 +178,35 @@ Acts::Vertex Acts::FullVertexFitter<BField>::fit(const std::vector<Acts::BoundPa
 	
 			// update track momenta
 			trackMomenta[i_track][0] += deltaP[0];
-
 			trackMomenta[i_track][1] += deltaP[1];
-
 			trackMomenta[i_track][2] += deltaP[2];
 
-			// TODO: correct for 2PI / PI periodicity
+			// correct for 2PI / PI periodicity
+		    double tmp_phi = std::fmod(trackMomenta[i_track][0],2*M_PI); // temp phi
+		    if(tmp_phi > M_PI){
+		        tmp_phi -= 2*M_PI;   
+		    }
+		    if(tmp_phi < -M_PI && tmp_phi > -2*M_PI){
+		        tmp_phi += 2*M_PI;   
+		    }
+		  
+		    double tmp_tht = std::fmod(trackMomenta[i_track][1],2*M_PI); // temp theta
+		    if(tmp_tht < -M_PI){
+		        tmp_tht = std::abs(tmp_tht+2*M_PI);
+		    }
+		    else if(tmp_tht < 0){
+		        tmp_tht *= -1;
+		        tmp_phi += M_PI;
+		        tmp_phi = tmp_phi>M_PI ? tmp_phi - 2*M_PI : tmp_phi;
+		    }
+		    if(tmp_tht > M_PI){
+		        tmp_tht = 2*M_PI - tmp_tht;   
+		        tmp_phi += M_PI;
+		        tmp_phi = tmp_phi>M_PI ? (tmp_phi - 2*M_PI) : tmp_phi;
+		    }
+
+		    trackMomenta[i_track][0] = tmp_phi;
+		    trackMomenta[i_track][1] = tmp_tht;
 
 			//calculate 5x5 cov_delta_P matrix
 			// d(d0,z0,phi,theta,qOverP)/d(x,y,z,phi,theta,qOverP)-transformation matrix
