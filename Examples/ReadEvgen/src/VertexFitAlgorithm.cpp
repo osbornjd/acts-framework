@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "TrackSmearingAlgorithm.hpp"
+#include "VertexFitAlgorithm.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Units.hpp"
@@ -39,8 +39,8 @@ struct Config
   };
 
 
-FWE::TrackSmearingAlgorithm::TrackSmearingAlgorithm(const Config& cfg, Acts::Logging::Level level)
-  : FW::BareAlgorithm("TrackSmearing", level), m_cfg(cfg)
+FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config& cfg, Acts::Logging::Level level)
+  : FW::BareAlgorithm("VertexFit", level), m_cfg(cfg)
 {
 }
 
@@ -49,7 +49,7 @@ FWE::TrackSmearingAlgorithm::TrackSmearingAlgorithm(const Config& cfg, Acts::Log
 
 
 FW::ProcessCode
-FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
+FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 {
 
 	const double eta_cut = 3.0;
@@ -70,7 +70,7 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	// Define perigee surface center coordinates
 	const Acts::Vector3D surfaceCenter(0.,0.,0.);
 
-	std::shared_ptr<Acts::PerigeeSurface> perigeeSurface = std::make_shared<Acts::PerigeeSurface>(surfaceCenter);
+	std::shared_ptr<Acts::PerigeeSurface> perigeeSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(surfaceCenter);// std::make_shared<Acts::PerigeeSurface>(surfaceCenter);
 
 	// Set up b-field and stepper
 	Acts::ConstantBField bField(Acts::Vector3D(0.,0.,1.)*Acts::units::_T);

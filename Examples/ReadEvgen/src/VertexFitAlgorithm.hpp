@@ -25,7 +25,7 @@ namespace FWE {
 /// @tparam event_collection_t  The event collection type
 /// @tparam hit_t The hit Type
 
-class TrackSmearingAlgorithm : public FW::BareAlgorithm
+class VertexFitAlgorithm : public FW::BareAlgorithm
 {
 public:
 	struct Config
@@ -36,7 +36,7 @@ public:
 	};
 
 	/// Constructor
-	TrackSmearingAlgorithm(const Config& cfg, Acts::Logging::Level level = Acts::Logging::INFO);
+	VertexFitAlgorithm(const Config& cfg, Acts::Logging::Level level = Acts::Logging::INFO);
 
 	/// Framework execute method
 	/// @param [in] context is the Algorithm context for event consistency

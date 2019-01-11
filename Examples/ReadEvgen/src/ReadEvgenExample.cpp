@@ -22,7 +22,7 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/ReadEvgen/EvgenReader.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
-#include "TrackSmearingAlgorithm.hpp"
+#include "VertexFitAlgorithm.hpp"
 
 namespace po = boost::program_options;
 
@@ -93,11 +93,11 @@ main(int argc, char* argv[])
       readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
 
   // Add the track smearing algorithm
-  FWE::TrackSmearingAlgorithm::Config trksmrCfg;
+  FWE::VertexFitAlgorithm::Config trksmrCfg;
   trksmrCfg.collection = readEvgenCfg.evgenCollection;
   trksmrCfg.randomNumberSvc = randomNumberSvc;
   
-  std::shared_ptr<FW::IAlgorithm> trksmrAlgo = std::make_shared<FWE::TrackSmearingAlgorithm>(trksmrCfg, logLevel);
+  std::shared_ptr<FW::IAlgorithm> trksmrAlgo = std::make_shared<FWE::VertexFitAlgorithm>(trksmrCfg, logLevel);
 
   // Output directory
   std::string outputDir = vm["output-dir"].as<std::string>();
