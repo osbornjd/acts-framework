@@ -38,15 +38,10 @@ struct Config
     size_t drawsPerEvent = 0;
   };
 
-
 FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config& cfg, Acts::Logging::Level level)
   : FW::BareAlgorithm("VertexFit", level), m_cfg(cfg)
 {
 }
-
-
-
-
 
 FW::ProcessCode
 FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
@@ -94,12 +89,8 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 	// Vector to store true vertices positions
 	std::vector<Acts::Vector3D> trueVertices;
 
-	int count_v = 0; // vertex count
 	for (auto& vtx: (*inputEvent)){
-		count_v++;
-		// Take only first vertex now
-		//if (count_v != 1) continue;
-
+		
 		// Vector to store smeared tracks at current vertex
 		BoundParamsVector smrdTracksAtVtx;
 
@@ -186,13 +177,16 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 	}
 
 	assert(smrdTrackCollection.size() == trueVertices.size());
-	std::cout << "Total amount of vertices in event: " << trueVertices.size() << std::endl;
+
+	ACTS_INFO("Total number of vertices in event: " << trueVertices.size());
 
 	// Set up vertex fitter
 	Acts::FullVertexFitter<Acts::ConstantBField>::Config vertexFitterCfg(bField);
 	Acts::FullVertexFitter<Acts::ConstantBField> vertexFitter(vertexFitterCfg);
 
+	std::vector<Acts::Vertex> fittedVertices;
 
+	// in-event parallel vertex fitting
 	tbb::parallel_for(
       tbb::blocked_range<size_t>(0, smrdTrackCollection.size()),
       [&](const tbb::blocked_range<size_t>& r) {
@@ -201,25 +195,21 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 			BoundParamsVector currentParamVectorAtVtx = smrdTrackCollection[event_idx];
 			if (currentParamVectorAtVtx.size() > 1){
 
-				Acts::Vector3D currentTrueVtx = trueVertices[event_idx];
-
-				std::cout << "Vertex " << event_idx << " with " << currentParamVectorAtVtx.size() << " tracks" << std::endl;
-
 				Acts::Vertex fittedVertex = vertexFitter.fit(currentParamVectorAtVtx);
 
+				Acts::Vector3D currentTrueVtx = trueVertices[event_idx];
 				Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();
 
-				std::cout << "true vertex:   "
-					 << "(" << currentTrueVtx[0] << "," <<  currentTrueVtx[1] << ","<<   currentTrueVtx[2] << ")" << std::endl;
-				std::cout << "fitted vertex: " 
-					<< "(" << fittedVertex.position()[0] << "," <<  fittedVertex.position()[1] << ","<<   fittedVertex.position()[2] << ")\n" << std::endl;
+				ACTS_INFO("Event: " << context.eventNumber << ", vertex " << event_idx << " with " << currentParamVectorAtVtx.size() << " tracks");
+				ACTS_INFO("True Vertex: " << "(" << currentTrueVtx[0] << "," <<  currentTrueVtx[1] << ","<<   currentTrueVtx[2] << ")" );
+				ACTS_INFO("Fitted Vertex: " << "(" << fittedVertex.position()[0] << "," <<  fittedVertex.position()[1] << ","<<   fittedVertex.position()[2] << ")");
+
+				fittedVertices.push_back(std::move(fittedVertex));
 			}
         }
       });
 
-	// TODO: store fitted vertices and write to eventstore
-
-	if(context.eventStore.add(m_cfg.collectionOut, std::move(smrdTrackCollection))
+	if(context.eventStore.add(m_cfg.collectionOut, std::move(fittedVertices))
 		!= FW::ProcessCode::SUCCESS)
 	{
 		return FW::ProcessCode::ABORT;
