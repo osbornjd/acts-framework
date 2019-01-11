@@ -18,6 +18,8 @@
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
+#include <tbb/tbb.h>
+
 #include "Vertex.hpp"
 #include "LinearizedTrack.hpp"
 #include "LinearizedTrackFactory.hpp"
