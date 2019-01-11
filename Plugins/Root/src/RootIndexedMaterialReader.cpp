@@ -8,6 +8,8 @@
 
 #include "ACTFW/Plugins/Root/RootIndexedMaterialReader.hpp"
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/finder.hpp>
+#include <boost/algorithm/string/iter_find.hpp>
 #include <cstdio>
 #include <iostream>
 #include <sstream>
@@ -73,33 +75,43 @@ FW::Root::RootIndexedMaterialReader::read(
 
     // Remember the directory
     std::string tdName(key->GetName());
+
+    ACTS_VERBOSE("Processing directory: " << tdName);
+
     // volume
     std::vector<std::string> splitNames;
-    boost::split(splitNames, tdName, boost::is_any_of(m_cfg.voltag));
+    iter_split(
+        splitNames, tdName, boost::algorithm::first_finder(m_cfg.voltag));
     boost::split(splitNames, splitNames[1], boost::is_any_of("_"));
     geo_id_value volID = std::stoi(splitNames[0]);
     // layer
-    boost::split(splitNames, tdName, boost::is_any_of(m_cfg.laytag));
+    iter_split(
+        splitNames, tdName, boost::algorithm::first_finder(m_cfg.laytag));
     boost::split(splitNames, splitNames[1], boost::is_any_of("_"));
     geo_id_value layID = std::stoi(splitNames[0]);
     // approach
-    boost::split(splitNames, tdName, boost::is_any_of(m_cfg.apptag));
+    iter_split(
+        splitNames, tdName, boost::algorithm::first_finder(m_cfg.apptag));
     boost::split(splitNames, splitNames[1], boost::is_any_of("_"));
     geo_id_value appID = std::stoi(splitNames[0]);
     // sensitive
-    boost::split(splitNames, tdName, boost::is_any_of(m_cfg.sentag));
-    // boost::split(splitNames,splitNames[1],boost::is_any_of("_"));
-    geo_id_value senID = std::stoi(splitNames[0]);
+    iter_split(
+        splitNames, tdName, boost::algorithm::first_finder(m_cfg.sentag));
+    geo_id_value senID = std::stoi(splitNames[1]);
 
     // Reconstruct the geometry ID
     Acts::GeometryID geoID(volID, Acts::GeometryID::volume_mask);
     geoID.add(layID, Acts::GeometryID::layer_mask);
     geoID.add(appID, Acts::GeometryID::approach_mask);
     geoID.add(senID, Acts::GeometryID::sensitive_mask);
+    ACTS_VERBOSE("GeometryID re-constructed as " << geoID.toString());
 
     // Construct the names
-    std::string bName   = tdName + "/" + m_cfg.btag;
+    std::string nName   = tdName + "/" + m_cfg.ntag;
     std::string vName   = tdName + "/" + m_cfg.vtag;
+    std::string oName   = tdName + "/" + m_cfg.otag;
+    std::string minName = tdName + "/" + m_cfg.mintag;
+    std::string maxName = tdName + "/" + m_cfg.maxtag;
     std::string tName   = tdName + "/" + m_cfg.ttag;
     std::string x0Name  = tdName + "/" + m_cfg.x0tag;
     std::string l0Name  = tdName + "/" + m_cfg.l0tag;
@@ -108,8 +120,11 @@ FW::Root::RootIndexedMaterialReader::read(
     std::string rhoName = tdName + "/" + m_cfg.rhotag;
 
     // Get the histograms
-    TH1F* b   = dynamic_cast<TH1F*>(m_inputFile->Get(bName.c_str()));
+    TH1F* n   = dynamic_cast<TH1F*>(m_inputFile->Get(nName.c_str()));
     TH1F* v   = dynamic_cast<TH1F*>(m_inputFile->Get(vName.c_str()));
+    TH1F* o   = dynamic_cast<TH1F*>(m_inputFile->Get(oName.c_str()));
+    TH1F* min = dynamic_cast<TH1F*>(m_inputFile->Get(minName.c_str()));
+    TH1F* max = dynamic_cast<TH1F*>(m_inputFile->Get(maxName.c_str()));
     TH2F* t   = dynamic_cast<TH2F*>(m_inputFile->Get(tName.c_str()));
     TH2F* x0  = dynamic_cast<TH2F*>(m_inputFile->Get(x0Name.c_str()));
     TH2F* l0  = dynamic_cast<TH2F*>(m_inputFile->Get(l0Name.c_str()));
@@ -118,33 +133,20 @@ FW::Root::RootIndexedMaterialReader::read(
     TH2F* rho = dynamic_cast<TH2F*>(m_inputFile->Get(rhoName.c_str()));
 
     // Only go on when you have all histograms
-    if (b and v and t and x0 and l0 and A and Z and rho) {
+    if (n and v and o and min and max and t and x0 and l0 and A and Z and rho) {
+
       // Get the number of bins
       int nbins0 = t->GetNbinsX();
       int nbins1 = t->GetNbinsY();
 
+      // The material matrix
+      Acts::MaterialPropertiesMatrix materialMatrix(
+          nbins1,
+          Acts::MaterialPropertiesVector(nbins0, Acts::MaterialProperties()));
+
       // We need binned material properties
       if (nbins0 * nbins1 > 1) {
-        // The material matrix
-        Acts::MaterialPropertiesMatrix materialMatrix(
-            nbins1,
-            Acts::MaterialPropertiesVector(nbins1, Acts::MaterialProperties()));
-
-        // Construct the BinUtility
-        // Bin 0 is always present
-        Acts::BinningValue bValue0 = (Acts::BinningValue)b->GetBinContent(1);
-        float              min0    = v->GetBinContent(1);
-        float              max0    = v->GetBinContent(2);
-        Acts::BinUtility   bu(nbins0, min0, max0, Acts::open, bValue0);
-        // Bin 1 is potentially present
-        if (nbins1 > 1) {
-          Acts::BinningValue bValue1 = (Acts::BinningValue)b->GetBinContent(2);
-          float              min1    = v->GetBinContent(3);
-          float              max1    = v->GetBinContent(4);
-          bu += Acts::BinUtility(nbins1, min1, max1, Acts::open, bValue1);
-        }
-        // Construct the surface material
-        // Get the values
+        // Fill the matrix first
         for (int ib0 = 1; ib0 <= nbins0; ++ib0) {
           for (int ib1 = 1; ib1 <= nbins1; ++ib1) {
             double dt = t->GetBinContent(ib0, ib1);
@@ -155,14 +157,28 @@ FW::Root::RootIndexedMaterialReader::read(
               double dz   = Z->GetBinContent(ib0, ib1);
               double drho = rho->GetBinContent(ib0, ib1);
               // Create material properties
-              materialMatrix[ib1][ib0]
+              materialMatrix[ib1 - 1][ib0 - 1]
                   = Acts::MaterialProperties(dx0, dl0, da, dz, drho, dt);
             }
           }
         }
-        // Create and set the binned surface material
+
+        // Now reconstruct the bin untilities
+        Acts::BinUtility bUtility;
+        for (size_t ib = 1; ib < n->GetNbinsX() + 1; ++ib) {
+          size_t              nbins = size_t(n->GetBinContent(ib));
+          Acts::BinningValue  val   = Acts::BinningValue(v->GetBinContent(ib));
+          Acts::BinningOption opt   = Acts::BinningOption(o->GetBinContent(ib));
+          float               rmin  = min->GetBinContent(ib);
+          float               rmax  = max->GetBinContent(ib);
+          bUtility += Acts::BinUtility(nbins, rmin, rmax, opt, val);
+        }
+        ACTS_VERBOSE("Created " << bUtility);
+
+        // Construct the binned material with the right bin utility
         sMaterial = std::make_shared<const Acts::BinnedSurfaceMaterial>(
-            bu, std::move(materialMatrix));
+            bUtility, std::move(materialMatrix));
+
       } else {
         // Only homogeneous material present
         double dt   = t->GetBinContent(1, 1);
@@ -176,6 +192,7 @@ FW::Root::RootIndexedMaterialReader::read(
             Acts::MaterialProperties(dx0, dl0, da, dz, drho, dt));
       }
     }
+    ACTS_VERBOSE("Successfully read Material for : " << geoID.toString());
 
     // Insert into the new collection
     sMaterialMap[geoID] = std::move(sMaterial);

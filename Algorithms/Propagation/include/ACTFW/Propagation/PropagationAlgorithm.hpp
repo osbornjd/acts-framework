@@ -80,6 +80,8 @@ public:
     bool multipleScattering = false;
     /// Modify the behavior of the material interaction: record
     bool recordMaterialInteractions = false;
+    /// Modify the behavior of the material interaction: record proto
+    bool recordProtoMaterial = false;
 
     /// number of particles
     size_t ntests = 100;

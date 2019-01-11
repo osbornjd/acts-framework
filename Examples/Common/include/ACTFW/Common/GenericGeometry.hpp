@@ -42,8 +42,8 @@ struct GenericGeometry
   template <typename variable_map_t,
             typename material_reader_t = VoidMaterialReader>
   std::shared_ptr<const Acts::TrackingGeometry>
-  operator()(variable_map_t&   vm,
-             material_reader_t mreader = VoidMaterialReader())
+  operator()(variable_map_t&          vm,
+             const material_reader_t& mreader = VoidMaterialReader())
   {
     // --------------------------------------------------------------------------------
     // Set geometry building logging level

@@ -17,7 +17,7 @@ struct VoidMaterialReader
   ///@brief operator to be called to retrieve the material
   ///@return a SurfaceMaterialMap
   Acts::SurfaceMaterialMap
-  operator()()
+  operator()() const
   {
     return Acts::SurfaceMaterialMap();
   }

@@ -15,6 +15,7 @@
 #include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/Plugins/Root/RootIndexedMaterialReader.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
@@ -181,8 +182,20 @@ materialValidationExample(int                argc,
   // Add it to the sequencer
   sequencer.addServices({randomNumberSvc});
 
-  // Get the tracking geometry
-  auto tGeometry = trackingGeometry(vm);
+  // Create the geometry (with material)
+  std::shared_ptr<const Acts::TrackingGeometry> tGeometry = nullptr;
+  if (vm["geo-material-mode"].as<size_t>() == 2) {
+    // Get the file name from the options
+    std::string materialFileName = vm["geo-material-file"].as<std::string>();
+    // We make a reader config
+    FW::Root::RootIndexedMaterialReader::Config smmReaderConfig;
+    smmReaderConfig.fileName = materialFileName;
+    // read the material root file
+    FW::Root::SurfaceMaterialMapReader smmReader;
+    tGeometry = trackingGeometry(vm, smmReader);
+  } else {
+    tGeometry = trackingGeometry(vm);
+  }
 
   // Create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);

@@ -88,29 +88,50 @@ FW::Root::RootIndexedMaterialWriter::write(
     // Get the binning data
     auto& binningData = bsm->binUtility().binningData();
     // 1-D or 2-D maps
-    size_t binningBins = bins1 > 1 ? 2 : 1;
+    size_t binningBins = binningData.size();
 
-    // The binning type information
-    TH1F* b = new TH1F(
-        m_cfg.btag.c_str(), "binning", binningBins, -0.5, binningBins - 0.5);
+    // The bin number information
+    TH1F* n = new TH1F(
+        m_cfg.ntag.c_str(), "bins; bin", binningBins, -0.5, binningBins - 0.5);
 
     // The binning value information
     TH1F* v = new TH1F(m_cfg.vtag.c_str(),
-                       "values",
-                       2 * binningBins,
+                       "binning values; bin",
+                       binningBins,
                        -0.5,
-                       (2 * binningBins) - 0.5);
+                       binningBins - 0.5);
 
-    b->SetBinContent(1, int(binningData[0].binvalue));
-    v->SetBinContent(1, binningData[0].min);
-    v->SetBinContent(2, binningData[0].max);
-    if (binningBins > 1) {
-      b->SetBinContent(2, int(binningData[1].binvalue));
-      v->SetBinContent(3, binningData[1].min);
-      v->SetBinContent(4, binningData[1].max);
+    // The binning option information
+    TH1F* o = new TH1F(m_cfg.otag.c_str(),
+                       "binning options; bin",
+                       binningBins,
+                       -0.5,
+                       binningBins - 0.5);
+
+    // The binning option information
+    TH1F* min = new TH1F(
+        m_cfg.mintag.c_str(), "min; bin", binningBins, -0.5, binningBins - 0.5);
+
+    // The binning option information
+    TH1F* max = new TH1F(
+        m_cfg.maxtag.c_str(), "max; bin", binningBins, -0.5, binningBins - 0.5);
+
+    // Now fill the histogram content
+    size_t b = 1;
+    for (auto bData : binningData) {
+      // Fill: nbins, value, option, min, max
+      n->SetBinContent(b, int(binningData[b - 1].bins()));
+      v->SetBinContent(b, int(binningData[b - 1].binvalue));
+      o->SetBinContent(b, int(binningData[b - 1].option));
+      min->SetBinContent(b, binningData[b - 1].min);
+      max->SetBinContent(b, binningData[b - 1].max);
+      ++b;
     }
-    b->Write();
+    n->Write();
     v->Write();
+    o->Write();
+    min->Write();
+    max->Write();
   }
 
   TH2F* t = new TH2F(m_cfg.ttag.c_str(),

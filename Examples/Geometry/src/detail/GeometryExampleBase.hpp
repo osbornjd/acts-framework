@@ -20,12 +20,16 @@
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjWriterOptions.hpp"
+#include "ACTFW/Plugins/Root/RootIndexedMaterialReader.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 
 namespace po = boost::program_options;
 
+/// @brief Common to all geometry building examples
+///
+///
 template <typename geometry_options_t, typename geometry_getter_t>
 int
 processGeometry(int                argc,
@@ -58,22 +62,35 @@ processGeometry(int                argc,
   }
 
   // Now read the standard options
-  auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
-  auto tGeometry = trackingGeometry(vm);
+  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  // Create the geometry (with material)
+  std::shared_ptr<const Acts::TrackingGeometry> tGeometry = nullptr;
+  if (vm["geo-material-mode"].as<size_t>() == 2) {
+    // Get the file name from the options
+    std::string materialFileName = vm["geo-material-file"].as<std::string>();
+    // We make a reader config
+    FW::Root::RootIndexedMaterialReader::Config smmReaderConfig;
+    smmReaderConfig.fileName = materialFileName;
+    // read the material root file
+    FW::Root::SurfaceMaterialMapReader smmReader;
+    tGeometry = trackingGeometry(vm, smmReader);
+  } else {
+    tGeometry = trackingGeometry(vm);
+  }
 
   // The detectors
   read_strings subDetectors = vm["geo-subdetectors"].as<read_strings>();
 
   Acts::Logging::Level surfaceLogLevel
-      = Acts::Logging::Level(vm["geo-surface-loglevel"].template as<size_t>());
+      = Acts::Logging::Level(vm["geo-surface-loglevel"].as<size_t>());
   Acts::Logging::Level layerLogLevel
-      = Acts::Logging::Level(vm["geo-layer-loglevel"].template as<size_t>());
+      = Acts::Logging::Level(vm["geo-layer-loglevel"].as<size_t>());
   Acts::Logging::Level volumeLogLevel
-      = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
+      = Acts::Logging::Level(vm["geo-volume-loglevel"].as<size_t>());
 
   // ---------------------------------------------------------------------------------
   // Output directory
-  std::string outputDir = vm["output-dir"].template as<std::string>();
+  std::string outputDir = vm["output-dir"].as<std::string>();
 
   // OBJ output
   if (vm["output-obj"].as<bool>()) {

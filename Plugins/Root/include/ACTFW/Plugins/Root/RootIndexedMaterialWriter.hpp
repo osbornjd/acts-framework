@@ -57,10 +57,16 @@ namespace Root {
       std::string apptag = "_app";
       /// The sensitive identification string
       std::string sentag = "_sen";
-      /// The binning tag
-      std::string btag = "b";
-      /// The value tag
+      /// The bin number tag
+      std::string ntag = "n";
+      /// The value tag -> binning values: binZ, binR, binPhi, etc.
       std::string vtag = "v";
+      /// The option tag -> binning options: open, closed
+      std::string otag = "o";
+      /// The range min tag: min value
+      std::string mintag = "min";
+      /// The range max tag: max value
+      std::string maxtag = "max";
       /// The thickness tag
       std::string ttag = "t";
       /// The x0 tag

@@ -43,7 +43,10 @@ namespace Options {
         "Sub detectors for the output writing")(
         "geo-material-mode",
         po::value<size_t>()->default_value(1),
-        "Modes are: 0 (none), 1 (construct), 2 (load), 3 (proto)");
+        "Modes are: 0 (none), 1 (construct), 2 (load), 3 (proto)")(
+        "geo-material-file",
+        po::value<std::string>()->default_value("material-maps.root"),
+        "File for the material maps to be loaded.");
   }
 }  // namespace Options
 }  // namespace FW

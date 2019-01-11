@@ -43,7 +43,7 @@ namespace Root {
     class Config
     {
     public:
-      /// The name of the input tree
+      /// The name of the output tree
       std::string folderNameBase = "Material";
       /// The volume identification string
       std::string voltag = "_vol";
@@ -53,10 +53,16 @@ namespace Root {
       std::string apptag = "_app";
       /// The sensitive identification string
       std::string sentag = "_sen";
-      /// The binning tag
-      std::string btag = "b";
-      /// The value tag
+      /// The bin number tag
+      std::string ntag = "n";
+      /// The value tag -> binning values: binZ, binR, binPhi, etc.
       std::string vtag = "v";
+      /// The option tag -> binning options: open, closed
+      std::string otag = "o";
+      /// The range min tag: min value
+      std::string mintag = "min";
+      /// The range max tag: max value
+      std::string maxtag = "max";
       /// The thickness tag
       std::string ttag = "t";
       /// The x0 tag
@@ -69,12 +75,12 @@ namespace Root {
       std::string ztag = "Z";
       /// The rho tag
       std::string rhotag = "rho";
-      /// The name of the input file
-      std::string fileName = "";
+      /// The name of the output file
+      std::string fileName = "material-maps.root";
       /// The default logger
       std::shared_ptr<const Acts::Logger> logger;
-      /// The name of the service
-      std::string name;
+      // The name of the writer
+      std::string name = "";
 
       /// Constructor
       ///
@@ -133,6 +139,29 @@ namespace Root {
   {
     return m_cfg.name;
   }
+
+  ///@brief Callable reader
+  struct SurfaceMaterialMapReader
+  {
+
+    /// Copy the configuration from the reader
+    RootIndexedMaterialReader::Config readerConfig;
+
+    ///@brief read and create the SurfaceMaterialMap
+    ///
+    /// @return the read SurfaceMaterialMap
+    Acts::SurfaceMaterialMap
+    operator()() const
+    {
+      // Create the map to be returned
+      Acts::SurfaceMaterialMap sMaterialMap;
+      // Create the reader with the config
+      RootIndexedMaterialReader reader(readerConfig);
+      // Read the map & return it
+      reader.read(sMaterialMap);
+      return sMaterialMap;
+    }
+  };
 
 }  // namespace Root
 }  // namespace FW

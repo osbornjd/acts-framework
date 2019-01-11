@@ -117,9 +117,12 @@ materialMappingExample(int                argc,
       std::move(propagator),
       Acts::getDefaultLogger("SurfaceMaterialMapper", logLevel));
 
+  // Get the file name from the options
+  std::string materialFileName = vm["geo-material-file"].as<std::string>();
   /// The writer of the indexed material
   FW::Root::RootIndexedMaterialWriter::Config rimConfig(
       "IndexedMaterialWriter");
+  rimConfig.fileName = materialFileName;
   auto rimRootWriter
       = std::make_shared<FW::Root::RootIndexedMaterialWriter>(rimConfig);
 

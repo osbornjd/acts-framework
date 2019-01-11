@@ -73,7 +73,7 @@ namespace Generic {
 #include "ACTFW/GenericDetector/GenericDetectorML.ipp"
 
     //-------------------------------------------------------------------------------------
-    // create the tracking geometry
+    // Create the tracking geometry
     Acts::TrackingGeometryBuilder::Config tgConfig;
     tgConfig.trackingVolumeBuilders = volumeBuilders;
     tgConfig.trackingVolumeHelper   = cylinderVolumeHelper;
