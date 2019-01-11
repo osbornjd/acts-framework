@@ -20,10 +20,10 @@
 
 #include <tbb/tbb.h>
 
-#include "Vertex.hpp"
-#include "LinearizedTrack.hpp"
-#include "LinearizedTrackFactory.hpp"
-#include "FullVertexFitter.hpp"
+#include "Acts/Vertexing/Vertex.hpp"
+#include "Acts/Vertexing/LinearizedTrack.hpp"
+#include "Acts/Vertexing/LinearizedTrackFactory.hpp"
+#include "Acts/Vertexing/FullVertexFitter.hpp"
 
 struct Config
   {
@@ -186,38 +186,38 @@ FWE::TrackSmearingAlgorithm::execute(FW::AlgorithmContext context) const
 	}
 
 	assert(smrdTrackCollection.size() == trueVertices.size());
-
 	std::cout << "Total amount of vertices in event: " << trueVertices.size() << std::endl;
 
+	// Set up vertex fitter
 	Acts::FullVertexFitter<Acts::ConstantBField>::Config vertexFitterCfg(bField);
-
 	Acts::FullVertexFitter<Acts::ConstantBField> vertexFitter(vertexFitterCfg);
 
-	for(int event_idx = 0; event_idx < smrdTrackCollection.size(); ++event_idx){
 
-		BoundParamsVector currentParamVectorAtVtx = smrdTrackCollection[event_idx];
-		if (currentParamVectorAtVtx.size() > 1){
+	tbb::parallel_for(
+      tbb::blocked_range<size_t>(0, smrdTrackCollection.size()),
+      [&](const tbb::blocked_range<size_t>& r) {
+        for (size_t event_idx = r.begin(); event_idx != r.end(); ++event_idx) {
 
-			Acts::Vector3D currentTrueVtx = trueVertices[event_idx];
+			BoundParamsVector currentParamVectorAtVtx = smrdTrackCollection[event_idx];
+			if (currentParamVectorAtVtx.size() > 1){
 
-			std::cout << "Event " << event_idx << ",vertex with " << currentParamVectorAtVtx.size() << " tracks" << std::endl;
+				Acts::Vector3D currentTrueVtx = trueVertices[event_idx];
 
-			Acts::Vertex v1 = vertexFitter.fit(currentParamVectorAtVtx);
-			//std::cout << v1.tracks().size() << std::endl;
+				std::cout << "Vertex " << event_idx << " with " << currentParamVectorAtVtx.size() << " tracks" << std::endl;
 
-			Acts::Vector3D diffVtx = currentTrueVtx - v1.position();
+				Acts::Vertex fittedVertex = vertexFitter.fit(currentParamVectorAtVtx);
 
-			std::cout << "true vertex:   "
-				 << "(" << currentTrueVtx[0] << "," <<  currentTrueVtx[1] << ","<<   currentTrueVtx[2] << ")" << std::endl;
-			std::cout << "fitted vertex: " 
-				<< "(" << v1.position()[0] << "," <<  v1.position()[1] << ","<<   v1.position()[2] << ")\n" << std::endl;
-		
-			Acts::BoundParameters par = v1.tracks()[0].get()->fittedPerigee();
-			//std::cout << v1.tracks()[0].get()->chi2() << std::endl;
+				Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();
 
-		}
-	}
-	
+				std::cout << "true vertex:   "
+					 << "(" << currentTrueVtx[0] << "," <<  currentTrueVtx[1] << ","<<   currentTrueVtx[2] << ")" << std::endl;
+				std::cout << "fitted vertex: " 
+					<< "(" << fittedVertex.position()[0] << "," <<  fittedVertex.position()[1] << ","<<   fittedVertex.position()[2] << ")\n" << std::endl;
+			}
+        }
+      });
+
+	// TODO: store fitted vertices and write to eventstore
 
 	if(context.eventStore.add(m_cfg.collectionOut, std::move(smrdTrackCollection))
 		!= FW::ProcessCode::SUCCESS)
