@@ -85,17 +85,18 @@ main(int argc, char* argv[])
       barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
 
   // Set up constant B-Field
-  Acts::ConstantBField bField(Acts::Vector3D(0.,0.,1.)*Acts::units::_T);
+  Acts::ConstantBField bField(Acts::Vector3D(0., 0., 1.) * Acts::units::_T);
 
   // Set up Billoir Vertex Fitter
   Acts::FullVertexFitter<Acts::ConstantBField>::Config vertexFitterCfg(bField);
-  auto billoirFitter 
-      = std::make_shared<Acts::FullVertexFitter<Acts::ConstantBField>>(vertexFitterCfg);
-  
+  auto                                                 billoirFitter
+      = std::make_shared<Acts::FullVertexFitter<Acts::ConstantBField>>(
+          vertexFitterCfg);
+
   // Now read the evgen config & set the missing parts
   auto readEvgenCfg                   = FW::Options::readEvgenConfig(vm);
   readEvgenCfg.hardscatterEventReader = hsPythiaGenerator;
-  readEvgenCfg.pileupEventReader      = puPythiaGenerator; 
+  readEvgenCfg.pileupEventReader      = puPythiaGenerator;
   readEvgenCfg.randomNumberSvc        = randomNumberSvc;
   readEvgenCfg.barcodeSvc             = barcodeSvc;
   readEvgenCfg.nEvents                = nEvents;
@@ -106,12 +107,13 @@ main(int argc, char* argv[])
 
   // Add the track smearing algorithm
   FWE::VertexFitAlgorithm::Config vertexFitCfg;
-  vertexFitCfg.collection = readEvgenCfg.evgenCollection;
+  vertexFitCfg.collection      = readEvgenCfg.evgenCollection;
   vertexFitCfg.randomNumberSvc = randomNumberSvc;
-  vertexFitCfg.vertexFitter = billoirFitter;
-  vertexFitCfg.bField = bField;
-  
-  std::shared_ptr<FW::IAlgorithm> vertexFitAlgo = std::make_shared<FWE::VertexFitAlgorithm>(vertexFitCfg, logLevel);
+  vertexFitCfg.vertexFitter    = billoirFitter;
+  vertexFitCfg.bField          = bField;
+
+  std::shared_ptr<FW::IAlgorithm> vertexFitAlgo
+      = std::make_shared<FWE::VertexFitAlgorithm>(vertexFitCfg, logLevel);
 
   // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
@@ -120,7 +122,7 @@ main(int argc, char* argv[])
   sequencer.addServices({randomNumberSvc});
   sequencer.addReaders({readEvgen});
   sequencer.appendEventAlgorithms({vertexFitAlgo});
-  
+
   sequencer.run(nEvents);
 
   return 0;

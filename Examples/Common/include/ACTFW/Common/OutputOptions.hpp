@@ -30,8 +30,8 @@ namespace Options {
     // Add specific options for this example
     opt.add_options()("output-dir",
                       po::value<std::string>()->default_value(""),
-                      "Output directory location.")
-    ("output-root",
+                      "Output directory location.")(
+        "output-root",
         po::value<bool>()->default_value(false),
         "Switch on to write '.root' output file(s).")(
         "output-csv",
@@ -42,10 +42,7 @@ namespace Options {
         "Switch on to write '.obj' ouput file(s).")(
         "output-json",
         po::value<bool>()->default_value(false),
-        "Switch on to write '.json' ouput file(s).")
-        ("output-trackparams",
-        po::value<bool>()->default_value(false),
-        "Switch on to write output track parameter to root file.");
+        "Switch on to write '.json' ouput file(s).");
   }
 }  // namespace Options
 }  // namespace FW
