@@ -33,8 +33,7 @@ public:
   struct Config
   {
     std::string collection;  ///< Input particle collection
-    std::string collectionOut
-        = "paramCollection";  ///< Output collection
+    std::string collectionOut = "paramCollection";  ///< Output collection
     std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
     std::shared_ptr<Acts::FullVertexFitter<Acts::ConstantBField>> vertexFitter
         = nullptr;

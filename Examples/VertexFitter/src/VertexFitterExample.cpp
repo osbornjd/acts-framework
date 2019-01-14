@@ -17,7 +17,6 @@
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
 #include "ACTFW/Plugins/Pythia8/GeneratorOptions.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include "ACTFW/Plugins/Root/RootTrackParameterWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/ReadEvgen/EvgenReader.hpp"
