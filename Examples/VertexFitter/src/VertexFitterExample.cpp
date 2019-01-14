@@ -24,6 +24,9 @@
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
 #include "VertexFitAlgorithm.hpp"
 
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/Vertexing/FullVertexFitter.hpp"
+
 namespace po = boost::program_options;
 
 /// Main read evgen executable
@@ -80,6 +83,14 @@ main(int argc, char* argv[])
   FW::BarcodeSvc::Config barcodeSvcCfg;
   auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
       barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
+
+  // Set up constant B-Field
+  Acts::ConstantBField bField(Acts::Vector3D(0.,0.,1.)*Acts::units::_T);
+
+  // Set up Billoir Vertex Fitter
+  Acts::FullVertexFitter<Acts::ConstantBField>::Config vertexFitterCfg(bField);
+  auto billoirFitter 
+      = std::make_shared<Acts::FullVertexFitter<Acts::ConstantBField>>(vertexFitterCfg);
   
   // Now read the evgen config & set the missing parts
   auto readEvgenCfg                   = FW::Options::readEvgenConfig(vm);
@@ -97,6 +108,8 @@ main(int argc, char* argv[])
   FWE::VertexFitAlgorithm::Config vertexFitCfg;
   vertexFitCfg.collection = readEvgenCfg.evgenCollection;
   vertexFitCfg.randomNumberSvc = randomNumberSvc;
+  vertexFitCfg.vertexFitter = billoirFitter;
+  vertexFitCfg.bField = bField;
   
   std::shared_ptr<FW::IAlgorithm> vertexFitAlgo = std::make_shared<FWE::VertexFitAlgorithm>(vertexFitCfg, logLevel);
 

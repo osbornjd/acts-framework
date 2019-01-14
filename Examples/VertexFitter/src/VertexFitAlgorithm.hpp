@@ -17,6 +17,9 @@
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/Vertexing/FullVertexFitter.hpp"
+
 
 namespace FWE {
 
@@ -33,6 +36,8 @@ public:
 		std::string collection; 						///< Input particle collection
 		std::string collectionOut = "paramCollection"; 	///< Collection of smeared output track parameter
 		std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
+		std::shared_ptr<Acts::FullVertexFitter<Acts::ConstantBField>> vertexFitter = nullptr;
+		Acts::ConstantBField bField;
 	};
 
 	/// Constructor

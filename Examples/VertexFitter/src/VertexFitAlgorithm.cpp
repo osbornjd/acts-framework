@@ -12,7 +12,6 @@
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
@@ -23,20 +22,7 @@
 #include "Acts/Vertexing/Vertex.hpp"
 #include "Acts/Vertexing/LinearizedTrack.hpp"
 #include "Acts/Vertexing/LinearizedTrackFactory.hpp"
-#include "Acts/Vertexing/FullVertexFitter.hpp"
 
-struct Config
-  {
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
-
-    std::array<double, 2> gaussParameters   = {{0., 1.}};
-    std::array<double, 2> uniformParameters = {{0., 1.}};
-    std::array<double, 2> landauParameters  = {{0., 1.}};
-    std::array<double, 2> gammaParameters   = {{0., 1.}};
-    int poissonParameter = 40;
-
-    size_t drawsPerEvent = 0;
-  };
 
 FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config& cfg, Acts::Logging::Level level)
   : FW::BareAlgorithm("VertexFit", level), m_cfg(cfg)
@@ -67,9 +53,8 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 
 	std::shared_ptr<Acts::PerigeeSurface> perigeeSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(surfaceCenter);// std::make_shared<Acts::PerigeeSurface>(surfaceCenter);
 
-	// Set up b-field and stepper
-	Acts::ConstantBField bField(Acts::Vector3D(0.,0.,1.)*Acts::units::_T);
-	Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
+	// Set up stepper
+	Acts::EigenStepper<Acts::ConstantBField> stepper(m_cfg.bField);
 	
 	// Set up propagator with void navigator
 	Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator(stepper);
@@ -180,10 +165,6 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 
 	ACTS_INFO("Total number of vertices in event: " << trueVertices.size());
 
-	// Set up vertex fitter
-	Acts::FullVertexFitter<Acts::ConstantBField>::Config vertexFitterCfg(bField);
-	Acts::FullVertexFitter<Acts::ConstantBField> vertexFitter(vertexFitterCfg);
-
 	std::vector<Acts::Vertex> fittedVertices;
 
 	// in-event parallel vertex fitting
@@ -195,7 +176,7 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 			BoundParamsVector& currentParamVectorAtVtx = smrdTrackCollection[event_idx];
 			if (currentParamVectorAtVtx.size() > 1){
 
-				Acts::Vertex fittedVertex = vertexFitter.fit(currentParamVectorAtVtx);
+				Acts::Vertex fittedVertex = m_cfg.vertexFitter->fit(currentParamVectorAtVtx);
 
 				Acts::Vector3D currentTrueVtx = trueVertices[event_idx];
 				Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();
