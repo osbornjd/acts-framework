@@ -190,17 +190,17 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 	tbb::parallel_for(
       tbb::blocked_range<size_t>(0, smrdTrackCollection.size()),
       [&](const tbb::blocked_range<size_t>& r) {
-        for (size_t vertex_idx = r.begin(); vertex_idx != r.end(); ++vertex_idx) {
+        for (size_t event_idx = r.begin(); event_idx != r.end(); ++event_idx) {
 
-			BoundParamsVector& currentParamVectorAtVtx = smrdTrackCollection[vertex_idx];
+			BoundParamsVector& currentParamVectorAtVtx = smrdTrackCollection[event_idx];
 			if (currentParamVectorAtVtx.size() > 1){
 
 				Acts::Vertex fittedVertex = vertexFitter.fit(currentParamVectorAtVtx);
 
-				Acts::Vector3D currentTrueVtx = trueVertices[vertex_idx];
+				Acts::Vector3D currentTrueVtx = trueVertices[event_idx];
 				Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();
 
-				ACTS_INFO("Event: " << context.eventNumber << ", vertex " << vertex_idx << " with " << currentParamVectorAtVtx.size() << " tracks");
+				ACTS_INFO("Event: " << context.eventNumber << ", vertex " << event_idx << " with " << currentParamVectorAtVtx.size() << " tracks");
 				ACTS_INFO("True Vertex: " << "(" << currentTrueVtx[0] << "," <<  currentTrueVtx[1] << ","<<   currentTrueVtx[2] << ")" );
 				ACTS_INFO("Fitted Vertex: " << "(" << fittedVertex.position()[0] << "," <<  fittedVertex.position()[1] << ","<<   fittedVertex.position()[2] << ")");
 
