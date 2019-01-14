@@ -1,6 +1,6 @@
 file(GLOB_RECURSE src_files "src/*.*pp")
 
-add_executable(ACTFWReadEvgenExample ${src_files})
+add_executable(ACTFWReadEvgenExample src/ReadEvgenExample.cpp)
 target_include_directories(ACTFWReadEvgenExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWReadEvgenExample PRIVATE ActsCore)
 target_link_libraries(ACTFWReadEvgenExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWReadEvgen ACTFWPluginPythia8)

@@ -17,12 +17,10 @@
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
 #include "ACTFW/Plugins/Pythia8/GeneratorOptions.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include "ACTFW/Plugins/Root/RootTrackParameterWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/ReadEvgen/EvgenReader.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
-#include "VertexFitAlgorithm.hpp"
 
 namespace po = boost::program_options;
 
@@ -80,11 +78,10 @@ main(int argc, char* argv[])
   FW::BarcodeSvc::Config barcodeSvcCfg;
   auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
       barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
-  
   // Now read the evgen config & set the missing parts
   auto readEvgenCfg                   = FW::Options::readEvgenConfig(vm);
   readEvgenCfg.hardscatterEventReader = hsPythiaGenerator;
-  readEvgenCfg.pileupEventReader      = puPythiaGenerator; 
+  readEvgenCfg.pileupEventReader      = puPythiaGenerator;
   readEvgenCfg.randomNumberSvc        = randomNumberSvc;
   readEvgenCfg.barcodeSvc             = barcodeSvc;
   readEvgenCfg.nEvents                = nEvents;
@@ -93,12 +90,30 @@ main(int argc, char* argv[])
   auto readEvgen = std::make_shared<FW::EvgenReader>(
       readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
 
-  // Add the track smearing algorithm
-  FWE::VertexFitAlgorithm::Config vertexFitCfg;
-  vertexFitCfg.collection = readEvgenCfg.evgenCollection;
-  vertexFitCfg.randomNumberSvc = randomNumberSvc;
-  
-  std::shared_ptr<FW::IAlgorithm> vertexFitAlgo = std::make_shared<FWE::VertexFitAlgorithm>(vertexFitCfg, logLevel);
+  // Output directory
+  std::string outputDir = vm["output-dir"].as<std::string>();
+
+  // Write particles as CSV files
+  std::shared_ptr<FW::Csv::CsvParticleWriter> pWriterCsv = nullptr;
+  if (vm["output-csv"].as<bool>()) {
+    FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
+    pWriterCsvConfig.collection     = readEvgenCfg.evgenCollection;
+    pWriterCsvConfig.outputDir      = outputDir;
+    pWriterCsvConfig.outputFileName = readEvgenCfg.evgenCollection + ".csv";
+    pWriterCsv = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
+  }
+
+  // Write particles as ROOT file
+  std::shared_ptr<FW::Root::RootParticleWriter> pWriterRoot = nullptr;
+  if (vm["output-root"].as<bool>()) {
+    // Write particles as ROOT TTree
+    FW::Root::RootParticleWriter::Config pWriterRootConfig;
+    pWriterRootConfig.collection = readEvgenCfg.evgenCollection;
+    pWriterRootConfig.filePath   = readEvgenCfg.evgenCollection + ".root";
+    pWriterRootConfig.barcodeSvc = barcodeSvc;
+    pWriterRoot
+        = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
+  }
 
   // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
@@ -106,8 +121,9 @@ main(int argc, char* argv[])
   FW::Sequencer sequencer(seqConfig);
   sequencer.addServices({randomNumberSvc});
   sequencer.addReaders({readEvgen});
-  sequencer.appendEventAlgorithms({vertexFitAlgo});
-  
+  sequencer.appendEventAlgorithms({});
+  if (pWriterRoot) sequencer.addWriters({pWriterRoot});
+  if (pWriterCsv) sequencer.addWriters({pWriterCsv});
   sequencer.run(nEvents);
 
   return 0;
