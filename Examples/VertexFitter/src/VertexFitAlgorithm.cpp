@@ -33,87 +33,93 @@ FW::ProcessCode
 FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 {
 
+	/// Algorithm that receives an Evgen input event, runs over all
+	/// vertices and smears corresponding tracks.
+	/// Track collections belonging to a certain vertex (truth-based vertex finder emuluation)
+	/// are then passed to vertex fitter to fit vertex position.
+
 	const double eta_cut = 3.0;
 
-	// Define parameter for pt-dependent IP resolution
-	// of the form sigma_d/z(p_t[GeV]) = A*exp(-B*p_t[GeV]) + C
+	/// Define parameter for pt-dependent IP resolution
+	/// of the form sigma_d/z(p_t[GeV]) = A*exp(-B*p_t[GeV]) + C
 	const double ipResA = 100.7439 * Acts::units::_um;
 	const double ipResB = 0.23055;
 	const double ipResC = 20. * Acts::units::_um;
 
-	// Create and fill input event
+	/// Create and fill input event
 	const std::vector<FW::Data::SimVertex<>>* inputEvent = nullptr;
 	if (context.eventStore.get(m_cfg.collection, inputEvent) == FW::ProcessCode::ABORT)
 	{
     	return FW::ProcessCode::ABORT;
 	}
 
-	// Define perigee surface center coordinates
+	/// Define perigee surface center coordinates
 	const Acts::Vector3D surfaceCenter(0.,0.,0.);
 
-	std::shared_ptr<Acts::PerigeeSurface> perigeeSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(surfaceCenter);// std::make_shared<Acts::PerigeeSurface>(surfaceCenter);
+	std::shared_ptr<Acts::PerigeeSurface> perigeeSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(surfaceCenter);
 
-	// Set up stepper
+	/// Set up stepper
 	Acts::EigenStepper<Acts::ConstantBField> stepper(m_cfg.bField);
 	
-	// Set up propagator with void navigator
+	/// Set up propagator with void navigator
 	Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator(stepper);
 
-	// Set up propagator options
+	/// Set up propagator options
 	Acts::PropagatorOptions<> options;
 
-	// Create random number generator and spawn gaussian distribution
+	/// Create random number generator and spawn gaussian distribution
 	FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
-	// typedef for simplicity
+	/// typedef for simplicity
 	using BoundParamsVector = std::vector<Acts::BoundParameters>;
 
-	// Vector to store smrdTracksAtVtx for all vertices of event
+	/// Vector to store smrdTracksAtVtx for all vertices of event
 	std::vector<BoundParamsVector> smrdTrackCollection;
 
-	// Vector to store true vertices positions
+	/// Vector to store true vertices positions
 	std::vector<Acts::Vector3D> trueVertices;
 
+	/// Start looping over all vertices in current event
 	for (auto& vtx: (*inputEvent)){
 		
-		// Vector to store smeared tracks at current vertex
+		/// Vector to store smeared tracks at current vertex
 		BoundParamsVector smrdTracksAtVtx;
 
-		// Iterate over all particle emerging from current vertex
+		/// Iterate over all particle emerging from current vertex
 		for (auto const& particle : vtx.out){
 
 			const Acts::Vector3D& ptclMom = particle.momentum();
-			// Calculate pseudo-rapidity
+			/// Calculate pseudo-rapidity
 			const double eta = Acts::VectorHelpers::eta(ptclMom);
-			// Only charged particles for |eta| < 2.5
+			/// Only charged particles for |eta| < 2.5
 			if (particle.q() !=0 && std::abs(eta) < eta_cut) 
 			{
-				// Define start track params
+				/// Define start track params
 				Acts::CurvilinearParameters 
 					start(nullptr, particle.position(), ptclMom, particle.q());
 
-				// Run propagator
+				/// Run propagator
 				const auto result = propagator.propagate(start, *perigeeSurface, options);
 
 				if (result.status == Acts::Status::SUCCESS){
 
-					const auto& perigeeParameters = result.endParameters->parameters(); // (d0, z0, phi, theta,q/p)
+					const auto& perigeeParameters = result.endParameters->parameters(); /// (d0, z0, phi, theta,q/p)
 
 					if (std::abs(perigeeParameters[0]) > 30 || std::abs(perigeeParameters[1]) > 200){
 						continue;
 					}
 
-					// Calculate pt-dependent IP resolution
+					/// Calculate pt-dependent IP resolution
 					const double pclPt = 
 							Acts::VectorHelpers::perp(ptclMom)/Acts::units::_GeV;
 					const double ipRes = ipResA * std::exp(-ipResB*pclPt) + ipResC;
 
-					// except for IP resolution, following variances are rough guesses
-					// Gaussian distribution for IP resolution
+					/// except for IP resolution, following variances are rough guesses
+					/// Gaussian distribution for IP resolution
 					FW::GaussDist gaussDist_IP(0., ipRes);
-					// Gaussian distribution for angular resolution
+					/// Gaussian distribution for angular resolution
 					FW::GaussDist gaussDist_angular(0., 0.1);
-					// Gaussian distribution for q/p (momentum) resolution
+					/// Gaussian distribution for q/p (momentum) resolution
 					FW::GaussDist gaussDist_qp(0., 0.1*perigeeParameters[4]);
 
 					double rn_d0 = gaussDist_IP(rng);
@@ -128,7 +134,7 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 					double smrd_theta	= perigeeParameters[3] + rn_th;
 					double srmd_qp	= perigeeParameters[4] + rn_qp;
 
-					// smearing can bring theta out of range ->close to beam line -> discard
+					/// smearing can bring theta out of range ->close to beam line -> discard
 					if(smrd_theta < 0 || smrd_theta > M_PI){
 						continue;
 					}
@@ -139,7 +145,7 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 					Acts::TrackParametersBase::ParVector_t paramVec;
 					paramVec << smrd_d0, smrd_z0, smrd_phi, smrd_theta, srmd_qp;
 
-					// Fill vector of smeared tracks
+					/// Fill vector of smeared tracks
 					std::unique_ptr<Acts::ActsSymMatrixD<5>> covMat = std::make_unique<Acts::ActsSymMatrixD<5>>();
 					covMat->setZero();
 					(*covMat)(0,0) = rn_d0*rn_d0;
@@ -156,7 +162,7 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 		if(!smrdTracksAtVtx.empty()){
 			smrdTrackCollection.push_back(smrdTracksAtVtx);
 
-			// Store true vertex position for debugging only
+			/// Store true vertex position
 			trueVertices.push_back(vtx.position); 
 		}
 	}
@@ -167,21 +173,21 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 
 	std::vector<Acts::Vertex> fittedVertices;
 
-	// in-event parallel vertex fitting
+	/// in-event parallel vertex fitting
 	tbb::parallel_for(
       tbb::blocked_range<size_t>(0, smrdTrackCollection.size()),
       [&](const tbb::blocked_range<size_t>& r) {
-        for (size_t event_idx = r.begin(); event_idx != r.end(); ++event_idx) {
+        for (size_t vertex_idx = r.begin(); vertex_idx != r.end(); ++vertex_idx) {
 
-			BoundParamsVector& currentParamVectorAtVtx = smrdTrackCollection[event_idx];
+			BoundParamsVector& currentParamVectorAtVtx = smrdTrackCollection[vertex_idx];
 			if (currentParamVectorAtVtx.size() > 1){
 
 				Acts::Vertex fittedVertex = m_cfg.vertexFitter->fit(currentParamVectorAtVtx);
 
-				Acts::Vector3D currentTrueVtx = trueVertices[event_idx];
+				Acts::Vector3D currentTrueVtx = trueVertices[vertex_idx];
 				Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();
 
-				ACTS_INFO("Event: " << context.eventNumber << ", vertex " << event_idx << " with " << currentParamVectorAtVtx.size() << " tracks");
+				ACTS_INFO("Event: " << context.eventNumber << ", vertex " << vertex_idx << " with " << currentParamVectorAtVtx.size() << " tracks");
 				ACTS_INFO("True Vertex: " << "(" << currentTrueVtx[0] << "," <<  currentTrueVtx[1] << ","<<   currentTrueVtx[2] << ")" );
 				ACTS_INFO("Fitted Vertex: " << "(" << fittedVertex.position()[0] << "," <<  fittedVertex.position()[1] << ","<<   fittedVertex.position()[2] << ")");
 
