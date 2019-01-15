@@ -81,7 +81,6 @@ PropagationAlgorithm<propagator_t>::executeTest(
     mInteractor.multipleScattering  = m_cfg.multipleScattering;
     mInteractor.energyLoss          = m_cfg.energyLoss;
     mInteractor.recordInteractions  = m_cfg.recordMaterialInteractions;
-    mInteractor.recordProtoMaterial = m_cfg.recordProtoMaterial;
 
     // Set a maximum step size
     options.maxStepSize = m_cfg.maxStepSize;

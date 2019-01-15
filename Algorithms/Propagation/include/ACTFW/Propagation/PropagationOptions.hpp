@@ -53,10 +53,6 @@ namespace Options {
         "prop-record-material",
         po::value<bool>()->default_value(true),
         "Record the material interaction and - in extrapolation mode only.")(
-        "prop-record-protomaterial",
-        po::value<bool>()->default_value(false),
-        "Record also proto material interaction and - in extrapolation mode "
-        "only.")(
         "prop-material-collection",
         po::value<std::string>()->default_value("propagation-material"),
         "Propagation material collection.")(
@@ -114,8 +110,6 @@ namespace Options {
     pAlgConfig.multipleScattering = vm["prop-scattering"].template as<bool>();
     pAlgConfig.recordMaterialInteractions
         = vm["prop-record-material"].template as<bool>();
-    pAlgConfig.recordProtoMaterial
-        = vm["prop-record-protomaterial"].template as<bool>();
 
     /// Create the config for the Extrapoaltion algorithm
     pAlgConfig.debugOutput = vm["prop-debug"].template as<bool>();
