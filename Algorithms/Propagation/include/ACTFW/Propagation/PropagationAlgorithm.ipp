@@ -78,9 +78,9 @@ PropagationAlgorithm<propagator_t>::executeTest(
 
     // Switch the material interaction on/off & eventually into logging mode
     auto& mInteractor = options.actionList.get<MaterialInteractor>();
-    mInteractor.multipleScattering  = m_cfg.multipleScattering;
-    mInteractor.energyLoss          = m_cfg.energyLoss;
-    mInteractor.recordInteractions  = m_cfg.recordMaterialInteractions;
+    mInteractor.multipleScattering = m_cfg.multipleScattering;
+    mInteractor.energyLoss         = m_cfg.energyLoss;
+    mInteractor.recordInteractions = m_cfg.recordMaterialInteractions;
 
     // Set a maximum step size
     options.maxStepSize = m_cfg.maxStepSize;
