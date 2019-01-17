@@ -8,7 +8,11 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace FW {
-// barcodes
-typedef unsigned long barcode_type;
-}
+
+/// particle barcode
+using barcode_type = uint64_t;
+
+}  // namespace FW
