@@ -80,7 +80,6 @@ build_vanilla:
     - set +e && source CI/setup_lcg94.sh; set -e
     - export PATH=$PWD/build/bin:$PATH
 
-
 hello_world:
   <<: *example_base
   script:
@@ -103,10 +102,15 @@ root_fatras_example:
     - ACTFWRootFatrasExample
   allow_failure: true
 
-particle_gun_example:
+generator_particle_gun:
   <<: *example_base
   script:
-    - ACTFWParticleGunExample
+    - ActsParticleGun -n 10 --output-root 1 --output-csv 1
+
+generator_pythia8:
+  <<: *example_base
+  script:
+    - ActsPythia8 -n 10 --output-root 1 --output-csv 1
 
 whiteboard_example:
   <<: *example_base
