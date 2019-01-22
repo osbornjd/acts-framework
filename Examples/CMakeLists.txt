@@ -2,6 +2,7 @@
 add_subdirectory(Common)
 
 add_subdirectory(BField)
+add_subdirectory(EventGenerator)
 add_subdirectory_if(Fatras USE_PYTHIA8)
 add_subdirectory(Geometry)
 add_subdirectory(HelloWorld)
