@@ -1,23 +1,13 @@
-# Common steering of the events
+# shared code comes first
 add_subdirectory(Common)
 
-# Framework test section - without dependencies additional dependencies
-add_subdirectory(HelloWorld)
-add_subdirectory(RandomNumbers)
-add_subdirectory(WhiteBoard)
-
-# Geometry, material and magnetic field
-add_subdirectory(Geometry)
-#add_subdirectory_if(MaterialMapping USE_DD4HEP AND USE_GEANT4)
 add_subdirectory(BField)
-
-# Particle gun and Event reading
+add_subdirectory_if(Fatras USE_PYTHIA8)
+add_subdirectory(Geometry)
+add_subdirectory(HelloWorld)
+#add_subdirectory_if(MaterialMapping USE_DD4HEP AND USE_GEANT4)
 add_subdirectory(ParticleGun)
-add_subdirectory_if(ReadEvgen USE_PYTHIA8)
-
-# Propagation (new style) and Extrapolation (legacy)
 add_subdirectory(Propagation)
-
-# Fatras example for fast simulation, digitization truth/full tracking
-add_subdirectory_if(Fatras USE_FATRAS AND USE_PYTHIA8)
-
+add_subdirectory(RandomNumbers)
+add_subdirectory_if(ReadEvgen USE_PYTHIA8)
+add_subdirectory(WhiteBoard)

@@ -1,15 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(ACTSFramework LANGUAGES CXX)
+project(ActsFramework LANGUAGES CXX)
 
-option(USE_LEGACY "Build Legacy-based code from acts-core" on)
-option(USE_FATRAS "Build Fatras-based geometry code" off)
-option(USE_TGEO "Build TGeo-based geometry code" off)
-option(USE_DD4HEP "Build DD4hep-based geometry code" off)
-option(USE_GEANT4 "Build Geant4-based code" off)
-option(USE_PYTHIA8 "Build Pythia8-based code" off)
-
-option(BUILD_ACTS "Build acts-core as submodule" on)
+option(BUILD_ACTS "Build acts-core as submodule" ON)
+option(USE_DD4HEP "Build DD4hep-based geometry code" OFF)
+option(USE_GEANT4 "Build Geant4-based code" OFF)
+option(USE_TGEO "Build TGeo-based geometry code" OFF)
+option(USE_PYTHIA8 "Build Pythia8-based code" OFF)
 
 # Use the framework identifier instead of the bare Acts one
 add_definitions(-DACTS_CORE_IDENTIFIER_PLUGIN="${CMAKE_CURRENT_SOURCE_DIR}/Core/include/ACTFW/EventData/SimIdentifier.hpp")
@@ -22,11 +19,6 @@ endif()
 set(ROOT_COMPONENTS Core GenVector Hist Tree TreePlayer)
 if(USE_DD4HEP)
   list(APPEND ROOT_COMPONENTS Geom GenVector)
-endif()
-if(USE_PYTHIA8)
-  list(APPEND ROOT_COMPONENTS EG)
-  # needs fatras
-  set(USE_FATRAS ON)
 endif()
 
 # use install paths consistent w/ ACTS
@@ -65,24 +57,23 @@ if(USE_PYTHIA8)
 endif()
 
 if(BUILD_ACTS)
-  message(STATUS "Building Acts core from source")
+  message(STATUS "Building Acts from source")
   # acts-core and acts-fatras are build as subprojects with fixed options
   set(ACTS_BUILD_DOC OFF CACHE BOOL "Build Acts documentation")
   set(ACTS_BUILD_EXAMPLES OFF CACHE BOOL "Build Acts examples")
   set(ACTS_BUILD_TESTS OFF CACHE BOOL "Build Acts unit tests")
   set(ACTS_BUILD_INTEGRATION_TESTS OFF CACHE BOOL "Build Acts integration tests")
-  set(ACTS_BUILD_LEGACY ${USE_LEGACY} CACHE BOOL "Build Acts legacy code")
+  set(ACTS_BUILD_LEGACY ON CACHE BOOL "Build Acts legacy code")
   set(ACTS_BUILD_DD4HEP_PLUGIN ${USE_DD4HEP} CACHE BOOL "Build Acts DD4HEP plugin")
   set(ACTS_BUILD_MATERIAL_PLUGIN ON CACHE BOOL "Build Acts Material plugin")
   set(ACTS_BUILD_DIGITIZATION_PLUGIN ON CACHE BOOL "Build Acts Digitization plugin")
-  set(ACTS_BUILD_TGEO_PLUGIN ${USE_TGEO} CACHE BOOL "Build Acts TGeo plugin")  
-  set(ACTS_BUILD_IDENTIFICATION_PLUGIN ON CACHE BOOL "Build Acts Identification plugin")  
+  set(ACTS_BUILD_TGEO_PLUGIN ${USE_TGEO} CACHE BOOL "Build Acts TGeo plugin")
+  set(ACTS_BUILD_IDENTIFICATION_PLUGIN ON CACHE BOOL "Build Acts Identification plugin")
   add_subdirectory(external/acts-core)
 else()
-  message(STATUS "Using external Acts core installation")
+  message(STATUS "Using external Acts installation")
   find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin IdentificationPlugin TGeoPlugin DD4hepPlugin DigitizationPlugin)
 endif()
-
 
 # simplify handling of optional components
 # all arguments after the path are evaluated in the if(...) context
@@ -96,7 +87,7 @@ function(add_subdirectory_if path)
   endif()
 endfunction()
 
-add_subdirectory_if(external/acts-fatras USE_FATRAS)
+add_subdirectory(external/acts-fatras)
 
 add_subdirectory(Core)
 add_subdirectory(Detectors)

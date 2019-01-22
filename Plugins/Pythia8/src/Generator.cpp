@@ -9,7 +9,6 @@
 #include "ACTFW/Plugins/Pythia8/Generator.hpp"
 
 #include <Acts/Utilities/Units.hpp>
-#include <TDatabasePDG.h>
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 // wrapper of framework RandomEngine in Pythia8 interface
@@ -107,8 +106,8 @@ FW::GPythia8::Generator::read(std::vector<Data::SimVertex<>>& processVertices,
       // get the pdg number
       int pdg = m_pythia8.event[ip].id();
       // pythia returns charge in units of 1/3
-      float charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge() / 3.;
-      float mass   = TDatabasePDG::Instance()->GetParticle(pdg)->Mass();
+      float charge = m_pythia8.particleData.charge(pdg);  // in e
+      float mass   = m_pythia8.particleData.m0(pdg);      // in GeV
       // get the momentum
       double px = m_pythia8.event[ip].px();  // [GeV/c]
       double py = m_pythia8.event[ip].py();  // [GeV/c]
