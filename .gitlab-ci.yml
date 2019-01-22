@@ -144,10 +144,7 @@ dd4hep_propagation_example:
     - ACTFWDD4hepPropagationExample
 
 reproducibility_generic_propagation:
-  stage: test
-  tags:
-    - cvmfs
+  <<: *example_base
   script:
-    - source install/bin/setup.sh
     - cd scripts
     - ./testReproducibility.sh GenericPropagation 10 propagation-steps
