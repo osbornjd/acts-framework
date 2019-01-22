@@ -1,7 +1,8 @@
 set(Generators_SOURCES
   ACTFW/Generators/EventGenerator.cpp
   ACTFW/Generators/ParametricProcessGenerator.cpp
-  ACTFW/Generators/ParticleSelector.cpp)
+  ACTFW/Generators/ParticleSelector.cpp
+  ACTFW/Options/ParticleGunOptions.cpp)
 
 add_library(ActsFrameworkGenerators SHARED ${Generators_SOURCES})
 target_include_directories(ActsFrameworkGenerators
