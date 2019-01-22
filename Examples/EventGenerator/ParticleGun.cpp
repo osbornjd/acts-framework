@@ -60,11 +60,10 @@ main(int argc, char* argv[])
       BarcodeSvc::Config(), Acts::getDefaultLogger("BarcodeSvc", logLevel));
 
   // event generation w/ particle gun
-  EventGenerator::Config evgenCfg
-      = Options::readParticleGunOptions(vm);
-  evgenCfg.output        = "particles";
-  evgenCfg.randomNumbers = rnd;
-  evgenCfg.barcodeSvc    = barcode;
+  EventGenerator::Config evgenCfg = Options::readParticleGunOptions(vm);
+  evgenCfg.output                 = "particles";
+  evgenCfg.randomNumbers          = rnd;
+  evgenCfg.barcodeSvc             = barcode;
   sequencer.addReaders({std::make_shared<EventGenerator>(evgenCfg, logLevel)});
 
   // different output modes
