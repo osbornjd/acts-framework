@@ -16,7 +16,7 @@ namespace FW {
 namespace DD4hepG4 {
   GeoConstruction::GeoConstruction(dd4hep::Detector& lcdd) : m_lcdd(lcdd) {}
 
-  // method borrowed from
+  // Method following :
   // DD4hep::Simulation::Geant4DetectorConstruction::Construct()
   G4VPhysicalVolume*
   GeoConstruction::Construct()

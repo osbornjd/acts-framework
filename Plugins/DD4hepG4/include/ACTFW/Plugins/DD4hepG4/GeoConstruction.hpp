@@ -1,13 +1,12 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef DD4HEPG4_GEOCONSTRUCTION_H
-#define DD4HEPG4_GEOCONSTRUCTION_H
+#pragma once
 
 #include "DDG4/Geant4GeometryInfo.h"
 #include "G4VUserDetectorConstruction.hh"
@@ -48,5 +47,3 @@ namespace DD4hepG4 {
   };
 }  // namespace DD4hepG4
 }  // namespace FW
-
-#endif /* DETDESSERVICES_GEOCONSTRUCTION_H */

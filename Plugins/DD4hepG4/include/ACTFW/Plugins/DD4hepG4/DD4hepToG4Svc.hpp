@@ -1,13 +1,12 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef DD4HEP_DD4HEPTOG4SVC_H
-#define DD4HEP_DD4HEPTOG4SVC_H
+#pragma once
 
 #include <memory>
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -86,5 +85,3 @@ namespace DD4hepG4 {
 
 }  // namespace DD4hepG4
 }  // namespace FW
-
-#endif  // DD4HEP_DD4HEPTOG4SVC_H

@@ -25,7 +25,6 @@ namespace FW {
 /// @class IDD4hepService
 ///
 /// Interface class for a service returning the DD4hep geometry.
-
 class IDD4hepService : public IService
 {
 

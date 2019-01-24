@@ -1,0 +1,67 @@
+<detectors>
+    <!--Barrel-->
+    <detector id="100" name="PixelBarrel" type="ACTS_ODPixelBarrel" readout="B_Pixel_Readout"  >
+        
+        <dimensions rmin="PB_rmin" rmax="PB_rmax" length="PB_length" z="0.*mm" g4tolerance="G4_Tolerance" vis="invisible"/>
+        
+        <module name="PB_Module" width="PB_M_width" length="PB_M_length" thickness="PB_M_thickness" material="Air" vis="invisible">
+     	   	<module_component width="PB_M_C0_width" length="PB_M_C0_length" thickness="PB_M_C0_thickness" x="PB_M_C0_xpos" z="PB_M_C0_zpos" material="Al" vis="red"/>          
+    		<module_component width="PB_M_width" length="PB_M_length" thickness="PB_M_thickness" x="PB_M_C1_xpos" z="PB_M_C1_zpos" material="Silicon" vis="green" sensitive="true"/>
+         	<module_component width="PB_M_C2_width" length="PB_M_C2_length" thickness="PB_M_C2_thickness" x="PB_M_C2_xpos" z="PB_M_C2_zpos" material="Kapton" vis="blue"/>
+          <subtraction material="Carbon" z="PB_M_C3_zpos" vis="grey"> 
+             <trd x1="PB_M_C3_X1" x2="PB_M_C3_X2" length="PB_M_C3_length" thickness="PB_M_C3_thickness"/>
+             <tubs rmin="PB_M_C3_rmin" rmax="PB_M_C3_rmax" length="PB_M_length" z="PB_M_C3_zoffset"/>
+         </subtraction> 
+         <tubs name="PB_CoolingPipe" rmin="PB_M_C4_rmin" rmax="PB_M_C4_rmax" length="PB_M_length" z="PB_M_C4_zpos" material="Ti" vis="orange"/>
+         <cable name="PB_CableBundle" rmax="PB_M_Cab_r" length="PB_M_length" x="PB_M_Cab_x" y="PB_M_Cab_y" z="PB_M_Cab_z" material="Copper" vis="orange" />
+        </module>
+        
+        <!-- PIXEL BARREL DETECTOR -->
+
+        <layer id="0" r="PB_L0_r" rmin="PB_L0_rmin" rmax="PB_L0_rmax" length="PB_L0_length" material="Vacuum" nstaves="PB_L0_phiStaves" envelopeR="PB_L0_envelopeR" vis="invisible">
+          <stave name='PB_L0_Stave' phi_tilt="PB_L0_phiTilt" nmodules="PB_L0_modulesPerStave" overlapZ="PB_L0_overlapZ" deltaR="PB_L0_staggerR">
+              <module name="PB_Module"/>
+          </stave>
+          <support>
+              <cylinder name="PB_L0_SupportCylinder" thickness="PB_L0_SC_thickness" material="CarbonFiber" vis="grey"/>
+              <ring name="PB_L0_SupportRing" thickness="PB_L0_SR_thickness" length="PB_L0_SR_length" material="CarbonFiber" vis="grey"/>
+              <spoke name="PB_L0_SupportSpoke" repeat="PB_L0_SSP_number" rmax="PB_L1_rmin"  deltaphi="PB_L0_SPP_dphi" material="CarbonFiber" vis="grey"/>
+          </support>
+        </layer>
+
+        <layer id="1" r="PB_L1_r" rmin="PB_L1_rmin" rmax="PB_L1_rmax" length="PB_L1_length" material="Vacuum" nstaves="PB_L1_phiStaves" envelopeR="PB_L1_envelopeR" vis="invisible">
+          <stave name='PB_L1_Stave' phi_tilt="PB_L1_phiTilt" nmodules="PB_L1_modulesPerStave" overlapZ="PB_L1_overlapZ" deltaR="PB_L1_staggerR">
+              <module name="PB_Module"/>
+          </stave>
+          <support>
+              <cylinder name="PB_L1_SupportCylinder" thickness="PB_L1_SC_thickness" material="CarbonFiber" vis="grey"/>
+              <ring name="PB_L1_SupportRing" thickness="PB_L1_SR_thickness" length="PB_L1_SR_length" material="CarbonFiber" vis="grey"/>
+              <spoke name="PB_L1_SupportSpoke" repeat="PB_L1_SSP_number" rmax="PB_L2_rmin"  deltaphi="PB_L1_SPP_dphi" material="CarbonFiber" vis="grey"/>
+          </support>
+        </layer>
+
+
+        <layer id="2" r="PB_L2_r" rmin="PB_L2_rmin" rmax="PB_L2_rmax" length="PB_L2_length" material="Vacuum" nstaves="PB_L2_phiStaves" envelopeR="PB_L2_envelopeR" vis="invisible">
+          <stave name='PB_L2_Stave' phi_tilt="PB_L2_phiTilt" nmodules="PB_L2_modulesPerStave" overlapZ="PB_L2_overlapZ" deltaR="PB_L2_staggerR">
+              <module name="PB_Module"/>
+          </stave>
+          <support>
+              <cylinder name="PB_L2_SupportCylinder" thickness="PB_L2_SC_thickness" material="CarbonFiber" vis="grey"/>
+              <ring name="PB_L2_SupportRing" thickness="PB_L2_SR_thickness" length="PB_L2_SR_length" material="CarbonFiber" vis="grey"/>
+              <spoke name="PB_L2_SupportSpoke" repeat="PB_L2_SSP_number" rmax="PB_L3_rmin"  deltaphi="PB_L2_SPP_dphi" material="CarbonFiber" vis="grey"/>
+          </support>
+        </layer>
+        <layer id="3" r="PB_L3_r"  rmin="PB_L3_rmin" rmax="PB_L3_rmax" length="PB_L3_length" material="Vacuum" nstaves="PB_L3_phiStaves" envelopeR="PB_L3_envelopeR" vis="invisible">
+          <stave name='PB_L3_Stave' phi_tilt="PB_L3_phiTilt" nmodules="PB_L3_modulesPerStave" overlapZ="PB_L3_overlapZ" deltaR="PB_L3_staggerR">
+              <module name="PB_Module"/>
+          </stave>
+          <support>
+              <cylinder name="PB_L3_SupportCylinder" thickness="PB_L3_SC_thickness" material="CarbonFiber" vis="grey"/>
+              <ring name="PB_L3_SupportRing" thickness="PB_L3_SR_thickness" length="PB_L3_SR_length" material="CarbonFiber" vis="grey"/>
+          </support>
+        </layer>
+         
+      </detector>
+      
+      
+</detectors>

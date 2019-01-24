@@ -46,6 +46,7 @@ public:
     /// The service possibly providing the Geant4 geometry (optional)
     /// @note If this is not set, the geometry should be given by gdml file
     std::shared_ptr<FW::IGeant4Service> geant4Service = nullptr;
+
     /// The possible gmdl input (optional)
     std::string gdmlFile;
     /// The number of tracks per event

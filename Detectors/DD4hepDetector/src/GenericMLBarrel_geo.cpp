@@ -71,39 +71,118 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
       double     zOverlap = x_slice.dz();
       double     rOffset  = x_slice.offset();  // half offset
 
-      // Create the module volume
-      Volume modVolume("module",
-                       Box(modHalfLength, modHalfWidth, modHalfThickness),
-                       lcdd.material(x_module.materialStr()));
+      // The placement loop if primarily over z, as it does change
+      // - potentially the cooling pipe position due to r staggering along z
+      // - the cable support amount
 
-      // create the Acts::DigitizationModule (needed to do geometric
-      // digitization) for all modules which have the same segmentation
-      auto digiModule
-          = FW::DD4hep::rectangleDigiModule(modHalfLength,
-                                            modHalfWidth,
-                                            modHalfThickness,
-                                            sens.readout().segmentation());
-
-      // Visualization
-      modVolume.setVisAttributes(lcdd, x_module.visStr());
       size_t moduleNumber = 0;
       // Place the Modules in z
       // the distance between the modules in z
       double dz = (2 * modHalfLength - zOverlap);
       // the start value in z
       double startz = -((zRepeat - 1) * 0.5 * dz);
+
       // place in z
       for (int iz = 0; iz < zRepeat; iz++) {
+
+        // r staggering along z
+        double rStaggering = (iz % 2 == 0) ? (0.5 * rOffset) : -(0.5 * rOffset);
+
+        // Create the module volume
+        Volume mod_vol("module",
+                       Box(modHalfLength, modHalfWidth, modHalfThickness),
+                       lcdd.material(x_module.materialStr()));
+
+        // Visualization
+        mod_vol.setVisAttributes(lcdd, x_module.visStr());
+
+        //
+        // the sensitive placed components to be used later to create the
+        // DetElements
+        std::vector<PlacedVolume> sensComponents;
+        int                       comp_num = 0;
+        // go through module components
+        for (xml_coll_t comp(x_module, _U(module_component)); comp; ++comp) {
+          string     component_name = _toString((int)comp_num, "component%d");
+          xml_comp_t x_component    = comp;
+          Volume     comp_vol(component_name,
+                          Box(x_component.length(),
+                              x_component.width(),
+                              x_component.thickness()),
+                          lcdd.material(x_component.materialStr()));
+          comp_vol.setVisAttributes(lcdd, x_component.visStr());
+
+          // make sensitive components sensitive
+          if (x_component.isSensitive()) comp_vol.setSensitiveDetector(sens);
+
+          // Place Component in Module
+          Position     trans(x_component.x(), 0., x_component.z());
+          PlacedVolume placedcomponent = mod_vol.placeVolume(comp_vol, trans);
+          placedcomponent.addPhysVolID("component", comp_num);
+          if (x_component.isSensitive())
+            sensComponents.push_back(placedcomponent);
+          comp_num++;
+        }
+        // add possible trapezoidal shape with hole for cooling pipe
+        if (x_module.hasChild(_U(subtraction))) {
+          xml_comp_t x_sub          = x_module.child(_U(subtraction));
+          xml_comp_t x_trd          = x_sub.child(_U(trd));
+          xml_comp_t x_tubs         = x_sub.child(_U(tubs));
+          string     component_name = _toString((int)comp_num, "component%d");
+          // create the two shapes first
+          Trapezoid trap_shape(x_trd.x1(),
+                               x_trd.x2(),
+                               x_trd.length(),
+                               x_trd.length(),
+                               x_trd.thickness());
+          Tube tubs_shape(x_tubs.rmin(), x_tubs.rmax(), x_tubs.dz());
+          // create the substraction
+          Volume sub_vol("subtraction_components",
+                         SubtractionSolid(trap_shape,
+                                          tubs_shape,
+                                          Transform3D(RotationX(0.5 * M_PI))),
+                         lcdd.material(x_sub.materialStr()));
+          sub_vol.setVisAttributes(lcdd, x_sub.visStr());
+          // Place the volume in the module
+          PlacedVolume placedSub = mod_vol.placeVolume(
+              sub_vol,
+              Transform3D(RotationZ(0.5 * M_PI) * RotationY(M_PI),
+                          Position(0., 0., x_sub.z())));
+          placedSub.addPhysVolID("component", comp_num);
+          comp_num++;
+        }
+        // add posibble cooling pipe
+        if (x_module.hasChild(_U(tubs))) {
+          xml_comp_t x_tubs         = x_module.child(_U(tubs));
+          string     component_name = _toString((int)comp_num, "component%d");
+          Volume     pipe_vol("CoolingPipe",
+                          Tube(x_tubs.rmin(), x_tubs.rmax(), x_tubs.dz()),
+                          lcdd.material(x_tubs.materialStr()));
+          pipe_vol.setVisAttributes(lcdd, x_tubs.visStr());
+          // Place the cooling pipe into the module
+          PlacedVolume placedPipe = mod_vol.placeVolume(
+              pipe_vol,
+              Transform3D(RotationX(0.5 * M_PI) * RotationY(0.5 * M_PI),
+                          Position(0., 0., x_tubs.z() - rStaggering)));
+          placedPipe.addPhysVolID("component", comp_num);
+          comp_num++;
+        }
+
+        // create the Acts::DigitizationModule (needed to do geometric
+        // digitization) for all modules which have the same segmentation
+
+        auto digiModule
+            = FW::DD4hep::rectangleDigiModule(modHalfLength,
+                                              modHalfWidth,
+                                              modHalfThickness,
+                                              sens.readout().segmentation());
+
+        // Visualization
+        mod_vol.setVisAttributes(lcdd, x_module.visStr());
         // to be added later to the module name
         string zname = _toString((int)iz, "z%d");
         // the radial position of the module
-        double r = ((layerRmax + layerRmin) * 0.5);
-        // alterning radial offset for each subsequent module
-        if (iz % 2 == 0) {
-          r += (0.5 * rOffset);
-        } else {
-          r -= (0.5 * rOffset);
-        }
+        double r = ((layerRmax + layerRmin) * 0.5) + rStaggering;
         // current z position
         double z = startz + iz * dz;
         // start phi position
@@ -120,7 +199,7 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
           DetElement moduleDetector(layerDetector, module_name, moduleNumber);
           // Set Sensitive Volmes sensitive
           if (x_module.isSensitive()) {
-            modVolume.setSensitiveDetector(sens);
+            mod_vol.setSensitiveDetector(sens);
             // create and attach the extension with the shared digitzation
             // module
             Acts::ActsExtension* moduleExtension
@@ -129,7 +208,7 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
           }
           // Place Module Box Volumes in layer adding a tilt in phi
           PlacedVolume placedmodule = layerVolume.placeVolume(
-              modVolume,
+              mod_vol,
               Transform3D(RotationY(0.5 * M_PI) * RotationX(-phi - phiTilt),
                           trans));
           placedmodule.addPhysVolID("module", moduleNumber);

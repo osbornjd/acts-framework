@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd xmlns:compact="http://www.lcsim.org/schemas/compact/1.0"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
+    
+    <includes>
+        <gdmlFile  ref="../elements.xml"/>
+        <gdmlFile  ref="../materials.xml"/>
+    </includes>
+    
+    <info name="GenericDetectorML"
+        title="A generic detector used for the machine learning challenge."
+        author="" url="" status="test" version="0">
+        <comment></comment>
+    </info>
+    
+    <define>
+        <!--World-->
+        <constant name="world_size" value="30*m"/>
+        <constant name="world_x" value="world_size"/>
+        <constant name="world_y" value="world_size"/>
+        <constant name="world_z" value="world_size"/>
+        <!-- Helpers -->
+        <constant name="G4_Tolerance" value="0.01*mm"/>
+        <!--BeamPipe-->
+        <constant name="BeamPipe_rmin" value="18.6*mm"/>
+        <constant name="BeamPipe_rmax" value="19.4*mm"/>
+        <constant name="BeamPipe_hLength" value="3000.*mm"/>
+        <!--PixelBarrel (PB)-->
+        <constant name="PB_rmin"          value="22.*mm"/>
+        <constant name="PB_rmax"          value="180.*mm"/>
+        <constant name="PB_length"        value="1100.*mm"/>
+        <constant name="PB_zpos"          value="0.*mm"/>
+        <!-- Pixel Barrel Module (PB_M) -->
+        <!-- Module sensor-->
+        <constant name="PB_M_length"       value="72.*mm"/>
+        <constant name="PB_M_width"        value="16.8*mm"/>
+        <constant name="PB_M_thickness"    value="0.1*mm"/>        
+        <!-- Module - on sensor components -->
+        <!-- Thin layer of Al, smaller than the module -->
+        <constant name="PB_M_C0_length"     value="71.2*mm"/>
+        <constant name="PB_M_C0_width"      value="16.*mm"/>
+        <constant name="PB_M_C0_thickness"  value="0.075*mm"/>
+        <constant name="PB_M_C0_zpos"       value="-2.9*mm"/>
+        <constant name="PB_M_C0_xpos"       value="0.*mm"/>
+        <!-- Sensitive Silicon -->
+        <constant name="PB_M_C1_zpos"       value="-2.8*mm"/>
+        <constant name="PB_M_C1_xpos"       value="0.*mm"/>
+        <!-- Kapton/Carbon layer-->
+        <constant name="PB_M_C2_width"      value="16.8*mm"/>
+        <constant name="PB_M_C2_length"     value="72.*mm"/>
+        <constant name="PB_M_C2_thickness"  value="0.075*mm"/>
+        <constant name="PB_M_C2_zpos"       value="-2.6*mm"/>
+        <constant name="PB_M_C2_xpos"       value="0.*mm"/>
+        <!-- Cooling block -->
+        <constant name="PB_M_C3_zpos"       value="0.*mm"/>
+        <constant name="PB_M_C3_X1"         value="0.*mm"/>
+        <constant name="PB_M_C3_X2"         value="6.*mm"/>
+        <constant name="PB_M_C3_thickness"  value="2.5*mm"/>
+        <constant name="PB_M_C3_rmin"       value="0.*mm"/>
+        <constant name="PB_M_C3_rmax"       value="1.25*mm"/>
+        <constant name="PB_M_C3_zoffset"    value="0.*mm"/>
+        <constant name="PB_M_C3_length"     value="66.*mm"/>
+        <!-- Cooling pipe -->        
+        <constant name="PB_M_C4_rmin"       value="1.1*mm"/>
+        <constant name="PB_M_C4_rmax"       value="1.2*mm"/>
+        <constant name="PB_M_C4_zpos"       value="0.0*mm"/>
+        <!-- Cable bundle -->
+        <constant name="PB_M_Cab_r"         value="0.33*mm"/>
+        <constant name="PB_M_Cab_x"         value="0.*mm"/>
+        <constant name="PB_M_Cab_y"         value="-1.5*mm"/>
+        <constant name="PB_M_Cab_z"         value="2.2*mm"/>
+                
+        <!--Layer0-->
+        <constant name="PB_L0_rmin"             value="31.*mm"/>
+        <constant name="PB_L0_r"                value="34.*mm"/>
+        <constant name="PB_L0_rmax"             value="38.*mm"/>
+        <constant name="PB_L0_length"           value="1080*mm"/>
+        <constant name="PB_L0_envelopeR"        value="0.5*mm"/>
+        <constant name="PB_L0_phiStaves"        value="16"/>
+        <constant name="PB_L0_phiTilt"          value="0.14*rad"/>
+        <constant name="PB_L0_modulesPerStave"  value="14"/> 
+        <constant name="PB_L0_staggerR"         value="0.5*mm"/>
+        <constant name="PB_L0_overlapZ"         value="2.4*mm"/>
+        <constant name="PB_L0_SC_thickness"     value="1.*mm"/>
+        <constant name="PB_L0_SR_thickness"     value="8.*mm"/>
+        <constant name="PB_L0_SR_length"        value="4.*mm"/>
+        <constant name="PB_L0_SSP_number"       value="8"/>
+        <constant name="PB_L0_SPP_dphi"         value="0.2*rad"/>
+        
+        <!--Layer1-->
+        <constant name="PB_L1_rmin"             value="68.*mm"/>
+        <constant name="PB_L1_r"                value="73.*mm"/>
+        <constant name="PB_L1_rmax"             value="78.*mm"/>
+        <constant name="PB_L1_length"           value="1080*mm"/>
+        <constant name="PB_L1_envelopeR"        value="0.5*mm"/>
+        <constant name="PB_L1_phiStaves"        value="32"/>
+        <constant name="PB_L1_phiTilt"          value="0.14*rad"/>
+        <constant name="PB_L1_modulesPerStave"  value="14"/> 
+        <constant name="PB_L1_staggerR"         value="0.5*mm"/>
+        <constant name="PB_L1_overlapZ"         value="2*mm"/>
+        <constant name="PB_L1_SC_thickness"     value="1.*mm"/>
+        <constant name="PB_L1_SR_thickness"     value="8.*mm"/>
+        <constant name="PB_L1_SR_length"        value="4.*mm"/>
+        <constant name="PB_L1_SSP_number"       value="16"/>
+        <constant name="PB_L1_SPP_dphi"         value="0.15*rad"/>
+
+        <!--Layer2-->
+        <constant name="PB_L2_rmin"             value="112.*mm"/>
+        <constant name="PB_L2_r"                value="116.*mm"/>
+        <constant name="PB_L2_rmax"             value="122.*mm"/>
+        <constant name="PB_L2_length"           value="1080*mm"/>
+        <constant name="PB_L2_envelopeR"        value="0.5*mm"/>
+        <constant name="PB_L2_phiStaves"        value="52"/>
+        <constant name="PB_L2_phiTilt"          value="0.14*rad"/>
+        <constant name="PB_L2_modulesPerStave"  value="14"/> 
+        <constant name="PB_L2_staggerR"         value="0.5*mm"/>
+        <constant name="PB_L2_overlapZ"         value="2*mm"/>
+        <constant name="PB_L2_SC_thickness"     value="1.*mm"/>
+        <constant name="PB_L2_SR_thickness"     value="8.*mm"/>
+        <constant name="PB_L2_SR_length"        value="4.*mm"/>
+        <constant name="PB_L2_SSP_number"       value="32"/>
+        <constant name="PB_L2_SPP_dphi"         value="0.10*rad"/>
+        
+        <!--Layer3-->
+        <constant name="PB_L3_rmin"             value="166.*mm"/>
+        <constant name="PB_L3_r"                value="172.*mm"/>
+        <constant name="PB_L3_rmax"             value="178.*mm"/>
+        <constant name="PB_L3_length"           value="1080*mm"/>
+        <constant name="PB_L3_envelopeR"        value="0.5*mm"/>
+        <constant name="PB_L3_phiStaves"        value="78"/>
+        <constant name="PB_L3_phiTilt"          value="0.14*rad"/>
+        <constant name="PB_L3_modulesPerStave"  value="14"/> 
+        <constant name="PB_L3_staggerR"         value="0.5*mm"/>
+        <constant name="PB_L3_overlapZ"         value="2*mm"/>
+        <constant name="PB_L3_SC_thickness"     value="1.*mm"/>
+        <constant name="PB_L3_SR_thickness"     value="8.*mm"/>
+        <constant name="PB_L3_SR_length"        value="4.*mm"/>
+        
+        <!--EndCap0-->
+        <constant name="E0_rmin"            value="22.*mm"/>
+        <constant name="E0_rmax"            value="180.*mm"/>
+        <constant name="E0_dz"              value="600.*mm"/>
+        <constant name="pE0_zpos"           value="1100.*mm"/>
+        <!--Layers-->
+        <constant name="E0_L_dz"            value="2*mm"/>
+        <constant name="E0_L_ringStagger"  value="0.*mm"/>
+        <!--Layer0-->
+        <constant name="E0_L0_pos"          value="-500.*mm"/>        
+        <constant name="E0_L1_pos"          value="-400.*mm"/>
+        <constant name="E0_L2_pos"          value="-280.*mm"/>
+        <constant name="E0_L3_pos"          value="-140.*mm"/>
+        <constant name="E0_L4_pos"          value="0.*mm"/>
+        <constant name="E0_L5_pos"          value="200.*mm"/>
+        <constant name="E0_L6_pos"          value="400.*mm"/>
+        <!--Module and Ring Info-->
+        <!--Module0-->
+        <constant name="E0_M0_X1"            value="8.4*mm"/>
+        <constant name="E0_M0_X2"            value="8.4*mm"/>
+        <constant name="E0_M0_hLength"      value="36.*mm"/>
+        <constant name="E0_M0_hThickness"   value="0.15*mm"/>
+        <constant name="E0_M0_r"            value="66*mm"/>
+        <constant name="E0_M0_modulesInPhi" value="40"/> 
+        <constant name="E0_M0_stagger"      value="4.*mm"/>
+        <constant name="E0_M0_subStagger"   value="0.5*mm"/>
+        <!--Module1-->
+        <constant name="E0_M1_X1"            value="8.4*mm"/>
+        <constant name="E0_M1_X2"            value="8.4*mm"/>
+        <constant name="E0_M1_hLength"      value="36.*mm"/>
+        <constant name="E0_M1_hThickness"   value="0.15*mm"/>
+        <constant name="E0_M1_r"            value="140*mm"/>
+        <constant name="E0_M1_modulesInPhi" value="68"/> 
+        <constant name="E0_M1_stagger"      value="4.*mm"/>
+        <constant name="E0_M1_subStagger"   value="0.*mm"/>
+        <!--Barrel1-->
+        <constant name="B1_rmin"            value="185.*mm"/>
+        <constant name="B1_rmax"            value="700.*mm"/>
+        <constant name="B1_dz"              value="1086*mm"/>
+        <constant name="B1_zpos"            value="0.*mm"/>
+        <constant name="B1_M_repeatZ"       value="21"/> 
+        <constant name="B1_L_dz"            value="5*mm"/>
+        <constant name="B1_phiTilt"		    value="-0.15*rad"/>
+        <!--Layer0-->
+        <constant name="B1_L0_rmin"         value="258.*mm"/>
+        <constant name="B1_L0_rmax"         value="262.*mm"/>
+        <constant name="B1_L0_M_repeatPhi"  value="40"/> 
+        <!--Layer1-->
+        <constant name="B1_L1_rmin"         value="358.*mm"/>
+        <constant name="B1_L1_rmax"         value="362.*mm"/>
+        <constant name="B1_L1_M_repeatPhi"  value="56"/>
+        <!--Layer2-->
+        <constant name="B1_L2_rmin"         value="498.*mm"/>
+        <constant name="B1_L2_rmax"         value="502.*mm"/>
+        <constant name="B1_L2_M_repeatPhi"  value="78"/>
+        <!--Layer3-->
+        <constant name="B1_L3_rmin"         value="658.*mm"/>
+        <constant name="B1_L3_rmax"         value="662.*mm"/>
+        <constant name="B1_L3_M_repeatPhi"  value="102"/>
+        <!--Module-->
+        <constant name="B1_M_hWidth"         value="24.*mm"/>
+        <constant name="B1_M_hLength"        value="54.*mm"/>
+        <constant name="B1_M_hThickness"     value="0.25*mm"/>
+        <constant name="B1_M_OverlapZ"       value="5.*mm"/>
+        <constant name="B1_M_offsetR"        value="3.*mm"/>
+        <!--EndCap1-->
+        <constant name="E1_rmin"            value="185.*mm"/>
+        <constant name="E1_rmax"            value="700*mm"/>
+        <constant name="E1_dz"              value="1000.*mm"/>
+        <constant name="pE1_zpos"           value="2000.*mm"/>
+        <!--Layers-->
+        <constant name="E1_L_dz"            value="2*mm"/>
+        <constant name="E1_L_ringStagger"   value="6.*mm"/>
+        <!--Layer0-->
+        <constant name="E1_L0_pos"          value="-780.*mm"/>        
+        <constant name="E1_L1_pos"          value="-500.*mm"/>
+        <constant name="E1_L2_pos"          value="-200.*mm"/>
+        <constant name="E1_L3_pos"          value="150.*mm"/>
+        <constant name="E1_L4_pos"          value="550.*mm"/>
+        <constant name="E1_L5_pos"          value="950.*mm"/>
+        <!--Module and Ring Info-->
+        <!--Module1-->
+        <constant name="E1_M0_X1"           value="16.4*mm"/>
+        <constant name="E1_M0_X2"           value="24.2*mm"/>
+        <constant name="E1_M0_hLength"      value="78.*mm"/>
+        <constant name="E1_M0_hThickness"   value="0.25*mm"/>
+        <constant name="E1_M0_r"            value="318*mm"/>
+        <constant name="E1_M0_modulesInPhi" value="54"/> 
+        <constant name="E1_M0_stagger"      value="3.*mm"/>
+        <constant name="E1_M0_subStagger"   value="0*mm"/>
+        <!--Module1-->
+        <constant name="E1_M1_X1"           value="24.2*mm"/>
+        <constant name="E1_M1_X2"           value="32.2*mm"/>
+        <constant name="E1_M1_hLength"      value="78.*mm"/>
+        <constant name="E1_M1_hThickness"   value="0.25*mm"/>
+        <constant name="E1_M1_r"            value="470*mm"/>
+        <constant name="E1_M1_modulesInPhi" value="56"/> 
+        <constant name="E1_M1_stagger"      value="3.*mm"/>
+        <constant name="E1_M1_subStagger"   value="0.*mm"/>
+        <!--Module2-->
+        <constant name="E1_M2_X1"           value="32.2*mm"/>
+        <constant name="E1_M2_X2"           value="40.*mm"/>
+        <constant name="E1_M2_hLength"      value="78.*mm"/>
+        <constant name="E1_M2_hThickness"   value="0.25*mm"/>
+        <constant name="E1_M2_r"            value="622*mm"/>
+        <constant name="E1_M2_modulesInPhi" value="60"/> 
+        <constant name="E1_M2_stagger"      value="3.*mm"/>
+        <constant name="E1_M2_subStagger"   value="0.*mm"/>
+        <!--Barrel2-->
+        <constant name="B2_rmin"            value="705.*mm"/>
+        <constant name="B2_rmax"            value="1100.*mm"/>
+        <constant name="B2_dz"              value="1086*mm"/>
+        <constant name="B2_zpos"            value="0.*mm"/>
+        <constant name="B2_M_repeatZ"       value="21"/> 
+        <constant name="B2_L_dz"            value="5*mm"/>
+        <constant name="B2_phiTilt"		    value="-0.15*rad"/>
+        <!--Layer0-->
+        <constant name="B2_L0_rmin"         value="818.*mm"/>
+        <constant name="B2_L0_rmax"         value="822.*mm"/>
+        <constant name="B2_L0_M_repeatPhi"  value="120"/> 
+        <!--Layer1-->
+        <constant name="B2_L1_rmin"         value="1018.*mm"/>
+        <constant name="B2_L1_rmax"         value="1022.*mm"/>
+        <constant name="B2_L1_M_repeatPhi"  value="152"/>
+        <!--Module-->
+        <constant name="B2_M_hWidth"         value="24.*mm"/>
+        <constant name="B2_M_hLength"        value="54.*mm"/>
+        <constant name="B2_M_hThickness"     value="0.35*mm"/>
+        <constant name="B2_M_OverlapZ"       value="5.*mm"/>
+        <constant name="B2_M_offsetR"        value="3.*mm"/>
+        <!--EndCap2-->
+        <constant name="E2_rmin"            value="705.*mm"/>
+        <constant name="E2_rmax"            value="1100*mm"/>
+        <constant name="E2_dz"              value="1000.*mm"/>
+        <constant name="pE2_zpos"           value="2000.*mm"/>
+        <!--Layers-->
+        <constant name="E2_L_dz"            value="2*mm"/>
+        <constant name="E2_L_ringStagger"   value="8.*mm"/>
+        <!--Layer0-->
+        <constant name="E2_L0_pos"          value="-780.*mm"/>        
+        <constant name="E2_L1_pos"          value="-500.*mm"/>
+        <constant name="E2_L2_pos"          value="-200.*mm"/>
+        <constant name="E2_L3_pos"          value="150.*mm"/>
+        <constant name="E2_L4_pos"          value="550.*mm"/>
+        <constant name="E2_L5_pos"          value="950.*mm"/>
+        <!--Module and Ring Info-->
+        <!--ModulE2-->
+        <constant name="E2_M0_X1"           value="54.*mm"/>
+        <constant name="E2_M0_X2"           value="64.2*mm"/>
+        <constant name="E2_M0_hLength"      value="78.*mm"/>
+        <constant name="E2_M0_hThickness"   value="0.35*mm"/>
+        <constant name="E2_M0_r"            value="828*mm"/>
+        <constant name="E2_M0_modulesInPhi" value="48"/> 
+        <constant name="E2_M0_stagger"      value="3.*mm"/>
+        <constant name="E2_M0_subStagger"   value="0*mm"/>
+        <!--ModulE2-->
+        <constant name="E2_M1_X1"           value="66.*mm"/>
+        <constant name="E2_M1_X2"           value="72.*mm"/>
+        <constant name="E2_M1_hLength"      value="78.*mm"/>
+        <constant name="E2_M1_hThickness"   value="0.35*mm"/>
+        <constant name="E2_M1_r"            value="942*mm"/>
+        <constant name="E2_M1_modulesInPhi" value="50"/> 
+        <constant name="E2_M1_stagger"      value="3.*mm"/>
+        <constant name="E2_M1_subStagger"   value="0.*mm"/> 
+        
+</define>  
+
+    <display>
+        <vis name="violet" r="0.4" g="0." b="0.4" alpha="1" showDaugthers="true" visible="true" drawingStyle="solid"/>
+        <vis name="red" r="0.6" g="0." b="0." alpha="1" showDaugthers="true" visible="true" drawingStyle="solid"/>
+        <vis name="orange" r="0.65" g="0.35" b="0." alpha="1" showDaugthers="true" visible="true" drawingStyle="solid"/>
+        <vis name="blue" r="0." g="0." b="0.5" alpha="1" showDaugthers="true" visible="true" drawingStyle="solid"/>
+        <vis name="green" r="0." g="0.5" b="0." alpha="1" showDaugthers="true" visible="true" drawingStyle="solid"/>
+        <vis name="BlueVisTrans" alpha="0.1" r="0.0" g="0.0" b="1.0" showDaughters="true" visible="false"/>
+    </display>
+
+    <readouts>
+        <readout name="B_Pixel_Readout">
+            <segmentation type="CartesianGridXY" grid_size_x="0.05*mm" grid_size_y="0.05625*mm"/>
+            <id>system:5,layer:3,module:15,x:32:-16,y:-16</id>
+        </readout>
+        <readout name="E_Pixel_Readout">
+            <segmentation type="CartesianGridXY" grid_size_x="0.05*mm" grid_size_y="0.05625*mm"/>
+            <id>system:5,posneg:1,layer:3,module:15,x:32:-16,y:-16</id>
+        </readout>
+        <readout name="B_ShortStrip_Readout">
+            <segmentation type="CartesianGridXY" grid_size_x="0.08*mm" grid_size_y="1.2*mm"/>
+            <id>system:5,layer:3,module:15,x:32:-16,y:-16</id>
+        </readout>
+        <readout name="E_ShortStrip_Readout">
+            <segmentation type="CartesianGridXY" grid_size_x="0.08*mm" grid_size_y="1.2*mm"/>
+            <id>system:5,posneg:1,layer:3,module:15,x:32:-16,y:-16</id>
+        </readout>
+         <readout name="B_LongStrip_Readout">
+            <segmentation type="CartesianGridXY" grid_size_x="0.12*mm" grid_size_y="10.8*mm"/>
+            <id>system:5,layer:3,module:15,x:32:-16,y:-16</id>
+        </readout>
+        <readout name="E_LongStrip_Readout">
+            <segmentation type="CartesianGridXY" grid_size_x="0.12*mm" grid_size_y="10.2*mm"/>
+            <id>system:5,posneg:1,layer:3,module:15,x:32:-16,y:-16</id>
+        </readout>
+    </readouts>
+
+
+  <include ref="OpenDataDetector_pixel.xml"/>
+  <!-- include ref="OpenDataDetector_ShortStrip.xml"/ -->
+  <!-- include ref="OpenDataDetector_LongStrip.xml"/  -->
+
+    <detectors>
+    <!--BeamPipe-->
+        <detector id="0" name="beampipe" type="BeamPipe">
+            <dimensions rmin="BeamPipe_rmin" rmax="BeamPipe_rmax" z="BeamPipe_hLength" vis="orange" material="Be"/>
+        </detector>
+        <detector id="1" name="Pixel" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
+            <composite name="Barrel0"/>
+            <!--composite name="EndCap0"/-->
+        </detector>
+        <!--
+        <detector id="2" name="ShortStrip" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
+            <composite name="Barrel1"/>
+            <composite name="EndCap1"/>
+        </detector>
+        <detector id="3" name="LongStrip" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
+            <composite name="Barrel2"/>
+            <composite name="EndCap2"/>
+        </detector>
+        -->        
+    </detectors>
+</lccdd>

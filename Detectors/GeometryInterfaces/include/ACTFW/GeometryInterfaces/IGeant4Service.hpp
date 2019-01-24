@@ -22,7 +22,6 @@ namespace FW {
 /// @class IGeant4Service
 ///
 /// The IGeant4Service is an interface class to return the Geant4 geometry.
-
 class IGeant4Service : public IService
 {
 
