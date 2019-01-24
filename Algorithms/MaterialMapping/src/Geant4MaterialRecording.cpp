@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/MaterialMapping/GeantinoRecording.hpp"
+#include "ACTFW/MaterialMapping/Geant4MaterialRecording.hpp"
 #include <iostream>
 #include <stdexcept>
 #include "ACTFW/Plugins/Geant4/MMDetectorConstruction.hpp"
@@ -15,18 +15,15 @@
 #include "ACTFW/Plugins/Geant4/MMRunAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
 #include "FTFP_BERT.hh"
+#include "G4RunManager.hh"
 
-FW::GeantinoRecording::GeantinoRecording(
-    const FW::GeantinoRecording::Config& cnf,
-    Acts::Logging::Level                 level)
-  : FW::BareAlgorithm("GeantinoRecording", level)
+FW::Geant4MaterialRecording::Geant4MaterialRecording(
+    const FW::Geant4MaterialRecording::Config& cnf,
+    Acts::Logging::Level                       level)
+  : FW::BareAlgorithm("Geant4MaterialRecording", level)
   , m_cfg(cnf)
   , m_runManager(std::make_unique<G4RunManager>())
 {
-  /// Make sure that a writer was provided in the configuration
-  if (!m_cfg.materialTrackWriter) {
-    throw std::invalid_argument("Missing material track writer");
-  }
 
   /// Check if the geometry should be accessed over the geant4 service
   if (m_cfg.geant4Service) {
@@ -56,19 +53,24 @@ FW::GeantinoRecording::GeantinoRecording(
   m_runManager->Initialize();
 }
 
-FW::ProcessCode FW::GeantinoRecording::execute(FW::AlgorithmContext) const
+FW::ProcessCode
+FW::Geant4MaterialRecording::execute(FW::AlgorithmContext context) const
 {
 
   /// Begin with the simulation
   m_runManager->BeamOn(m_cfg.tracksPerEvent);
   ///
-  std::vector<Acts::MaterialTrack> mtrecords
+  std::vector<Acts::RecordedMaterialTrack> recordedMaterialTracks
       = FW::Geant4::MMEventAction::Instance()->MaterialTracks();
-  ACTS_INFO("Received " << mtrecords.size()
+
+  ACTS_INFO("Received " << recordedMaterialTracks.size()
                         << " MaterialTracks. Writing them now onto file...");
-  // write to the file
-  for (auto& record : mtrecords) {
-    m_cfg.materialTrackWriter->write(record);
+
+  // Write the recorded material to the event store
+  if (context.eventStore.add(m_cfg.recordedMaterialCollection,
+                             std::move(recordedMaterialTracks))
+      == FW::ProcessCode::ABORT) {
+    return FW::ProcessCode::ABORT;
   }
 
   return FW::ProcessCode::SUCCESS;

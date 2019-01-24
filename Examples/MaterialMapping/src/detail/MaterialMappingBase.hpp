@@ -54,7 +54,7 @@ materialMappingExample(int                argc,
   FW::Options::addCommonOptions<po::options_description>(desc);
   // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
-  // Add the output options
+  // Add the input options
   FW::Options::addInputOptions<po::options_description>(desc);
   // Add the output options
   FW::Options::addOutputOptions<po::options_description>(desc);

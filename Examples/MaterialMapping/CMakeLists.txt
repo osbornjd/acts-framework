@@ -1,5 +1,3 @@
-#file (GLOB_RECURSE src_files "src/GenericMaterialValidationExample.cpp")
-
 add_executable(ACTFWGenericMaterialValidationExample src/GenericMaterialValidation.cpp)
 target_include_directories(ACTFWGenericMaterialValidationExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWGenericMaterialValidationExample PRIVATE ActsCore)
@@ -18,22 +16,16 @@ target_link_libraries(ACTFWGenericMaterialMappingExample PRIVATE ${Boost_LIBRARI
 
 install(TARGETS ACTFWGenericMaterialMappingExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+if (USE_GEANT4 AND USE_DD4HEP)
+    add_executable(ACTFWDD4hepG4MaterialRecordingExample src/DD4hepG4MaterialRecordingExample.cpp)
+    target_link_libraries(ACTFWDD4hepG4MaterialRecordingExample PRIVATE ACTFWDD4hepG4Plugin)
+    target_link_libraries(ACTFWDD4hepG4MaterialRecordingExample PRIVATE ACTFWExamplesCommon)
+    target_link_libraries(ACTFWDD4hepG4MaterialRecordingExample PRIVATE ACTFWMaterialMapping)
+    target_link_libraries(ACTFWDD4hepG4MaterialRecordingExample PRIVATE ACTFWRootPlugin)
+    target_link_libraries(ACTFWDD4hepG4MaterialRecordingExample PRIVATE ACTFWDD4hepDetector)
+    target_link_libraries(ACTFWDD4hepG4MaterialRecordingExample PRIVATE ${DD4hep_LIBRARIES})
+    target_link_libraries(ACTFWDD4hepG4MaterialRecordingExample PRIVATE ${Geant4_LIBRARIES})
+    target_link_libraries(ACTFWDD4hepG4MaterialRecordingExample PRIVATE ${Boost_LIBRARIES})
+    install(TARGETS ACTFWDD4hepG4MaterialRecordingExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
-#include(${Geant4_USE_FILE})
-#
-#file (GLOB_RECURSE src_files "src/*.cpp")
-#
-#add_executable(ACTFWGeantinoRecordingExample src/GeantinoRecordingExample.cpp)
-#add_executable(ACTFWMaterialMappingExample src/MaterialMappingExample.cpp)
-#
-#foreach(_example ACTFWGeantinoRecordingExample ACTFWMaterialMappingExample)
-#  target_include_directories(${_example} PRIVATE ${DD4hep_INCLUDE_DIRS})
-#  target_link_libraries(${_example} PRIVATE ACTFWDD4hepG4Plugin)
-#  target_link_libraries(${_example} PRIVATE ACTFWExtrapolation)
-#  target_link_libraries(${_example} PRIVATE ACTFWMaterialMapping)
-#  target_link_libraries(${_example} PRIVATE ACTFWRootPlugin)
-#  target_link_libraries(${_example} PRIVATE ${DD4hep_LIBRARIES})
-#  target_link_libraries(${_example} PRIVATE ${Geant4_LIBRARIES})
-#  target_link_libraries(${_example} PRIVATE ${Boost_LIBRARIES})
-#  install(TARGETS ${_example} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-#endforeach()
