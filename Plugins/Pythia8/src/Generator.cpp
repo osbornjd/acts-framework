@@ -68,7 +68,6 @@ FW::GPythia8::Generator::read(std::vector<Data::SimVertex<>>& processVertices,
                               size_t                          skip,
                               const FW::AlgorithmContext*     context)
 {
-
   // pythia8 is not thread safe and needs to be protected
   std::lock_guard<std::mutex> lock(m_read_mutex);
 
@@ -87,11 +86,13 @@ FW::GPythia8::Generator::read(std::vector<Data::SimVertex<>>& processVertices,
   }
 
   ACTS_VERBOSE("Calling Pythia8 event generation ... ");
+
   // the actual event
   m_pythia8.next();
   int np = m_pythia8.event.size() - 1;
 
   ACTS_DEBUG("Pythia8 generated " << np << " particles.");
+
   // the last vertex
   Acts::Vector3D                 lastVertex(0., 0., 0.);
   std::vector<Data::SimParticle> particlesOut;

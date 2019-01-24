@@ -47,6 +47,7 @@ setupEvgenInput(vmap_t&                               vm,
 
   // Check if the particle gun is to be used
   if (evgenInput == "gun") {
+
     // Read the particle gun configs
     auto particleGunCfg = FW::Options::readParticleGunConfig<vmap_t>(vm);
 

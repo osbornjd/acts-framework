@@ -219,7 +219,7 @@
         <constant name="E2_M1_stagger"      value="3.*mm"/>
         <constant name="E2_M1_subStagger"   value="0.*mm"/>
                 
-		<constant name="CaloSides" value="100"/>
+		<constant name="CaloSides" value="10"/>
     
 		<constant name="EcalBarrel_ID" value="6"/>
 		<constant name="EcalBarrel_rmin" value="115.*cm"/>
