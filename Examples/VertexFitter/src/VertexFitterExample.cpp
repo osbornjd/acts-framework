@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2016-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -24,7 +24,7 @@
 #include "VertexFitAlgorithm.hpp"
 
 #include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/Vertexing/FullVertexFitter.hpp"
+#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
 
 namespace po = boost::program_options;
 
@@ -87,9 +87,9 @@ main(int argc, char* argv[])
   Acts::ConstantBField bField(Acts::Vector3D(0., 0., 1.) * Acts::units::_T);
 
   // Set up Billoir Vertex Fitter
-  Acts::FullVertexFitter<Acts::ConstantBField>::Config vertexFitterCfg(bField);
+  Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack>::Config vertexFitterCfg(bField);
   auto                                                 billoirFitter
-      = std::make_shared<Acts::FullVertexFitter<Acts::ConstantBField>>(
+      = std::make_shared<Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack>>(
           vertexFitterCfg);
 
   // Now read the evgen config & set the missing parts

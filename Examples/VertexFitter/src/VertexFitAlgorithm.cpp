@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2016-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -22,6 +22,9 @@
 #include "Acts/Vertexing/LinearizedTrack.hpp"
 #include "Acts/Vertexing/LinearizedTrackFactory.hpp"
 #include "Acts/Vertexing/Vertex.hpp"
+
+//#include "Acts/Vertexing/VertexFinderTools/ZScanFinder.hpp"
+
 
 FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
                                             Acts::Logging::Level level)
@@ -76,8 +79,11 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
   /// typedef for simplicity
   using BoundParamsVector = std::vector<Acts::BoundParameters>;
 
+  using InputTrackVector = std::vector<InputTrack>;
   /// Vector to store smrdTracksAtVtx for all vertices of event
   std::vector<BoundParamsVector> smrdTrackCollection;
+
+  std::vector<InputTrackVector> inputTrackCollection;
 
   /// Vector to store true vertices positions
   std::vector<Acts::Vector3D> trueVertices;
@@ -87,6 +93,7 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 
     /// Vector to store smeared tracks at current vertex
     BoundParamsVector smrdTracksAtVtx;
+    InputTrackVector inputTrackVector;
 
     /// Iterate over all particle emerging from current vertex
     for (auto const& particle : vtx.out) {
@@ -162,14 +169,20 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
           (*covMat)(3, 3) = rn_th * rn_th;
           (*covMat)(4, 4) = rn_qp * rn_qp;
 
-          smrdTracksAtVtx.push_back(Acts::BoundParameters(
-              std::move(covMat), paramVec, perigeeSurface));
+
+          Acts::BoundParameters currentBoundParams(
+              std::move(covMat), paramVec, perigeeSurface);
+
+          smrdTracksAtVtx.push_back(currentBoundParams);
+
+          inputTrackVector.push_back(InputTrack(currentBoundParams));
         }
       }
     }
 
     if (!smrdTracksAtVtx.empty()) {
       smrdTrackCollection.push_back(smrdTracksAtVtx);
+      inputTrackCollection.push_back(inputTrackVector);
 
       /// Store true vertex position
       trueVertices.push_back(vtx.position);
@@ -180,7 +193,23 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 
   ACTS_INFO("Total number of vertices in event: " << trueVertices.size());
 
-  std::vector<Acts::Vertex> fittedVertices;
+  #if 0
+  Acts::FsmwMode1dFinder modeFinder;
+  Acts::TrackToVertexIPEstimator<Acts::ConstantBField, InputTrack>::Config ipEstCfg(m_cfg.bField);
+  Acts::TrackToVertexIPEstimator<Acts::ConstantBField, InputTrack> ipEst(ipEstCfg);
+ 
+  Acts::ZScanFinder<Acts::ConstantBField, InputTrack>::Config myFinderCfg(ipEst, modeFinder);
+  Acts::ZScanFinder<Acts::ConstantBField, InputTrack>::State state;
+
+  Acts::ZScanFinder<Acts::ConstantBField, InputTrack> myFinder(myFinderCfg);
+
+  Acts::Vertex<InputTrack> constraint(Acts::Vector3D(10,10,0));
+  std::vector<Acts::Vertex<InputTrack>> myResult = myFinder.find(smrdTrackCollection[0], &constraint, state);
+
+  std::cout << "seed position: " << myResult[0].position() << std::endl;
+  #endif
+
+  std::vector<Acts::Vertex<InputTrack>> fittedVertices(smrdTrackCollection.size());
 
   /// in-event parallel vertex fitting
   tbb::parallel_for(
@@ -191,10 +220,21 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 
           BoundParamsVector& currentParamVectorAtVtx
               = smrdTrackCollection[vertex_idx];
+
           if (currentParamVectorAtVtx.size() > 1) {
 
-            Acts::Vertex fittedVertex
-                = m_cfg.vertexFitter->fit(currentParamVectorAtVtx);
+            Acts::Vertex<InputTrack> myConstraint;
+            Acts::ActsSymMatrixD<3> myCovMat;
+            myCovMat(0,0) = 30.;
+            myCovMat(1,1) = 30.;
+            myCovMat(2,2) = 30.;
+            myConstraint.setCovariance(std::move(myCovMat));
+            myConstraint.setPosition(Acts::Vector3D(0,0,0));
+
+            std::vector<InputTrack> emptyVector;
+
+            Acts::Vertex<InputTrack> fittedVertex
+                = m_cfg.vertexFitter->fit(inputTrackCollection[vertex_idx]);//, myConstraint);
 
             Acts::Vector3D currentTrueVtx = trueVertices[vertex_idx];
             Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();
@@ -221,7 +261,7 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
                       << fittedVertex.position()[2]
                       << ")");
 
-            fittedVertices.push_back(std::move(fittedVertex));
+            fittedVertices[vertex_idx] = std::move(fittedVertex);
           }
         }
       });

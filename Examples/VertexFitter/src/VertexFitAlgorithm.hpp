@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2016-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -18,7 +18,19 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 #include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/Vertexing/FullVertexFitter.hpp"
+#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
+
+struct InputTrack
+    {
+      InputTrack(const Acts::BoundParameters& params)
+        : m_parameters(params) {}
+
+       const Acts::BoundParameters& parameters() const {return m_parameters;}
+
+    private:
+       Acts::BoundParameters m_parameters;
+    };
+
 
 namespace FWE {
 
@@ -30,12 +42,13 @@ namespace FWE {
 class VertexFitAlgorithm : public FW::BareAlgorithm
 {
 public:
+
   struct Config
   {
     std::string collection;  ///< Input particle collection
     std::string collectionOut = "paramCollection";  ///< Output collection
     std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
-    std::shared_ptr<Acts::FullVertexFitter<Acts::ConstantBField>> vertexFitter
+    std::shared_ptr<Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack>> vertexFitter
         = nullptr;
     Acts::ConstantBField bField;
   };
