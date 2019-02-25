@@ -38,9 +38,9 @@
         <constant name="PB_M_thickness"    value="0.1*mm"/>        
         <!-- Module - on sensor components -->
         <!-- Thin layer of Al, smaller than the module -->
-        <constant name="PB_M_C0_length"     value="71.2*mm"/>
-        <constant name="PB_M_C0_width"      value="16.*mm"/>
-        <constant name="PB_M_C0_thickness"  value="0.075*mm"/>
+        <constant name="PB_M_C0_length"     value="60.*mm"/>
+        <constant name="PB_M_C0_width"      value="12.*mm"/>
+        <constant name="PB_M_C0_thickness"  value="0.015*mm"/>
         <constant name="PB_M_C0_zpos"       value="-2.9*mm"/>
         <constant name="PB_M_C0_xpos"       value="0.*mm"/>
         <!-- Sensitive Silicon -->
@@ -163,7 +163,7 @@
     <detectors>
     <--BeamPipe-->
         <detector id="0" name="beampipe" type="BeamPipe">
-            <dimensions rmin="BeamPipe_rmin" rmax="BeamPipe_rmax" z="BeamPipe_hLength" vis="orange" material="Be"/>
+            <dimensions rmin="BeamPipe_rmin" rmax="BeamPipe_rmax" z="BeamPipe_hLength" vis="orange" material="Beryllium"/>
         </detector>
         <detector id="1" name="Pixel" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
             <composite name="Barrel0"/>

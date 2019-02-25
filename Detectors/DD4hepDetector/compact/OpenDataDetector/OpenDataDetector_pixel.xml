@@ -5,15 +5,15 @@
         <dimensions rmin="PB_rmin" rmax="PB_rmax" length="PB_length" z="0.*mm" g4tolerance="G4_Tolerance" vis="invisible"/>
         
         <module name="PB_Module" width="PB_M_width" length="PB_M_length" thickness="PB_M_thickness" material="Air" vis="invisible">
-     	   	<module_component width="PB_M_C0_width" length="PB_M_C0_length" thickness="PB_M_C0_thickness" x="PB_M_C0_xpos" z="PB_M_C0_zpos" material="Al" vis="red"/>          
+     	   	<module_component width="PB_M_C0_width" length="PB_M_C0_length" thickness="PB_M_C0_thickness" x="PB_M_C0_xpos" z="PB_M_C0_zpos" material="Aluminum" vis="red"/>          
     		<module_component width="PB_M_width" length="PB_M_length" thickness="PB_M_thickness" x="PB_M_C1_xpos" z="PB_M_C1_zpos" material="Silicon" vis="green" sensitive="true"/>
          	<module_component width="PB_M_C2_width" length="PB_M_C2_length" thickness="PB_M_C2_thickness" x="PB_M_C2_xpos" z="PB_M_C2_zpos" material="Kapton" vis="blue"/>
           <subtraction material="Carbon" z="PB_M_C3_zpos" vis="grey"> 
              <trd x1="PB_M_C3_X1" x2="PB_M_C3_X2" length="PB_M_C3_length" thickness="PB_M_C3_thickness"/>
              <tubs rmin="PB_M_C3_rmin" rmax="PB_M_C3_rmax" length="PB_M_length" z="PB_M_C3_zoffset"/>
          </subtraction> 
-         <tubs name="PB_CoolingPipe" rmin="PB_M_C4_rmin" rmax="PB_M_C4_rmax" length="PB_M_length" z="PB_M_C4_zpos" material="Ti" vis="orange"/>
-         <cable name="PB_CableBundle" rmax="PB_M_Cab_r" length="PB_M_length" x="PB_M_Cab_x" y="PB_M_Cab_y" z="PB_M_Cab_z" material="Copper" vis="orange" />
+         <tubs name="PB_CoolingPipe" rmin="PB_M_C4_rmin" rmax="PB_M_C4_rmax" length="PB_M_length" z="PB_M_C4_zpos" material="Titanium" vis="orange"/>
+         <cable name="PB_CableBundle" rmax="PB_M_Cab_r" length="PB_M_length" x="PB_M_Cab_x" y="PB_M_Cab_y" z="PB_M_Cab_z" material="Copper" vis="orange"/>
         </module>
         
         <!-- PIXEL BARREL DETECTOR -->
