@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_BFIELD_TXTBFIELDUTILS_HPP
-#define ACTFW_BFIELD_TXTBFIELDUTILS_HPP
+#pragma once
 
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "Acts/Utilities/Logger.hpp"
@@ -214,4 +213,3 @@ namespace BField {
 }  // namespace BField
 
 }  // namespace FW
-#endif  // ACTFW_BFIELD_TXTBFIELDUTILS_HPP

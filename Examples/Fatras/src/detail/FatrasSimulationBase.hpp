@@ -249,10 +249,11 @@ setupSimulation(vmap_t&                                       vm,
   // create BField service
   auto bField = FW::Options::readBField<vmap_t>(vm);
   // a charged propagator
-  if (bField.first) {
+  if (std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)) {
     // create the shared field
     using BField = Acts::SharedBField<Acts::InterpolatedBFieldMap>;
-    BField fieldMap(bField.first);
+    BField fieldMap(
+        std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField));
     // now setup of the simulation and append it to the sequencer
     setupSimulationAlgorithm(std::move(fieldMap),
                              sequencer,
@@ -263,7 +264,7 @@ setupSimulation(vmap_t&                                       vm,
   } else {
     // create the shared field
     using CField = Acts::ConstantBField;
-    CField fieldMap(*bField.second);
+    CField fieldMap(*std::get<std::shared_ptr<Acts::ConstantBField>>());
     // now setup of the simulation and append it to the sequencer
     setupSimulationAlgorithm(std::move(fieldMap),
                              sequencer,

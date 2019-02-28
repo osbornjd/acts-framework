@@ -56,11 +56,11 @@ namespace Csv {
 
   protected:
     /// @brief Write method called by the base class
-    /// @param [in] ctx is the algorithm context for consistency
+    /// @param [in] context is the algorithm context for consistency
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
-    writeT(const FW::AlgorithmContext&           ctx,
+    writeT(const FW::AlgorithmContext&           context,
            const std::vector<Data::SimVertex<>>& vertices) final override;
 
   private:

@@ -6,12 +6,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_OPTIONS_BFIELDOPTIONS_HPP
-#define ACTFW_OPTIONS_BFIELDOPTIONS_HPP
+#pragma once
 
 #include <iostream>
 #include <utility>
 #include "ACTFW/Plugins/BField/BFieldUtils.hpp"
+#include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
@@ -50,7 +50,7 @@ namespace Options {
         "The default unit for the grid "
         "points is mm. In case the grid points of your field map has another "
         "unit, please set  the scalor to mm.")(
-        "bs-bscalor",
+        "bf-bscalor",
         po::value<double>()->default_value(1.),
         "The default unit for the magnetic field values is Tesla. In case the "
         "grid points of your field map has another unit, please set  the "
@@ -71,13 +71,17 @@ namespace Options {
         "In case no magnetic field map is handed over. A constant magnetic "
         "field will be created automatically. The values can be set with this "
         "options. Please hand over the coordinates in cartesian coordinates: "
-        "{Bx,By,Bz} in Tesla.");
+        "{Bx,By,Bz} in Tesla.")(
+        "bf-context-scalable",
+        po::value<bool>()->default_value(false),
+        "This is for testing the event dependent magnetic field scaling.");
   }
 
   // create the bfield maps
   template <class AMAP>
-  std::pair<std::shared_ptr<Acts::InterpolatedBFieldMap>,
-            std::shared_ptr<Acts::ConstantBField>>
+  std::tuple<std::shared_ptr<Acts::InterpolatedBFieldMap>,
+             std::shared_ptr<Acts::ConstantBField>,
+             std::shared_ptr<FW::BField::ScalableBField>>
   readBField(const AMAP& vm)
   {
     std::string bfieldmap = "constfield";
@@ -99,9 +103,10 @@ namespace Options {
       } else {
         std::cout << "- magnetic field format could not be detected";
         std::cout << " use '.root', '.txt', or '.csv'." << std::endl;
-        return std::pair<std::shared_ptr<Acts::InterpolatedBFieldMap>,
-                         std::shared_ptr<Acts::ConstantBField>>(nullptr,
-                                                                nullptr);
+        return std::make_tuple<std::shared_ptr<Acts::InterpolatedBFieldMap>,
+                               std::shared_ptr<Acts::ConstantBField>,
+                               std::shared_ptr<FW::BField::ScalableBField>>(
+            nullptr, nullptr, nullptr);
       }
     }
     if (bfieldmaptype == text && vm.count("bf-gridpoints")) {
@@ -205,6 +210,7 @@ namespace Options {
           "hand over the coordinates in cartesian coordinates: "
           "{Bx,By,Bz} in Tesla.");
     }
+
     // Create the constant magnetic field
     std::shared_ptr<Acts::ConstantBField> cField
         = std::make_shared<Acts::ConstantBField>(
@@ -212,10 +218,17 @@ namespace Options {
             bFieldValues.at(1) * Acts::units::_T,
             bFieldValues.at(2) * Acts::units::_T);
 
-    return std::pair<std::shared_ptr<Acts::InterpolatedBFieldMap>,
-                     std::shared_ptr<Acts::ConstantBField>>(bField, cField);
+    // Create the scalable magnetic field
+    std::shared_ptr<FW::BField::ScalableBField> sField
+        = std::make_shared<FW::BField::ScalableBField>(
+            bFieldValues.at(0) * Acts::units::_T,
+            bFieldValues.at(1) * Acts::units::_T,
+            bFieldValues.at(2) * Acts::units::_T);
+
+    return std::make_tuple<std::shared_ptr<Acts::InterpolatedBFieldMap>,
+                           std::shared_ptr<Acts::ConstantBField>,
+                           std::shared_ptr<FW::BField::ScalableBField>>(
+        std::move(bField), std::move(cField), std::move(sField));
   }
 }
 }
-
-#endif  // ACTFW_OPTIONS_BFIELDOPTIONS_HPP

@@ -46,7 +46,7 @@ namespace Obj {
 
   protected:
     ProcessCode
-    writeT(const AlgorithmContext& ctx,
+    writeT(const AlgorithmContext& context,
            const DetectorData<geo_id_value, T>& spacePoints);
 
   private:
@@ -77,12 +77,12 @@ inline FW::Obj::ObjSpacePointWriter<T>::ObjSpacePointWriter(
 template <typename T>
 inline FW::ProcessCode
 FW::Obj::ObjSpacePointWriter<T>::writeT(
-    const FW::AlgorithmContext& ctx,
+    const FW::AlgorithmContext& context,
     const FW::DetectorData<geo_id_value, T>& spacePoints)
 {
   // open per-event file
   std::string path = FW::perEventFilepath(
-      m_cfg.outputDir, "spacepoints.obj", ctx.eventNumber);
+      m_cfg.outputDir, "spacepoints.obj", context.eventNumber);
   std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
   if (!os) {
     throw std::ios_base::failure("Could not open '" + path + "' to write");

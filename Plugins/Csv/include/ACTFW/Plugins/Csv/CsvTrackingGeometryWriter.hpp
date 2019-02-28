@@ -72,18 +72,21 @@ namespace Csv {
     name() const final override;
 
     /// The write interface
+    /// @param context The algorithm/event context under which this is called
     /// @param tGeometry is the geometry to be written out
     /// @return ProcessCode to indicate success/failure
     FW::ProcessCode
-    write(const Acts::TrackingGeometry& tGeometry) final override;
+    write(const AlgorithmContext&       context,
+          const Acts::TrackingGeometry& tGeometry) final override;
 
   private:
     Config m_cfg;  ///< the config class
 
     /// process this volume
+    /// @param context The algorithm/event context under which this is called
     /// @param tVolume the volume to be processed
     void
-    write(const Acts::TrackingVolume& tVolume);
+    write(const AlgorithmContext& context, const Acts::TrackingVolume& tVolume);
 
     /// Private access to the logging instance
     const Acts::Logger&

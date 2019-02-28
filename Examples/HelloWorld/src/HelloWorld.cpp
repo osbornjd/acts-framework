@@ -41,8 +41,7 @@ main(int argc, char* argv[])
   auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
   // And add the hello world algorithm
-  std::shared_ptr<FW::IAlgorithm> hWorld(
-      new FWE::HelloWorldAlgorithm(logLevel));
+  std::shared_ptr<FW::IAlgorithm> hWorld(new FW::HelloWorldAlgorithm(logLevel));
 
   // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;

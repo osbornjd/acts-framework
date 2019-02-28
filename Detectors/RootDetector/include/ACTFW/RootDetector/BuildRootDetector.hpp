@@ -53,8 +53,10 @@ namespace Root {
         = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
 
     // configure surface array creator
-    auto surfaceArrayCreator
+    Acts::SurfaceArrayCreator::Config sacConfig;
+    auto                              surfaceArrayCreator
         = std::make_shared<const Acts::SurfaceArrayCreator>(
+            sacConfig,
             Acts::getDefaultLogger("SurfaceArrayCreator", surfaceLogLevel));
     // configure the layer creator that uses the surface array creator
     Acts::LayerCreator::Config lcConfig;
@@ -62,11 +64,14 @@ namespace Root {
     auto layerCreator            = std::make_shared<const Acts::LayerCreator>(
         lcConfig, Acts::getDefaultLogger("LayerCreator", layerLogLevel));
     // configure the layer array creator
+    Acts::LayerArrayCreator::Config lacConfig;
     auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
-        Acts::getDefaultLogger("LayerArrayCreator", layerLogLevel));
+        lacConfig, Acts::getDefaultLogger("LayerArrayCreator", layerLogLevel));
     // tracking volume array creator
-    auto tVolumeArrayCreator
+    Acts::TrackingVolumeArrayCreator::Config tvacConfig;
+    auto                                     tVolumeArrayCreator
         = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
+            tvacConfig,
             Acts::getDefaultLogger("TrackingVolumeArrayCreator",
                                    volumeLogLevel));
     // configure the cylinder volume helper

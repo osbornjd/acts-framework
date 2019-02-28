@@ -56,7 +56,8 @@ FW::GeantinoRecording::GeantinoRecording(
   m_runManager->Initialize();
 }
 
-FW::ProcessCode FW::GeantinoRecording::execute(FW::AlgorithmContext) const
+FW::ProcessCode
+FW::GeantinoRecording::execute(const FW::AlgorithmContext&) const
 {
 
   /// Begin with the simulation

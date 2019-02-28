@@ -93,13 +93,13 @@ FW::Root::RootPlanarClusterWriter::endRun()
 
 FW::ProcessCode
 FW::Root::RootPlanarClusterWriter::writeT(
-    const AlgorithmContext& ctx,
+    const AlgorithmContext& context,
     const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& clusters)
 {
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
   // Get the event number
-  m_eventNr = ctx.eventNumber;
+  m_eventNr = context.eventNumber;
 
   // Loop over the planar clusters in this event
   for (auto& volumeData : clusters) {
@@ -117,7 +117,7 @@ FW::Root::RootPlanarClusterWriter::writeT(
           // the cluster surface
           auto& clusterSurface = cluster.referenceSurface();
           // transform local into global position information
-          clusterSurface.localToGlobal(local, mom, pos);
+          clusterSurface.localToGlobal(context.geoContext, local, mom, pos);
           // identification
           m_volumeID  = volumeData.first;
           m_layerID   = layerData.first;
@@ -161,7 +161,8 @@ FW::Root::RootPlanarClusterWriter::writeT(
             const Acts::Vector3D& sMomentum = sParticle->momentum();
             // local position to be calculated
             Acts::Vector2D lPosition;
-            clusterSurface.globalToLocal(sPosition, sMomentum, lPosition);
+            clusterSurface.globalToLocal(
+                context.geoContext, sPosition, sMomentum, lPosition);
             // fill the variables
             m_t_gx.push_back(sPosition.x());
             m_t_gy.push_back(sPosition.y());

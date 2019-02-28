@@ -99,7 +99,7 @@ public:
   /// @param [in] the algorithm context for event consistency
   /// @return is a process code indicating succes or not
   FW::ProcessCode
-  execute(AlgorithmContext ctx) const final override;
+  execute(const AlgorithmContext& context) const final override;
 
 private:
   Config m_cfg;  ///< the config class
@@ -115,12 +115,15 @@ private:
   ///
   // @tparam parameters_t type of the parameters objects (charged/neutra;)
   ///
+  /// @param [in] context The Context for this call
   /// @param [in] startParameters the start parameters
+  /// @param [in] pathLengthe the path limit of this propagation
   ///
   /// @return collection of Propagation steps for further analysis
   template <typename parameters_t>
   std::vector<Acts::detail::Step>
-  executeTest(const parameters_t& startParameters,
+  executeTest(const AlgorithmContext& context,
+              const parameters_t&     startParameters,
               double pathLength = std::numeric_limits<double>::max()) const;
 };
 

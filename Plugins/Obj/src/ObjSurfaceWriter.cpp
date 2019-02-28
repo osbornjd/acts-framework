@@ -41,7 +41,8 @@ FW::Obj::ObjSurfaceWriter::name() const
 }
 
 FW::ProcessCode
-FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
+FW::Obj::ObjSurfaceWriter::write(const AlgorithmContext& context,
+                                 const Acts::Surface&    surface)
 {
   std::lock_guard<std::mutex> lock(m_write_mutex);
 
@@ -50,7 +51,7 @@ FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
   auto scalor = m_cfg.outputScalor;
   // let's get the bounds & the transform
   const Acts::SurfaceBounds& surfaceBounds = surface.bounds();
-  auto                       sTransform    = surface.transform();
+  auto                       sTransform = surface.transform(context.geoContext);
 
   // dynamic_cast to PlanarBounds
   const Acts::PlanarBounds* planarBounds

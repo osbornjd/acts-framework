@@ -17,6 +17,7 @@
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "Acts/MagneticField/concept/AnyFieldLookup.hpp"
+#include "Acts/Utilities/MagneticFieldContext.hpp"
 #include "Acts/Utilities/Units.hpp"
 
 /// The main executable
@@ -31,23 +32,24 @@ namespace po = boost::program_options;
 using UniformDist  = std::uniform_real_distribution<double>;
 using RandomEngine = std::mt19937;
 
-template <typename field_t>
+template <typename field_t, typename field_context_t>
 void
-accessStepWise(field_t& bField,
-               size_t   events,
-               size_t   theta_steps,
-               double   theta_0,
-               double   theta_step,
-               size_t   phi_steps,
-               double   phi_0,
-               double   phi_step,
-               size_t   access_steps,
-               double   access_step)
+accessStepWise(field_t&         bField,
+               field_context_t& bFieldContext,
+               size_t           events,
+               size_t           theta_steps,
+               double           theta_0,
+               double           theta_step,
+               size_t           phi_steps,
+               double           phi_0,
+               double           phi_step,
+               size_t           access_steps,
+               double           access_step)
 {
   std::cout << "[>>>] Start: step-wise access pattern ... " << std::endl;
   size_t mismatched = 0;
   // initialize the field cache
-  typename field_t::Cache bCache;
+  typename field_t::Cache bCache(bFieldContext);
   // boost display
   size_t totalSteps = events * theta_steps * phi_steps * access_steps;
   boost::progress_display show_progress(totalSteps);
@@ -86,9 +88,12 @@ accessStepWise(field_t& bField,
   }
 }
 
-template <typename field_t>
+template <typename field_t, typename field_context_t>
 void
-accessRandom(field_t& bField, size_t totalSteps, double radius)
+accessRandom(field_t&         bField,
+             field_context_t& bFieldContext,
+             size_t           totalSteps,
+             double           radius)
 {
   std::cout << "[>>>] Start: random access pattern ... " << std::endl;
   size_t       mismatched = 0;
@@ -98,7 +103,7 @@ accessRandom(field_t& bField, size_t totalSteps, double radius)
   UniformDist  zDist(-radius, radius);
 
   // initialize the field cache
-  typename field_t::Cache bCache;
+  typename field_t::Cache bCache(bFieldContext);
   boost::progress_display show_progress(totalSteps);
 
   // the event loop
@@ -164,10 +169,14 @@ main(int argc, char* argv[])
   }
   // Now read the standard options
   auto nEvents = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  ;
+
+  // A test magnetic field context
+  Acts::MagneticFieldContext magFieldContext
+      = Acts::DefaultMagneticFieldContext();
+
   // Create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
-  if (!bField.first) {
+  if (!std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)) {
     std::cout << "Bfield could not be set up. Exiting." << std::endl;
     return -1;
   }
@@ -189,20 +198,24 @@ main(int argc, char* argv[])
   double theta_step  = theta_span / theta_steps;
   double access_step = track_length / access_steps;
   // Step-wise access pattern
-  accessStepWise(*(bField.first),
-                 nEvents,
-                 theta_steps,
-                 thetar[0],
-                 theta_step,
-                 phi_steps,
-                 phir[0],
-                 phi_step,
-                 access_steps,
-                 access_step);
+  accessStepWise(
+      *(std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)),
+      magFieldContext,
+      nEvents,
+      theta_steps,
+      thetar[0],
+      theta_step,
+      phi_steps,
+      phir[0],
+      phi_step,
+      access_steps,
+      access_step);
   // Random access pattern
-  accessRandom(*(bField.first),
-               nEvents * theta_steps * phi_steps * access_steps,
-               track_length);
+  accessRandom(
+      *(std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)),
+      magFieldContext,
+      nEvents * theta_steps * phi_steps * access_steps,
+      track_length);
   // Return 0 for success
   return 0;
 }

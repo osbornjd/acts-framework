@@ -77,9 +77,11 @@ namespace Obj {
     name() const final override;
 
     /// The write interface
+    /// @param context the Algorithm/Event context of this call
     /// @param surface to be written out
     FW::ProcessCode
-    write(const Acts::Surface& surface) final override;
+    write(const AlgorithmContext& context,
+          const Acts::Surface&    surface) final override;
 
     /// write a bit of string
     /// @param is the string to be written

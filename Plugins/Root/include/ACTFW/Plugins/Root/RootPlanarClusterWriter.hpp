@@ -63,10 +63,10 @@ namespace Root {
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
     ///
-    /// @param ctx The Algorithm context with per event information
+    /// @param context The Algorithm context with per event information
     /// @param clusters is the data to be written out
     ProcessCode
-    writeT(const AlgorithmContext& ctx,
+    writeT(const AlgorithmContext& context,
            const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
                clusters) final override;
 

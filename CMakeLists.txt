@@ -24,7 +24,7 @@ endif()
 # use install paths consistent w/ ACTS
 include(GNUInstallDirs)
 # require C++14 globally
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 # place build products in `<build_dir>/bin` and `<build_dir>/lib` for simple use
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")

@@ -78,7 +78,7 @@ FW::Root::RootSimHitWriter::endRun()
 
 FW::ProcessCode
 FW::Root::RootSimHitWriter::writeT(
-    const AlgorithmContext& ctx,
+    const AlgorithmContext& context,
     const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>&
         fhits)
 {
@@ -86,7 +86,7 @@ FW::Root::RootSimHitWriter::writeT(
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // Get the event number
-  m_eventNr = ctx.eventNumber;
+  m_eventNr = context.eventNumber;
 
   // Loop over the planar fatras hits in this event
   for (auto& volumeData : fhits) {

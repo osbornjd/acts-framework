@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-namespace FWE {
+namespace FW {
 
 class DataClassTwo
 {
@@ -43,6 +43,6 @@ DataClassTwo::data() const
 
 typedef std::vector<DataClassTwo> DataClassTwoCollection;
 
-}  // namespace FWE
+}  // namespace FW
 
 #endif

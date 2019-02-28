@@ -31,12 +31,12 @@ FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
 
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterWriter::writeT(
-    const AlgorithmContext& ctx,
+    const AlgorithmContext& context,
     const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& clusters)
 {
   // open per-event hits file
   std::string pathHits
-      = perEventFilepath(m_cfg.outputDir, "hits.csv", ctx.eventNumber);
+      = perEventFilepath(m_cfg.outputDir, "hits.csv", context.eventNumber);
   std::ofstream osHits(pathHits, std::ofstream::out | std::ofstream::trunc);
   if (!osHits) {
     throw std::ios_base::failure("Could not open '" + pathHits + "' to write");
@@ -44,7 +44,7 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
 
   // open per-event details file for the hit details
   std::string pathDetails
-      = perEventFilepath(m_cfg.outputDir, "details.csv", ctx.eventNumber);
+      = perEventFilepath(m_cfg.outputDir, "details.csv", context.eventNumber);
   std::ofstream osDetails(pathDetails,
                           std::ofstream::out | std::ofstream::trunc);
   if (!osDetails) {
@@ -53,7 +53,7 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
 
   // open per-event truth file
   std::string pathTruth
-      = perEventFilepath(m_cfg.outputDir, "truth.csv", ctx.eventNumber);
+      = perEventFilepath(m_cfg.outputDir, "truth.csv", context.eventNumber);
   std::ofstream osTruth(pathTruth, std::ofstream::out | std::ofstream::trunc);
   if (!osTruth) {
     throw std::ios_base::failure("Could not open '" + pathTruth + "' to write");
@@ -90,7 +90,8 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           Acts::Vector3D pos(0, 0, 0);
           Acts::Vector3D mom(1, 1, 1);
           // transform local into global position information
-          cluster.referenceSurface().localToGlobal(local, mom, pos);
+          cluster.referenceSurface().localToGlobal(
+              context.geoContext, local, mom, pos);
 
           // write hit information
           osHits << hitId << ",";
@@ -99,13 +100,13 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           osHits << layerData.first << ",";
           osHits << moduleData.first << '\n';
 
-          // append cell information
+          // Append cell information
           auto cells = cluster.digitizationCells();
           for (auto& cell : cells) {
             osDetails << hitId << "," << cell.channel0 << "," << cell.channel1
                       << "," << cell.data << '\n';
           }
-          /// Hit identifier
+          /// Hit identifier - via the source link
           auto hitIdentifier = cluster.sourceLink();
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment

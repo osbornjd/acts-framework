@@ -14,7 +14,7 @@
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
-namespace FWE {
+namespace FW {
 
 /// @class Algorithm
 class HelloWorldAlgorithm : public FW::BareAlgorithm
@@ -26,9 +26,9 @@ public:
   /// Framework execode method
   /// @param [in] context is the Algorithm context for event consistency
   FW::ProcessCode
-  execute(FW::AlgorithmContext context) const final override;
+  execute(const AlgorithmContext& context) const final override;
 };
 
-}  // namespace FWE
+}  // namespace FW
 
 #endif  // ACTFW_EXAMPLES_HELLOWORLD_H

@@ -88,7 +88,7 @@ FW::Root::RootParticleWriter::endRun()
 
 FW::ProcessCode
 FW::Root::RootParticleWriter::writeT(
-    const AlgorithmContext&               ctx,
+    const AlgorithmContext&               context,
     const std::vector<Data::SimVertex<>>& vertices)
 {
 
@@ -98,7 +98,7 @@ FW::Root::RootParticleWriter::writeT(
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // Get the event number
-  m_eventNr = ctx.eventNumber;
+  m_eventNr = context.eventNumber;
 
   // loop over the process vertices
   for (auto& vertex : vertices) {

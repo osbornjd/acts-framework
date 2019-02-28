@@ -6,15 +6,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_EXAMPLES_WHITEBOARDALGORITHM_H
-#define ACTFW_EXAMPLES_WHITEBOARDALGORITHM_H 1
+#pragma once
 
 #include <memory>
-
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
-namespace FWE {
+namespace FW {
 
 /// @class Algorithm
 ///
@@ -45,13 +43,13 @@ public:
                       Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execode method
+  ///
+  /// @param context is the AlgorithmContext context
   FW::ProcessCode
-  execute(FW::AlgorithmContext ctx) const final override;
+  execute(const AlgorithmContext& context) const final override;
 
 private:
   Config m_cfg;
 };
 
-}  // namespace FWE
-
-#endif
+}  // namespace FW

@@ -92,7 +92,7 @@ public:
   /// @param [in] the algorithm context for event consistency
   /// @return a process code
   FW::ProcessCode
-  execute(AlgorithmContext ctx) const final override;
+  execute(const AlgorithmContext& context) const final override;
 
 private:
   /// The config class

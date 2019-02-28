@@ -83,7 +83,7 @@ main(int argc, char* argv[])
   }
   // create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
-  if (!bField.first) {
+  if (!std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)) {
     std::cout << "Bfield map could not be read. Exiting." << std::endl;
     return -1;
   }
@@ -95,7 +95,8 @@ main(int argc, char* argv[])
     writerConfig.gridType = FW::BField::GridType::xyz;
   writerConfig.treeName   = vm["bf-map-out"].as<std::string>();
   writerConfig.fileName   = vm["bf-file-out"].as<std::string>();
-  writerConfig.bField     = bField.first;
+  writerConfig.bField
+      = std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField);
   std::cout << "setting rBounds" << std::endl;
   if (vm.count("bf-rRange") && vm.count("bf-zRange")) {
     auto rBounds = vm["bf-rRange"].template as<read_range>();

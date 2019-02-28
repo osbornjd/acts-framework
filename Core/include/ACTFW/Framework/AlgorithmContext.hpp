@@ -6,15 +6,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-10-26 Initial version
-/// @author Hadrien Grasland
-/// @author Moritz Kiehn <msmk@cern.ch>
-
-#ifndef ACTFW_ALGORITHMCONTEXT_H
-#define ACTFW_ALGORITHMCONTEXT_H
+#pragma once
 
 #include <memory>
+#include "Acts/Utilities/CalibrationContext.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Utilities/MagneticFieldContext.hpp"
 
 namespace FW {
 
@@ -23,11 +20,34 @@ class WhiteBoard;
 /// Aggregated information to run one algorithm over one event.
 struct AlgorithmContext
 {
-  size_t      algorithmNumber;  ///< Unique algorithm identifier
-  size_t      eventNumber;      ///< Unique event identifier
-  WhiteBoard& eventStore;       ///< Per-event data store
+
+  /// @brief contructor with arguments
+  ///
+  /// @param alg is the algorithm/service/writer number
+  /// @param event ist the event number
+  /// @param store is the event-wise event store
+  ///
+  /// @note the event dependent contexts are to be added by the
+  /// Sequencer::m_decorators list
+  AlgorithmContext(size_t alg, size_t event, WhiteBoard& store)
+    : algorithmNumber(alg), eventNumber(event), eventStore(store)
+  {
+  }
+
+  /// @brief operator++ overload to increaset the algorithm number
+  AlgorithmContext& operator++()
+  {
+    ++algorithmNumber;
+    return (*this);
+  }
+
+  size_t                algorithmNumber;  ///< Unique algorithm identifier
+  size_t                eventNumber;      ///< Unique event identifier
+  WhiteBoard&           eventStore;       ///< Per-event data store
+  Acts::GeometryContext geoContext;       ///< Per-event geometry context
+  Acts::MagneticFieldContext
+                           magFieldContext;  ///< Per-event magnetic Field context
+  Acts::CalibrationContext calibContext;     ///< Per-event calbiration context
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_ALGORITHMCONTEXT_H

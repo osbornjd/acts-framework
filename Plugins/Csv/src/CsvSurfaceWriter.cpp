@@ -55,7 +55,8 @@ FW::Csv::CsvSurfaceWriter::name() const
 }
 
 FW::ProcessCode
-FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
+FW::Csv::CsvSurfaceWriter::write(const AlgorithmContext& context,
+                                 const Acts::Surface&    surface)
 {
   std::lock_guard<std::mutex> lock(m_write_mutex);
 
@@ -64,8 +65,8 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
 
   // let's get the bounds & the transform
   const Acts::SurfaceBounds& surfaceBounds = surface.bounds();
-  auto                       sCenter       = surface.center();
-  auto                       sTransform    = surface.transform();
+  auto                       sCenter       = surface.center(context.geoContext);
+  auto                       sTransform = surface.transform(context.geoContext);
 
   // Get the layer geo id information
   auto geoID       = surface.geoID();

@@ -69,10 +69,10 @@ public:
                         
   /// Framework execute method of the digitization algorithm
   /// 
-  /// @param ctx is the algorithm context that holds event-wise information 
+  /// @param context is the algorithm context that holds event-wise information 
   /// @return a process code to steer the algporithm flow                      
-  FW::ProcessCode
-  execute(FW::AlgorithmContext ctx) const final override;
+  ProcessCode
+  execute(const AlgorithmContext& context) const final override;
 
 private:
   Config m_cfg; /// config struct

@@ -48,7 +48,7 @@ public:
   ///
   /// This function must be implemented by subclasses.
   virtual ProcessCode
-  execute(AlgorithmContext context) const override = 0;
+  execute(const AlgorithmContext& context) const override = 0;
 
 protected:
   const Acts::Logger&

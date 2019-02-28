@@ -67,10 +67,10 @@ namespace Root {
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
     ///
-    /// @param ctx The Algorithm context with per event information
+    /// @param context The Algorithm context with per event information
     /// @param simhits The simulation hits collection to we written out
     ProcessCode
-    writeT(const AlgorithmContext& ctx,
+    writeT(const AlgorithmContext& context,
            const DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>&
                simhits) final override;
 

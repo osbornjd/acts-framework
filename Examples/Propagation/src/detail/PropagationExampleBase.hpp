@@ -15,6 +15,7 @@
 #include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Plugins/Obj/ObjPropagationStepsWriter.hpp"
 #include "ACTFW/Plugins/Root/RootPropagationStepsWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
@@ -126,20 +127,26 @@ setupStraightLinePropgation(
 ///
 /// @param argc the number of argumetns of the call
 /// @param atgv the argument list
-/// @param trackingGeometry is the access struct for the trackingGeometry
+/// @param geometryOptions is a callable options struct
+/// @param trackingGeometry is a callable geometry getter
+/// @param context is a callable geinetry context getter
 ///
-template <typename geometry_options_t, typename geometry_getter_t>
+template <typename geometry_options_t,
+          typename geometry_getter_t,
+          typename context_getter_t>
 int
 propagationExample(int                argc,
                    char*              argv[],
                    geometry_options_t geometryOptions,
-                   geometry_getter_t  trackingGeometry)
+                   geometry_getter_t  trackingGeometry,
+                   context_getter_t   context)
 {
 
   // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
   // Now create the sequencer
   FW::Sequencer sequencer(seqConfig);
+
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the common options
@@ -173,16 +180,22 @@ propagationExample(int                argc,
   auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
   auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
+  // Get the tracking geometry
+  auto tGeometry = trackingGeometry(vm);
+  // Create the geometry context service if necessary
+  auto contextDecorators = context(vm, tGeometry);
+
+  // Add it to the sequencer
+  sequencer.addContextDecorators(contextDecorators);
+
   // Create the random number engine
   auto randomNumberSvcCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
+
   // Add it to the sequencer
   sequencer.addServices({randomNumberSvc});
-
-  // Get the tracking geometry
-  auto tGeometry = trackingGeometry(vm);
 
   // Create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
@@ -190,15 +203,20 @@ propagationExample(int                argc,
   if (vm["prop-stepper"].template as<int>() == 0) {
     // Straight line stepper was chosen
     setupStraightLinePropgation(sequencer, vm, randomNumberSvc, tGeometry);
-  } else if (bField.first) {
+  } else if (std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)) {
     // Define the interpolated b-field
     using BField = Acts::SharedBField<Acts::InterpolatedBFieldMap>;
-    BField fieldMap(bField.first);
+    BField fieldMap(
+        std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField));
+    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+  } else if (vm["bf-context-scalable"].template as<bool>()) {
+    using SField = FW::BField::ScalableBField;
+    SField fieldMap(*std::get<std::shared_ptr<SField>>(bField));
     setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else {
     // Create the constant  field
     using CField = Acts::ConstantBField;
-    CField fieldMap(*bField.second);
+    CField fieldMap(*std::get<std::shared_ptr<CField>>(bField));
     setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   }
 

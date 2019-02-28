@@ -6,14 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-05-11 Initial version
-/// @date 2017-07-27 Clean up with simplified interfaces
-/// @author Andreas Salzburger
-/// @author Moritz Kiehn <msmk@cern.ch>
-
-#ifndef ACTFW_SEQUENCER_H
-#define ACTFW_SEQUENCER_H
+#pragma once
 
 #include <boost/optional.hpp>
 #include <memory>
@@ -21,6 +14,7 @@
 #include <tbb/task_scheduler_init.h>
 #include <vector>
 #include "ACTFW/Framework/IAlgorithm.hpp"
+#include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/IWriter.hpp"
@@ -41,6 +35,7 @@ public:
   {
     /// job store logging level
     Acts::Logging::Level jobStoreLogLevel = Acts::Logging::INFO;
+
     /// event store logging level
     Acts::Logging::Level eventStoreLogLevel = Acts::Logging::INFO;
   };
@@ -51,6 +46,13 @@ public:
   Sequencer(const Config&                       cfg,
             std::unique_ptr<const Acts::Logger> logger
             = Acts::getDefaultLogger("Sequencer", Acts::Logging::INFO));
+
+  /// Add context decorators
+  ///
+  /// @param decorators is the vector of decorators to be added
+  ProcessCode
+  addContextDecorators(
+      std::vector<std::shared_ptr<IContextDecorator>> decorators);
 
   /// Add services
   ///
@@ -97,13 +99,14 @@ public:
   run(boost::optional<size_t> events, size_t skip = 0);
 
 private:
-  std::vector<std::shared_ptr<IService>>   m_services;
-  std::vector<std::shared_ptr<IReader>>    m_readers;
-  std::vector<std::shared_ptr<IWriter>>    m_writers;
-  std::vector<std::shared_ptr<IAlgorithm>> m_algorithms;
-  Config                                   m_cfg;
-  std::unique_ptr<const Acts::Logger>      m_logger;
-  tbb::task_scheduler_init                 m_tbb_init;
+  std::vector<std::shared_ptr<IContextDecorator>> m_decorators;
+  std::vector<std::shared_ptr<IService>>          m_services;
+  std::vector<std::shared_ptr<IReader>>           m_readers;
+  std::vector<std::shared_ptr<IWriter>>           m_writers;
+  std::vector<std::shared_ptr<IAlgorithm>>        m_algorithms;
+  Config                                          m_cfg;
+  std::unique_ptr<const Acts::Logger>             m_logger;
+  tbb::task_scheduler_init                        m_tbb_init;
 
   const Acts::Logger&
   logger() const
@@ -113,5 +116,3 @@ private:
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_SEQUENCER_H

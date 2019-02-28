@@ -72,13 +72,13 @@ namespace Obj {
     /// and is called by the WriterT<>::write interface
     ProcessCode
     writeT(
-        const AlgorithmContext&                 ctx,
+        const AlgorithmContext&                 context,
         const std::vector<std::vector<step_t>>& stepCollection) final override
     {
 
       // open per-event file
       std::string path = FW::perEventFilepath(
-          m_cfg.outputDir, "propagation-steps.obj", ctx.eventNumber);
+          m_cfg.outputDir, "propagation-steps.obj", context.eventNumber);
       std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
       if (!os) {
         throw std::ios_base::failure("Could not open '" + path + "' to write");

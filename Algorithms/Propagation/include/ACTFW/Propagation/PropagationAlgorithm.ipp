@@ -44,8 +44,9 @@ template <typename propagator_t>
 template <typename parameters_t>
 std::vector<Acts::detail::Step>
 PropagationAlgorithm<propagator_t>::executeTest(
-    const parameters_t& startParameters,
-    double              pathLength) const
+    const AlgorithmContext& context,
+    const parameters_t&     startParameters,
+    double                  pathLength) const
 {
 
   ACTS_DEBUG("Test propagation/extrapolation starts");
@@ -54,16 +55,16 @@ PropagationAlgorithm<propagator_t>::executeTest(
   if (m_cfg.mode == 0) {
 
     // The step length logger for testing & end of world aborter
-    typedef Acts::detail::SteppingLogger    SteppingLogger;
-    typedef Acts::detail::DebugOutputActor  DebugOutput;
-    typedef Acts::detail::EndOfWorldReached EndOfWorld;
+    using SteppingLogger = Acts::detail::SteppingLogger;
+    using DebugOutput    = Acts::detail::DebugOutputActor;
+    using EndOfWorld     = Acts::detail::EndOfWorldReached;
 
     // Action list and abort list
-    typedef Acts::ActionList<SteppingLogger, DebugOutput> ActionList;
-    typedef Acts::AbortList<EndOfWorld> AbortConditions;
+    using ActionList        = Acts::ActionList<SteppingLogger, DebugOutput>;
+    using AbortList         = Acts::AbortList<EndOfWorld>;
+    using PropagatorOptions = Acts::PropagatorOptions<ActionList, AbortList>;
 
-    // Create the propagation options
-    Acts::PropagatorOptions<ActionList, AbortConditions> options;
+    PropagatorOptions options(context.geoContext, context.magFieldContext);
     options.pathLimit = pathLength;
     options.debug     = m_cfg.debugOutput;
 
@@ -91,7 +92,8 @@ PropagationAlgorithm<propagator_t>::executeTest(
 
 template <typename propagator_t>
 ProcessCode
-PropagationAlgorithm<propagator_t>::execute(AlgorithmContext context) const
+PropagationAlgorithm<propagator_t>::execute(
+    const AlgorithmContext& context) const
 {
   // Create a random number generator
   FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
@@ -134,13 +136,14 @@ PropagationAlgorithm<propagator_t>::execute(AlgorithmContext context) const
     if (charge) {
       // charged extrapolation - with hit recording
       Acts::BoundParameters startParameters(
-          std::move(cov), std::move(pars), surface);
-      testSteps = executeTest<Acts::TrackParameters>(startParameters);
+          context.geoContext, std::move(cov), std::move(pars), surface);
+      testSteps = executeTest<Acts::TrackParameters>(context, startParameters);
     } else {
       // execute the test for neeutral particles
       Acts::NeutralBoundParameters neutralParameters(
-          std::move(cov), std::move(pars), surface);
-      testSteps = executeTest<Acts::NeutralParameters>(neutralParameters);
+          context.geoContext, std::move(cov), std::move(pars), surface);
+      testSteps
+          = executeTest<Acts::NeutralParameters>(context, neutralParameters);
     }
     propagationSteps.push_back(testSteps);
   }
