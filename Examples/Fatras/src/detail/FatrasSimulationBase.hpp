@@ -264,7 +264,7 @@ setupSimulation(vmap_t&                                       vm,
   } else {
     // create the shared field
     using CField = Acts::ConstantBField;
-    CField fieldMap(*std::get<std::shared_ptr<Acts::ConstantBField>>());
+    CField fieldMap(*std::get<std::shared_ptr<Acts::ConstantBField>>(bField));
     // now setup of the simulation and append it to the sequencer
     setupSimulationAlgorithm(std::move(fieldMap),
                              sequencer,

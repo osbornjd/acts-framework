@@ -17,11 +17,11 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  DD4hepOptions         dd4HepOptions;
-  DD4hepGeometry        dd4HepGeometry;
-  DD4hepGeometryContext dd4HepGeometryContext;
+  DD4hepOptions  dd4HepOptions;
+  DD4hepGeometry dd4HepGeometry;
+  DD4hepContext  dd4HepContext;
 
   // now process it
   return propagationExample(
-      argc, argv, dd4HepOptions, dd4HepGeometry, dd4HepGeometryContext);
+      argc, argv, dd4HepOptions, dd4HepGeometry, dd4HepContext);
 }
