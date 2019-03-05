@@ -152,7 +152,7 @@ FW::Root::RootPlanarClusterWriter::writeT(
           }
           // get the truth parameters
           /// Hit identifier
-          Identifier hitIdentifier = cluster.identifier();
+          auto hitIdentifier = cluster.sourceLink();
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
           for (auto& sParticle : hitIdentifier.truthParticles()) {
