@@ -57,7 +57,7 @@ struct SurfaceSelector
   /// @param sPassive is the directive to select passivle surfaces
   SurfaceSelector(bool sSensitive = true,
                   bool sMaterial  = false,
-                  bool sPassive   = true)
+                  bool sPassive   = false)
     : selectSensitive(sSensitive)
     , selectMaterial(sMaterial)
     , selectPassive(sPassive)
@@ -73,8 +73,12 @@ struct SurfaceSelector
     if (selectSensitive && surface.associatedDetectorElement()) {
       return true;
     }
-    if (selectMaterial && surface.associatedMaterial()) return true;
-    if (selectPassive) return true;
+    if (selectMaterial && surface.associatedMaterial()) {
+      return true;
+    }
+    if (selectPassive) {
+      return true;
+    }
     return false;
   }
 };

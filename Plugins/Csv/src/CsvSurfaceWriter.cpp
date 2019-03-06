@@ -62,7 +62,6 @@ FW::Csv::CsvSurfaceWriter::write(const Acts::Surface& surface)
   // check
   ACTS_DEBUG(">>Csv: Writer for Surface object called.");
 
-  auto scalor = m_cfg.outputScalor;
   // let's get the bounds & the transform
   const Acts::SurfaceBounds& surfaceBounds = surface.bounds();
   auto                       sCenter       = surface.center();

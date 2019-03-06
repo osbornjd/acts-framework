@@ -102,7 +102,6 @@ FW::Root::RootParticleWriter::writeT(
 
   // loop over the process vertices
   for (auto& vertex : vertices) {
-    auto& vtx = vertex.position;
     for (auto& particle : vertex.outgoing()) {
       /// collect the information
       m_vx      = particle.position().x();
