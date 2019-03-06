@@ -101,13 +101,12 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
 
           // append cell information
           auto cells = cluster.digitizationCells();
-          std::random_shuffle(cells.begin(), cells.end());
           for (auto& cell : cells) {
             osDetails << hitId << "," << cell.channel0 << "," << cell.channel1
                       << "," << cell.data << '\n';
           }
           /// Hit identifier
-          Identifier hitIdentifier = cluster.identifier();
+          auto hitIdentifier = cluster.sourceLink();
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
           for (auto& sPartilce : hitIdentifier.truthParticles()) {

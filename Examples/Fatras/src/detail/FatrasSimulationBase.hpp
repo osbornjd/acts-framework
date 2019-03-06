@@ -26,7 +26,6 @@
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "Acts/MagneticField/SharedBField.hpp"
-#include "Acts/Propagator/AtlasStepper.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
@@ -55,10 +54,10 @@ struct SurfaceSelector
   ///
   /// @param sSensitive is the directive to select sensitive surfaces
   /// @param sMaterial is the directive to select material surfaces
-  /// @param sPassive is the directive to select passivle surfaces
+  /// @param sPassive is the directive to select passive surfaces
   SurfaceSelector(bool sSensitive = true,
                   bool sMaterial  = false,
-                  bool sPassive   = true)
+                  bool sPassive   = false)
     : selectSensitive(sSensitive)
     , selectMaterial(sMaterial)
     , selectPassive(sPassive)
@@ -74,8 +73,12 @@ struct SurfaceSelector
     if (selectSensitive && surface.associatedDetectorElement()) {
       return true;
     }
-    if (selectMaterial && surface.associatedMaterial()) return true;
-    if (selectPassive) return true;
+    if (selectMaterial && surface.associatedMaterial()) {
+      return true;
+    }
+    if (selectPassive) {
+      return true;
+    }
     return false;
   }
 };

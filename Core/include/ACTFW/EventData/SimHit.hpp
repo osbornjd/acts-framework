@@ -47,26 +47,27 @@ namespace Data {
 
     /// @brief Hit creation from Fatras simulation
     ///
-    /// @tparam propagator_state_t Type of the propagator state
-    /// @tparam particle_t Type of the Particle used for simulation
-    ///
-    /// @param state The propagator state object
+    /// @param surface is the Surface where the hit is created
+    /// @param position is the global hit position
+    /// @param direction is the momentum direction at hit position
     /// @param value the simulated value
     /// @param time is the timeStamp
     /// @param particle the particle for the truth link
     ///
     /// @return a SimHit object that is created from input parameters
-    template <typename propagator_state_t, typename particle_t>
+    template <typename particle_t>
     SimHit<particle_t>
-    operator()(propagator_state_t& state,
-               double              value,
-               double              time,
-               const particle_t&   simParticle) const
+    operator()(const Acts::Surface&  surface,
+               const Acts::Vector3D& position,
+               const Acts::Vector3D& direction,
+               double                value,
+               double                time,
+               const particle_t&     simParticle) const
     {
       SimHit<particle_t> simHit;
-      simHit.surface   = state.navigation.currentSurface;
-      simHit.position  = state.stepping.position();
-      simHit.direction = state.stepping.direction();
+      simHit.surface   = &surface;
+      simHit.position  = position;
+      simHit.direction = direction;
       simHit.value     = value;
       simHit.particle  = simParticle;
       return simHit;

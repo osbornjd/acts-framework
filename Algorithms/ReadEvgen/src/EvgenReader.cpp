@@ -148,7 +148,7 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
   }
 
   // shuffle the HS event
-  if (m_cfg.shuffleEvents) std::random_shuffle(evgen.begin(), evgen.end());
+  if (m_cfg.shuffleEvents) std::shuffle(evgen.begin(), evgen.end(), rng);
 
   // write to the EventStore
   if (ctx.eventStore.add(m_cfg.evgenCollection, std::move(evgen))

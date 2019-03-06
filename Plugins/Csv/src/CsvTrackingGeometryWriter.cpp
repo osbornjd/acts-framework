@@ -49,8 +49,6 @@ FW::Csv::CsvTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
     for (auto layer : tVolume.confinedLayers()->arrayObjects()) {
       // we jump navigation layers
       if (layer->layerType() == Acts::navigation) continue;
-      // get the volume name
-      const std::string& volumeName = tVolume.volumeName();
       // find the right surfacewriter
       auto surfaceWriter = m_cfg.surfaceWriter;
       // bail out if you have no surface writer
@@ -60,7 +58,6 @@ FW::Csv::CsvTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       // check for sensitive surfaces
       if (layer->surfaceArray() && surfaceWriter) {
         // the current module thickness
-        double              cThickness = 0.;
         std::vector<double> cValues;
         // loop over the surface
         for (auto surface : layer->surfaceArray()->surfaces()) {
