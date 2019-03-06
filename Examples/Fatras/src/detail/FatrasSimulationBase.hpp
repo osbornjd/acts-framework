@@ -54,7 +54,7 @@ struct SurfaceSelector
   ///
   /// @param sSensitive is the directive to select sensitive surfaces
   /// @param sMaterial is the directive to select material surfaces
-  /// @param sPassive is the directive to select passivle surfaces
+  /// @param sPassive is the directive to select passive surfaces
   SurfaceSelector(bool sSensitive = true,
                   bool sMaterial  = false,
                   bool sPassive   = false)
