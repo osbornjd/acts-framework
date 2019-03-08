@@ -73,7 +73,7 @@ struct SurfaceSelector
     if (selectSensitive && surface.associatedDetectorElement()) {
       return true;
     }
-    if (selectMaterial && surface.associatedMaterial()) {
+    if (selectMaterial && surface.surfaceMaterial()) {
       return true;
     }
     if (selectPassive) {
