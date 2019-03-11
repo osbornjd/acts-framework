@@ -89,7 +89,7 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 
     /// Vector to store smeared tracks at current vertex
     BoundParamsVector smrdTracksAtVtx;
-    InputTrackVector inputTrackVector;
+    InputTrackVector  inputTrackVector;
 
     /// Iterate over all particle emerging from current vertex
     for (auto const& particle : vtx.out) {
@@ -188,7 +188,8 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 
   ACTS_INFO("Total number of vertices in event: " << trueVertices.size());
 
-  std::vector<Acts::Vertex<InputTrack>> fittedVertices(smrdTrackCollection.size());
+  std::vector<Acts::Vertex<InputTrack>> fittedVertices(
+      smrdTrackCollection.size());
 
   /// in-event parallel vertex fitting
   tbb::parallel_for(
@@ -203,17 +204,18 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
           if (currentParamVectorAtVtx.size() > 1) {
 
             Acts::Vertex<InputTrack> myConstraint;
-            Acts::ActsSymMatrixD<3> myCovMat;
-            myCovMat(0,0) = 30.;
-            myCovMat(1,1) = 30.;
-            myCovMat(2,2) = 30.;
+            Acts::ActsSymMatrixD<3>  myCovMat;
+            myCovMat(0, 0) = 30.;
+            myCovMat(1, 1) = 30.;
+            myCovMat(2, 2) = 30.;
             myConstraint.setCovariance(std::move(myCovMat));
-            myConstraint.setPosition(Acts::Vector3D(0,0,0));
+            myConstraint.setPosition(Acts::Vector3D(0, 0, 0));
 
             std::vector<InputTrack> emptyVector;
 
             Acts::Vertex<InputTrack> fittedVertex
-                = m_cfg.vertexFitter->fit(inputTrackCollection[vertex_idx], propagator);//, myConstraint);
+                = m_cfg.vertexFitter->fit(inputTrackCollection[vertex_idx],
+                                          propagator);  //, myConstraint);
 
             Acts::Vector3D currentTrueVtx = trueVertices[vertex_idx];
             Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();

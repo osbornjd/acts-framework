@@ -24,9 +24,9 @@
 
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
-#include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
+#include "Acts/Propagator/Propagator.hpp"
+#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
 
 #include "VertexFitAlgorithm.hpp"
 
@@ -94,19 +94,31 @@ main(int argc, char* argv[])
   Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
 
   // Set up propagator with void navigator
-  Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator(stepper);
+  Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator(
+      stepper);
 
   // Create a custom std::function to extract BoundParameters from
-      // user-defined InputTrack
-      std::function<Acts::BoundParameters(InputTrack)> extractParameters
-          = [](InputTrack params) { return params.parameters(); };
+  // user-defined InputTrack
+  std::function<Acts::BoundParameters(InputTrack)> extractParameters
+      = [](InputTrack params) { return params.parameters(); };
 
   // Set up Billoir Vertex Fitter
-  Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack, 
-      Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>>::Config vertexFitterCfg(bField);
-  auto                                                 billoirFitter
-      = std::make_shared<Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack,
-          Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>>>(
+  Acts::
+      FullBilloirVertexFitter<Acts::ConstantBField,
+                              InputTrack,
+                              Acts::
+                                  Propagator<Acts::
+                                                 EigenStepper<Acts::
+                                                                  ConstantBField>>>::
+          Config vertexFitterCfg(bField);
+  auto           billoirFitter = std::
+      make_shared<Acts::
+                      FullBilloirVertexFitter<Acts::ConstantBField,
+                                              InputTrack,
+                                              Acts::
+                                                  Propagator<Acts::
+                                                                 EigenStepper<Acts::
+                                                                                  ConstantBField>>>>(
           vertexFitterCfg, extractParameters);
 
   // Now read the evgen config & set the missing parts

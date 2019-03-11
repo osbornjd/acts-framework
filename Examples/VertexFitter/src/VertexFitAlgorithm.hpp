@@ -18,21 +18,23 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 #include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
-#include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
+#include "Acts/Propagator/Propagator.hpp"
+#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
 
 struct InputTrack
-    {
-      InputTrack(const Acts::BoundParameters& params)
-        : m_parameters(params) {}
+{
+  InputTrack(const Acts::BoundParameters& params) : m_parameters(params) {}
 
-       const Acts::BoundParameters& parameters() const {return m_parameters;}
+  const Acts::BoundParameters&
+  parameters() const
+  {
+    return m_parameters;
+  }
 
-    private:
-       Acts::BoundParameters m_parameters;
-    };
-
+private:
+  Acts::BoundParameters m_parameters;
+};
 
 namespace FWE {
 
@@ -44,15 +46,20 @@ namespace FWE {
 class VertexFitAlgorithm : public FW::BareAlgorithm
 {
 public:
-
   struct Config
   {
     std::string collection;  ///< Input particle collection
     std::string collectionOut = "paramCollection";  ///< Output collection
     std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
-    std::shared_ptr<Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack,
-            Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>>> vertexFitter
-        = nullptr;
+    std::
+        shared_ptr<Acts::
+                       FullBilloirVertexFitter<Acts::ConstantBField,
+                                               InputTrack,
+                                               Acts::
+                                                   Propagator<Acts::
+                                                                  EigenStepper<Acts::
+                                                                                   ConstantBField>>>>
+                         vertexFitter = nullptr;
     Acts::ConstantBField bField;
   };
 
