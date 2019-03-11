@@ -23,9 +23,6 @@
 #include "Acts/Vertexing/LinearizedTrackFactory.hpp"
 #include "Acts/Vertexing/Vertex.hpp"
 
-//#include "Acts/Vertexing/VertexFinderTools/ZScanFinder.hpp"
-
-
 FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
                                             Acts::Logging::Level level)
   : FW::BareAlgorithm("VertexFit", level), m_cfg(cfg)
@@ -169,6 +166,8 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
           (*covMat)(3, 3) = rn_th * rn_th;
           (*covMat)(4, 4) = rn_qp * rn_qp;
 
+          std::cout << covMat << std::endl;
+
 
           Acts::BoundParameters currentBoundParams(
               std::move(covMat), paramVec, perigeeSurface);
@@ -192,22 +191,6 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
   assert(smrdTrackCollection.size() == trueVertices.size());
 
   ACTS_INFO("Total number of vertices in event: " << trueVertices.size());
-
-  #if 0
-  Acts::FsmwMode1dFinder modeFinder;
-  Acts::TrackToVertexIPEstimator<Acts::ConstantBField, InputTrack>::Config ipEstCfg(m_cfg.bField);
-  Acts::TrackToVertexIPEstimator<Acts::ConstantBField, InputTrack> ipEst(ipEstCfg);
- 
-  Acts::ZScanFinder<Acts::ConstantBField, InputTrack>::Config myFinderCfg(ipEst, modeFinder);
-  Acts::ZScanFinder<Acts::ConstantBField, InputTrack>::State state;
-
-  Acts::ZScanFinder<Acts::ConstantBField, InputTrack> myFinder(myFinderCfg);
-
-  Acts::Vertex<InputTrack> constraint(Acts::Vector3D(10,10,0));
-  std::vector<Acts::Vertex<InputTrack>> myResult = myFinder.find(smrdTrackCollection[0], &constraint, state);
-
-  std::cout << "seed position: " << myResult[0].position() << std::endl;
-  #endif
 
   std::vector<Acts::Vertex<InputTrack>> fittedVertices(smrdTrackCollection.size());
 
