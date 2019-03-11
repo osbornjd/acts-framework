@@ -21,10 +21,14 @@
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/ReadEvgen/EvgenReader.hpp"
 #include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
-#include "VertexFitAlgorithm.hpp"
 
+#include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
+#include "Acts/Propagator/Propagator.hpp"
+#include "Acts/Propagator/EigenStepper.hpp"
+
+#include "VertexFitAlgorithm.hpp"
 
 namespace po = boost::program_options;
 
@@ -86,11 +90,24 @@ main(int argc, char* argv[])
   // Set up constant B-Field
   Acts::ConstantBField bField(Acts::Vector3D(0., 0., 1.) * Acts::units::_T);
 
+  // Set up Eigenstepper
+  Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
+
+  // Set up propagator with void navigator
+  Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator(stepper);
+
+  // Create a custom std::function to extract BoundParameters from
+      // user-defined InputTrack
+      std::function<Acts::BoundParameters(InputTrack)> extractParameters
+          = [](InputTrack params) { return params.parameters(); };
+
   // Set up Billoir Vertex Fitter
-  Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack>::Config vertexFitterCfg(bField);
+  Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack, 
+      Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>>::Config vertexFitterCfg(bField);
   auto                                                 billoirFitter
-      = std::make_shared<Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack>>(
-          vertexFitterCfg);
+      = std::make_shared<Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack,
+          Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>>>(
+          vertexFitterCfg, extractParameters);
 
   // Now read the evgen config & set the missing parts
   auto readEvgenCfg                   = FW::Options::readEvgenConfig(vm);

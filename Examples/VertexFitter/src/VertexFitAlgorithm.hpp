@@ -19,6 +19,8 @@
 
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
+#include "Acts/Propagator/Propagator.hpp"
+#include "Acts/Propagator/EigenStepper.hpp"
 
 struct InputTrack
     {
@@ -48,7 +50,8 @@ public:
     std::string collection;  ///< Input particle collection
     std::string collectionOut = "paramCollection";  ///< Output collection
     std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
-    std::shared_ptr<Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack>> vertexFitter
+    std::shared_ptr<Acts::FullBilloirVertexFitter<Acts::ConstantBField, InputTrack,
+            Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>>> vertexFitter
         = nullptr;
     Acts::ConstantBField bField;
   };

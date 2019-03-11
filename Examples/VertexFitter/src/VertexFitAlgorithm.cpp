@@ -32,7 +32,6 @@ FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
 FW::ProcessCode
 FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 {
-
   /// Algorithm that receives an Evgen input event, runs over all
   /// vertices and smears corresponding tracks.
   /// Track collections belonging to a certain vertex (truth-based vertex finder
@@ -108,7 +107,7 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
         const auto result
             = propagator.propagate(start, *perigeeSurface, options);
 
-        if (result.status == Acts::Status::SUCCESS) {
+        if (result.status == Acts::PropagatorStatus::SUCCESS) {
 
           const auto& perigeeParameters
               = result.endParameters
@@ -166,9 +165,6 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
           (*covMat)(3, 3) = rn_th * rn_th;
           (*covMat)(4, 4) = rn_qp * rn_qp;
 
-          std::cout << covMat << std::endl;
-
-
           Acts::BoundParameters currentBoundParams(
               std::move(covMat), paramVec, perigeeSurface);
 
@@ -217,7 +213,7 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
             std::vector<InputTrack> emptyVector;
 
             Acts::Vertex<InputTrack> fittedVertex
-                = m_cfg.vertexFitter->fit(inputTrackCollection[vertex_idx]);//, myConstraint);
+                = m_cfg.vertexFitter->fit(inputTrackCollection[vertex_idx], propagator);//, myConstraint);
 
             Acts::Vector3D currentTrueVtx = trueVertices[vertex_idx];
             Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();
