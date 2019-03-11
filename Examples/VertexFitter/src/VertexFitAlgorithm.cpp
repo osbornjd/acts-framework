@@ -29,14 +29,14 @@ FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
 {
 }
 
+/// @brief Algorithm that receives an Evgen input event, runs over all
+/// vertices and smears corresponding tracks.
+/// Track collections belonging to a certain vertex (truth-based vertex finder
+/// emuluation)
+/// are then passed to vertex fitter to fit vertex position.
 FW::ProcessCode
 FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 {
-  /// Algorithm that receives an Evgen input event, runs over all
-  /// vertices and smears corresponding tracks.
-  /// Track collections belonging to a certain vertex (truth-based vertex finder
-  /// emuluation)
-  /// are then passed to vertex fitter to fit vertex position.
 
   const double eta_cut = 3.0;
 
@@ -72,10 +72,10 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
   /// Create random number generator and spawn gaussian distribution
   FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
-  /// typedef for simplicity
+  /// typedefs for simplicity
   using BoundParamsVector = std::vector<Acts::BoundParameters>;
+  using InputTrackVector  = std::vector<InputTrack>;
 
-  using InputTrackVector = std::vector<InputTrack>;
   /// Vector to store smrdTracksAtVtx for all vertices of event
   std::vector<BoundParamsVector> smrdTrackCollection;
 
@@ -109,9 +109,8 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
 
         if (result.status == Acts::PropagatorStatus::SUCCESS) {
 
-          const auto& perigeeParameters
-              = result.endParameters
-                    ->parameters();  /// (d0, z0, phi, theta,q/p)
+          // get perigee parameters
+          const auto& perigeeParameters = result.endParameters->parameters();
 
           if (std::abs(perigeeParameters[0]) > 30
               || std::abs(perigeeParameters[1]) > 200) {
@@ -211,11 +210,15 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
             myConstraint.setCovariance(std::move(myCovMat));
             myConstraint.setPosition(Acts::Vector3D(0, 0, 0));
 
-            std::vector<InputTrack> emptyVector;
+            Acts::Vertex<InputTrack> fittedVertex;
 
-            Acts::Vertex<InputTrack> fittedVertex
-                = m_cfg.vertexFitter->fit(inputTrackCollection[vertex_idx],
-                                          propagator);  //, myConstraint);
+            if (!m_cfg.doConstrainedFit) {
+              fittedVertex = m_cfg.vertexFitter->fit(
+                  inputTrackCollection[vertex_idx], propagator);
+            } else {
+              fittedVertex = m_cfg.vertexFitter->fit(
+                  inputTrackCollection[vertex_idx], propagator, myConstraint);
+            }
 
             Acts::Vector3D currentTrueVtx = trueVertices[vertex_idx];
             Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();

@@ -61,6 +61,8 @@ public:
                                                                                    ConstantBField>>>>
                          vertexFitter = nullptr;
     Acts::ConstantBField bField;
+
+    bool doConstrainedFit = false;
   };
 
   /// Constructor
