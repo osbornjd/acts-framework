@@ -54,10 +54,10 @@ public:
     std::
         shared_ptr<Acts::
                        IVertexFitter<InputTrack,
-                                               Acts::
-                                                   Propagator<Acts::
-                                                                  EigenStepper<Acts::
-                                                                                   ConstantBField>>>>
+                                     Acts::
+                                         Propagator<Acts::
+                                                        EigenStepper<Acts::
+                                                                         ConstantBField>>>>
                          vertexFitter = nullptr;
     Acts::ConstantBField bField;
 
