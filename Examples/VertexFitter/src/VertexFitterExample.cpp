@@ -133,7 +133,7 @@ main(int argc, char* argv[])
   auto readEvgen = std::make_shared<FW::EvgenReader>(
       readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
 
-  // Add the track smearing algorithm
+  // Add the fit algorithm with Billoir fitter
   FWE::VertexFitAlgorithm::Config vertexFitCfg;
   vertexFitCfg.collection      = readEvgenCfg.evgenCollection;
   vertexFitCfg.randomNumberSvc = randomNumberSvc;

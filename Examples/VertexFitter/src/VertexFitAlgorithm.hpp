@@ -20,7 +20,7 @@
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
+#include "Acts/Vertexing/IVertexFitter.hpp"
 
 struct InputTrack
 {
@@ -53,8 +53,7 @@ public:
     std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
     std::
         shared_ptr<Acts::
-                       FullBilloirVertexFitter<Acts::ConstantBField,
-                                               InputTrack,
+                       IVertexFitter<InputTrack,
                                                Acts::
                                                    Propagator<Acts::
                                                                   EigenStepper<Acts::
