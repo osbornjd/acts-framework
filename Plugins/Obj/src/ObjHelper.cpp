@@ -26,7 +26,7 @@ FW::Obj::writeVTN(std::ofstream&        stream,
   } else if (vtntype == "t") {
     ++vtnCounter.vtcounter;
     cp = vtnCounter.vtcounter;
-  } else if (vtntype == "n") {
+  } else if (vtntype == "vn") {
     ++vtnCounter.ncounter;
     cp = vtnCounter.ncounter;
   } else
@@ -82,7 +82,7 @@ FW::Obj::writePlanarFace(std::ofstream&                     stream,
   Acts::Vector3D sideTwo = vertices[2] - vertices[1];
   Acts::Vector3D nvector(sideTwo.cross(sideOne).normalized());
   // write the normal vector
-  writeVTN(stream, vtnCounter, scalor, nvector, "n");
+  writeVTN(stream, vtnCounter, scalor, nvector, "vn");
   // thickness or not thickness
   std::vector<int> sides     = {1};
   if (thickness != 0.) sides = {-1, 1};
@@ -168,7 +168,7 @@ FW::Obj::writeTube(std::ofstream&           stream,
   // construct the sides at the end when all vertices are done
   Acts::Vector3D nvectorSide = transform.rotation().col(2);
   // write the normal vector @todo flip sides
-  writeVTN(stream, vtnCounter, scalor, nvectorSide, "n");
+  writeVTN(stream, vtnCounter, scalor, nvectorSide, "vn");
   std::string ntphr = "//" + std::to_string(vtnCounter.ncounter);
 
   if (thickness != 0.) {
