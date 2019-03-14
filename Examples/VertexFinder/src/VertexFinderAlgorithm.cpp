@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "VertexFitAlgorithm.hpp"
+#include "VertexFinderAlgorithm.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
@@ -23,9 +23,9 @@
 #include "Acts/Vertexing/VertexEventData/Vertex.hpp"
 #include "Acts/Vertexing/VertexFitterUtils/LinearizedTrackFactory.hpp"
 
-FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
-                                            Acts::Logging::Level level)
-  : FW::BareAlgorithm("VertexFit", level), m_cfg(cfg)
+FWE::VertexFinderAlgorithm::VertexFinderAlgorithm(const Config&        cfg,
+                                                  Acts::Logging::Level level)
+  : FW::BareAlgorithm("VertexFinder", level), m_cfg(cfg)
 {
 }
 
@@ -35,8 +35,10 @@ FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
 /// emuluation)
 /// are then passed to vertex fitter to fit vertex position.
 FW::ProcessCode
-FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
+FWE::VertexFinderAlgorithm::execute(FW::AlgorithmContext context) const
 {
+
+  std::cout << "START VertexFinderAlgorithm" << std::endl;
 
   const double eta_cut = 3.0;
 
@@ -73,23 +75,10 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
   FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
   /// typedefs for simplicity
-  using BoundParamsVector = std::vector<Acts::BoundParameters>;
-  using InputTrackVector  = std::vector<InputTrack>;
-
-  /// Vector to store smrdTracksAtVtx for all vertices of event
-  std::vector<BoundParamsVector> smrdTrackCollection;
-
-  std::vector<InputTrackVector> inputTrackCollection;
-
-  /// Vector to store true vertices positions
-  std::vector<Acts::Vector3D> trueVertices;
+  std::vector<Acts::BoundParameters> trackCollection;
 
   /// Start looping over all vertices in current event
   for (auto& vtx : (*inputEvent)) {
-
-    /// Vector to store smeared tracks at current vertex
-    BoundParamsVector smrdTracksAtVtx;
-    InputTrackVector  inputTrackVector;
 
     /// Iterate over all particle emerging from current vertex
     for (auto const& particle : vtx.out) {
@@ -167,88 +156,33 @@ FWE::VertexFitAlgorithm::execute(FW::AlgorithmContext context) const
           Acts::BoundParameters currentBoundParams(
               std::move(covMat), paramVec, perigeeSurface);
 
-          smrdTracksAtVtx.push_back(currentBoundParams);
-
-          inputTrackVector.push_back(InputTrack(currentBoundParams));
+          trackCollection.push_back(currentBoundParams);
         }
       }
     }
-
-    if (!smrdTracksAtVtx.empty()) {
-      smrdTrackCollection.push_back(smrdTracksAtVtx);
-      inputTrackCollection.push_back(inputTrackVector);
-
-      /// Store true vertex position
-      trueVertices.push_back(vtx.position);
-    }
   }
 
-  assert(smrdTrackCollection.size() == trueVertices.size());
+  VertexFinder::State state;
 
-  ACTS_INFO("Total number of vertices in event: " << trueVertices.size());
+  // find vertices
+  Acts::VertexingStatus status
+      = m_cfg.vertexFinder->find(trackCollection, state, m_cfg.propagator);
 
-  std::vector<Acts::Vertex<InputTrack>> fittedVertices(
-      smrdTrackCollection.size());
+  std::vector<Acts::Vertex<Acts::BoundParameters>> fittedVertices;
 
-  /// in-event parallel vertex fitting
-  tbb::parallel_for(
-      tbb::blocked_range<size_t>(0, smrdTrackCollection.size()),
-      [&](const tbb::blocked_range<size_t>& r) {
-        for (size_t vertex_idx = r.begin(); vertex_idx != r.end();
-             ++vertex_idx) {
+  if (status == Acts::VertexingStatus::SUCCESS) {
+    fittedVertices = state.vertexCollection;
+  }
 
-          BoundParamsVector& currentParamVectorAtVtx
-              = smrdTrackCollection[vertex_idx];
-
-          if (currentParamVectorAtVtx.size() > 1) {
-
-            Acts::Vertex<InputTrack> myConstraint;
-            Acts::ActsSymMatrixD<3>  myCovMat;
-            myCovMat(0, 0) = 30.;
-            myCovMat(1, 1) = 30.;
-            myCovMat(2, 2) = 30.;
-            myConstraint.setCovariance(std::move(myCovMat));
-            myConstraint.setPosition(Acts::Vector3D(0, 0, 0));
-
-            Acts::Vertex<InputTrack> fittedVertex;
-
-            if (!m_cfg.doConstrainedFit) {
-              fittedVertex = m_cfg.vertexFitter->fit(
-                  inputTrackCollection[vertex_idx], propagator);
-            } else {
-              fittedVertex = m_cfg.vertexFitter->fit(
-                  inputTrackCollection[vertex_idx], propagator, myConstraint);
-            }
-
-            Acts::Vector3D currentTrueVtx = trueVertices[vertex_idx];
-            Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();
-
-            ACTS_INFO("Event: " << context.eventNumber << ", vertex "
-                                << vertex_idx
-                                << " with "
-                                << currentParamVectorAtVtx.size()
-                                << " tracks");
-            ACTS_INFO("True Vertex: "
-                      << "("
-                      << currentTrueVtx[0]
-                      << ","
-                      << currentTrueVtx[1]
-                      << ","
-                      << currentTrueVtx[2]
-                      << ")");
-            ACTS_INFO("Fitted Vertex: "
-                      << "("
-                      << fittedVertex.position()[0]
-                      << ","
-                      << fittedVertex.position()[1]
-                      << ","
-                      << fittedVertex.position()[2]
-                      << ")");
-
-            fittedVertices[vertex_idx] = std::move(fittedVertex);
-          }
-        }
-      });
+  int vtxCount = 0;
+  for (auto& vtx : fittedVertices) {
+    vtxCount++;
+    Acts::Vector3D pos = vtx.position();
+    std::cout << "Reconstructed vertex " << vtxCount << " at position:"
+              << "(" << pos[Acts::eX] << "," << pos[Acts::eY] << ","
+              << pos[Acts::eZ] << "). Number of tracks: " << vtx.tracks().size()
+              << std::endl;
+  }
 
   if (context.eventStore.add(m_cfg.collectionOut, std::move(fittedVertices))
       != FW::ProcessCode::SUCCESS) {

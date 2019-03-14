@@ -26,9 +26,10 @@
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
+#include "Acts/Vertexing/VertexFinderTools/IterativeVertexFinder.hpp"
 #include "Acts/Vertexing/VertexFitterTools/FullBilloirVertexFitter.hpp"
 
-#include "VertexFitAlgorithm.hpp"
+#include "VertexFinderAlgorithm.hpp"
 
 namespace po = boost::program_options;
 
@@ -97,29 +98,35 @@ main(int argc, char* argv[])
   Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator(
       stepper);
 
-  // Create a custom std::function to extract BoundParameters from
-  // user-defined InputTrack
-  std::function<Acts::BoundParameters(InputTrack)> extractParameters
-      = [](InputTrack params) { return params.parameters(); };
-
-  // Set up Billoir Vertex Fitter
-  Acts::
+  typedef Acts::
       FullBilloirVertexFitter<Acts::ConstantBField,
-                              InputTrack,
+                              Acts::BoundParameters,
                               Acts::
                                   Propagator<Acts::
                                                  EigenStepper<Acts::
-                                                                  ConstantBField>>>::
-          Config vertexFitterCfg(bField);
-  auto           billoirFitter = std::
-      make_shared<Acts::
-                      FullBilloirVertexFitter<Acts::ConstantBField,
-                                              InputTrack,
-                                              Acts::
-                                                  Propagator<Acts::
-                                                                 EigenStepper<Acts::
-                                                                                  ConstantBField>>>>(
-          vertexFitterCfg, extractParameters);
+                                                                  ConstantBField>>>
+          BilloirFitter;
+
+  // Set up Billoir Vertex Fitter
+  BilloirFitter::Config vertexFitterCfg(bField);
+
+  std::unique_ptr<BilloirFitter> bFitterPtr
+
+      = std::make_unique<BilloirFitter>(vertexFitterCfg);
+
+  // Vertex Finder
+  typedef Acts::
+      IterativeVertexFinder<Acts::ConstantBField,
+                            Acts::BoundParameters,
+                            Acts::
+                                Propagator<Acts::
+                                               EigenStepper<Acts::
+                                                                ConstantBField>>>
+                       VertexFinder;
+  VertexFinder::Config finderCfg(bField, std::move(bFitterPtr));
+  finderCfg.reassignTracksAfterFirstFit = true;
+
+  auto vertexFinder = std::make_shared<VertexFinder>(finderCfg);
 
   // Now read the evgen config & set the missing parts
   auto readEvgenCfg                   = FW::Options::readEvgenConfig(vm);
@@ -134,14 +141,14 @@ main(int argc, char* argv[])
       readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
 
   // Add the fit algorithm with Billoir fitter
-  FWE::VertexFitAlgorithm::Config vertexFitCfg;
-  vertexFitCfg.collection      = readEvgenCfg.evgenCollection;
-  vertexFitCfg.randomNumberSvc = randomNumberSvc;
-  vertexFitCfg.vertexFitter    = billoirFitter;
-  vertexFitCfg.bField          = bField;
+  FWE::VertexFinderAlgorithm::Config vertexFinderCfg(propagator);
+  vertexFinderCfg.collection      = readEvgenCfg.evgenCollection;
+  vertexFinderCfg.randomNumberSvc = randomNumberSvc;
+  vertexFinderCfg.vertexFinder    = vertexFinder;
+  vertexFinderCfg.bField          = bField;
 
   std::shared_ptr<FW::IAlgorithm> vertexFitAlgo
-      = std::make_shared<FWE::VertexFitAlgorithm>(vertexFitCfg, logLevel);
+      = std::make_shared<FWE::VertexFinderAlgorithm>(vertexFinderCfg, logLevel);
 
   // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;

@@ -20,7 +20,7 @@
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Vertexing/VertexFitterTools/IVertexFitter.hpp"
+#include "Acts/Vertexing/VertexFinderTools/IterativeVertexFinder.hpp"
 
 struct InputTrack
 {
@@ -38,35 +38,43 @@ private:
 
 namespace FWE {
 
+typedef Acts::
+    IterativeVertexFinder<Acts::ConstantBField,
+                          Acts::BoundParameters,
+                          Acts::
+                              Propagator<Acts::
+                                             EigenStepper<Acts::
+                                                              ConstantBField>>>
+        VertexFinder;
+
 /// @class Algorithm
 /// @tparam simulator_t The Fatras simulation kernel type
 /// @tparam event_collection_t  The event collection type
 /// @tparam hit_t The hit Type
 
-class VertexFitAlgorithm : public FW::BareAlgorithm
+class VertexFinderAlgorithm : public FW::BareAlgorithm
 {
 public:
   struct Config
   {
+    Config(
+        const Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>& prop)
+      : propagator(prop)
+    {
+    }
+
     std::string collection;  ///< Input particle collection
     std::string collectionOut = "paramCollection";  ///< Output collection
     std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
-    std::
-        shared_ptr<Acts::
-                       IVertexFitter<InputTrack,
-                                     Acts::
-                                         Propagator<Acts::
-                                                        EigenStepper<Acts::
-                                                                         ConstantBField>>>>
-                         vertexFitter = nullptr;
-    Acts::ConstantBField bField;
+    std::shared_ptr<VertexFinder>         vertexFinder    = nullptr;
+    Acts::ConstantBField                  bField;
 
-    bool doConstrainedFit = false;
+    Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator;
   };
 
   /// Constructor
-  VertexFitAlgorithm(const Config&        cfg,
-                     Acts::Logging::Level level = Acts::Logging::INFO);
+  VertexFinderAlgorithm(const Config&        cfg,
+                        Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execute method
   /// @param [in] context is the Algorithm context for event consistency
