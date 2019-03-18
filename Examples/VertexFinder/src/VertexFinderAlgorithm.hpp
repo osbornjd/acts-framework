@@ -57,19 +57,11 @@ class VertexFinderAlgorithm : public FW::BareAlgorithm
 public:
   struct Config
   {
-    Config(
-        const Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>& prop)
-      : propagator(prop)
-    {
-    }
-
     std::string collection;  ///< Input particle collection
     std::string collectionOut = "paramCollection";  ///< Output collection
     std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
     std::shared_ptr<VertexFinder>         vertexFinder    = nullptr;
     Acts::ConstantBField                  bField;
-
-    Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator;
   };
 
   /// Constructor

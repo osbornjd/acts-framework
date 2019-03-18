@@ -123,7 +123,7 @@ main(int argc, char* argv[])
                                                EigenStepper<Acts::
                                                                 ConstantBField>>>
                        VertexFinder;
-  VertexFinder::Config finderCfg(bField, std::move(bFitterPtr));
+  VertexFinder::Config finderCfg(bField, std::move(bFitterPtr), propagator);
   finderCfg.reassignTracksAfterFirstFit = true;
 
   auto vertexFinder = std::make_shared<VertexFinder>(finderCfg);
@@ -141,7 +141,7 @@ main(int argc, char* argv[])
       readEvgenCfg, Acts::getDefaultLogger("EvgenReader", logLevel));
 
   // Add the fit algorithm with Billoir fitter
-  FWE::VertexFinderAlgorithm::Config vertexFinderCfg(propagator);
+  FWE::VertexFinderAlgorithm::Config vertexFinderCfg;
   vertexFinderCfg.collection      = readEvgenCfg.evgenCollection;
   vertexFinderCfg.randomNumberSvc = randomNumberSvc;
   vertexFinderCfg.vertexFinder    = vertexFinder;

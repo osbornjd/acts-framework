@@ -166,7 +166,7 @@ FWE::VertexFinderAlgorithm::execute(FW::AlgorithmContext context) const
 
   // find vertices
   Acts::VertexingStatus status
-      = m_cfg.vertexFinder->find(trackCollection, state, m_cfg.propagator);
+      = m_cfg.vertexFinder->find(trackCollection, state);
 
   std::vector<Acts::Vertex<Acts::BoundParameters>> fittedVertices;
 
