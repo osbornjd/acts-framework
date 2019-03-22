@@ -94,8 +94,8 @@ namespace Obj {
           ++vCounter;
           for (auto& step : steps) {
             // Write the space point
-            os << "v " << m_cfg.outputScalor * step.position.x() << ", "
-               << m_cfg.outputScalor * step.position.y() << ", "
+            os << "v " << m_cfg.outputScalor * step.position.x() << " "
+               << m_cfg.outputScalor * step.position.y() << " "
                << m_cfg.outputScalor * step.position.z() << '\n';
           }
           // Write out the line - only if we have at least two points created
