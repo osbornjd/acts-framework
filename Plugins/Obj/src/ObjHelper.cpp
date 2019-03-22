@@ -81,8 +81,6 @@ FW::Obj::writePlanarFace(std::ofstream&                     stream,
   Acts::Vector3D sideOne = vertices[1] - vertices[0];
   Acts::Vector3D sideTwo = vertices[2] - vertices[1];
   Acts::Vector3D nvector(sideTwo.cross(sideOne).normalized());
-  // write the normal vector
-  writeVTN(stream, vtnCounter, scalor, nvector, "vn");
   // thickness or not thickness
   std::vector<int> sides     = {1};
   if (thickness != 0.) sides = {-1, 1};
@@ -97,13 +95,10 @@ FW::Obj::writePlanarFace(std::ofstream&                     stream,
                scalor,
                v + (0.5 * side * thickness) * nvector,
                "v");
-    // decide if you want to add texture
-    std::string vtphr
-        = "/";  // vtnCounter.vtcounter ? "/"+std::to_string(vtcounter) : "/";
-    std::string ntphr = "/" + std::to_string(vtnCounter.ncounter);
+
     // now write the face
     stream << "f ";
-    for (auto v : vertices) stream << ++cvc << vtphr << ntphr << " ";
+    for (auto v : vertices) stream << ++cvc << " ";
     stream << '\n';
   }
   // now process the vertical sides
