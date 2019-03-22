@@ -82,7 +82,7 @@ FW::Obj::writePlanarFace(std::ofstream&                     stream,
   Acts::Vector3D sideTwo = vertices[2] - vertices[1];
   Acts::Vector3D nvector(sideTwo.cross(sideOne).normalized());
   // thickness or not thickness
-  std::vector<int> sides     = {1};
+  std::vector<int> sides     = {0};
   if (thickness != 0.) sides = {-1, 1};
   // now write all the vertices - this works w/wo thickness
   for (auto side : sides) {
@@ -162,10 +162,6 @@ FW::Obj::writeTube(std::ofstream&           stream,
 
   // construct the sides at the end when all vertices are done
   Acts::Vector3D nvectorSide = transform.rotation().col(2);
-  // write the normal vector @todo flip sides
-  writeVTN(stream, vtnCounter, scalor, nvectorSide, "vn");
-  std::string ntphr = "//" + std::to_string(vtnCounter.ncounter);
-
   if (thickness != 0.) {
     // loop over the two sides
     for (iside = 0; iside < 2; ++iside) {
@@ -174,17 +170,17 @@ FW::Obj::writeTube(std::ofstream&           stream,
       for (; iphi < nSegments - 1; ++iphi) {
         stream << "f ";
         unsigned int base = cvc + (2 * iphi) + 1;
-        stream << iside + base << ntphr << " ";
-        stream << iside + base + 2 << ntphr << " ";
-        stream << iside + base + (2 * nSegments) + 2 << ntphr << " ";
-        stream << iside + base + (2 * nSegments) << ntphr << '\n';
+        stream << iside + base << " ";
+        stream << iside + base + 2 << " ";
+        stream << iside + base + (2 * nSegments) + 2 << " ";
+        stream << iside + base + (2 * nSegments) << '\n';
       }
       // close the loop
       stream << "f ";
-      stream << iside + cvc + (2 * iphi) + 1 << ntphr << " ";
-      stream << iside + cvc + 1 << ntphr << " ";
-      stream << iside + cvc + 1 + (2 * nSegments) << ntphr << " ";
-      stream << iside + cvc + (2 * iphi) + 1 + (2 * nSegments) << ntphr << '\n';
+      stream << iside + cvc + (2 * iphi) + 1 << " ";
+      stream << iside + cvc + 1 << " ";
+      stream << iside + cvc + 1 + (2 * nSegments) << " ";
+      stream << iside + cvc + (2 * iphi) + 1 + (2 * nSegments) << '\n';
     }
   }
 }
