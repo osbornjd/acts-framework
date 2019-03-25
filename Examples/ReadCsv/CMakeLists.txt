@@ -1,0 +1,9 @@
+# generic detector
+add_executable(ACTFWGenericReadCsvExample src/GenericReadCsvExample.cpp)
+target_include_directories(ACTFWGenericReadCsvExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWGenericReadCsvExample PRIVATE ActsCore)
+target_link_libraries(ACTFWGenericReadCsvExample PRIVATE ACTFramework ACTFWExamplesCommon)
+target_link_libraries(ACTFWGenericReadCsvExample PRIVATE ACTFWCsvPlugin ACTFWGenericDetector)
+target_link_libraries(ACTFWGenericReadCsvExample PRIVATE ${Boost_LIBRARIES})
+
+install(TARGETS ACTFWGenericReadCsvExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

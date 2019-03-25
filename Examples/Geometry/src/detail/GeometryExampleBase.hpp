@@ -39,7 +39,9 @@ processGeometry(int               argc,
   FW::Options::addSequencerOptions(desc);
   FW::Options::addGeometryOptions(desc);
   FW::Options::addObjWriterOptions(desc);
+  FW::Options::addCsvWriterOptions(desc);
   FW::Options::addOutputOptions(desc);
+
   // Add specific options for this geometry
   optionsSetup(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
