@@ -38,7 +38,9 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
   FW::Options::addGeometryOptions(desc);
   FW::Options::addMaterialOptions(desc);
   FW::Options::addObjWriterOptions(desc);
+  FW::Options::addCsvWriterOptions(desc);
   FW::Options::addOutputOptions(desc);
+
   // Add specific options for this geometry
   detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
