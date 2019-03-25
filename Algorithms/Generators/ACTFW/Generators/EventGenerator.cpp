@@ -67,21 +67,21 @@ FW::EventGenerator::read(AlgorithmContext ctx)
     for (size_t n = generator.multiplicity(rng); 0 < n; --n) {
 
       // generate position and secondaries for this primary vertex
-      auto vertex    = generator.vertex(rng);
-      auto processes = generator.processes(rng);
+      auto vertex  = generator.vertex(rng);
+      auto process = generator.process(rng);
 
-      // move everything to the primary vertex position
+      // modify secondaries to move everything to the primary vertex position
       size_t iSecondary = 0;  // secondary vertex index within current primary
-      for (auto& process : processes) {
+      for (auto& secondaryVertex : process) {
         size_t iParticle = 0;  // particle index within secondary vertex
 
         // TODO use 4d vector in process directly
         Acts::Vector3D vertexPosition = vertex.head<3>();
         double         vertexTime     = vertex[3];
-        process.position += vertexPosition;
-        process.timeStamp += vertexTime;
+        secondaryVertex.position += vertexPosition;
+        secondaryVertex.timeStamp += vertexTime;
 
-        auto updateParticle = [&](Data::SimParticle& particle) {
+        auto updateParticleInPlace = [&](Data::SimParticle& particle) {
           // generate new barcode and retain some existing information
           // TODO check if barcode components are correct
           auto generation  = m_cfg.barcodeSvc->generation(particle.barcode());
@@ -90,44 +90,38 @@ FW::EventGenerator::read(AlgorithmContext ctx)
               iPrimary, iParticle, generation, iSecondary, processCode);
 
           Acts::Vector3D position = particle.position() + vertexPosition;
+
           // TODO particle does not export timestamp?
           particle.place(position, barcode, vertexTime);
         };
 
-        for (auto& particle : process.in) {
-          updateParticle(particle);
+        for (auto& particle : secondaryVertex.in) {
+          updateParticleInPlace(particle);
           iParticle += 1;
         }
-        for (auto& particle : process.out) {
-          updateParticle(particle);
+        for (auto& particle : secondaryVertex.out) {
+          updateParticleInPlace(particle);
           iParticle += 1;
         }
 
         ACTS_VERBOSE("event " << ctx.eventNumber << " generator=" << iGenerator
-                              << " primary="
-                              << iPrimary
-                              << " secondary="
-                              << iSecondary
-                              << " nparticles="
-                              << iParticle);
+                              << " primary=" << iPrimary << " secondary="
+                              << iSecondary << " nparticles=" << iParticle);
         iSecondary += 1;
         nTotalParticles += iParticle;
       }
 
       // move all processes to the full event
-      std::move(processes.begin(), processes.end(), std::back_inserter(event));
+      std::move(process.begin(), process.end(), std::back_inserter(event));
 
       iPrimary += 1;
     }
     iGenerator += 1;
   }
-  if (m_cfg.shuffle) {
-    std::shuffle(event.begin(), event.end(), rng);
-  }
+  if (m_cfg.shuffle) { std::shuffle(event.begin(), event.end(), rng); }
 
   ACTS_DEBUG("event " << ctx.eventNumber << " nprimaries=" << iPrimary
-                      << " nparticles="
-                      << nTotalParticles);
+                      << " nparticles=" << nTotalParticles);
 
   // move generated event to the store
   if (ctx.eventStore.add(m_cfg.output, std::move(event))
