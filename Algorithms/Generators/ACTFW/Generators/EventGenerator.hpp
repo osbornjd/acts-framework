@@ -40,20 +40,22 @@ public:
   /// Combined set of generator functions.
   ///
   /// Each generator creates a number of primary vertices (multiplicity),
-  /// each with an separate vertex position (vertex), and a number
-  /// of processes with associated particles anchored at the vertex position.
-  /// The first process at each vertex position
+  /// each with an separate vertex position and time (vertex), and a set of
+  /// associated particles grouped into secondary vertices (process) anchored
+  /// at the primary vertex position. The first group of particles generated
+  /// by the process are the particles associated directly to the primary
+  /// vertex.
   using MultiplicityGenerator = std::function<size_t(RandomEngine&)>;
   using VertexGenerator
       = std::function<Acts::ActsVector<double, 4>(RandomEngine&)>;
-  using ProcessesGenerator
+  using ProcessGenerator
       = std::function<std::vector<Data::SimVertex<Data::SimParticle>>(
           RandomEngine&)>;
   struct Generator
   {
     MultiplicityGenerator multiplicity = nullptr;
     VertexGenerator       vertex       = nullptr;
-    ProcessesGenerator    processes    = nullptr;
+    ProcessGenerator      process      = nullptr;
   };
 
   struct Config

@@ -37,7 +37,7 @@ FW::ParticleSelector::execute(FW::AlgorithmContext ctx) const
   if (ctx.eventStore.get(m_cfg.input, all) == ProcessCode::ABORT)
     return ProcessCode::ABORT;
 
-  auto within = [&](double x, double min, double max) {
+  auto within = [](double x, double min, double max) {
     return (min <= x) and (x < max);
   };
   auto isValidParticle = [&](const Data::SimParticle& p) {
