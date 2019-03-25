@@ -171,8 +171,7 @@ main(int argc, char* argv[])
   auto nEvents = FW::Options::readNumberOfEvents<po::variables_map>(vm);
 
   // A test magnetic field context
-  Acts::MagneticFieldContext magFieldContext
-      = Acts::DefaultMagneticFieldContext();
+  Acts::MagneticFieldContext magFieldContext = Acts::MagneticFieldContext();
 
   // Create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);

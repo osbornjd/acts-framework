@@ -1,10 +1,10 @@
 # alignable detector
-add_executable(ACTFWAlignableGeometryExample src/AlignableGeometryExample)
-target_include_directories(ACTFWAlignableGeometryExample PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ActsCore)
-target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ACTFramework ACTFWExamplesCommon)
-target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ACTFWObjPlugin ACTFWCsvPlugin ACTFWGenericDetector ACTFWAlignableDetector)
-target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ${Boost_LIBRARIES})
+#add_executable(ACTFWAlignableGeometryExample src/AlignableGeometryExample)
+#target_include_directories(ACTFWAlignableGeometryExample PRIVATE ${Boost_INCLUDE_DIRS})
+#target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ActsCore)
+#target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ACTFramework ACTFWExamplesCommon)
+#target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ACTFWObjPlugin ACTFWCsvPlugin ACTFWGenericDetector ACTFWAlignableDetector)
+#target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ${Boost_LIBRARIES})
 
 # generic detector
 add_executable(ACTFWGenericGeometryExample src/GenericGeometryExample)

@@ -34,6 +34,8 @@ namespace Generic {
   class GenericDetectorElement : public Acts::IdentifiedDetectorElement
   {
   public:
+    using GeometryContext = Acts::GeometryContext;
+
     /// Constructor for single sided detector element
     /// - bound to a Plane Surface
     ///
@@ -79,7 +81,7 @@ namespace Generic {
     /// @note this is called from the surface().transform(gctx) in the PROXY
     /// mode
     const Acts::Transform3D&
-    transform(const Acts::GeometryContext& gctx) const override;
+    transform(const GeometryContext& gctx) const override;
 
     /// Return surface associated with this identifier,
     const Acts::Surface&
@@ -130,7 +132,7 @@ namespace Generic {
 
   inline const Acts::Transform3D&
   FW::Generic::GenericDetectorElement::transform(
-      const Acts::GeometryContext& /*gctx*/) const
+      const GeometryContext& /*gctx*/) const
   {
     return *m_elementTransform;
   }

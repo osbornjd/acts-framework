@@ -9,6 +9,7 @@
 #pragma once
 
 #include <boost/program_options.hpp>
+#include "ACTFW/AlignableDetector/AlignableDetectorElement.hpp"
 #include "ACTFW/AlignableDetector/BuildAlignableDetector.hpp"
 #include "ACTFW/AlignableDetector/GeometryRotationDecorator.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
@@ -51,6 +52,7 @@ struct AlignableGeometry
   operator()(variable_map_t& vm)
   {
     // --------------------------------------------------------------------------------
+    FW::Alignable::AlignableGeoContext agctx;
     // set geometry building logging level
     Acts::Logging::Level surfaceLogLevel = Acts::Logging::Level(
         vm["geo-surface-loglevel"].template as<size_t>());
@@ -60,7 +62,7 @@ struct AlignableGeometry
         = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
     /// return the generic detector
     return FW::Alignable::buildAlignableDetector(
-        surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
+        agctx, surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
   }
 };
 

@@ -21,8 +21,8 @@ namespace FW {
 
 namespace Alignable {
 
-  /// @class AlignableContext
-  struct AlignableContext
+  /// @class AlignableGeoContext
+  struct AlignableGeoContext
   {
 
     // The alignment store of this event
@@ -60,7 +60,7 @@ namespace Alignable {
   AlignableDetectorElement::transform(const Acts::GeometryContext& gctx) const
   {
     // cast into the right context object
-    auto alignContext = std::any_cast<AlignableContext>(gctx);
+    auto alignContext = std::any_cast<AlignableGeoContext>(gctx);
     Identifier::identifier_type idValue
         = Identifier::identifier_type(identifier());
 

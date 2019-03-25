@@ -33,9 +33,9 @@ FW::Alignable::GeometryRotationDecorator::decorate(
                             Acts::Vector3D::UnitY());
   }
 
-  AlignableContext alignableContext;
-  alignableContext.alignmentStore = std::move(aStore);
-  context.geoContext = std::make_any<AlignableContext>(alignableContext);
+  AlignableGeoContext alignableGeoContext;
+  alignableGeoContext.alignmentStore = std::move(aStore);
+  context.geoContext = std::make_any<AlignableGeoContext>(alignableGeoContext);
 
   return ProcessCode::SUCCESS;
 }
@@ -57,7 +57,7 @@ FW::Alignable::GeometryRotationDecorator::parseGeometry(
     auto alignableElement = dynamic_cast<const AlignableDetectorElement*>(
         surface->associatedDetectorElement());
     aStore[alignableElement->identifier()]
-        = surface->transform(AlignableContext());
+        = surface->transform(AlignableGeoContext());
     int i = 0;
   };
 

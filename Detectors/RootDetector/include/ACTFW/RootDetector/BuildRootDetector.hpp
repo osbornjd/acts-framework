@@ -23,6 +23,7 @@
 #include "Acts/Tools/SurfaceArrayCreator.hpp"
 #include "Acts/Tools/TrackingGeometryBuilder.hpp"
 #include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 #include "TGeoManager.h"
 
 namespace FW {
@@ -40,7 +41,8 @@ namespace Root {
   template <typename variable_maps_t>
   std::shared_ptr<const Acts::TrackingGeometry>
   buildRootDetector(
-      variable_maps_t& vm,
+      variable_maps_t&             vm,
+      const Acts::GeometryContext& context,
       std::vector<std::shared_ptr<const Acts::TGeoDetectorElement>>&
           detElementStore)
   {
@@ -131,14 +133,21 @@ namespace Root {
     //-------------------------------------------------------------------------------------
     // create the tracking geometry
     Acts::TrackingGeometryBuilder::Config tgConfig;
-    tgConfig.trackingVolumeBuilders = volumeBuilders;
-    tgConfig.trackingVolumeHelper   = cylinderVolumeHelper;
+    // Add the builders
+    for (auto& vb : volumeBuilders) {
+      tgConfig.trackingVolumeBuilders.push_back(
+          [=](const auto& context, const auto& inner, const auto&) {
+            return vb->trackingVolume(context, inner);
+          });
+    }
+    // Add the helper
+    tgConfig.trackingVolumeHelper = cylinderVolumeHelper;
     auto cylinderGeometryBuilder
         = std::make_shared<const Acts::TrackingGeometryBuilder>(
             tgConfig,
             Acts::getDefaultLogger("TrackerGeometryBuilder", volumeLogLevel));
     // get the geometry
-    auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry();
+    auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry(context);
     // collect the detector element store
     for (auto& lBuilder : tgLayerBuilders) {
       auto detElements = lBuilder->detectorElements();

@@ -21,12 +21,15 @@ namespace FW {
 
 namespace Alignable {
 
+  class AlignableGeoContext;
+
   /// Global method to build the generic tracking geometry
   /// @param lvl is the debug logging level
   /// @param version is the detector version
   /// return a unique vector to the tracking geometry
   std::unique_ptr<const Acts::TrackingGeometry>
-  buildAlignableDetector(Acts::Logging::Level surfaceLLevel
+  buildAlignableDetector(const AlignableGeoContext& agctx,
+                         Acts::Logging::Level       surfaceLLevel
                          = Acts::Logging::INFO,
                          Acts::Logging::Level layerLLevel = Acts::Logging::INFO,
                          Acts::Logging::Level volumeLLevel

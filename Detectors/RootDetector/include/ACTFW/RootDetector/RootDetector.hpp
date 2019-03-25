@@ -25,6 +25,25 @@ struct RootOptions
   }
 };
 
+/// @brief context decorators
+struct RootContext
+{
+
+  /// @brief operator called to construct the context decorators
+  ///
+  /// @tparam variable_map_t Type of the variable map template for parameters
+  ///
+  /// @param vm the parameter map object
+  /// @param tGeometry The tracking Geometry
+  template <typename variable_map_t>
+  std::vector<std::shared_ptr<FW::IContextDecorator>>
+  operator()(variable_map_t& /*vm*/,
+             std::shared_ptr<const Acts::TrackingGeometry> /*tGeometry*/)
+  {
+    return {};
+  }
+};
+
 /// @brief geometry getter, the operator() will be called int he example base
 struct RootGeometry
 {
@@ -42,25 +61,8 @@ struct RootGeometry
   std::shared_ptr<const Acts::TrackingGeometry>
   operator()(variable_map_t& vm)
   {
-    return FW::Root::buildRootDetector<variable_map_t>(vm, detElementStore);
-  }
-};
-
-/// @brief context decorators
-struct RootContext
-{
-
-  /// @brief operator called to construct the context decorators
-  ///
-  /// @tparam variable_map_t Type of the variable map template for parameters
-  ///
-  /// @param vm the parameter map object
-  /// @param tGeometry The tracking Geometry
-  template <typename variable_map_t>
-  std::vector<std::shared_ptr<FW::IContextDecorator>>
-  operator()(variable_map_t& /*vm*/,
-             std::shared_ptr<const Acts::TrackingGeometry> /*tGeometry*/)
-  {
-    return {};
+    Acts::GeometryContext rootContext;
+    return FW::Root::buildRootDetector<variable_map_t>(
+        vm, rootContext, detElementStore);
   }
 };

@@ -10,7 +10,9 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <list>
 #include <vector>
+#include "ACTFW/AlignableDetector/AlignableDetectorElement.hpp"
 #include "ACTFW/AlignableDetector/AlignableLayerBuilder.hpp"
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
@@ -31,42 +33,36 @@ namespace FW {
 namespace Alignable {
 
   std::unique_ptr<const Acts::TrackingGeometry>
-  buildAlignableDetector(Acts::Logging::Level surfaceLLevel,
-                         Acts::Logging::Level layerLLevel,
-                         Acts::Logging::Level volumeLLevel,
-                         size_t               stage)
+  buildAlignableDetector(const AlignableGeoContext& agctx,
+                         Acts::Logging::Level       surfaceLLevel,
+                         Acts::Logging::Level       layerLLevel,
+                         Acts::Logging::Level       volumeLLevel,
+                         size_t                     stage)
   {
-
-    auto buildContext = std::make_any<AlignableContext>();
 
     // configure surface array creator
     Acts::SurfaceArrayCreator::Config sacConfig;
-    sacConfig.buildContext = buildContext;
-    auto surfaceArrayCreator
+    auto                              surfaceArrayCreator
         = std::make_shared<const Acts::SurfaceArrayCreator>(
             sacConfig,
             Acts::getDefaultLogger("SurfaceArrayCreator", surfaceLLevel));
     // configure the layer creator that uses the surface array creator
     Acts::LayerCreator::Config lcConfig;
-    lcConfig.buildContext        = buildContext;
     lcConfig.surfaceArrayCreator = surfaceArrayCreator;
     auto layerCreator            = std::make_shared<const Acts::LayerCreator>(
         lcConfig, Acts::getDefaultLogger("LayerCreator", layerLLevel));
     // configure the layer array creator
     Acts::LayerArrayCreator::Config lacConfig;
-    lacConfig.buildContext = buildContext;
     auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
         lacConfig, Acts::getDefaultLogger("LayerArrayCreator", layerLLevel));
     // tracking volume array creator
     Acts::TrackingVolumeArrayCreator::Config tvacConfig;
-    tvacConfig.buildContext = buildContext;
-    auto tVolumeArrayCreator
+    auto                                     tVolumeArrayCreator
         = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
             tvacConfig,
             Acts::getDefaultLogger("TrackingVolumeArrayCreator", volumeLLevel));
     // configure the cylinder volume helper
     Acts::CylinderVolumeHelper::Config cvhConfig;
-    cvhConfig.buildContext               = buildContext;
     cvhConfig.layerArrayCreator          = layerArrayCreator;
     cvhConfig.trackingVolumeArrayCreator = tVolumeArrayCreator;
     auto cylinderVolumeHelper
@@ -83,7 +79,6 @@ namespace Alignable {
     //-------------------------------------------------------------------------------------
     // configure the beam pipe layer builder
     Acts::PassiveLayerBuilder::Config bplConfig;
-    bplConfig.buildContext            = buildContext;
     bplConfig.layerIdentification     = "BeamPipe";
     bplConfig.centralLayerRadii       = std::vector<double>(1, 19.);
     bplConfig.centralLayerHalflengthZ = std::vector<double>(1, 3000.);
@@ -95,7 +90,6 @@ namespace Alignable {
         bplConfig, Acts::getDefaultLogger("BeamPipeLayerBuilder", layerLLevel));
     // create the volume for the beam pipe
     Acts::CylinderVolumeBuilder::Config bpvConfig;
-    bpvConfig.buildContext         = buildContext;
     bpvConfig.trackingVolumeHelper = cylinderVolumeHelper;
     bpvConfig.volumeName           = "BeamPipe";
     bpvConfig.layerBuilder         = beamPipeBuilder;
@@ -117,7 +111,7 @@ namespace Alignable {
     FW::Alignable::AlignableLayerBuilder::Config plbConfig;
     plbConfig.layerCreator        = layerCreator;
     plbConfig.layerIdentification = "Pixel";
-    plbConfig.buildContext        = buildContext;
+
     // fill necessary vectors for configuration
     //-------------------------------------------------------------------------------------
     // some prep work
@@ -200,14 +194,22 @@ namespace Alignable {
     //-------------------------------------------------------------------------------------
     // create the tracking geometry
     Acts::TrackingGeometryBuilder::Config tgConfig;
-    tgConfig.trackingVolumeBuilders = volumeBuilders;
-    tgConfig.trackingVolumeHelper   = cylinderVolumeHelper;
+
+    // Add the builde call functions
+    for (auto& vb : volumeBuilders) {
+      tgConfig.trackingVolumeBuilders.push_back(
+          [=](const auto& context, const auto& inner, const auto&) {
+            return vb->trackingVolume(agctx, inner);
+          });
+    }
+
+    tgConfig.trackingVolumeHelper = cylinderVolumeHelper;
     auto cylinderGeometryBuilder
         = std::make_shared<const Acts::TrackingGeometryBuilder>(
             tgConfig,
             Acts::getDefaultLogger("TrackerGeometryBuilder", volumeLLevel));
     // get the geometry
-    auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry();
+    auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry(agctx);
 
     /// return the tracking geometry
     return trackingGeometry;

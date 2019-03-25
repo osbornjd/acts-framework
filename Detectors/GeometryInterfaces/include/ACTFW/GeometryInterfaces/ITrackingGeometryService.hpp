@@ -15,6 +15,7 @@
 #include <memory>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 
 namespace Acts {
 class TrackingGeometry;
@@ -38,6 +39,6 @@ public:
 
   /// Access to the ACTS TrackingGeometry
   virtual std::unique_ptr<const Acts::TrackingGeometry>
-  trackingGeometry() = 0;
+  trackingGeometry(const Acts::GeometryContext& ctx) = 0;
 };
 }

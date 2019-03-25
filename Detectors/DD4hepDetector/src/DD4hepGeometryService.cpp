@@ -69,7 +69,8 @@ FW::DD4hep::DD4hepGeometryService::tgeoGeometry()
 }
 
 FW::ProcessCode
-FW::DD4hep::DD4hepGeometryService::buildTrackingGeometry()
+FW::DD4hep::DD4hepGeometryService::buildTrackingGeometry(
+    const Acts::GeometryContext& gctx)
 {
   // set the tracking geometry
   m_trackingGeometry
@@ -81,13 +82,17 @@ FW::DD4hep::DD4hepGeometryService::buildTrackingGeometry()
                                               m_cfg.envelopeR,
                                               m_cfg.envelopeZ,
                                               m_cfg.defaultLayerThickness,
-                                              m_cfg.sortDetectors));
+                                              m_cfg.sortDetectors,
+                                              gctx));
   return FW::ProcessCode::SUCCESS;
 }
 
 std::unique_ptr<const Acts::TrackingGeometry>
-FW::DD4hep::DD4hepGeometryService::trackingGeometry()
+FW::DD4hep::DD4hepGeometryService::trackingGeometry(
+    const Acts::GeometryContext& gctx)
 {
-  if (!m_trackingGeometry) buildTrackingGeometry();
+  if (!m_trackingGeometry) {
+    buildTrackingGeometry(gctx);
+  }
   return std::move(m_trackingGeometry);
 }
