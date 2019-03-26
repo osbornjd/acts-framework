@@ -19,7 +19,7 @@
 FW::EmptyReconstructionAlgorithm::EmptyReconstructionAlgorithm(
     const FW::EmptyReconstructionAlgorithm::Config& cfg,
     Acts::Logging::Level                            logLevel)
-  : BareAlgorithm("EmptyReconstructionAlgorithm", logLevel)
+  : BareAlgorithm("EmptyReconstructionAlgorithm", logLevel), m_cfg(cfg)
 {
   if (m_cfg.spacePointCollection.empty()) {
     throw std::invalid_argument("Missing input space points collection");
@@ -29,15 +29,29 @@ FW::EmptyReconstructionAlgorithm::EmptyReconstructionAlgorithm(
 FW::ProcessCode
 FW::EmptyReconstructionAlgorithm::execute(FW::AlgorithmContext ctx) const
 {
+  ACTS_INFO("empty reconstruction on event " << ctx.eventNumber);
+
   // Read the input space points
   const DetectorData<geo_id_value, Acts::Vector3D>* spacePoints;
   if (ctx.eventStore.get(m_cfg.spacePointCollection, spacePoints)
       == FW::ProcessCode::ABORT) {
+    ACTS_WARNING("missing space point input");
     return FW::ProcessCode::ABORT;
   }
 
-  // TODO do something w/ the space points and write out track candidates
-  // NOTE space points are grouped by the geometry id
+  for (auto& volumeData : *spacePoints) {
+    for (auto& layerData : volumeData.second) {
+      for (auto& moduleData : layerData.second) {
+        ACTS_INFO("volume " << volumeData.first << " layer " << layerData.first
+                            << " module " << moduleData.first << " "
+                            << moduleData.second.size() << " space points");
+        for (auto& cluster : moduleData.second) {
+          // TODO do something w/ the space points and write out track
+          // candidates NOTE space points are grouped by the geometry id
+        }
+      }
+    }
+  }
 
   return ProcessCode::SUCCESS;
 }
