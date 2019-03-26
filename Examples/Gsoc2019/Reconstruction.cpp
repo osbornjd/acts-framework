@@ -15,6 +15,7 @@
 #include <Acts/Detector/TrackingGeometry.hpp>
 #include <Acts/Extrapolator/Navigator.hpp>
 #include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/Plugins/Digitization/PlanarModuleStepper.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/StraightLineStepper.hpp>
@@ -28,6 +29,8 @@
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Common/CommonOptions.hpp"
+#include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
+#include "ACTFW/Digitization/DigitizationOptions.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
@@ -126,9 +129,9 @@ main(int argc, char* argv[])
 
   // Event generation w/ particle gun
   EventGenerator::Config evgen = Options::readParticleGunOptions(vm);
-  evgen.output                 = "particles";
   evgen.randomNumbers          = rng;
   evgen.barcodeSvc             = barcode;
+  evgen.output                 = "particles";
   seq.addReaders({std::make_shared<EventGenerator>(evgen, logLevel)});
 
   // Setup fast simulation
@@ -138,10 +141,22 @@ main(int argc, char* argv[])
   sim.simulatedEventCollection = "simulated_particles";
   sim.simulatedHitCollection   = "simulated_hits";
   seq.appendEventAlgorithms(
-      {std::make_shared<SimulationAlgorithm>(std::move(sim), logLevel)});
+      {std::make_shared<SimulationAlgorithm>(sim, logLevel)});
+
+  // Setup digitization to convert truth hits into digitized hits/ space points
+  DigitizationAlgorithm::Config digi;
+  digi.planarModuleStepper = std::make_shared<Acts::PlanarModuleStepper>(
+      Acts::getDefaultLogger("PlanarModuleStepper", logLevel));
+  digi.randomNumberSvc        = rng;
+  digi.simulatedHitCollection = sim.simulatedHitCollection;
+  digi.spacePointCollection   = "spacepoints";
+  digi.clusterCollection      = "clusters";
+  seq.appendEventAlgorithms(
+      {std::make_shared<DigitizationAlgorithm>(digi, logLevel)});
 
   // Add the empty reconstruction algorithm
   EmptyReconstructionAlgorithm::Config emptyReco;
+  emptyReco.spacePointCollection = digi.spacePointCollection;
   seq.appendEventAlgorithms(
       {std::make_shared<EmptyReconstructionAlgorithm>(emptyReco, logLevel)});
 

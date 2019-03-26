@@ -6,6 +6,7 @@ target_link_libraries(
         ActsFrameworkGenerators
         ACTFWGenericDetector
         ACTFWFatras
+        ACTFWDigitization
         FatrasCore
         ActsCore
         Boost::program_options)
