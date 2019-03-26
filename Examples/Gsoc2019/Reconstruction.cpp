@@ -11,9 +11,12 @@
 
 #include <boost/program_options.hpp>
 
+#include <Acts/Detector/TrackingGeometry.hpp>
+
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
@@ -54,6 +57,9 @@ main(int argc, char* argv[])
   auto rng     = std::make_shared<RandomNumbersSvc>(rndCfg);
   auto barcode = std::make_shared<BarcodeSvc>(
       BarcodeSvc::Config{}, Acts::getDefaultLogger("BarcodeSvc", logLevel));
+
+  // Setup geometry. Always use the generic (TrackML) detector
+  auto geo = Generic::buildGenericDetector(logLevel);
 
   // Event generation w/ particle gun
   EventGenerator::Config evgen = Options::readParticleGunOptions(vm);

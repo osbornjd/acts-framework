@@ -4,6 +4,7 @@ target_link_libraries(
     ACTFWGsoc2019Reconstruction
     PRIVATE ACTFramework ACTFWReconstruction ACTFWExamplesCommon
         ActsFrameworkGenerators ActsCore
+        ACTFWGenericDetector
         Boost::program_options)
 install(
     TARGETS ACTFWGsoc2019Reconstruction
