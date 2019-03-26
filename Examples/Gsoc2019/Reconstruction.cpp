@@ -12,6 +12,8 @@
 #include <boost/program_options.hpp>
 
 #include <Acts/Detector/TrackingGeometry.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/Utilities/Units.hpp>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Common/CommonOptions.hpp"
@@ -60,6 +62,9 @@ main(int argc, char* argv[])
 
   // Setup geometry. Always use the generic (TrackML) detector
   auto geo = Generic::buildGenericDetector(logLevel);
+
+  // Always use a constant magnetic field
+  Acts::ConstantBField bfield(0.0, 0.0, 2.0 * Acts::units::_T);
 
   // Event generation w/ particle gun
   EventGenerator::Config evgen = Options::readParticleGunOptions(vm);
