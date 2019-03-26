@@ -3,8 +3,11 @@ add_executable(
 target_link_libraries(
     ACTFWGsoc2019Reconstruction
     PRIVATE ACTFramework ACTFWReconstruction ACTFWExamplesCommon
-        ActsFrameworkGenerators ActsCore
+        ActsFrameworkGenerators
         ACTFWGenericDetector
+        ACTFWFatras
+        FatrasCore
+        ActsCore
         Boost::program_options)
 install(
     TARGETS ACTFWGsoc2019Reconstruction

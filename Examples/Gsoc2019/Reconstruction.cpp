@@ -8,15 +8,31 @@
 
 #include <cstdlib>
 #include <memory>
+#include <vector>
 
 #include <boost/program_options.hpp>
 
 #include <Acts/Detector/TrackingGeometry.hpp>
+#include <Acts/Extrapolator/Navigator.hpp>
 #include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/StraightLineStepper.hpp>
 #include <Acts/Utilities/Units.hpp>
+#include <Fatras/Kernel/Interactor.hpp>
+#include <Fatras/Kernel/SelectorList.hpp>
+#include <Fatras/Kernel/Simulator.hpp>
+#include <Fatras/Selectors/ChargeSelectors.hpp>
+#include <Fatras/Selectors/KinematicCasts.hpp>
+#include <Fatras/Selectors/SelectorHelpers.hpp>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Common/CommonOptions.hpp"
+#include "ACTFW/EventData/SimHit.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
+#include "ACTFW/Fatras/FatrasAlgorithm.hpp"
+#include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
@@ -26,6 +42,48 @@
 
 using namespace boost::program_options;
 using namespace FW;
+
+// data type definitions
+using TruthParticle   = Data::SimParticle;
+using TruthHit        = Data::SimHit<Data::SimParticle>;
+using TruthHitCreator = Data::SimHitCreator;
+using TruthEvent      = std::vector<Data::SimVertex<TruthParticle>>;
+
+// type definitions for the propagation and simulation
+// for charge particles
+using MagneticField     = Acts::ConstantBField;
+using ChargedStepper    = Acts::EigenStepper<MagneticField>;
+using ChargedPropagator = Acts::Propagator<ChargedStepper, Acts::Navigator>;
+using ChargedInteractor = Fatras::
+    Interactor<RandomEngine, TruthParticle, TruthHit, TruthHitCreator>;
+// for neutral particles
+using NeutralStepper    = Acts::StraightLineStepper;
+using NeutralPropagator = Acts::Propagator<NeutralStepper, Acts::Navigator>;
+using NeutralInteractor = Fatras::
+    Interactor<RandomEngine, TruthParticle, TruthHit, TruthHitCreator>;
+// the simulator kernel
+using Simulator = Fatras::Simulator<ChargedPropagator,
+                                    Fatras::SelectorListOR<>,
+                                    ChargedInteractor,
+                                    NeutralPropagator,
+                                    Fatras::SelectorListOR<>,
+                                    NeutralInteractor>;
+// the combined simulation algorithm
+using SimulationAlgorithm = FatrasAlgorithm<Simulator, TruthEvent, TruthHit>;
+
+SimulationAlgorithm::Config
+buildSimulationConfig(std::shared_ptr<const Acts::TrackingGeometry>& geo,
+                      Acts::ConstantBField&& magneticField)
+{
+  using namespace Acts;
+
+  ChargedStepper    chargedStepper(std::move(magneticField));
+  ChargedPropagator chargedProp(std::move(chargedStepper), Navigator(geo));
+  NeutralPropagator neutralProp(NeutralStepper{}, Navigator(geo));
+  Simulator         simulator(std::move(chargedProp), std::move(neutralProp));
+
+  return SimulationAlgorithm::Config(std::move(simulator));
+}
 
 int
 main(int argc, char* argv[])
@@ -60,9 +118,9 @@ main(int argc, char* argv[])
   auto barcode = std::make_shared<BarcodeSvc>(
       BarcodeSvc::Config{}, Acts::getDefaultLogger("BarcodeSvc", logLevel));
 
-  // Setup geometry. Always use the generic (TrackML) detector
-  auto geo = Generic::buildGenericDetector(logLevel);
-
+  // Always use the generic (TrackML) detector
+  std::shared_ptr<const Acts::TrackingGeometry> geo(
+      Generic::buildGenericDetector(logLevel));
   // Always use a constant magnetic field
   Acts::ConstantBField bfield(0.0, 0.0, 2.0 * Acts::units::_T);
 
@@ -72,6 +130,15 @@ main(int argc, char* argv[])
   evgen.randomNumbers          = rng;
   evgen.barcodeSvc             = barcode;
   seq.addReaders({std::make_shared<EventGenerator>(evgen, logLevel)});
+
+  // Setup fast simulation
+  auto sim                     = buildSimulationConfig(geo, std::move(bfield));
+  sim.randomNumberSvc          = rng;
+  sim.inputEventCollection     = evgen.output;
+  sim.simulatedEventCollection = "simulated_particles";
+  sim.simulatedHitCollection   = "simulated_hits";
+  seq.appendEventAlgorithms(
+      {std::make_shared<SimulationAlgorithm>(std::move(sim), logLevel)});
 
   // Add the empty reconstruction algorithm
   EmptyReconstructionAlgorithm::Config emptyReco;
