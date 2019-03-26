@@ -11,44 +11,62 @@
 
 #include <boost/program_options.hpp>
 
+#include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/ParticleGunOptions.hpp"
+#include "ACTFW/Random/RandomNumbersOptions.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Reconstruction/Empty.hpp"
 
-namespace po = boost::program_options;
-
+using namespace boost::program_options;
 using namespace FW;
 
 int
 main(int argc, char* argv[])
 {
   // Setup command line arguments and options
-  po::options_description desc("Gsoc2019 reconstruction tool");
-  // Add common options, i.e. number of events, ...
+  options_description desc("Gsoc2019 reconstruction tool");
   Options::addCommonOptions(desc);
+  Options::addRandomNumbersOptions(desc);
+  Options::addParticleGunOptions(desc);
 
   // Process command line arguments and options
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+  variables_map vm;
+  store(parse_command_line(argc, argv, desc), vm);
+  notify(vm);
   // Print help if reqested
   if (vm.count("help")) {
     std::cout << desc << std::endl;
     return EXIT_SUCCESS;
   }
 
-  // extract common options
+  // Extract common options
   auto nEvents  = Options::readNumberOfEvents(vm);
   auto logLevel = Options::readLogLevel(vm);
 
   // Create a sequencer w/ the default config
-  Sequencer sequencer({});
+  Sequencer seq({});
+
+  // Setup basic services
+  RandomNumbersSvc::Config rndCfg;
+  rndCfg.seed  = 123;
+  auto rng     = std::make_shared<RandomNumbersSvc>(rndCfg);
+  auto barcode = std::make_shared<BarcodeSvc>(
+      BarcodeSvc::Config{}, Acts::getDefaultLogger("BarcodeSvc", logLevel));
+
+  // Event generation w/ particle gun
+  EventGenerator::Config evgen = Options::readParticleGunOptions(vm);
+  evgen.output                 = "particles";
+  evgen.randomNumbers          = rng;
+  evgen.barcodeSvc             = barcode;
+  seq.addReaders({std::make_shared<EventGenerator>(evgen, logLevel)});
 
   // Add the empty reconstruction algorithm
   EmptyReconstructionAlgorithm::Config emptyReco;
-  sequencer.appendEventAlgorithms(
+  seq.appendEventAlgorithms(
       {std::make_shared<EmptyReconstructionAlgorithm>(emptyReco, logLevel)});
 
-  return (sequencer.run(nEvents) == ProcessCode::SUCCESS) ? EXIT_SUCCESS
-                                                          : EXIT_FAILURE;
+  return (seq.run(nEvents) == ProcessCode::SUCCESS) ? EXIT_SUCCESS
+                                                    : EXIT_FAILURE;
 }
