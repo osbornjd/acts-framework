@@ -46,7 +46,7 @@ namespace Generic {
   using Acts::VectorHelpers::phi;
   using Acts::VectorHelpers::perp;
 
-  typedef std::pair<const Acts::Surface*, Acts::Vector3D> SurfacePosition;
+  using SurfacePosition = std::pair<const Acts::Surface*, Acts::Vector3D>;
 
   struct ProtoLayerSurfaces
   {
@@ -65,6 +65,10 @@ namespace Generic {
   class ProtoLayerCreatorT
   {
   public:
+    using LayerStore = std::vector<std::shared_ptr<detector_element_t>>;
+
+    using DetectorStore = std::vector<LayerStore>;
+
     /// @struct Config
     ///
     /// Nested configuration struct for the ProtoLayerCreatorT
@@ -159,27 +163,24 @@ namespace Generic {
     /// @param detectorStore The reference store for the detector elements
     /// @return the protolayers and surfaces on the negative detector side
     std::vector<ProtoLayerSurfaces>
-    negativeProtoLayers(
-        const Acts::GeometryContext&                  gctx,
-        std::vector<std::vector<detector_element_t>>& detectorStore) const;
+    negativeProtoLayers(const Acts::GeometryContext& gctx,
+                        DetectorStore&               detectorStore) const;
 
     /// @brief construct the negative side layers
     /// @param gctx The geometry context for this construction call
     /// @param detectorStore The reference store for the detector elements
     /// @return the protolayers and surfaces on the central detector side
     std::vector<ProtoLayerSurfaces>
-    centralProtoLayers(
-        const Acts::GeometryContext&                  gctx,
-        std::vector<std::vector<detector_element_t>>& detectorStore) const;
+    centralProtoLayers(const Acts::GeometryContext& gctx,
+                       DetectorStore&               detectorStore) const;
 
     /// @brief construct the negative side layers
     /// @param gctx The geometry context for this construction call
     /// @param detectorStore The reference store for the detector elements
     /// @return the protolayers and surfaces on the  positive detector side
     std::vector<ProtoLayerSurfaces>
-    positiveProtoLayers(
-        const Acts::GeometryContext&                  gctx,
-        std::vector<std::vector<detector_element_t>>& detectorStore) const;
+    positiveProtoLayers(const Acts::GeometryContext& gctx,
+                        DetectorStore&               detectorStore) const;
 
   private:
     /// @brief private helper method to create teh proto layers on the
@@ -189,10 +190,9 @@ namespace Generic {
     /// @param side is the indiciator whether to build on negative/positive
     /// @return the protolayers and surfaces on the neg/pos detector side
     std::vector<ProtoLayerSurfaces>
-    createProtoLayers(
-        const Acts::GeometryContext&                  gctx,
-        std::vector<std::vector<detector_element_t>>& detectorStore,
-        int                                           side) const;
+    createProtoLayers(const Acts::GeometryContext& gctx,
+                      DetectorStore&               detectorStore,
+                      int                          side) const;
 
     /// Configuration member
     Config m_cfg;
@@ -211,13 +211,13 @@ namespace Generic {
   template <typename detector_element_t>
   std::vector<ProtoLayerSurfaces>
   ProtoLayerCreatorT<detector_element_t>::centralProtoLayers(
-      const Acts::GeometryContext&                  gctx,
-      std::vector<std::vector<detector_element_t>>& detectorStore) const
+      const Acts::GeometryContext& gctx,
+      DetectorStore&               detectorStore) const
   {
     // create the vector
     std::vector<ProtoLayerSurfaces> cpLayers;
     // create the detector store entry
-    std::vector<detector_element_t> layerStore;
+    LayerStore layerStore;
 
     // @todo create some identifier schema
     size_t imodule = 0;
@@ -343,15 +343,18 @@ namespace Generic {
               = std::const_pointer_cast<const Acts::Transform3D>(
                   mutableModuleTransform);
           // create the module
-          layerStore.push_back(detector_element_t(moduleIdentifier,
-                                                  moduleTransform,
-                                                  moduleBounds,
-                                                  moduleThickness,
-                                                  moduleMaterialPtr,
-                                                  moduleDigitizationPtr));
-          detector_element_t& module = layerStore.back();
+          auto module
+              = std::make_shared<detector_element_t>(moduleIdentifier,
+                                                     moduleTransform,
+                                                     moduleBounds,
+                                                     moduleThickness,
+                                                     moduleMaterialPtr,
+                                                     moduleDigitizationPtr);
+
+          // put the module into the detector store
+          layerStore.push_back(module);
           // register the surface
-          sVector.push_back(module.surface().getSharedPtr());
+          sVector.push_back(module->surface().getSharedPtr());
           // IF double modules exist
           // and the backside one (if configured to do so)
           if (m_cfg.centralModuleBacksideGap.size()) {
@@ -372,23 +375,23 @@ namespace Generic {
             // Finalize the transform
             moduleTransform = std::const_pointer_cast<const Acts::Transform3D>(
                 mutableModuleTransform);
+            // create the backseide moulde
+            auto bsmodule
+                = std::make_shared<detector_element_t>(moduleIdentifier,
+                                                       moduleTransform,
+                                                       moduleBounds,
+                                                       moduleThickness,
+                                                       moduleMaterialPtr,
+                                                       moduleDigitizationPtr);
             // everything is set for the next module
-            layerStore.push_back(detector_element_t(moduleIdentifier,
-                                                    moduleTransform,
-                                                    moduleBounds,
-                                                    moduleThickness,
-                                                    moduleMaterialPtr,
-                                                    moduleDigitizationPtr));
-
-            // The back side module
-            detector_element_t& bsmodule = layerStore.back();
+            layerStore.push_back(std::move(bsmodule));
             // register the backside as bin member
             std::vector<const Acts::DetectorElementBase*> bsbinmember
-                = {&module};
+                = {module.get()};
             std::vector<const Acts::DetectorElementBase*> binmember
-                = {&bsmodule};
-            bsmodule.registerBinmembers(bsbinmember);
-            module.registerBinmembers(binmember);
+                = {bsmodule.get()};
+            bsmodule->registerBinmembers(bsbinmember);
+            module->registerBinmembers(binmember);
           }
         }
 
@@ -416,8 +419,8 @@ namespace Generic {
   template <typename detector_element_t>
   std::vector<ProtoLayerSurfaces>
   ProtoLayerCreatorT<detector_element_t>::negativeProtoLayers(
-      const Acts::GeometryContext&                  gctx,
-      std::vector<std::vector<detector_element_t>>& detectorStore) const
+      const Acts::GeometryContext& gctx,
+      DetectorStore&               detectorStore) const
   {
     return createProtoLayers(gctx, detectorStore, -1);
   }
@@ -425,8 +428,8 @@ namespace Generic {
   template <typename detector_element_t>
   std::vector<ProtoLayerSurfaces>
   ProtoLayerCreatorT<detector_element_t>::positiveProtoLayers(
-      const Acts::GeometryContext&                  gctx,
-      std::vector<std::vector<detector_element_t>>& detectorStore) const
+      const Acts::GeometryContext& gctx,
+      DetectorStore&               detectorStore) const
   {
     return createProtoLayers(gctx, detectorStore, 1);
   }
@@ -442,15 +445,15 @@ namespace Generic {
   template <typename detector_element_t>
   std::vector<ProtoLayerSurfaces>
   ProtoLayerCreatorT<detector_element_t>::createProtoLayers(
-      const Acts::GeometryContext&                  gctx,
-      std::vector<std::vector<detector_element_t>>& detectorStore,
-      int                                           side) const
+      const Acts::GeometryContext& gctx,
+      DetectorStore&               detectorStore,
+      int                          side) const
   {
     unsigned long imodule = 0;
     // the return layers
     std::vector<ProtoLayerSurfaces> epLayers;
     // create the detector store entry
-    std::vector<detector_element_t> layerStore;
+    LayerStore layerStore;
     // -------------------------------- endcap type layers
     // pos/neg layers
     size_t numpnLayers = m_cfg.posnegLayerPositionsZ.size();
@@ -554,13 +557,14 @@ namespace Generic {
                 = Identifier(Identifier::identifier_type(imodule++));
 
             // create the module
-            layerStore.push_back(detector_element_t(moduleIdentifier,
-                                                    moduleTransform,
-                                                    moduleBounds,
-                                                    moduleThickness,
-                                                    moduleMaterialPtr));
+            auto module
+                = std::make_shared<detector_element_t>(moduleIdentifier,
+                                                       moduleTransform,
+                                                       moduleBounds,
+                                                       moduleThickness,
+                                                       moduleMaterialPtr);
+            layerStore.push_back(module);
 
-            detector_element_t& module = layerStore.back();
             // now deal with the potential backside
             if (m_cfg.posnegModuleBacksideGap.size()) {
               // ncrease the counter @todo switch to identifier service
@@ -591,22 +595,24 @@ namespace Generic {
                   = std::const_pointer_cast<const Acts::Transform3D>(
                       mutableModuleTransform);
               // everything is set for the next module
-              layerStore.push_back(detector_element_t(moduleIdentifier,
-                                                      moduleTransform,
-                                                      moduleBounds,
-                                                      moduleThickness,
-                                                      moduleMaterialPtr));
-              auto& bsmodule = layerStore.back();
+              auto bsmodule
+                  = std::make_shared<detector_element_t>(moduleIdentifier,
+                                                         moduleTransform,
+                                                         moduleBounds,
+                                                         moduleThickness,
+                                                         moduleMaterialPtr);
+              // Put into the detector store
+              layerStore.push_back(std::move(bsmodule));
               // register the backside of the binmembers
               std::vector<const Acts::DetectorElementBase*> bsbinmember
-                  = {&module};
+                  = {module.get()};
               std::vector<const Acts::DetectorElementBase*> binmember
-                  = {&bsmodule};
-              bsmodule.registerBinmembers(bsbinmember);
-              module.registerBinmembers(binmember);
+                  = {bsmodule.get()};
+              bsmodule->registerBinmembers(bsbinmember);
+              module->registerBinmembers(binmember);
             }
             // create the surface
-            esVector.push_back(module.surface().getSharedPtr());
+            esVector.push_back(module->surface().getSharedPtr());
           }
           // counter of rings
           ++ipnR;
@@ -635,7 +641,7 @@ namespace Generic {
             std::move(ple), esVector, layerBinsR, layerBinsPhi};
         epLayers.push_back(std::move(ples));
         // fill the detector store
-        detectorStore.push_back(layerStore);
+        detectorStore.push_back(std::move(layerStore));
       }
     }
     return epLayers;

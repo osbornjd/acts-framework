@@ -9,26 +9,42 @@
 #pragma once
 
 #include <iostream>
+#include <tuple>
 #include <utility>
 #include "ACTFW/Plugins/BField/BFieldUtils.hpp"
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
-#include "Acts/MagneticField/concept/AnyFieldLookup.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
 
 namespace po = boost::program_options;
+
+using InterpolatedMapper2D = Acts::
+    InterpolatedBFieldMapper<Acts::detail::Grid<Acts::Vector2D,
+                                                Acts::detail::EquidistantAxis,
+                                                Acts::detail::EquidistantAxis>>;
+
+using InterpolatedMapper3D = Acts::
+    InterpolatedBFieldMapper<Acts::detail::Grid<Acts::Vector3D,
+                                                Acts::detail::EquidistantAxis,
+                                                Acts::detail::EquidistantAxis,
+                                                Acts::detail::EquidistantAxis>>;
+
+using InterpolatedBFieldMap2D
+    = Acts::InterpolatedBFieldMap<InterpolatedMapper2D>;
+using InterpolatedBFieldMap3D
+    = Acts::InterpolatedBFieldMap<InterpolatedMapper3D>;
 
 namespace FW {
 
 namespace Options {
 
   // common bfield options, with a bf prefix
-  template <class AOPT>
+  template <class aopt_t>
   void
-  addBFieldOptions(AOPT& opt)
+  addBFieldOptions(aopt_t& opt)
   {
     opt.add_options()(
         "bf-map",
@@ -78,15 +94,21 @@ namespace Options {
   }
 
   // create the bfield maps
-  template <class AMAP>
-  std::tuple<std::shared_ptr<Acts::InterpolatedBFieldMap>,
+  template <class amap_t>
+  std::tuple<std::shared_ptr<InterpolatedBFieldMap2D>,
+             std::shared_ptr<InterpolatedBFieldMap3D>,
              std::shared_ptr<Acts::ConstantBField>,
              std::shared_ptr<FW::BField::ScalableBField>>
-  readBField(const AMAP& vm)
+  readBField(const amap_t& vm)
   {
     std::string bfieldmap = "constfield";
 
     enum BFieldMapType { constant = 0, root = 1, text = 2 };
+
+    std::shared_ptr<InterpolatedBFieldMap2D>    map2D    = nullptr;
+    std::shared_ptr<InterpolatedBFieldMap3D>    map3D    = nullptr;
+    std::shared_ptr<Acts::ConstantBField>       mapConst = nullptr;
+    std::shared_ptr<FW::BField::ScalableBField> mapScale = nullptr;
 
     int bfieldmaptype = constant;
     if (vm.count("bf-map") && vm["bf-map"].template as<std::string>() != "") {
@@ -103,10 +125,14 @@ namespace Options {
       } else {
         std::cout << "- magnetic field format could not be detected";
         std::cout << " use '.root', '.txt', or '.csv'." << std::endl;
-        return std::make_tuple<std::shared_ptr<Acts::InterpolatedBFieldMap>,
+        return std::make_tuple<std::shared_ptr<InterpolatedBFieldMap2D>,
+                               std::shared_ptr<InterpolatedBFieldMap3D>,
                                std::shared_ptr<Acts::ConstantBField>,
                                std::shared_ptr<FW::BField::ScalableBField>>(
-            nullptr, nullptr, nullptr);
+            std::move(map2D),
+            std::move(map3D),
+            std::move(mapConst),
+            std::move(mapScale));
       }
     }
     if (bfieldmaptype == text && vm.count("bf-gridpoints")) {
@@ -137,14 +163,13 @@ namespace Options {
     }
 
     // Declare the mapper
-    Acts::concept::AnyFieldLookup<> mapper;
-    double                          lengthUnit = lscalor * Acts::units::_mm;
-    double                          BFieldUnit = bscalor * Acts::units::_T;
+    double lengthUnit = lscalor * Acts::units::_mm;
+    double BFieldUnit = bscalor * Acts::units::_T;
 
     // set the mapper - foort
     if (bfieldmaptype == root) {
       if (vm["bf-rz"].template as<bool>()) {
-        mapper = FW::BField::root::fieldMapperRZ(
+        auto mapper2D = FW::BField::root::fieldMapperRZ(
             [](std::array<size_t, 2> binsRZ, std::array<size_t, 2> nBinsRZ) {
               return (binsRZ.at(1) * nBinsRZ.at(0) + binsRZ.at(0));
             },
@@ -153,8 +178,15 @@ namespace Options {
             lengthUnit,
             BFieldUnit,
             vm["bf-foctant"].template as<bool>());
+
+        // create field mapping
+        InterpolatedBFieldMap2D::Config config2D(std::move(mapper2D));
+        config2D.scale = bscalor;
+        // create BField service
+        map2D = std::make_shared<InterpolatedBFieldMap2D>(std::move(config2D));
+
       } else {
-        mapper = FW::BField::root::fieldMapperXYZ(
+        auto mapper3D = FW::BField::root::fieldMapperXYZ(
             [](std::array<size_t, 3> binsXYZ, std::array<size_t, 3> nBinsXYZ) {
               return (binsXYZ.at(0) * (nBinsXYZ.at(1) * nBinsXYZ.at(2))
                       + binsXYZ.at(1) * nBinsXYZ.at(2)
@@ -165,10 +197,16 @@ namespace Options {
             lengthUnit,
             BFieldUnit,
             vm["bf-foctant"].template as<bool>());
+
+        // create field mapping
+        InterpolatedBFieldMap3D::Config config3D(std::move(mapper3D));
+        config3D.scale = bscalor;
+        // create BField service
+        map3D = std::make_shared<InterpolatedBFieldMap3D>(std::move(config3D));
       }
     } else if (bfieldmaptype == text) {
       if (vm["bf-rz"].template as<bool>()) {
-        mapper = FW::BField::txt::fieldMapperRZ(
+        auto mapper2D = FW::BField::txt::fieldMapperRZ(
             [](std::array<size_t, 2> binsRZ, std::array<size_t, 2> nBinsRZ) {
               return (binsRZ.at(1) * nBinsRZ.at(0) + binsRZ.at(0));
             },
@@ -177,8 +215,15 @@ namespace Options {
             BFieldUnit,
             vm["bf-gridpoints"].template as<size_t>(),
             vm["bf-foctant"].template as<bool>());
+
+        // create field mapping
+        InterpolatedBFieldMap2D::Config config2D(std::move(mapper2D));
+        config2D.scale = bscalor;
+        // create BField service
+        map2D = std::make_shared<InterpolatedBFieldMap2D>(std::move(config2D));
+
       } else {
-        mapper = FW::BField::txt::fieldMapperXYZ(
+        auto mapper3D = FW::BField::txt::fieldMapperXYZ(
             [](std::array<size_t, 3> binsXYZ, std::array<size_t, 3> nBinsXYZ) {
               return (binsXYZ.at(0) * (nBinsXYZ.at(1) * nBinsXYZ.at(2))
                       + binsXYZ.at(1) * nBinsXYZ.at(2)
@@ -189,16 +234,14 @@ namespace Options {
             BFieldUnit,
             vm["bf-gridpoints"].template as<size_t>(),
             vm["bf-foctant"].template as<bool>());
+
+        // create field mapping
+        InterpolatedBFieldMap3D::Config config3D(std::move(mapper3D));
+        config3D.scale = bscalor;
+        // create BField service
+        map3D = std::make_shared<InterpolatedBFieldMap3D>(std::move(config3D));
       }
     }
-    Acts::InterpolatedBFieldMap::Config config;
-    config.scale  = 1.;
-    config.mapper = std::move(mapper);
-
-    std::shared_ptr<Acts::InterpolatedBFieldMap> bField
-        = bfieldmaptype != constant
-        ? std::make_shared<Acts::InterpolatedBFieldMap>(std::move(config))
-        : nullptr;
 
     // No bfield map is handed over
     // get the constant bField values
@@ -212,23 +255,25 @@ namespace Options {
     }
 
     // Create the constant magnetic field
-    std::shared_ptr<Acts::ConstantBField> cField
-        = std::make_shared<Acts::ConstantBField>(
-            bFieldValues.at(0) * Acts::units::_T,
-            bFieldValues.at(1) * Acts::units::_T,
-            bFieldValues.at(2) * Acts::units::_T);
+    mapConst = std::make_shared<Acts::ConstantBField>(
+        bFieldValues.at(0) * Acts::units::_T,
+        bFieldValues.at(1) * Acts::units::_T,
+        bFieldValues.at(2) * Acts::units::_T);
 
     // Create the scalable magnetic field
-    std::shared_ptr<FW::BField::ScalableBField> sField
-        = std::make_shared<FW::BField::ScalableBField>(
-            bFieldValues.at(0) * Acts::units::_T,
-            bFieldValues.at(1) * Acts::units::_T,
-            bFieldValues.at(2) * Acts::units::_T);
+    mapScale = std::make_shared<FW::BField::ScalableBField>(
+        bFieldValues.at(0) * Acts::units::_T,
+        bFieldValues.at(1) * Acts::units::_T,
+        bFieldValues.at(2) * Acts::units::_T);
 
-    return std::make_tuple<std::shared_ptr<Acts::InterpolatedBFieldMap>,
+    return std::make_tuple<std::shared_ptr<InterpolatedBFieldMap2D>,
+                           std::shared_ptr<InterpolatedBFieldMap3D>,
                            std::shared_ptr<Acts::ConstantBField>,
                            std::shared_ptr<FW::BField::ScalableBField>>(
-        std::move(bField), std::move(cField), std::move(sField));
+        std::move(map2D),
+        std::move(map3D),
+        std::move(mapConst),
+        std::move(mapScale));
   }
 }
 }

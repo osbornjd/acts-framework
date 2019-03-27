@@ -13,10 +13,8 @@
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/BField/RootInterpolatedBFieldWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Utilities/Options.hpp"
-#include "Acts/MagneticField/concept/AnyFieldLookup.hpp"
 #include "Acts/Utilities/MagneticFieldContext.hpp"
 #include "Acts/Utilities/Units.hpp"
 
@@ -174,11 +172,15 @@ main(int argc, char* argv[])
   Acts::MagneticFieldContext magFieldContext = Acts::MagneticFieldContext();
 
   // Create BField service
-  auto bField = FW::Options::readBField<po::variables_map>(vm);
-  if (!std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)) {
-    std::cout << "Bfield could not be set up. Exiting." << std::endl;
+  auto bField  = FW::Options::readBField<po::variables_map>(vm);
+  auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
+  auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
+
+  if (!field2D && !field3D) {
+    std::cout << "Bfield map could not be read. Exiting." << std::endl;
     return -1;
   }
+
   // Get the phi and eta range
   auto phir   = vm["bf-phi-range"].as<read_range>();
   auto thetar = vm["bf-theta-range"].as<read_range>();
@@ -196,25 +198,50 @@ main(int argc, char* argv[])
   double theta_span  = std::abs(thetar[1] - thetar[0]);
   double theta_step  = theta_span / theta_steps;
   double access_step = track_length / access_steps;
-  // Step-wise access pattern
-  accessStepWise(
-      *(std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)),
-      magFieldContext,
-      nEvents,
-      theta_steps,
-      thetar[0],
-      theta_step,
-      phi_steps,
-      phir[0],
-      phi_step,
-      access_steps,
-      access_step);
-  // Random access pattern
-  accessRandom(
-      *(std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)),
-      magFieldContext,
-      nEvents * theta_steps * phi_steps * access_steps,
-      track_length);
+
+  // write it out
+  if (field2D) {
+    // the 2-dimensional field case
+    // Step-wise access pattern
+    accessStepWise<InterpolatedBFieldMap2D>(*field2D,
+                                            magFieldContext,
+                                            nEvents,
+                                            theta_steps,
+                                            thetar[0],
+                                            theta_step,
+                                            phi_steps,
+                                            phir[0],
+                                            phi_step,
+                                            access_steps,
+                                            access_step);
+    // Random access pattern
+    accessRandom<InterpolatedBFieldMap2D>(*field2D,
+                                          magFieldContext,
+                                          nEvents * theta_steps * phi_steps
+                                              * access_steps,
+                                          track_length);
+  } else {
+    // the 3-dimensional field case
+    // Step-wise access pattern
+    accessStepWise<InterpolatedBFieldMap3D>(*field3D,
+                                            magFieldContext,
+                                            nEvents,
+                                            theta_steps,
+                                            thetar[0],
+                                            theta_step,
+                                            phi_steps,
+                                            phir[0],
+                                            phi_step,
+                                            access_steps,
+                                            access_step);
+    // Random access pattern
+    accessRandom<InterpolatedBFieldMap3D>(*field3D,
+                                          magFieldContext,
+                                          nEvents * theta_steps * phi_steps
+                                              * access_steps,
+                                          track_length);
+  }
+
   // Return 0 for success
   return 0;
 }

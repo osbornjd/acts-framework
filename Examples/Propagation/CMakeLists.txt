@@ -1,15 +1,3 @@
-file (GLOB_RECURSE src_files "src/*.*pp")
-
-add_executable(ACTFWAlignablePropagationExample src/AlignablePropagationExample.cpp)
-target_include_directories(ACTFWAlignablePropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWAlignablePropagationExample PRIVATE ActsCore)
-target_link_libraries(ACTFWAlignablePropagationExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWPropagation)
-target_link_libraries(ACTFWAlignablePropagationExample PRIVATE ACTFWGenericDetector ACTFWAlignableDetector)
-target_link_libraries(ACTFWAlignablePropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
-target_link_libraries(ACTFWAlignablePropagationExample PRIVATE ${Boost_LIBRARIES})
-
-install(TARGETS ACTFWAlignablePropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
 add_executable(ACTFWGenericPropagationExample src/GenericPropagationExample.cpp)
 target_include_directories(ACTFWGenericPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWGenericPropagationExample PRIVATE ActsCore)
@@ -18,6 +6,16 @@ target_link_libraries(ACTFWGenericPropagationExample PRIVATE ACTFWRootPlugin ACT
 target_link_libraries(ACTFWGenericPropagationExample PRIVATE ${Boost_LIBRARIES})
 
 install(TARGETS ACTFWGenericPropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+add_executable(ACTFWPayloadPropagationExample src/PayloadPropagationExample.cpp)
+target_include_directories(ACTFWPayloadPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWPayloadPropagationExample PRIVATE ActsCore)
+target_link_libraries(ACTFWPayloadPropagationExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWPropagation)
+target_link_libraries(ACTFWPayloadPropagationExample PRIVATE ACTFWGenericDetector ACTFWAlignableDetector)
+target_link_libraries(ACTFWPayloadPropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
+target_link_libraries(ACTFWPayloadPropagationExample PRIVATE ${Boost_LIBRARIES})
+
+install(TARGETS ACTFWPayloadPropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # TGEO based detector
 if (USE_TGEO)

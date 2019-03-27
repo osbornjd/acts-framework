@@ -21,28 +21,27 @@ namespace FW {
 
 namespace Alignable {
 
-  /// @class AlignableGeoContext
-  struct AlignableGeoContext
-  {
-
-    // The alignment store of this event
-    // not the fastest, but good enough for a demonstrator
-    std::vector<Acts::Transform3D> alignmentStore;
-  };
-
-  /// @class AlignableDetectorElement extends GenericDetectorElement
+  /// @class PayloadDetectorElement extends GenericDetectorElement
   ///
   /// This is a lightweight type of detector element,
   /// it simply implements the base class.
   ///
-  class AlignableDetectorElement : public Generic::GenericDetectorElement
+  class PayloadDetectorElement : public Generic::GenericDetectorElement
   {
   public:
+    /// @class GeometryContext (nested to the Detector element)
+    struct GeometryContext
+    {
+      // The alignment store of this event
+      // not the fastest, but good enough for a demonstrator
+      std::vector<Acts::Transform3D> alignmentStore;
+    };
+
     /// Constructor for an alignable surface
     ///
     /// @note see Generic::GenericDetectorElement for documentation
     template <typename... Args>
-    AlignableDetectorElement(Args&&... args)
+    PayloadDetectorElement(Args&&... args)
       : Generic::GenericDetectorElement(std::forward<Args>(args)...)
     {
     }
@@ -57,10 +56,10 @@ namespace Alignable {
   };
 
   inline const Acts::Transform3D&
-  AlignableDetectorElement::transform(const Acts::GeometryContext& gctx) const
+  PayloadDetectorElement::transform(const Acts::GeometryContext& gctx) const
   {
     // cast into the right context object
-    auto alignContext = std::any_cast<AlignableGeoContext>(gctx);
+    auto alignContext = std::any_cast<GeometryContext>(gctx);
     Identifier::identifier_type idValue
         = Identifier::identifier_type(identifier());
 

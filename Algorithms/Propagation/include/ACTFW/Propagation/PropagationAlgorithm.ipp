@@ -77,7 +77,8 @@ PropagationAlgorithm<propagator_t>::executeTest(
     options.maxStepSize = m_cfg.maxStepSize;
 
     // Propagate using the propagator
-    const auto& result   = m_cfg.propagator.propagate(startParameters, options);
+    const auto& result
+        = m_cfg.propagator.propagate(startParameters, options).value();
     auto steppingResults = result.template get<SteppingLogger::result_type>();
 
     if (m_cfg.debugOutput) {

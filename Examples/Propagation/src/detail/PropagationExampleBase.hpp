@@ -135,11 +135,11 @@ template <typename geometry_options_t,
           typename geometry_getter_t,
           typename context_getter_t>
 int
-propagationExample(int                argc,
-                   char*              argv[],
-                   geometry_options_t geometryOptions,
-                   geometry_getter_t  trackingGeometry,
-                   context_getter_t   context)
+propagationExample(int                 argc,
+                   char*               argv[],
+                   geometry_options_t& geometryOptions,
+                   geometry_getter_t&  trackingGeometry,
+                   context_getter_t&   context)
 {
 
   // Create the config object for the sequencer
@@ -198,16 +198,22 @@ propagationExample(int                argc,
   sequencer.addServices({randomNumberSvc});
 
   // Create BField service
-  auto bField = FW::Options::readBField<po::variables_map>(vm);
+  auto bField  = FW::Options::readBField<po::variables_map>(vm);
+  auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
+  auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
 
   if (vm["prop-stepper"].template as<int>() == 0) {
     // Straight line stepper was chosen
     setupStraightLinePropgation(sequencer, vm, randomNumberSvc, tGeometry);
-  } else if (std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)) {
+  } else if (field2D) {
     // Define the interpolated b-field
-    using BField = Acts::SharedBField<Acts::InterpolatedBFieldMap>;
-    BField fieldMap(
-        std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField));
+    using BField = Acts::SharedBField<InterpolatedBFieldMap2D>;
+    BField fieldMap(field2D);
+    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+  } else if (field3D) {
+    // Define the interpolated b-field
+    using BField = Acts::SharedBField<InterpolatedBFieldMap3D>;
+    BField fieldMap(field3D);
     setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else if (vm["bf-context-scalable"].template as<bool>()) {
     using SField = FW::BField::ScalableBField;

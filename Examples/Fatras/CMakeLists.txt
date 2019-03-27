@@ -1,5 +1,3 @@
-file(GLOB_RECURSE src_files "src/*.*pp")
-
 add_executable(ACTFWGenericFatrasExample src/GenericFatrasExample.cpp)
 target_include_directories(ACTFWGenericFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWGenericFatrasExample PRIVATE ActsCore FatrasCore)
@@ -10,6 +8,17 @@ target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWObjPlugin ACTFWRoot
 target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWGenericDetector)
 
 target_link_libraries(ACTFWGenericFatrasExample PRIVATE ${Boost_LIBRARIES})
+
+add_executable(ACTFWPayloadFatrasExample src/PayloadFatrasExample.cpp)
+target_include_directories(ACTFWPayloadFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ActsCore FatrasCore)
+target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon)
+target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
+target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFWAlignableDetector)
+
+target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ${Boost_LIBRARIES})
 
 install(TARGETS ACTFWGenericFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

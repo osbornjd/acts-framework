@@ -23,9 +23,12 @@ namespace FW {
 
 namespace Alignable {
 
-  /// A mockup service that rotates a
-  /// cylindrical geoemtry
-  class GeometryRotationDecorator : public IContextDecorator
+  /// @brief A mockup service that rotates the modules in a
+  /// simple tracking geometry
+  ///
+  /// It acts on the PayloadDetectorElement, i.e. the
+  /// geometry context carries the full transform store (payload)
+  class PayloadDecorator : public IContextDecorator
   {
   public:
     /// @brief nested configuration struct
@@ -42,14 +45,13 @@ namespace Alignable {
     ///
     /// @param cfg Configuration struct
     /// @param logger The logging framework
-    GeometryRotationDecorator(
-        const Config&                       cfg,
-        std::unique_ptr<const Acts::Logger> logger
-        = Acts::getDefaultLogger("GeometryRotationDecorator",
-                                 Acts::Logging::INFO));
+    PayloadDecorator(const Config&                       cfg,
+                     std::unique_ptr<const Acts::Logger> logger
+                     = Acts::getDefaultLogger("PayloadDecorator",
+                                              Acts::Logging::INFO));
 
     /// Virtual destructor
-    virtual ~GeometryRotationDecorator() = default;
+    virtual ~PayloadDecorator() = default;
 
     /// @brief decorates (adds, modifies) the AlgorithmContext
     /// with a geometric rotation per event
@@ -71,7 +73,7 @@ namespace Alignable {
   private:
     Config                              m_cfg;     ///< the configuration class
     std::unique_ptr<const Acts::Logger> m_logger;  ///!< the logging instance
-    std::string                         m_name = "GeometryRotationDecorator";
+    std::string                         m_name = "PayloadDecorator";
 
     /// Map of nominal transforms
     std::vector<Acts::Transform3D> m_nominalStore;

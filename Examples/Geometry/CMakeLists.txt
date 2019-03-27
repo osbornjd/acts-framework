@@ -1,11 +1,3 @@
-# alignable detector
-#add_executable(ACTFWAlignableGeometryExample src/AlignableGeometryExample)
-#target_include_directories(ACTFWAlignableGeometryExample PRIVATE ${Boost_INCLUDE_DIRS})
-#target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ActsCore)
-#target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ACTFramework ACTFWExamplesCommon)
-#target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ACTFWObjPlugin ACTFWCsvPlugin ACTFWGenericDetector ACTFWAlignableDetector)
-#target_link_libraries(ACTFWAlignableGeometryExample PRIVATE ${Boost_LIBRARIES})
-
 # generic detector
 add_executable(ACTFWGenericGeometryExample src/GenericGeometryExample)
 target_include_directories(ACTFWGenericGeometryExample PRIVATE ${Boost_INCLUDE_DIRS})
@@ -15,6 +7,16 @@ target_link_libraries(ACTFWGenericGeometryExample PRIVATE ACTFWObjPlugin ACTFWCs
 target_link_libraries(ACTFWGenericGeometryExample PRIVATE ${Boost_LIBRARIES})
 
 install(TARGETS ACTFWGenericGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# alignable detector - with payload
+add_executable(ACTFWPayloadGeometryExample src/PayloadGeometryExample)
+target_include_directories(ACTFWPayloadGeometryExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWPayloadGeometryExample PRIVATE ActsCore)
+target_link_libraries(ACTFWPayloadGeometryExample PRIVATE ACTFramework ACTFWExamplesCommon)
+target_link_libraries(ACTFWPayloadGeometryExample PRIVATE ACTFWObjPlugin ACTFWCsvPlugin ACTFWGenericDetector ACTFWAlignableDetector)
+target_link_libraries(ACTFWPayloadGeometryExample PRIVATE ${Boost_LIBRARIES})
+
+install(TARGETS ACTFWPayloadGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # TGEO based detector
 if (USE_TGEO)

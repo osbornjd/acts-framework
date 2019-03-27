@@ -246,14 +246,36 @@ setupSimulation(vmap_t&                                       vm,
                 std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
                 std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
 {
-  // create BField service
-  auto bField = FW::Options::readBField<vmap_t>(vm);
-  // a charged propagator
-  if (std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField)) {
-    // create the shared field
-    using BField = Acts::SharedBField<Acts::InterpolatedBFieldMap>;
-    BField fieldMap(
-        std::get<std::shared_ptr<Acts::InterpolatedBFieldMap>>(bField));
+  // Create BField service
+  auto bField  = FW::Options::readBField<po::variables_map>(vm);
+  auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
+  auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
+
+  if (field2D) {
+    // Define the interpolated b-field
+    using BField = Acts::SharedBField<InterpolatedBFieldMap2D>;
+    BField fieldMap(field2D);
+    // now setup of the simulation and append it to the sequencer
+    setupSimulationAlgorithm(std::move(fieldMap),
+                             sequencer,
+                             vm,
+                             tGeometry,
+                             barcodeSvc,
+                             randomNumberSvc);
+  } else if (field3D) {
+    // Define the interpolated b-field
+    using BField = Acts::SharedBField<InterpolatedBFieldMap3D>;
+    BField fieldMap(field3D);
+    // now setup of the simulation and append it to the sequencer
+    setupSimulationAlgorithm(std::move(fieldMap),
+                             sequencer,
+                             vm,
+                             tGeometry,
+                             barcodeSvc,
+                             randomNumberSvc);
+  } else if (vm["bf-context-scalable"].template as<bool>()) {
+    using SField = FW::BField::ScalableBField;
+    SField fieldMap(*std::get<std::shared_ptr<SField>>(bField));
     // now setup of the simulation and append it to the sequencer
     setupSimulationAlgorithm(std::move(fieldMap),
                              sequencer,
@@ -262,9 +284,9 @@ setupSimulation(vmap_t&                                       vm,
                              barcodeSvc,
                              randomNumberSvc);
   } else {
-    // create the shared field
+    // Create the constant  field
     using CField = Acts::ConstantBField;
-    CField fieldMap(*std::get<std::shared_ptr<Acts::ConstantBField>>(bField));
+    CField fieldMap(*std::get<std::shared_ptr<CField>>(bField));
     // now setup of the simulation and append it to the sequencer
     setupSimulationAlgorithm(std::move(fieldMap),
                              sequencer,

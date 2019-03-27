@@ -22,5 +22,5 @@ main(int argc, char* argv[])
   RootContext  rootContext;
 
   // now process it
-  return fatrasExample(argc, argv, rootOptions, rootGeometry);
+  return fatrasExample(argc, argv, rootOptions, rootGeometry, rootContext);
 }

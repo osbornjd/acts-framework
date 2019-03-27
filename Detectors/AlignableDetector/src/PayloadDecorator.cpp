@@ -1,18 +1,18 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2016-2018 Acts project team
+// Copyright (C) 2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/AlignableDetector/GeometryRotationDecorator.hpp"
-#include "ACTFW/AlignableDetector/AlignableDetectorElement.hpp"
+#include "ACTFW/AlignableDetector/PayloadDecorator.hpp"
+#include "ACTFW/AlignableDetector/PayloadDetectorElement.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 
-FW::Alignable::GeometryRotationDecorator::GeometryRotationDecorator(
-    const FW::Alignable::GeometryRotationDecorator::Config& cfg,
-    std::unique_ptr<const Acts::Logger>                     logger)
+FW::Alignable::PayloadDecorator::PayloadDecorator(
+    const FW::Alignable::PayloadDecorator::Config& cfg,
+    std::unique_ptr<const Acts::Logger>            logger)
   : m_cfg(cfg), m_logger(std::move(logger))
 {
   if (m_cfg.trackingGeometry != nullptr) {
@@ -22,8 +22,7 @@ FW::Alignable::GeometryRotationDecorator::GeometryRotationDecorator(
 }
 
 FW::ProcessCode
-FW::Alignable::GeometryRotationDecorator::decorate(
-    AlgorithmContext& context) const
+FW::Alignable::PayloadDecorator::decorate(AlgorithmContext& context) const
 {
   // Start with the nominal map
   std::vector<Acts::Transform3D> aStore = m_nominalStore;
@@ -33,15 +32,17 @@ FW::Alignable::GeometryRotationDecorator::decorate(
                             Acts::Vector3D::UnitY());
   }
 
-  AlignableGeoContext alignableGeoContext;
+  // This creates a full payload context, i.e. the nominal store
+  PayloadDetectorElement::GeometryContext alignableGeoContext;
   alignableGeoContext.alignmentStore = std::move(aStore);
-  context.geoContext = std::make_any<AlignableGeoContext>(alignableGeoContext);
+  context.geoContext = std::make_any<PayloadDetectorElement::GeometryContext>(
+      alignableGeoContext);
 
   return ProcessCode::SUCCESS;
 }
 
 void
-FW::Alignable::GeometryRotationDecorator::parseGeometry(
+FW::Alignable::PayloadDecorator::parseGeometry(
     const Acts::TrackingGeometry& tGeometry)
 {
 
@@ -49,16 +50,17 @@ FW::Alignable::GeometryRotationDecorator::parseGeometry(
   size_t nTransforms = 0;
   tGeometry.visitSurfaces([&nTransforms](const auto*) { ++nTransforms; });
 
-  // Move the surfacas into the nominal store
+  PayloadDetectorElement::GeometryContext nominalCtx;
+
+  // Collect the surfacas into the nominal store
   std::vector<Acts::Transform3D> aStore(nTransforms,
                                         Acts::Transform3D::Identity());
 
-  auto fillTransforms = [&aStore](const auto* surface) -> void {
-    auto alignableElement = dynamic_cast<const AlignableDetectorElement*>(
+  auto fillTransforms = [&aStore, &nominalCtx](const auto* surface) -> void {
+    auto alignableElement = dynamic_cast<const PayloadDetectorElement*>(
         surface->associatedDetectorElement());
-    aStore[alignableElement->identifier()]
-        = surface->transform(AlignableGeoContext());
-    int i = 0;
+    aStore[alignableElement->identifier()] = surface->transform(nominalCtx);
+    int i                                  = 0;
   };
 
   tGeometry.visitSurfaces(fillTransforms);

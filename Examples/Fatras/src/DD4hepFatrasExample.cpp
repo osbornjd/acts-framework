@@ -22,5 +22,6 @@ main(int argc, char* argv[])
   DD4hepGeometry dd4HepGeometry;
   DD4hepContext  dd4HepContext;
   // now process it
-  return fatrasExample(argc, argv, dd4HepOptions, dd4HepGeometry);
+  return fatrasExample(
+      argc, argv, dd4HepOptions, dd4HepGeometry, dd4HepContext);
 }

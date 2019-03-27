@@ -1,13 +1,13 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/AlignableDetector/AlignableDetector.hpp"
-#include "detail/GeometryExampleBase.hpp"
+#include "ACTFW/AlignableDetector/PayloadDetector.hpp"
+#include "detail/FatrasExampleBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,11 +17,11 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  AlignableOptions  alignableOptions;
-  AlignableGeometry alignableGeometry;
-  AlignableContext  alignableContext;
+  PayloadOptions  payloadOptions;
+  PayloadGeometry payloadGeometry;
+  PayloadContext  payloadContext;
 
   // now process it
-  return processGeometry(
-      argc, argv, alignableOptions, alignableGeometry, alignableContext);
+  return fatrasExample(
+      argc, argv, payloadOptions, payloadGeometry, payloadContext);
 }

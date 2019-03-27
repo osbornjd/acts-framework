@@ -24,7 +24,7 @@ namespace FW {
 
 namespace Options {
 
-  /// The particle gun options, the are prefixes with gp
+  /// The root detecotr options, the are prefixes with geo-root
   ///
   /// @tparam options_t Type of the options object (bound to boost API)
   ///

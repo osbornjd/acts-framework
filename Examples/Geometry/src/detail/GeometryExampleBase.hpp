@@ -36,11 +36,11 @@ template <typename geometry_options_t,
           typename geometry_getter_t,
           typename context_getter_t>
 int
-processGeometry(int                argc,
-                char*              argv[],
-                geometry_options_t geometryOptions,
-                geometry_getter_t  trackingGeometry,
-                context_getter_t   context)
+processGeometry(int                 argc,
+                char*               argv[],
+                geometry_options_t& geometryOptions,
+                geometry_getter_t&  trackingGeometry,
+                context_getter_t&   context)
 {
 
   // Declare the supported program options.

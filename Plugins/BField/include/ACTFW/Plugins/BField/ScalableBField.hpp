@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "Acts/MagneticField/concept/AnyFieldLookup.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/MagneticFieldContext.hpp"
 

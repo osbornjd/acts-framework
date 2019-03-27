@@ -37,12 +37,15 @@ namespace po = boost::program_options;
 ///
 /// @param argc the number of argumetns of the call
 /// @param aegv the argument list
-template <typename geometry_options_t, typename geometry_getter_t>
+template <typename geometry_options_t,
+          typename geometry_getter_t,
+          typename context_getter_t>
 int
-fatrasExample(int                argc,
-              char*              argv[],
-              geometry_options_t geometryOptions,
-              geometry_getter_t  trackingGeometry)
+fatrasExample(int                 argc,
+              char*               argv[],
+              geometry_options_t& geometryOptions,
+              geometry_getter_t&  trackingGeometry,
+              context_getter_t&   context)
 {
   // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
@@ -109,6 +112,10 @@ fatrasExample(int                argc,
 
   // Get the tracking geometry
   auto tGeometry = trackingGeometry(vm);
+  // Create the geometry context service if necessary
+  auto contextDecorators = context(vm, tGeometry);
+  // Add it to the sequencer
+  sequencer.addContextDecorators(contextDecorators);
 
   // (A) EVGEN
   // Setup the evgen input to the simulation
