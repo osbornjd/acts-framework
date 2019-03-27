@@ -43,7 +43,10 @@ find_package(TBB REQUIRED)
 
 if(USE_DD4HEP)
   set(DD4HEP_DEBUG_CMAKE on)
+  # Work around DD4hep forcing CMAKE_CXX_STANDARD to 14
+  set(_cmake_cxx_standard ${CMAKE_CXX_STANDARD})
   find_package(DD4hep REQUIRED COMPONENTS ${DD4hep_COMPONENTS})
+  set(CMAKE_CXX_STANDARD ${_cmake_cxx_standard})
 endif()
 if(USE_GEANT4)
   set(Geant4_CONFIG_DEBUG on)
