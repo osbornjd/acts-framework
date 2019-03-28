@@ -6,8 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/RootDetector/RootDetector.hpp"
-#include "detail/GeometryExampleBase.hpp"
+#include "ACTFW/TGeoDetector/TGeoDetector.hpp"
+#include "detail/FatrasExampleBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,10 +17,9 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  RootOptions  rootOptions;
-  RootGeometry rootGeometry;
-  RootContext  rootContext;
+  TGeoOptions  tgeoOptions;
+  TGeoGeometry tgeoGeometry;
 
   // now process it
-  return processGeometry(argc, argv, rootOptions, rootGeometry, rootContext);
+  return fatrasExample(argc, argv, tgeoOptions, tgeoGeometry);
 }

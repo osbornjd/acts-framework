@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/RootDetector/RootDetector.hpp"
+#include "ACTFW/ContextualDetector/AlignedDetector.hpp"
 #include "detail/FatrasExampleBase.hpp"
 
 /// @brief main executable
@@ -17,10 +17,9 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  RootOptions  rootOptions;
-  RootGeometry rootGeometry;
-  RootContext  rootContext;
+  AlignedOptions  alignedOptions;
+  AlignedGeometry alignedGeometry;
 
   // now process it
-  return fatrasExample(argc, argv, rootOptions, rootGeometry, rootContext);
+  return fatrasExample(argc, argv, alignedOptions, alignedGeometry);
 }

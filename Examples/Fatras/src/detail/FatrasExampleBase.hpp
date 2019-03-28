@@ -33,19 +33,21 @@ namespace po = boost::program_options;
 
 /// @brief The Fatras example
 ///
-/// @tparam geometry_getter_t Type of the geometry getter struct
+/// This instantiates the geometry and runs fast track simultion
+///
+/// @tparam options_setup_t are the callable example options
+/// @tparam geometry_setup_t Type of the geometry getter struct
 ///
 /// @param argc the number of argumetns of the call
-/// @param aegv the argument list
-template <typename geometry_options_t,
-          typename geometry_getter_t,
-          typename context_getter_t>
+/// @param atgv the argument list
+/// @param optionsSetup is a callable options struct
+/// @param geometrySetup is a callable geometry getter
+template <typename options_setup_t, typename geometry_setup_t>
 int
-fatrasExample(int                 argc,
-              char*               argv[],
-              geometry_options_t& geometryOptions,
-              geometry_getter_t&  trackingGeometry,
-              context_getter_t&   context)
+fatrasExample(int               argc,
+              char*             argv[],
+              options_setup_t&  optionsSetup,
+              geometry_setup_t& geometrySetup)
 {
   // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
@@ -79,7 +81,7 @@ fatrasExample(int                 argc,
                      "Type of evgen input 'gun', 'pythia'");
 
   // Add specific options for this geometry
-  geometryOptions(desc);
+  optionsSetup(desc);
 
   // Map to store the given program options
   po::variables_map vm;
@@ -110,10 +112,11 @@ fatrasExample(int                 argc,
   // Add it to the sequencer
   sequencer.addServices({barcodeSvc});
 
-  // Get the tracking geometry
-  auto tGeometry = trackingGeometry(vm);
-  // Create the geometry context service if necessary
-  auto contextDecorators = context(vm, tGeometry);
+  // Create the geometry and the context decorators
+  auto geometry          = geometrySetup(vm);
+  auto tGeometry         = geometry.first;
+  auto contextDecorators = geometry.second;
+
   // Add it to the sequencer
   sequencer.addContextDecorators(contextDecorators);
 

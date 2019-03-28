@@ -9,6 +9,7 @@
 #pragma once
 
 #include <vector>
+#include "ACTFW/ContextualDetector/AlignedDetectorElement.hpp"
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "Acts/Utilities/Definitions.hpp"
@@ -17,30 +18,43 @@
 
 namespace FW {
 
-namespace BField {
+namespace Contextual {
 
-  /// A mockup service that rotates a
-  /// cylindrical geoemtry
-  class BFieldScalor : public IContextDecorator
+  /// @brief A mockup service that rotates the modules in a
+  /// simple tracking geometry
+  ///
+  /// It acts on the PayloadDetectorElement, i.e. the
+  /// geometry context carries the full transform store (payload)
+  class AlignmentDecorator : public IContextDecorator
   {
   public:
+    using LayerStore    = std::vector<std::shared_ptr<AlignedDetectorElement>>;
+    using DetectorStore = std::vector<LayerStore>;
+
     /// @brief nested configuration struct
     struct Config
     {
-      /// Incremental scaling
-      double scalor = 1.2;
+      /// The detector store (filled at creation creation)
+      DetectorStore detectorStore;
+
+      /// Alignment frequency - every X events
+      unsigned int iovSize = 100;
+
+      /// Flush store size - remove "oldest" after
+      unsigned int flushSize = 200;
     };
 
     /// Constructor
     ///
     /// @param cfg Configuration struct
     /// @param logger The logging framework
-    BFieldScalor(const Config&                       cfg,
-                 std::unique_ptr<const Acts::Logger> logger
-                 = Acts::getDefaultLogger("BFieldScalor", Acts::Logging::INFO));
+    AlignmentDecorator(const Config&                       cfg,
+                       std::unique_ptr<const Acts::Logger> logger
+                       = Acts::getDefaultLogger("AlignmentDecorator",
+                                                Acts::Logging::INFO));
 
     /// Virtual destructor
-    virtual ~BFieldScalor() = default;
+    virtual ~AlignmentDecorator() = default;
 
     /// @brief decorates (adds, modifies) the AlgorithmContext
     /// with a geometric rotation per event
@@ -62,7 +76,7 @@ namespace BField {
   private:
     Config                              m_cfg;     ///< the configuration class
     std::unique_ptr<const Acts::Logger> m_logger;  ///!< the logging instance
-    std::string                         m_name = "BFieldScalor";
+    std::string                         m_name = "AlignmentDecorator";
 
     /// Private access to the logging instance
     const Acts::Logger&
@@ -72,5 +86,4 @@ namespace BField {
     }
   };
 }  // namespace Contextual
-
 }  // namespace FW

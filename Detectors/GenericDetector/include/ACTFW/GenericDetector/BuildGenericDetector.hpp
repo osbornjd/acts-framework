@@ -98,7 +98,7 @@ namespace Generic {
   /// return a unique vector to the tracking geometry
   template <typename detector_element_t>
   std::unique_ptr<const Acts::TrackingGeometry>
-  buildDetector(const typename detector_element_t::GeometryContext& gctx,
+  buildDetector(const typename detector_element_t::ContextType& gctx,
                 std::vector<std::vector<std::shared_ptr<detector_element_t>>>&
                                      detectorStore,
                 size_t               level,

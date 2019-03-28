@@ -19,8 +19,6 @@ main(int argc, char* argv[])
   // --------------------------------------------------------------------------------
   GenericOptions  genericOptions;
   GenericGeometry genericGeometry;
-  GenericContext  genericContext;
   // now process it
-  return processGeometry(
-      argc, argv, genericOptions, genericGeometry, genericContext);
+  return processGeometry(argc, argv, genericOptions, genericGeometry);
 }

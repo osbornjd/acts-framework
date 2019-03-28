@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/AlignableDetector/PayloadDetector.hpp"
+#include "ACTFW/ContextualDetector/PayloadDetector.hpp"
 #include "detail/PropagationExampleBase.hpp"
 
 /// @brief main executable
@@ -19,9 +19,7 @@ main(int argc, char* argv[])
   // --------------------------------------------------------------------------------
   PayloadOptions  payloadOptions;
   PayloadGeometry payloadGeometry;
-  PayloadContext  payloadContext;
 
   // now process it
-  return propagationExample(
-      argc, argv, payloadOptions, payloadGeometry, payloadContext);
+  return propagationExample(argc, argv, payloadOptions, payloadGeometry);
 }

@@ -123,23 +123,20 @@ setupStraightLinePropgation(
 
 /// The Propagation example
 ///
-/// @tparam geometry_getter_t Type of the geometry getter struct
+/// @tparam options_setup_t are the callable example options
+/// @tparam geometry_setup_t Type of the geometry getter struct
 ///
 /// @param argc the number of argumetns of the call
 /// @param atgv the argument list
-/// @param geometryOptions is a callable options struct
-/// @param trackingGeometry is a callable geometry getter
-/// @param context is a callable geinetry context getter
+/// @param optionsSetup is a callable options struct
+/// @param geometrySetup is a callable geometry getter
 ///
-template <typename geometry_options_t,
-          typename geometry_getter_t,
-          typename context_getter_t>
+template <typename options_setup_t, typename geometry_setup_t>
 int
-propagationExample(int                 argc,
-                   char*               argv[],
-                   geometry_options_t& geometryOptions,
-                   geometry_getter_t&  trackingGeometry,
-                   context_getter_t&   context)
+propagationExample(int               argc,
+                   char*             argv[],
+                   options_setup_t&  optionsSetup,
+                   geometry_setup_t& geometrySetup)
 {
 
   // Create the config object for the sequencer
@@ -163,7 +160,7 @@ propagationExample(int                 argc,
   FW::Options::addOutputOptions<po::options_description>(desc);
 
   // Add specific options for this geometry
-  geometryOptions(desc);
+  optionsSetup(desc);
 
   // Map to store the given program options
   po::variables_map vm;
@@ -176,14 +173,12 @@ propagationExample(int                 argc,
     return 1;
   }
 
-  // The Log level
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
-
-  // Get the tracking geometry
-  auto tGeometry = trackingGeometry(vm);
-  // Create the geometry context service if necessary
-  auto contextDecorators = context(vm, tGeometry);
+  // Now read the standard options
+  auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto nEvents   = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+  auto geometry  = geometrySetup(vm);
+  auto tGeometry = geometry.first;
+  auto contextDecorators = geometry.second;
 
   // Add it to the sequencer
   sequencer.addContextDecorators(contextDecorators);

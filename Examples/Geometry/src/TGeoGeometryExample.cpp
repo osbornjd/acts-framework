@@ -1,14 +1,13 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2018 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <boost/program_options.hpp>
-#include "ACTFW/DD4hepDetector/DD4hepDetector.hpp"
-#include "detail/FatrasExampleBase.hpp"
+#include "ACTFW/TGeoDetector/TGeoDetector.hpp"
+#include "detail/GeometryExampleBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,10 +16,10 @@
 int
 main(int argc, char* argv[])
 {
-  // ----------------------------------------------------------
-  DD4hepOptions  dd4HepOptions;
-  DD4hepGeometry dd4HepGeometry;
+  // --------------------------------------------------------------------------------
+  TGeoOptions  tgeoOptions;
+  TGeoGeometry tgeoGeometry;
 
   // now process it
-  return fatrasExample(argc, argv, dd4HepOptions, dd4HepGeometry);
+  return processGeometry(argc, argv, tgeoOptions, tgeoGeometry);
 }

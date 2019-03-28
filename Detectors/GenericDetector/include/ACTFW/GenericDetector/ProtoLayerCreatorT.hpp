@@ -219,8 +219,13 @@ namespace Generic {
     // create the detector store entry
     LayerStore layerStore;
 
-    // @todo create some identifier schema
+    // Count the current detector modules identifiers
     size_t imodule = 0;
+    for (auto& eLayers : detectorStore) {
+      imodule += eLayers.size();
+    }
+    ACTS_VERBOSE("Starting with identfier " << imodule);
+
     // ----------------------- central layers -------------------------
     // the central layers
     size_t numcLayers = m_cfg.centralLayerRadii.size();
@@ -249,7 +254,6 @@ namespace Generic {
         // create the shared module
         std::shared_ptr<const Acts::PlanarBounds> moduleBounds(
             new Acts::RectangleBounds(moduleHalfX, moduleHalfY));
-        // Identifier @todo unique Identifier - use a GenericDetector identifier
         size_t nCetralModules = m_cfg.centralModuleBinningSchema.at(icl).first
             * m_cfg.centralModuleBinningSchema.at(icl).second;
 
@@ -449,7 +453,13 @@ namespace Generic {
       DetectorStore&               detectorStore,
       int                          side) const
   {
-    unsigned long imodule = 0;
+
+    // Count the current detector modules identifiers
+    size_t imodule = 0;
+    for (auto& eLayers : detectorStore) {
+      imodule += eLayers.size();
+    }
+    ACTS_VERBOSE("Starting with identfier " << imodule);
     // the return layers
     std::vector<ProtoLayerSurfaces> epLayers;
     // create the detector store entry
@@ -552,7 +562,7 @@ namespace Generic {
                 = std::make_shared<const Acts::Transform3D>(
                     Acts::Translation3D(moduleCenter) * moduleRotation);
 
-            // create the modules identifier @todo Idenfier service
+            // reate the modules identifier
             Identifier moduleIdentifier
                 = Identifier(Identifier::identifier_type(imodule++));
 
@@ -567,15 +577,10 @@ namespace Generic {
 
             // now deal with the potential backside
             if (m_cfg.posnegModuleBacksideGap.size()) {
-              // ncrease the counter @todo switch to identifier service
-              moduleIdentifier
-                  = Identifier(Identifier::identifier_type(imodule++));
+              // increase the counter
               moduleIdentifier
                   = Identifier(Identifier::identifier_type(imodule++));
               // the new centers
-              moduleCenter = moduleCenter
-                  + m_cfg.posnegModuleBacksideGap.at(ipnl).at(ipnR)
-                      * moduleLocalZ;
               moduleCenter = moduleCenter
                   + m_cfg.posnegModuleBacksideGap.at(ipnl).at(ipnR)
                       * moduleLocalZ;

@@ -9,8 +9,8 @@
 #pragma once
 
 #include <vector>
-#include "ACTFW/RootDetector/BuildRootDetector.hpp"
-#include "ACTFW/RootDetector/RootDetectorOptions.hpp"
+#include "ACTFW/TGeoDetector/BuildTGeoDetector.hpp"
+#include "ACTFW/TGeoDetector/TGeoDetectorOptions.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Material/Material.hpp"
 #include "Acts/Material/MaterialProperties.hpp"
@@ -27,7 +27,7 @@
 #include "TGeoManager.h"
 
 namespace FW {
-namespace Root {
+namespace TGeo {
 
   /// @brief global method to build the generic tracking geometry
   // from a TGeo object.
@@ -40,7 +40,7 @@ namespace Root {
   /// @param vm is the variable map from the options
   template <typename variable_maps_t>
   std::shared_ptr<const Acts::TrackingGeometry>
-  buildRootDetector(
+  buildTGeoDetector(
       variable_maps_t&             vm,
       const Acts::GeometryContext& context,
       std::vector<std::shared_ptr<const Acts::TGeoDetectorElement>>&
@@ -98,7 +98,7 @@ namespace Root {
     bool firstOne = true;
 
     auto layerBuilderConfigs
-        = FW::Options::readRootLayerBuilderConfigs<variable_maps_t>(
+        = FW::Options::readTGeoLayerBuilderConfigs<variable_maps_t>(
             vm, layerCreator);
 
     // remember the layer builders to collect the detector elements

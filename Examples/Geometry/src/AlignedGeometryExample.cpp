@@ -6,9 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <boost/program_options.hpp>
-#include "ACTFW/DD4hepDetector/DD4hepDetector.hpp"
-#include "detail/FatrasExampleBase.hpp"
+#include "ACTFW/ContextualDetector/AlignedDetector.hpp"
+#include "detail/GeometryExampleBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,10 +16,10 @@
 int
 main(int argc, char* argv[])
 {
-  // ----------------------------------------------------------
-  DD4hepOptions  dd4HepOptions;
-  DD4hepGeometry dd4HepGeometry;
+  // --------------------------------------------------------------------------------
+  AlignedOptions  alignedOptions;
+  AlignedGeometry alignedGeometry;
 
   // now process it
-  return fatrasExample(argc, argv, dd4HepOptions, dd4HepGeometry);
+  return processGeometry(argc, argv, alignedOptions, alignedGeometry);
 }

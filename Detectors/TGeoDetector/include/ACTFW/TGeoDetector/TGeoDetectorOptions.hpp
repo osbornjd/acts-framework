@@ -31,7 +31,7 @@ namespace Options {
   /// @param opt The provided object, where root specific options are attached
   template <typename options_t>
   void
-  addRootGeometryOptions(options_t& opt)
+  addTGeoGeometryOptions(options_t& opt)
   {
     opt.add_options()("geo-root-filename",
                       po::value<std::string>()->default_value(""),
@@ -93,7 +93,7 @@ namespace Options {
   /// @return a configuration object for a TGeoLayerBuilder
   template <typename variable_map_t>
   std::vector<Acts::TGeoLayerBuilder::Config>
-  readRootLayerBuilderConfigs(
+  readTGeoLayerBuilderConfigs(
       const variable_map_t&                     vm,
       std::shared_ptr<const Acts::LayerCreator> layerCreator)
   {

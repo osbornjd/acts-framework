@@ -19,9 +19,7 @@ main(int argc, char* argv[])
   // --------------------------------------------------------------------------------
   GenericOptions  genericOptions;
   GenericGeometry genericGeometry;
-  GenericContext  genericContext;
 
   // now process it
-  return fatrasExample(
-      argc, argv, genericOptions, genericGeometry, genericContext);
+  return fatrasExample(argc, argv, genericOptions, genericGeometry);
 }

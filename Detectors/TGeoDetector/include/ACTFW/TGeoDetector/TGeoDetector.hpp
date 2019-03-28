@@ -6,35 +6,39 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <boost/program_options.hpp>
-#include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
-#include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
+#include "ACTFW/TGeoDetector/BuildTGeoDetector.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Plugins/TGeo/TGeoDetectorElement.hpp"
 #include "Acts/Utilities/GeometryContext.hpp"
 
+using DetectorElementPtr  = std::shared_ptr<const Acts::TGeoDetectorElement>;
 using TrackingGeometryPtr = std::shared_ptr<const Acts::TrackingGeometry>;
 using ContextDecorators   = std::vector<std::shared_ptr<FW::IContextDecorator>>;
+using DetectorStore       = std::vector<DetectorElementPtr>;
 
 /// @brief adding some specific options for this geometry type
-struct DD4hepOptions
+struct TGeoOptions
 {
   /// @brief operator to be called to add options for the generic detector
   ///
   // @tparam options_t Type of the options object
-  ///@param opt Options object
+  /// @param opt Options object to which dedicated job options can be attached
   template <typename options_t>
   void
   operator()(options_t& opt)
   {
-    FW::Options::addDD4hepOptions<options_t>(opt);
+    FW::Options::addTGeoGeometryOptions<options_t>(opt);
   }
 };
 
 /// @brief geometry getter, the operator() will be called int he example base
-struct DD4hepGeometry
+struct TGeoGeometry
 {
-  /// @brief operator called to construct the tracking geometry and create
+
+  DetectorStore detectorStore;
+
+  //// @brief operator called to construct the tracking geometry and create
   /// optionally the geometry context decorator(s)
   ///
   /// @tparam variable_map_t Type of the variable map template for parameters
@@ -45,17 +49,14 @@ struct DD4hepGeometry
   std::pair<TrackingGeometryPtr, ContextDecorators>
   operator()(variable_map_t& vm)
   {
-    Acts::GeometryContext dd4HepContext;
-    // read the detector config & dd4hep detector
-    auto dd4HepDetectorConfig
-        = FW::Options::readDD4hepConfig<po::variables_map>(vm);
-    auto geometrySvc = std::make_shared<FW::DD4hep::DD4hepGeometryService>(
-        dd4HepDetectorConfig);
-    TrackingGeometryPtr dd4tGeometry
-        = geometrySvc->trackingGeometry(dd4HepContext);
-    ContextDecorators dd4ContextDeocrators = {};
+    Acts::GeometryContext tGeoContext;
+    TrackingGeometryPtr   tgeoTrackingGeometry
+        = FW::TGeo::buildTGeoDetector<variable_map_t>(
+            vm, tGeoContext, detectorStore);
+
+    ContextDecorators tgeoContextDeocrators = {};
     // return the pair of geometry and empty decorators
     return std::make_pair<TrackingGeometryPtr, ContextDecorators>(
-        std::move(dd4tGeometry), std::move(dd4ContextDeocrators));
+        std::move(tgeoTrackingGeometry), std::move(tgeoContextDeocrators));
   }
 };

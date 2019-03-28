@@ -32,15 +32,12 @@
 namespace po = boost::program_options;
 
 /// @brief Event algorithm to process and write out a geometry
-template <typename geometry_options_t,
-          typename geometry_getter_t,
-          typename context_getter_t>
+template <typename options_setup_t, typename geometry_setup_t>
 int
-processGeometry(int                 argc,
-                char*               argv[],
-                geometry_options_t& geometryOptions,
-                geometry_getter_t&  trackingGeometry,
-                context_getter_t&   context)
+processGeometry(int               argc,
+                char*             argv[],
+                options_setup_t&  optionsSetup,
+                geometry_setup_t& geometrySetup)
 {
 
   // Declare the supported program options.
@@ -54,7 +51,7 @@ processGeometry(int                 argc,
   // Add the output options
   FW::Options::addOutputOptions<po::options_description>(desc);
   // Add specific options for this geometry
-  geometryOptions(desc);
+  optionsSetup(desc);
 
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -69,7 +66,9 @@ processGeometry(int                 argc,
   // Now read the standard options
   auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
   auto nEvents   = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto tGeometry = trackingGeometry(vm);
+  auto geometry  = geometrySetup(vm);
+  auto tGeometry = geometry.first;
+  auto contextDecorators = geometry.second;
 
   // The detectors
   read_strings subDetectors = vm["geo-subdetectors"].as<read_strings>();
@@ -80,9 +79,6 @@ processGeometry(int                 argc,
       = Acts::Logging::Level(vm["geo-layer-loglevel"].template as<size_t>());
   auto volumeLogLevel
       = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
-
-  // Create the geometry context service if necessary
-  auto contextDecorators = context(vm, tGeometry);
 
   for (size_t ievt = 0; ievt < nEvents; ++ievt) {
 

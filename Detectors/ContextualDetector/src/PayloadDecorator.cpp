@@ -6,13 +6,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/AlignableDetector/PayloadDecorator.hpp"
-#include "ACTFW/AlignableDetector/PayloadDetectorElement.hpp"
+#include "ACTFW/ContextualDetector/PayloadDecorator.hpp"
+#include "ACTFW/ContextualDetector/PayloadDetectorElement.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 
-FW::Alignable::PayloadDecorator::PayloadDecorator(
-    const FW::Alignable::PayloadDecorator::Config& cfg,
-    std::unique_ptr<const Acts::Logger>            logger)
+FW::Contextual::PayloadDecorator::PayloadDecorator(
+    const FW::Contextual::PayloadDecorator::Config& cfg,
+    std::unique_ptr<const Acts::Logger>             logger)
   : m_cfg(cfg), m_logger(std::move(logger))
 {
   if (m_cfg.trackingGeometry != nullptr) {
@@ -22,27 +22,29 @@ FW::Alignable::PayloadDecorator::PayloadDecorator(
 }
 
 FW::ProcessCode
-FW::Alignable::PayloadDecorator::decorate(AlgorithmContext& context) const
+FW::Contextual::PayloadDecorator::decorate(AlgorithmContext& context) const
 {
   // Start with the nominal map
   std::vector<Acts::Transform3D> aStore = m_nominalStore;
 
-  for (auto& tf : aStore) {
-    tf *= Acts::AngleAxis3D(m_cfg.rotationStep * context.eventNumber,
-                            Acts::Vector3D::UnitY());
+  ACTS_VERBOSE("New IOV detected, emulate new alignment");
+  if (context.eventNumber % m_cfg.iovSize) {
+
+    for (auto& tf : aStore) {
+      tf *= Acts::AngleAxis3D(m_cfg.rotationStep * context.eventNumber,
+                              Acts::Vector3D::UnitY());
+    }
+    // This creates a full payload context, i.e. the nominal store
+    PayloadDetectorElement::ContextType alignableGeoContext;
+    alignableGeoContext.alignmentStore = std::move(aStore);
+    context.geoContext = std::make_any<PayloadDetectorElement::ContextType>(
+        alignableGeoContext);
   }
-
-  // This creates a full payload context, i.e. the nominal store
-  PayloadDetectorElement::GeometryContext alignableGeoContext;
-  alignableGeoContext.alignmentStore = std::move(aStore);
-  context.geoContext = std::make_any<PayloadDetectorElement::GeometryContext>(
-      alignableGeoContext);
-
   return ProcessCode::SUCCESS;
 }
 
 void
-FW::Alignable::PayloadDecorator::parseGeometry(
+FW::Contextual::PayloadDecorator::parseGeometry(
     const Acts::TrackingGeometry& tGeometry)
 {
 
@@ -50,7 +52,7 @@ FW::Alignable::PayloadDecorator::parseGeometry(
   size_t nTransforms = 0;
   tGeometry.visitSurfaces([&nTransforms](const auto*) { ++nTransforms; });
 
-  PayloadDetectorElement::GeometryContext nominalCtx;
+  PayloadDetectorElement::ContextType nominalCtx;
 
   // Collect the surfacas into the nominal store
   std::vector<Acts::Transform3D> aStore(nTransforms,

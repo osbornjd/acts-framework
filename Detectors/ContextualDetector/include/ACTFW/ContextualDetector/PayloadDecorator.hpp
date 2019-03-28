@@ -21,7 +21,7 @@ class TrackingGeometry;
 
 namespace FW {
 
-namespace Alignable {
+namespace Contextual {
 
   /// @brief A mockup service that rotates the modules in a
   /// simple tracking geometry
@@ -39,6 +39,9 @@ namespace Alignable {
 
       /// Incremental rotation
       double rotationStep = 0.2 * M_PI;
+
+      /// Alignment frequency - every X events
+      unsigned int iovSize = 100;
     };
 
     /// Constructor
@@ -92,6 +95,6 @@ namespace Alignable {
     void
     parseGeometry(const Acts::TrackingGeometry& tGeometry);
   };
-}  // namespace Alignable
+}  // namespace Contextual
 
 }  // namespace FW

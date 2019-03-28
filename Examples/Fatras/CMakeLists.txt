@@ -1,3 +1,4 @@
+# Generic detector
 add_executable(ACTFWGenericFatrasExample src/GenericFatrasExample.cpp)
 target_include_directories(ACTFWGenericFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWGenericFatrasExample PRIVATE ActsCore FatrasCore)
@@ -9,6 +10,23 @@ target_link_libraries(ACTFWGenericFatrasExample PRIVATE ACTFWGenericDetector)
 
 target_link_libraries(ACTFWGenericFatrasExample PRIVATE ${Boost_LIBRARIES})
 
+install(TARGETS ACTFWGenericFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# Generic detector with IOV based alignment
+add_executable(ACTFWAlignedFatrasExample src/AlignedFatrasExample.cpp)
+target_include_directories(ACTFWAlignedFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWAlignedFatrasExample PRIVATE ActsCore FatrasCore)
+target_link_libraries(ACTFWAlignedFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon)
+target_link_libraries(ACTFWAlignedFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+target_link_libraries(ACTFWAlignedFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+target_link_libraries(ACTFWAlignedFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
+target_link_libraries(ACTFWAlignedFatrasExample PRIVATE ACTFWContextualDetector)
+
+target_link_libraries(ACTFWAlignedFatrasExample PRIVATE ${Boost_LIBRARIES})
+
+install(TARGETS ACTFWAlignedFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# Generic detector with Payload based alignment
 add_executable(ACTFWPayloadFatrasExample src/PayloadFatrasExample.cpp)
 target_include_directories(ACTFWPayloadFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ActsCore FatrasCore)
@@ -16,26 +34,27 @@ target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFramework ACTFWExampl
 target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
 target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
 target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
-target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFWAlignableDetector)
+target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ACTFWContextualDetector)
 
 target_link_libraries(ACTFWPayloadFatrasExample PRIVATE ${Boost_LIBRARIES})
 
-install(TARGETS ACTFWGenericFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS ACTFWPayloadFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 
 # TGEO based detector
 if (USE_TGEO)
-  add_executable(ACTFWRootFatrasExample src/RootFatrasExample.cpp)
-  target_include_directories(ACTFWRootFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
-  target_link_libraries(ACTFWRootFatrasExample PRIVATE ActsCore FatrasCore)
-  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon)
-  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
-  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
-  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
-  target_link_libraries(ACTFWRootFatrasExample PRIVATE ACTFWRootDetector)
+  add_executable(ACTFWTGeoFatrasExample src/TGeoFatrasExample.cpp)
+  target_include_directories(ACTFWTGeoFatrasExample PRIVATE ${Boost_INCLUDE_DIRS})
+  target_link_libraries(ACTFWTGeoFatrasExample PRIVATE ActsCore FatrasCore)
+  target_link_libraries(ACTFWTGeoFatrasExample PRIVATE ACTFramework ACTFWExamplesCommon)
+  target_link_libraries(ACTFWTGeoFatrasExample PRIVATE ACTFWFatras ACTFWReadEvgen ACTFWParticleGun ACTFWDigitization)
+  target_link_libraries(ACTFWTGeoFatrasExample PRIVATE ACTFWBFieldPlugin ACTFWPluginPythia8)
+  target_link_libraries(ACTFWTGeoFatrasExample PRIVATE ACTFWObjPlugin ACTFWRootPlugin ACTFWCsvPlugin)
+  target_link_libraries(ACTFWTGeoFatrasExample PRIVATE ACTFWTGeoDetector)
   
-  target_link_libraries(ACTFWRootFatrasExample PRIVATE ${Boost_LIBRARIES})
+  target_link_libraries(ACTFWTGeoFatrasExample PRIVATE ${Boost_LIBRARIES})
   
-  install(TARGETS ACTFWRootFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS ACTFWTGeoFatrasExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 # DD4hep detector

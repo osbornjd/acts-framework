@@ -19,18 +19,30 @@
 
 namespace FW {
 
-namespace Alignable {
+namespace Contextual {
 
   /// @class PayloadDetectorElement extends GenericDetectorElement
   ///
   /// This is a lightweight type of detector element,
   /// it simply implements the base class.
   ///
+  /// The PayloadDetectorElement demonstrates how a GeometryContext
+  /// can be used if it carries the entire set of Transforms through
+  /// the program flow.
+  ///
+  /// The nominal transform is only used to once create the alignment
+  /// store and then in a contextual call the actual detector element
+  /// position is taken from the alignment Store.
+  ///
+  /// In this simple implementation, it does rely on the Identifier
+  /// to be orderded from 0 to N-1, as the identifier is simply taken
+  /// as a vector index for the alignment store
   class PayloadDetectorElement : public Generic::GenericDetectorElement
   {
   public:
-    /// @class GeometryContext (nested to the Detector element)
-    struct GeometryContext
+    /// @class ContextType
+    /// convention: nested to the Detector element
+    struct ContextType
     {
       // The alignment store of this event
       // not the fastest, but good enough for a demonstrator
@@ -59,7 +71,7 @@ namespace Alignable {
   PayloadDetectorElement::transform(const Acts::GeometryContext& gctx) const
   {
     // cast into the right context object
-    auto alignContext = std::any_cast<GeometryContext>(gctx);
+    auto                        alignContext = std::any_cast<ContextType>(gctx);
     Identifier::identifier_type idValue
         = Identifier::identifier_type(identifier());
 
@@ -71,5 +83,5 @@ namespace Alignable {
     return GenericDetectorElement::transform(gctx);
   }
 
-}  // end of namespace Alignable
+}  // end of namespace Contextual
 }  // end of namespace FW
