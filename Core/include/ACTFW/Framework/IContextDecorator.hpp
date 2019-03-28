@@ -32,7 +32,8 @@ public:
   ///
   /// @param context the bare (or at least non-const) Event context
   virtual ProcessCode
-  decorate(AlgorithmContext& context) const = 0;
+  decorate(AlgorithmContext& context)
+      = 0;
 
   /// @brief decorator name() for screen output
   virtual const std::string&

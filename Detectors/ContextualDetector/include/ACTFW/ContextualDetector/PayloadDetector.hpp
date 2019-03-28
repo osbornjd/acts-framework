@@ -47,7 +47,7 @@ struct PayloadOptions
         "align-rotation-step",
         boost::program_options::value<double>()->default_value(0.25 * M_PI),
         "Rotation step of the RotationDecorator")(
-        "align-decorator-loglevel",
+        "align-loglevel",
         boost::program_options::value<size_t>()->default_value(3),
         "Output log level of the alignment decorator.");
   }
@@ -96,8 +96,8 @@ struct PayloadGeometry
     agcsConfig.trackingGeometry = pTrackingGeometry;
     agcsConfig.rotationStep = vm["align-rotation-step"].template as<double>();
 
-    Acts::Logging::Level decoratorLogLevel = Acts::Logging::Level(
-        vm["align-decorator-loglevel"].template as<size_t>());
+    Acts::Logging::Level decoratorLogLevel
+        = Acts::Logging::Level(vm["align-loglevel"].template as<size_t>());
 
     // Create the service
     auto agcDecorator = std::make_shared<Decorator>(

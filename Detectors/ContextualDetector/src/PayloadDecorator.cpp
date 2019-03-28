@@ -22,7 +22,7 @@ FW::Contextual::PayloadDecorator::PayloadDecorator(
 }
 
 FW::ProcessCode
-FW::Contextual::PayloadDecorator::decorate(AlgorithmContext& context) const
+FW::Contextual::PayloadDecorator::decorate(AlgorithmContext& context)
 {
   // Start with the nominal map
   std::vector<Acts::Transform3D> aStore = m_nominalStore;

@@ -8,10 +8,12 @@
 
 #pragma once
 
+#include <mutex>
 #include <vector>
 #include "ACTFW/ContextualDetector/AlignedDetectorElement.hpp"
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/GeometryContext.hpp"
 #include "Acts/Utilities/Logger.hpp"
@@ -40,8 +42,20 @@ namespace Contextual {
       /// Alignment frequency - every X events
       unsigned int iovSize = 100;
 
-      /// Flush store size - remove "oldest" after
+      /// Flush store size - garbage collection
       unsigned int flushSize = 200;
+
+      std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
+
+      /// Gaussian module parameters - 6 Degrees of freedom
+      double gSigmaX = 0.;  // smear position along local x Axis
+      double gSigmaY = 0.;  // smear position along local y Axis
+      double gSigmaZ = 0.;  // smear position along local z Axis
+      double aSigmaX = 0.;  // rotate around local x Axis
+      double aSigmaY = 0.;  // rotate around local y Axis
+      double aSigmaZ = 0.;  // rotate around local z Axis
+
+      bool firstIovNominal = false;
     };
 
     /// Constructor
@@ -64,7 +78,7 @@ namespace Contextual {
     ///
     /// @param context the bare (or at least non-const) Event context
     ProcessCode
-    decorate(AlgorithmContext& context) const final override;
+    decorate(AlgorithmContext& context) final override;
 
     /// @brief decorator name() for screen output
     const std::string&
@@ -77,6 +91,11 @@ namespace Contextual {
     Config                              m_cfg;     ///< the configuration class
     std::unique_ptr<const Acts::Logger> m_logger;  ///!< the logging instance
     std::string                         m_name = "AlignmentDecorator";
+
+    ///< protect multipli alignments to be loaded at once
+    std::mutex        m_alignmentMutex;
+    std::vector<bool> m_iovStatus;
+    std::vector<bool> m_flushStatus;
 
     /// Private access to the logging instance
     const Acts::Logger&

@@ -6,16 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-//
-//  RandomNumbersDistributions.hpp
-//  ACTFW
-//
-//  Created by Hadrien Grasland on 27/06/17.
-//
-//
-
-#ifndef ACTFW_RANDOM_RANDOMNUMBERDISTRIBUTIONS_H
-#define ACTFW_RANDOM_RANDOMNUMBERDISTRIBUTIONS_H 1
+#pragma once
 
 #include <random>
 #include "ACTFW/Random/LandauQuantile.hpp"
@@ -130,5 +121,3 @@ private:
   param_type m_cfg;  ///< configuration struct
 };
 }
-
-#endif  // ACTFW_RANDOM_RANDOMNUMBERDISTRIBUTIONS_H

@@ -18,7 +18,7 @@ FW::BField::BFieldScalor::BFieldScalor(
 }
 
 FW::ProcessCode
-FW::BField::BFieldScalor::decorate(AlgorithmContext& context) const
+FW::BField::BFieldScalor::decorate(AlgorithmContext& context)
 {
   ScalableBFieldContext bFieldContext{
       std::pow(m_cfg.scalor, context.eventNumber)};

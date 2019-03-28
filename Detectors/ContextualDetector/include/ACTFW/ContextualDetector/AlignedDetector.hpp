@@ -19,6 +19,7 @@
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 using DetectorElement     = FW::Contextual::AlignedDetectorElement;
 using DetectorElementPtr  = std::shared_ptr<DetectorElement>;
@@ -44,15 +45,33 @@ struct AlignedOptions
     FW::Options::addBFieldOptions(opt);
     // specify the rotation setp
     opt.add_options()(
-        "align-decorator-iovsize",
+        "align-seed",
+        boost::program_options::value<size_t>()->default_value(1324354657),
+        "Seed for the decorator random numbers.")(
+        "align-iovsize",
         boost::program_options::value<size_t>()->default_value(100),
         "Size of a valid IOV.")(
-        "align-decorator-flushsize",
+        "align-flushsize",
         boost::program_options::value<size_t>()->default_value(200),
         "Span until garbage collection is active.")(
-        "align-decorator-loglevel",
+        "align-sigma-iplane",
+        boost::program_options::value<double>()->default_value(100.),
+        "Sigma of the in-plane misalignment in [um]")(
+        "align-sigma-oplane",
+        boost::program_options::value<double>()->default_value(50.),
+        "Sigma of the out-of-plane misalignment in [um]")(
+        "align-sigma-irot",
+        boost::program_options::value<double>()->default_value(20.),
+        "Sigma of the in-plane rotation misalignment in [mrad]")(
+        "align-sigma-orot",
+        boost::program_options::value<double>()->default_value(0.),
+        "Sigma of the out-of-plane rotation misalignment in [mrad]")(
+        "align-loglevel",
         boost::program_options::value<size_t>()->default_value(3),
-        "Output log level of the alignment decorator.");
+        "Output log level of the alignment decorator.")(
+        "align-firstnominal",
+        boost::program_options::value<bool>()->default_value(false),
+        "Keep the first iov batch nominal.");
   }
 };
 
@@ -94,16 +113,36 @@ struct AlignedGeometry
                                                       layerLogLevel,
                                                       volumeLogLevel);
 
-    Acts::Logging::Level decoratorLogLevel = Acts::Logging::Level(
-        vm["align-decorator-loglevel"].template as<size_t>());
+    Acts::Logging::Level decoratorLogLevel
+        = Acts::Logging::Level(vm["align-loglevel"].template as<size_t>());
+
+    // Let's create a reandom number service
+    FW::RandomNumbersSvc::Config randomNumberConfig;
+    randomNumberConfig.seed = vm["align-seed"].template as<size_t>();
+    auto randomNumberSvc
+        = std::make_shared<FW::RandomNumbersSvc>(randomNumberConfig);
 
     // Alignment decorator service
     Decorator::Config agcsConfig;
     agcsConfig.detectorStore = detectorStore;
-    agcsConfig.iovSize = vm["align-decorator-iovsize"].template as<size_t>();
-    agcsConfig.flushSize
-        = vm["align-decorator-flushsize"].template as<size_t>();
+    agcsConfig.iovSize       = vm["align-iovsize"].template as<size_t>();
+    agcsConfig.flushSize     = vm["align-flushsize"].template as<size_t>();
 
+    // The misalingments
+    double sigmaIp             = vm["align-sigma-iplane"].template as<double>();
+    double sigmaOp             = vm["align-sigma-oplane"].template as<double>();
+    double sigmaIr             = vm["align-sigma-irot"].template as<double>();
+    double sigmaOr             = vm["align-sigma-orot"].template as<double>();
+    agcsConfig.gSigmaX         = sigmaIp * Acts::units::_um;
+    agcsConfig.gSigmaY         = sigmaIp * Acts::units::_um;
+    agcsConfig.gSigmaZ         = sigmaOp * Acts::units::_um;
+    agcsConfig.aSigmaX         = sigmaOr * 0.001;  // millirad
+    agcsConfig.aSigmaY         = sigmaOr * 0.001;  // millirad
+    agcsConfig.aSigmaZ         = sigmaIr * 0.001;  // millirad
+    agcsConfig.randomNumberSvc = randomNumberSvc;
+    agcsConfig.firstIovNominal = vm["align-firstnominal"].template as<bool>();
+
+    // Now create the alignment decorator
     ContextDecorators aContextDecorators = {std::make_shared<Decorator>(
         agcsConfig,
         Acts::getDefaultLogger("AlignmentDecorator", decoratorLogLevel))};

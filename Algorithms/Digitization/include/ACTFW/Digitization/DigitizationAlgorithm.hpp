@@ -12,6 +12,7 @@
 #include <memory>
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/detail/Axis.hpp"

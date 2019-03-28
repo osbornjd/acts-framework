@@ -64,7 +64,7 @@ namespace Contextual {
     ///
     /// @param context the bare (or at least non-const) Event context
     ProcessCode
-    decorate(AlgorithmContext& context) const final override;
+    decorate(AlgorithmContext& context) final override;
 
     /// @brief decorator name() for screen output
     const std::string&

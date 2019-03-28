@@ -71,10 +71,10 @@ namespace Contextual {
     /// Return local to global transform associated with this identifier
     ///
     /// @param alignedTransform is a new transform
-    /// @oaram flush will flush down the earliest into the drain
+    /// @oaram iov is the batch for which it is meant
     void
     addAlignedTransform(std::unique_ptr<Acts::Transform3D> alignedTransform,
-                        bool                               flush = false);
+                        unsigned int                       iov);
 
     /// Return the set of alignment transforms in flight
     const std::vector<std::unique_ptr<Acts::Transform3D>>&
@@ -108,9 +108,15 @@ namespace Contextual {
   inline void
   AlignedDetectorElement::addAlignedTransform(
       std::unique_ptr<Acts::Transform3D> alignedTransform,
-      bool /*flush*/)
+      unsigned int                       iov)
   {
-    m_alignedTransforms.push_back(std::move(alignedTransform));
+
+    // most standard case, it's just a new one:
+    auto cios = m_alignedTransforms.size();
+    for (unsigned int ic = cios; ic <= iov; ++ic) {
+      m_alignedTransforms.push_back(nullptr);
+    }
+    m_alignedTransforms[iov] = std::move(alignedTransform);
   }
 
   const std::vector<std::unique_ptr<Acts::Transform3D>>&
