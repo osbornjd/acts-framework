@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.5)
 
 project(ActsFramework LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard version to use for the build")
+if(${CMAKE_CXX_STANDARD} LESS 17)
+  message(FATAL_ERROR "Acts cannot be build with a standard version\
+  below C++17, C++${CMAKE_CXX_STANDARD} was requested")
+endif()
+message(STATUS "Building with standard version: C++${CMAKE_CXX_STANDARD}")
+
 option(BUILD_ACTS "Build acts-core as submodule" ON)
 option(USE_DD4HEP "Build DD4hep-based geometry code" OFF)
 option(USE_GEANT4 "Build Geant4-based code" OFF)
