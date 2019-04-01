@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <list>
 #include <vector>
 #include "ACTFW/TGeoDetector/BuildTGeoDetector.hpp"
 #include "ACTFW/TGeoDetector/TGeoDetectorOptions.hpp"
