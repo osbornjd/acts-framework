@@ -169,14 +169,14 @@ FW::Csv::CsvPlanarClusterReader::read(FW::AlgorithmContext ctx)
                      << " : position = (" << sPosition[0] << ", " << sPosition[1] << ", " << sPosition[2] <<")");
 
         // creat a truth particle
-        FW::Data::SimParticle sParticle(
-                                        sPosition, 
-                                        sMomentum, 
-                                        mass, 
-                                        q, 
-                                        pdg, 
-                                        barcode);
-        hitParticles.push_back(&sParticle);
+        FW::Data::SimParticle* sParticle= new FW::Data::SimParticle(
+                                                                    sPosition, 
+                                                                    sMomentum, 
+                                                                    mass, 
+                                                                    q, 
+                                                                    pdg, 
+                                                                    barcode);
+        hitParticles.push_back(sParticle);
       }
     }
 
