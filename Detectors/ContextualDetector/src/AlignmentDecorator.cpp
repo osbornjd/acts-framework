@@ -21,7 +21,7 @@ FW::ProcessCode
 FW::Contextual::AlignmentDecorator::decorate(AlgorithmContext& context)
 {
   // We need to lock the Decorator
-  m_alignmentMutex.lock();
+  std::lock_guard<std::mutex> alignmentLock(m_alignmentMutex);
 
   // In which iov batch are we?
   unsigned int iov = context.eventNumber / m_cfg.iovSize;
@@ -94,9 +94,6 @@ FW::Contextual::AlignmentDecorator::decorate(AlgorithmContext& context)
   AlignedDetectorElement::ContextType alignedContext{iov};
   context.geoContext
       = std::make_any<AlignedDetectorElement::ContextType>(alignedContext);
-
-  // We can unlock the Decorator
-  m_alignmentMutex.unlock();
 
   return ProcessCode::SUCCESS;
 }
