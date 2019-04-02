@@ -34,7 +34,7 @@ struct AlgorithmContext
   {
   }
 
-  /// @brief operator++ overload to increaset the algorithm number
+  /// @brief operator++ overload to increase the algorithm number
   AlgorithmContext& operator++()
   {
     ++algorithmNumber;
