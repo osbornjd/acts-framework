@@ -53,3 +53,13 @@ if (USE_DD4HEP)
 
   install(TARGETS ACTFWDD4hepGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
+
+if(USE_GEOMODEL)
+	add_executable(ACTFWGeoModelGeometryExample src/GeoModelGeometryExample)
+	target_include_directories(ACTFWGeoModelGeometryExample PRIVATE ${GeoModelRead_INCLUDE_DIRS})
+	target_link_libraries(ACTFWGeoModelGeometryExample PRIVATE ActsCore)
+	target_link_libraries(ACTFWGeoModelGeometryExample PRIVATE ACTFramework ACTFWExamplesCommon)
+	target_link_libraries(ACTFWGeoModelGeometryExample PRIVATE Qt5::Core Qt5::Sql GeoModelDBManager GeoModelRead GeoModelKernel)
+
+	install(TARGETS ACTFWGeoModelGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()

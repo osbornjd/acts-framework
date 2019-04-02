@@ -19,7 +19,7 @@
 #include "GeoModelKernel/Units.h"
 #define SYSTEM_OF_UNITS GeoModelKernelUnits // so we will get, e.g., 'GeoModelKernelUnits::cm'
 
-int
+GeoPhysVol*
 FW::GeoModelReader::makeDetektor()
 {
  //-----------------------------------------------------------------------------------//
@@ -106,6 +106,6 @@ FW::GeoModelReader::makeDetektor()
     }
   }
   std::cout << "Done." << std::endl;
-  return 0;	
+  return world;	
 }
 	

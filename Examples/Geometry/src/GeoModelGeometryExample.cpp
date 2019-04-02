@@ -6,13 +6,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
+#include "ACTFW/Plugins/GeoModel/Generator.hpp"
 
-namespace FW {
 
-  class GeoModelReader
-  {
-  public:
-    GeoPhysVol* makeDetektor();
-   };
-}  // namespace FW
+/// @brief main executable
+///
+/// @param argc The argument count
+/// @param argv The argument list
+int
+main(int argc, char* argv[])
+{
+	FW::GeoModelReader::makeDetektor();
+}
