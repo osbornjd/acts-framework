@@ -27,7 +27,7 @@ public:
   /// with additional event specific information, it is attached
   /// to the Sequencer
   ///
-  /// @note If decorarators depend on each other, they have to be
+  /// @note If decorators depend on each other, they have to be
   /// added in order.
   ///
   /// @param context the bare (or at least non-const) Event context
