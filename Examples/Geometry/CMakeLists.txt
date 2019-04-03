@@ -59,7 +59,7 @@ if(USE_GEOMODEL)
 	target_include_directories(ACTFWGeoModelGeometryExample PRIVATE ${GeoModelRead_INCLUDE_DIRS})
 	target_link_libraries(ACTFWGeoModelGeometryExample PRIVATE ActsCore)
 	target_link_libraries(ACTFWGeoModelGeometryExample PRIVATE ACTFramework ACTFWExamplesCommon)
-	target_link_libraries(ACTFWGeoModelGeometryExample PRIVATE Qt5::Core Qt5::Sql GeoModelDBManager GeoModelRead GeoModelKernel)
+	target_link_libraries(ACTFWGeoModelGeometryExample PRIVATE ACTFWPluginGeoModel Qt5::Core Qt5::Sql GeoModelDBManager GeoModelRead GeoModelKernel)
 
 	install(TARGETS ACTFWGeoModelGeometryExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()

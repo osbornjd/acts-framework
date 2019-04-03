@@ -85,7 +85,8 @@ if(BUILD_ACTS)
   add_subdirectory(external/acts-core)
 else()
   message(STATUS "Using external Acts installation")
-  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin IdentificationPlugin TGeoPlugin DD4hepPlugin DigitizationPlugin)
+#  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin IdentificationPlugin TGeoPlugin DD4hepPlugin DigitizationPlugin)
+  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin IdentificationPlugin DigitizationPlugin)
 endif()
 
 # simplify handling of optional components

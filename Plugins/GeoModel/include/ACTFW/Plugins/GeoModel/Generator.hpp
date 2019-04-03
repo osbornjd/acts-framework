@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include "GeoModelKernel/GeoPhysVol.h"
+
+
 namespace FW {
 
   class GeoModelReader
