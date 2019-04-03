@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <iostream>
-#include "ACTFW/Plugins/GeoModel/Generator.hpp"
+#include "ACTFW/Plugins/GeoModel/GeoModelReader.hpp"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoLogVol.h"
@@ -31,14 +31,17 @@ main(int argc, char* argv[])
 
   for (unsigned int idx=0; idx<nChil; ++idx) {
   	PVConstLink nodeLink = world->getChildVol(idx);
-
+	// TODO: The casts should become a function
   	if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
   		const GeoVPhysVol *childVolV = &(*( nodeLink ));
   		if ( dynamic_cast<const GeoPhysVol*>(childVolV) ) {
   			const GeoPhysVol* childVol = dynamic_cast<const GeoPhysVol*>(childVolV);
+  			gmr.toStream(childVol, std::cout);
   		} else if ( dynamic_cast<const GeoFullPhysVol*>(childVolV) ) {
   			const GeoFullPhysVol* childVol = dynamic_cast<const GeoFullPhysVol*>(childVolV);
+  			gmr.toStream(childVol, std::cout);
   		}
+  		
     } else if ( dynamic_cast<const GeoNameTag*>( &(*( nodeLink ))) ) {
   		const GeoNameTag *childVol = dynamic_cast<const GeoNameTag*>(&(*( nodeLink )));
     }

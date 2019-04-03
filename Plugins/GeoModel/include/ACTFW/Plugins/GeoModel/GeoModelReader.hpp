@@ -8,8 +8,9 @@
 
 #pragma once
 
+#include <iostream>
 #include "GeoModelKernel/GeoPhysVol.h"
-
+#include "GeoModelKernel/GeoFullPhysVol.h"
 
 namespace FW {
 
@@ -17,5 +18,15 @@ namespace FW {
   {
   public:
     GeoPhysVol* makeDetektor();
+    
+    std::ostream&
+  toStream(GeoPhysVol const* gpv, std::ostream& sl) const;
+    
+    std::ostream&
+  toStream(GeoFullPhysVol const* gfpv, std::ostream& sl) const;
+    
+    private:
+    std::ostream&
+    toStream(GeoLogVol const* glv, std::ostream& sl) const;
    };
 }  // namespace FW
