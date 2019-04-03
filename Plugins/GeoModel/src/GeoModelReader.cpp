@@ -13,6 +13,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoElement.h"
 
 #include <iostream>
 
@@ -24,9 +25,16 @@ GeoPhysVol*
 FW::GeoModelReader::makeDetektor()
 {
 	// TODO: Add elements & lock materials
+	GeoElement* hydrogen = new GeoElement("Hydrogen", "H", 1, 1);
+	GeoElement* oxygen = new GeoElement("Oxygen", "O", 8, 16);
+	
 	// Define materials
 	double densityOfAir=0.1;
 	GeoMaterial *air        = new GeoMaterial("Air Two", densityOfAir);
+	air->add(hydrogen, 2. / 3.);
+	air->add(oxygen, 1. / 3.);
+	air->lock();
+	
 	double densityOfPolystyrene=0.2;
 	GeoMaterial *poly       = new GeoMaterial("std::Polystyrene", densityOfPolystyrene);
 
@@ -85,7 +93,17 @@ FW::GeoModelReader::makeDetektor()
 		GeoMaterial const* geoMaterial = glv->getMaterial();
 		sl << "Material: " << std::endl;
 		sl << "\tName: " << geoMaterial->getName() << " (" << geoMaterial->getID() << ")" << std::endl;
-		//~ sl << "\tClassification numbers: (" << geoMaterial->getRadLength() << ", " << geoMaterial->getIntLength() << ", ..., " << geoMaterial->getDensity() << ")" << std::endl;
+		sl << "\tClassification numbers: (" << geoMaterial->getRadLength() << ", " << geoMaterial->getIntLength() << ", ..., " << geoMaterial->getDensity() << ")" << std::endl;
+		sl << "\tNumber of Elements: " << geoMaterial->getNumElements() << std::endl;
+		sl << "\tElements: " << std::endl;
+		for(unsigned int i = 0; i < geoMaterial->getNumElements(); i++)
+		{
+			GeoElement const* geoElement = geoMaterial->getElement(i);
+			sl << "\t\tName: " << geoElement->getName() << " (" << geoElement->getSymbol() << ") ";
+			sl << "A: " << geoElement->getA() << " Z: "<< geoElement->getZ();
+			sl << " Fraction: " << geoMaterial->getFraction(i) << std::endl;
+		}
+
 		return sl;
 	}
 	
