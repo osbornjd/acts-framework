@@ -14,7 +14,6 @@
 #include "GeoModelKernel/GeoPVLink.h"
 #include "GeoModelKernel/GeoNameTag.h"
 
-
 /// @brief main executable
 ///
 /// @param argc The argument count
@@ -24,26 +23,35 @@ main(int argc, char* argv[])
 {
 	FW::GeoModelReader gmr;
 	GeoPhysVol* world = gmr.makeDetektor();
-	
-  const GeoLogVol* logVol = world->getLogVol();
+	world = gmr.loadDB("/home/user/geometry.db");
 
-  unsigned int nChil = world->getNChildVols();
 
-  for (unsigned int idx=0; idx<nChil; ++idx) {
-  	PVConstLink nodeLink = world->getChildVol(idx);
-	// TODO: The casts should become a function
-  	if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
-  		const GeoVPhysVol *childVolV = &(*( nodeLink ));
-  		if ( dynamic_cast<const GeoPhysVol*>(childVolV) ) {
-  			const GeoPhysVol* childVol = dynamic_cast<const GeoPhysVol*>(childVolV);
-  			gmr.toStream(childVol, std::cout);
-  		} else if ( dynamic_cast<const GeoFullPhysVol*>(childVolV) ) {
-  			const GeoFullPhysVol* childVol = dynamic_cast<const GeoFullPhysVol*>(childVolV);
-  			gmr.toStream(childVol, std::cout);
-  		}
-  		
-    } else if ( dynamic_cast<const GeoNameTag*>( &(*( nodeLink ))) ) {
-  		const GeoNameTag *childVol = dynamic_cast<const GeoNameTag*>(&(*( nodeLink )));
-    }
+	// Walk over all children of the current volume
+  unsigned int nChildren = world->getNChildVols();
+  for (unsigned int i = 0; i < nChildren; i++) {
+	PVConstLink nodeLink = world->getChildVol(i);
+	// Test if it inherits from GeoVPhysVol
+	if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
+		const GeoVPhysVol *childVolV = &(*( nodeLink ));
+		
+		if(childVolV->getLogVol()->getName() == "BeamPipeCentral") // + 2x BeamPipeFwd
+		{
+			gmr.treeToStream(childVolV, std::cout);
+			break;
+		}
+		//~ // Test if it is GeoPhysVol
+		//~ if ( dynamic_cast<const GeoPhysVol*>(childVolV) ) {
+			//~ // Print content
+			//~ const GeoPhysVol* childVol = dynamic_cast<const GeoPhysVol*>(childVolV);
+			//~ gmr.toStream(childVol, std::cout);
+			//~ // Test if it is GeoFullPhysVol
+		//~ } else if ( dynamic_cast<const GeoFullPhysVol*>(childVolV) ) {
+			//~ // Print content
+			//~ const GeoFullPhysVol* childVol = dynamic_cast<const GeoFullPhysVol*>(childVolV);
+			//~ gmr.toStream(childVol, std::cout);
+		//~ }
+	}
   }
+		
+	//~ gmr.treeToStream(world, std::cout);
 }

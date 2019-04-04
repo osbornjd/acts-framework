@@ -12,21 +12,42 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 
+#include <QString>
+
 namespace FW {
 
   class GeoModelReader
   {
   public:
-    GeoPhysVol* makeDetektor();
+	GeoPhysVol* 
+	createTheExperiment(GeoPhysVol* world) const;
+
+GeoPhysVol* 
+loadDB(const QString& path) const;
+  
+    GeoPhysVol* 
+    makeDetektor() const;
     
+    /// @brief Printer of the full detector
+    std::ostream&
+    treeToStream(GeoVPhysVol const* tree, std::ostream& sl) const;
+    
+    /// @brief Printer of GeoPhysVol
     std::ostream&
   toStream(GeoPhysVol const* gpv, std::ostream& sl) const;
     
+    /// @brief Printer of GeoFullPhysVol
     std::ostream&
   toStream(GeoFullPhysVol const* gfpv, std::ostream& sl) const;
     
     private:
+    
+    /// @brief Printer of GeoLogVol
     std::ostream&
     toStream(GeoLogVol const* glv, std::ostream& sl) const;
+    
+    std::ostream&
+    shapeToStream(GeoShape const* shape, std::ostream& sl) const;
+    
    };
 }  // namespace FW

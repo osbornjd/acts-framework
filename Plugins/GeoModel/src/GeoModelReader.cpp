@@ -14,6 +14,12 @@
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
+#include "GeoModelDBManager/GMDBManager.h"
+#include "GeoModelRead/ReadGeoModel.h"
+#include "GeoModelKernel/GeoTube.h"
+
+#include <QString>
+#include <QFileInfo>
 
 #include <iostream>
 
@@ -21,8 +27,42 @@
 #include "GeoModelKernel/Units.h"
 #define SYSTEM_OF_UNITS GeoModelKernelUnits
 
+GeoPhysVol* 
+FW::GeoModelReader::createTheExperiment(GeoPhysVol* world) const
+{
+  if (world == nullptr)
+  {
+    // Setup the 'World' volume from which everything else will be suspended
+    double densityOfAir=0.1;
+    const GeoMaterial* worldMat = new GeoMaterial("std::Air", densityOfAir);
+    const GeoBox* worldBox = new GeoBox(1000*SYSTEM_OF_UNITS::cm, 1000*SYSTEM_OF_UNITS::cm, 1000*SYSTEM_OF_UNITS::cm);
+    const GeoLogVol* worldLog = new GeoLogVol("WorldLog", worldBox, worldMat);
+    world = new GeoPhysVol(worldLog);
+  }
+  return world;
+}
+
+GeoPhysVol* 
+FW::GeoModelReader::loadDB(const QString& path) const
+{
+  GMDBManager* db = new GMDBManager(path);
+  if (db->isOpen()) {
+	  GeoModelIO::ReadGeoModel readInGeo = GeoModelIO::ReadGeoModel(db);
+
+	  GeoPhysVol* dbPhys = readInGeo.buildGeoModel(); 
+
+	  GeoPhysVol* world = createTheExperiment(dbPhys);
+
+	return world;
+  }
+  else {
+    return nullptr;
+  }
+}
+
+
 GeoPhysVol*
-FW::GeoModelReader::makeDetektor()
+FW::GeoModelReader::makeDetektor() const
 {
 	// TODO: Add elements & lock materials
 	GeoElement* hydrogen = new GeoElement("Hydrogen", "H", 1, 1);
@@ -37,6 +77,9 @@ FW::GeoModelReader::makeDetektor()
 	
 	double densityOfPolystyrene=0.2;
 	GeoMaterial *poly       = new GeoMaterial("std::Polystyrene", densityOfPolystyrene);
+	poly->add(hydrogen, 0.5);
+	poly->add(oxygen, 0.5);
+	poly->lock();
 
   // Build world volume
   GeoMaterial* worldMat = new GeoMaterial("std::Air", densityOfAir);
@@ -67,9 +110,45 @@ FW::GeoModelReader::makeDetektor()
   return world;	
 }
 
+
+    std::ostream&
+    FW::GeoModelReader::treeToStream(GeoVPhysVol const* tree, std::ostream& sl) const
+    {
+		//~ // Print the node itself
+		//~ toStream(dynamic_cast<GeoPhysVol const*>(tree), sl);
+		
+		// Walk over all children of the current volume
+	  unsigned int nChildren = tree->getNChildVols();
+	  for (unsigned int i = 0; i < nChildren; i++) {
+		PVConstLink nodeLink = tree->getChildVol(i);
+		// Test if it inherits from GeoVPhysVol
+		if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
+			const GeoVPhysVol *childVolV = &(*( nodeLink ));
+			// Test if it is GeoPhysVol
+			if ( dynamic_cast<const GeoPhysVol*>(childVolV) ) {
+				// Print content
+				const GeoPhysVol* childVol = dynamic_cast<const GeoPhysVol*>(childVolV);
+				toStream(childVol, std::cout);
+				// Test if it is GeoFullPhysVol
+			} else if ( dynamic_cast<const GeoFullPhysVol*>(childVolV) ) {
+				// Print content
+				const GeoFullPhysVol* childVol = dynamic_cast<const GeoFullPhysVol*>(childVolV);
+				toStream(childVol, std::cout);
+			}
+			// Continue with leaf
+			treeToStream(childVolV, sl);
+			
+		} else if ( dynamic_cast<const GeoNameTag*>( &(*( nodeLink ))) ) {
+			const GeoNameTag *childVol = dynamic_cast<const GeoNameTag*>(&(*( nodeLink )));
+		}
+	  }
+		return sl;
+	}
+    
   std::ostream&
   FW::GeoModelReader::toStream(GeoPhysVol const* gpv, std::ostream& sl) const
   {
+	  sl << "GeoPhysVol" << std::endl;
 	  toStream(gpv->getLogVol(), sl);
 	  return sl;
   }
@@ -77,31 +156,58 @@ FW::GeoModelReader::makeDetektor()
   std::ostream&
   FW::GeoModelReader::toStream(GeoFullPhysVol const* gfpv, std::ostream& sl) const
   {
+	  sl << "GeoFullPhysVol" << std::endl;
 	  toStream(gfpv->getLogVol(), sl);
 	  return sl;
   }
+    
+    
+    std::ostream&
+    FW::GeoModelReader::shapeToStream(GeoShape const* shape, std::ostream& sl) const
+	{
+		sl << "Shape: " << std::endl;
+		sl << "\tName: " << shape->type() << " (" << shape->typeID() << ")" << std::endl;
+		sl << "\tVolume: " << shape->volume() << std::endl;
+		
+		if(shape->type() == "Tube")
+		{
+			GeoTube const* tube = dynamic_cast<GeoTube const*>(shape);
+			sl << "\tRadius: (" << tube->getRMin() << ", " << tube->getRMax() << ")" << std::endl;
+			sl << "\tHalf length: " << tube->getZHalfLength() <<  std::endl;
+		}
+	}
     
     std::ostream&
     FW::GeoModelReader::toStream(GeoLogVol const* glv, std::ostream& sl) const
     {
 		sl << "Name: " << glv->getName() << std::endl;
-		GeoShape const* geoShape = glv->getShape();
-		sl << "Shape: " << std::endl;
-		sl << "\tName: " << geoShape->type() << " (" << geoShape->typeID() << ")" << std::endl;
-		sl << "\tVolume: " << geoShape->volume() << std::endl;
 		
-		GeoMaterial const* geoMaterial = glv->getMaterial();
+		// Print shape data
+		shapeToStream(glv->getShape(), sl);
+		
+		// Print material data
+		//~ GeoMaterial const* constgeoMaterial = glv->getMaterial();
+		GeoMaterial* geoMaterial = const_cast<GeoMaterial*>(glv->getMaterial());
 		sl << "Material: " << std::endl;
 		sl << "\tName: " << geoMaterial->getName() << " (" << geoMaterial->getID() << ")" << std::endl;
-		sl << "\tClassification numbers: (" << geoMaterial->getRadLength() << ", " << geoMaterial->getIntLength() << ", ..., " << geoMaterial->getDensity() << ")" << std::endl;
-		sl << "\tNumber of Elements: " << geoMaterial->getNumElements() << std::endl;
-		sl << "\tElements: " << std::endl;
-		for(unsigned int i = 0; i < geoMaterial->getNumElements(); i++)
+		
+		try{
+			geoMaterial->lock();
+			sl << "\tClassification numbers: (" << geoMaterial->getRadLength() << ", " << geoMaterial->getIntLength() << ", ..., " << geoMaterial->getDensity() << ")" << std::endl;
+			// Print contained elements of material
+			sl << "\tNumber of Elements: " << geoMaterial->getNumElements() << std::endl;
+			sl << "\tElements: " << std::endl;
+			for(unsigned int i = 0; i < geoMaterial->getNumElements(); i++)
+			{
+				GeoElement const* geoElement = geoMaterial->getElement(i);
+				sl << "\t\tName: " << geoElement->getName() << " (" << geoElement->getSymbol() << ") ";
+				sl << "A: " << geoElement->getA() << " Z: "<< geoElement->getZ();
+				sl << " Fraction: " << geoMaterial->getFraction(i) << std::endl;
+			}
+		}
+		catch (const std::out_of_range& e)
 		{
-			GeoElement const* geoElement = geoMaterial->getElement(i);
-			sl << "\t\tName: " << geoElement->getName() << " (" << geoElement->getSymbol() << ") ";
-			sl << "A: " << geoElement->getA() << " Z: "<< geoElement->getZ();
-			sl << " Fraction: " << geoMaterial->getFraction(i) << std::endl;
+			sl << "\t\tNo materials available" << std::endl;
 		}
 
 		return sl;
