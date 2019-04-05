@@ -87,7 +87,7 @@ FW::Contextual::AlignmentDecorator::decorate(AlgorithmContext& context)
         }
       }
     }
-    // book keppting
+    // book keeping
     m_iovStatus[iov] = true;
   }
   // Set the geometry context

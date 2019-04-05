@@ -73,7 +73,7 @@ namespace Contextual {
     /// @brief decorates (adds, modifies) the AlgorithmContext
     /// with a geometric rotation per event
     ///
-    /// @note If decorarators depend on each other, they have to be
+    /// @note If decorators depend on each other, they have to be
     /// added in order.
     ///
     /// @param context the bare (or at least non-const) Event context
@@ -92,7 +92,7 @@ namespace Contextual {
     std::unique_ptr<const Acts::Logger> m_logger;  ///!< the logging instance
     std::string                         m_name = "AlignmentDecorator";
 
-    ///< protect multipli alignments to be loaded at once
+    ///< protect multiple alignments to be loaded at once
     std::mutex        m_alignmentMutex;
     std::vector<bool> m_iovStatus;
     std::vector<bool> m_flushStatus;

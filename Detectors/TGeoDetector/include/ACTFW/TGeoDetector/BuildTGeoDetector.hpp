@@ -92,7 +92,7 @@ namespace TGeo {
         volumeBuilders;
 
     std::string rootFileName
-        = vm["geo-root-filename"].template as<std::string>();
+        = vm["geo-tgeo-filename"].template as<std::string>();
     // import the file from
     TGeoManager::Import(rootFileName.c_str());
 

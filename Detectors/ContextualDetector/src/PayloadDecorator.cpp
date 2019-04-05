@@ -62,7 +62,6 @@ FW::Contextual::PayloadDecorator::parseGeometry(
     auto alignableElement = dynamic_cast<const PayloadDetectorElement*>(
         surface->associatedDetectorElement());
     aStore[alignableElement->identifier()] = surface->transform(nominalCtx);
-    int i                                  = 0;
   };
 
   tGeometry.visitSurfaces(fillTransforms);

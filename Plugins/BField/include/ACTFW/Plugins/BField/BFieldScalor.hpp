@@ -20,7 +20,7 @@ namespace FW {
 namespace BField {
 
   /// A mockup service that rotates a
-  /// cylindrical geoemtry
+  /// cylindrical geometry
   class BFieldScalor : public IContextDecorator
   {
   public:
@@ -45,7 +45,7 @@ namespace BField {
     /// @brief decorates (adds, modifies) the AlgorithmContext
     /// with a geometric rotation per event
     ///
-    /// @note If decorarators depend on each other, they have to be
+    /// @note If decorators depend on each other, they have to be
     /// added in order.
     ///
     /// @param context the bare (or at least non-const) Event context

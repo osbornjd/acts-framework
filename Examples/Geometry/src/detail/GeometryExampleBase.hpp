@@ -125,7 +125,7 @@ processGeometry(int               argc,
             = FW::Options::readObjSurfaceWriterConfig(
                 vm, sdet, surfaceLogLevel);
         sdObjWriterConfig.outputStream = sdStream;
-        // Let's not write teh layer surface when we have misalignment
+        // Let's not write the layer surface when we have misalignment
         if (contextDecorators.size() > 0) {
           sdObjWriterConfig.outputLayerSurface = false;
         }

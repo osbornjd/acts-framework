@@ -39,7 +39,7 @@ namespace po = boost::program_options;
 /// @tparam geometry_setup_t Type of the geometry getter struct
 ///
 /// @param argc the number of argumetns of the call
-/// @param atgv the argument list
+/// @param argv the argument list
 /// @param optionsSetup is a callable options struct
 /// @param geometrySetup is a callable geometry getter
 template <typename options_setup_t, typename geometry_setup_t>

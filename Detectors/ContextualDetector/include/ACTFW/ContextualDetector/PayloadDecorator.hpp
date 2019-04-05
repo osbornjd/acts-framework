@@ -59,7 +59,7 @@ namespace Contextual {
     /// @brief decorates (adds, modifies) the AlgorithmContext
     /// with a geometric rotation per event
     ///
-    /// @note If decorarators depend on each other, they have to be
+    /// @note If decorators depend on each other, they have to be
     /// added in order.
     ///
     /// @param context the bare (or at least non-const) Event context

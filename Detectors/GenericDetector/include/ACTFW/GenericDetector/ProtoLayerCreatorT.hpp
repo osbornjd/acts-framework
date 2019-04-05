@@ -152,7 +152,7 @@ namespace Generic {
 
     /// Constructor
     /// @param glbConfig is the configuration class
-    /// @logger is the logging class for screen output
+    /// @param logger is the logging class for screen output
     ProtoLayerCreatorT(const Config&                       glbConfig,
                        std::unique_ptr<const Acts::Logger> logger
                        = Acts::getDefaultLogger("ProtoLayerCreatorT",
@@ -166,7 +166,7 @@ namespace Generic {
     negativeProtoLayers(const Acts::GeometryContext& gctx,
                         DetectorStore&               detectorStore) const;
 
-    /// @brief construct the negative side layers
+    /// @brief construct the central layers
     /// @param gctx The geometry context for this construction call
     /// @param detectorStore The reference store for the detector elements
     /// @return the protolayers and surfaces on the central detector side
@@ -174,7 +174,7 @@ namespace Generic {
     centralProtoLayers(const Acts::GeometryContext& gctx,
                        DetectorStore&               detectorStore) const;
 
-    /// @brief construct the negative side layers
+    /// @brief construct the positive side layers
     /// @param gctx The geometry context for this construction call
     /// @param detectorStore The reference store for the detector elements
     /// @return the protolayers and surfaces on the  positive detector side
@@ -183,7 +183,7 @@ namespace Generic {
                         DetectorStore&               detectorStore) const;
 
   private:
-    /// @brief private helper method to create teh proto layers on the
+    /// @brief private helper method to create the proto layers on the
     /// left respectively right side
     /// @param gctx The geometry context for this construction call
     /// @param detectorStore The reference store for the detector elements
@@ -197,10 +197,10 @@ namespace Generic {
     /// Configuration member
     Config m_cfg;
 
-    /// the loging instance
+    /// the logging instance
     std::unique_ptr<const Acts::Logger> m_logger;
 
-    /// Private access to the looging instance
+    /// Private access to the logging instance
     const Acts::Logger&
     logger() const
     {
@@ -254,18 +254,18 @@ namespace Generic {
         // create the shared module
         std::shared_ptr<const Acts::PlanarBounds> moduleBounds(
             new Acts::RectangleBounds(moduleHalfX, moduleHalfY));
-        size_t nCetralModules = m_cfg.centralModuleBinningSchema.at(icl).first
+        size_t nCentralModules = m_cfg.centralModuleBinningSchema.at(icl).first
             * m_cfg.centralModuleBinningSchema.at(icl).second;
 
         ACTS_DEBUG("- number of modules "
-                   << nCetralModules
+                   << nCentralModules
                    << " ( from "
                    << m_cfg.centralModuleBinningSchema.at(icl).first
                    << " x "
                    << m_cfg.centralModuleBinningSchema.at(icl).second
                    << " )");
 
-        sVector.reserve(nCetralModules);
+        sVector.reserve(nCentralModules);
 
         // prepartion :
         // create digitizaiton module
@@ -302,9 +302,9 @@ namespace Generic {
         }
 
         // confirm
-        if (m_cfg.centralModulePositions.at(icl).size() != nCetralModules) {
+        if (m_cfg.centralModulePositions.at(icl).size() != nCentralModules) {
           ACTS_WARNING("Mismatching module numbers, configuration error!");
-          ACTS_WARNING("- Binning schema suggests : " << nCetralModules);
+          ACTS_WARNING("- Binning schema suggests : " << nCentralModules);
           ACTS_WARNING("- Positions provided are  : "
                        << m_cfg.centralModulePositions.at(icl).size());
         }

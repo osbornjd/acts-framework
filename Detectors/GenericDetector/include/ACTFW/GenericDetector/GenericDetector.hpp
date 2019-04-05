@@ -37,7 +37,7 @@ struct GenericOptions
   }
 };
 
-/// @brief geometry getter, the operator() will be called int he example base
+/// @brief geometry getter, the operator() will be called int the example base
 struct GenericGeometry
 {
   /// The Store of the detector elements (lifetime: job)
@@ -49,7 +49,7 @@ struct GenericGeometry
   /// @tparam variable_map_t Type of the variable map template for parameters
   /// @param vm the parameter map object
   ///
-  /// @return a TrackingGeometry object, and optional context decoratos(s)
+  /// @return a TrackingGeometry object, and optional context decorator(s)
   template <typename variable_map_t>
   std::pair<TrackingGeometryPtr, ContextDecorators>
   operator()(variable_map_t& vm)

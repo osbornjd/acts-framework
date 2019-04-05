@@ -74,7 +74,7 @@ namespace Generic {
 
       /// helper tools: layer creator
       std::shared_ptr<const Acts::LayerCreator> layerCreator = nullptr;
-      /// helper tools: central passiva layer builder
+      /// helper tools: central passive layer builder
       std::shared_ptr<const Acts::ILayerBuilder> centralPassiveLayerBuilder
           = nullptr;
       /// helper tools: p/n passive layer builder
@@ -97,7 +97,7 @@ namespace Generic {
     const Acts::LayerVector
     centralLayers(const Acts::GeometryContext& gctx) const final override;
 
-    /// LayerBuilder interface method - returning the layers at negative side
+    /// LayerBuilder interface method - returning the layers at positive side
     const Acts::LayerVector
     positiveLayers(const Acts::GeometryContext& gctx) const final override;
 
@@ -115,14 +115,14 @@ namespace Generic {
     /// Configuration member
     Config m_cfg;
 
-    /// Private access to the looging instance
+    /// Private access to the logging instance
     const Acts::Logger&
     logger() const
     {
       return *m_logger;
     }
 
-    /// the loging instance
+    /// the logging instance
     std::unique_ptr<const Acts::Logger> m_logger;
   };
 
@@ -131,7 +131,7 @@ namespace Generic {
   LayerBuilderT<detector_element_t>::centralLayers(
       const Acts::GeometryContext& gctx) const
   {
-    // crete the vector
+    // create the vector
     Acts::LayerVector cLayers;
     cLayers.reserve(m_cfg.centralProtoLayers.size());
     // the layer counter
@@ -141,7 +141,7 @@ namespace Generic {
       Acts::MutableLayerPtr cLayer = m_cfg.layerCreator->cylinderLayer(
           gctx, cpl.surfaces, cpl.bins0, cpl.bins1, cpl.protoLayer);
 
-      // the layer is built le't see if it needs material
+      // the layer is built let's see if it needs material
       if (m_cfg.centralLayerMaterialProperties.size()) {
         // get the material from configuration
         Acts::MaterialProperties layerMaterialProperties
@@ -215,7 +215,7 @@ namespace Generic {
     const auto& protoLayers
         = (side < 0) ? m_cfg.negativeProtoLayers : m_cfg.positiveProtoLayers;
 
-    // crete the vector
+    // create the vector
     Acts::LayerVector eLayers;
     eLayers.reserve(protoLayers.size());
 
@@ -227,7 +227,7 @@ namespace Generic {
       Acts::MutableLayerPtr eLayer = m_cfg.layerCreator->discLayer(
           gctx, ple.surfaces, ple.bins0, ple.bins1, ple.protoLayer);
 
-      // the layer is built le't see if it needs material
+      // the layer is built let's see if it needs material
       if (m_cfg.posnegLayerMaterialProperties.size()) {
         std::shared_ptr<const Acts::SurfaceMaterial> layerMaterialPtr(
             new Acts::HomogeneousSurfaceMaterial(

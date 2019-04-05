@@ -85,6 +85,10 @@ namespace Generic {
                       const std::vector<double>& moduleHalfLength);
 
   /// Global method to build the generic tracking geometry
+  ///
+  /// @tparam detector_element_t is the actual type of the detector
+  /// element, each derivative of a GenericDetectorElement can be used
+  ///
   /// @param gctx is the detector element dependent geometry context
   /// @param surfaceLLevel is the surface building logging level
   /// @param layerLLevel is the layer building logging level
@@ -143,14 +147,6 @@ namespace Generic {
     // vector of the volume builders
     std::vector<std::shared_ptr<const Acts::ITrackingVolumeBuilder>>
         volumeBuilders;
-
-    // This file is part of the Acts project.
-    //
-    // Copyright (C) 2016-2018 Acts project team
-    //
-    // This Source Code Form is subject to the terms of the Mozilla Public
-    // License, v. 2.0. If a copy of the MPL was not distributed with this
-    // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
     //-------------------------------------------------------------------------------------
     // Beam Pipe

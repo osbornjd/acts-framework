@@ -72,7 +72,7 @@ namespace Csv {
     name() const final override;
 
     /// The write interface
-    /// @param context The algorithmc context needed for the full info
+    /// @param context The algorithmic context needed for the full info
     /// @param surface to be written out
     FW::ProcessCode
     write(const AlgorithmContext& context,
