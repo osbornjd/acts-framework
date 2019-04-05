@@ -9,52 +9,91 @@
 #pragma once
 
 #include <iostream>
+#include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Surfaces/Surface.hpp"
-#include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoPhysVol.h"
+//~ #include "Acts/Utilities/GeometryContext.hpp"
 
 #include <QString>
 
 namespace FW {
 
-  class GeoModelReader
-  {
-  public:
-	GeoPhysVol* 
-	createTheExperiment(GeoPhysVol* world) const;
+class GeoModelReader
+{
+public:
+  /// @brief Temporary detector build for debugging
+  GeoPhysVol*
+  makeDebugDetector() const;
 
-GeoPhysVol* 
-loadDB(const QString& path) const;
-  
-    GeoPhysVol* 
-    makeDetektor() const;
-    
-    std::vector<std::shared_ptr<Acts::Surface>>
-    buildBeamPipeSurfaces(GeoVPhysVol const* bp) const;
-    
-    /// @brief Printer of the full detector
-    std::ostream&
-    treeToStream(GeoVPhysVol const* tree, std::ostream& sl) const;
-    
-    /// @brief Printer of GeoPhysVol
-    std::ostream&
+  /// @brief Loads a db file that contains the detector data and stores the
+  /// result in the GeoModel data type GeoPhysVol*
+  ///
+  /// @param [in] path Path to the file
+  ///
+  /// @return Pointer to the loaded detector
+  GeoPhysVol*
+  loadDB(const QString& path) const;
+
+  /// @brief Creates a world volume around a GeoModel detector
+  ///
+  /// @param [in] world Pointer to the storage of the detector data
+  ///
+  /// @return Pointer to the whole world
+  GeoPhysVol*
+  createTheExperiment(GeoPhysVol* world) const;
+
+  //~ std::vector<std::shared_ptr<Acts::Surface>>
+  //~ buildChildrenSurfaces(GeoVPhysVol const* parent) const;
+
+  /// @brief Constructs an Acts beam pipe out of a given GeoModel detector
+  ///
+  /// @param [in] bp Pointer to the beam pipe
+  ///
+  /// @return Acts pointer to the beam pipe volume
+  Acts::MutableTrackingVolumePtr
+  buildBeamPipe(GeoVPhysVol const* bp) const;
+
+  /// @brief Printer of the full detector
+  std::ostream&
+  treeToStream(GeoVPhysVol const* tree, std::ostream& sl) const;
+
+  /// @brief Printer of GeoPhysVol
+  std::ostream&
   toStream(GeoPhysVol const* gpv, std::ostream& sl) const;
-    
-    /// @brief Printer of GeoFullPhysVol
-    std::ostream&
-  toStream(GeoFullPhysVol const* gfpv, std::ostream& sl) const;
-    
-    private:
-    
-std::shared_ptr<Acts::Surface>
-createSurface(GeoVPhysVol const* gvpv) const;
 
-    /// @brief Printer of GeoLogVol
-    std::ostream&
-    toStream(GeoLogVol const* glv, std::ostream& sl) const;
-    
-    std::ostream&
-    shapeToStream(GeoShape const* shape, std::ostream& sl) const;
-    
-   };
+  /// @brief Printer of GeoFullPhysVol
+  std::ostream&
+  toStream(GeoFullPhysVol const* gfpv, std::ostream& sl) const;
+
+private:
+  //~ std::shared_ptr<Acts::Surface>
+  //~ createSurface(GeoVPhysVol const* gvpv) const;
+
+  /// @brief Extracts the data of a single passive surface
+  /// @note The Acts::PassiveLayerBuilder just needs the data but not the
+  /// surface itself. The components of the returning array are {radius, half
+  /// length in z, thickness}
+  ///
+  /// @param [in] gvpv Pointer to the surface
+  ///
+  /// @return The data array
+  std::array<double, 3>
+  createPassiveSurface(GeoVPhysVol const* gvpv) const;
+
+  /// @brief This function sorts passive surfaces by their radius and merges
+  /// overlapping surfaces to avoid overlappings in the layer creation process.
+  ///
+  /// @param [in, out] surfaces Storage of the the surface data
+  void
+  sortAndMergeSurfaces(std::vector<std::array<double, 3>>& surfaces) const;
+
+  /// @brief Printer of GeoLogVol
+  std::ostream&
+  toStream(GeoLogVol const* glv, std::ostream& sl) const;
+
+  /// @brief Printer of the shape
+  std::ostream&
+  shapeToStream(GeoShape const* shape, std::ostream& sl) const;
+};
 }  // namespace FW

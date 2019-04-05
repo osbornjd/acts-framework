@@ -22,8 +22,7 @@ int
 main(int argc, char* argv[])
 {
   FW::GeoModelReader gmr;
-  GeoPhysVol*        world = gmr.makeDetektor();
-  world                    = gmr.loadDB("/home/user/geometry.db");
+  GeoPhysVol*        world = gmr.loadDB("/home/user/geometry.db");
 
   // Walk over all children of the current volume
   unsigned int nChildren = world->getNChildVols();
@@ -37,7 +36,6 @@ main(int argc, char* argv[])
           == "BeamPipeCentral")  // + 2x BeamPipeFwd
       {
         //~ gmr.treeToStream(childVolV, std::cout);
-        gmr.buildChildrenSurfaces(childVolV);
         gmr.buildBeamPipe(childVolV);
         break;
       }
@@ -45,12 +43,12 @@ main(int argc, char* argv[])
       //~ if ( dynamic_cast<const GeoPhysVol*>(childVolV) ) {
       //~ // Print content
       //~ const GeoPhysVol* childVol = dynamic_cast<const
-      //GeoPhysVol*>(childVolV); ~ gmr.toStream(childVol, std::cout); ~ // Test
-      //if it is GeoFullPhysVol
+      // GeoPhysVol*>(childVolV); ~ gmr.toStream(childVol, std::cout); ~ // Test
+      // if it is GeoFullPhysVol
       //~ } else if ( dynamic_cast<const GeoFullPhysVol*>(childVolV) ) {
       //~ // Print content
       //~ const GeoFullPhysVol* childVol = dynamic_cast<const
-      //GeoFullPhysVol*>(childVolV); ~ gmr.toStream(childVol, std::cout);
+      // GeoFullPhysVol*>(childVolV); ~ gmr.toStream(childVol, std::cout);
       //~ }
     }
   }
