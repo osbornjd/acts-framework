@@ -36,7 +36,8 @@ main(int argc, char* argv[])
 		
 		if(childVolV->getLogVol()->getName() == "BeamPipeCentral") // + 2x BeamPipeFwd
 		{
-			gmr.treeToStream(childVolV, std::cout);
+			//~ gmr.treeToStream(childVolV, std::cout);
+			gmr.buildBeamPipeSurfaces(childVolV);
 			break;
 		}
 		//~ // Test if it is GeoPhysVol

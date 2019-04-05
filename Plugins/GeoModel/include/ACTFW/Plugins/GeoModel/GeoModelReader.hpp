@@ -9,6 +9,7 @@
 #pragma once
 
 #include <iostream>
+#include "Acts/Surfaces/Surface.hpp"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 
@@ -28,6 +29,9 @@ loadDB(const QString& path) const;
     GeoPhysVol* 
     makeDetektor() const;
     
+    std::vector<std::shared_ptr<Acts::Surface>>
+    buildBeamPipeSurfaces(GeoVPhysVol const* bp) const;
+    
     /// @brief Printer of the full detector
     std::ostream&
     treeToStream(GeoVPhysVol const* tree, std::ostream& sl) const;
@@ -42,6 +46,9 @@ loadDB(const QString& path) const;
     
     private:
     
+std::shared_ptr<Acts::Surface>
+createSurface(GeoVPhysVol const* gvpv) const;
+
     /// @brief Printer of GeoLogVol
     std::ostream&
     toStream(GeoLogVol const* glv, std::ostream& sl) const;

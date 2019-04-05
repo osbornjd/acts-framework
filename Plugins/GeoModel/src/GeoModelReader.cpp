@@ -17,6 +17,7 @@
 #include "GeoModelDBManager/GMDBManager.h"
 #include "GeoModelRead/ReadGeoModel.h"
 #include "GeoModelKernel/GeoTube.h"
+#include "Acts/Surfaces/CylinderSurface.hpp"
 
 #include <QString>
 #include <QFileInfo>
@@ -59,7 +60,6 @@ FW::GeoModelReader::loadDB(const QString& path) const
     return nullptr;
   }
 }
-
 
 GeoPhysVol*
 FW::GeoModelReader::makeDetektor() const
@@ -110,14 +110,54 @@ FW::GeoModelReader::makeDetektor() const
   return world;	
 }
 
+std::shared_ptr<Acts::Surface>
+FW::GeoModelReader::createSurface(GeoVPhysVol const* gvpv) const
+{
+	// The surfaces should not have any further children
+	if(gvpv->getNChildVols() != 0)
+		return nullptr;
+	
+	// TODO: This might become a switch
+	// A beam pipe should be a tube
+	GeoShape const* shape = gvpv->getLogVol()->getShape();
+	if(shape->type() == "Tube" && dynamic_cast<GeoTube const*>(shape))
+	{
+			try
+	{
+		auto trafo = std::make_shared<const Acts::Transform3D>(gvpv->getX());
+				GeoTube const* tube = dynamic_cast<GeoTube const*>(shape);
+		return Acts::Surface::makeShared<Acts::CylinderSurface>(trafo, (tube->getRMin() + tube->getRMax()) * 0.5, tube->getZHalfLength());
+	}
+	catch  (const std::exception& e)
+	{
+		std::cout << "Transformation not implemented - returning" << std::endl;
+		return nullptr;
+	}
+	
+	}
+	return nullptr;
+}
+
+std::vector<std::shared_ptr<Acts::Surface>>
+FW::GeoModelReader::buildBeamPipeSurfaces(GeoVPhysVol const* bp) const
+{
+	std::vector<std::shared_ptr<Acts::Surface>> surfaces;
+	
+	// Walk over all children of the beam pipe volume
+	unsigned int nChildren = bp->getNChildVols();
+	for (unsigned int i = 0; i < nChildren; i++) {
+		if (dynamic_cast<const GeoPhysVol*>(&(*(bp->getChildVol(i))))) {
+			surfaces.push_back(std::move(createSurface(&(*(bp->getChildVol(i))))));
+		}
+	}
+	
+	return surfaces;
+}
 
     std::ostream&
     FW::GeoModelReader::treeToStream(GeoVPhysVol const* tree, std::ostream& sl) const
     {
-		//~ // Print the node itself
-		//~ toStream(dynamic_cast<GeoPhysVol const*>(tree), sl);
-		
-		// Walk over all children of the current volume
+	  // Walk over all children of the current volume
 	  unsigned int nChildren = tree->getNChildVols();
 	  for (unsigned int i = 0; i < nChildren; i++) {
 		PVConstLink nodeLink = tree->getChildVol(i);
@@ -149,6 +189,7 @@ FW::GeoModelReader::makeDetektor() const
   FW::GeoModelReader::toStream(GeoPhysVol const* gpv, std::ostream& sl) const
   {
 	  sl << "GeoPhysVol" << std::endl;
+	  sl << gpv->getX().matrix() << std::endl;
 	  toStream(gpv->getLogVol(), sl);
 	  return sl;
   }
@@ -157,6 +198,7 @@ FW::GeoModelReader::makeDetektor() const
   FW::GeoModelReader::toStream(GeoFullPhysVol const* gfpv, std::ostream& sl) const
   {
 	  sl << "GeoFullPhysVol" << std::endl;
+	  sl << gfpv->getX().matrix() << std::endl;
 	  toStream(gfpv->getLogVol(), sl);
 	  return sl;
   }
