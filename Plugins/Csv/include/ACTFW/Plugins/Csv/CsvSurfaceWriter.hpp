@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <mutex>
+#include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
@@ -23,7 +24,6 @@ namespace Csv {
   /// @class CsvSurfaceWriter
   ///
   /// A Cvs surface writer for the geometry
-  ///
   class CsvSurfaceWriter : public FW::IWriterT<Acts::Surface>
   {
   public:
@@ -72,9 +72,11 @@ namespace Csv {
     name() const final override;
 
     /// The write interface
+    /// @param context The algorithmic context needed for the full info
     /// @param surface to be written out
     FW::ProcessCode
-    write(const Acts::Surface& surface) final override;
+    write(const AlgorithmContext& context,
+          const Acts::Surface&    surface) final override;
 
     /// write a bit of string
     /// @param is the string to be written

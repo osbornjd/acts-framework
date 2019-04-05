@@ -37,7 +37,6 @@ namespace Options {
   FW::RandomNumbersSvc::Config
   readRandomNumbersConfig(const AMAP& vm)
   {
-
     FW::RandomNumbersSvc::Config randomConfig;
     randomConfig.seed = vm["rnd-seed"].template as<int>();
     // return the config

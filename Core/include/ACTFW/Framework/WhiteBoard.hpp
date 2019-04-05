@@ -6,14 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-05-11 Initial version
-/// @date 2017-07-26 Rewrite with move semantics
-/// @author Andreas Salzburger
-/// @author Moritz Kiehn <msmk@cern.ch>
-
-#ifndef ACTFW_WHITEBOARD_H
-#define ACTFW_WHITEBOARD_H
+#pragma once
 
 #include <map>
 #include <memory>
@@ -136,5 +129,3 @@ FW::WhiteBoard::get(const std::string& name, const T*& object) const
   ACTS_VERBOSE("Retrieved object '" << name << "'");
   return ProcessCode::SUCCESS;
 }
-
-#endif  // ACTFW_WHITEBOARD_H

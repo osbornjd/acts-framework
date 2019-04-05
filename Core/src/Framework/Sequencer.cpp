@@ -12,7 +12,6 @@
 #include <tbb/tbb.h>
 
 #include <TROOT.h>
-
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
@@ -32,6 +31,21 @@ FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
     num_threads = tbb::task_scheduler_init::automatic;
   }
   m_tbb_init.initialize(num_threads);
+}
+
+FW::ProcessCode
+FW::Sequencer::addContextDecorators(
+    std::vector<std::shared_ptr<FW::IContextDecorator>> decorators)
+{
+  for (auto& cdr : decorators) {
+    if (!cdr) {
+      ACTS_FATAL("Trying to add empty context decorator");
+      return ProcessCode::ABORT;
+    }
+    m_decorators.push_back(std::move(cdr));
+    ACTS_INFO("Added context decorator " << m_decorators.back()->name());
+  }
+  return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
@@ -171,22 +185,41 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
           // Setup the event and algorithm context
           WhiteBoard eventStore(Acts::getDefaultLogger(
               "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
+
+          // This makes sure that each algorithm can have it's own
+          // view of the algorithm context, e.g. for random number
+          // initialization
+          //
+          // If we ever wanted to run algorithms in parallel, this needs to be
+          // changed
+          // to Algorithm context copies
           size_t ialg = 0;
 
-          // read everything in
+          // Create the Algorithm context
+          //
+          // If we ever wanted to run algorithms in parallel, this needs to be
+          // changed
+          // to Algorithm context copies
+          AlgorithmContext context(ialg++, event, eventStore);
+
+          /// Decorate the context
+          for (auto& cdr : m_decorators) {
+            if (cdr->decorate(context) != ProcessCode::SUCCESS)
+              throw std::runtime_error("Failed to decorate event context");
+          }
+          // Read everything in
           for (auto& rdr : m_readers) {
-            if (rdr->read({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
+            if (rdr->read(++context) != ProcessCode::SUCCESS)
               throw std::runtime_error("Failed to read input data");
           }
-          // process all algorithms
+          // Process all algorithms
           for (auto& alg : m_algorithms) {
-            if (alg->execute({ialg++, event, eventStore})
-                != ProcessCode::SUCCESS)
+            if (alg->execute(++context) != ProcessCode::SUCCESS)
               throw std::runtime_error("Failed to process event data");
           }
-          // write out results
+          // Write out results
           for (auto& wrt : m_writers) {
-            if (wrt->write({ialg++, event, eventStore}) != ProcessCode::SUCCESS)
+            if (wrt->write(++context) != ProcessCode::SUCCESS)
               throw std::runtime_error("Failed to write output data");
           }
 

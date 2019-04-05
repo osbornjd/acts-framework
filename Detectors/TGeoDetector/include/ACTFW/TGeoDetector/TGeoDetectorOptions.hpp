@@ -24,60 +24,60 @@ namespace FW {
 
 namespace Options {
 
-  /// The particle gun options, the are prefixes with gp
+  /// The root detecotr options, the are prefixes with geo-tgeo
   ///
   /// @tparam options_t Type of the options object (bound to boost API)
   ///
   /// @param opt The provided object, where root specific options are attached
   template <typename options_t>
   void
-  addRootGeometryOptions(options_t& opt)
+  addTGeoGeometryOptions(options_t& opt)
   {
-    opt.add_options()("geo-root-filename",
+    opt.add_options()("geo-tgeo-filename",
                       po::value<std::string>()->default_value(""),
                       "Root file name.")(
-        "geo-root-worldvolume",
+        "geo-tgeo-worldvolume",
         po::value<std::string>()->default_value(""),
         "Root world volume to start search from.")(
-        "geo-root-unitScalor",
+        "geo-tgeo-unitScalor",
         po::value<double>()->default_value(10.),
         "Unit scalor from ROOT to Acts.")(
-        "geo-root-nlayers",
+        "geo-tgeo-nlayers",
         po::value<read_series>()->multitoken()->default_value({}),
         "Number of layers on the negative side.")(
-        "geo-root-clayers",
+        "geo-tgeo-clayers",
         po::value<read_series>()->multitoken()->default_value({}),
         "Number of layers in the barrel.")(
-        "geo-root-players",
+        "geo-tgeo-players",
         po::value<read_series>()->multitoken()->default_value({}),
         "Number of layers on the positive side.")(
-        "geo-root-nlayernames",
+        "geo-tgeo-nlayernames",
         po::value<read_strings>()->multitoken()->default_value({}),
         "Name identifier for negative layer objects, odered along the series.")(
-        "geo-root-clayernames",
+        "geo-tgeo-clayernames",
         po::value<read_strings>()->multitoken()->default_value({}),
         "Name identifier for central layer objects, odered along the series.")(
-        "geo-root-playernames",
+        "geo-tgeo-playernames",
         po::value<read_strings>()->multitoken()->default_value({}),
         "Name identifier for positive layer objects, odered along the series.")(
-        "geo-root-nmodulenames",
+        "geo-tgeo-nmodulenames",
         po::value<read_strings>()->multitoken()->default_value({}),
         "Name identifier for negative sensitive objects, odered along the "
-        "series.")("geo-root-cmodulenames",
+        "series.")("geo-tgeo-cmodulenames",
                    po::value<read_strings>()->multitoken()->default_value({}),
                    "Name identifier for central sensitive objects, odered "
                    "along the series.")(
-        "geo-root-pmodulenames",
+        "geo-tgeo-pmodulenames",
         po::value<read_strings>()->multitoken()->default_value({}),
         "Name identifier for positive sensitive objects, odered along the "
-        "series.")("geo-root-nmoduleaxes",
+        "series.")("geo-tgeo-nmoduleaxes",
                    po::value<read_strings>()->multitoken()->default_value({}),
                    "Axes definition for negative sensitive objects, odered "
                    "along the series.")(
-        "geo-root-cmoduleaxes",
+        "geo-tgeo-cmoduleaxes",
         po::value<read_strings>()->multitoken()->default_value({}),
         "Axes definition for central sensitive objects, odered along the "
-        "series.")("geo-root-pmoduleaxes",
+        "series.")("geo-tgeo-pmoduleaxes",
                    po::value<read_strings>()->multitoken()->default_value({}),
                    "Axes definition for positive sensitive objects, odered "
                    "along the series.");
@@ -93,7 +93,7 @@ namespace Options {
   /// @return a configuration object for a TGeoLayerBuilder
   template <typename variable_map_t>
   std::vector<Acts::TGeoLayerBuilder::Config>
-  readRootLayerBuilderConfigs(
+  readTGeoLayerBuilderConfigs(
       const variable_map_t&                     vm,
       std::shared_ptr<const Acts::LayerCreator> layerCreator)
   {
@@ -102,31 +102,31 @@ namespace Options {
     // general stuff
     read_strings subdetectors
         = vm["geo-subdetectors"].template as<read_strings>();
-    double unitScalor = vm["geo-root-unitScalor"].template as<double>();
+    double unitScalor = vm["geo-tgeo-unitScalor"].template as<double>();
     // these define a series, such as 1, 3, 4
-    read_series nlayers = vm["geo-root-nlayers"].template as<read_series>();
-    read_series clayers = vm["geo-root-clayers"].template as<read_series>();
-    read_series players = vm["geo-root-players"].template as<read_series>();
+    read_series nlayers = vm["geo-tgeo-nlayers"].template as<read_series>();
+    read_series clayers = vm["geo-tgeo-clayers"].template as<read_series>();
+    read_series players = vm["geo-tgeo-players"].template as<read_series>();
     // these are going continously through the series, such as i in [ 1 + 3 + 4
     // ]
     read_strings nlayernames
-        = vm["geo-root-nlayernames"].template as<read_strings>();
+        = vm["geo-tgeo-nlayernames"].template as<read_strings>();
     read_strings clayernames
-        = vm["geo-root-clayernames"].template as<read_strings>();
+        = vm["geo-tgeo-clayernames"].template as<read_strings>();
     read_strings playernames
-        = vm["geo-root-playernames"].template as<read_strings>();
+        = vm["geo-tgeo-playernames"].template as<read_strings>();
     read_strings nsensitivenames
-        = vm["geo-root-nmodulenames"].template as<read_strings>();
+        = vm["geo-tgeo-nmodulenames"].template as<read_strings>();
     read_strings csensitivenames
-        = vm["geo-root-cmodulenames"].template as<read_strings>();
+        = vm["geo-tgeo-cmodulenames"].template as<read_strings>();
     read_strings psensitivenames
-        = vm["geo-root-pmodulenames"].template as<read_strings>();
+        = vm["geo-tgeo-pmodulenames"].template as<read_strings>();
     read_strings nsensitiveaxes
-        = vm["geo-root-nmoduleaxes"].template as<read_strings>();
+        = vm["geo-tgeo-nmoduleaxes"].template as<read_strings>();
     read_strings csensitiveaxes
-        = vm["geo-root-cmoduleaxes"].template as<read_strings>();
+        = vm["geo-tgeo-cmoduleaxes"].template as<read_strings>();
     read_strings psensitiveaxes
-        = vm["geo-root-pmoduleaxes"].template as<read_strings>();
+        = vm["geo-tgeo-pmoduleaxes"].template as<read_strings>();
     // todo consistency checks
 
     // total coutners

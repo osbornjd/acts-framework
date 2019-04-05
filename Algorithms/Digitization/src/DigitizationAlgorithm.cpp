@@ -48,7 +48,7 @@ FW::DigitizationAlgorithm::DigitizationAlgorithm(
 }
 
 FW::ProcessCode
-FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
+FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
 {
   // Prepare the input data collection
   const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>* simHits
@@ -102,7 +102,8 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
               double lorentzShift = thickness * tan(lorentzAngle);
               lorentzShift *= -(hitDigitizationModule->readoutDirection());
               // parameters
-              auto invTransfrom = hitSurface.transform().inverse();
+              auto invTransfrom
+                  = hitSurface.transform(context.geoContext).inverse();
               // local intersection / direction
               Acts::Vector3D localIntersect3D(invTransfrom * hit.position);
               Acts::Vector2D localIntersection(localIntersect3D.x(),
@@ -111,7 +112,8 @@ FW::DigitizationAlgorithm::execute(FW::AlgorithmContext context) const
                                             * hit.direction);
               // now calculate the steps through the silicon
               std::vector<Acts::DigitizationStep> dSteps
-                  = m_cfg.planarModuleStepper->cellSteps(*hitDigitizationModule,
+                  = m_cfg.planarModuleStepper->cellSteps(context.geoContext,
+                                                         *hitDigitizationModule,
                                                          localIntersection,
                                                          localDirection);
               // everything under threshold or edge effects

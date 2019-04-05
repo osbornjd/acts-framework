@@ -6,14 +6,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-///////////////////////////////////////////////////////////////////
-// IWriterT.h
-///////////////////////////////////////////////////////////////////
-#ifndef ACTFW_WRITERS_IWRITERT_H
-#define ACTFW_WRITERS_IWRITERT_H
+#pragma once
 
 #include <string>
 #include <vector>
+#include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
@@ -37,12 +34,13 @@ public:
   /// Virtual destructor
   virtual ~IWriterT() = default;
 
-  /// the write method
+  /// The write method for the templated object
+  ///
+  /// @param context is the AlgorithmContext in case this is required
   /// @param object is the object to be written out
   /// @return is a ProcessCode indicating return/failure
   virtual ProcessCode
-  write(const T& object)
+  write(const AlgorithmContext& context, const T& object)
       = 0;
 };
 }
-#endif  // ACTFW_WRITERS_IWRITERT_H

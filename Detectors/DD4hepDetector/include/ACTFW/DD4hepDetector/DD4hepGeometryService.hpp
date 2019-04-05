@@ -114,8 +114,10 @@ namespace DD4hep {
     lcdd() final override;
 
     /// Interface method to access the ACTS TrackingGeometry
+    ///
+    /// @param gctx is the geometry context object
     std::unique_ptr<const Acts::TrackingGeometry>
-    trackingGeometry() final override;
+    trackingGeometry(const Acts::GeometryContext& gctx) final override;
 
   private:
     /// Private method to initiate building of the DD4hep geometry
@@ -124,7 +126,7 @@ namespace DD4hep {
 
     /// Private method to initiate building of the ACTS tracking geometry
     FW::ProcessCode
-    buildTrackingGeometry();
+    buildTrackingGeometry(const Acts::GeometryContext& gctx);
 
     /// The config class
     Config m_cfg;

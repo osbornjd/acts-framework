@@ -89,10 +89,10 @@ namespace Root {
     ///
     /// @tparam parameters_t Type of the parameters object
     ///
-    /// @param [in] ctx is the algorithm context for event consistency
+    /// @param [in] context is the algorithm context for event consistency
     /// @param [in] ecells are the celss to be written out
     ProcessCode
-    writeT(const FW::AlgorithmContext&                               ctx,
+    writeT(const FW::AlgorithmContext&                               context,
            const std::vector<Acts::ExtrapolationCell<parameters_t>>& ecells)
         final override;
 

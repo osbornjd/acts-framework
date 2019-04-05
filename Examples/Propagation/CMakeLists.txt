@@ -1,5 +1,4 @@
-file (GLOB_RECURSE src_files "src/*.*pp")
-
+# Generic detector
 add_executable(ACTFWGenericPropagationExample src/GenericPropagationExample.cpp)
 target_include_directories(ACTFWGenericPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWGenericPropagationExample PRIVATE ActsCore)
@@ -9,16 +8,38 @@ target_link_libraries(ACTFWGenericPropagationExample PRIVATE ${Boost_LIBRARIES})
 
 install(TARGETS ACTFWGenericPropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+# Generic detector with IOV based alignment
+add_executable(ACTFWAlignedPropagationExample src/AlignedPropagationExample.cpp)
+target_include_directories(ACTFWAlignedPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWAlignedPropagationExample PRIVATE ActsCore)
+target_link_libraries(ACTFWAlignedPropagationExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWPropagation)
+target_link_libraries(ACTFWAlignedPropagationExample PRIVATE ACTFWGenericDetector ACTFWContextualDetector)
+target_link_libraries(ACTFWAlignedPropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
+target_link_libraries(ACTFWAlignedPropagationExample PRIVATE ${Boost_LIBRARIES})
+
+install(TARGETS ACTFWAlignedPropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# Generic detector with payload based alignment
+add_executable(ACTFWPayloadPropagationExample src/PayloadPropagationExample.cpp)
+target_include_directories(ACTFWPayloadPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWPayloadPropagationExample PRIVATE ActsCore)
+target_link_libraries(ACTFWPayloadPropagationExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWPropagation)
+target_link_libraries(ACTFWPayloadPropagationExample PRIVATE ACTFWGenericDetector ACTFWContextualDetector)
+target_link_libraries(ACTFWPayloadPropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
+target_link_libraries(ACTFWPayloadPropagationExample PRIVATE ${Boost_LIBRARIES})
+
+install(TARGETS ACTFWPayloadPropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 # TGEO based detector
 if (USE_TGEO)
-  add_executable(ACTFWRootPropagationExample src/RootPropagationExample.cpp)
-  target_include_directories(ACTFWRootPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
-  target_link_libraries(ACTFWRootPropagationExample PRIVATE ActsCore)
-  target_link_libraries(ACTFWRootPropagationExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWPropagation ACTFWRootDetector)
-  target_link_libraries(ACTFWRootPropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
-  target_link_libraries(ACTFWRootPropagationExample PRIVATE ${Boost_LIBRARIES})
+  add_executable(ACTFWTGeoPropagationExample src/TGeoPropagationExample.cpp)
+  target_include_directories(ACTFWTGeoPropagationExample PRIVATE ${Boost_INCLUDE_DIRS})
+  target_link_libraries(ACTFWTGeoPropagationExample PRIVATE ActsCore)
+  target_link_libraries(ACTFWTGeoPropagationExample PRIVATE ACTFramework ACTFWExamplesCommon ACTFWPropagation ACTFWTGeoDetector)
+  target_link_libraries(ACTFWTGeoPropagationExample PRIVATE ACTFWRootPlugin ACTFWObjPlugin ACTFWBFieldPlugin)
+  target_link_libraries(ACTFWTGeoPropagationExample PRIVATE ${Boost_LIBRARIES})
 
-  install(TARGETS ACTFWRootPropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(TARGETS ACTFWTGeoPropagationExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 # DD4hep detector

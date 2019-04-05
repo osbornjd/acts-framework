@@ -32,7 +32,7 @@ public:
 
   /// Read the next event
   virtual ProcessCode
-  read(AlgorithmContext context)
+  read(const AlgorithmContext& context)
       = 0;
 
   /// The number of events to be read in

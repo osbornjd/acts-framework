@@ -11,7 +11,7 @@
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/BField/RootInterpolatedBFieldWriter.hpp"
+#include "detail/BFieldWritingBase.hpp"
 
 /// The main executable
 ///
@@ -76,6 +76,7 @@ main(int argc, char* argv[])
   // Get all options from contain line and store it into the map
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
+
   // Print help if requested
   if (vm.count("help")) {
     std::cout << desc << std::endl;
@@ -83,33 +84,25 @@ main(int argc, char* argv[])
   }
   // create BField service
   auto bField = FW::Options::readBField<po::variables_map>(vm);
-  if (!bField.first) {
+
+  auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
+  auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
+
+  if (!field2D && !field3D) {
     std::cout << "Bfield map could not be read. Exiting." << std::endl;
     return -1;
   }
-  // Write the interpolated magnetic field
-  FW::BField::RootInterpolatedBFieldWriter::Config writerConfig;
-  if (vm["bf-out-rz"].as<bool>())
-    writerConfig.gridType = FW::BField::GridType::rz;
-  else
-    writerConfig.gridType = FW::BField::GridType::xyz;
-  writerConfig.treeName   = vm["bf-map-out"].as<std::string>();
-  writerConfig.fileName   = vm["bf-file-out"].as<std::string>();
-  writerConfig.bField     = bField.first;
-  std::cout << "setting rBounds" << std::endl;
-  if (vm.count("bf-rRange") && vm.count("bf-zRange")) {
-    auto rBounds = vm["bf-rRange"].template as<read_range>();
-    auto zBounds = vm["bf-zRange"].template as<read_range>();
-    writerConfig.rBounds
-        = {{rBounds[0] * Acts::units::_mm, rBounds[1] * Acts::units::_mm}};
-    writerConfig.zBounds
-        = {{zBounds[0] * Acts::units::_mm, zBounds[1] * Acts::units::_mm}};
-  }
-  writerConfig.rBins   = vm["bf-rBins"].as<size_t>();
-  writerConfig.zBins   = vm["bf-ZBins"].as<size_t>();
-  writerConfig.phiBins = vm["bf-PhiBins"].as<size_t>();
 
-  FW::BField::RootInterpolatedBFieldWriter::run(writerConfig);
+  // write it out
+  if (field2D) {
+    // the 2-dimensional field case
+    FW::BField::writeField<po::variables_map, InterpolatedBFieldMap2D>(vm,
+                                                                       field2D);
+  } else {
+    // the 3-dimensional field case
+    FW::BField::writeField<po::variables_map, InterpolatedBFieldMap3D>(vm,
+                                                                       field3D);
+  }
 
   // Return 0 for success
   return 0;

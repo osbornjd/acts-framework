@@ -66,10 +66,10 @@ namespace Root {
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
     ///
-    /// @param ctx The Algorithm context with per event information
+    /// @param context The Algorithm context with per event information
     /// @param steps is the data to be written out
     ProcessCode
-    writeT(const AlgorithmContext&              ctx,
+    writeT(const AlgorithmContext&              context,
            const std::vector<PropagationSteps>& steps) final override;
 
   private:

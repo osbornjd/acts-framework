@@ -11,10 +11,10 @@
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
-FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
-    const FWE::RandomNumbersAlgorithm::Config& cfg,
-    Acts::Logging::Level                       level)
-  : FW::BareAlgorithm("RandomNumbersAlgorithm", level), m_cfg(cfg)
+FW::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
+    const RandomNumbersAlgorithm::Config& cfg,
+    Acts::Logging::Level                  level)
+  : BareAlgorithm("RandomNumbersAlgorithm", level), m_cfg(cfg)
 {
   if (!m_cfg.randomNumbers) {
     throw std::invalid_argument("Missing random number service");
@@ -22,7 +22,7 @@ FWE::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
 }
 
 FW::ProcessCode
-FWE::RandomNumbersAlgorithm::execute(FW::AlgorithmContext context) const
+FW::RandomNumbersAlgorithm::execute(const AlgorithmContext& context) const
 {
 
   ACTS_INFO("Running random number generation");

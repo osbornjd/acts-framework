@@ -8,9 +8,10 @@
 
 #pragma once
 
+#include <list>
 #include <vector>
-#include "ACTFW/RootDetector/BuildRootDetector.hpp"
-#include "ACTFW/RootDetector/RootDetectorOptions.hpp"
+#include "ACTFW/TGeoDetector/BuildTGeoDetector.hpp"
+#include "ACTFW/TGeoDetector/TGeoDetectorOptions.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Material/Material.hpp"
 #include "Acts/Material/MaterialProperties.hpp"
@@ -23,10 +24,11 @@
 #include "Acts/Tools/SurfaceArrayCreator.hpp"
 #include "Acts/Tools/TrackingGeometryBuilder.hpp"
 #include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 #include "TGeoManager.h"
 
 namespace FW {
-namespace Root {
+namespace TGeo {
 
   /// @brief global method to build the generic tracking geometry
   // from a TGeo object.
@@ -39,8 +41,9 @@ namespace Root {
   /// @param vm is the variable map from the options
   template <typename variable_maps_t>
   std::shared_ptr<const Acts::TrackingGeometry>
-  buildRootDetector(
-      variable_maps_t& vm,
+  buildTGeoDetector(
+      variable_maps_t&             vm,
+      const Acts::GeometryContext& context,
       std::vector<std::shared_ptr<const Acts::TGeoDetectorElement>>&
           detElementStore)
   {
@@ -53,8 +56,10 @@ namespace Root {
         = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
 
     // configure surface array creator
-    auto surfaceArrayCreator
+    Acts::SurfaceArrayCreator::Config sacConfig;
+    auto                              surfaceArrayCreator
         = std::make_shared<const Acts::SurfaceArrayCreator>(
+            sacConfig,
             Acts::getDefaultLogger("SurfaceArrayCreator", surfaceLogLevel));
     // configure the layer creator that uses the surface array creator
     Acts::LayerCreator::Config lcConfig;
@@ -62,11 +67,14 @@ namespace Root {
     auto layerCreator            = std::make_shared<const Acts::LayerCreator>(
         lcConfig, Acts::getDefaultLogger("LayerCreator", layerLogLevel));
     // configure the layer array creator
+    Acts::LayerArrayCreator::Config lacConfig;
     auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
-        Acts::getDefaultLogger("LayerArrayCreator", layerLogLevel));
+        lacConfig, Acts::getDefaultLogger("LayerArrayCreator", layerLogLevel));
     // tracking volume array creator
-    auto tVolumeArrayCreator
+    Acts::TrackingVolumeArrayCreator::Config tvacConfig;
+    auto                                     tVolumeArrayCreator
         = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
+            tvacConfig,
             Acts::getDefaultLogger("TrackingVolumeArrayCreator",
                                    volumeLogLevel));
     // configure the cylinder volume helper
@@ -84,14 +92,14 @@ namespace Root {
         volumeBuilders;
 
     std::string rootFileName
-        = vm["geo-root-filename"].template as<std::string>();
+        = vm["geo-tgeo-filename"].template as<std::string>();
     // import the file from
     TGeoManager::Import(rootFileName.c_str());
 
     bool firstOne = true;
 
     auto layerBuilderConfigs
-        = FW::Options::readRootLayerBuilderConfigs<variable_maps_t>(
+        = FW::Options::readTGeoLayerBuilderConfigs<variable_maps_t>(
             vm, layerCreator);
 
     // remember the layer builders to collect the detector elements
@@ -126,14 +134,21 @@ namespace Root {
     //-------------------------------------------------------------------------------------
     // create the tracking geometry
     Acts::TrackingGeometryBuilder::Config tgConfig;
-    tgConfig.trackingVolumeBuilders = volumeBuilders;
-    tgConfig.trackingVolumeHelper   = cylinderVolumeHelper;
+    // Add the builders
+    for (auto& vb : volumeBuilders) {
+      tgConfig.trackingVolumeBuilders.push_back(
+          [=](const auto& context, const auto& inner, const auto&) {
+            return vb->trackingVolume(context, inner);
+          });
+    }
+    // Add the helper
+    tgConfig.trackingVolumeHelper = cylinderVolumeHelper;
     auto cylinderGeometryBuilder
         = std::make_shared<const Acts::TrackingGeometryBuilder>(
             tgConfig,
             Acts::getDefaultLogger("TrackerGeometryBuilder", volumeLogLevel));
     // get the geometry
-    auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry();
+    auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry(context);
     // collect the detector element store
     for (auto& lBuilder : tgLayerBuilders) {
       auto detElements = lBuilder->detectorElements();

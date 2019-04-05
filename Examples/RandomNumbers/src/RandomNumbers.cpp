@@ -51,7 +51,7 @@ main(int argc, char* argv[])
   auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
 
   // Create the config object for the hello world algorithm
-  FWE::RandomNumbersAlgorithm::Config rNumbersConfig;
+  FW::RandomNumbersAlgorithm::Config rNumbersConfig;
   rNumbersConfig.randomNumbers     = randomNumbers;
   rNumbersConfig.gaussParameters   = {{0., 1.}};
   rNumbersConfig.uniformParameters = {{0., 1.}};
@@ -61,7 +61,7 @@ main(int argc, char* argv[])
 
   // And now the hello world algorithm
   std::shared_ptr<FW::IAlgorithm> rNumbers(
-      new FWE::RandomNumbersAlgorithm(rNumbersConfig, logLevel));
+      new FW::RandomNumbersAlgorithm(rNumbersConfig, logLevel));
   // Create the config object for the sequencer
   FW::Sequencer::Config seqConfig;
   // Create the sequencer and run the example

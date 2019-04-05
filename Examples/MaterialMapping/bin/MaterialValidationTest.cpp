@@ -31,5 +31,5 @@ main()
 
   // EXTRAPOLATOR - set up the extrapolator
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine
-      = FWE::initExtrapolator(tGeometry, magField, eLogLevel);
+      = FW::initExtrapolator(tGeometry, magField, eLogLevel);
 }

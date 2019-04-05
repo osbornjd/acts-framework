@@ -42,18 +42,18 @@ main(int argc, char* argv[])
   auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
   // Create an algorithm that writes to the event store
-  FWE::WhiteBoardAlgorithm::Config wBoardConfigWrite;
+  FW::WhiteBoardAlgorithm::Config wBoardConfigWrite;
   wBoardConfigWrite.outputClassOneCollection = "ClassOneCollection";
   wBoardConfigWrite.outputClassTwoCollection = "ClassTwoCollection";
   auto wBoardWrite
-      = std::make_shared<FWE::WhiteBoardAlgorithm>(wBoardConfigWrite, logLevel);
+      = std::make_shared<FW::WhiteBoardAlgorithm>(wBoardConfigWrite, logLevel);
 
   // Create an algorithm that reads from the event store
-  FWE::WhiteBoardAlgorithm::Config wBoardConfigRead;
+  FW::WhiteBoardAlgorithm::Config wBoardConfigRead;
   wBoardConfigRead.inputClassOneCollection = "ClassOneCollection";
   wBoardConfigRead.inputClassTwoCollection = "ClassTwoCollection";
   auto wBoardRead
-      = std::make_shared<FWE::WhiteBoardAlgorithm>(wBoardConfigRead, logLevel);
+      = std::make_shared<FW::WhiteBoardAlgorithm>(wBoardConfigRead, logLevel);
 
   // Create the event loop
   FW::Sequencer::Config seqConfig;

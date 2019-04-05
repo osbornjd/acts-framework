@@ -1,4 +1,5 @@
 add_subdirectory_if(DD4hepDetector USE_DD4HEP)
+add_subdirectory(ContextualDetector)
 add_subdirectory(GenericDetector)
 add_subdirectory(GeometryInterfaces)
-add_subdirectory_if(RootDetector USE_TGEO)
+add_subdirectory_if(TGeoDetector USE_TGEO)

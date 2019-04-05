@@ -16,11 +16,9 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace FW {
+
 class WhiteBoard;
 class RandomNumbersSvc;
-}  // namespace FW
-
-namespace FWE {
 
 class RandomNumbersAlgorithm : public FW::BareAlgorithm
 {
@@ -44,12 +42,12 @@ public:
 
   /// Framework execode method
   FW::ProcessCode
-  execute(FW::AlgorithmContext context) const final override;
+  execute(const AlgorithmContext& context) const final override;
 
 private:
   Config m_cfg;
 };
 
-}  // namespace FWE
+}  // namespace FW
 
 #endif  // ACTFW_EXAMPLES_RANDOMNUMBERSALGORITHM_H

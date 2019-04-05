@@ -48,7 +48,7 @@ namespace Csv {
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
     ProcessCode
-    writeT(const AlgorithmContext& ctx,
+    writeT(const AlgorithmContext& context,
            const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
                clusters) final override;
 

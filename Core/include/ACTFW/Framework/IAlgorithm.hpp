@@ -6,13 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2016-05-11 Initial version
-/// @author Andreas Salzburger
-/// @author Moritz Kiehn <msmk@cern.ch>
-
-#ifndef ACTFW_IALGORITHM_H
-#define ACTFW_IALGORITHM_H
+#pragma once
 
 #include <string>
 
@@ -34,9 +28,7 @@ public:
 
   /// Framework execute method
   virtual ProcessCode
-  execute(AlgorithmContext context) const = 0;
+  execute(const AlgorithmContext& context) const = 0;
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_IALGORITHM_H

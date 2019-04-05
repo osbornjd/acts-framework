@@ -27,19 +27,21 @@ FW::Csv::CsvTrackingGeometryWriter::name() const
 
 FW::ProcessCode
 FW::Csv::CsvTrackingGeometryWriter::write(
+    const AlgorithmContext&       context,
     const Acts::TrackingGeometry& tGeometry)
 {
   ACTS_DEBUG(">>Csv: Writer for TrackingGeometry object called.");
   // get the world volume
   auto world = tGeometry.highestTrackingVolume();
-  if (world) write(*world);
+  if (world) write(context, *world);
   // return the success code
   return FW::ProcessCode::SUCCESS;
 }
 
 /// process this volume
 void
-FW::Csv::CsvTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
+FW::Csv::CsvTrackingGeometryWriter::write(const AlgorithmContext&     context,
+                                          const Acts::TrackingVolume& tVolume)
 {
   ACTS_DEBUG(">>Csv: Writer for TrackingVolume object called.");
   // get the confined layers and process them
@@ -62,7 +64,8 @@ FW::Csv::CsvTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
         // loop over the surface
         for (auto surface : layer->surfaceArray()->surfaces()) {
           if (surface
-              && surfaceWriter->write(*surface) == FW::ProcessCode::ABORT)
+              && surfaceWriter->write(context, *surface)
+                  == FW::ProcessCode::ABORT)
             return;
         }
       }
@@ -72,7 +75,7 @@ FW::Csv::CsvTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
   if (tVolume.confinedVolumes()) {
     // loop over the volumes and write what they have
     for (auto volume : tVolume.confinedVolumes()->arrayObjects()) {
-      write(*volume.get());
+      write(context, *volume.get());
     }
   }
 }

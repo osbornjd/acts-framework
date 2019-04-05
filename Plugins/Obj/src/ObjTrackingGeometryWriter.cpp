@@ -28,19 +28,21 @@ FW::Obj::ObjTrackingGeometryWriter::name() const
 
 FW::ProcessCode
 FW::Obj::ObjTrackingGeometryWriter::write(
+    const AlgorithmContext&       context,
     const Acts::TrackingGeometry& tGeometry)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingGeometry object called.");
   // get the world volume
   auto world = tGeometry.highestTrackingVolume();
-  if (world) write(*world);
+  if (world) write(context, *world);
   // return the success code
   return FW::ProcessCode::SUCCESS;
 }
 
 /// process this volume
 void
-FW::Obj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
+FW::Obj::ObjTrackingGeometryWriter::write(const AlgorithmContext&     context,
+                                          const Acts::TrackingVolume& tVolume)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingVolume object called.");
   // get the confined layers and process them
@@ -72,13 +74,16 @@ FW::Obj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
       // layer prefix
       surfaceWriter->write(m_cfg.layerPrefix);
       // try to write the material surface as well
-      if (layer->surfaceRepresentation().associatedMaterial())
-        surfaceWriter->write(layer->surfaceRepresentation());
+      if (layer->surfaceRepresentation().associatedMaterial()) {
+        surfaceWriter->write(context, layer->surfaceRepresentation());
+      }
       // the the approaching surfaces and check if they have material
       if (layer->approachDescriptor()) {
         // loop over the contained Surfaces
         for (auto& cSurface : layer->approachDescriptor()->containedSurfaces())
-          if (cSurface->associatedMaterial()) surfaceWriter->write(*cSurface);
+          if (cSurface->associatedMaterial()) {
+            surfaceWriter->write(context, *cSurface);
+          }
       }
       // check for sensitive surfaces
       if (layer->surfaceArray() && surfaceWriter) {
@@ -90,17 +95,19 @@ FW::Obj::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
         // loop over the surface
         for (auto& surface : layer->surfaceArray()->surfaces()) {
           if (surface
-              && (surfaceWriter->write(*surface)) == FW::ProcessCode::ABORT)
+              && (surfaceWriter->write(context, *surface))
+                  == FW::ProcessCode::ABORT)
             return;
         }
       }
     }
   }
+  // Recursive self call
   // get the confined volumes and step down the hierarchy
   if (tVolume.confinedVolumes()) {
     // loop over the volumes and write what they have
     for (auto volume : tVolume.confinedVolumes()->arrayObjects()) {
-      write(*volume.get());
+      write(context, *volume.get());
     }
   }
 }

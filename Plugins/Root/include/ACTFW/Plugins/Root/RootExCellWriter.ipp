@@ -14,14 +14,14 @@
 template <typename parameters_t>
 FW::ProcessCode
 FW::Root::RootExCellWriter<parameters_t>::writeT(
-    const FW::AlgorithmContext&                               ctx,
+    const FW::AlgorithmContext&                               context,
     const std::vector<Acts::ExtrapolationCell<parameters_t>>& ecells)
 {
 
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
   // Get the event number
-  m_eventNr = ctx.eventNumber;
+  m_eventNr = context.eventNumber;
 
   const unsigned int reservedSteps = m_cfg.reservedSteps;
 

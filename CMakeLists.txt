@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.5)
 
 project(ActsFramework LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard version to use for the build")
+if(${CMAKE_CXX_STANDARD} LESS 17)
+  message(FATAL_ERROR "Acts cannot be build with a standard version\
+  below C++17, C++${CMAKE_CXX_STANDARD} was requested")
+endif()
+message(STATUS "Building with standard version: C++${CMAKE_CXX_STANDARD}")
+
 option(BUILD_ACTS "Build acts-core as submodule" ON)
 option(USE_DD4HEP "Build DD4hep-based geometry code" OFF)
 option(USE_GEANT4 "Build Geant4-based code" OFF)
@@ -23,9 +30,6 @@ endif()
 
 # use install paths consistent w/ ACTS
 include(GNUInstallDirs)
-# require C++14 globally
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
 # place build products in `<build_dir>/bin` and `<build_dir>/lib` for simple use
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
@@ -46,7 +50,10 @@ find_package(TBB REQUIRED)
 
 if(USE_DD4HEP)
   set(DD4HEP_DEBUG_CMAKE on)
+  # Work around DD4hep forcing CMAKE_CXX_STANDARD to 14
+  set(_cmake_cxx_standard ${CMAKE_CXX_STANDARD})
   find_package(DD4hep REQUIRED COMPONENTS ${DD4hep_COMPONENTS})
+  set(CMAKE_CXX_STANDARD ${_cmake_cxx_standard})
 endif()
 if(USE_GEANT4)
   set(Geant4_CONFIG_DEBUG on)

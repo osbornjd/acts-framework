@@ -68,12 +68,14 @@ public:
 
   /// Skip a few events in the IO stream
   /// @param [in] nEvents is the number of skipped events
-  FW::ProcessCode
+  ProcessCode
   skip(size_t nEvents) final override;
 
   /// Read out data from the input stream
-  FW::ProcessCode
-  read(FW::AlgorithmContext ctx) final override;
+  ///
+  /// @param context is the algorithm/event context
+  ProcessCode
+  read(const AlgorithmContext& context) final override;
 
   /// Return the number of events
   virtual size_t

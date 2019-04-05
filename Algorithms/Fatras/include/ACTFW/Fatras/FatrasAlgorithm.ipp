@@ -17,7 +17,7 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::FatrasAlgorithm(
 template <typename simulator_t, typename event_collection_t, typename hit_t>
 FW::ProcessCode
 FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
-    const FW::AlgorithmContext context) const
+    const AlgorithmContext& context) const
 {
 
   // Create an algorithm local random number generator
@@ -41,7 +41,7 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
   HitCollection<hit_t> simulatedHits;
 
   // The simulation call
-  m_cfg.simulator(rng, simulatedEvent, simulatedHits);
+  m_cfg.simulator(context, rng, simulatedEvent, simulatedHits);
 
   // Write simulated data to the event store
   // - the simulated particles

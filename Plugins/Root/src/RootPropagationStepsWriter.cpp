@@ -85,14 +85,14 @@ FW::Root::RootPropagationStepsWriter::endRun()
 
 FW::ProcessCode
 FW::Root::RootPropagationStepsWriter::writeT(
-    const AlgorithmContext&              ctx,
+    const AlgorithmContext&              context,
     const std::vector<PropagationSteps>& stepCollection)
 {
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // we get the event number
-  m_eventNr = ctx.eventNumber;
+  m_eventNr = context.eventNumber;
 
   using ag = Acts::GeometryID;
 

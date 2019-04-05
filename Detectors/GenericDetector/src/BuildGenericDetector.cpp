@@ -7,80 +7,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
-#include <array>
-#include <cmath>
-#include <iostream>
-#include <vector>
-#include "ACTFW/GenericDetector/GenericLayerBuilder.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
-#include "Acts/Material/Material.hpp"
-#include "Acts/Tools/CylinderVolumeBuilder.hpp"
-#include "Acts/Tools/CylinderVolumeHelper.hpp"
-#include "Acts/Tools/LayerArrayCreator.hpp"
-#include "Acts/Tools/LayerCreator.hpp"
-#include "Acts/Tools/PassiveLayerBuilder.hpp"
-#include "Acts/Tools/SurfaceArrayCreator.hpp"
-#include "Acts/Tools/TrackingGeometryBuilder.hpp"
-#include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
-#include "Acts/Utilities/Units.hpp"
 
 namespace FW {
 
 namespace Generic {
-
-  std::unique_ptr<const Acts::TrackingGeometry>
-  buildGenericDetector(Acts::Logging::Level surfaceLLevel,
-                       Acts::Logging::Level layerLLevel,
-                       Acts::Logging::Level volumeLLevel,
-                       size_t               stage)
-  {
-    // configure surface array creator
-    auto surfaceArrayCreator
-        = std::make_shared<const Acts::SurfaceArrayCreator>(
-            Acts::getDefaultLogger("SurfaceArrayCreator", surfaceLLevel));
-    // configure the layer creator that uses the surface array creator
-    Acts::LayerCreator::Config lcConfig;
-    lcConfig.surfaceArrayCreator = surfaceArrayCreator;
-    auto layerCreator            = std::make_shared<const Acts::LayerCreator>(
-        lcConfig, Acts::getDefaultLogger("LayerCreator", layerLLevel));
-    // configure the layer array creator
-    auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
-        Acts::getDefaultLogger("LayerArrayCreator", layerLLevel));
-    // tracking volume array creator
-    auto tVolumeArrayCreator
-        = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
-            Acts::getDefaultLogger("TrackingVolumeArrayCreator", volumeLLevel));
-    // configure the cylinder volume helper
-    Acts::CylinderVolumeHelper::Config cvhConfig;
-    cvhConfig.layerArrayCreator          = layerArrayCreator;
-    cvhConfig.trackingVolumeArrayCreator = tVolumeArrayCreator;
-    auto cylinderVolumeHelper
-        = std::make_shared<const Acts::CylinderVolumeHelper>(
-            cvhConfig,
-            Acts::getDefaultLogger("CylinderVolumeHelper", volumeLLevel));
-    //-------------------------------------------------------------------------------------
-    // list the volume builders
-    std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>>
-        volumeBuilders;
-
-// a hash include for the Generic Detector : a bit ugly but effective
-#include "ACTFW/GenericDetector/GenericDetectorML.ipp"
-
-    //-------------------------------------------------------------------------------------
-    // create the tracking geometry
-    Acts::TrackingGeometryBuilder::Config tgConfig;
-    tgConfig.trackingVolumeBuilders = volumeBuilders;
-    tgConfig.trackingVolumeHelper   = cylinderVolumeHelper;
-    auto cylinderGeometryBuilder
-        = std::make_shared<const Acts::TrackingGeometryBuilder>(
-            tgConfig,
-            Acts::getDefaultLogger("TrackerGeometryBuilder", volumeLLevel));
-    // get the geometry
-    auto trackingGeometry = cylinderGeometryBuilder->trackingGeometry();
-    /// return the tracking geometry
-    return trackingGeometry;
-  }
 
   /// helper method for cylinder
   std::vector<Acts::Vector3D>

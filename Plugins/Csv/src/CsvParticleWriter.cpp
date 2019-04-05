@@ -26,11 +26,11 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
 
 FW::ProcessCode
 FW::Csv::CsvParticleWriter::writeT(
-    const FW::AlgorithmContext&           ctx,
+    const FW::AlgorithmContext&           context,
     const std::vector<Data::SimVertex<>>& vertices)
 {
   std::string pathOs = perEventFilepath(
-      m_cfg.outputDir, m_cfg.outputFileName, ctx.eventNumber);
+      m_cfg.outputDir, m_cfg.outputFileName, context.eventNumber);
   std::ofstream os(pathOs, std::ofstream::out | std::ofstream::trunc);
   if (!os) {
     throw std::ios_base::failure("Could not open '" + pathOs + "' to write");
@@ -41,7 +41,8 @@ FW::Csv::CsvParticleWriter::writeT(
 
   const std::map<barcode_type, size_t>* hitsPerParticle = nullptr;
   if (hppPresent
-      && ctx.eventStore.get(m_cfg.hitsPerParticleCollection, hitsPerParticle)
+      && context.eventStore.get(m_cfg.hitsPerParticleCollection,
+                                hitsPerParticle)
           == ProcessCode::ABORT) {
     throw std::ios_base::failure(
         "Could not retrieve hits/particle reference map.");

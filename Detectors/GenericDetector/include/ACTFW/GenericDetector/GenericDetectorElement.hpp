@@ -12,6 +12,7 @@
 #include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
 #include "Acts/Plugins/Identification/Identifier.hpp"
 #include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 
 namespace Acts {
 class Surface;
@@ -33,6 +34,9 @@ namespace Generic {
   class GenericDetectorElement : public Acts::IdentifiedDetectorElement
   {
   public:
+    /// Broadcast the ContextType
+    using ContextType = Acts::GeometryContext;
+
     /// Constructor for single sided detector element
     /// - bound to a Plane Surface
     ///
@@ -73,9 +77,12 @@ namespace Generic {
 
     /// Return local to global transform associated with this identifier
     ///
-    /// @note this is called from the surface().transform() in the PROXY mode
+    /// @param gctx The current geometry context object, e.g. alignment
+    ///
+    /// @note this is called from the surface().transform(gctx) in the PROXY
+    /// mode
     const Acts::Transform3D&
-    transform() const final override;
+    transform(const Acts::GeometryContext& gctx) const override;
 
     /// Return surface associated with this identifier,
     const Acts::Surface&
@@ -125,7 +132,8 @@ namespace Generic {
   }
 
   inline const Acts::Transform3D&
-  FW::Generic::GenericDetectorElement::transform() const
+  FW::Generic::GenericDetectorElement::transform(
+      const Acts::GeometryContext& /*gctx*/) const
   {
     return *m_elementTransform;
   }

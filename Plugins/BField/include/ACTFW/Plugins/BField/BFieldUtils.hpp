@@ -6,12 +6,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_BFIELD_TXTBFIELDUTILS_HPP
-#define ACTFW_BFIELD_TXTBFIELDUTILS_HPP
+#pragma once
 
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
+#include "Acts/Utilities/detail/Axis.hpp"
+#include "Acts/Utilities/detail/Grid.hpp"
 
 namespace FW {
 
@@ -56,14 +57,18 @@ namespace BField {
     /// If the flag is set to true the r-axis grid values will be set to
     /// {-1,0,1}
     /// and the BFieldValues will be set to {3,2,3}.
-    Acts::InterpolatedBFieldMap::FieldMapper<2, 2> fieldMapperRZ(
-        std::function<size_t(std::array<size_t, 2> binsRZ,
-                             std::array<size_t, 2> nBinsRZ)> localToGlobalBin,
-        std::string fieldMapFile = "",
-        double      lengthUnit   = Acts::units::_mm,
-        double      BFieldUnit   = Acts::units::_T,
-        size_t      nPoints      = 1000,
-        bool        firstOctant  = false);
+    Acts::InterpolatedBFieldMapper<Acts::detail::
+                                       Grid<Acts::Vector2D,
+                                            Acts::detail::EquidistantAxis,
+                                            Acts::detail::EquidistantAxis>>
+        fieldMapperRZ(std::function<size_t(std::array<size_t, 2> binsRZ,
+                                           std::array<size_t, 2> nBinsRZ)>
+                                  localToGlobalBin,
+                      std::string fieldMapFile = "",
+                      double      lengthUnit   = Acts::units::_mm,
+                      double      BFieldUnit   = Acts::units::_T,
+                      size_t      nPoints      = 1000,
+                      bool        firstOctant  = false);
 
     /// Method to setup the FieldMapper
     /// @param localToGlobalBin Function mapping the local bins of x,y,z to the
@@ -108,14 +113,19 @@ namespace BField {
     /// If the flag is set to true the z-axis grid values will be set to
     /// {-1,0,1}
     /// and the BFieldValues will be set to {3,2,3}.
-    Acts::InterpolatedBFieldMap::FieldMapper<3, 3> fieldMapperXYZ(
-        std::function<size_t(std::array<size_t, 3> binsXYZ,
-                             std::array<size_t, 3> nBinsXYZ)> localToGlobalBin,
-        std::string fieldMapFile = "",
-        double      lengthUnit   = Acts::units::_mm,
-        double      BFieldUnit   = Acts::units::_T,
-        size_t      nPoints      = 1000,
-        bool        firstOctant  = false);
+    Acts::InterpolatedBFieldMapper<Acts::detail::
+                                       Grid<Acts::Vector3D,
+                                            Acts::detail::EquidistantAxis,
+                                            Acts::detail::EquidistantAxis,
+                                            Acts::detail::EquidistantAxis>>
+        fieldMapperXYZ(std::function<size_t(std::array<size_t, 3> binsXYZ,
+                                            std::array<size_t, 3> nBinsXYZ)>
+                                   localToGlobalBin,
+                       std::string fieldMapFile = "",
+                       double      lengthUnit   = Acts::units::_mm,
+                       double      BFieldUnit   = Acts::units::_T,
+                       size_t      nPoints      = 1000,
+                       bool        firstOctant  = false);
   }  // namespace txt
 
   namespace root {
@@ -153,14 +163,18 @@ namespace BField {
     /// If the flag is set to true the r-axis grid values will be set to
     /// {-1,0,1}
     /// and the BFieldValues will be set to {3,2,3}.
-    Acts::InterpolatedBFieldMap::FieldMapper<2, 2> fieldMapperRZ(
-        std::function<size_t(std::array<size_t, 2> binsRZ,
-                             std::array<size_t, 2> nBinsRZ)> localToGlobalBin,
-        std::string fieldMapFile = "",
-        std::string treeName     = "",
-        double      lengthUnit   = Acts::units::_mm,
-        double      BFieldUnit   = Acts::units::_T,
-        bool        firstOctant  = false);
+    Acts::InterpolatedBFieldMapper<Acts::detail::
+                                       Grid<Acts::Vector2D,
+                                            Acts::detail::EquidistantAxis,
+                                            Acts::detail::EquidistantAxis>>
+        fieldMapperRZ(std::function<size_t(std::array<size_t, 2> binsRZ,
+                                           std::array<size_t, 2> nBinsRZ)>
+                                  localToGlobalBin,
+                      std::string fieldMapFile = "",
+                      std::string treeName     = "",
+                      double      lengthUnit   = Acts::units::_mm,
+                      double      BFieldUnit   = Acts::units::_T,
+                      bool        firstOctant  = false);
 
     /// Method to setup the FieldMapper
     /// @param localToGlobalBin Function mapping the local bins of x,y,z to the
@@ -201,17 +215,21 @@ namespace BField {
     /// If the flag is set to true the z-axis grid values will be set to
     /// {-1,0,1}
     /// and the BFieldValues will be set to {3,2,3}.
-    Acts::InterpolatedBFieldMap::FieldMapper<3, 3> fieldMapperXYZ(
-        std::function<size_t(std::array<size_t, 3> binsXYZ,
-                             std::array<size_t, 3> nBinsXYZ)> localToGlobalBin,
-        std::string fieldMapFile = "",
-        std::string treeName     = "",
-        double      lengthUnit   = Acts::units::_mm,
-        double      BFieldUnit   = Acts::units::_T,
-        bool        firstOctant  = false);
+    Acts::InterpolatedBFieldMapper<Acts::detail::
+                                       Grid<Acts::Vector3D,
+                                            Acts::detail::EquidistantAxis,
+                                            Acts::detail::EquidistantAxis,
+                                            Acts::detail::EquidistantAxis>>
+        fieldMapperXYZ(std::function<size_t(std::array<size_t, 3> binsXYZ,
+                                            std::array<size_t, 3> nBinsXYZ)>
+                                   localToGlobalBin,
+                       std::string fieldMapFile = "",
+                       std::string treeName     = "",
+                       double      lengthUnit   = Acts::units::_mm,
+                       double      BFieldUnit   = Acts::units::_T,
+                       bool        firstOctant  = false);
   }  // namespace root
 
 }  // namespace BField
 
 }  // namespace FW
-#endif  // ACTFW_BFIELD_TXTBFIELDUTILS_HPP

@@ -49,7 +49,7 @@ namespace Json {
 
   protected:
     FW::ProcessCode
-    writeT(const FW::AlgorithmContext& ctx,
+    writeT(const FW::AlgorithmContext& context,
            const DetectorData<geo_id_value, T>& spacePoints) final override;
 
   private:
@@ -79,12 +79,12 @@ FW::Json::JsonSpacePointWriter<T>::JsonSpacePointWriter(
 template <class T>
 FW::ProcessCode
 FW::Json::JsonSpacePointWriter<T>::writeT(
-    const FW::AlgorithmContext& ctx,
+    const FW::AlgorithmContext& context,
     const DetectorData<geo_id_value, T>& spacePoints)
 {
   // open per-event file
-  std::string path
-      = perEventFilepath(m_cfg.outputDir, "spacepoints.json", ctx.eventNumber);
+  std::string path = perEventFilepath(
+      m_cfg.outputDir, "spacepoints.json", context.eventNumber);
   std::ofstream os(path, std::ofstream::out | std::ofstream::trunc);
   if (!os) {
     throw std::ios_base::failure("Could not open '" + path + "' to write");

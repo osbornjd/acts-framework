@@ -6,13 +6,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "ACTFW/ReadEvgen/EvgenReader.hpp"
 #include <iostream>
-
+#include <random>
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/ReadEvgen/EvgenReader.hpp"
 
 FW::EvgenReader::EvgenReader(const Config&                       cfg,
                              std::unique_ptr<const Acts::Logger> logger)
@@ -49,13 +49,13 @@ FW::EvgenReader::skip(size_t nEvents)
 }
 
 FW::ProcessCode
-FW::EvgenReader::read(FW::AlgorithmContext ctx)
+FW::EvgenReader::read(const AlgorithmContext& context)
 {
   ACTS_DEBUG("Reading in genertated event info for event no. "
-             << ctx.eventNumber);
+             << context.eventNumber);
 
   // Create a random number generator
-  FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(ctx);
+  FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
   // Setup random number distributions for some quantities
   FW::PoissonDist pileupDist(m_cfg.pileupPoissonParameter);
@@ -70,9 +70,9 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
   // get the hard scatter if you have it
   std::vector<Data::SimVertex<>> hardscatterEvent;
   // Always provide the context to the hard scatter Event
-  const AlgorithmContext* contextPtr = &ctx;
+  const AlgorithmContext* contextPtr = &context;
   if (m_cfg.hardscatterEventReader
-      && m_cfg.hardscatterEventReader->read(hardscatterEvent, 0, &ctx)
+      && m_cfg.hardscatterEventReader->read(hardscatterEvent, 0, &context)
           == FW::ProcessCode::ABORT) {
     ACTS_ERROR("Could not read hard scatter event. Aborting.");
     return FW::ProcessCode::ABORT;
@@ -130,7 +130,7 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
     vertexShift = Acts::Vector3D(puVertexX, puVertexY, puVertexZ);
     // Get the vertices per pileup event
     // only provide the Context for the initial call to set the seed
-    contextPtr = ipue ? nullptr : &ctx;
+    contextPtr = ipue ? nullptr : &context;
     std::vector<Data::SimVertex<>> pileupEvent;
     if (m_cfg.pileupEventReader
         && m_cfg.pileupEventReader->read(pileupEvent, 0, contextPtr)
@@ -151,7 +151,7 @@ FW::EvgenReader::read(FW::AlgorithmContext ctx)
   if (m_cfg.shuffleEvents) std::shuffle(evgen.begin(), evgen.end(), rng);
 
   // write to the EventStore
-  if (ctx.eventStore.add(m_cfg.evgenCollection, std::move(evgen))
+  if (context.eventStore.add(m_cfg.evgenCollection, std::move(evgen))
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }

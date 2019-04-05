@@ -58,16 +58,16 @@ public:
 
   /// Read the object and call the type-specific member function.
   ProcessCode
-  write(const AlgorithmContext& ctx) final override;
+  write(const AlgorithmContext& context) final override;
 
 protected:
   /// Type-specific write function implementation
   /// this method is implemented in the user implementation
-  /// @param [in] ctx is the algorithm context that guarantees event
+  /// @param [in] context is the algorithm context that guarantees event
   ///        consistency
   /// @tparam [in] is the templeted collection to be written
   virtual ProcessCode
-  writeT(const AlgorithmContext& ctx, const write_data_t& t)
+  writeT(const AlgorithmContext& context, const write_data_t& t)
       = 0;
 
   const Acts::Logger&
@@ -115,10 +115,10 @@ FW::WriterT<write_data_t>::endRun()
 
 template <typename write_data_t>
 inline FW::ProcessCode
-FW::WriterT<write_data_t>::write(const AlgorithmContext& ctx)
+FW::WriterT<write_data_t>::write(const AlgorithmContext& context)
 {
   const write_data_t* object = nullptr;
-  if (ctx.eventStore.get(m_objectName, object) != ProcessCode::SUCCESS)
+  if (context.eventStore.get(m_objectName, object) != ProcessCode::SUCCESS)
     return ProcessCode::ABORT;
-  return writeT(ctx, *object);
+  return writeT(context, *object);
 }

@@ -65,11 +65,11 @@ namespace Root {
 
   protected:
     /// @brief Write method called by the base class
-    /// @param [in] ctx is the algorithm context for event information
+    /// @param [in] context is the algorithm context for event information
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
-    writeT(const AlgorithmContext&       ctx,
+    writeT(const AlgorithmContext&       context,
            const std::vector<SimVertex>& vertices) final override;
 
   private:
