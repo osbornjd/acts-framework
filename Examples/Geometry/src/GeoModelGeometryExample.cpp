@@ -32,13 +32,17 @@ main(int argc, char* argv[])
     if (dynamic_cast<const GeoVPhysVol*>(&(*(nodeLink)))) {
       const GeoVPhysVol* childVolV = &(*(nodeLink));
 
-      if (childVolV->getLogVol()->getName()
-          == "BeamPipeCentral")  // + 2x BeamPipeFwd
-      {
-        //~ gmr.treeToStream(childVolV, std::cout);
-        gmr.buildBeamPipe(childVolV);
-        break;
-      }
+		if(childVolV->getLogVol()->getName() == "BeamPipeCentral")
+		{
+			gmr.buildCentralBeamPipe(childVolV);
+		}
+		else if(childVolV->getLogVol()->getName() == "BeamPipeFwd")
+			{	
+				std::cout << "BeamPipeFwd!!" << std::endl;
+				//~ gmr.buildFwdBeamPipe(childVolV);
+				//~ gmr.treeToStream(childVolV, std::cout);
+			}
+      
       //~ // Test if it is GeoPhysVol
       //~ if ( dynamic_cast<const GeoPhysVol*>(childVolV) ) {
       //~ // Print content

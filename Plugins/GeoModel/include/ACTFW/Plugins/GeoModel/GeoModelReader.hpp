@@ -51,8 +51,11 @@ public:
   /// @param [in] bp Pointer to the beam pipe
   ///
   /// @return Acts pointer to the beam pipe volume
-  Acts::MutableTrackingVolumePtr
-  buildBeamPipe(GeoVPhysVol const* bp) const;
+  std::vector<Acts::MutableTrackingVolumePtr>
+  buildCentralBeamPipe(GeoVPhysVol const* bp) const;
+  
+    Acts::MutableTrackingVolumePtr
+  buildFwdBeamPipe(GeoVPhysVol const* bp) const;
 
   /// @brief Printer of the full detector
   std::ostream&
