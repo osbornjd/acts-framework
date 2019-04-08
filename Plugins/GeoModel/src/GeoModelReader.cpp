@@ -27,6 +27,10 @@
 #include "GeoModelKernel/GeoAccessVolAndSTAction.h"
 #include <map>
 #include <set>
+#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Surfaces/CylinderBounds.hpp"
+#include "Acts/Tools/SurfaceArrayCreator.hpp"
+#include "Acts/Layers/CylinderLayer.hpp"
 
 #include <QFileInfo>
 #include <QString>
@@ -228,26 +232,27 @@ FW::GeoModelReader::buildCentralBeamPipe(GeoVPhysVol const* bp) const
 
  std::vector<std::shared_ptr<Acts::TrackingVolume>> result;
 	std::vector<std::array<double, 4>> surfaces;
+	std::vector<std::shared_ptr<const Acts::Transform3D>> trafos;
 	std::set<double> bins;
 
   // Walk over all children of the beam pipe volume
   unsigned int nChildren = bp->getNChildVols();
   for (unsigned int i = 0; i < nChildren; i++) {
     if (dynamic_cast<const GeoPhysVol*>(&(*(bp->getChildVol(i))))) {
-		std::array<double, 3> passSurface = createPassiveSurface(&(*(bp->getChildVol(i))));
+		std::array<double, 3> passSurface = createPassiveSurface(&(*(bp->getChildVol(i)))); // TODO: clean up the mess
       surfaces.push_back({bp->getXToChildVol(i).matrix().transpose().col(3).z(), passSurface[0], passSurface[1], passSurface[2]});
+      trafos.push_back(std::make_shared<const Acts::Transform3D>(bp->getXToChildVol(i).matrix().transpose()));
     }
   }
-
-  //~ sortAndMergeSurfaces(surfaces);
-
+  
 	for(auto& s : surfaces)
 	{
 		  bins.insert(s[0] - s[2]);
 		  bins.insert(s[0] + s[2]);
 	}
-  
-  		Acts::PassiveLayerBuilder::Config plbConfig;
+
+std::vector<std::shared_ptr<const Acts::Surface>> surfaceVector;
+double rMin = 100., rMax = 0., zMin = 0., zMax = 0.;
 
   for(std::set<double>::iterator it = bins.begin(); it != bins.end(); it++)
   {
@@ -256,52 +261,39 @@ FW::GeoModelReader::buildCentralBeamPipe(GeoVPhysVol const* bp) const
 		
 	  std::set<double>::iterator it2 = std::next(it, 1);
 	  double center = (*it2 + *it) * 0.5;
-	  
-	  if(center < 0)
-		continue;
 		
-	for(auto& s : surfaces)
+	for(unsigned int i = 0; i < surfaces.size(); i++)
 	{
-		  if(s[0] + s[2] > center && s[0] - s[2] < center)
+		  if(surfaces[i][0] + surfaces[i][2] > center && surfaces[i][0] - surfaces[i][2] < center)
 		  {
-			if(center == 0.)
-			{
-				plbConfig.centralLayerRadii.push_back(s[1]);
-				plbConfig.centralLayerHalflengthZ.push_back((*it2 - *it) * 0.5);
-				plbConfig.centralLayerThickness.push_back(s[3]);
-			}
-			else
-			{
-				plbConfig.posnegLayerPositionZ.push_back(center);
-				plbConfig.posnegLayerRmin.push_back(s[1] - 0.5 * s[3]);
-				plbConfig.posnegLayerRmax.push_back(s[1] + 0.5 * s[3]);
-				plbConfig.posnegLayerThickness.push_back(*it2 - *it);
-			}
+			surfaceVector.push_back(Acts::Surface::makeShared<Acts::CylinderSurface>(trafos[i], std::make_shared<const Acts::CylinderBounds>(surfaces[i][1], (*it2 - *it) * 0.5)));
+			if(surfaces[i][1] > rMax)
+				rMax = surfaces[i][1];
+			if(surfaces[i][1] < rMin)
+				rMin = surfaces[i][1];
+			if(trafos[i]->matrix().col(3).z() + (*it2 - *it) * 0.5 > zMax)
+				zMax = trafos[i]->matrix().col(3).z() + (*it2 - *it) * 0.5;
+			if(trafos[i]->matrix().col(3).z() - (*it2 - *it) * 0.5 < zMin)
+				zMin = trafos[i]->matrix().col(3).z() - (*it2 - *it) * 0.5;
 		  }
 	}
-	
 	}
-	  auto plb = std::make_shared<Acts::PassiveLayerBuilder>(plbConfig);
-	  auto lac = std::make_shared<Acts::LayerArrayCreator>();
-	  auto tvac = std::make_shared<Acts::TrackingVolumeArrayCreator>();
 
-	  Acts::CylinderVolumeHelper::Config cvhConfig;
-	  cvhConfig.layerArrayCreator          = lac;
-	  cvhConfig.trackingVolumeArrayCreator = tvac;
-	  auto cvh = std::make_shared<Acts::CylinderVolumeHelper>(cvhConfig);
-
-	  //~ GeoTube const* tube = dynamic_cast<GeoTube const*>(shape);
-
-	  Acts::CylinderVolumeBuilder::Config cvbConfig;
-	  cvbConfig.trackingVolumeHelper = cvh;
-	  cvbConfig.volumeName           = "BeamPipeCentral";
-	  cvbConfig.buildToRadiusZero = true;
-	  cvbConfig.layerBuilder      = plb;
-	  cvbConfig.layerEnvelopeZ = 0.;
-	  cvbConfig.layerEnvelopeR = std::make_pair(0. ,0.);
-	  Acts::CylinderVolumeBuilder cvb(cvbConfig);
-		
-		result.push_back(cvb.trackingVolume());
+	 Acts::SurfaceArrayCreator surArrCreator;
+    std::unique_ptr<Acts::SurfaceArray> surfaceArray = surArrCreator.surfaceArrayOnCylinder(surfaceVector, Acts::BinningType::equidistant, Acts::BinningType::arbitrary);
+    
+    auto bounds = std::make_shared<const Acts::CylinderBounds>((rMax + rMin) * 0.5, (zMax + zMin) * 0.5);
+    auto cylinderLayer = Acts::CylinderLayer::create(std::make_shared<const Acts::Transform3D>(Acts::Transform3D::Identity()), bounds, 
+											std::move(surfaceArray), rMax - rMin); 
+    	
+    //~ GeoTube const* tube = dynamic_cast<GeoTube const*>(shape);
+    //~ tube->getRMin()
+		// TODO: data needs to received from bp itself
+	auto volBounds = std::make_shared<const Acts::CylinderVolumeBounds>(rMin, rMax, (zMax + zMin) * 0.5); // TODO: length == 0.
+	auto trackingVolume = Acts::TrackingVolume::create(std::make_shared<const Acts::Transform3D>(Acts::Transform3D::Identity()), volBounds, nullptr, nullptr, {cylinderLayer});
+         
+         
+		//~ result.push_back(cvb.trackingVolume());
 
 
   return result;
