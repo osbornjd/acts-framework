@@ -8,7 +8,7 @@
         <gdmlFile  ref="../materials.xml"/>
     </includes>
     
-    <info name="GenericDetectorML"
+    <info name="Open Detector"
         title="A generic detector used for the machine learning challenge."
         author="" url="" status="test" version="0">
         <comment></comment>
@@ -26,13 +26,13 @@
         <constant name="BeamPipe_rmin" value="18.6*mm"/>
         <constant name="BeamPipe_rmax" value="19.4*mm"/>
         <constant name="BeamPipe_hLength" value="3000.*mm"/>
+        
         <!--PixelBarrel (PB)-->
         <constant name="PB_rmin"          value="22.*mm"/>
         <constant name="PB_rmax"          value="180.*mm"/>
         <constant name="PB_length"        value="1100.*mm"/>
         <constant name="PB_zpos"          value="0.*mm"/>
         <!-- Pixel Barrel Module (PB_M) -->
-        <!-- Module sensor-->
         <constant name="PB_M_length"       value="72.*mm"/>
         <constant name="PB_M_width"        value="16.8*mm"/>
         <constant name="PB_M_thickness"    value="0.1*mm"/>        
@@ -40,11 +40,14 @@
         <!-- Thin layer of Al, smaller than the module -->
         <constant name="PB_M_C0_length"     value="60.*mm"/>
         <constant name="PB_M_C0_width"      value="12.*mm"/>
-        <constant name="PB_M_C0_thickness"  value="0.015*mm"/>
+        <constant name="PB_M_C0_thickness"  value="0.010*mm"/>
         <constant name="PB_M_C0_zpos"       value="-2.9*mm"/>
         <constant name="PB_M_C0_xpos"       value="0.*mm"/>
         <!-- Sensitive Silicon -->
-        <constant name="PB_M_C1_zpos"       value="-2.8*mm"/>
+        <constant name="PB_M_C1_length"     value="72.*mm"/>
+        <constant name="PB_M_C1_width"      value="16.8*mm"/>
+        <constant name="PB_M_C1_thickness"  value="0.1*mm"/>        
+        <constant name="PB_M_C1_zpos"       value="-2.8*mm"/>        
         <constant name="PB_M_C1_xpos"       value="0.*mm"/>
         <!-- Kapton/Carbon layer-->
         <constant name="PB_M_C2_width"      value="16.8*mm"/>
@@ -137,6 +140,161 @@
         <constant name="PB_L3_SR_thickness"     value="8.*mm"/>
         <constant name="PB_L3_SR_length"        value="4.*mm"/>
         
+        <!--PixelEndcap PE-->
+        <constant name="PE_rmin"            value="22.*mm"/>
+        <constant name="PE_rmax"            value="200.*mm"/>
+        <constant name="PE_dz"              value="600.*mm"/>
+        <constant name="PE_p_zpos"          value="1100.*mm"/>
+        
+        <!--Layers-->
+        <constant name="PE_L_dz"            value="10*mm"/>
+        <constant name="PE_L_ringStagger"   value="0.*mm"/>
+        
+        <!--Layer0-->
+        <constant name="PE_L0_pos"          value="-500.*mm"/>        
+        <constant name="PE_L1_pos"          value="-400.*mm"/>
+        <constant name="PE_L2_pos"          value="-280.*mm"/>
+        <constant name="PE_L3_pos"          value="-140.*mm"/>
+        <constant name="PE_L4_pos"          value="0.*mm"/>
+        <constant name="PE_L5_pos"          value="200.*mm"/>
+        <constant name="PE_L6_pos"          value="400.*mm"/>
+        
+        <!-- RING 0 -->
+        <constant name="PE_R0_r"            value="68*mm"/>
+        <constant name="PE_R0_modulesInPhi" value="40"/> 
+        <constant name="PE_R0_phiStagger"   value="0.75*mm"/>
+        <constant name="PE_R0_zoffset"      value="-4.*mm"/>
+
+        <!-- Cooling pipe -->        
+        <constant name="PE_R0_Cool_rmin"     value="1.1*mm"/>
+        <constant name="PE_R0_Cool_rmax"     value="1.2*mm"/>
+        <constant name="PE_R0_Cool_length"   value="58.*mm"/>
+        <constant name="PE_R0_Cool_zoffset"  value="5.*mm"/>
+        
+        <!-- RING 1 -->
+        <constant name="PE_R1_r"            value="138*mm"/>
+        <constant name="PE_R1_modulesInPhi" value="64"/> 
+        <constant name="PE_R1_phiStagger"   value="0.75*mm"/>
+        <constant name="PE_R1_zoffset"      value="4.*mm"/>
+        
+        <!-- Cooling pipe -->        
+        <constant name="PE_R1_Cool_rmin"     value="1.1*mm"/>
+        <constant name="PE_R1_Cool_rmax"     value="1.2*mm"/>
+        <constant name="PE_R1_Cool_length"   value="58.*mm"/>
+        <constant name="PE_R1_Cool_zoffset"  value="5.*mm"/>
+        
+        <!-- Cable bundle -->
+        <constant name="PE_M_Cab_r"         value="0.33*mm"/>
+        <constant name="PE_M_Cab_x"         value="0.*mm"/>
+        <constant name="PE_M_Cab_y"         value="-1.5*mm"/>
+        <constant name="PE_M_Cab_z"         value="2.2*mm"/>
+        
+        <!-- Support structue / rings -->
+        <constant name="PE_S_R0_r"          value="30.*mm"/>
+        <constant name="PE_S_R0_dr"         value="16.*mm"/>
+        <constant name="PE_S_R0_dz"         value="10.*mm"/>
+        <constant name="PE_S_R0_zoffset"    value="20.*mm"/>
+        
+        <constant name="PE_S_R1_r"          value="104.*mm"/>
+        <constant name="PE_S_R1_dr"         value="10.*mm"/>
+        <constant name="PE_S_R1_dz"         value="10.*mm"/>
+        <constant name="PE_S_R1_zoffset"    value="20.*mm"/>
+        
+        <constant name="PE_S_R2_r"          value="178.*mm"/>
+        <constant name="PE_S_R2_dr"         value="16.*mm"/>
+        <constant name="PE_S_R2_dz"         value="10.*mm"/>
+        <constant name="PE_S_R2_zoffset"    value="20.*mm"/>
+        
+        <!--Module-->
+        <constant name="PE_M_width"         value="8.4*mm"/>
+        <constant name="PE_M_length"        value="36.*mm"/>
+        <constant name="PE_M_thickness"     value="0.15*mm"/>
+        
+        <!-- Module - on sensor components -->
+        <!-- Thin layer of Al, smaller than the module -->
+        <constant name="PE_M_C0_length"     value="16.*mm"/>
+        <constant name="PE_M_C0_width"      value="64.*mm"/>
+        <constant name="PE_M_C0_thickness"  value="0.010*mm"/>
+        <constant name="PE_M_C0_x"          value="0.*mm"/>
+        <constant name="PE_M_C0_y"          value="0.*mm"/>
+        <constant name="PE_M_C0_z"          value="-0.06*mm"/>
+        
+        <!-- Sensitive Silicon -->
+        <constant name="PE_M_C1_length"     value="16.8*mm"/>
+        <constant name="PE_M_C1_width"      value="72*mm"/>
+        <constant name="PE_M_C1_thickness"  value="0.10*mm"/>
+        <constant name="PE_M_C1_x"          value="0.*mm"/>
+        <constant name="PE_M_C1_y"          value="0.*mm"/>
+        <constant name="PE_M_C1_z"          value="0.*mm"/>
+        
+        <!-- Kapton/Carbon layer-->
+        <constant name="PE_M_C2_length"     value="14.8*mm"/>
+        <constant name="PE_M_C2_width"      value="70*mm"/>
+        <constant name="PE_M_C2_thickness"  value="0.075*mm"/>
+        <constant name="PE_M_C2_x"          value="0.*mm"/>
+        <constant name="PE_M_C2_y"          value="0.*mm"/>
+        <constant name="PE_M_C2_z"          value="0.2*mm"/>
+        
+        <constant name="PE_S0_Cool_perdisk"  value="0"/>
+        <constant name="PE_S0_Cool_bundles"  value="8"/>
+        <constant name="PE_S0_Cool_tubes"    value="4"/>
+        <constant name="PE_S0_Cool_phimin"   value="0."/>
+        <constant name="PE_S0_Cool_r"        value="188*mm"/>
+        <constant name="PE_S0_Cool_rmin"     value="2.*mm"/>
+        <constant name="PE_S0_Cool_rmax"     value="2.1*mm"/>
+        <constant name="PE_S0_Cool_zoffset"  value="0.*mm"/>
+        <constant name="PE_S0_Cool_length"   value="920*mm"/>
+        
+        <constant name="PE_S1_Cool_perdisk"  value="1"/>
+        <constant name="PE_S1_Cool_bundles"  value="8"/>
+        <constant name="PE_S1_Cool_tubes"    value="8"/>
+        <constant name="PE_S1_Cool_phimin"   value="0.1"/>
+        <constant name="PE_S1_Cool_r"        value="188*mm"/>
+        <constant name="PE_S1_Cool_rmin"     value="2.*mm"/>
+        <constant name="PE_S1_Cool_rmax"     value="2.1*mm"/>
+        <constant name="PE_S1_Cool_zoffset"  value="0.*mm"/>
+        <constant name="PE_S1_Cool_length"   value="920*mm"/>
+        
+        <constant name="PE_S2_Cable_perdisk"  value="0"/>
+        <constant name="PE_S2_Cable_bundles"  value="8"/>
+        <constant name="PE_S2_Cables"         value="8"/>
+        <constant name="PE_S2_Cable_phimin"   value="0.372"/>
+        <constant name="PE_S2_Cable_r"        value="188*mm"/>
+        <constant name="PE_S2_Cable_rmin"     value="0.*mm"/>
+        <constant name="PE_S2_Cable_rmax"     value="0.5*mm"/>
+        <constant name="PE_S2_Cable_zoffset"  value="0.*mm"/>
+        <constant name="PE_S2_Cable_length"   value="920*mm"/>
+        
+        <constant name="PE_S3_Cable_perdisk"  value="1"/>
+        <constant name="PE_S3_Cable_bundles"  value="8"/>
+        <constant name="PE_S3_Cables"         value="8"/>
+        <constant name="PE_S3_Cable_phimin"   value="0.412"/>
+        <constant name="PE_S3_Cable_r"        value="188*mm"/>
+        <constant name="PE_S3_Cable_rmin"     value="0.*mm"/>
+        <constant name="PE_S3_Cable_rmax"     value="0.5*mm"/>
+        <constant name="PE_S3_Cable_zoffset"  value="0.*mm"/>
+        <constant name="PE_S3_Cable_length"   value="920*mm"/>
+        
+        <constant name="PE_S4_Cable_perdisk"  value="0"/>
+        <constant name="PE_S4_Cable_bundles"  value="8"/>
+        <constant name="PE_S4_Cables"         value="8"/>
+        <constant name="PE_S4_Cable_phimin"   value="0.572"/>
+        <constant name="PE_S4_Cable_r"        value="188*mm"/>
+        <constant name="PE_S4_Cable_rmin"     value="0.*mm"/>
+        <constant name="PE_S4_Cable_rmax"     value="0.5*mm"/>
+        <constant name="PE_S4_Cable_zoffset"  value="0.*mm"/>
+        <constant name="PE_S4_Cable_length"   value="920*mm"/>
+        
+        <constant name="PE_S5_Cable_perdisk"  value="1"/>
+        <constant name="PE_S5_Cable_bundles"  value="8"/>
+        <constant name="PE_S5_Cables"         value="8"/>
+        <constant name="PE_S5_Cable_phimin"   value="0.612"/>
+        <constant name="PE_S5_Cable_r"        value="188*mm"/>
+        <constant name="PE_S5_Cable_rmin"     value="0.*mm"/>
+        <constant name="PE_S5_Cable_rmax"     value="0.5*mm"/>
+        <constant name="PE_S5_Cable_zoffset"  value="0.*mm"/>
+        <constant name="PE_S5_Cable_length"   value="920*mm"/>
+        
 </define>  
 
     <display>
@@ -153,6 +311,10 @@
             <segmentation type="CartesianGridXY" grid_size_x="0.05*mm" grid_size_y="0.05625*mm"/>
             <id>system:5,layer:3,module:15,x:32:-16,y:-16</id>
         </readout>
+        <readout name="E_Pixel_Readout">
+            <segmentation type="CartesianGridXY" grid_size_x="0.05*mm" grid_size_y="0.05625*mm"/>
+            <id>system:5,posneg:1,layer:3,module:15,x:32:-16,y:-16</id>
+        </readout>
     </readouts>
 
 
@@ -167,7 +329,7 @@
         </detector>
         <detector id="1" name="Pixel" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">
             <composite name="Barrel0"/>
-            <!--composite name="EndCap0"/-->
+            <composite name="EndCap0"/>
         </detector>
         <!--
         <detector id="2" name="ShortStrip" type="DD4hep_SubdetectorAssembly" vis="BlueVisTrans">

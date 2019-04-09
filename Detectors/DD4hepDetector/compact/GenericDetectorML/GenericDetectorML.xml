@@ -72,10 +72,11 @@
         <constant name="E0_L6_pos"          value="400.*mm"/>
         <!--Module and Ring Info-->
         <!--Module0-->
-        <constant name="E0_M0_X1"            value="8.4*mm"/>
-        <constant name="E0_M0_X2"            value="8.4*mm"/>
+        <constant name="E0_M_X1"            value="8.4*mm"/>
+        <constant name="E0_M_X2"            value="8.4*mm"/>
+        <constant name="E0_M_hThickness"    value="0.15*mm"/>
+
         <constant name="E0_M0_hLength"      value="36.*mm"/>
-        <constant name="E0_M0_hThickness"   value="0.15*mm"/>
         <constant name="E0_M0_r"            value="66*mm"/>
         <constant name="E0_M0_modulesInPhi" value="40"/> 
         <constant name="E0_M0_stagger"      value="4.*mm"/>

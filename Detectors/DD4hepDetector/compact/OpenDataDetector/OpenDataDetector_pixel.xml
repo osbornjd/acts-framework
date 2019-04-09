@@ -6,7 +6,7 @@
         
         <module name="PB_Module" width="PB_M_width" length="PB_M_length" thickness="PB_M_thickness" material="Air" vis="invisible">
      	   	<module_component width="PB_M_C0_width" length="PB_M_C0_length" thickness="PB_M_C0_thickness" x="PB_M_C0_xpos" z="PB_M_C0_zpos" material="Aluminum" vis="red"/>          
-    		<module_component width="PB_M_width" length="PB_M_length" thickness="PB_M_thickness" x="PB_M_C1_xpos" z="PB_M_C1_zpos" material="Silicon" vis="green" sensitive="true"/>
+    		<module_component width="PB_M_C1_width" length="PB_M_C1_length" thickness="PB_M_C1_thickness" x="PB_M_C1_xpos" z="PB_M_C1_zpos" material="Silicon" vis="green" sensitive="true"/>
          	<module_component width="PB_M_C2_width" length="PB_M_C2_length" thickness="PB_M_C2_thickness" x="PB_M_C2_xpos" z="PB_M_C2_zpos" material="Kapton" vis="blue"/>
           <subtraction material="Carbon" z="PB_M_C3_zpos" vis="grey"> 
              <trd x1="PB_M_C3_X1" x2="PB_M_C3_X2" length="PB_M_C3_length" thickness="PB_M_C3_thickness"/>
@@ -60,8 +60,167 @@
               <ring name="PB_L3_SupportRing" thickness="PB_L3_SR_thickness" length="PB_L3_SR_length" material="CarbonFiber" vis="grey"/>
           </support>
         </layer>
+    </detector>
          
-      </detector>
+    <!-- PIXEL ENDCAP DETECTOR -->
+    <detector id="102" name="PixelEndcap" type="ACTS_ODPixelEndcap" readout="E_Pixel_Readout">
+        <dimensions rmin="PE_rmin" rmax="PE_rmax" dz="PE_dz" z="PE_p_zpos" vis="invisible"/> 
+            <layer id="0" inner_r="PE_rmin" outer_r="PE_rmax" dz="PE_L_dz" z="PE_L0_pos" z_offset="PE_L_ringStagger" material="Vacuum" vis="invisible">                
+                <module name ="PE_Module" length="PE_M_length" thickness="PE_M_thickness" vis="green" sensitive="true">
+         	   	<module_component width="PE_M_C0_width" length="PE_M_C0_length" thickness="PE_M_C0_thickness" x="PE_M_C0_x" y="PE_M_C0_y"  z="PE_M_C0_z" material="Aluminum" vis="red"/>          
+        		<module_component width="PE_M_C1_width" length="PE_M_C1_length" thickness="PE_M_C1_thickness" x="PE_M_C1_x" y="PE_M_C1_y"  z="PE_M_C1_z" material="Silicon" vis="green" sensitive="true"/>
+             	<module_component width="PE_M_C2_width" length="PE_M_C2_length" thickness="PE_M_C2_thickness" x="PE_M_C2_x" y="PE_M_C2_y"  z="PE_M_C2_z" material="Kapton" vis="blue"/>
+            </module>
+            <ring radius="PE_R0_r" nmodules="PE_R0_modulesInPhi" offsetZ="PE_R0_zoffset" deltaZ="PE_R0_phiStagger" >
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <ring radius="PE_R1_r" nmodules="PE_R1_modulesInPhi" offsetZ="PE_R1_zoffset" deltaZ="PE_R1_phiStagger">
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <support_ring radius="PE_S_R0_r" thickness="PE_S_R0_dr" length="PE_S_R0_dz" z="PE_S_R0_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R1_r" thickness="PE_S_R1_dr" length="PE_S_R1_dz" z="PE_S_R1_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R2_r" thickness="PE_S_R2_dr" length="PE_S_R2_dz" z="PE_S_R2_zoffset" material="CarbonFiber" vis="grey"/>                
+            </layer>
+            
+            <layer id="1" inner_r="PE_rmin" outer_r="PE_rmax" dz="PE_L_dz" z="PE_L1_pos" z_offset="PE_L_ringStagger" material="Vacuum" vis="invisible">                
+                <module name ="PE_Module" length="PE_M_length" thickness="PE_M_thickness" vis="green" sensitive="true">
+         	   	<module_component width="PE_M_C0_width" length="PE_M_C0_length" thickness="PE_M_C0_thickness" x="PE_M_C0_x" y="PE_M_C0_y"  z="PE_M_C0_z" material="Aluminum" vis="red"/>          
+        		<module_component width="PE_M_C1_width" length="PE_M_C1_length" thickness="PE_M_C1_thickness" x="PE_M_C1_x" y="PE_M_C1_y"  z="PE_M_C1_z" material="Silicon" vis="green" sensitive="true"/>
+             	<module_component width="PE_M_C2_width" length="PE_M_C2_length" thickness="PE_M_C2_thickness" x="PE_M_C2_x" y="PE_M_C2_y"  z="PE_M_C2_z" material="Kapton" vis="blue"/>
+            </module>
+            <ring radius="PE_R0_r" nmodules="PE_R0_modulesInPhi" offsetZ="PE_R0_zoffset" deltaZ="PE_R0_phiStagger" >
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <ring radius="PE_R1_r" nmodules="PE_R1_modulesInPhi" offsetZ="PE_R1_zoffset" deltaZ="PE_R1_phiStagger">
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <support_ring radius="PE_S_R0_r" thickness="PE_S_R0_dr" length="PE_S_R0_dz" z="PE_S_R0_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R1_r" thickness="PE_S_R1_dr" length="PE_S_R1_dz" z="PE_S_R1_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R2_r" thickness="PE_S_R2_dr" length="PE_S_R2_dz" z="PE_S_R2_zoffset" material="CarbonFiber" vis="grey"/>                
+            </layer>
+            
+            <layer id="2" inner_r="PE_rmin" outer_r="PE_rmax" dz="PE_L_dz" z="PE_L2_pos" z_offset="PE_L_ringStagger" material="Vacuum" vis="invisible">                
+                <module name ="PE_Module" length="PE_M_length" thickness="PE_M_thickness" vis="green" sensitive="true">
+         	   	<module_component width="PE_M_C0_width" length="PE_M_C0_length" thickness="PE_M_C0_thickness" x="PE_M_C0_x" y="PE_M_C0_y"  z="PE_M_C0_z" material="Aluminum" vis="red"/>          
+        		<module_component width="PE_M_C1_width" length="PE_M_C1_length" thickness="PE_M_C1_thickness" x="PE_M_C1_x" y="PE_M_C1_y"  z="PE_M_C1_z" material="Silicon" vis="green" sensitive="true"/>
+             	<module_component width="PE_M_C2_width" length="PE_M_C2_length" thickness="PE_M_C2_thickness" x="PE_M_C2_x" y="PE_M_C2_y"  z="PE_M_C2_z" material="Kapton" vis="blue"/>
+            </module>
+            <ring radius="PE_R0_r" nmodules="PE_R0_modulesInPhi" offsetZ="PE_R0_zoffset" deltaZ="PE_R0_phiStagger" >
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <ring radius="PE_R1_r" nmodules="PE_R1_modulesInPhi" offsetZ="PE_R1_zoffset" deltaZ="PE_R1_phiStagger">
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <support_ring radius="PE_S_R0_r" thickness="PE_S_R0_dr" length="PE_S_R0_dz" z="PE_S_R0_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R1_r" thickness="PE_S_R1_dr" length="PE_S_R1_dz" z="PE_S_R1_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R2_r" thickness="PE_S_R2_dr" length="PE_S_R2_dz" z="PE_S_R2_zoffset" material="CarbonFiber" vis="grey"/>                
+            </layer>
+            
+            <layer id="3" inner_r="PE_rmin" outer_r="PE_rmax" dz="PE_L_dz" z="PE_L3_pos" z_offset="PE_L_ringStagger" material="Vacuum" vis="invisible">                
+                <module name ="PE_Module" length="PE_M_length" thickness="PE_M_thickness" vis="green" sensitive="true">
+         	   	<module_component width="PE_M_C0_width" length="PE_M_C0_length" thickness="PE_M_C0_thickness" x="PE_M_C0_x" y="PE_M_C0_y"  z="PE_M_C0_z" material="Aluminum" vis="red"/>          
+        		<module_component width="PE_M_C1_width" length="PE_M_C1_length" thickness="PE_M_C1_thickness" x="PE_M_C1_x" y="PE_M_C1_y"  z="PE_M_C1_z" material="Silicon" vis="green" sensitive="true"/>
+             	<module_component width="PE_M_C2_width" length="PE_M_C2_length" thickness="PE_M_C2_thickness" x="PE_M_C2_x" y="PE_M_C2_y"  z="PE_M_C2_z" material="Kapton" vis="blue"/>
+            </module>
+            <ring radius="PE_R0_r" nmodules="PE_R0_modulesInPhi" offsetZ="PE_R0_zoffset" deltaZ="PE_R0_phiStagger" >
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <ring radius="PE_R1_r" nmodules="PE_R1_modulesInPhi" offsetZ="PE_R1_zoffset" deltaZ="PE_R1_phiStagger">
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <support_ring radius="PE_S_R0_r" thickness="PE_S_R0_dr" length="PE_S_R0_dz" z="PE_S_R0_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R1_r" thickness="PE_S_R1_dr" length="PE_S_R1_dz" z="PE_S_R1_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R2_r" thickness="PE_S_R2_dr" length="PE_S_R2_dz" z="PE_S_R2_zoffset" material="CarbonFiber" vis="grey"/>                
+            </layer>
+            
+            <layer id="4" inner_r="PE_rmin" outer_r="PE_rmax" dz="PE_L_dz" z="PE_L4_pos" z_offset="PE_L_ringStagger" material="Vacuum" vis="invisible">                
+                <module name ="PE_Module" length="PE_M_length" thickness="PE_M_thickness" vis="green" sensitive="true">
+         	   	<module_component width="PE_M_C0_width" length="PE_M_C0_length" thickness="PE_M_C0_thickness" x="PE_M_C0_x" y="PE_M_C0_y"  z="PE_M_C0_z" material="Aluminum" vis="red"/>          
+        		<module_component width="PE_M_C1_width" length="PE_M_C1_length" thickness="PE_M_C1_thickness" x="PE_M_C1_x" y="PE_M_C1_y"  z="PE_M_C1_z" material="Silicon" vis="green" sensitive="true"/>
+             	<module_component width="PE_M_C2_width" length="PE_M_C2_length" thickness="PE_M_C2_thickness" x="PE_M_C2_x" y="PE_M_C2_y"  z="PE_M_C2_z" material="Kapton" vis="blue"/>
+            </module>
+            <ring radius="PE_R0_r" nmodules="PE_R0_modulesInPhi" offsetZ="PE_R0_zoffset" deltaZ="PE_R0_phiStagger" >
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <ring radius="PE_R1_r" nmodules="PE_R1_modulesInPhi" offsetZ="PE_R1_zoffset" deltaZ="PE_R1_phiStagger">
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <support_ring radius="PE_S_R0_r" thickness="PE_S_R0_dr" length="PE_S_R0_dz" z="PE_S_R0_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R1_r" thickness="PE_S_R1_dr" length="PE_S_R1_dz" z="PE_S_R1_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R2_r" thickness="PE_S_R2_dr" length="PE_S_R2_dz" z="PE_S_R2_zoffset" material="CarbonFiber" vis="grey"/>                
+            </layer>
+            
+            <layer id="5" inner_r="PE_rmin" outer_r="PE_rmax" dz="PE_L_dz" z="PE_L5_pos" z_offset="PE_L_ringStagger" material="Vacuum" vis="invisible">                
+                <module name ="PE_Module" length="PE_M_length" thickness="PE_M_thickness" vis="green" sensitive="true">
+         	   	<module_component width="PE_M_C0_width" length="PE_M_C0_length" thickness="PE_M_C0_thickness" x="PE_M_C0_x" y="PE_M_C0_y"  z="PE_M_C0_z" material="Aluminum" vis="red"/>          
+        		<module_component width="PE_M_C1_width" length="PE_M_C1_length" thickness="PE_M_C1_thickness" x="PE_M_C1_x" y="PE_M_C1_y"  z="PE_M_C1_z" material="Silicon" vis="green" sensitive="true"/>
+             	<module_component width="PE_M_C2_width" length="PE_M_C2_length" thickness="PE_M_C2_thickness" x="PE_M_C2_x" y="PE_M_C2_y"  z="PE_M_C2_z" material="Kapton" vis="blue"/>
+            </module>
+            <ring radius="PE_R0_r" nmodules="PE_R0_modulesInPhi" offsetZ="PE_R0_zoffset" deltaZ="PE_R0_phiStagger" >
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <ring radius="PE_R1_r" nmodules="PE_R1_modulesInPhi" offsetZ="PE_R1_zoffset" deltaZ="PE_R1_phiStagger">
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <support_ring radius="PE_S_R0_r" thickness="PE_S_R0_dr" length="PE_S_R0_dz" z="PE_S_R0_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R1_r" thickness="PE_S_R1_dr" length="PE_S_R1_dz" z="PE_S_R1_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R2_r" thickness="PE_S_R2_dr" length="PE_S_R2_dz" z="PE_S_R2_zoffset" material="CarbonFiber" vis="grey"/>                
+            </layer>
+            
+            <layer id="6" inner_r="PE_rmin" outer_r="PE_rmax" dz="PE_L_dz" z="PE_L6_pos" z_offset="PE_L_ringStagger" material="Vacuum" vis="invisible">                
+                <module name ="PE_Module" length="PE_M_length" thickness="PE_M_thickness" vis="green" sensitive="true">
+         	   	<module_component width="PE_M_C0_width" length="PE_M_C0_length" thickness="PE_M_C0_thickness" x="PE_M_C0_x" y="PE_M_C0_y"  z="PE_M_C0_z" material="Aluminum" vis="red"/>          
+        		<module_component width="PE_M_C1_width" length="PE_M_C1_length" thickness="PE_M_C1_thickness" x="PE_M_C1_x" y="PE_M_C1_y"  z="PE_M_C1_z" material="Silicon" vis="green" sensitive="true"/>
+             	<module_component width="PE_M_C2_width" length="PE_M_C2_length" thickness="PE_M_C2_thickness" x="PE_M_C2_x" y="PE_M_C2_y"  z="PE_M_C2_z" material="Kapton" vis="blue"/>
+            </module>
+            <ring radius="PE_R0_r" nmodules="PE_R0_modulesInPhi" offsetZ="PE_R0_zoffset" deltaZ="PE_R0_phiStagger" >
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <ring radius="PE_R1_r" nmodules="PE_R1_modulesInPhi" offsetZ="PE_R1_zoffset" deltaZ="PE_R1_phiStagger">
+                <tubs rmin="PE_R0_Cool_rmin" rmax="PE_R0_Cool_rmax" length="PE_R0_Cool_length" z="PE_R1_Cool_zoffset" material="Titanium" vis="orange"/>
+            </ring>
+            <support_ring radius="PE_S_R0_r" thickness="PE_S_R0_dr" length="PE_S_R0_dz" z="PE_S_R0_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R1_r" thickness="PE_S_R1_dr" length="PE_S_R1_dz" z="PE_S_R1_zoffset" material="CarbonFiber" vis="grey"/>
+            <support_ring radius="PE_S_R2_r" thickness="PE_S_R2_dr" length="PE_S_R2_dz" z="PE_S_R2_zoffset" material="CarbonFiber" vis="grey"/>                
+            </layer>
+            
+            <support_sector nbundles="PE_S0_Cool_bundles" perdisk="PE_S0_Cool_perdisk" phimin="PE_S0_Cool_phimin" radius="PE_S0_Cool_r" vis="invisible">
+                <support_bundle ntubes="PE_S0_Cool_tubes">
+                 <tubs rmin="PE_S0_Cool_rmin" rmax="PE_S0_Cool_rmax" z="PE_S0_Cool_zoffset" length="PE_S0_Cool_length" material="Titanium" vis="orange"/>        
+                </support_bundle>
+            </support_sector>
+         
+            <support_sector nbundles="PE_S1_Cool_bundles" perdisk="PE_S1_Cool_perdisk" phimin="PE_S1_Cool_phimin" radius="PE_S1_Cool_r" vis="invisible">
+                <support_bundle ntubes="PE_S1_Cool_tubes">
+                 <tubs rmin="PE_S1_Cool_rmin" rmax="PE_S1_Cool_rmax" z="PE_S1_Cool_zoffset" length="PE_S1_Cool_length" material="Titanium" vis="orange"/>        
+                </support_bundle>
+            </support_sector>
+            
+            <support_sector nbundles="PE_S2_Cable_bundles" perdisk="PE_S2_Cable_perdisk" phimin="PE_S2_Cable_phimin" radius="PE_S2_Cable_r" vis="invisible">
+                <support_bundle ntubes="PE_S2_Cables">
+                 <tubs rmin="PE_S2_Cable_rmin" rmax="PE_S2_Cable_rmax" z="PE_S2_Cable_zoffset" length="PE_S2_Cable_length" material="Copper" vis="orange"/>        
+                </support_bundle>
+            </support_sector>
+         
+            <support_sector nbundles="PE_S3_Cable_bundles" perdisk="PE_S3_Cable_perdisk" phimin="PE_S3_Cable_phimin" radius="PE_S3_Cable_r" vis="invisible">
+                <support_bundle ntubes="PE_S3_Cables">
+                 <tubs rmin="PE_S3_Cable_rmin" rmax="PE_S3_Cable_rmax" z="PE_S3_Cable_zoffset" length="PE_S3_Cable_length" material="Copper" vis="orange"/>        
+                </support_bundle>
+            </support_sector>     
+            
+            <support_sector nbundles="PE_S4_Cable_bundles" perdisk="PE_S4_Cable_perdisk" phimin="PE_S4_Cable_phimin" radius="PE_S4_Cable_r" vis="invisible">
+                <support_bundle ntubes="PE_S4_Cables">
+                 <tubs rmin="PE_S4_Cable_rmin" rmax="PE_S4_Cable_rmax" z="PE_S4_Cable_zoffset" length="PE_S4_Cable_length" material="Copper" vis="orange"/>        
+                </support_bundle>
+            </support_sector>
+         
+            <support_sector nbundles="PE_S5_Cable_bundles" perdisk="PE_S5_Cable_perdisk" phimin="PE_S5_Cable_phimin" radius="PE_S5_Cable_r" vis="invisible">
+                <support_bundle ntubes="PE_S5_Cables">
+                 <tubs rmin="PE_S5_Cable_rmin" rmax="PE_S5_Cable_rmax" z="PE_S5_Cable_zoffset" length="PE_S5_Cable_length" material="Copper" vis="orange"/>        
+                </support_bundle>
+            </support_sector>             
+            
+    </detector>
       
       
 </detectors>

@@ -103,9 +103,12 @@ namespace Root {
     float m_tX0;    ///< thickness in X0/L0
     float m_tL0;    ///< thickness in X0/L0
 
-    std::vector<float> m_step_x;       ///< step x position
-    std::vector<float> m_step_y;       ///< step y position
-    std::vector<float> m_step_z;       ///< step z position
+    std::vector<float> m_step_x;       ///< step x position [pre]
+    std::vector<float> m_step_y;       ///< step y position [pre]
+    std::vector<float> m_step_z;       ///< step z position [pre]
+    std::vector<float> m_step_ex;       ///< step x position [post]
+    std::vector<float> m_step_ey;       ///< step y position [post]
+    std::vector<float> m_step_ez;       ///< step z position [post]
     std::vector<float> m_step_length;  ///< step length
     std::vector<float> m_step_X0;      ///< step material x0
     std::vector<float> m_step_L0;      ///< step material l0

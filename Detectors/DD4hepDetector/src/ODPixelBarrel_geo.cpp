@@ -60,7 +60,7 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     // create the layer name
     string layerName = detName + _toString((int)layerNumber, "layer%d");
     // informarions for stave description
-    int    nStaves  = x_layer.attr<double>("nstaves");
+    int    nStaves  = x_layer.attr<int>("nstaves");
     double deltaPhi = 2. * M_PI / nStaves;
 
     if (x_layer.hasChild(_U(stave))) {
@@ -127,11 +127,11 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
 
             // Place Component in Module
             Position     trans(x_component.x(), 0., x_component.z() + dr);
-            PlacedVolume placedcomponent
+            PlacedVolume placedComponent
                 = moduleAssembly.placeVolume(compVolume, trans);
-            // placedcomponent.addPhysVolID("component", compNumber);
+            // placedComponent.addPhysVolID("component", compNumber);
             if (x_component.isSensitive()) {
-              sensComponents.push_back(placedcomponent);
+              sensComponents.push_back(placedComponent);
             }
             compNumber++;
           }
@@ -365,194 +365,6 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
 
   return barrelDetector;
 
-  /*
-  //double     layerRmax   = x_layer.outer_r();
-  // Create Volume and DetElement for Layer
-  Volume layerAssembly(layerName,
-                     Tube(layerRmin, layerRmax, layerLength),
-                     lcdd.material(x_layer.materialStr()));
-  DetElement layerDetector(barrelDetector, layerName, layerNumber);
-  // Visualization
-  layerAssembly.setVisAttributes(lcdd, x_layer.visStr());
-  // go trough possible modules
-  if (x_layer.hasChild(_U(module))) {
-    // the module describing the module dimensions
-    xml_comp_t x_module         = x_layer.child(_U(module));
-    double     modHalfLength    = x_module.length();
-    double     modHalfWidth     = x_module.width();
-    double     modHalfThickness = x_module.thickness();
-    // informations for the placement and tilt in phi
-    int    phiRepeat = x_module.repeat();
-    double deltaPhi  = 2. * M_PI / phiRepeat;
-    double phiTilt   = x_module.phi_tilt();
-    // informarions for he placement in z
-    xml_comp_t x_slice  = x_layer.child(_U(slice));
-    int        zRepeat  = x_slice.repeat();
-    double     zOverlap = x_slice.dz();
-    double     rOffset  = x_slice.offset();  // half offset
-
-    // The placement loop if primarily over z, as it does change
-    // - potentially the cooling pipe position due to r staggering along z
-    // - the cable support amount
-
-    size_t moduleNumber = 0;
-    // Place the Modules in z
-    // the distance between the modules in z
-    double dz = (2 * modHalfLength - zOverlap);
-    // the start value in z
-    double startz = -((zRepeat - 1) * 0.5 * dz);
-
-    // place in z
-    for (int iz = 0; iz < zRepeat; iz++) {
-
-      // r staggering along z
-      double rDelta = (iz % 2 == 0) ? (0.5 * rOffset) : -(0.5 * rOffset);
-
-      // Create the module volume
-      Volume moduleAssembly("module",
-                     Box(modHalfLength, modHalfWidth, modHalfThickness),
-                     lcdd.material(x_module.materialStr()));
-
-      // Visualization
-      moduleAssembly.setVisAttributes(lcdd, x_module.visStr());
-
-      //
-      // the sensitive placed components to be used later to create the
-      // DetElements
-      std::vector<PlacedVolume> sensComponents;
-      int                       compNumber = 0;
-      // go through module components
-      for (xml_coll_t comp(x_module, _U(module_component)); comp; ++comp) {
-        string     component_name = _toString((int)compNumber, "component%d");
-        xml_comp_t x_component    = comp;
-        Volume     compVolume(component_name,
-                        Box(x_component.length(),
-                            x_component.width(),
-                            x_component.thickness()),
-                        lcdd.material(x_component.materialStr()));
-        compVolume.setVisAttributes(lcdd, x_component.visStr());
-
-        // make sensitive components sensitive
-        if (x_component.isSensitive()) compVolume.setSensitiveDetector(sens);
-
-        // Place Component in Module
-        Position     trans(x_component.x(), 0., x_component.z());
-        PlacedVolume placedcomponent = moduleAssembly.placeVolume(compVolume,
-  trans);
-        placedcomponent.addPhysVolID("component", compNumber);
-        if (x_component.isSensitive())
-          sensComponents.push_back(placedcomponent);
-        compNumber++;
-      }
-      // add possible trapezoidal shape with hole for cooling pipe
-      if (x_module.hasChild(_U(subtraction))) {
-        xml_comp_t x_sub          = x_module.child(_U(subtraction));
-        xml_comp_t x_trd          = x_sub.child(_U(trd));
-        xml_comp_t x_tubs         = x_sub.child(_U(tubs));
-        string     component_name = _toString((int)compNumber, "component%d");
-        // create the two shapes first
-        Trapezoid trapShape(x_trd.x1(),
-                             x_trd.x2(),
-                             x_trd.length(),
-                             x_trd.length(),
-                             x_trd.thickness());
-        Tube subsShape(x_tubs.rmin(), x_tubs.rmax(), x_tubs.dz());
-        // create the substraction
-        Transform3D subTransform(RotationX(0.5 * M_PI),
-                                 Position(0.,0.,rDelta));
-
-        Volume subVolume("subtraction_components",
-                       SubtractionSolid(trapShape,
-                                        subsShape,
-                                        subTransform),
-                       lcdd.material(x_sub.materialStr()));
-        subVolume.setVisAttributes(lcdd, x_sub.visStr());
-        // Place the volume in the module
-        PlacedVolume placedSub = moduleAssembly.placeVolume(
-            subVolume,
-            Transform3D(RotationZ(0.5 * M_PI) * RotationY(M_PI),
-                        Position(0., 0., x_sub.z())));
-        placedSub.addPhysVolID("component", compNumber);
-        compNumber++;
-      }
-      // add posibble cooling pipe
-      if (x_module.hasChild(_U(tubs))) {
-        xml_comp_t x_tubs         = x_module.child(_U(tubs));
-        string     component_name = _toString((int)compNumber, "component%d");
-        Volume     pipeVolume("CoolingPipe",
-                        Tube(x_tubs.rmin(), x_tubs.rmax(), x_tubs.dz()),
-                        lcdd.material(x_tubs.materialStr()));
-        pipeVolume.setVisAttributes(lcdd, x_tubs.visStr());
-        // Place the cooling pipe into the module
-        PlacedVolume placedPipe = moduleAssembly.placeVolume(
-            pipeVolume,
-            Transform3D(RotationX(0.5 * M_PI) * RotationY(0.5 * M_PI),
-                        Position(0., 0., x_tubs.z() - rDelta)));
-        placedPipe.addPhysVolID("component", compNumber);
-        compNumber++;
-      }
-
-      // create the Acts::DigitizationModule (needed to do geometric
-      // digitization) for all modules which have the same segmentation
-
-      auto digiModule
-          = FW::DD4hep::rectangleDigiModule(modHalfLength,
-                                            modHalfWidth,
-                                            modHalfThickness,
-                                            sens.readout().segmentation());
-
-      // Visualization
-      moduleAssembly.setVisAttributes(lcdd, x_module.visStr());
-      // to be added later to the module name
-      string zname = _toString((int)iz, "z%d");
-      // the radial position of the module
-      double r = (layerRmax + layerRmin) * 0.5 + rDelta;
-      // current z position
-      double z = startz + iz * dz;
-      // start phi position
-      double minPhi = -M_PI + 0.5 * deltaPhi / dd4hep::rad;
-      // Place the modules in phi
-      for (int iphi = 0; iphi < 3; ++iphi) { // phiRepeat
-        // the unique module name
-        string module_name = zname + _toString((int)iphi, "module%d");
-        // the phi position
-        double phi = minPhi + deltaPhi * iphi;
-        // the position of the module within the layer
-        Position trans(r * cos(phi), r * sin(phi), z);
-        // Create the module DetElement
-        DetElement moduleDetector(layerDetector, module_name, moduleNumber);
-        // Set Sensitive Volmes sensitive
-        if (x_module.isSensitive()) {
-          moduleAssembly.setSensitiveDetector(sens);
-          // create and attach the extension with the shared digitzation
-          // module
-          Acts::ActsExtension* moduleExtension
-              = new Acts::ActsExtension(digiModule);
-          moduleDetector.addExtension<Acts::IActsExtension>(moduleExtension);
-        }
-        // Place Module Box Volumes in layer adding a tilt in phi
-        PlacedVolume placedmodule = layerAssembly.placeVolume(
-            moduleAssembly,
-            Transform3D(RotationY(0.5 * M_PI) * RotationX(-phi - phiTilt),
-                        trans));
-
-        placedmodule.addPhysVolID("module", moduleNumber);
-        // assign module DetElement to the placed module volume
-        moduleDetector.setPlacement(placedmodule);
-        ++moduleNumber;
-      }
-    }
-  }
-  // todo set granularity of layer material mapping and where material should
-  // be mapped
-  // hand over modules to ACTS
-  Acts::ActsExtension::Config layConfig;
-  layConfig.isLayer   = true;
-  layConfig.envelopeR = 2. * Acts::units::_mm;
-  layConfig.envelopeZ = 2. * Acts::units::_mm;  // maybe change later
-  Acts::ActsExtension* detlayer = new Acts::ActsExtension(layConfig);
-  layerDetector.addExtension<Acts::IActsExtension>(detlayer);
-  */
 }
 
 DECLARE_DETELEMENT(ACTS_ODPixelBarrel, create_element)
