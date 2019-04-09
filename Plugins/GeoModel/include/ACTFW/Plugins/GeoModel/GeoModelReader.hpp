@@ -51,7 +51,7 @@ public:
   /// @param [in] bp Pointer to the beam pipe
   ///
   /// @return Acts pointer to the beam pipe volume
-  std::vector<Acts::MutableTrackingVolumePtr>
+  Acts::MutableTrackingVolumePtr
   buildCentralBeamPipe(GeoVPhysVol const* bp) const;
   
     Acts::MutableTrackingVolumePtr
