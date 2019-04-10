@@ -21,7 +21,8 @@ namespace FW {
 class GeoModelReader
 {
 public:
-  /// @brief Temporary detector build for debugging
+  /// @brief Temporary detector build for debugging - Will be removed in the
+  /// future
   GeoPhysVol*
   makeDebugDetector() const;
 
@@ -42,23 +43,18 @@ public:
   GeoPhysVol*
   createTheExperiment(GeoPhysVol* world) const;
 
-  //~ std::vector<std::shared_ptr<Acts::Surface>>
-  //~ buildChildrenSurfaces(GeoVPhysVol const* parent) const;
-
-  /// @brief Constructs an Acts beam pipe out of a given GeoModel detector
+  /// @brief Creates a part of the beam pipe in Acts by calling the right
+  /// function
   ///
-  /// @param [in] bp Pointer to the beam pipe
+  /// @param [in] bp Pointer to the beam pipe part
   ///
-  /// @return Acts pointer to the beam pipe volume
+  /// @return Acts pointer to the corresponding beam pipe volume
   Acts::MutableTrackingVolumePtr
-  buildCentralBeamPipe(GeoVPhysVol const* bp) const;
+  BuildBeamPipe(GeoVPhysVol const* bp) const
 
-  Acts::MutableTrackingVolumePtr
-  buildFwdBeamPipe(GeoVPhysVol const* bp) const;
-
-  /// @brief Printer of the full detector
-  std::ostream&
-  treeToStream(GeoVPhysVol const* tree, std::ostream& sl) const;
+      /// @brief Printer of the full detector
+      std::ostream& treeToStream(GeoVPhysVol const* tree,
+                                 std::ostream&      sl) const;
 
   /// @brief Printer of GeoPhysVol
   std::ostream&
@@ -69,6 +65,31 @@ public:
   toStream(GeoFullPhysVol const* gfpv, std::ostream& sl) const;
 
 private:
+  /// @brief Constructs an Acts beam pipe out of a given GeoModel detector. The
+  /// central beam pipe is represented by a single layer with binned surface
+  /// material attached.
+  /// @note There is no material attached yet
+  ///
+  /// @param [in] bp Pointer to the beam pipe
+  ///
+  /// @return Acts pointer to the beam pipe volume
+  Acts::MutableTrackingVolumePtr
+  buildCentralBeamPipe(GeoVPhysVol const* bp) const;
+
+  /// @brief Constructs an Acts forward beam pipe out of a given GeoModel
+  /// detector. Along the z-direction a single layer represents the beam pipe
+  /// parts. Since the beam pipe diameter can become bigger towards the outer
+  /// side, these parts are described by cones with binned surface material
+  /// attached to the parts. The total envelope is given by a cylinder, assuming
+  /// that it does not intersect with outher (relevant) detector volumes.
+  /// @note There is no material attached yet
+  ///
+  /// @param [in] bp Pointer to the forward beam pipe
+  ///
+  /// @return Acts pointer to the forward beam pipe volume
+  Acts::MutableTrackingVolumePtr
+  buildFwdBeamPipe(GeoVPhysVol const* bp) const;
+
   /// @brief Extracts the half length of a tube
   ///
   /// @param [in] gvpv Pointer to the surface
@@ -76,13 +97,6 @@ private:
   /// @return The half length
   double
   tubeHalfLength(GeoVPhysVol const* gvpv) const;
-
-  /// @brief This function sorts passive surfaces by their radius and merges
-  /// overlapping surfaces to avoid overlappings in the layer creation process.
-  ///
-  /// @param [in, out] surfaces Storage of the the surface data
-  void
-  sortAndMergeSurfaces(std::vector<std::array<double, 3>>& surfaces) const;
 
   /// @brief Printer of GeoLogVol
   std::ostream&

@@ -34,29 +34,13 @@ main(int argc, char* argv[])
     if (dynamic_cast<const GeoVPhysVol*>(&(*(nodeLink)))) {
       const GeoVPhysVol* childVolV = &(*(nodeLink));
 
-      if (childVolV->getLogVol()->getName() == "BeamPipeCentral") {
-        std::shared_ptr<Acts::TrackingVolume> trVol
-            = gmr.buildCentralBeamPipe(childVolV);
+      std::vector<std::shared_ptr<Acts::TrackingVolume>> trVols;
 
-        auto& volBounds = trVol->volumeBounds();
-        volBounds.dump(std::cout);
-        auto layArray = trVol->confinedLayers();
-        std::cout << "layArray: " << layArray << std::endl;
-        auto layers = layArray->arrayObjects();
-        std::cout << "numLayers: " << layers.size() << std::endl;
-        for (auto l : layers) {
-          std::cout << "thickness: " << l->thickness()
-                    << "\tLayerType: " << l->layerType() << std::endl;
-          auto surArray = l->surfaceArray();
-          if (surArray) {
-            surArray->dump(std::cout);
-          }
-        }
+      if (childVolV->getLogVol()->getName() == "BeamPipeCentral") {
+        trVols.push_back(gmr.buildCentralBeamPipe(childVolV));
       } else if (childVolV->getLogVol()->getName() == "BeamPipeFwd") {
-        gmr.buildFwdBeamPipe(childVolV);
+        trVols.push_back(gmr.buildFwdBeamPipe(childVolV));
       }
     }
   }
-
-  //~ gmr.treeToStream(world, std::cout);
 }
