@@ -16,12 +16,13 @@
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
+#include "ACTFW/EventData/RawData.hpp"
+#include "ACTFW/EventData/Measurement.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Detector/DetectorElementBase.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
-#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleStepper.hpp"
 #include "Acts/Plugins/Digitization/Segmentation.hpp"
 #include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
@@ -38,7 +39,7 @@ FW::DigitizationAlgorithm::DigitizationAlgorithm(
     throw std::invalid_argument("Missing input hits collection");
   } else if (m_cfg.spacePointCollection.empty()) {
     throw std::invalid_argument("Missing output space points collection");
-  } else if (m_cfg.clusterCollection.empty()) {
+  } else if (m_cfg.measurementCollection.empty()) {
     throw std::invalid_argument("Missing output clusters collection");
   } else if (!m_cfg.randomNumberSvc) {
     throw std::invalid_argument("Missing random numbers service");
@@ -61,14 +62,15 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
 
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
                                     << "' from event store.");
+  
 
   // Prepare the output data: Clusters
-  FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
+  FW::DetectorData<geo_id_value, Data::Measurement> measurements;
 
   // Prepare the second output data : Truth SpacePoints (for debugging)
   FW::DetectorData<geo_id_value, Acts::Vector3D> spacePoints;
 
-  // now digitise
+  // Now digitise
   for (auto& vData : (*simHits)) {
     auto volumeKey = vData.first;
     ACTS_DEBUG("- Processing Volume Data collection for volume with ID "
@@ -118,6 +120,7 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
                                                          localDirection);
               // everything under threshold or edge effects
               if (!dSteps.size()) continue;
+              
               /// let' create a cluster - centroid method
               double localX    = 0.;
               double localY    = 0.;
@@ -146,34 +149,37 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
                   = hitDigitizationModule->segmentation();
               auto           binUtility = segmentation.binUtility();
               Acts::Vector2D localPosition(localX, localY);
-              // @todo remove unneccesary conversion
+              // @todo remove unneccesary conversion - use channels directly ?
               size_t bin0          = binUtility.bin(localPosition, 0);
               size_t bin1          = binUtility.bin(localPosition, 1);
               size_t binSerialized = binUtility.serialize({{bin0, bin1, 0}});
-
+              // 
               // the covariance is currently set to 0.
               Acts::ActsSymMatrixD<2> cov;
               cov << 0.05, 0., 0.05, 0.;
 
-              // create the geometry based Idnetifier
+              // Re-create the geometry based Idnetifier
               Acts::GeometryID geoID(0);
               geoID.add(volumeKey, Acts::GeometryID::volume_mask);
               geoID.add(layerKey, Acts::GeometryID::layer_mask);
               geoID.add(moduleKey, Acts::GeometryID::sensitive_mask);
-              geoID.add(binSerialized, Acts::GeometryID::channel_mask);
 
+              Data::RawData rawData;
+              rawData.identifier 
+                  = Identifier(Identifier::identifier_type(binSerialized),hitParticles)
+              rawData.cellData = std::move(usedCells);      
+                             
               // create the planar cluster
-              Acts::PlanarModuleCluster pCluster(
-                  hitSurface.getSharedPtr(),
-                  Identifier(Identifier::identifier_type(geoID.value()),
-                             hitParticles),
-                  std::move(cov),
-                  localX,
-                  localY,
-                  std::move(usedCells));
+              Acts::MeasurementL0L1 pCluster =
+                  (hitSurface.getSharedPtr(),
+                   std::move(rawData)
+                   std::move(cov),
+                   localX,
+                   localY,
+                   std::move(usedCells));
 
               // insert into the cluster map
-              FW::Data::insert(planarClusters,
+              FW::Data::insert(measurements,
                                volumeKey,
                                layerKey,
                                moduleKey,
@@ -192,7 +198,7 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
     return FW::ProcessCode::ABORT;
   }
   // write the clusters to the EventStore
-  if (context.eventStore.add(m_cfg.clusterCollection, std::move(planarClusters))
+  if (context.eventStore.add(m_cfg.measurements, std::move(measurements))
       == FW::ProcessCode::ABORT) {
     return FW::ProcessCode::ABORT;
   }

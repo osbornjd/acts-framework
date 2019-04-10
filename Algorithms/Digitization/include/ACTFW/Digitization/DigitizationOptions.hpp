@@ -53,7 +53,7 @@ namespace Options {
     DigitizationAlgorithm::Config digiConfig;
     digiConfig.spacePointCollection
         = vm["digi-spacepoints"].template as<std::string>();
-    digiConfig.clusterCollection
+    digiConfig.measurements
         = vm["digi-clusters"].template as<std::string>();
     digiConfig.resolutionFile
         = vm["digi-resolution-file"].template as<std::string>();

@@ -68,7 +68,7 @@ setupDigitization(vmap_t&                               vm,
   if (vm["output-csv"].template as<bool>()) {
     // clusters as root
     FW::Csv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
-    clusterWriterCsvConfig.collection = digiConfig.clusterCollection;
+    clusterWriterCsvConfig.collection = digiConfig.measurements;
     clusterWriterCsvConfig.outputDir  = outputDir;
     auto clusteWriterCsv = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(
         clusterWriterCsvConfig);
@@ -80,10 +80,10 @@ setupDigitization(vmap_t&                               vm,
   if (vm["output-root"].template as<bool>()) {
     // clusters as root
     FW::Root::RootPlanarClusterWriter::Config clusterWriterRootConfig;
-    clusterWriterRootConfig.collection = digiConfig.clusterCollection;
+    clusterWriterRootConfig.collection = digiConfig.measurements;
     clusterWriterRootConfig.filePath
-        = FW::joinPaths(outputDir, digiConfig.clusterCollection + ".root");
-    clusterWriterRootConfig.treeName = digiConfig.clusterCollection;
+        = FW::joinPaths(outputDir, digiConfig.measurements + ".root");
+    clusterWriterRootConfig.treeName = digiConfig.measurements;
     auto clusteWriterRoot = std::make_shared<FW::Root::RootPlanarClusterWriter>(
         clusterWriterRootConfig);
     // Add to the sequencer

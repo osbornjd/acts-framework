@@ -50,8 +50,8 @@ public:
     std::string simulatedHitCollection = "";
     /// output space point collection
     std::string spacePointCollection   = "";
-    /// output clusters collection
-    std::string clusterCollection      = "";
+    /// output measurement collection
+    std::string measurementCollection  = "";
     /// input resolution file, needed for gaussian smearing
     std::string resolutionFile         = "";
     /// FW random number service
