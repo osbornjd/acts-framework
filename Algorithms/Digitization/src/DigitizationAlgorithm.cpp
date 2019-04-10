@@ -156,7 +156,6 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
               geoID.add(volumeKey, Acts::GeometryID::volume_mask);
               geoID.add(layerKey, Acts::GeometryID::layer_mask);
               geoID.add(moduleKey, Acts::GeometryID::sensitive_mask);
-              geoID.add(binSerialized, Acts::GeometryID::channel_mask);
 
               // create the planar cluster
               Acts::PlanarModuleCluster pCluster(
