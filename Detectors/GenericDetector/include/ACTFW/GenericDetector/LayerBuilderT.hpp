@@ -151,7 +151,7 @@ namespace Generic {
         // central material
         if (m_cfg.centralLayerMaterialConcentration.at(icl) == 0.) {
           // the layer surface is the material surface
-          cLayer->surfaceRepresentation().setAssociatedMaterial(
+          cLayer->surfaceRepresentation().assignSurfaceMaterial(
               layerMaterialPtr);
           ACTS_VERBOSE("- and material at central layer surface.");
         } else {
@@ -163,12 +163,12 @@ namespace Generic {
           if (m_cfg.centralLayerMaterialConcentration.at(icl) > 0) {
             auto mutableOuterSurface
                 = const_cast<Acts::Surface*>(approachSurfaces.at(1));
-            mutableOuterSurface->setAssociatedMaterial(layerMaterialPtr);
+            mutableOuterSurface->assignSurfaceMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at outer approach surface");
           } else {
             auto mutableInnerSurface
                 = const_cast<Acts::Surface*>(approachSurfaces.at(0));
-            mutableInnerSurface->setAssociatedMaterial(layerMaterialPtr);
+            mutableInnerSurface->assignSurfaceMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at inner approach surface");
           }
         }
@@ -236,7 +236,7 @@ namespace Generic {
         if (m_cfg.posnegLayerMaterialConcentration.at(ipnl) == 0.) {
           // assign the surface material - the layer surface is the material
           // surface
-          eLayer->surfaceRepresentation().setAssociatedMaterial(
+          eLayer->surfaceRepresentation().assignSurfaceMaterial(
               layerMaterialPtr);
           ACTS_VERBOSE("- and material at central layer surface.");
         } else {
@@ -249,13 +249,13 @@ namespace Generic {
             int  sf = side < 0 ? 0 : 1;
             auto mutableInnerSurface
                 = const_cast<Acts::Surface*>(approachSurfaces.at(sf));
-            mutableInnerSurface->setAssociatedMaterial(layerMaterialPtr);
+            mutableInnerSurface->assignSurfaceMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at outer approach surfaces.");
           } else {
             int  sf = side < 0 ? 1 : 0;
             auto mutableOuterSurface
                 = const_cast<Acts::Surface*>(approachSurfaces.at(sf));
-            mutableOuterSurface->setAssociatedMaterial(layerMaterialPtr);
+            mutableOuterSurface->assignSurfaceMaterial(layerMaterialPtr);
             ACTS_VERBOSE("- and material at inner approach surfaces.");
           }
         }
