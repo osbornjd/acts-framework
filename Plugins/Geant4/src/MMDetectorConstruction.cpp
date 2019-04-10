@@ -10,13 +10,13 @@
 #include "G4GDMLParser.hh"
 #include "TGeoManager.h"
 
-FW::G4::MMDetectorConstruction::MMDetectorConstruction()
+FW::Geant4::MMDetectorConstruction::MMDetectorConstruction()
   : G4VUserDetectorConstruction(), m_tgeoNode(nullptr), m_gdmlFile(nullptr)
 {
 }
 
 G4VPhysicalVolume*
-FW::G4::MMDetectorConstruction::Construct()
+FW::Geant4::MMDetectorConstruction::Construct()
 {
   if (m_tgeoNode) {
     // Import geometry from Root to VGM
@@ -40,13 +40,13 @@ FW::G4::MMDetectorConstruction::Construct()
 }
 
 void
-FW::G4::MMDetectorConstruction::setTGeoGeometry(TGeoNode* tgeoNode)
+FW::Geant4::MMDetectorConstruction::setTGeoGeometry(TGeoNode* tgeoNode)
 {
   m_tgeoNode = tgeoNode;
 }
 
 void
-FW::G4::MMDetectorConstruction::setGdmlInput(std::string gdmlFile)
+FW::Geant4::MMDetectorConstruction::setGdmlInput(std::string gdmlFile)
 {
   m_gdmlFile = new std::string(gdmlFile);
 }

@@ -6,8 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTFW_PLUGINS_GEANT4_MMDETECTORCONSTRUCTION_H
-#define ACTFW_PLUGINS_GEANT4_MMDETECTORCONSTRUCTION_H
+#pragma once
 
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
@@ -19,7 +18,7 @@ class G4VPhysicalVolume;
 class TGeoNode;
 
 namespace FW {
-namespace G4 {
+namespace Geant4 {
 
   /// @class MMDetectorConstruction
   ///
@@ -56,5 +55,3 @@ namespace G4 {
   };
 }  // namespace G4
 }  // namespace FW
-
-#endif  // ACTFW_PLUGINS_GEANT4_MMDETECTORCONSTRUCTION_H

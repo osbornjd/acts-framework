@@ -7,11 +7,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ///////////////////////////////////////////////////////////////////
-// MMRunAction.h
+// MMRunAction.hpp
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ACTFW_PLUGINS_GEANT4_MMRUNACTION_H
-#define ACTFW_PLUGINS_GEANT4_MMRUNACTION_H
+#pragma once
 
 #include <memory>
 #include "G4UserRunAction.hh"
@@ -20,7 +19,7 @@
 class G4Run;
 
 namespace FW {
-namespace G4 {
+namespace Geant4 {
 
   /// @class MMRunAction
   ///
@@ -58,5 +57,3 @@ namespace G4 {
   };
 }  // namespace G4
 }  // namespace FW
-
-#endif  // ACTFW_PLUGINS_GEANT4_MMRUNACTION_H
