@@ -75,7 +75,7 @@ FW::Obj::ObjSurfaceWriter::write(const AlgorithmContext& context,
     // get the thickness and vertical faces
     double                    thickness = 0.;
     std::vector<unsigned int> vfaces;
-    if (surface.associatedDetectorElement()) {
+    if (surface.associatedDetectorElement() and m_cfg.outputThickness != 0.) {
       // get the thickness form the detector element
       thickness = surface.associatedDetectorElement()->thickness();
       vfaces    = {1, 1, 1, 1};

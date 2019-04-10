@@ -97,8 +97,8 @@ FW::Obj::ObjSpacePointWriter<T>::writeT(
       for (auto& moduleData : layerData.second) {
         for (auto& data : moduleData.second) {
           // write the space point
-          os << "v " << m_cfg.outputScalor * data.x() << ", "
-             << m_cfg.outputScalor * data.y() << ", "
+          os << "v " << m_cfg.outputScalor * data.x() << " "
+             << m_cfg.outputScalor * data.y() << " "
              << m_cfg.outputScalor * data.z() << '\n';
           os << "p " << ++vertex << '\n';
         }
