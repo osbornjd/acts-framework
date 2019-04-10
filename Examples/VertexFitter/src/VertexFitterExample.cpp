@@ -110,7 +110,7 @@ main(int argc, char* argv[])
                                   Propagator<Acts::
                                                  EigenStepper<Acts::
                                                                   ConstantBField>>>::
-          Config vertexFitterCfg(bField);
+          Config vertexFitterCfg(bField, propagator);
   auto           billoirFitter = std::
       make_shared<Acts::
                       FullBilloirVertexFitter<Acts::ConstantBField,

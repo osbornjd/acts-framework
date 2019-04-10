@@ -38,7 +38,6 @@ private:
 
 namespace FWE {
 
-
 class VertexFitAlgorithm : public FW::BareAlgorithm
 {
 public:

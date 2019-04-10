@@ -23,6 +23,8 @@
 #include "Acts/Vertexing/LinearizedTrackFactory.hpp"
 #include "Acts/Vertexing/Vertex.hpp"
 
+#include <iostream>
+
 FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
                                             Acts::Logging::Level level)
   : FW::BareAlgorithm("VertexFit", level), m_cfg(cfg)
@@ -67,8 +69,9 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
       stepper);
 
   /// Set up propagator options
-  Acts::PropagatorOptions<> pOptions(context.geoContext, context.magFieldContext);
-
+  Acts::PropagatorOptions<> pOptions(context.geoContext,
+                                     context.magFieldContext);
+  pOptions.direction = Acts::backward;
   /// Create random number generator and spawn gaussian distribution
   FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
@@ -83,17 +86,16 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
 
   /// Vector to store true vertices positions
   std::vector<Acts::Vector3D> trueVertices;
-
+  int                         vCount = 0;
   /// Start looping over all vertices in current event
   for (auto& vtx : (*inputEvent)) {
-
+    vCount++;
     /// Vector to store smeared tracks at current vertex
     BoundParamsVector smrdTracksAtVtx;
     InputTrackVector  inputTrackVector;
 
     /// Iterate over all particle emerging from current vertex
     for (auto const& particle : vtx.out) {
-
       const Acts::Vector3D& ptclMom = particle.momentum();
       /// Calculate pseudo-rapidity
       const double eta = Acts::VectorHelpers::eta(ptclMom);
@@ -102,15 +104,11 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
         /// Define start track params
         Acts::CurvilinearParameters start(
             nullptr, particle.position(), ptclMom, particle.q());
-
         /// Run propagator
-        auto result
-            = propagator.propagate(start, *perigeeSurface, pOptions);
-
+        auto result = propagator.propagate(start, *perigeeSurface, pOptions);
         if (result.ok()) {
 
           const auto& propRes = *result;
-
           // get perigee parameters
           const auto& perigeeParameters = propRes.endParameters->parameters();
 
@@ -119,12 +117,10 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
               || std::abs(perigeeParameters[1]) > 200 * Acts::units::_mm) {
             continue;
           }
-
           /// Calculate pt-dependent IP resolution
           const double particlePt
               = Acts::VectorHelpers::perp(ptclMom) / Acts::units::_GeV;
           const double ipRes = ipResA * std::exp(-ipResB * particlePt) + ipResC;
-
           /// except for IP resolution, following variances are rough guesses
           /// Gaussian distribution for IP resolution
           FW::GaussDist gaussDist_IP(0., ipRes);
@@ -144,13 +140,11 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
           double smrd_phi   = perigeeParameters[2] + rn_ph;
           double smrd_theta = perigeeParameters[3] + rn_th;
           double srmd_qp    = perigeeParameters[4] + rn_qp;
-
           /// smearing can bring theta out of range ->close to beam line ->
           /// discard
           if (smrd_theta < 0 || smrd_theta > M_PI) {
             continue;
           }
-
           double new_eta = -log(tan(smrd_theta / 2));
           if (std::abs(new_eta) > eta_cut) continue;
 
@@ -163,13 +157,12 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
           covMat->setZero();
           (*covMat).diagonal() << rn_d0 * rn_d0, rn_z0 * rn_z0, rn_ph * rn_ph,
               rn_th * rn_th, rn_qp * rn_qp;
-
-          Acts::BoundParameters currentBoundParams(context.geoContext,
-              std::move(covMat), paramVec, perigeeSurface);
+          Acts::BoundParameters currentBoundParams(
+              context.geoContext, std::move(covMat), paramVec, perigeeSurface);
 
           smrdTracksAtVtx.push_back(currentBoundParams);
-
           inputTrackVector.push_back(InputTrack(currentBoundParams));
+        } else {
         }
       }
     }
@@ -177,15 +170,12 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
     if (!smrdTracksAtVtx.empty()) {
       smrdTrackCollection.push_back(smrdTracksAtVtx);
       inputTrackCollection.push_back(inputTrackVector);
-
       /// Store true vertex position
       trueVertices.push_back(vtx.position);
     }
   }
 
   assert(smrdTrackCollection.size() == trueVertices.size());
-
-  ACTS_INFO("Total number of vertices in event: " << trueVertices.size());
 
   tbb::concurrent_vector<Acts::Vertex<InputTrack>> fittedVerticesVector;
 
@@ -200,12 +190,13 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
   myConstraint.setPosition(Acts::Vector3D(0, 0, 0));
 
   // Vertex fitter options
-  Acts::VertexFitterOptions<InputTrack> vfOptions(context.geoContext, context.magFieldContext);
+  Acts::VertexFitterOptions<InputTrack> vfOptions(context.geoContext,
+                                                  context.magFieldContext);
 
   Acts::VertexFitterOptions<InputTrack> vfOptionsConstr(
-          context.geoContext, context.magFieldContext, myConstraint);
-
-  /// in-event parallel vertex fitting
+      context.geoContext,
+      context.magFieldContext,
+      myConstraint);  /// in-event parallel vertex fitting
   tbb::parallel_for(
       tbb::blocked_range<size_t>(0, smrdTrackCollection.size()),
       [&](const tbb::blocked_range<size_t>& r) {
@@ -218,13 +209,16 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
           if (currentParamVectorAtVtx.size() > 1) {
 
             Acts::Vertex<InputTrack> fittedVertex;
-
             if (!m_cfg.doConstrainedFit) {
-              fittedVertex = m_cfg.vertexFitter->fit(
-                  inputTrackCollection[vertex_idx], propagator, vfOptions);
+              fittedVertex
+                  = m_cfg.vertexFitter
+                        ->fit(inputTrackCollection[vertex_idx], vfOptions)
+                        .value();
             } else {
-              fittedVertex = m_cfg.vertexFitter->fit(
-                  inputTrackCollection[vertex_idx], propagator, vfOptionsConstr);
+              fittedVertex
+                  = m_cfg.vertexFitter
+                        ->fit(inputTrackCollection[vertex_idx], vfOptionsConstr)
+                        .value();
             }
 
             Acts::Vector3D currentTrueVtx = trueVertices[vertex_idx];
