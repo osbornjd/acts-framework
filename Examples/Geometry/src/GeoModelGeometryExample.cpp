@@ -8,13 +8,13 @@
 
 #include <iostream>
 #include "ACTFW/Plugins/GeoModel/GeoModelReader.hpp"
+#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Volumes/VolumeBounds.hpp"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoPVLink.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "Acts/Detector/TrackingVolume.hpp"
-#include "Acts/Volumes/VolumeBounds.hpp"
 
 /// @brief main executable
 ///
@@ -34,46 +34,29 @@ main(int argc, char* argv[])
     if (dynamic_cast<const GeoVPhysVol*>(&(*(nodeLink)))) {
       const GeoVPhysVol* childVolV = &(*(nodeLink));
 
-		if(childVolV->getLogVol()->getName() == "BeamPipeCentral")
-		{
-			std::shared_ptr<Acts::TrackingVolume> trVol = gmr.buildCentralBeamPipe(childVolV);
-			
-			auto& volBounds = trVol->volumeBounds();
-			volBounds.dump(std::cout);
-			auto layArray = trVol->confinedLayers();
-			std::cout << "layArray: " << layArray << std::endl;
-			auto layers = layArray->arrayObjects();
-			std::cout << "numLayers: " << layers.size() << std::endl;
-			for(auto l : layers)
-			{
-				std::cout << "thickness: " << l->thickness() << "\tLayerType: " << l->layerType() << std::endl;
-				auto surArray = l->surfaceArray();
-				if(surArray)
-				{
-					surArray->dump(std::cout);
-				}
-			}
-		}
-		else if(childVolV->getLogVol()->getName() == "BeamPipeFwd")
-			{	
-				std::cout << "BeamPipeFwd!!" << std::endl;
-				//~ gmr.buildFwdBeamPipe(childVolV);
-				//~ gmr.treeToStream(childVolV, std::cout);
-			}
-      
-      //~ // Test if it is GeoPhysVol
-      //~ if ( dynamic_cast<const GeoPhysVol*>(childVolV) ) {
-      //~ // Print content
-      //~ const GeoPhysVol* childVol = dynamic_cast<const
-      // GeoPhysVol*>(childVolV); ~ gmr.toStream(childVol, std::cout); ~ // Test
-      // if it is GeoFullPhysVol
-      //~ } else if ( dynamic_cast<const GeoFullPhysVol*>(childVolV) ) {
-      //~ // Print content
-      //~ const GeoFullPhysVol* childVol = dynamic_cast<const
-      // GeoFullPhysVol*>(childVolV); ~ gmr.toStream(childVol, std::cout);
-      //~ }
+      if (childVolV->getLogVol()->getName() == "BeamPipeCentral") {
+        std::shared_ptr<Acts::TrackingVolume> trVol
+            = gmr.buildCentralBeamPipe(childVolV);
+
+        auto& volBounds = trVol->volumeBounds();
+        volBounds.dump(std::cout);
+        auto layArray = trVol->confinedLayers();
+        std::cout << "layArray: " << layArray << std::endl;
+        auto layers = layArray->arrayObjects();
+        std::cout << "numLayers: " << layers.size() << std::endl;
+        for (auto l : layers) {
+          std::cout << "thickness: " << l->thickness()
+                    << "\tLayerType: " << l->layerType() << std::endl;
+          auto surArray = l->surfaceArray();
+          if (surArray) {
+            surArray->dump(std::cout);
+          }
+        }
+      } else if (childVolV->getLogVol()->getName() == "BeamPipeFwd") {
+        gmr.buildFwdBeamPipe(childVolV);
+      }
     }
-   }
+  }
 
   //~ gmr.treeToStream(world, std::cout);
 }

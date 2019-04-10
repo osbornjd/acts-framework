@@ -8,43 +8,47 @@
 
 #include "ACTFW/Plugins/GeoModel/GeoModelReader.hpp"
 
+#include <limits>
+#include <map>
+#include <set>
+#include "Acts/Layers/ConeLayer.hpp"
+#include "Acts/Layers/CylinderLayer.hpp"
+#include "Acts/Surfaces/ConeBounds.hpp"
+#include "Acts/Surfaces/CylinderBounds.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
 #include "Acts/Tools/CylinderVolumeHelper.hpp"
 #include "Acts/Tools/LayerArrayCreator.hpp"
 #include "Acts/Tools/PassiveLayerBuilder.hpp"
+#include "Acts/Tools/SurfaceArrayCreator.hpp"
 #include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "GeoModelDBManager/GMDBManager.h"
+#include "GeoModelKernel/GeoAccessVolAndSTAction.h"
 #include "GeoModelKernel/GeoBox.h"
+#include "GeoModelKernel/GeoCons.h"
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoPcon.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelRead/ReadGeoModel.h"
-#include "GeoModelKernel/GeoAccessVolAndSTAction.h"
-#include <map>
-#include <set>
-#include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Surfaces/CylinderBounds.hpp"
-#include "Acts/Tools/SurfaceArrayCreator.hpp"
-#include "Acts/Layers/CylinderLayer.hpp"
-#include <limits>
 
 #include <QFileInfo>
 #include <QString>
 
+#include <cmath>
 #include <iostream>
 
 // Units
 #include "GeoModelKernel/Units.h"
 #define SYSTEM_OF_UNITS GeoModelKernelUnits
 
-namespace
-{
-	double conv = Acts::units::_mm / SYSTEM_OF_UNITS::mm;
+namespace {
+double conv = Acts::units::_mm / SYSTEM_OF_UNITS::mm;
 }
 
 GeoPhysVol*
@@ -143,7 +147,7 @@ FW::GeoModelReader::createTheExperiment(GeoPhysVol* world) const
 //~ // The surfaces should not have any further children
 //~ if (gvpv->getNChildVols() != 0) return nullptr;
 
-//~ // TODO: This might become a switch
+//~ // TODO: This might become a switchDigitizationModule
 //~ // A beam pipe should be a tube
 //~ GeoShape const* shape = gvpv->getLogVol()->getShape();
 //~ if (shape->type() == "Tube" && dynamic_cast<GeoTube const*>(shape)) {
@@ -153,8 +157,8 @@ FW::GeoModelReader::createTheExperiment(GeoPhysVol* world) const
 //~ return Acts::Surface::makeShared<Acts::CylinderSurface>(
 //~ trafo,
 //~ (tube->getRMin() + tube->getRMax()) * 0.5 / SYSTEM_OF_UNITS::mm *
-//Acts::units::_mm, ~ tube->getZHalfLength() / SYSTEM_OF_UNITS::mm *
-//Acts::units::_mm);
+// Acts::units::_mm, ~ tube->getZHalfLength() / SYSTEM_OF_UNITS::mm *
+// Acts::units::_mm);
 //~ } catch (const std::exception& e) {
 //~ std::cout << "Transformation not implemented - returning" << std::endl;
 //~ return nullptr;
@@ -180,7 +184,7 @@ FW::GeoModelReader::createTheExperiment(GeoPhysVol* world) const
 //~ }
 
 double
-FW::GeoModelReader::halfLength(GeoVPhysVol const* gvpv) const
+FW::GeoModelReader::tubeHalfLength(GeoVPhysVol const* gvpv) const
 {
   // A beam pipe should be a tube
   GeoShape const* shape = gvpv->getLogVol()->getShape();
@@ -228,90 +232,118 @@ FW::GeoModelReader::sortAndMergeSurfaces(
 std::shared_ptr<Acts::TrackingVolume>
 FW::GeoModelReader::buildCentralBeamPipe(GeoVPhysVol const* bp) const
 {
-	// If the beam pipe is not a tube something went wrong
+  // If the beam pipe is not a tube something went wrong
   GeoShape const* shape = bp->getLogVol()->getShape();
   if (shape->type() != "Tube" || !dynamic_cast<GeoTube const*>(shape))
     return nullptr;
 
-    GeoTube const* tube = dynamic_cast<GeoTube const*>(shape);
-	std::set<double> bins;
+  GeoTube const*   tube = dynamic_cast<GeoTube const*>(shape);
+  std::set<double> bins;
 
   // Walk over all children of the beam pipe volume
   unsigned int nChildren = bp->getNChildVols();
   for (unsigned int i = 0; i < nChildren; i++) {
     if (dynamic_cast<const GeoPhysVol*>(&(*(bp->getChildVol(i))))) {
 
-		double hLength = halfLength(&(*(bp->getChildVol(i))));
-		double zShift = bp->getXToChildVol(i).matrix().transpose()(2, 3);
-		bins.insert(zShift - hLength);
-		bins.insert(zShift + hLength);
+      double hLength = tubeHalfLength(&(*(bp->getChildVol(i))));
+      double zShift  = bp->getXToChildVol(i).matrix().transpose()(2, 3);
+      bins.insert(zShift - hLength);
+      bins.insert(zShift + hLength);
     }
   }
 
-	Acts::PassiveLayerBuilder::Config plbConfig;
-	plbConfig.centralLayerRadii.push_back((tube->getRMin() + tube->getRMax()) * 0.5 * conv);
-	plbConfig.centralLayerHalflengthZ.push_back(tube->getZHalfLength() * conv);
-	plbConfig.centralLayerThickness.push_back((tube->getRMax() - tube->getRMin()) * conv);
-	// TODO: get Material
-	// plbConfig.centralLayerMaterial ....
-	Acts::PassiveLayerBuilder plb(plbConfig);
+  Acts::PassiveLayerBuilder::Config plbConfig;
+  plbConfig.centralLayerRadii.push_back((tube->getRMin() + tube->getRMax())
+                                        * 0.5 * conv);
+  plbConfig.centralLayerHalflengthZ.push_back(tube->getZHalfLength() * conv);
+  plbConfig.centralLayerThickness.push_back(
+      (tube->getRMax() - tube->getRMin()) * conv - Acts::units::_um);
+  // TODO: get Material
+  // plbConfig.centralLayerMaterial ....
+  Acts::PassiveLayerBuilder plb(plbConfig);
 
-    Acts::LayerArrayCreator layArrCreator;
-    std::unique_ptr<const Acts::LayerArray> layArray = layArrCreator.layerArray(plb.centralLayers(), tube->getRMin() * conv, tube->getRMax() * conv, Acts::BinningType::arbitrary, Acts::BinningValue::binR);
-    
-	auto volBounds = std::make_shared<const Acts::CylinderVolumeBounds>(tube->getRMin() * conv, tube->getRMax() * conv, tube->getZHalfLength() * conv);
-	return Acts::TrackingVolume::create(std::make_shared<const Acts::Transform3D>(Acts::Transform3D::Identity()), volBounds, nullptr, std::move(layArray));
+  Acts::LayerArrayCreator                 layArrCreator;
+  std::unique_ptr<const Acts::LayerArray> layArray
+      = layArrCreator.layerArray(plb.centralLayers(),
+                                 tube->getRMin() * conv,
+                                 tube->getRMax() * conv,
+                                 Acts::BinningType::arbitrary,
+                                 Acts::BinningValue::binR);
+
+  auto volBounds = std::make_shared<const Acts::CylinderVolumeBounds>(
+      tube->getRMin() * conv,
+      tube->getRMax() * conv,
+      tube->getZHalfLength() * conv);
+  return Acts::TrackingVolume::create(
+      std::make_shared<const Acts::Transform3D>(Acts::Transform3D::Identity()),
+      volBounds,
+      nullptr,
+      std::move(layArray));
 }
 
 std::shared_ptr<Acts::TrackingVolume>
 FW::GeoModelReader::buildFwdBeamPipe(GeoVPhysVol const* bp) const
 {
   GeoShape const* shape = bp->getLogVol()->getShape();
-  //~ if (shape->type() != "Pcon" || !dynamic_cast<GeoTube const*>(shape))
-    //~ return nullptr;
+  if (shape->type() != "Pcon" || !dynamic_cast<GeoPcon const*>(shape))
+    return nullptr;
 
-  std::vector<std::array<double, 3>> surfaces;
+  GeoPcon const* pcon = dynamic_cast<GeoPcon const*>(shape);
 
-  // Walk over all children of the beam pipe volume
-  unsigned int nChildren = bp->getNChildVols();
-  for (unsigned int i = 0; i < nChildren; i++) {
-	  std::cout << bp->getXToChildVol(i).matrix().transpose() << std::endl << std::endl;
-    //~ if (dynamic_cast<const GeoPhysVol*>(&(*(bp->getChildVol(i))))) {
-      //~ surfaces.push_back(
-          //~ std::move(createPassiveSurface(&(*(bp->getChildVol(i))))));
-    //~ }
+  std::pair<double, double> minMaxZ(std::numeric_limits<double>::max(),
+                                    -std::numeric_limits<double>::min());
+
+  std::vector<std::shared_ptr<const Acts::Layer>> layerVector;
+  for (unsigned int i = 0; i < pcon->getNPlanes() - 1; i += 2) {
+    Acts::Transform3D trafo = Acts::Transform3D::Identity();
+    trafo.translation()     = Acts::Vector3D(
+        0., 0., (pcon->getZPlane(i + 1) + pcon->getZPlane(i)) * 0.5 * conv);
+    trafo = bp->getX() * trafo;
+    //~ trafo = trafo * conv;
+
+    double alpha = std::atan((pcon->getRMaxPlane(i + 1) - pcon->getRMaxPlane(i))
+                             / (pcon->getZPlane(i + 1) - pcon->getZPlane(i)));
+    auto   coneBounds = std::make_shared<Acts::ConeBounds>(
+        alpha, pcon->getZPlane(i) * conv, pcon->getZPlane(i + 1) * conv);
+
+    layerVector.push_back(Acts::ConeLayer::create(
+        std::make_shared<const Acts::Transform3D>(trafo),
+        coneBounds,
+        nullptr,
+        (pcon->getZPlane(i + 1) - pcon->getZPlane(i)) * conv - Acts::units::_um,
+        nullptr,
+        Acts::passive));
+
+    minMaxZ.first
+        = std::min(minMaxZ.first, pcon->getZPlane(i) * bp->getX()(2, 2) * conv);
+    minMaxZ.second = std::max(minMaxZ.second,
+                              pcon->getZPlane(i) * bp->getX()(2, 2) * conv);
   }
 
-  //~ sortAndMergeSurfaces(surfaces);
+  minMaxZ.first  = std::min(minMaxZ.first,
+                           pcon->getZPlane(pcon->getNPlanes() - 1)
+                               * bp->getX()(2, 2) * conv);
+  minMaxZ.second = std::max(minMaxZ.second,
+                            pcon->getZPlane(pcon->getNPlanes() - 1)
+                                * bp->getX()(2, 2) * conv);
 
-  //~ Acts::PassiveLayerBuilder::Config plbConfig;
-  //~ plbConfig.centralLayerRadii.reserve(surfaces.size());
-  //~ plbConfig.centralLayerHalflengthZ.reserve(surfaces.size());
-  //~ plbConfig.centralLayerThickness.reserve(surfaces.size());
+  Acts::LayerArrayCreator                 layArrCreator;
+  std::unique_ptr<const Acts::LayerArray> layArray
+      = layArrCreator.layerArray(layerVector,
+                                 minMaxZ.first * conv,
+                                 minMaxZ.second * conv,
+                                 Acts::BinningType::arbitrary,
+                                 Acts::BinningValue::binZ);
 
-  //~ for (const std::array<double, 3>& s : surfaces) {
-    //~ plbConfig.centralLayerRadii.push_back(s[0]);
-    //~ plbConfig.centralLayerHalflengthZ.push_back(s[1]);
-    //~ plbConfig.centralLayerThickness.push_back(s[2]);
-  //~ }
-  //~ auto plb = std::make_shared<Acts::PassiveLayerBuilder>(plbConfig);
-  //~ auto lac = std::make_shared<Acts::LayerArrayCreator>();
-  //~ auto tvac = std::make_shared<Acts::TrackingVolumeArrayCreator>();
-
-  //~ Acts::CylinderVolumeHelper::Config cvhConfig;
-  //~ cvhConfig.layerArrayCreator          = lac;
-  //~ cvhConfig.trackingVolumeArrayCreator = tvac;
-  //~ auto cvh = std::make_shared<Acts::CylinderVolumeHelper>(cvhConfig);
-
-  //~ GeoTube const* tube = dynamic_cast<GeoTube const*>(shape);
-
-  //~ Acts::CylinderVolumeBuilder::Config cvbConfig;
-  //~ cvbConfig.trackingVolumeHelper = cvh;
-  //~ cvbConfig.volumeName           = "BeamPipeFwd";
-  //~ cvbConfig.buildToRadiusZero = true;
-  //~ cvbConfig.layerBuilder      = plb;
-  //~ Acts::CylinderVolumeBuilder cvb(cvbConfig);
-  //~ return cvb.trackingVolume();
+  auto volBounds = std::make_shared<const Acts::CylinderVolumeBounds>(
+      pcon->getRMinPlane(0) * conv,
+      pcon->getRMaxPlane(pcon->getNPlanes() - 1) * conv,
+      (minMaxZ.second - minMaxZ.first) * 0.5 * conv);
+  return Acts::TrackingVolume::create(
+      std::make_shared<const Acts::Transform3D>(bp->getX()),
+      volBounds,
+      nullptr,
+      std::move(layArray));
 }
 
 std::ostream&
@@ -391,7 +423,6 @@ FW::GeoModelReader::toStream(GeoLogVol const* glv, std::ostream& sl) const
   shapeToStream(glv->getShape(), sl);
 
   // Print material data
-  //~ GeoMaterial const* constgeoMaterial = glv->getMaterial();
   GeoMaterial* geoMaterial = const_cast<GeoMaterial*>(glv->getMaterial());
   sl << "Material: " << std::endl;
   sl << "\tName: " << geoMaterial->getName() << " (" << geoMaterial->getID()

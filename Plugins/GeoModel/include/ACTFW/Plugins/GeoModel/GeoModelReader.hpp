@@ -13,7 +13,6 @@
 #include "Acts/Surfaces/Surface.hpp"
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-//~ #include "Acts/Utilities/GeometryContext.hpp"
 
 #include <QString>
 
@@ -53,8 +52,8 @@ public:
   /// @return Acts pointer to the beam pipe volume
   Acts::MutableTrackingVolumePtr
   buildCentralBeamPipe(GeoVPhysVol const* bp) const;
-  
-    Acts::MutableTrackingVolumePtr
+
+  Acts::MutableTrackingVolumePtr
   buildFwdBeamPipe(GeoVPhysVol const* bp) const;
 
   /// @brief Printer of the full detector
@@ -70,20 +69,13 @@ public:
   toStream(GeoFullPhysVol const* gfpv, std::ostream& sl) const;
 
 private:
-
-  //~ std::shared_ptr<Acts::Surface>
-  //~ createSurface(GeoVPhysVol const* gvpv) const;
-
-  //~ /// @brief Extracts the data of a single passive surface
-  //~ /// @note The Acts::PassiveLayerBuilder just needs the data but not the
-  //~ /// surface itself. The components of the returning array are {radius, half
-  //~ /// length in z, thickness}
-  //~ ///
-  //~ /// @param [in] gvpv Pointer to the surface
-  //~ ///
-  //~ /// @return The data array
+  /// @brief Extracts the half length of a tube
+  ///
+  /// @param [in] gvpv Pointer to the surface
+  ///
+  /// @return The half length
   double
-  halfLength(GeoVPhysVol const* gvpv) const;
+  tubeHalfLength(GeoVPhysVol const* gvpv) const;
 
   /// @brief This function sorts passive surfaces by their radius and merges
   /// overlapping surfaces to avoid overlappings in the layer creation process.
