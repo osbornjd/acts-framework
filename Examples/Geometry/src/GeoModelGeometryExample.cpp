@@ -7,6 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <iostream>
+#include <string>
 #include "ACTFW/Plugins/GeoModel/GeoModelReader.hpp"
 #include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Volumes/VolumeBounds.hpp"
@@ -15,6 +16,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoPVLink.h"
 #include "GeoModelKernel/GeoPhysVol.h"
+#include <QString>
 
 /// @brief main executable
 ///
@@ -23,8 +25,15 @@
 int
 main(int argc, char* argv[])
 {
+	// Exit if no file is given
+ if(argc < 2)
+ {
+	 std::cout << "No file path provided - exiting." << std::endl;
+	return 0;
+  }
   FW::GeoModelReader gmr;
-  GeoPhysVol*        world = gmr.loadDB("/home/user/geometry.db");
+  QString path(argv[1]);
+  GeoPhysVol*        world = gmr.loadDB(path);
 
   // Walk over all children of the current volume
   unsigned int nChildren = world->getNChildVols();
@@ -33,13 +42,13 @@ main(int argc, char* argv[])
     // Test if it inherits from GeoVPhysVol
     if (dynamic_cast<const GeoVPhysVol*>(&(*(nodeLink)))) {
       const GeoVPhysVol* childVolV = &(*(nodeLink));
-
+      
       std::vector<std::shared_ptr<Acts::TrackingVolume>> trVols;
 
       if (childVolV->getLogVol()->getName() == "BeamPipeCentral") {
-        trVols.push_back(gmr.buildCentralBeamPipe(childVolV));
+        trVols.push_back(gmr.buildBeamPipe(childVolV));
       } else if (childVolV->getLogVol()->getName() == "BeamPipeFwd") {
-        trVols.push_back(gmr.buildFwdBeamPipe(childVolV));
+        trVols.push_back(gmr.buildBeamPipe(childVolV));
       }
     }
   }

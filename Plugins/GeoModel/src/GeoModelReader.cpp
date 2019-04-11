@@ -274,7 +274,7 @@ FW::GeoModelReader::buildFwdBeamPipe(GeoVPhysVol const* bp) const
 }
 
 std::shared_ptr<Acts::TrackingVolume>
-FW::GeoModelReader::BuildBeamPipe(GeoVPhysVol const* bp) const
+FW::GeoModelReader::buildBeamPipe(GeoVPhysVol const* bp) const
 {
   // Test the shape
   GeoShape const* shape = bp->getLogVol()->getShape();

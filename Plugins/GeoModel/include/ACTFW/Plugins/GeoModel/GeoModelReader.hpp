@@ -50,7 +50,7 @@ public:
   ///
   /// @return Acts pointer to the corresponding beam pipe volume
   Acts::MutableTrackingVolumePtr
-  BuildBeamPipe(GeoVPhysVol const* bp) const
+  buildBeamPipe(GeoVPhysVol const* bp) const;
 
       /// @brief Printer of the full detector
       std::ostream& treeToStream(GeoVPhysVol const* tree,
