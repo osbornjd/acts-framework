@@ -56,6 +56,10 @@ main(int argc, char* argv[])
       } else if (childVolV->getLogVol()->getName() == "BeamPipeFwd") {
         trVols.push_back(gmbp.buildBeamPipe(geoContext, childVolV));
       }
+      else if(childVolV->getLogVol()->getName() == "Pixel"){
+		  gmr.buildPixel(childVolV);
+		  break;
+		}
     }
   }
 }

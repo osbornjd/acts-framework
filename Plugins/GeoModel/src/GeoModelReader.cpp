@@ -119,6 +119,48 @@ FW::GeoModelReader::loadDB(const QString& path) const
   }
 }
 
+std::shared_ptr<Acts::TrackingVolume>
+FW::GeoModelReader::buildPixel(GeoVPhysVol const* bp) const
+{
+GeoShape const* shape = bp->getLogVol()->getShape();
+std::cout << "pixel form: " << shape->type() << std::endl;
+
+  // Walk over all children of the beam pipe volume
+  unsigned int nChildren = bp->getNChildVols();
+  //~ for (unsigned int i = 0; i < nChildren; i++) {
+  for (unsigned int i = 0; i < 1; i++) {
+	  GeoVPhysVol const* child = &(*(bp->getChildVol(i)));
+	  GeoShape const* cShape = child->getLogVol()->getShape();
+	  unsigned int ncChildren = child->getNChildVols();
+	std::cout << "child: " << i << "\t" << child->getLogVol()->getName() << "\t" << cShape->type() << "\t" << ncChildren << std::endl;
+	for(unsigned int j = 0; j < ncChildren; j++)
+	{
+		GeoShape const* ccShape = child->getChildVol(j)->getLogVol()->getShape();
+		std::cout << "childchild: " << j << "\t" << child->getChildVol(j)->getLogVol()->getName() << "\t" << ccShape->type() << "\t" << child->getChildVol(j)->getNChildVols() << std::endl;
+		if(child->getChildVol(j)->getLogVol()->getName() == "Layer0" 
+			|| child->getChildVol(j)->getLogVol()->getName() == "Layer1"
+			|| child->getChildVol(j)->getLogVol()->getName() == "Layer2"
+			|| child->getChildVol(j)->getLogVol()->getName() == "Layer3") // This looks like the pixel layer
+		{
+			std::cout << child->getChildVol(j)->getLogVol()->getName() << "\t" << dynamic_cast<GeoTube const*>(ccShape)->getRMin()
+				<< "\t" << dynamic_cast<GeoTube const*>(ccShape)->getRMax() << "\t" << child->getChildVol(j)->getNChildVols() << std::endl;
+			for(unsigned int k = 0; k < child->getChildVol(j)->getNChildVols(); k++)
+			{
+				GeoVPhysVol const* cchild = &(*(child->getChildVol(j)->getChildVol(k)));
+				GeoShape const* cccShape = cchild->getLogVol()->getShape();
+				std::cout << "childchildchild: " << k << "\t" << cchild->getLogVol()->getName() << "\t" << cccShape->type() << "\t" << cchild->getNChildVols() << std::endl;
+				if(cccShape->type() == "Box")
+				{
+					GeoBox const* box = dynamic_cast<GeoBox const*>(cccShape);
+					std::cout << box->getXHalfLength() << "\t" << box->getYHalfLength() << "\t" << box->getZHalfLength() << std::endl;
+				}
+			}
+		}
+	}
+  }
+  return nullptr;
+}
+	
 std::ostream&
 FW::GeoModelReader::treeToStream(GeoVPhysVol const* tree,
                                  std::ostream&      sl) const
