@@ -8,10 +8,10 @@
 
 #pragma once
 
+#include <QString>
 #include <iostream>
 #include <set>
 #include "Acts/Detector/TrackingVolume.hpp"
-#include <QString>
 
 class GeoFullPhysVol;
 class GeoPhysVol;
@@ -45,10 +45,10 @@ public:
   /// @return Pointer to the whole world
   GeoPhysVol*
   createTheExperiment(GeoPhysVol* world) const;
-	
-      /// @brief Printer of the full detector
-      std::ostream& treeToStream(GeoVPhysVol const* tree,
-                                 std::ostream&      sl) const;
+
+  /// @brief Printer of the full detector
+  std::ostream&
+  treeToStream(GeoVPhysVol const* tree, std::ostream& sl) const;
 
   /// @brief Printer of GeoPhysVol
   std::ostream&
@@ -59,7 +59,6 @@ public:
   toStream(GeoFullPhysVol const* gfpv, std::ostream& sl) const;
 
 private:
-
   /// @brief Printer of GeoLogVol
   std::ostream&
   toStream(GeoLogVol const* glv, std::ostream& sl) const;

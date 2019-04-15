@@ -8,6 +8,8 @@
 
 #include "ACTFW/Plugins/GeoModel/GeoModelReader.hpp"
 
+#include <QFileInfo>
+#include <QString>
 #include <iostream>
 #include "Acts/Utilities/Definitions.hpp"
 #include "GeoModelDBManager/GMDBManager.h"
@@ -22,8 +24,6 @@
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelRead/ReadGeoModel.h"
-#include <QFileInfo>
-#include <QString>
 
 // Units
 #include "GeoModelKernel/Units.h"
@@ -49,27 +49,27 @@ FW::GeoModelReader::makeDebugDetector() const
   poly->lock();
 
   // Build world volume
-  GeoMaterial*     worldMat = new GeoMaterial("std::Air", densityOfAir);
-  const GeoBox*    worldBox = new GeoBox(1000 * SYSTEM_OF_UNITS::cm,
+  GeoMaterial*  worldMat = new GeoMaterial("std::Air", densityOfAir);
+  const GeoBox* worldBox = new GeoBox(1000 * SYSTEM_OF_UNITS::cm,
                                       1000 * SYSTEM_OF_UNITS::cm,
                                       1000 * SYSTEM_OF_UNITS::cm);
   const GeoLogVol* worldLog = new GeoLogVol("WorldLog", worldBox, worldMat);
   GeoPhysVol*      world    = new GeoPhysVol(worldLog);
 
   // Build children
-  const GeoBox*    toyBox  = new GeoBox(800 * SYSTEM_OF_UNITS::cm,
+  const GeoBox* toyBox = new GeoBox(800 * SYSTEM_OF_UNITS::cm,
                                     800 * SYSTEM_OF_UNITS::cm,
                                     1000 * SYSTEM_OF_UNITS::cm);
   const GeoLogVol* toyLog  = new GeoLogVol("ToyLog", toyBox, air);
   GeoPhysVol*      toyPhys = new GeoPhysVol(toyLog);
 
-  GeoBox*     sPass = new GeoBox(5.0 * SYSTEM_OF_UNITS::cm,
+  GeoBox* sPass = new GeoBox(5.0 * SYSTEM_OF_UNITS::cm,
                              30 * SYSTEM_OF_UNITS::cm,
                              30 * SYSTEM_OF_UNITS::cm);
   GeoLogVol*  lPass = new GeoLogVol("Passive", sPass, poly);
   GeoPhysVol* pPass = new GeoPhysVol(lPass);
 
-  GeoBox*     sIPass = new GeoBox(4 * SYSTEM_OF_UNITS::cm,
+  GeoBox* sIPass = new GeoBox(4 * SYSTEM_OF_UNITS::cm,
                               25 * SYSTEM_OF_UNITS::cm,
                               25 * SYSTEM_OF_UNITS::cm);
   GeoLogVol*  lIPass = new GeoLogVol("InnerPassive", sIPass, air);
@@ -96,8 +96,8 @@ FW::GeoModelReader::createTheExperiment(GeoPhysVol* world) const
     const GeoBox*      worldBox     = new GeoBox(1000 * SYSTEM_OF_UNITS::cm,
                                         1000 * SYSTEM_OF_UNITS::cm,
                                         1000 * SYSTEM_OF_UNITS::cm);
-    const GeoLogVol*   worldLog = new GeoLogVol("WorldLog", worldBox, worldMat);
-    world                       = new GeoPhysVol(worldLog);
+    const GeoLogVol* worldLog = new GeoLogVol("WorldLog", worldBox, worldMat);
+    world                     = new GeoPhysVol(worldLog);
   }
   return world;
 }

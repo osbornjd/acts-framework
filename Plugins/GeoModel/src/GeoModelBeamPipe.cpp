@@ -15,6 +15,7 @@
 #include <set>
 #include "Acts/Layers/ConeLayer.hpp"
 #include "Acts/Layers/CylinderLayer.hpp"
+#include "Acts/Material/BinnedSurfaceMaterial.hpp"
 #include "Acts/Surfaces/ConeBounds.hpp"
 #include "Acts/Surfaces/CylinderBounds.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
@@ -26,7 +27,6 @@
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
-#include "Acts/Material/BinnedSurfaceMaterial.hpp"
 
 // Units
 #include "GeoModelKernel/Units.h"
@@ -51,51 +51,51 @@ FW::GeoModelBeamPipe::tubeHalfLength(GeoVPhysVol const* gvpv) const
 std::set<double>
 FW::GeoModelBeamPipe::beamPipeMaterialBinning(GeoVPhysVol const* bp) const
 {
-	std::set<double> bins;
+  std::set<double> bins;
 
   // Walk over all children of the beam pipe volume
   unsigned int nChildren = bp->getNChildVols();
 
-	if(bp->getLogVol()->getShape()->type() == "Tube")
-	{
-	  for (unsigned int i = 0; i < nChildren; i++) {
-		double hLength = tubeHalfLength(&(*(bp->getChildVol(i))));
-		double zShift  = bp->getXToChildVol(i).matrix().transpose()(2, 3);
-		// Insert any change of the material along the beam pipe
-		bins.insert(zShift - hLength);
-		bins.insert(zShift + hLength);
-	  }
-	  return bins;
-	}
+  if (bp->getLogVol()->getShape()->type() == "Tube") {
+    for (unsigned int i = 0; i < nChildren; i++) {
+      double hLength = tubeHalfLength(&(*(bp->getChildVol(i))));
+      double zShift  = bp->getXToChildVol(i).matrix().transpose()(2, 3);
+      // Insert any change of the material along the beam pipe
+      bins.insert(zShift - hLength);
+      bins.insert(zShift + hLength);
+    }
+    return bins;
+  }
 
-	if(bp->getLogVol()->getShape()->type() == "Pcon")
-	{
-		GeoPcon const* pcon
-			= dynamic_cast<GeoPcon const*>(bp->getLogVol()->getShape());
-      
-		Acts::Transform3D trafo = Acts::Transform3D::Identity();
-		
-		for (unsigned int i = 0; i < nChildren - 1; i += 2) {
-			// Get the begin and end value of z
-			double z1    = pcon->getZPlane(i) * conv;
-			double z2    = pcon->getZPlane(i + 1) * conv;
+  if (bp->getLogVol()->getShape()->type() == "Pcon") {
+    GeoPcon const* pcon
+        = dynamic_cast<GeoPcon const*>(bp->getLogVol()->getShape());
 
-			// Transformation of the plane
-			trafo.translation()     = Acts::Vector3D(0., 0., z1);
-			trafo                   = bp->getX() * trafo;
-			bins.insert(trafo.translation().z());
-			
-			trafo.translation()     = Acts::Vector3D(0., 0., z2);
-			trafo                   = bp->getX() * trafo;
-			bins.insert(trafo.translation().z());
-		}
-		return bins;
-	}
-	return bins;
+    Acts::Transform3D trafo = Acts::Transform3D::Identity();
+
+    for (unsigned int i = 0; i < nChildren - 1; i += 2) {
+      // Get the begin and end value of z
+      double z1 = pcon->getZPlane(i) * conv;
+      double z2 = pcon->getZPlane(i + 1) * conv;
+
+      // Transformation of the plane
+      trafo.translation() = Acts::Vector3D(0., 0., z1);
+      trafo               = bp->getX() * trafo;
+      bins.insert(trafo.translation().z());
+
+      trafo.translation() = Acts::Vector3D(0., 0., z2);
+      trafo               = bp->getX() * trafo;
+      bins.insert(trafo.translation().z());
+    }
+    return bins;
+  }
+  return bins;
 }
-	
+
 std::shared_ptr<Acts::TrackingVolume>
-FW::GeoModelBeamPipe::buildCentralBeamPipe(GeoVPhysVol const* bp, std::shared_ptr<const Acts::SurfaceMaterial> material) const
+FW::GeoModelBeamPipe::buildCentralBeamPipe(
+    GeoVPhysVol const*                           bp,
+    std::shared_ptr<const Acts::SurfaceMaterial> material) const
 {
   // Get the data of the tube
   GeoTube const* tube
@@ -104,8 +104,8 @@ FW::GeoModelBeamPipe::buildCentralBeamPipe(GeoVPhysVol const* bp, std::shared_pt
   double rMax        = tube->getRMax() * conv;
   double halfLengthZ = tube->getZHalfLength() * conv;
 
-	// TODO: move this out of here
-	std::set<double> bins = beamPipeMaterialBinning(bp);
+  // TODO: move this out of here
+  std::set<double> bins = beamPipeMaterialBinning(bp);
 
   // Set up lauer
   Acts::PassiveLayerBuilder::Config plbConfig;
@@ -134,12 +134,15 @@ FW::GeoModelBeamPipe::buildCentralBeamPipe(GeoVPhysVol const* bp, std::shared_pt
 }
 
 std::vector<std::shared_ptr<const Acts::Layer>>
-FW::GeoModelBeamPipe::pconLayerVector(const Acts::Transform3D& trafoToVolume, GeoPcon const* pcon, std::pair<double, double>& minMaxZ, std::pair<double, double>& minMaxR) const
+FW::GeoModelBeamPipe::pconLayerVector(const Acts::Transform3D& trafoToVolume,
+                                      GeoPcon const*           pcon,
+                                      std::pair<double, double>& minMaxZ,
+                                      std::pair<double, double>& minMaxR) const
 {
   // Extract the orientation of the z axis from transformation (matters in the
   // ordering of z values)
   const double zAxisOrientation = trafoToVolume(2, 2);
-  
+
   // Gather layers
   std::vector<std::shared_ptr<const Acts::Layer>> layerVector;
   for (unsigned int i = 0; i < pcon->getNPlanes() - 1; i += 2) {
@@ -168,7 +171,7 @@ FW::GeoModelBeamPipe::pconLayerVector(const Acts::Transform3D& trafoToVolume, Ge
         z2 - z1 - Acts::units::_nm,
         nullptr,
         Acts::passive));
-    
+
     // TODO: Assign material
 
     // Search the minimum / maximum value for the envelope cylidner in z ...
@@ -186,7 +189,9 @@ FW::GeoModelBeamPipe::pconLayerVector(const Acts::Transform3D& trafoToVolume, Ge
 }
 
 std::shared_ptr<Acts::TrackingVolume>
-FW::GeoModelBeamPipe::buildFwdBeamPipe(GeoVPhysVol const* bp, std::shared_ptr<const Acts::SurfaceMaterial> material) const
+FW::GeoModelBeamPipe::buildFwdBeamPipe(
+    GeoVPhysVol const*                           bp,
+    std::shared_ptr<const Acts::SurfaceMaterial> material) const
 {
   GeoPcon const* pcon
       = dynamic_cast<GeoPcon const*>(bp->getLogVol()->getShape());
@@ -197,7 +202,7 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(GeoVPhysVol const* bp, std::shared_ptr<co
   std::pair<double, double> minMaxR(std::numeric_limits<double>::max(),
                                     -std::numeric_limits<double>::max());
 
-	// Build the layers
+  // Build the layers
   auto layerVector = pconLayerVector(bp->getX(), pcon, minMaxZ, minMaxR);
 
   // Put all together into a layer array
@@ -220,7 +225,9 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(GeoVPhysVol const* bp, std::shared_ptr<co
 }
 
 std::shared_ptr<Acts::TrackingVolume>
-FW::GeoModelBeamPipe::buildBeamPipe(GeoVPhysVol const* bp, std::shared_ptr<const Acts::SurfaceMaterial> material) const
+FW::GeoModelBeamPipe::buildBeamPipe(
+    GeoVPhysVol const*                           bp,
+    std::shared_ptr<const Acts::SurfaceMaterial> material) const
 {
   // Test the shape
   GeoShape const* shape = bp->getLogVol()->getShape();

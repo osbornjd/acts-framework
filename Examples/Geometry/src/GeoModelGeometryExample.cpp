@@ -6,10 +6,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <QString>
 #include <iostream>
 #include <string>
-#include "ACTFW/Plugins/GeoModel/GeoModelReader.hpp"
 #include "ACTFW/Plugins/GeoModel/GeoModelBeamPipe.hpp"
+#include "ACTFW/Plugins/GeoModel/GeoModelReader.hpp"
 #include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Volumes/VolumeBounds.hpp"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -17,7 +18,6 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoPVLink.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include <QString>
 
 /// @brief main executable
 ///
@@ -26,16 +26,15 @@
 int
 main(int argc, char* argv[])
 {
-	// Exit if no file is given
- if(argc < 2)
- {
-	 std::cout << "No file path provided - exiting." << std::endl;
-	return 0;
+  // Exit if no file is given
+  if (argc < 2) {
+    std::cout << "No file path provided - exiting." << std::endl;
+    return 0;
   }
   FW::GeoModelReader gmr;
-  QString path(argv[1]);
+  QString            path(argv[1]);
   GeoPhysVol*        world = gmr.loadDB(path);
-  
+
   FW::GeoModelBeamPipe gmbp;
 
   // Walk over all children of the current volume
@@ -45,7 +44,7 @@ main(int argc, char* argv[])
     // Test if it inherits from GeoVPhysVol
     if (dynamic_cast<const GeoVPhysVol*>(&(*(nodeLink)))) {
       const GeoVPhysVol* childVolV = &(*(nodeLink));
-      
+
       std::vector<std::shared_ptr<Acts::TrackingVolume>> trVols;
 
       if (childVolV->getLogVol()->getName() == "BeamPipeCentral") {

@@ -8,17 +8,16 @@
 
 #pragma once
 
+#include <QString>
 #include <iostream>
 #include <set>
 #include "Acts/Detector/TrackingVolume.hpp"
-#include <QString>
 
 class GeoPcon;
 class GeoVPhysVol;
 
-namespace Acts
-{
-	class SurfaceMaterial;
+namespace Acts {
+class SurfaceMaterial;
 }
 
 namespace FW {
@@ -26,7 +25,6 @@ namespace FW {
 class GeoModelBeamPipe
 {
 public:
-
   /// @brief Creates a part of the beam pipe in Acts by calling the right
   /// function
   ///
@@ -34,18 +32,19 @@ public:
   ///
   /// @return Acts pointer to the corresponding beam pipe volume
   Acts::MutableTrackingVolumePtr
-  buildBeamPipe(GeoVPhysVol const* bp, std::shared_ptr<const Acts::SurfaceMaterial> material = nullptr) const;
+  buildBeamPipe(GeoVPhysVol const*                           bp,
+                std::shared_ptr<const Acts::SurfaceMaterial> material
+                = nullptr) const;
 
-	/// @brief This function provides the bin boundaries for the material mapping
-	///
-	/// @param [in] bp Pointer to the beam pipe part
-	///
-	/// @return Set of bin boundaries along the z-axis
-	std::set<double>
-	beamPipeMaterialBinning(GeoVPhysVol const* bp) const;
-	
+  /// @brief This function provides the bin boundaries for the material mapping
+  ///
+  /// @param [in] bp Pointer to the beam pipe part
+  ///
+  /// @return Set of bin boundaries along the z-axis
+  std::set<double>
+  beamPipeMaterialBinning(GeoVPhysVol const* bp) const;
+
 private:
-
   /// @brief Constructs an Acts beam pipe out of a given GeoModel detector. The
   /// central beam pipe is represented by a single layer with binned surface
   /// material attached.
@@ -56,7 +55,9 @@ private:
   ///
   /// @return Acts pointer to the beam pipe volume
   Acts::MutableTrackingVolumePtr
-  buildCentralBeamPipe(GeoVPhysVol const* bp, std::shared_ptr<const Acts::SurfaceMaterial> material = nullptr) const;
+  buildCentralBeamPipe(GeoVPhysVol const*                           bp,
+                       std::shared_ptr<const Acts::SurfaceMaterial> material
+                       = nullptr) const;
 
   /// @brief Constructs an Acts forward beam pipe out of a given GeoModel
   /// detector. Along the z-direction a single layer represents the beam pipe
@@ -67,14 +68,19 @@ private:
   /// @note There is no material attached yet
   ///
   /// @param [in] bp Pointer to the forward beam pipe
-    /// @param [in] material Optional material assigned to the pipe
+  /// @param [in] material Optional material assigned to the pipe
   ///
   /// @return Acts pointer to the forward beam pipe volume
   Acts::MutableTrackingVolumePtr
-  buildFwdBeamPipe(GeoVPhysVol const* bp, std::shared_ptr<const Acts::SurfaceMaterial> material = nullptr) const;
+  buildFwdBeamPipe(GeoVPhysVol const*                           bp,
+                   std::shared_ptr<const Acts::SurfaceMaterial> material
+                   = nullptr) const;
 
-	std::vector<std::shared_ptr<const Acts::Layer>>
-	pconLayerVector(const Acts::Transform3D& trafoToVolume, GeoPcon const* pcon, std::pair<double, double>& minMaxZ, std::pair<double, double>& minMarR) const;
+  std::vector<std::shared_ptr<const Acts::Layer>>
+  pconLayerVector(const Acts::Transform3D& trafoToVolume,
+                  GeoPcon const*           pcon,
+                  std::pair<double, double>& minMaxZ,
+                  std::pair<double, double>& minMarR) const;
 
   /// @brief Extracts the half length of a tube
   ///
