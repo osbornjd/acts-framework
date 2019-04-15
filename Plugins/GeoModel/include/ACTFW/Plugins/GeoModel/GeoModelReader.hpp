@@ -50,9 +50,6 @@ public:
   std::ostream&
   treeToStream(GeoVPhysVol const* tree, std::ostream& sl) const;
 
-	Acts::MutableTrackingVolumePtr
-	buildPixel(GeoVPhysVol const* bp) const;
-
   /// @brief Printer of GeoPhysVol
   std::ostream&
   toStream(GeoPhysVol const* gpv, std::ostream& sl) const;
