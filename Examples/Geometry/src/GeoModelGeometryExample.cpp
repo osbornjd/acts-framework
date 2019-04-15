@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include "ACTFW/Plugins/GeoModel/GeoModelReader.hpp"
+#include "ACTFW/Plugins/GeoModel/GeoModelBeamPipe.hpp"
 #include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Volumes/VolumeBounds.hpp"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -34,6 +35,8 @@ main(int argc, char* argv[])
   FW::GeoModelReader gmr;
   QString path(argv[1]);
   GeoPhysVol*        world = gmr.loadDB(path);
+  
+  FW::GeoModelBeamPipe gmbp;
 
   // Walk over all children of the current volume
   unsigned int nChildren = world->getNChildVols();
@@ -46,9 +49,9 @@ main(int argc, char* argv[])
       std::vector<std::shared_ptr<Acts::TrackingVolume>> trVols;
 
       if (childVolV->getLogVol()->getName() == "BeamPipeCentral") {
-        trVols.push_back(gmr.buildBeamPipe(childVolV));
+        trVols.push_back(gmbp.buildBeamPipe(childVolV));
       } else if (childVolV->getLogVol()->getName() == "BeamPipeFwd") {
-        trVols.push_back(gmr.buildBeamPipe(childVolV));
+        trVols.push_back(gmbp.buildBeamPipe(childVolV));
       }
     }
   }
