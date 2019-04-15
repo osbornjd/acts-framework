@@ -6,23 +6,32 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#ifndef ACTW_ALGORITHMS_MATERIALMAPPING_GEANTINORECORDING_H
-#define ACTW_ALGORITHMS_MATERIALMAPPING_GEANTINORECORDING_H
+#pragma once
 
 #include <memory>
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
-#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
+#include "Acts/Extrapolator/MaterialInteractor.hpp"
+#include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "G4RunManager.hh"
 
-namespace FW {
-class WhiteBoard;
+namespace Acts {
+// Using some short hands for Recorded Material
+using RecordedMaterial = MaterialInteractor::result_type;
+
+// And recorded material track
+// - this is start:  position, start momentum
+//   and the Recorded material
+using RecordedMaterialTrack
+    = std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
 }
 
 namespace FW {
+
+class WhiteBoard;
 
 /// @class GeantinoRecording
 ///
@@ -41,11 +50,12 @@ public:
   struct Config
   {
     /// The writer writing out the MaterialTrack entities
-    std::shared_ptr<FW::IWriterT<Acts::MaterialTrack>> materialTrackWriter
-        = nullptr;
+    std::shared_ptr<FW::IWriterT<Acts::RecordedMaterialTrack>>
+        materialTrackWriter = nullptr;
     /// The service possibly providing the Geant4 geometry (optional)
     /// @note If this is not set, the geometry should be given by gdml file
     std::shared_ptr<FW::IGeant4Service> geant4Service = nullptr;
+
     /// The possible gmdl input (optional)
     std::string gdmlFile;
     /// The number of tracks per event
@@ -70,5 +80,3 @@ private:
   std::unique_ptr<G4RunManager> m_runManager;
 };
 }
-
-#endif  // ACTW_ALGORITHMS_GEANTINORECORDING_H

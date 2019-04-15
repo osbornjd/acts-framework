@@ -146,7 +146,7 @@ namespace Generic {
         // get the material from configuration
         Acts::MaterialProperties layerMaterialProperties
             = m_cfg.centralLayerMaterialProperties.at(icl);
-        std::shared_ptr<const Acts::SurfaceMaterial> layerMaterialPtr(
+        std::shared_ptr<const Acts::ISurfaceMaterial> layerMaterialPtr(
             new Acts::HomogeneousSurfaceMaterial(layerMaterialProperties));
         // central material
         if (m_cfg.centralLayerMaterialConcentration.at(icl) == 0.) {
@@ -229,7 +229,7 @@ namespace Generic {
 
       // the layer is built let's see if it needs material
       if (m_cfg.posnegLayerMaterialProperties.size()) {
-        std::shared_ptr<const Acts::SurfaceMaterial> layerMaterialPtr(
+        std::shared_ptr<const Acts::ISurfaceMaterial> layerMaterialPtr(
             new Acts::HomogeneousSurfaceMaterial(
                 m_cfg.posnegLayerMaterialProperties[ipnl]));
         // central material

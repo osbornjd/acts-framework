@@ -25,6 +25,7 @@
 #include "ACTFW/Utilities/Options.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Utilities/GeometryContext.hpp"
 
 template <typename options_setup_t, typename geometry_setup_t>
@@ -47,13 +48,14 @@ processGeometry(int               argc,
     return EXIT_FAILURE;
   }
 
+  // Material loading from external source
+  std::shared_ptr<const Acts::IMaterialDecorator> mDecorator = nullptr;
+
   // Now read the standard options
-  auto logLevel = FW::Options::readLogLevel(vm);
-  // TODO Check whether this truly needs to be event-based. If yes switch to
-  // Sequencer-based tool, otherwise remove.
-  auto nEvents           = FW::Options::readSequencerConfig(vm).events;
-  auto geometry          = geometrySetup(vm);
-  auto tGeometry         = geometry.first;
+  auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto nEvents   = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+  auto geometry  = geometrySetup(vm, mDecorator);
+  auto tGeometry = geometry.first;
   auto contextDecorators = geometry.second;
 
   // The detectors

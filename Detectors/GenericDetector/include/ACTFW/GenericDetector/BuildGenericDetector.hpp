@@ -90,22 +90,25 @@ namespace Generic {
   /// element, each derivative of a GenericDetectorElement can be used
   ///
   /// @param gctx is the detector element dependent geometry context
-  /// @param surfaceLLevel is the surface building logging level
-  /// @param layerLLevel is the layer building logging level
-  /// @param volumeLLevel is the volume building logging level
   /// @param detectorStore is the store for the detector element
+  /// @param matDecorator is an optional decorator for the material
   /// @param level is the detector building level
   ///          0 - pixel barrel only
   ///          1 - pixel detector only
   ///          2 - full barrel only
   ///          3 - full detector (without stereo modules)
+  /// @param surfaceLLevel is the surface building logging level
+  /// @param layerLLevel is the layer building logging level
+  /// @param volumeLLevel is the volume building logging level
   /// return a unique vector to the tracking geometry
   template <typename detector_element_t>
   std::unique_ptr<const Acts::TrackingGeometry>
   buildDetector(const typename detector_element_t::ContextType& gctx,
                 std::vector<std::vector<std::shared_ptr<detector_element_t>>>&
-                                     detectorStore,
-                size_t               level,
+                                                                detectorStore,
+                size_t                                          level,
+                std::shared_ptr<const Acts::IMaterialDecorator> matDecorator
+                = nullptr,
                 Acts::Logging::Level surfaceLLevel = Acts::Logging::INFO,
                 Acts::Logging::Level layerLLevel   = Acts::Logging::INFO,
                 Acts::Logging::Level volumeLLevel  = Acts::Logging::INFO)
@@ -725,6 +728,7 @@ namespace Generic {
           });
     }
     tgConfig.trackingVolumeHelper = cylinderVolumeHelper;
+    tgConfig.materialDecorator    = matDecorator;
 
     auto cylinderGeometryBuilder
         = std::make_shared<const Acts::TrackingGeometryBuilder>(

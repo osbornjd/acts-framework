@@ -23,7 +23,8 @@
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-
+#include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
+#include "Acts/Material/IMaterialDecorator.hpp"
 #include "FatrasDigitizationBase.hpp"
 #include "FatrasEvgenBase.hpp"
 #include "FatrasSimulationBase.hpp"
@@ -87,8 +88,11 @@ fatrasExample(int               argc,
   // Add it to the sequencer
   sequencer.addService(barcodeSvc);
 
+  // Material loading from external source
+  std::shared_ptr<const Acts::IMaterialDecorator> mDecorator = nullptr;
+
   // Create the geometry and the context decorators
-  auto geometry          = geometrySetup(vm);
+  auto geometry          = geometrySetup(vm, mDecorator);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 

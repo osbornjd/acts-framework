@@ -18,7 +18,7 @@ namespace Acts {
 class Surface;
 class PlanarBounds;
 class DiscBounds;
-class SurfaceMaterial;
+class ISurfaceMaterial;
 class DigitizationModule;
 }
 
@@ -50,7 +50,7 @@ namespace Generic {
         std::shared_ptr<const Acts::Transform3D>        transform,
         std::shared_ptr<const Acts::PlanarBounds>       pBounds,
         double                                          thickness,
-        std::shared_ptr<const Acts::SurfaceMaterial>    material = nullptr,
+        std::shared_ptr<const Acts::ISurfaceMaterial>   material = nullptr,
         std::shared_ptr<const Acts::DigitizationModule> digitzationModule
         = nullptr);
 
@@ -67,7 +67,7 @@ namespace Generic {
         std::shared_ptr<const Acts::Transform3D>        transform,
         std::shared_ptr<const Acts::DiscBounds>         dBounds,
         double                                          thickness,
-        std::shared_ptr<const Acts::SurfaceMaterial>    material = nullptr,
+        std::shared_ptr<const Acts::ISurfaceMaterial>   material = nullptr,
         std::shared_ptr<const Acts::DigitizationModule> digitzationModule
         = nullptr);
 

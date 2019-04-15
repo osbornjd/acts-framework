@@ -289,7 +289,7 @@ namespace Generic {
 
         // prepartation :
         // create the Module material from input
-        std::shared_ptr<const Acts::SurfaceMaterial> moduleMaterialPtr
+        std::shared_ptr<const Acts::ISurfaceMaterial> moduleMaterialPtr
             = nullptr;
         if (m_cfg.centralModuleMaterial.size()) {
           // get the sensor material from configuration
@@ -297,7 +297,7 @@ namespace Generic {
           Acts::MaterialProperties moduleMaterialProperties(moduleMaterial,
                                                             moduleThickness);
           // create a new surface material
-          moduleMaterialPtr = std::shared_ptr<const Acts::SurfaceMaterial>(
+          moduleMaterialPtr = std::shared_ptr<const Acts::ISurfaceMaterial>(
               new Acts::HomogeneousSurfaceMaterial(moduleMaterialProperties));
         }
 
@@ -530,13 +530,13 @@ namespace Generic {
           }
           // (3) module material
           // create the Module material from input
-          std::shared_ptr<const Acts::SurfaceMaterial> moduleMaterialPtr
+          std::shared_ptr<const Acts::ISurfaceMaterial> moduleMaterialPtr
               = nullptr;
           if (m_cfg.posnegModuleMaterial.size()) {
             Acts::MaterialProperties moduleMaterialProperties(
                 m_cfg.posnegModuleMaterial.at(ipnl).at(ipnR), moduleThickness);
             // and create the shared pointer
-            moduleMaterialPtr = std::shared_ptr<const Acts::SurfaceMaterial>(
+            moduleMaterialPtr = std::shared_ptr<const Acts::ISurfaceMaterial>(
                 new Acts::HomogeneousSurfaceMaterial(moduleMaterialProperties));
           }
 
