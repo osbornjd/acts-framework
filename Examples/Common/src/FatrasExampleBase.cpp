@@ -13,6 +13,7 @@
 #include "ACTFW/Digitization/DigitizationOptions.hpp"
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
+#include "ACTFW/Fitting/FittingOptions.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -22,11 +23,10 @@
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 
+#include "ACTFW/Detector/IBaseDetector.hpp"
 #include "detail/FatrasDigitizationBase.hpp"
 #include "detail/FatrasEvgenBase.hpp"
 #include "detail/FatrasSimulationBase.hpp"
-
-#include "ACTFW/Detector/IBaseDetector.hpp"
 
 int
 fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
@@ -44,6 +44,7 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   FW::Options::addBFieldOptions(desc);
   FW::Options::addFatrasOptions(desc);
   FW::Options::addDigitizationOptions(desc);
+  FW::Options::addFittingOptions(desc);
   FW::Options::addOutputOptions(desc);
   desc.add_options()("evg-input-type",
                      value<std::string>()->default_value("pythia8"),
@@ -75,6 +76,9 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   // Setup the evgen input to the simulation
   setupEvgenInput(vm, sequencer, barcodeSvc, randomNumberSvc);
 
+  // Get the tracking geometry
+  auto tGeometry = trackingGeometry(vm);
+
   // (B) SIMULATION
   // Setup the simulation
   setupSimulation(vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
@@ -84,6 +88,7 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   setupDigitization(vm, sequencer, barcodeSvc, randomNumberSvc);
 
   // (D) TRUTH TRACKING
+  setupFitting<po::variables_map>(vm, sequencer, tGeometry, barcodeSvc);
 
   // (E) PATTERN RECOGNITION
 
