@@ -40,10 +40,8 @@ namespace FW {
         
       /// constructor
       /// @param cfg is the configuration object
-      /// @param readerName the name of the reader
       /// @parm level is the output logging level
       CsvParticleReader(const Config&        cfg,
-                        const std::string&   readerName = "CsvParticleReader",
                         Acts::Logging::Level level = Acts::Logging::INFO);
         
       /// Framework name() method
@@ -65,7 +63,6 @@ namespace FW {
         
     private:
       Config                              m_cfg;        ///< Nested configuration struct
-      std::string                         m_readerName; ///< Name of the reader
       std::unique_ptr<const Acts::Logger> m_logger;     ///< The logging instance 
         
       const Acts::Logger&
@@ -79,7 +76,7 @@ namespace FW {
     inline std::string
     CsvParticleReader::name() const
     {
-      return m_readerName;
+      return "CsvParticleReader";
     }
         
     /// Return of the number events

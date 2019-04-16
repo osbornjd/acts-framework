@@ -19,11 +19,9 @@
 
 FW::Csv::CsvParticleReader::CsvParticleReader(
                                               const FW::Csv::CsvParticleReader::Config& cfg,
-                                              const std::string&                        readerName,
                                               Acts::Logging::Level                      level)
   : m_cfg(cfg)
-  , m_readerName(std::move(readerName))
-  , m_logger(Acts::getDefaultLogger(m_readerName, level))
+  , m_logger(Acts::getDefaultLogger("CsvParticleReader", level))
 {
   if (m_cfg.outputParticleCollection.empty()) {
     throw std::invalid_argument("Missing output collection");
@@ -42,7 +40,7 @@ FW::Csv::CsvParticleReader::read(FW::AlgorithmContext ctx)
   std::string pathIs = perEventFilepath(
                                         m_cfg.inputDir, m_cfg.inputFileName, ctx.eventNumber);
 
-  FW::CsvReader pCsvReader(pathIs,",");
+  FW::CsvReader pCsvReader(pathIs);
   std::vector<std::string> particleVal;
 
   ACTS_DEBUG("Assumed particle info in following order: "

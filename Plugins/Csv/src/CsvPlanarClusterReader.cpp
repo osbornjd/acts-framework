@@ -24,11 +24,9 @@
 
 FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
                                                         const FW::Csv::CsvPlanarClusterReader::Config& cfg,
-                                                        const std::string&                             readerName,
                                                         Acts::Logging::Level                           level)
 : m_cfg(cfg)
-, m_readerName(std::move(readerName))
-, m_logger(Acts::getDefaultLogger(m_readerName, level))
+, m_logger(Acts::getDefaultLogger("CsvPlanarClusterReader", level))
 {
   if (m_cfg.inputHitsFileName.empty()) {
     throw std::invalid_argument("Missing input hits file");
@@ -60,17 +58,17 @@ FW::Csv::CsvPlanarClusterReader::read(FW::AlgorithmContext ctx)
   // open per-event hits .csv file with ',' as delimeter
   std::string pathHits
     = perEventFilepath(m_cfg.inputDir, m_cfg.inputHitsFileName, ctx.eventNumber);
-  FW::CsvReader hitCsvReader(pathHits,",");
+  FW::CsvReader hitCsvReader(pathHits);
 
   // open per-event hit details .csv file with ',' as delimeter
   std::string pathDetails
     = perEventFilepath(m_cfg.inputDir, m_cfg.inputDetailsFileName, ctx.eventNumber);
-  FW::CsvReader detailCsvReader(pathDetails,",");
+  FW::CsvReader detailCsvReader(pathDetails);
 
   // open per-event truth .csv file with ',' as delimeter
   std::string pathTruth
     = perEventFilepath(m_cfg.inputDir, m_cfg.inputTruthFileName, ctx.eventNumber);
-  FW::CsvReader truthCsvReader(pathTruth,",");
+  FW::CsvReader truthCsvReader(pathTruth);
 
   if(hitCsvReader.numPars() < 7 ) {
     ACTS_ERROR("Number of csv parameters in file '" << pathHits
