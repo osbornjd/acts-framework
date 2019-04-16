@@ -92,7 +92,7 @@ CsvExample(int                argc,
     particleCsvReaderConfig.outputParticleCollection = outputParticleCollection;
     particleCsvReader 
       = std::make_shared<FW::Csv::CsvParticleReader>(
-                                                     particleCsvReaderConfig, "CsvParticleReader", logLevel);
+                                                     particleCsvReaderConfig, logLevel);
   }
 
   // Read clusters as CSV files
@@ -107,7 +107,7 @@ CsvExample(int                argc,
     plCsvReaderConfig.outputClusterCollection = outputClusterCollection;
     plCsvReader 
       = std::make_shared<FW::Csv::CsvPlanarClusterReader>(
-                                                          plCsvReaderConfig, "CsvPlanarClusterReader", logLevel);
+                                                          plCsvReaderConfig, logLevel);
   }
 
   // Output Csv directory

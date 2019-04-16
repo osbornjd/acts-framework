@@ -30,12 +30,8 @@ namespace FW{
     /// @param filename is the file name 
     /// @parm delm is the delimeter to parse the csv 
     CsvReader(const std::string&   filename, 
-              const std::string&   delm,
               Acts::Logging::Level level = Acts::Logging::INFO);
-
-    /// Read one line
-    bool read(std::string& line);
-
+   
     /// Read one line and return corresponding values for given sets of csv parameters 
     bool readParLine(const StringVec& csvPars, StringVec& csvVals);
 
@@ -56,13 +52,16 @@ namespace FW{
         
   private:
     std::string m_fileName;                               ///< csv filename
-    std::string m_delimeter;                              ///< csv parser, e.g. ','
     std::unique_ptr<const Acts::Logger> m_logger;         ///< The logging instance 
-    std::shared_ptr<std::ifstream> m_inputStream= nullptr;///< input stream for the input file      
+    std::ifstream m_inputStream;                          ///< input stream for the input file      
     std::map<std::string, int> m_csvParIDs;               ///< the map of parameter location
     size_t m_nPars;                                       ///< number of csv parameters from header       
     size_t m_nLines;                                      ///< number of lines read
         
+    /// Read one line, called by readParLine, readLine and peekLine
+    bool read(std::string& line);
+
+    /// The logger
     const Acts::Logger&
     logger() const
     {

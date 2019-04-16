@@ -10,22 +10,19 @@
 
 FW::CsvReader::CsvReader(
                          const std::string&     filename, 
-                         const std::string&     delm, 
                          Acts::Logging::Level   level)
   : m_fileName(filename)
-  , m_delimeter(delm)
   , m_logger(Acts::getDefaultLogger("CsvReader", level))
 { 
-  m_inputStream = std::shared_ptr<std::ifstream>(new std::ifstream);
-  m_inputStream->open(m_fileName, std::ifstream::in);
-  if(m_inputStream->fail()){
+  m_inputStream.open(m_fileName, std::ifstream::in);
+  if(m_inputStream.fail()){
     throw std::ios_base::failure("Could not open '" + m_fileName + "' to read. Aborting.");                               
   }
 
   std::string line;
   StringVec csvParNames;
   if(read(line)) {
-    boost::algorithm::split(csvParNames, line, boost::is_any_of(m_delimeter));
+    boost::algorithm::split(csvParNames, line, boost::is_any_of(","));
     ACTS_DEBUG(csvParNames.size() << " csvs in .csv file '" << m_fileName << "'.");
   }
 
@@ -43,7 +40,7 @@ FW::CsvReader::CsvReader(
 bool 
 FW::CsvReader::read(std::string& line)
 {
-  if(std::getline(*m_inputStream, line)) {
+  if(std::getline(m_inputStream, line)) {
     m_nLines+=1;
     if(line.empty()){ 
       ACTS_WARNING("Line " << numLines() << " of file '" << m_fileName << "' is empty. " 
@@ -61,7 +58,7 @@ FW::CsvReader::readParLine(const StringVec& csvPars, StringVec& csvVals)
   std::string line;
   if(read(line)){
     StringVec csvLine;
-    boost::algorithm::split(csvLine, line, boost::is_any_of(m_delimeter));
+    boost::algorithm::split(csvLine, line, boost::is_any_of(","));
     if(m_csvParIDs.size() != csvLine.size()){
       ACTS_ERROR("Number of csvs at line " << numLines() << " is " << csvLine.size()
                  << ". But there are " << m_csvParIDs.size() << " csvs from the header in file '"
@@ -88,7 +85,7 @@ FW::CsvReader::readLine(StringVec& csvVals)
 {
   std::string line;
   if(read(line)){
-    boost::algorithm::split(csvVals, line, boost::is_any_of(m_delimeter));
+    boost::algorithm::split(csvVals, line, boost::is_any_of(","));
     if(m_csvParIDs.size() != csvVals.size()){
       ACTS_ERROR("Number of csvs at line " << numLines() << " is " << csvVals.size()
                  << ". But there are " << m_csvParIDs.size() << " csvs from the header in file '"
@@ -100,16 +97,15 @@ FW::CsvReader::readLine(StringVec& csvVals)
   return false;
 }
 
-
 FW::StringVec
 FW::CsvReader::peekLine()
 {
-  long unsigned pos = m_inputStream->tellg();
+  long unsigned pos = m_inputStream.tellg();
   StringVec parVal;
   std::string line;
   if(read(line)){
-    boost::algorithm::split(parVal, line, boost::is_any_of(m_delimeter));
-    m_inputStream->seekg(pos);     
+    boost::algorithm::split(parVal, line, boost::is_any_of(","));
+    m_inputStream.seekg(pos);     
   }
   return parVal;
 }

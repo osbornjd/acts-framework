@@ -48,10 +48,8 @@ namespace FW {
         
       /// Constructor with
       /// @param cfg configuration struct
-      /// @param readerName the name of the reader
       /// @param output logging level
       CsvPlanarClusterReader(const Config&        cfg,
-                             const std::string&   readerName = "CsvPlanarClusterReader",
                              Acts::Logging::Level level = Acts::Logging::INFO);
         
       /// Framework name() method
@@ -73,7 +71,6 @@ namespace FW {
         
     private:
       Config  m_cfg;                                  ///< nested configuration struct
-      std::string  m_readerName;                      ///< the reader name
       std::unique_ptr<const Acts::Logger>  m_logger;  ///< the logger instance
         
       const Acts::Logger&
@@ -87,7 +84,7 @@ namespace FW {
     inline std::string
     CsvPlanarClusterReader::name() const
     {
-      return m_readerName;
+      return "CsvPlanarClusterReader";
     }
         
     /// Return of the number events
