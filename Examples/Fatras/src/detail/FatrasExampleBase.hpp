@@ -13,6 +13,13 @@
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
+<<<<<<< HEAD
+=======
+#include "ACTFW/Common/CommonOptions.hpp"
+#include "ACTFW/Common/GeometryOptions.hpp"
+#include "ACTFW/Common/MaterialOptions.hpp"
+#include "ACTFW/Common/OutputOptions.hpp"
+>>>>>>> a2a44a72... added MaterialOptions
 #include "ACTFW/Digitization/DigitizationOptions.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -89,7 +96,7 @@ fatrasExample(int               argc,
   sequencer.addService(barcodeSvc);
 
   // Material loading from external source
-  std::shared_ptr<const Acts::IMaterialDecorator> mDecorator = nullptr;
+  auto mDecorator = FW::Options::readMaterialDecorator<po::variables_map>(vm);
 
   // Create the geometry and the context decorators
   auto geometry          = geometrySetup(vm, mDecorator);

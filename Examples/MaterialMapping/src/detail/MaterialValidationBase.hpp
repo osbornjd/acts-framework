@@ -12,6 +12,7 @@
 #include <memory>
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Common/GeometryOptions.hpp"
+#include "ACTFW/Common/MaterialOptions.hpp"
 #include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
@@ -186,25 +187,12 @@ materialValidationExample(int              argc,
   // Add it to the sequencer
   sequencer.addServices({randomNumberSvc});
 
-  // Create the geometry (with material)
-  // std::shared_ptr<const Acts::TrackingGeometry> tGeometry = nullptr;
-  // if (vm["geo-material-mode"].as<size_t>() == 2) {
-  //  // Get the file name from the options
-  //  std::string materialFileName = vm["geo-material-file"].as<std::string>();
-  //  // We make a reader config
-  //  FW::Root::RootIndexedMaterialReader::Config smmReaderConfig;
-  //  smmReaderConfig.fileName = materialFileName;
-  //  // read the material root file
-  //  FW::Root::SurfaceMaterialMapReader smmReader;
-  //  tGeometry = trackingGeometry(vm, smmReader);
-  //} else {
-
   // Material loading from external source
-  std::shared_ptr<const Acts::IMaterialDecorator> mDecorator = nullptr;
+  auto mDecorator = FW::Options::readMaterialDecorator<po::variables_map>(vm);
+
+  // Set up the geometry
   auto geometry  = geometrySetup(vm, mDecorator);
   auto tGeometry = geometry.first;
-
-  //}
 
   // Create BField service
   auto bField  = FW::Options::readBField<po::variables_map>(vm);
@@ -227,7 +215,10 @@ materialValidationExample(int              argc,
     setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else {
     // Create the constant  field
-    setupPropagation(sequencer, fieldC, vm, randomNumberSvc, tGeometry);
+    using CField = Acts::ConstantBField;
+    CField fieldMap(*std::get<std::shared_ptr<CField>>(bField));
+    // Create the constant  field
+    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   }
 
   // ---------------------------------------------------------------------------------

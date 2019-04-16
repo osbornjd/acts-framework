@@ -11,7 +11,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -35,12 +34,20 @@ processGeometry(int               argc,
                 options_setup_t&  optionsSetup,
                 geometry_setup_t& geometrySetup)
 {
-  // setup and parse options
-  auto desc = FW::Options::makeDefaultOptions();
-  FW::Options::addSequencerOptions(desc);
-  FW::Options::addGeometryOptions(desc);
-  FW::Options::addObjWriterOptions(desc);
-  FW::Options::addOutputOptions(desc);
+
+  // Declare the supported program options.
+  po::options_description desc("Allowed options");
+  // Add the standard/common options
+  FW::Options::addCommonOptions<po::options_description>(desc);
+  // Add options for the Obj writing
+  FW::Options::addObjWriterOptions<po::options_description>(desc);
+  // Add the geometry options
+  FW::Options::addGeometryOptions<po::options_description>(desc);
+  // Add the geometry options
+  FW::Options::addMaterialOptions<po::options_description>(desc);
+  // Add the output options
+  FW::Options::addOutputOptions<po::options_description>(desc);
+
   // Add specific options for this geometry
   optionsSetup(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
@@ -48,14 +55,15 @@ processGeometry(int               argc,
     return EXIT_FAILURE;
   }
 
-  // Material loading from external source
-  std::shared_ptr<const Acts::IMaterialDecorator> mDecorator = nullptr;
-
   // Now read the standard options
-  auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
-  auto nEvents   = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto geometry  = geometrySetup(vm, mDecorator);
-  auto tGeometry = geometry.first;
+  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+
+  // Material loading from external source
+  auto mDecorator = FW::Options::readMaterialDecorator<po::variables_map>(vm);
+
+  auto geometry          = geometrySetup(vm, mDecorator);
+  auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 
   // The detectors

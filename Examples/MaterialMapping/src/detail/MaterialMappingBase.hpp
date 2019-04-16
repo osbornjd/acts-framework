@@ -13,6 +13,7 @@
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Common/GeometryOptions.hpp"
 #include "ACTFW/Common/InputOptions.hpp"
+#include "ACTFW/Common/MaterialOptions.hpp"
 #include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
@@ -83,8 +84,8 @@ materialMappingExample(int              argc,
   auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
   auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
-  std::shared_ptr<const Acts::IMaterialDecorator> mDecorator = nullptr;
-
+  // Material loading from external source
+  auto mDecorator = FW::Options::readMaterialDecorator<po::variables_map>(vm);
   // Get the tracking geometry and setup the propagator
   auto geometry  = geometrySetup(vm, mDecorator);
   auto tGeometry = geometry.first;

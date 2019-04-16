@@ -9,11 +9,12 @@
 #pragma once
 
 #include <memory>
-
 #include <boost/program_options.hpp>
-
+#include "ACTFW/Common/CommonOptions.hpp"
+#include "ACTFW/Common/GeometryOptions.hpp"
+#include "ACTFW/Common/MaterialOptions.hpp"
+#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Plugins/Obj/ObjPropagationStepsWriter.hpp"
@@ -146,14 +147,15 @@ propagationExample(int               argc,
     return EXIT_FAILURE;
   }
 
-  // Material loading from external source
-  std::shared_ptr<const Acts::IMaterialDecorator> mDecorator = nullptr;
-
   // Now read the standard options
-  auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
-  auto nEvents   = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto geometry  = geometrySetup(vm, mDecorator);
-  auto tGeometry = geometry.first;
+  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+
+  // Material loading from external source
+  auto mDecorator = FW::Options::readMaterialDecorator<po::variables_map>(vm);
+
+  auto geometry          = geometrySetup(vm, mDecorator);
+  auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 
   // Add it to the sequencer
