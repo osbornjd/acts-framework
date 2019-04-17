@@ -40,7 +40,7 @@ namespace FW {
         
       /// constructor
       /// @param cfg is the configuration object
-      /// @parm level is the output logging level
+      /// @param level is the output logging level
       CsvParticleReader(const Config&        cfg,
                         Acts::Logging::Level level = Acts::Logging::INFO);
         
