@@ -27,8 +27,8 @@ namespace FW{
   {
   public:
     /// constructor
-    /// @param filename is the file name 
-    /// @parm delm is the delimeter to parse the csv 
+    /// @param filename is the file name
+    /// @param level is the output logging level
     CsvReader(const std::string&   filename, 
               Acts::Logging::Level level = Acts::Logging::INFO);
    
@@ -48,7 +48,7 @@ namespace FW{
     size_t numLines() const;
 
     /// Get the name of parameter at a given location
-    std::string getParName(const size_t id) const;          
+    std::string parName(const size_t id) const;          
         
   private:
     std::string m_fileName;                               ///< csv filename

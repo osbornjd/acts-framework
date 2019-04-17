@@ -111,7 +111,7 @@ FW::CsvReader::peekLine()
 }
 
 std::string 
-FW::CsvReader::getParName(const size_t id) const
+FW::CsvReader::parName(const size_t id) const
 {
   const std::string name = "";
   if(id>m_nPars-1){
