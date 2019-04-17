@@ -14,12 +14,12 @@
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Common/GeometryOptions.hpp"
 #include "ACTFW/Common/OutputOptions.hpp"
-#include "ACTFW/Plugins/Csv/CsvReaderOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleReader.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
+#include "ACTFW/Plugins/Csv/CsvReaderOptions.hpp"
 
 namespace po = boost::program_options;
 
@@ -44,7 +44,7 @@ CsvExample(int                argc,
   FW::Sequencer sequencer(seqConfig);
   // Add the Common options
   FW::Options::addCommonOptions<po::options_description>(desc);
-  // Add options for the Csv reading 
+  // Add options for the Csv reading
   FW::Options::addCsvReaderOptions<po::options_description>(desc);
   // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
@@ -73,15 +73,17 @@ CsvExample(int                argc,
   // Input directory
   std::string inputDir = vm["input-dir"].as<std::string>();
 
-  // Input filenames 
+  // Input filenames
   std::string inputParticlesFile = vm["input-particle-file"].as<std::string>();
-  std::string inputHitsFileName = vm["input-hit-file"].as<std::string>();
+  std::string inputHitsFileName  = vm["input-hit-file"].as<std::string>();
   std::string inputDetailsFileName = vm["input-detail-file"].as<std::string>();
-  std::string inputTruthFileName = vm["input-truth-file"].as<std::string>();
+  std::string inputTruthFileName   = vm["input-truth-file"].as<std::string>();
 
-  // Output collection name 
-  std::string outputParticleCollection = vm["output-particle-collection"].as<std::string>();
-  std::string outputClusterCollection = vm["output-plCluster-collection"].as<std::string>();
+  // Output collection name
+  std::string outputParticleCollection
+      = vm["output-particle-collection"].as<std::string>();
+  std::string outputClusterCollection
+      = vm["output-plCluster-collection"].as<std::string>();
 
   // Read particles as CSV files
   std::shared_ptr<FW::Csv::CsvParticleReader> particleCsvReader = nullptr;
@@ -90,24 +92,22 @@ CsvExample(int                argc,
     particleCsvReaderConfig.inputDir      = inputDir;
     particleCsvReaderConfig.inputFileName = inputParticlesFile + ".csv";
     particleCsvReaderConfig.outputParticleCollection = outputParticleCollection;
-    particleCsvReader 
-      = std::make_shared<FW::Csv::CsvParticleReader>(
-                                                     particleCsvReaderConfig, logLevel);
+    particleCsvReader = std::make_shared<FW::Csv::CsvParticleReader>(
+        particleCsvReaderConfig, logLevel);
   }
 
   // Read clusters as CSV files
   std::shared_ptr<FW::Csv::CsvPlanarClusterReader> plCsvReader = nullptr;
   if (vm["read-plCluster-csv"].as<bool>()) {
     FW::Csv::CsvPlanarClusterReader::Config plCsvReaderConfig;
-    plCsvReaderConfig.tGeometry = tGeometry;
-    plCsvReaderConfig.inputDir = inputDir;
-    plCsvReaderConfig.inputHitsFileName = inputHitsFileName + ".csv";
-    plCsvReaderConfig.inputDetailsFileName = inputDetailsFileName + ".csv";
-    plCsvReaderConfig.inputTruthFileName = inputTruthFileName + ".csv";
+    plCsvReaderConfig.tGeometry               = tGeometry;
+    plCsvReaderConfig.inputDir                = inputDir;
+    plCsvReaderConfig.inputHitsFileName       = inputHitsFileName + ".csv";
+    plCsvReaderConfig.inputDetailsFileName    = inputDetailsFileName + ".csv";
+    plCsvReaderConfig.inputTruthFileName      = inputTruthFileName + ".csv";
     plCsvReaderConfig.outputClusterCollection = outputClusterCollection;
-    plCsvReader 
-      = std::make_shared<FW::Csv::CsvPlanarClusterReader>(
-                                                          plCsvReaderConfig, logLevel);
+    plCsvReader = std::make_shared<FW::Csv::CsvPlanarClusterReader>(
+        plCsvReaderConfig, logLevel);
   }
 
   // Output Csv directory
@@ -119,9 +119,8 @@ CsvExample(int                argc,
     FW::Csv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
     clusterWriterCsvConfig.collection = outputClusterCollection;
     clusterWriterCsvConfig.outputDir  = outputDir;
-    plCsvWriter 
-      = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(
-                                                          clusterWriterCsvConfig);
+    plCsvWriter = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(
+        clusterWriterCsvConfig);
   }
 
   // Initiate the run
