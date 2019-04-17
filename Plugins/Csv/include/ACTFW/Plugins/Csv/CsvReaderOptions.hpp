@@ -27,32 +27,32 @@ namespace Options {
   addCsvReaderOptions(aopt_t& opt)
   {
     opt.add_options()("read-particle-csv",
-                     po::value<bool>()->default_value(false),
-                     "Switch on to read '.csv' file as particles.")(
-				"read-plCluster-csv",
+                      po::value<bool>()->default_value(false),
+                      "Switch on to read '.csv' file as particles.")(
+        "read-plCluster-csv",
         po::value<bool>()->default_value("false"),
         "Switch on to read '.csv' file as planarClusters.")(
-				"input-dir",
+        "input-dir",
         po::value<std::string>()->default_value(""),
         "Input directory location.")(
-				"input-particle-file",
+        "input-particle-file",
         po::value<std::string>()->default_value("evgen-particles"),
-			  "Name of '.csv' input file with particles info.")(
-				"input-hit-file",
+        "Name of '.csv' input file with particles info.")(
+        "input-hit-file",
         po::value<std::string>()->default_value("hits"),
-			  "Name of '.csv' input file with hits info.")(
-				"input-detail-file",
+        "Name of '.csv' input file with hits info.")(
+        "input-detail-file",
         po::value<std::string>()->default_value("details"),
-			  "Name of '.csv' input file with hit details info.")(
-				"input-truth-file",
+        "Name of '.csv' input file with hit details info.")(
+        "input-truth-file",
         po::value<std::string>()->default_value("truth"),
-			  "Name of '.csv' input file with truth info.")(
-				"output-particle-collection",
+        "Name of '.csv' input file with truth info.")(
+        "output-particle-collection",
         po::value<std::string>()->default_value("SimParticle"),
-			  "Name of output particles collection.")(
-				"output-plCluster-collection",
+        "Name of output particles collection.")(
+        "output-plCluster-collection",
         po::value<std::string>()->default_value("PlanarCluster"),
-			  "Name of output planar clusters collection.");
+        "Name of output planar clusters collection.");
   }
 
 }  // namespace Options

@@ -41,15 +41,15 @@ struct GenericGeometry
   {
     // --------------------------------------------------------------------------------
     // set geometry building logging level
-    Acts::Logging::Level surfaceLogLevel 
-      = Acts::Logging::Level(vm["geo-surface-loglevel"].template as<size_t>());
+    Acts::Logging::Level surfaceLogLevel = Acts::Logging::Level(
+        vm["geo-surface-loglevel"].template as<size_t>());
     Acts::Logging::Level layerLogLevel
-      = Acts::Logging::Level(vm["geo-layer-loglevel"].template as<size_t>());
+        = Acts::Logging::Level(vm["geo-layer-loglevel"].template as<size_t>());
     Acts::Logging::Level volumeLogLevel
-      = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
+        = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
     /// return the generic detector
     return FW::Generic::buildGenericDetector(
-                                             surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
+        surfaceLogLevel, layerLogLevel, volumeLogLevel, 3);
   }
 };
 
