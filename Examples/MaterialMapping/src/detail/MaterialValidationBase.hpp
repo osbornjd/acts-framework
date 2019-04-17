@@ -152,6 +152,8 @@ materialValidationExample(int              argc,
   FW::Options::addCommonOptions<po::options_description>(desc);
   // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
+  // Add the material options
+  FW::Options::addMaterialOptions<po::options_description>(desc);
   // Add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
   // Add the random number options

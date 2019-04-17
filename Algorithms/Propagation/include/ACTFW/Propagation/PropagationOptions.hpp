@@ -50,6 +50,12 @@ namespace Options {
         "prop-scattering",
         po::value<bool>()->default_value(true),
         "Apply scattering correction - in extrapolation mode only.")(
+        "prop-record-material",
+        po::value<bool>()->default_value(true),
+        "Record the material interaction and - in extrapolation mode only.")(
+        "prop-material-collection",
+        po::value<std::string>()->default_value("propagation-material"),
+        "Propagation material collection.")(
         "prop-ntests",
         po::value<size_t>()->default_value(1000),
         "Number of tests performed.")(
@@ -99,6 +105,12 @@ namespace Options {
     read_range ietar = vm["prop-eta-range"].template as<read_range>();
     read_range iptr  = vm["prop-pt-range"].template as<read_range>();
 
+    /// Material interaction behavior
+    pAlgConfig.energyLoss         = vm["prop-energyloss"].template as<bool>();
+    pAlgConfig.multipleScattering = vm["prop-scattering"].template as<bool>();
+    pAlgConfig.recordMaterialInteractions
+        = vm["prop-record-material"].template as<bool>();
+
     /// Create the config for the Extrapoaltion algorithm
     pAlgConfig.debugOutput = vm["prop-debug"].template as<bool>();
     pAlgConfig.ntests      = vm["prop-ntests"].template as<size_t>();
@@ -115,6 +127,12 @@ namespace Options {
 
     pAlgConfig.propagationStepCollection
         = vm["prop-step-collection"].template as<std::string>();
+    pAlgConfig.propagationMaterialCollection
+        = vm["prop-material-collection"].template as<std::string>();
+    // Switch the debug output on for VERBOSE log level
+    if (vm["loglevel"].template as<size_t>() == 0) {
+      pAlgConfig.debugOutput = true;
+    }
 
     return pAlgConfig;
   }

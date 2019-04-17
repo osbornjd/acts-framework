@@ -12,24 +12,39 @@
 #include <limits>
 #include <memory>
 
-#include <Acts/EventData/NeutralParameters.hpp>
-#include <Acts/EventData/TrackParameters.hpp>
-#include <Acts/Extrapolator/Navigator.hpp>
-#include <Acts/Propagator/AbortList.hpp>
-#include <Acts/Propagator/ActionList.hpp>
-#include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Propagator/detail/DebugOutputActor.hpp>
-#include <Acts/Propagator/detail/StandardAborters.hpp>
-#include <Acts/Propagator/detail/SteppingLogger.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-#include <Acts/Utilities/Definitions.hpp>
-#include <Acts/Utilities/Helpers.hpp>
-#include <Acts/Utilities/Units.hpp>
-
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "Acts/EventData/NeutralParameters.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/Extrapolator/MaterialInteractor.hpp"
+#include "Acts/Extrapolator/Navigator.hpp"
+#include "Acts/Propagator/AbortList.hpp"
+#include "Acts/Propagator/ActionList.hpp"
+#include "Acts/Propagator/Propagator.hpp"
+#include "Acts/Propagator/detail/DebugOutputActor.hpp"
+#include "Acts/Propagator/detail/StandardAborters.hpp"
+#include "Acts/Propagator/detail/SteppingLogger.hpp"
+#include "Acts/Surfaces/PerigeeSurface.hpp"
+#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Utilities/Units.hpp"
+
+namespace FW {
+
+/// Using some short hands for Recorded Material
+using RecordedMaterial = Acts::MaterialInteractor::result_type;
+
+/// And recorded material track
+/// - this is start:  position, start momentum
+///   and the Recorded material
+using RecordedMaterialTrack
+    = std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
+
+/// Finally the output of the propagation test
+using PropagationOutput
+    = std::pair<std::vector<Acts::detail::Step>, RecordedMaterial>;
 
 /// @brief this test algorithm performs test propagation
 /// within the Acts::Propagator
@@ -38,8 +53,6 @@
 /// also be used to test the Extrapolator within the geomtetry
 ///
 /// @tparam propagator_t Type of the Propagator to be tested
-namespace FW {
-
 template <typename propagator_t>
 class PropagationAlgorithm : public BareAlgorithm
 {
@@ -59,6 +72,13 @@ public:
     int mode = 0;
     /// debug output
     bool debugOutput = false;
+    /// Modify the behavior of the material interaction: energy loss
+    bool energyLoss = false;
+    /// Modify the behavior of the material interaction: scattering
+    bool multipleScattering = false;
+    /// Modify the behavior of the material interaction: record
+    bool recordMaterialInteractions = false;
+
     /// number of particles
     size_t ntests = 100;
     /// d0 gaussian sigma
@@ -80,6 +100,9 @@ public:
 
     /// the step collection to be stored
     std::string propagationStepCollection = "PropagationSteps";
+
+    /// The material collection to be stored
+    std::string propagationMaterialCollection = "RecordedMaterialTracks";
 
     /// covariance transport
     bool covarianceTransport = true;
@@ -123,7 +146,7 @@ private:
   ///
   /// @return collection of Propagation steps for further analysis
   template <typename parameters_t>
-  std::vector<Acts::detail::Step>
+  PropagationOutput
   executeTest(const AlgorithmContext& context,
               const parameters_t&     startParameters,
               double pathLength = std::numeric_limits<double>::max()) const;
