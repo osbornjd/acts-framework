@@ -8,53 +8,53 @@
 
 #pragma once
 
+#include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Detector/TrackingVolume.hpp"
 
 namespace po = boost::program_options;
 
 namespace FW {
-    
-    /// @brief standard material wiper
-    ///
-    /// It removes the material of surfaces/volumes if configured
-    /// to do so
-    class MaterialWiper : public Acts::IMaterialDecorator {
-      public:  
-        /// Create a material wiper
-        ///
-        /// @param sf is the surface wiping directive
-        /// @param vol is the volume wiping directive        
-        MaterialWiper(bool sf=true, bool vol=true) 
-          : m_wipeSurfaceMaterial(sf)
-          , m_wipeVolumeMaterial(vol)
-        {}
-      
-        /// Decorate a surface
-        ///
-        /// @param surface the non-cost surface that is decorated
-        void
-        decorate(Acts::Surface& surface) const final
-        {
-          surface.assignSurfaceMaterial(nullptr);
-        }
 
-        /// Decorate a TrackingVolume
-        ///
-        /// @param volume the non-cost volume that is decorated
-        void
-        decorate(Acts::TrackingVolume& volume) const final
-        {
-          volume.assignVolumeMaterial(nullptr);
-        }
-      
-      private:
-          bool m_wipeSurfaceMaterial{true};
-          bool m_wipeVolumeMaterial{true};
-  
-    };
-    
+/// @brief standard material wiper
+///
+/// It removes the material of surfaces/volumes if configured
+/// to do so
+class MaterialWiper : public Acts::IMaterialDecorator
+{
+public:
+  /// Create a material wiper
+  ///
+  /// @param sf is the surface wiping directive
+  /// @param vol is the volume wiping directive
+  MaterialWiper(bool sf = true, bool vol = true)
+    : m_wipeSurfaceMaterial(sf), m_wipeVolumeMaterial(vol)
+  {
+  }
+
+  /// Decorate a surface
+  ///
+  /// @param surface the non-cost surface that is decorated
+  void
+  decorate(Acts::Surface& surface) const final
+  {
+    surface.assignSurfaceMaterial(nullptr);
+  }
+
+  /// Decorate a TrackingVolume
+  ///
+  /// @param volume the non-cost volume that is decorated
+  void
+  decorate(Acts::TrackingVolume& volume) const final
+  {
+    volume.assignVolumeMaterial(nullptr);
+  }
+
+private:
+  bool m_wipeSurfaceMaterial{true};
+  bool m_wipeVolumeMaterial{true};
+};
+
 namespace Options {
 
   /// The options for the material loading
@@ -80,9 +80,9 @@ namespace Options {
   std::shared_ptr<const Acts::IMaterialDecorator>
   readMaterialDecorator(const amap_t& vm)
   {
-   
-    if (vm["mat-type"].template as<size_t>() == 0){
-        return std::make_shared<const MaterialWiper>(true,true);
+
+    if (vm["mat-type"].template as<size_t>() == 0) {
+      return std::make_shared<const MaterialWiper>(true, true);
     }
 
     return nullptr;

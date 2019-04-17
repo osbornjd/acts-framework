@@ -12,14 +12,13 @@
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
+#include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
-
-class TFile;
 
 namespace Acts {
 
@@ -53,12 +52,11 @@ namespace Json {
       /// The sensitive identification string
       std::string sentag = "sen";
       /// The value tag -> binning values: binZ, binR, binPhi, etc.
-      std::string vtag   = "v";
+      std::string vtag = "v";
       /// The bin position tag
-      std::string ntag   = "n";
+      std::string ntag = "n";
       /// The option tag -> binning options: open, closed
-      std::string otag   = "o";
-     
+      std::string otag = "o";
       /// The name of the output file
       std::string fileName = "proto-maps.json";
       /// The default logger
@@ -82,8 +80,8 @@ namespace Json {
     /// @param cfg configuration struct for the reader
     JsonProtoSurfaceMaterialReader(const Config& cfg);
 
-    /// Virtual destructor
-    ~JsonProtoSurfaceMaterialReader() override;
+    /// Destructor
+    ~JsonProtoSurfaceMaterialReader() override = default;
 
     /// Framework name() method
     std::string
@@ -125,8 +123,12 @@ namespace Json {
   class JsonProtoMaterialDecorator : public Acts::IMaterialDecorator
   {
   public:
-    RootMaterialDecorator(JsonProtoSurfaceMaterialReader::Config rConfig)
+    JsonProtoMaterialDecorator(JsonProtoSurfaceMaterialReader::Config rConfig,
+                               bool clearSurfaceMaterial = true,
+                               bool clearVolumeMaterial  = true)
       : m_readerConfig(rConfig)
+      , m_clearSurfaceMaterial(clearSurfaceMaterial)
+      , m_clearVolumeMaterial(clearVolumeMaterial)
     {
       // Create the reader with the config
       JsonProtoSurfaceMaterialReader sreader(m_readerConfig);
@@ -140,6 +142,11 @@ namespace Json {
     void
     decorate(Acts::Surface& surface) const final
     {
+      // Clear the material if registered to do so
+      if (m_clearSurfaceMaterial) {
+        surface.assignSurfaceMaterial(nullptr);
+      }
+
       // Try to find the surface in the map
       auto sMaterial = m_surfaceMaterialMap.find(surface.geoID());
       if (sMaterial != m_surfaceMaterialMap.end()) {
@@ -151,14 +158,21 @@ namespace Json {
     ///
     /// @param volume the non-cost volume that is decorated
     void
-    decorate(Acts::TrackingVolume& /*volume*/) const final
+    decorate(Acts::TrackingVolume& volume) const final
     {
+      // Clear the material if registered to do so
+      if (m_clearVolumeMaterial) {
+        volume.assignVolumeMaterial(nullptr);
+      }
     }
 
   private:
     JsonProtoSurfaceMaterialReader::Config m_readerConfig;
-    Acts::SurfaceMaterialMap          m_surfaceMaterialMap;
+    Acts::SurfaceMaterialMap               m_surfaceMaterialMap;
+
+    bool m_clearSurfaceMaterial{true};
+    bool m_clearVolumeMaterial{true};
   };
 
-}  // namespace Root
+}  // namespace Json
 }  // namespace FW
