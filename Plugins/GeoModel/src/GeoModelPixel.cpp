@@ -21,18 +21,27 @@
 #include "Acts/Surfaces/PlaneSurface.hpp"
 #include "Acts/Layers/CylinderLayer.hpp"
 #include "Acts/Surfaces/CylinderBounds.hpp"
+#include "Acts/Tools/LayerArrayCreator.hpp"
+#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Volumes/CylinderVolumeBounds.hpp"
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoCountVolAndSTAction.h"
 
 // Units
 #include "GeoModelKernel/Units.h"
 #define SYSTEM_OF_UNITS GeoModelKernelUnits
 
+namespace {
+double conv = Acts::units::_mm / SYSTEM_OF_UNITS::mm;
+}
+
 std::unique_ptr<Acts::SurfaceArray>
 FW::GeoModelPixel::surfaceArray(GeoVPhysVol const* lay) const
 {
+	// TODO: debug exit!
+	return nullptr;
+	
 	std::cout << "\tThis is my lay: " << lay->getLogVol()->getName() << "\t" << lay->getLogVol()->getShape()->type() << std::endl;
 	auto tube = dynamic_cast<GeoTube const*>(lay->getLogVol()->getShape());
 	std::cout << "\t" << tube->getRMin() << "\t" << tube->getRMax() << "\t" << tube->getZHalfLength() << std::endl;
@@ -120,8 +129,8 @@ FW::GeoModelPixel::buildLayers(GeoVPhysVol const* vol) const
 			if(dynamic_cast<GeoTube const*>(layer->getLogVol()->getShape()))
 			{
 				GeoTube const* tube = dynamic_cast<GeoTube const*>(layer->getLogVol()->getShape());
-				bounds = std::make_shared<const Acts::CylinderBounds>(tube->getRMax(), tube->getZHalfLength());
-				thickness = (tube->getRMax() - tube->getRMin()); //TODO: conversion
+				bounds = std::make_shared<const Acts::CylinderBounds>(tube->getRMax() * conv, tube->getZHalfLength() * conv);
+				thickness = (tube->getRMax() - tube->getRMin()) * conv;
 			}
 		
 			// Build the surface array
@@ -133,10 +142,63 @@ FW::GeoModelPixel::buildLayers(GeoVPhysVol const* vol) const
 	}
 	return layers;
 }
+
+std::unique_ptr<const Acts::LayerArray>
+FW::GeoModelPixel::buildLayerArray(GeoVPhysVol const* vol) const
+{
+	// Build the layers
+	std::vector<std::shared_ptr<const Acts::Layer>> layers = buildLayers(vol);
 	
+	// Get the minimum/maximum of the volume
+	double min, max;		  
+	if(dynamic_cast<GeoTube const*>(vol->getLogVol()->getShape()))
+	{
+		GeoTube const* tube = dynamic_cast<GeoTube const*>(vol->getLogVol()->getShape());
+		min = tube->getRMin() * conv;
+		max = tube->getRMax() * conv;
+	}
+	
+	// Build the layer array
+	Acts::LayerArrayCreator layArrayCreator;
+	return layArrayCreator.layerArray(layers, min, max, Acts::BinningType::arbitrary, Acts::BinningValue::binR);
+}
+
+std::shared_ptr<Acts::TrackingVolume>
+FW::GeoModelPixel::buildPixelBarrel(GeoVPhysVol const* pdBarrel) const
+{
+	// Find the transformation
+	std::shared_ptr<const Acts::Transform3D> transformation = nullptr;
+	if(dynamic_cast<GeoFullPhysVol const*>(pdBarrel))
+	{
+		transformation = std::make_shared<Acts::Transform3D>(dynamic_cast<GeoVFullPhysVol const*>(pdBarrel)->getDefAbsoluteTransform());
+	}
+
+	// Look the bounds up
+	std::shared_ptr<const Acts::VolumeBounds> bounds = nullptr;
+	if(dynamic_cast<GeoTube const*>(pdBarrel->getLogVol()->getShape()))
+	{
+		auto tube = dynamic_cast<GeoTube const*>(pdBarrel->getLogVol()->getShape());
+		bounds = std::make_shared<const Acts::CylinderVolumeBounds>(tube->getRMin(), tube->getRMax(), tube->getZHalfLength());
+	}
+	
+	// Get the layers
+	std::unique_ptr<const Acts::LayerArray> layArray = buildLayerArray(pdBarrel);
+
+	// Build the volume
+	return Acts::TrackingVolume::create(transformation, bounds, nullptr, std::move(layArray), {}, {}, {}, "ACTlaS::Pixel::Barrel");
+}
+
+std::shared_ptr<Acts::TrackingVolume>
+FW::GeoModelPixel::buildPixelEndCap(GeoVPhysVol const* pdEndCap) const
+{
+	return nullptr;
+}
+
 std::shared_ptr<Acts::TrackingVolume>
 FW::GeoModelPixel::buildPixel(GeoVPhysVol const* pd) const
 {
+
+	std::vector<std::shared_ptr<Acts::TrackingVolume>> volumes;
 
   // Walk over all children of the pixel volume
   unsigned int nChildren = pd->getNChildVols();
@@ -145,8 +207,15 @@ FW::GeoModelPixel::buildPixel(GeoVPhysVol const* pd) const
 	  // Test if it is a layer which has sensitive surfaces
 	  if(m_volumeKeys.find(child->getLogVol()->getName()) != m_volumeKeys.end())
 	  {
-		  // Build the layers
-		  std::vector<std::shared_ptr<const Acts::Layer>> layers = buildLayers(child);
+		  if(child->getLogVol()->getName() == "Barrel")
+		  {
+			volumes.push_back(buildPixelBarrel(child));
+		  }
+		  else
+			if(child->getLogVol()->getName() == "EndCap")
+			{
+				volumes.push_back(buildPixelEndCap(child));
+			}
 	  }
   }
   return nullptr;

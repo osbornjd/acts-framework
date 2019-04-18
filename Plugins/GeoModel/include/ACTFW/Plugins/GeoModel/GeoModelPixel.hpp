@@ -26,9 +26,9 @@ class GeoModelPixel
 {
 public:
 
-	/// @brief This function builds the central pixel detector barrel as Acts::TrackingVolume from a given GeoModel volume
+	/// @brief This function builds the pixel detector as Acts::TrackingVolume from a given GeoModel volume
 	///
-	/// @param [in] pd The pixel detector barrel volume
+	/// @param [in] pd The pixel detector volume
 	///
 	/// @return The Acts volume
 	Acts::MutableTrackingVolumePtr
@@ -47,8 +47,32 @@ surfaceArray(GeoVPhysVol const* lay) const;
 	std::vector<std::shared_ptr<const Acts::Layer>>
 	buildLayers(GeoVPhysVol const* vol) const;
 
+	/// @brief This function builds the Acts layer array of a given GeoModel volume
+	///
+	/// @param [in] vol GeoModel volume
+	///
+	/// @return Acts layer array
+	std::unique_ptr<const Acts::LayerArray>
+	buildLayerArray(GeoVPhysVol const* vol) const;
+	
+	/// @brief This function builds the pixel detector barrel as Acts::TrackingVolume from a given GeoModel volume
+	///
+	/// @param [in] pdBarrel The pixel detector barrel volume
+	///
+	/// @return The Acts volume
+	std::shared_ptr<Acts::TrackingVolume>
+	buildPixelBarrel(GeoVPhysVol const* pdBarrel) const;
+
+	/// @brief This function builds the pixel detector EndCap as Acts::TrackingVolume from a given GeoModel volume
+	///
+	/// @param [in] pdEndCap The pixel detector EndCap volume
+	///
+	/// @return The Acts volume
+	std::shared_ptr<Acts::TrackingVolume>
+	buildPixelEndCap(GeoVPhysVol const* pdEndCap) const;
+
 	/// Set of keys we search for in the GeoModel to find the right volumes in the tree
-	std::set<std::string> m_volumeKeys = {"Barrel"};//, "EndCap"};
+	std::set<std::string> m_volumeKeys = {"Barrel", "EndCap"};
 	/// Set of keys we search for int the GeoModel to find the right layers in the volumes
 	std::set<std::string> m_layerKeys = {"Layer0", "Layer1", "Layer2", "Layer3"};
 };
