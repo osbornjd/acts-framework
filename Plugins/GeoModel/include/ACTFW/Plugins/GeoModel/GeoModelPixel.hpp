@@ -14,20 +14,42 @@
 
 class GeoVPhysVol;
 
+namespace Acts
+{
+	class SurfaceArray;
+}
+
 namespace FW {
 
+/// @class This class translates the pixel detector of a GeoModel geometry into an Acts::TrackingVolume
 class GeoModelPixel
 {
 public:
 
+	/// @brief This function builds the central pixel detector barrel as Acts::TrackingVolume from a given GeoModel volume
+	///
+	/// @param [in] pd The pixel detector barrel volume
+	///
+	/// @return The Acts volume
 	Acts::MutableTrackingVolumePtr
-	buildPixel(GeoVPhysVol const* bp) const;
+	buildPixel(GeoVPhysVol const* pd) const;
 
 private:
 
-	std::vector<GeoVPhysVol const*>
-	findLayers(GeoVPhysVol const* vol) const;
+std::unique_ptr<Acts::SurfaceArray>
+surfaceArray(GeoVPhysVol const* lay) const;
 
-	std::set<std::string> layerKeys = {"Layer0", "Layer1", "Layer2", "Layer3"};
+	/// @brief This function takes a GeoModel volume and builds its contained layers in Acts types
+	///
+	/// @param [in] vol The GeoModel volume
+	///
+	/// @return Vector of Acts layers
+	std::vector<std::shared_ptr<const Acts::Layer>>
+	buildLayers(GeoVPhysVol const* vol) const;
+
+	/// Set of keys we search for in the GeoModel to find the right volumes in the tree
+	std::set<std::string> m_volumeKeys = {"Barrel"};//, "EndCap"};
+	/// Set of keys we search for int the GeoModel to find the right layers in the volumes
+	std::set<std::string> m_layerKeys = {"Layer0", "Layer1", "Layer2", "Layer3"};
 };
 }  // namespace FW

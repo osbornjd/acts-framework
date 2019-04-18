@@ -15,61 +15,139 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTube.h"
-#include "GeoModelRead/ReadGeoModel.h"
+#include "Acts/Surfaces/SurfaceArray.hpp"
+#include "GeoModelKernel/GeoShapeShift.h"
+#include "Acts/Surfaces/RectangleBounds.hpp"
+#include "Acts/Surfaces/PlaneSurface.hpp"
+#include "Acts/Layers/CylinderLayer.hpp"
+#include "Acts/Surfaces/CylinderBounds.hpp"
+
+#include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoCountVolAndSTAction.h"
 
 // Units
 #include "GeoModelKernel/Units.h"
 #define SYSTEM_OF_UNITS GeoModelKernelUnits
 
-std::vector<GeoVPhysVol const*>
-FW::GeoModelPixel::findLayers(GeoVPhysVol const* vol) const
+std::unique_ptr<Acts::SurfaceArray>
+FW::GeoModelPixel::surfaceArray(GeoVPhysVol const* lay) const
 {
-	std::vector<GeoVPhysVol const*> layers;
+	std::cout << "\tThis is my lay: " << lay->getLogVol()->getName() << "\t" << lay->getLogVol()->getShape()->type() << std::endl;
+	auto tube = dynamic_cast<GeoTube const*>(lay->getLogVol()->getShape());
+	std::cout << "\t" << tube->getRMin() << "\t" << tube->getRMax() << "\t" << tube->getZHalfLength() << std::endl;
 	
+	// Walk through the content of the layer
+	for(unsigned int i = 0; i < lay->getNChildVols(); i++)
+	{
+		GeoVPhysVol const* child = &(*(lay->getChildVol(i)));
+		GeoShape const* shape = child->getLogVol()->getShape();
+				
+		// Only consider the "Ladder"
+		if(child->getLogVol()->getName() == "Ladder")
+		{
+			std::cout << "ccc: " << i << "\n" << lay->getXToChildVol(i).matrix() << std::endl;
+			
+			if(shape->type() == "Box")
+			{
+				auto box = dynamic_cast<GeoBox const*>(shape);
+				std::cout << "Box: " << box->getXHalfLength() << "\t" << box->getYHalfLength() << "\t" << box->getZHalfLength() << std::endl;
+			}
+			
+			// TODO: The following lines look for the ModuleBrl
+			// Search for the modules in the ladder
+			for(unsigned int j = 0; j < child->getNChildVols(); j++)
+			{
+				if(child->getChildVol(j)->getLogVol()->getName() != "ModuleBrl")
+				{
+					continue;
+				}
+				GeoVPhysVol const* moduleBrl = &(*(child->getChildVol(j)));
+				
+				/**
+				//~ std::cout << "bc: " << j << "\t" << moduleBrl->getLogVol()->getName() << "\t" << moduleBrl->getLogVol()->getShape()->type() << "\t" << moduleBrl->getNChildVols() << std::endl;
+				//~ std::cout << "trafo: " << child->getXToChildVol(j).matrix() << std::endl; // TODO: conversion of units
+
+				if(moduleBrl->getLogVol()->getShape()->type() == "Box") // TODO: Shift also exists
+				{
+					auto box = dynamic_cast<GeoBox const*>(moduleBrl->getLogVol()->getShape());
+					
+					auto rBounds = std::make_shared<Acts::RectangleBounds>(box->getYHalfLength(), box->getZHalfLength()); // TODO: conversion of units
+					
+					//~ Acts::PlaneSurface plane(std::make_shared<Acts::Transform3D>(noseToTheWind->getX()), rBounds);
+				}
+				else
+				if(moduleBrl->getLogVol()->getShape()->type() == "Shift")
+				{
+					auto shift = dynamic_cast<GeoShapeShift const*>(moduleBrl->getLogVol()->getShape());	
+					auto box = dynamic_cast<GeoBox const*>(shift->getOp());
+					
+					auto rBounds = std::make_shared<Acts::RectangleBounds>(box->getYHalfLength(), box->getZHalfLength()); // TODO: conversion of units
+					
+					//~ std::cout << "shifttrafo: " << shift->getOp()->type() << std::endl << shift->getX().matrix() << std::endl;
+				}
+				**/
+			}
+		}
+	}
+	return nullptr;
+}
+
+std::vector<std::shared_ptr<const Acts::Layer>>
+FW::GeoModelPixel::buildLayers(GeoVPhysVol const* vol) const
+{
+	// The resulting layers
+	std::vector<std::shared_ptr<const Acts::Layer>> layers;
+	
+	// Search through all elements of the volume
 	unsigned int ncChildren = vol->getNChildVols();
 	for(unsigned int j = 0; j < ncChildren; j++)
 	{
-		GeoShape const* ccShape = vol->getChildVol(j)->getLogVol()->getShape();
-		//~ std::cout << "childchild: " << j << "\t" << vol->getChildVol(j)->getLogVol()->getName() << "\t" << ccShape->type() << "\t" << vol->getChildVol(j)->getNChildVols() << std::endl;
-		if(layerKeys.find(vol->getChildVol(j)->getLogVol()->getName()) != layerKeys.end())
+		auto layer = dynamic_cast<GeoVPhysVol const*>(&(*(vol->getChildVol(j))));
+		// Test if the layer is one that we search for
+		if(m_layerKeys.find(layer->getLogVol()->getName()) != m_layerKeys.end())
 		{
-			layers.push_back(&(*(vol->getChildVol(j))));
-		
-			//~ std::cout << vol->getChildVol(j)->getLogVol()->getName() << "\t" << dynamic_cast<GeoTube const*>(ccShape)->getRMin()
-				//~ << "\t" << dynamic_cast<GeoTube const*>(ccShape)->getRMax() << "\t" << vol->getChildVol(j)->getNChildVols() << std::endl;
-			for(unsigned int k = 0; k < vol->getChildVol(j)->getNChildVols(); k++)
+			// Build the transformation
+			std::shared_ptr<const Acts::Transform3D> transformation = nullptr;
+			if(dynamic_cast<GeoFullPhysVol const*>(layer))
 			{
-				GeoVPhysVol const* cchild = &(*(vol->getChildVol(j)->getChildVol(k)));
-				GeoShape const* cccShape = cchild->getLogVol()->getShape();
-				//~ std::cout << "childchildchild: " << k << "\t" << cchild->getLogVol()->getName() << "\t" << cccShape->type() << "\t" << cchild->getNChildVols() << std::endl;
-				
-				if(cccShape->type() == "Box")
-				{
-					GeoBox const* box = dynamic_cast<GeoBox const*>(cccShape);
-					std::cout << box->getXHalfLength() << "\t" << box->getYHalfLength() << "\t" << box->getZHalfLength() << "\n" << vol->getChildVol(j)->getXToChildVol(k).matrix() << std::endl;
-				}
+				transformation = std::make_shared<Acts::Transform3D>(dynamic_cast<GeoVFullPhysVol const*>(layer)->getDefAbsoluteTransform());
+			}
+			
+			// Build the bounds & thickness
+			std::shared_ptr<const Acts::CylinderBounds> bounds = nullptr;
+			double thickness = 0.;
+			if(dynamic_cast<GeoTube const*>(layer->getLogVol()->getShape()))
+			{
+				GeoTube const* tube = dynamic_cast<GeoTube const*>(layer->getLogVol()->getShape());
+				bounds = std::make_shared<const Acts::CylinderBounds>(tube->getRMax(), tube->getZHalfLength());
+				thickness = (tube->getRMax() - tube->getRMin()); //TODO: conversion
 			}
 		
+			// Build the surface array
+			std::unique_ptr<Acts::SurfaceArray> surArray = 	surfaceArray(&(*(vol->getChildVol(j))));
+			
+			// Create and store the layer
+			layers.push_back(Acts::CylinderLayer::create(transformation, bounds, std::move(surArray), thickness, nullptr, Acts::LayerType::active));
 		}
 	}
 	return layers;
 }
 	
 std::shared_ptr<Acts::TrackingVolume>
-FW::GeoModelPixel::buildPixel(GeoVPhysVol const* bp) const
+FW::GeoModelPixel::buildPixel(GeoVPhysVol const* pd) const
 {
-GeoShape const* shape = bp->getLogVol()->getShape();
-std::cout << "pixel form: " << shape->type() << std::endl;
 
-  // Walk over all children of the beam pipe volume
-  unsigned int nChildren = bp->getNChildVols();
-  //~ for (unsigned int i = 0; i < nChildren; i++) {
-  for (unsigned int i = 0; i < 1; i++) {
-	  GeoVPhysVol const* child = &(*(bp->getChildVol(i)));
-	  GeoShape const* cShape = child->getLogVol()->getShape();
-	std::cout << "child: " << i << "\t" << child->getLogVol()->getName() << "\t" << cShape->type() << "\t" << child->getNChildVols() << std::endl;
-	
-	std::vector<GeoVPhysVol const*> layers = findLayers(child);
+  // Walk over all children of the pixel volume
+  unsigned int nChildren = pd->getNChildVols();
+  for (unsigned int i = 0; i < nChildren; i++) {
+	  GeoVPhysVol const* child = &(*(pd->getChildVol(i)));
+	  // Test if it is a layer which has sensitive surfaces
+	  if(m_volumeKeys.find(child->getLogVol()->getName()) != m_volumeKeys.end())
+	  {
+		  // Build the layers
+		  std::vector<std::shared_ptr<const Acts::Layer>> layers = buildLayers(child);
+	  }
   }
   return nullptr;
 }
