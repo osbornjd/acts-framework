@@ -32,6 +32,7 @@
 #include "GeoModelKernel/Units.h"
 #define SYSTEM_OF_UNITS GeoModelKernelUnits
 
+// TODO: test if used matrices are converted
 namespace {
 double conv = Acts::units::_mm / SYSTEM_OF_UNITS::mm;
 }
@@ -103,7 +104,7 @@ FW::GeoModelPixel::surfaceArray(GeoVPhysVol const* lay) const
 }
 
 std::vector<std::shared_ptr<const Acts::Layer>>
-FW::GeoModelPixel::buildLayers(GeoVPhysVol const* vol) const
+FW::GeoModelPixel::buildLayers(GeoVPhysVol const* vol, std::shared_ptr<const Acts::Transform3D> transformationVolume) const
 {
 	// The resulting layers
 	std::vector<std::shared_ptr<const Acts::Layer>> layers;
@@ -113,14 +114,16 @@ FW::GeoModelPixel::buildLayers(GeoVPhysVol const* vol) const
 	for(unsigned int j = 0; j < ncChildren; j++)
 	{
 		auto layer = dynamic_cast<GeoVPhysVol const*>(&(*(vol->getChildVol(j))));
+
 		// Test if the layer is one that we search for
 		if(m_layerKeys.find(layer->getLogVol()->getName()) != m_layerKeys.end())
 		{
+			
 			// Build the transformation
-			std::shared_ptr<const Acts::Transform3D> transformation = nullptr;
+			std::shared_ptr<const Acts::Transform3D> transformationLayer = nullptr;
 			if(dynamic_cast<GeoFullPhysVol const*>(layer))
 			{
-				transformation = std::make_shared<Acts::Transform3D>(dynamic_cast<GeoVFullPhysVol const*>(layer)->getDefAbsoluteTransform());
+				transformationLayer = std::make_shared<Acts::Transform3D>((transformationVolume->matrix() * vol->getDefXToChildVol(j).matrix()).transpose());
 			}
 			
 			// Build the bounds & thickness
@@ -134,67 +137,72 @@ FW::GeoModelPixel::buildLayers(GeoVPhysVol const* vol) const
 			}
 		
 			// Build the surface array
-			std::unique_ptr<Acts::SurfaceArray> surArray = 	surfaceArray(&(*(vol->getChildVol(j))));
+			std::unique_ptr<Acts::SurfaceArray> surArray = surfaceArray(&(*(vol->getChildVol(j))));
 			
 			// Create and store the layer
-			layers.push_back(Acts::CylinderLayer::create(transformation, bounds, std::move(surArray), thickness, nullptr, Acts::LayerType::active));
+			layers.push_back(Acts::CylinderLayer::create(transformationLayer, bounds, std::move(surArray), thickness, nullptr, Acts::LayerType::active));
 		}
 	}
 	return layers;
 }
 
 std::unique_ptr<const Acts::LayerArray>
-FW::GeoModelPixel::buildLayerArray(GeoVPhysVol const* vol) const
+FW::GeoModelPixel::buildLayerArray(GeoVPhysVol const* vol, std::shared_ptr<const Acts::Transform3D> transformationVolume, bool barrel) const
 {
 	// Build the layers
-	std::vector<std::shared_ptr<const Acts::Layer>> layers = buildLayers(vol);
+	std::vector<std::shared_ptr<const Acts::Layer>> layers = buildLayers(vol, transformationVolume);
 	
 	// Get the minimum/maximum of the volume
 	double min, max;		  
 	if(dynamic_cast<GeoTube const*>(vol->getLogVol()->getShape()))
 	{
 		GeoTube const* tube = dynamic_cast<GeoTube const*>(vol->getLogVol()->getShape());
-		min = tube->getRMin() * conv;
-		max = tube->getRMax() * conv;
+		// Test if the binning will be in the radius or the z coordinate
+		if(barrel)
+		{
+			min = tube->getRMin() * conv;
+			max = tube->getRMax() * conv;
+		}
+		else
+		{
+			double offset = transformationVolume->matrix().transpose()(2, 3);
+			min = (offset - tube->getZHalfLength()) * conv;
+			max = (offset + tube->getZHalfLength()) * conv;
+		}
 	}
-	
+
 	// Build the layer array
 	Acts::LayerArrayCreator layArrayCreator;
-	return layArrayCreator.layerArray(layers, min, max, Acts::BinningType::arbitrary, Acts::BinningValue::binR);
+	//~ return nullptr; // TODO: remove this line
+	return layArrayCreator.layerArray(layers, min, max, Acts::BinningType::arbitrary, barrel ? Acts::BinningValue::binR : Acts::BinningValue::binZ);
 }
 
 std::shared_ptr<Acts::TrackingVolume>
-FW::GeoModelPixel::buildPixelBarrel(GeoVPhysVol const* pdBarrel) const
+FW::GeoModelPixel::buildVolume(GeoVPhysVol const* vol, unsigned int index, std::string name) const
 {
 	// Find the transformation
-	std::shared_ptr<const Acts::Transform3D> transformation = nullptr;
-	if(dynamic_cast<GeoFullPhysVol const*>(pdBarrel))
-	{
-		transformation = std::make_shared<Acts::Transform3D>(dynamic_cast<GeoVFullPhysVol const*>(pdBarrel)->getDefAbsoluteTransform());
-	}
+	auto transformation = std::make_shared<const Acts::Transform3D>(vol->getParent()->getXToChildVol(index).matrix().transpose());
 
 	// Look the bounds up
 	std::shared_ptr<const Acts::VolumeBounds> bounds = nullptr;
-	if(dynamic_cast<GeoTube const*>(pdBarrel->getLogVol()->getShape()))
+	if(dynamic_cast<GeoTube const*>(vol->getLogVol()->getShape()))
 	{
-		auto tube = dynamic_cast<GeoTube const*>(pdBarrel->getLogVol()->getShape());
-		bounds = std::make_shared<const Acts::CylinderVolumeBounds>(tube->getRMin(), tube->getRMax(), tube->getZHalfLength());
+		auto tube = dynamic_cast<GeoTube const*>(vol->getLogVol()->getShape());
+		bounds = std::make_shared<const Acts::CylinderVolumeBounds>(tube->getRMin() * conv, tube->getRMax() * conv, tube->getZHalfLength() * conv);
 	}
 	
+	// Test if we will produce a barrel or an endcap
+	bool barrel = (name == m_outputVolumeNames[0]) ? true : false;
+	
 	// Get the layers
-	std::unique_ptr<const Acts::LayerArray> layArray = buildLayerArray(pdBarrel);
+	std::cout << barrel << std::endl;
+	std::unique_ptr<const Acts::LayerArray> layArray = buildLayerArray(vol, transformation, barrel);
 
 	// Build the volume
-	return Acts::TrackingVolume::create(transformation, bounds, nullptr, std::move(layArray), {}, {}, {}, "ACTlaS::Pixel::Barrel");
+	return Acts::TrackingVolume::create(transformation, bounds, nullptr, std::move(layArray), {}, {}, {}, name);
 }
 
-std::shared_ptr<Acts::TrackingVolume>
-FW::GeoModelPixel::buildPixelEndCap(GeoVPhysVol const* pdEndCap) const
-{
-	return nullptr;
-}
-
-std::shared_ptr<Acts::TrackingVolume>
+std::vector<std::shared_ptr<Acts::TrackingVolume>>
 FW::GeoModelPixel::buildPixel(GeoVPhysVol const* pd) const
 {
 
@@ -209,14 +217,14 @@ FW::GeoModelPixel::buildPixel(GeoVPhysVol const* pd) const
 	  {
 		  if(child->getLogVol()->getName() == "Barrel")
 		  {
-			volumes.push_back(buildPixelBarrel(child));
+			volumes.push_back(buildVolume(child, i, m_outputVolumeNames[0]));
 		  }
 		  else
 			if(child->getLogVol()->getName() == "EndCap")
 			{
-				volumes.push_back(buildPixelEndCap(child));
+				volumes.push_back(buildVolume(child, i, m_outputVolumeNames[1]));
 			}
 	  }
   }
-  return nullptr;
+  return volumes;
 }

@@ -26,12 +26,12 @@ class GeoModelPixel
 {
 public:
 
-	/// @brief This function builds the pixel detector as Acts::TrackingVolume from a given GeoModel volume
+	/// @brief This function builds the pixel detector as Acts::TrackingVolumes from a given GeoModel volume
 	///
 	/// @param [in] pd The pixel detector volume
 	///
-	/// @return The Acts volume
-	Acts::MutableTrackingVolumePtr
+	/// @return The Acts volumes
+	std::vector<Acts::MutableTrackingVolumePtr>
 	buildPixel(GeoVPhysVol const* pd) const;
 
 private:
@@ -45,35 +45,32 @@ surfaceArray(GeoVPhysVol const* lay) const;
 	///
 	/// @return Vector of Acts layers
 	std::vector<std::shared_ptr<const Acts::Layer>>
-	buildLayers(GeoVPhysVol const* vol) const;
+	buildLayers(GeoVPhysVol const* vol, std::shared_ptr<const Acts::Transform3D> transformationVolume) const;
 
 	/// @brief This function builds the Acts layer array of a given GeoModel volume
 	///
 	/// @param [in] vol GeoModel volume
+	/// @param [in] transformation Transformation from the parent to @param vol
 	///
 	/// @return Acts layer array
 	std::unique_ptr<const Acts::LayerArray>
-	buildLayerArray(GeoVPhysVol const* vol) const;
+	buildLayerArray(GeoVPhysVol const* vol, std::shared_ptr<const Acts::Transform3D> transformationVolume, bool barrel) const;
 	
 	/// @brief This function builds the pixel detector barrel as Acts::TrackingVolume from a given GeoModel volume
 	///
 	/// @param [in] pdBarrel The pixel detector barrel volume
+	/// @param [in] index Index of this volume in the list of the parent
 	///
 	/// @return The Acts volume
 	std::shared_ptr<Acts::TrackingVolume>
-	buildPixelBarrel(GeoVPhysVol const* pdBarrel) const;
+	buildVolume(GeoVPhysVol const* vol, unsigned int index, std::string name) const;
 
-	/// @brief This function builds the pixel detector EndCap as Acts::TrackingVolume from a given GeoModel volume
-	///
-	/// @param [in] pdEndCap The pixel detector EndCap volume
-	///
-	/// @return The Acts volume
-	std::shared_ptr<Acts::TrackingVolume>
-	buildPixelEndCap(GeoVPhysVol const* pdEndCap) const;
-
+	/// @warning The tracing through the GeoModel is based purely on string parsing. Any careless change in the following lines can break the code.
 	/// Set of keys we search for in the GeoModel to find the right volumes in the tree
-	std::set<std::string> m_volumeKeys = {"Barrel", "EndCap"};
-	/// Set of keys we search for int the GeoModel to find the right layers in the volumes
-	std::set<std::string> m_layerKeys = {"Layer0", "Layer1", "Layer2", "Layer3"};
+	const std::set<std::string> m_volumeKeys = {"Barrel", "EndCap"};
+	/// Set of keys we search for in the GeoModel to find the right layers in the volumes
+	const std::set<std::string> m_layerKeys = {"Layer0", "Layer1", "Layer2", "Layer3", "Disk0", "Disk1", "Disk2"};
+	/// Vector containing the volume names that will be produces
+	const std::array<std::string, 2> m_outputVolumeNames = {"ACTlaS::Pixel::Barrel", "ACTlaS::Pixel::EndCap"};
 };
 }  // namespace FW
