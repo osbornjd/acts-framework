@@ -7,12 +7,12 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <fstream>
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Plugins/HepMC/HepMC3Event.hpp"
 #include "ACTFW/Plugins/HepMC/HepMC3Reader.hpp"
 #include "HepMC/ReaderAscii.h"
 #include "HepPID/ParticleName.hh"
-#include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimVertex.hpp"
 
 ///
 /// Straight forward example of reading a HepMC3 file.
@@ -68,25 +68,23 @@ main(int argc, char* argv[])
   }
 
   std::cout << std::endl << "Vertices: ";
-  std::vector<std::unique_ptr<FW::Data::SimVertex<FW::Data::SimParticle>>> vertices
-      = simEvent.vertices(genevt);
+  std::vector<std::unique_ptr<FW::Data::SimVertex<FW::Data::SimParticle>>>
+      vertices = simEvent.vertices(genevt);
   if (vertices.empty())
     std::cout << "none" << std::endl;
   else {
     std::cout << std::endl;
     for (auto& vertex : vertices) {
-      std::vector<FW::Data::SimParticle> particlesIn
-          = vertex->in;
+      std::vector<FW::Data::SimParticle> particlesIn = vertex->in;
       for (auto& particle : particlesIn)
         std::cout << HepPID::particleName(particle.pdg()) << " ";
       std::cout << "-> ";
-      std::vector<FW::Data::SimParticle> particlesOut
-          = vertex->out;
+      std::vector<FW::Data::SimParticle> particlesOut = vertex->out;
       for (auto& particle : particlesOut)
         std::cout << HepPID::particleName(particle.pdg()) << " ";
-      std::cout << "\t@(" << vertex->timeStamp << ", "
-                << vertex->position(0) << ", " << vertex->position(1)
-                << ", " << vertex->position(2) << ")" << std::endl;
+      std::cout << "\t@(" << vertex->timeStamp << ", " << vertex->position(0)
+                << ", " << vertex->position(1) << ", " << vertex->position(2)
+                << ")" << std::endl;
     }
     std::cout << std::endl;
   }
