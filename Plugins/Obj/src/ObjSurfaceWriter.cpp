@@ -41,7 +41,8 @@ FW::Obj::ObjSurfaceWriter::name() const
 }
 
 FW::ProcessCode
-FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
+FW::Obj::ObjSurfaceWriter::write(const AlgorithmContext& context,
+                                 const Acts::Surface&    surface)
 {
   std::lock_guard<std::mutex> lock(m_write_mutex);
 
@@ -50,7 +51,7 @@ FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
   auto scalor = m_cfg.outputScalor;
   // let's get the bounds & the transform
   const Acts::SurfaceBounds& surfaceBounds = surface.bounds();
-  auto                       sTransform    = surface.transform();
+  auto                       sTransform = surface.transform(context.geoContext);
 
   // dynamic_cast to PlanarBounds
   const Acts::PlanarBounds* planarBounds
@@ -74,7 +75,7 @@ FW::Obj::ObjSurfaceWriter::write(const Acts::Surface& surface)
     // get the thickness and vertical faces
     double                    thickness = 0.;
     std::vector<unsigned int> vfaces;
-    if (surface.associatedDetectorElement()) {
+    if (surface.associatedDetectorElement() and m_cfg.outputThickness != 0.) {
       // get the thickness form the detector element
       thickness = surface.associatedDetectorElement()->thickness();
       vfaces    = {1, 1, 1, 1};

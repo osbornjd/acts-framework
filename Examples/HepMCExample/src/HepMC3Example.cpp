@@ -11,6 +11,8 @@
 #include "ACTFW/Plugins/HepMC/HepMC3Reader.hpp"
 #include "HepMC/ReaderAscii.h"
 #include "HepPID/ParticleName.hh"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 
 ///
 /// Straight forward example of reading a HepMC3 file.
@@ -55,56 +57,56 @@ main(int argc, char* argv[])
   std::cout << "Event time: " << simEvent.eventTime(genevt) << std::endl;
 
   std::cout << "Beam particles: ";
-  std::vector<std::unique_ptr<Acts::ParticleProperties>> beam
+  std::vector<std::unique_ptr<FW::Data::SimParticle>> beam
       = simEvent.beams(genevt);
   if (beam.empty())
     std::cout << "none" << std::endl;
   else {
     for (auto& pbeam : beam)
-      std::cout << HepPID::particleName(pbeam->pdgID()) << " ";
+      std::cout << HepPID::particleName(pbeam->pdg()) << " ";
     std::cout << std::endl;
   }
 
   std::cout << std::endl << "Vertices: ";
-  std::vector<std::unique_ptr<Acts::ProcessVertex>> vertices
+  std::vector<std::unique_ptr<FW::Data::SimVertex<FW::Data::SimParticle>>> vertices
       = simEvent.vertices(genevt);
   if (vertices.empty())
     std::cout << "none" << std::endl;
   else {
     std::cout << std::endl;
     for (auto& vertex : vertices) {
-      std::vector<Acts::ParticleProperties> particlesIn
-          = vertex->incomingParticles();
+      std::vector<FW::Data::SimParticle> particlesIn
+          = vertex->in;
       for (auto& particle : particlesIn)
-        std::cout << HepPID::particleName(particle.pdgID()) << " ";
+        std::cout << HepPID::particleName(particle.pdg()) << " ";
       std::cout << "-> ";
-      std::vector<Acts::ParticleProperties> particlesOut
-          = vertex->outgoingParticles();
+      std::vector<FW::Data::SimParticle> particlesOut
+          = vertex->out;
       for (auto& particle : particlesOut)
-        std::cout << HepPID::particleName(particle.pdgID()) << " ";
-      std::cout << "\t@(" << vertex->interactionTime() << ", "
-                << vertex->position()(0) << ", " << vertex->position()(1)
-                << ", " << vertex->position()(2) << ")" << std::endl;
+        std::cout << HepPID::particleName(particle.pdg()) << " ";
+      std::cout << "\t@(" << vertex->timeStamp << ", "
+                << vertex->position(0) << ", " << vertex->position(1)
+                << ", " << vertex->position(2) << ")" << std::endl;
     }
     std::cout << std::endl;
   }
 
   std::cout << "Total particle record:" << std::endl;
-  std::vector<std::unique_ptr<Acts::ParticleProperties>> particles
+  std::vector<std::unique_ptr<FW::Data::SimParticle>> particles
       = simEvent.particles(genevt);
   for (auto& particle : particles)
-    std::cout << HepPID::particleName(particle->pdgID())
+    std::cout << HepPID::particleName(particle->pdg())
               << "\tID:" << particle->barcode() << ", momentum: ("
               << particle->momentum()(0) << ", " << particle->momentum()(1)
               << ", " << particle->momentum()(2)
-              << "), mass:  " << particle->mass() << std::endl;
+              << "), mass:  " << particle->m() << std::endl;
 
   std::cout << std::endl << "Initial to final state: ";
-  std::vector<std::unique_ptr<Acts::ParticleProperties>> fState
+  std::vector<std::unique_ptr<FW::Data::SimParticle>> fState
       = simEvent.finalState(genevt);
   for (auto& pbeam : beam)
-    std::cout << HepPID::particleName(pbeam->pdgID()) << " ";
+    std::cout << HepPID::particleName(pbeam->pdg()) << " ";
   std::cout << "-> ";
-  for (auto& fs : fState) std::cout << HepPID::particleName(fs->pdgID()) << " ";
+  for (auto& fs : fState) std::cout << HepPID::particleName(fs->pdg()) << " ";
   std::cout << std::endl;
 }
