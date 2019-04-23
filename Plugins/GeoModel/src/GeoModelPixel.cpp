@@ -24,6 +24,8 @@
 #include "Acts/Tools/LayerArrayCreator.hpp"
 #include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Volumes/CylinderVolumeBounds.hpp"
+#include "Acts/Layers/DiscLayer.hpp"
+#include "Acts/Surfaces/RadialBounds.hpp"
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -104,7 +106,7 @@ FW::GeoModelPixel::surfaceArray(GeoVPhysVol const* lay) const
 }
 
 std::vector<std::shared_ptr<const Acts::Layer>>
-FW::GeoModelPixel::buildLayers(GeoVPhysVol const* vol, std::shared_ptr<const Acts::Transform3D> transformationVolume) const
+FW::GeoModelPixel::buildLayers(GeoVPhysVol const* vol, std::shared_ptr<const Acts::Transform3D> transformationVolume, bool barrel) const
 {
 	// The resulting layers
 	std::vector<std::shared_ptr<const Acts::Layer>> layers;
@@ -114,33 +116,55 @@ FW::GeoModelPixel::buildLayers(GeoVPhysVol const* vol, std::shared_ptr<const Act
 	for(unsigned int j = 0; j < ncChildren; j++)
 	{
 		auto layer = dynamic_cast<GeoVPhysVol const*>(&(*(vol->getChildVol(j))));
-
+		
 		// Test if the layer is one that we search for
 		if(m_layerKeys.find(layer->getLogVol()->getName()) != m_layerKeys.end())
 		{
 			
+			// Build the surface array
+			std::unique_ptr<Acts::SurfaceArray> surArray = surfaceArray(&(*(vol->getChildVol(j))));
+		
 			// Build the transformation
 			std::shared_ptr<const Acts::Transform3D> transformationLayer = nullptr;
 			if(dynamic_cast<GeoFullPhysVol const*>(layer))
 			{
-				transformationLayer = std::make_shared<Acts::Transform3D>((transformationVolume->matrix() * vol->getDefXToChildVol(j).matrix()).transpose());
+				transformationLayer = std::make_shared<Acts::Transform3D>(transformationVolume->matrix() * vol->getDefXToChildVol(j).matrix().transpose());
 			}
 			
 			// Build the bounds & thickness
-			std::shared_ptr<const Acts::CylinderBounds> bounds = nullptr;
 			double thickness = 0.;
-			if(dynamic_cast<GeoTube const*>(layer->getLogVol()->getShape()))
+			// If it is in the barrel, build a cylinder ...
+			if(barrel)
 			{
-				GeoTube const* tube = dynamic_cast<GeoTube const*>(layer->getLogVol()->getShape());
-				bounds = std::make_shared<const Acts::CylinderBounds>(tube->getRMax() * conv, tube->getZHalfLength() * conv);
-				thickness = (tube->getRMax() - tube->getRMin()) * conv;
+				// Collect the geometry data
+				std::shared_ptr<const Acts::CylinderBounds> bounds = nullptr;
+				if(dynamic_cast<GeoTube const*>(layer->getLogVol()->getShape()))
+				{
+					GeoTube const* tube = dynamic_cast<GeoTube const*>(layer->getLogVol()->getShape());
+					bounds = std::make_shared<const Acts::CylinderBounds>(tube->getRMax() * conv, tube->getZHalfLength() * conv);
+					thickness = (tube->getRMax() - tube->getRMin()) * conv;
+				}
+				
+				// Create and store the layer
+				layers.push_back(Acts::CylinderLayer::create(transformationLayer, bounds, std::move(surArray), thickness, nullptr, Acts::LayerType::active));
+				
 			}
-		
-			// Build the surface array
-			std::unique_ptr<Acts::SurfaceArray> surArray = surfaceArray(&(*(vol->getChildVol(j))));
+			// ... if not, build a disc
+			else
+			{
+				// Collect the geometry data
+				std::shared_ptr<const Acts::RadialBounds> bounds = nullptr;
+				if(dynamic_cast<GeoTube const*>(layer->getLogVol()->getShape()))
+				{
+					GeoTube const* tube = dynamic_cast<GeoTube const*>(layer->getLogVol()->getShape());
+					bounds = std::make_shared<const Acts::RadialBounds>(tube->getRMin() * conv, tube->getRMax() * conv);
+					thickness = tube->getZHalfLength() * conv;
+				}
 			
-			// Create and store the layer
-			layers.push_back(Acts::CylinderLayer::create(transformationLayer, bounds, std::move(surArray), thickness, nullptr, Acts::LayerType::active));
+				// Create and store the layer
+				layers.push_back(Acts::DiscLayer::create(transformationLayer, bounds, std::move(surArray), thickness, nullptr, Acts::LayerType::active));
+			}
+
 		}
 	}
 	return layers;
@@ -150,7 +174,7 @@ std::unique_ptr<const Acts::LayerArray>
 FW::GeoModelPixel::buildLayerArray(GeoVPhysVol const* vol, std::shared_ptr<const Acts::Transform3D> transformationVolume, bool barrel) const
 {
 	// Build the layers
-	std::vector<std::shared_ptr<const Acts::Layer>> layers = buildLayers(vol, transformationVolume);
+	std::vector<std::shared_ptr<const Acts::Layer>> layers = buildLayers(vol, transformationVolume, barrel);
 	
 	// Get the minimum/maximum of the volume
 	double min, max;		  
@@ -165,7 +189,7 @@ FW::GeoModelPixel::buildLayerArray(GeoVPhysVol const* vol, std::shared_ptr<const
 		}
 		else
 		{
-			double offset = transformationVolume->matrix().transpose()(2, 3);
+			double offset = transformationVolume->matrix()(2, 3);
 			min = (offset - tube->getZHalfLength()) * conv;
 			max = (offset + tube->getZHalfLength()) * conv;
 		}
@@ -173,7 +197,6 @@ FW::GeoModelPixel::buildLayerArray(GeoVPhysVol const* vol, std::shared_ptr<const
 
 	// Build the layer array
 	Acts::LayerArrayCreator layArrayCreator;
-	//~ return nullptr; // TODO: remove this line
 	return layArrayCreator.layerArray(layers, min, max, Acts::BinningType::arbitrary, barrel ? Acts::BinningValue::binR : Acts::BinningValue::binZ);
 }
 
@@ -195,7 +218,6 @@ FW::GeoModelPixel::buildVolume(GeoVPhysVol const* vol, unsigned int index, std::
 	bool barrel = (name == m_outputVolumeNames[0]) ? true : false;
 	
 	// Get the layers
-	std::cout << barrel << std::endl;
 	std::unique_ptr<const Acts::LayerArray> layArray = buildLayerArray(vol, transformation, barrel);
 
 	// Build the volume
