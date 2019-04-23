@@ -10,8 +10,8 @@
 #include <iostream>
 #include <string>
 #include "ACTFW/Plugins/GeoModel/GeoModelBeamPipe.hpp"
-#include "ACTFW/Plugins/GeoModel/GeoModelReader.hpp"
 #include "ACTFW/Plugins/GeoModel/GeoModelPixel.hpp"
+#include "ACTFW/Plugins/GeoModel/GeoModelReader.hpp"
 #include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Volumes/VolumeBounds.hpp"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -40,7 +40,7 @@ main(int argc, char* argv[])
   GeoPhysVol*        world = gmr.loadDB(path);
 
   FW::GeoModelBeamPipe gmbp;
-  FW::GeoModelPixel gmp;
+  FW::GeoModelPixel    gmp;
 
   // Walk over all children of the current volume
   unsigned int nChildren = world->getNChildVols();
@@ -57,11 +57,10 @@ main(int argc, char* argv[])
         trVols.push_back(gmbp.buildBeamPipe(geoContext, childVolV));
       } else if (childVolV->getLogVol()->getName() == "BeamPipeFwd") {
         trVols.push_back(gmbp.buildBeamPipe(geoContext, childVolV));
+      } else if (childVolV->getLogVol()->getName() == "Pixel") {
+        gmp.buildPixel(geoContext, childVolV);
+        break;
       }
-      else if(childVolV->getLogVol()->getName() == "Pixel"){
-		  gmp.buildPixel(childVolV);
-		  break;
-		}
     }
   }
 }

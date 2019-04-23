@@ -118,7 +118,7 @@ FW::GeoModelReader::loadDB(const QString& path) const
     return nullptr;
   }
 }
-	
+
 std::ostream&
 FW::GeoModelReader::treeToStream(GeoVPhysVol const* tree,
                                  std::ostream&      sl) const

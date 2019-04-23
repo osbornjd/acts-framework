@@ -130,7 +130,11 @@ FW::GeoModelBeamPipe::buildCentralBeamPipe(
       std::make_shared<const Acts::Transform3D>(Acts::Transform3D::Identity()),
       volBounds,
       nullptr,
-      std::move(layArray), {}, {}, {}, "ACTlaS::BeamPipe::Central");
+      std::move(layArray),
+      {},
+      {},
+      {},
+      "ACTlaS::BeamPipe::Central");
 }
 
 std::vector<std::shared_ptr<const Acts::Layer>>
@@ -231,7 +235,11 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(
       std::make_shared<const Acts::Transform3D>(bp->getX()),
       volBounds,
       nullptr,
-      std::move(layArray), {}, {}, {}, "ACTlaS::BeamPipe::Forward");
+      std::move(layArray),
+      {},
+      {},
+      {},
+      "ACTlaS::BeamPipe::Forward");
 }
 
 std::shared_ptr<Acts::TrackingVolume>
