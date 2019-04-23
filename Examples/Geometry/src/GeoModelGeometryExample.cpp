@@ -19,6 +19,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoPVLink.h"
 #include "GeoModelKernel/GeoPhysVol.h"
+#include <map>
 
 /// @brief main executable
 ///
@@ -41,6 +42,8 @@ main(int argc, char* argv[])
 
   FW::GeoModelBeamPipe gmbp;
   FW::GeoModelPixel    gmp;
+  
+  std::map<std::string, std::shared_ptr<const Acts::SurfaceMaterial>> materialDictionary;
 
   // Walk over all children of the current volume
   unsigned int nChildren = world->getNChildVols();
@@ -58,7 +61,7 @@ main(int argc, char* argv[])
       } else if (childVolV->getLogVol()->getName() == "BeamPipeFwd") {
         trVols.push_back(gmbp.buildBeamPipe(geoContext, childVolV));
       } else if (childVolV->getLogVol()->getName() == "Pixel") {
-        gmp.buildPixel(geoContext, childVolV);
+        gmp.buildPixel(geoContext, childVolV, materialDictionary);
         break;
       }
     }
