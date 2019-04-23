@@ -64,9 +64,7 @@ FW::GeoModelBeamPipe::beamPipeMaterialBinning(GeoVPhysVol const* bp) const
       bins.insert(zShift - hLength);
       bins.insert(zShift + hLength);
     }
-  }
-  else
-  if (bp->getLogVol()->getShape()->type() == "Pcon") {
+  } else if (bp->getLogVol()->getShape()->type() == "Pcon") {
     GeoPcon const* pcon
         = dynamic_cast<GeoPcon const*>(bp->getLogVol()->getShape());
 
@@ -132,11 +130,12 @@ FW::GeoModelBeamPipe::buildCentralBeamPipe(
 }
 
 std::vector<std::shared_ptr<const Acts::Layer>>
-FW::GeoModelBeamPipe::pconLayerVector(const Acts::Transform3D& trafoToVolume,
-                                      GeoPcon const*           pcon,
-                                      std::pair<double, double>& minMaxZ,
-                                      std::pair<double, double>& minMaxR,
-                                      std::shared_ptr<const Acts::SurfaceMaterial> material) const
+FW::GeoModelBeamPipe::pconLayerVector(
+    const Acts::Transform3D& trafoToVolume,
+    GeoPcon const*           pcon,
+    std::pair<double, double>& minMaxZ,
+    std::pair<double, double>& minMaxR,
+    std::shared_ptr<const Acts::SurfaceMaterial> material) const
 {
   // Extract the orientation of the z axis from transformation (matters in the
   // ordering of z values)
@@ -163,16 +162,17 @@ FW::GeoModelBeamPipe::pconLayerVector(const Acts::Transform3D& trafoToVolume,
     auto   coneBounds = std::make_shared<Acts::ConeBounds>(alpha, z1, z2);
 
     // The layer creation itself
-    auto coneLayer = std::static_pointer_cast<Acts::ConeLayer>(Acts::ConeLayer::create(
-        std::make_shared<const Acts::Transform3D>(trafo),
-        coneBounds,
-        nullptr,
-        z2 - z1 - Acts::units::_nm,
-        nullptr,
-        Acts::passive));
+    auto coneLayer
+        = std::static_pointer_cast<Acts::ConeLayer>(Acts::ConeLayer::create(
+            std::make_shared<const Acts::Transform3D>(trafo),
+            coneBounds,
+            nullptr,
+            z2 - z1 - Acts::units::_nm,
+            nullptr,
+            Acts::passive));
     // Assign the material
     coneLayer->setAssociatedMaterial(material);
-    
+
     // Store the layer
     layerVector.push_back(coneLayer);
 
@@ -205,7 +205,8 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(
                                     -std::numeric_limits<double>::max());
 
   // Build the layers
-  auto layerVector = pconLayerVector(bp->getX(), pcon, minMaxZ, minMaxR, material);
+  auto layerVector
+      = pconLayerVector(bp->getX(), pcon, minMaxZ, minMaxR, material);
 
   // Put all together into a layer array
   Acts::LayerArrayCreator                 layArrCreator;
