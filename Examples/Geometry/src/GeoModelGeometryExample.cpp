@@ -46,7 +46,8 @@ main(int argc, char* argv[])
       const GeoVPhysVol* childVolV = &(*(nodeLink));
 
       std::vector<std::shared_ptr<Acts::TrackingVolume>> trVols;
-
+      
+      // Build the object depending on its name
       if (childVolV->getLogVol()->getName() == "BeamPipeCentral") {
         trVols.push_back(gmbp.buildBeamPipe(childVolV));
       } else if (childVolV->getLogVol()->getName() == "BeamPipeFwd") {

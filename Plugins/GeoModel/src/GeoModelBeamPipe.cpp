@@ -39,7 +39,7 @@ double conv = Acts::units::_mm / SYSTEM_OF_UNITS::mm;
 double
 FW::GeoModelBeamPipe::tubeHalfLength(GeoVPhysVol const* gvpv) const
 {
-  // A beam pipe should be a tube
+  // A central beam pipe should be a tube
   GeoShape const* shape = gvpv->getLogVol()->getShape();
   if (shape->type() == "Tube" && dynamic_cast<GeoTube const*>(shape)) {
     GeoTube const* tube = dynamic_cast<GeoTube const*>(shape);
@@ -64,9 +64,8 @@ FW::GeoModelBeamPipe::beamPipeMaterialBinning(GeoVPhysVol const* bp) const
       bins.insert(zShift - hLength);
       bins.insert(zShift + hLength);
     }
-    return bins;
   }
-
+  else
   if (bp->getLogVol()->getShape()->type() == "Pcon") {
     GeoPcon const* pcon
         = dynamic_cast<GeoPcon const*>(bp->getLogVol()->getShape());
@@ -87,7 +86,6 @@ FW::GeoModelBeamPipe::beamPipeMaterialBinning(GeoVPhysVol const* bp) const
       trafo               = bp->getX() * trafo;
       bins.insert(trafo.translation().z());
     }
-    return bins;
   }
   return bins;
 }
@@ -137,7 +135,8 @@ std::vector<std::shared_ptr<const Acts::Layer>>
 FW::GeoModelBeamPipe::pconLayerVector(const Acts::Transform3D& trafoToVolume,
                                       GeoPcon const*           pcon,
                                       std::pair<double, double>& minMaxZ,
-                                      std::pair<double, double>& minMaxR) const
+                                      std::pair<double, double>& minMaxR,
+                                      std::shared_ptr<const Acts::SurfaceMaterial> material) const
 {
   // Extract the orientation of the z axis from transformation (matters in the
   // ordering of z values)
@@ -164,15 +163,18 @@ FW::GeoModelBeamPipe::pconLayerVector(const Acts::Transform3D& trafoToVolume,
     auto   coneBounds = std::make_shared<Acts::ConeBounds>(alpha, z1, z2);
 
     // The layer creation itself
-    layerVector.push_back(Acts::ConeLayer::create(
+    auto coneLayer = std::static_pointer_cast<Acts::ConeLayer>(Acts::ConeLayer::create(
         std::make_shared<const Acts::Transform3D>(trafo),
         coneBounds,
         nullptr,
         z2 - z1 - Acts::units::_nm,
         nullptr,
         Acts::passive));
-
-    // TODO: Assign material
+    // Assign the material
+    coneLayer->setAssociatedMaterial(material);
+    
+    // Store the layer
+    layerVector.push_back(coneLayer);
 
     // Search the minimum / maximum value for the envelope cylidner in z ...
     minMaxZ.first  = std::min(minMaxZ.first, z1 * zAxisOrientation);
@@ -203,7 +205,7 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(
                                     -std::numeric_limits<double>::max());
 
   // Build the layers
-  auto layerVector = pconLayerVector(bp->getX(), pcon, minMaxZ, minMaxR);
+  auto layerVector = pconLayerVector(bp->getX(), pcon, minMaxZ, minMaxR, material);
 
   // Put all together into a layer array
   Acts::LayerArrayCreator                 layArrCreator;

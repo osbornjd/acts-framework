@@ -29,6 +29,7 @@ public:
   /// function
   ///
   /// @param [in] bp Pointer to the beam pipe part
+  /// @param [in] material Optional material assigned to the pipe
   ///
   /// @return Acts pointer to the corresponding beam pipe volume
   Acts::MutableTrackingVolumePtr
@@ -76,11 +77,21 @@ private:
                    std::shared_ptr<const Acts::SurfaceMaterial> material
                    = nullptr) const;
 
+  /// @brief Constructs an Acts layer vector containing ConeLayers out of a given GeoModel detector. These layers are used to describe the beam pipe forward and backward parts.
+  ///
+  /// @param [in] trafoToVolume Transformation of the underlying volume
+  /// @param [in] pcon GeoModel object of the volume
+  /// @param [in, out] minMaxZ Minimum and maximum value of the layers in z direction
+  /// @param [in, out] minMaxR Minimum and maximum value of the layers in r direction
+  /// @param [in] material Optional material assigned to the pipe
+  ///
+  /// @return Acts vector of layers containing all in GeoModel described parts
   std::vector<std::shared_ptr<const Acts::Layer>>
   pconLayerVector(const Acts::Transform3D& trafoToVolume,
                   GeoPcon const*           pcon,
                   std::pair<double, double>& minMaxZ,
-                  std::pair<double, double>& minMarR) const;
+                  std::pair<double, double>& minMarR,
+                  std::shared_ptr<const Acts::SurfaceMaterial> material = nullptr) const;
 
   /// @brief Extracts the half length of a tube
   ///
