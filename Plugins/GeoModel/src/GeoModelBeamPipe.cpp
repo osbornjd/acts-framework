@@ -22,12 +22,12 @@
 #include "Acts/Tools/LayerArrayCreator.hpp"
 #include "Acts/Tools/PassiveLayerBuilder.hpp"
 #include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "GeoModelKernel/GeoPcon.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
-#include "Acts/Utilities/GeometryContext.hpp"
 
 // Units
 #include "GeoModelKernel/Units.h"
@@ -90,7 +90,8 @@ FW::GeoModelBeamPipe::beamPipeMaterialBinning(GeoVPhysVol const* bp) const
 }
 
 std::shared_ptr<Acts::TrackingVolume>
-FW::GeoModelBeamPipe::buildCentralBeamPipe(const Acts::GeometryContext& geoContext,
+FW::GeoModelBeamPipe::buildCentralBeamPipe(
+    const Acts::GeometryContext&                 geoContext,
     GeoVPhysVol const*                           bp,
     std::shared_ptr<const Acts::SurfaceMaterial> material) const
 {
@@ -112,10 +113,11 @@ FW::GeoModelBeamPipe::buildCentralBeamPipe(const Acts::GeometryContext& geoConte
   plbConfig.centralLayerMaterial.push_back(material);
   Acts::PassiveLayerBuilder plb(plbConfig);
 
-  Acts::LayerArrayCreator::Config lacConfig;
+  Acts::LayerArrayCreator::Config         lacConfig;
   Acts::LayerArrayCreator                 layArrCreator(lacConfig);
   std::unique_ptr<const Acts::LayerArray> layArray
-      = layArrCreator.layerArray(geoContext, plb.centralLayers(geoContext),
+      = layArrCreator.layerArray(geoContext,
+                                 plb.centralLayers(geoContext),
                                  rMin,
                                  rMax,
                                  Acts::BinningType::arbitrary,
@@ -193,7 +195,8 @@ FW::GeoModelBeamPipe::pconLayerVector(
 }
 
 std::shared_ptr<Acts::TrackingVolume>
-FW::GeoModelBeamPipe::buildFwdBeamPipe(const Acts::GeometryContext& geoContext,
+FW::GeoModelBeamPipe::buildFwdBeamPipe(
+    const Acts::GeometryContext&                 geoContext,
     GeoVPhysVol const*                           bp,
     std::shared_ptr<const Acts::SurfaceMaterial> material) const
 {
@@ -211,10 +214,11 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(const Acts::GeometryContext& geoContext,
       = pconLayerVector(bp->getX(), pcon, minMaxZ, minMaxR, material);
 
   // Put all together into a layer array
-  Acts::LayerArrayCreator::Config                 lacConfig;
+  Acts::LayerArrayCreator::Config         lacConfig;
   Acts::LayerArrayCreator                 layArrCreator(lacConfig);
   std::unique_ptr<const Acts::LayerArray> layArray
-      = layArrCreator.layerArray(geoContext, layerVector,
+      = layArrCreator.layerArray(geoContext,
+                                 layerVector,
                                  minMaxZ.first,
                                  minMaxZ.second,
                                  Acts::BinningType::arbitrary,
@@ -232,7 +236,7 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(const Acts::GeometryContext& geoContext,
 
 std::shared_ptr<Acts::TrackingVolume>
 FW::GeoModelBeamPipe::buildBeamPipe(
-	const Acts::GeometryContext& geoContext,
+    const Acts::GeometryContext&                 geoContext,
     GeoVPhysVol const*                           bp,
     std::shared_ptr<const Acts::SurfaceMaterial> material) const
 {

@@ -31,9 +31,9 @@ main(int argc, char* argv[])
     std::cout << "No file path provided - exiting." << std::endl;
     return 0;
   }
-  
+
   Acts::GeometryContext geoContext;
-  
+
   FW::GeoModelReader gmr;
   QString            path(argv[1]);
   GeoPhysVol*        world = gmr.loadDB(path);
