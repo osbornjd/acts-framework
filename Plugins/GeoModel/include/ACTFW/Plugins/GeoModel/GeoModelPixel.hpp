@@ -25,18 +25,27 @@ namespace FW {
 class GeoModelPixel
 {
 public:
-	/// Type for the material look up. In order to acces the right surface material for the assignment to a surface, the name needs to be parsed. In GeoModel this is structured bottom to top (e.g. /ModuleBrl6/Ladder51/Layer3/Barrel/Pixel). Using this string, each of the elements can be uniquely identified and for each of these string we require a corresponding material assignment.
-	using MaterialDict = std::map<std::string, std::shared_ptr<const Acts::SurfaceMaterial>>;
+  /// Type for the material look up. In order to acces the right surface
+  /// material for the assignment to a surface, the name needs to be parsed. In
+  /// GeoModel this is structured bottom to top (e.g.
+  /// /ModuleBrl6/Ladder51/Layer3/Barrel/Pixel). Using this string, each of the
+  /// elements can be uniquely identified and for each of these string we
+  /// require a corresponding material assignment.
+  using MaterialDict
+      = std::map<std::string, std::shared_ptr<const Acts::SurfaceMaterial>>;
 
   /// @brief This function builds the pixel detector as Acts::TrackingVolumes
   /// from a given GeoModel volume
   ///
   /// @param [in] pd The pixel detector volume
-  /// @param [in] matDict Lookup of the material that is assign to a each surface
+  /// @param [in] matDict Lookup of the material that is assign to a each
+  /// surface
   ///
   /// @return The Acts volumes
   std::vector<Acts::MutableTrackingVolumePtr>
-  buildPixel(const Acts::GeometryContext& geoContext, GeoVPhysVol const* pd, const MaterialDict& matDict) const;
+  buildPixel(const Acts::GeometryContext& geoContext,
+             GeoVPhysVol const*           pd,
+             const MaterialDict&          matDict) const;
 
 private:
   std::unique_ptr<Acts::SurfaceArray>
@@ -51,13 +60,15 @@ private:
   /// along the tree
   /// @param [in] barrel Boolean flag to indicate if the barrel (true) or endcap
   /// (false) is considered
-  /// @param [in] matDict Lookup of the material that is assign to a each surface
+  /// @param [in] matDict Lookup of the material that is assign to a each
+  /// surface
   ///
   /// @return Vector of Acts layers
   std::vector<std::shared_ptr<const Acts::Layer>>
   buildLayers(GeoVPhysVol const*                       vol,
               std::shared_ptr<const Acts::Transform3D> transformationVolume,
-              bool                                     barrel, const MaterialDict& matDict) const;
+              bool                                     barrel,
+              const MaterialDict&                      matDict) const;
 
   /// @brief This function builds the Acts layer array of a given GeoModel
   /// volume
@@ -68,13 +79,16 @@ private:
   /// along the tree
   /// @param [in] barrel Boolean flag to indicate if the barrel (true) or endcap
   /// (false) is considered
-  /// @param [in] matDict Lookup of the material that is assign to a each surface
+  /// @param [in] matDict Lookup of the material that is assign to a each
+  /// surface
   ///
   /// @return Acts layer array
   std::unique_ptr<const Acts::LayerArray>
-  buildLayerArray(const Acts::GeometryContext& geoContext, GeoVPhysVol const*                       vol,
+  buildLayerArray(const Acts::GeometryContext&             geoContext,
+                  GeoVPhysVol const*                       vol,
                   std::shared_ptr<const Acts::Transform3D> transformationVolume,
-                  bool                                     barrel, const MaterialDict& matDict) const;
+                  bool                                     barrel,
+                  const MaterialDict&                      matDict) const;
 
   /// @brief This function builds the pixel detector barrel as
   /// Acts::TrackingVolume from a given GeoModel volume
@@ -83,13 +97,16 @@ private:
   /// @param [in] index Index of this volume in the list of the parent
   /// @param [in] name Name of the volume that will be build - Allows further
   /// geometry deduction
-  /// @param [in] matDict Lookup of the material that is assign to a each surface
+  /// @param [in] matDict Lookup of the material that is assign to a each
+  /// surface
   ///
   /// @return The Acts volume
   std::shared_ptr<Acts::TrackingVolume>
-  buildVolume(const Acts::GeometryContext& geoContext, GeoVPhysVol const* vol,
-              unsigned int       index,
-              std::string        name, const MaterialDict& matDict) const;
+  buildVolume(const Acts::GeometryContext& geoContext,
+              GeoVPhysVol const*           vol,
+              unsigned int                 index,
+              std::string                  name,
+              const MaterialDict&          matDict) const;
 
   /// @warning The tracing through the GeoModel is based purely on string
   /// parsing. Any careless change in the following lines can break the code.

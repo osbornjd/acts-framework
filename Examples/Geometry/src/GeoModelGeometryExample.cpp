@@ -8,6 +8,7 @@
 
 #include <QString>
 #include <iostream>
+#include <map>
 #include <string>
 #include "ACTFW/Plugins/GeoModel/GeoModelBeamPipe.hpp"
 #include "ACTFW/Plugins/GeoModel/GeoModelPixel.hpp"
@@ -19,7 +20,6 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoPVLink.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include <map>
 
 /// @brief main executable
 ///
@@ -42,8 +42,9 @@ main(int argc, char* argv[])
 
   FW::GeoModelBeamPipe gmbp;
   FW::GeoModelPixel    gmp;
-  
-  std::map<std::string, std::shared_ptr<const Acts::SurfaceMaterial>> materialDictionary;
+
+  std::map<std::string, std::shared_ptr<const Acts::SurfaceMaterial>>
+      materialDictionary;
 
   // Walk over all children of the current volume
   unsigned int nChildren = world->getNChildVols();
