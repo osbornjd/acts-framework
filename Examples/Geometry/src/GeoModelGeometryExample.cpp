@@ -31,6 +31,9 @@ main(int argc, char* argv[])
     std::cout << "No file path provided - exiting." << std::endl;
     return 0;
   }
+  
+  Acts::GeometryContext geoContext;
+  
   FW::GeoModelReader gmr;
   QString            path(argv[1]);
   GeoPhysVol*        world = gmr.loadDB(path);
@@ -49,9 +52,9 @@ main(int argc, char* argv[])
 
       // Build the object depending on its name
       if (childVolV->getLogVol()->getName() == "BeamPipeCentral") {
-        trVols.push_back(gmbp.buildBeamPipe(childVolV));
+        trVols.push_back(gmbp.buildBeamPipe(geoContext, childVolV));
       } else if (childVolV->getLogVol()->getName() == "BeamPipeFwd") {
-        trVols.push_back(gmbp.buildBeamPipe(childVolV));
+        trVols.push_back(gmbp.buildBeamPipe(geoContext, childVolV));
       }
     }
   }

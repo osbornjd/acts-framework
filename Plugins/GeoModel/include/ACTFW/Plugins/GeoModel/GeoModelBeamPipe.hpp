@@ -33,7 +33,7 @@ public:
   ///
   /// @return Acts pointer to the corresponding beam pipe volume
   Acts::MutableTrackingVolumePtr
-  buildBeamPipe(GeoVPhysVol const*                           bp,
+  buildBeamPipe(const Acts::GeometryContext& geoContext, GeoVPhysVol const*                           bp,
                 std::shared_ptr<const Acts::SurfaceMaterial> material
                 = nullptr) const;
 
@@ -56,7 +56,7 @@ private:
   ///
   /// @return Acts pointer to the beam pipe volume
   Acts::MutableTrackingVolumePtr
-  buildCentralBeamPipe(GeoVPhysVol const*                           bp,
+  buildCentralBeamPipe(const Acts::GeometryContext& geoContext, GeoVPhysVol const*                           bp,
                        std::shared_ptr<const Acts::SurfaceMaterial> material
                        = nullptr) const;
 
@@ -73,7 +73,7 @@ private:
   ///
   /// @return Acts pointer to the forward beam pipe volume
   Acts::MutableTrackingVolumePtr
-  buildFwdBeamPipe(GeoVPhysVol const*                           bp,
+  buildFwdBeamPipe(const Acts::GeometryContext& geoContext, GeoVPhysVol const*                           bp,
                    std::shared_ptr<const Acts::SurfaceMaterial> material
                    = nullptr) const;
 
