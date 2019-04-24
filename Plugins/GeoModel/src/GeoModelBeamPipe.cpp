@@ -132,8 +132,6 @@ FW::GeoModelBeamPipe::buildCentralBeamPipe(
       nullptr,
       std::move(layArray),
       {},
-      {},
-      {},
       "ACTlaS::BeamPipe::Central");
 }
 
@@ -236,8 +234,6 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(
       volBounds,
       nullptr,
       std::move(layArray),
-      {},
-      {},
       {},
       "ACTlaS::BeamPipe::Forward");
 }

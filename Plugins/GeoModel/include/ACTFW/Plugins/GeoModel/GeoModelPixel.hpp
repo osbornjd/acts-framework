@@ -36,7 +36,7 @@ public:
   ///
   /// @return The Acts volumes
   std::vector<Acts::MutableTrackingVolumePtr>
-  buildPixel(GeoVPhysVol const* pd, const MaterialDict& matDict) const;
+  buildPixel(const Acts::GeometryContext& geoContext, GeoVPhysVol const* pd, const MaterialDict& matDict) const;
 
 private:
   std::unique_ptr<Acts::SurfaceArray>
@@ -72,7 +72,7 @@ private:
   ///
   /// @return Acts layer array
   std::unique_ptr<const Acts::LayerArray>
-  buildLayerArray(GeoVPhysVol const*                       vol,
+  buildLayerArray(const Acts::GeometryContext& geoContext, GeoVPhysVol const*                       vol,
                   std::shared_ptr<const Acts::Transform3D> transformationVolume,
                   bool                                     barrel, const MaterialDict& matDict) const;
 
@@ -87,7 +87,7 @@ private:
   ///
   /// @return The Acts volume
   std::shared_ptr<Acts::TrackingVolume>
-  buildVolume(GeoVPhysVol const* vol,
+  buildVolume(const Acts::GeometryContext& geoContext, GeoVPhysVol const* vol,
               unsigned int       index,
               std::string        name, const MaterialDict& matDict) const;
 

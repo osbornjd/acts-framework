@@ -26,6 +26,7 @@
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoTube.h"
+#include "Acts/Utilities/GeometryContext.hpp"
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -204,7 +205,7 @@ FW::GeoModelPixel::buildLayers(
 }
 
 std::unique_ptr<const Acts::LayerArray>
-FW::GeoModelPixel::buildLayerArray(
+FW::GeoModelPixel::buildLayerArray(const Acts::GeometryContext& geoContext,
     GeoVPhysVol const*                       vol,
     std::shared_ptr<const Acts::Transform3D> transformationVolume,
     bool                                     barrel, const MaterialDict& matDict) const
@@ -230,8 +231,9 @@ FW::GeoModelPixel::buildLayerArray(
   }
 
   // Build the layer array
-  Acts::LayerArrayCreator layArrayCreator;
-  return layArrayCreator.layerArray(layers,
+  Acts::LayerArrayCreator::Config lacConfig;
+  Acts::LayerArrayCreator layArrayCreator(lacConfig);
+  return layArrayCreator.layerArray(geoContext, layers,
                                     min,
                                     max,
                                     Acts::BinningType::arbitrary,
@@ -240,7 +242,7 @@ FW::GeoModelPixel::buildLayerArray(
 }
 
 std::shared_ptr<Acts::TrackingVolume>
-FW::GeoModelPixel::buildVolume(GeoVPhysVol const* vol,
+FW::GeoModelPixel::buildVolume(const Acts::GeometryContext& geoContext, GeoVPhysVol const* vol,
                                unsigned int       index,
                                std::string        name, const MaterialDict& matDict) const
 {
@@ -263,15 +265,15 @@ FW::GeoModelPixel::buildVolume(GeoVPhysVol const* vol,
 
   // Get the layers
   std::unique_ptr<const Acts::LayerArray> layArray
-      = buildLayerArray(vol, transformation, barrel, matDict);
+      = buildLayerArray(geoContext, vol, transformation, barrel, matDict);
 
   // Build the volume
   return Acts::TrackingVolume::create(
-      transformation, bounds, nullptr, std::move(layArray), {}, {}, {}, name);
+      transformation, bounds, nullptr, std::move(layArray), {}, name);
 }
 
 std::vector<std::shared_ptr<Acts::TrackingVolume>>
-FW::GeoModelPixel::buildPixel(GeoVPhysVol const* pd, const MaterialDict& matDict) const
+FW::GeoModelPixel::buildPixel(const Acts::GeometryContext& geoContext, GeoVPhysVol const* pd, const MaterialDict& matDict) const
 {
 
   std::vector<std::shared_ptr<Acts::TrackingVolume>> volumes;
@@ -284,9 +286,9 @@ FW::GeoModelPixel::buildPixel(GeoVPhysVol const* pd, const MaterialDict& matDict
     if (m_volumeKeys.find(child->getLogVol()->getName())
         != m_volumeKeys.end()) {
       if (child->getLogVol()->getName() == "Barrel") {
-        volumes.push_back(buildVolume(child, i, m_outputVolumeNames[0], matDict));
+        volumes.push_back(buildVolume(geoContext, child, i, m_outputVolumeNames[0], matDict));
       } else if (child->getLogVol()->getName() == "EndCap") {
-        volumes.push_back(buildVolume(child, i, m_outputVolumeNames[1], matDict));
+        volumes.push_back(buildVolume(geoContext, child, i, m_outputVolumeNames[1], matDict));
       }
     }
   }
