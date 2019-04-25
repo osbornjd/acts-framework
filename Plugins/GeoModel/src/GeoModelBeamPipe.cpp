@@ -52,7 +52,7 @@ FW::GeoModelBeamPipe::tubeHalfLength(GeoVPhysVol const* gvpv) const
 std::set<double>
 FW::GeoModelBeamPipe::beamPipeMaterialBinning(GeoVPhysVol const* bp) const
 {
-std::cout << "matbin" << std::endl;
+  std::cout << "matbin" << std::endl;
   std::set<double> bins;
 
   // Walk over all children of the beam pipe volume
@@ -218,8 +218,8 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(
       = pconLayerVector(bp->getX(), pcon, minMaxZ, minMaxR, material);
 
   // Put all together into a layer array
-  Acts::LayerArrayCreator::Config         lacConfig;
-  Acts::LayerArrayCreator                 layArrCreator(lacConfig);
+  Acts::LayerArrayCreator::Config lacConfig;
+  Acts::LayerArrayCreator         layArrCreator(lacConfig);
 
   std::unique_ptr<const Acts::LayerArray> layArray
       = layArrCreator.layerArray(geoContext,
