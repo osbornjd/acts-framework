@@ -52,6 +52,7 @@ FW::GeoModelBeamPipe::tubeHalfLength(GeoVPhysVol const* gvpv) const
 std::set<double>
 FW::GeoModelBeamPipe::beamPipeMaterialBinning(GeoVPhysVol const* bp) const
 {
+std::cout << "matbin" << std::endl;
   std::set<double> bins;
 
   // Walk over all children of the beam pipe volume
@@ -105,7 +106,7 @@ FW::GeoModelBeamPipe::buildCentralBeamPipe(
   // TODO: move this out of here
   std::set<double> bins = beamPipeMaterialBinning(bp);
 
-  // Set up lauer
+  // Set up layer
   Acts::PassiveLayerBuilder::Config plbConfig;
   plbConfig.centralLayerRadii.push_back((rMin + rMax) * 0.5);
   plbConfig.centralLayerHalflengthZ.push_back(halfLengthZ);
@@ -141,6 +142,7 @@ FW::GeoModelBeamPipe::pconLayerVector(
     std::pair<double, double>& minMaxR,
     std::shared_ptr<const Acts::SurfaceMaterial> material) const
 {
+
   // Extract the orientation of the z axis from transformation (matters in the
   // ordering of z values)
   const double zAxisOrientation = trafoToVolume(2, 2);
@@ -192,6 +194,7 @@ FW::GeoModelBeamPipe::pconLayerVector(
     minMaxR.second = std::max(minMaxR.second, rMax1);
     minMaxR.second = std::max(minMaxR.second, rMax2);
   }
+  return layerVector;
 }
 
 std::shared_ptr<Acts::TrackingVolume>
@@ -200,6 +203,7 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(
     GeoVPhysVol const*                           bp,
     std::shared_ptr<const Acts::SurfaceMaterial> material) const
 {
+
   GeoPcon const* pcon
       = dynamic_cast<GeoPcon const*>(bp->getLogVol()->getShape());
 
@@ -216,6 +220,7 @@ FW::GeoModelBeamPipe::buildFwdBeamPipe(
   // Put all together into a layer array
   Acts::LayerArrayCreator::Config         lacConfig;
   Acts::LayerArrayCreator                 layArrCreator(lacConfig);
+
   std::unique_ptr<const Acts::LayerArray> layArray
       = layArrCreator.layerArray(geoContext,
                                  layerVector,
