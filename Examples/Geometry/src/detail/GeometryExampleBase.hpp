@@ -18,6 +18,7 @@
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvWriterOptions.hpp"
+#include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjWriterOptions.hpp"
@@ -25,6 +26,7 @@
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
+#include "Acts/Plugins/Json/lib/json.hpp"
 #include "Acts/Utilities/GeometryContext.hpp"
 
 template <typename options_setup_t, typename geometry_setup_t>
@@ -177,6 +179,22 @@ processGeometry(int               argc,
 
       // Close the file
       csvStream->close();
+    }
+
+    // OBJ output
+    if (vm["output-json"].as<bool>()) {
+
+      /// The name of the output file
+      std::string fileName = vm["mat-output-file"].template as<std::string>();
+      // the material writer
+      FW::Json::JsonGeometryConverter::Config jmConverterCfg(
+          "JsonGeometryConverter", Acts::Logging::INFO);
+      FW::Json::JsonGeometryConverter jmConverter(jmConverterCfg);
+      auto jout = jmConverter.trackingGeometryToJson(*(tGeometry.get()));
+      // write prettified JSON to another file
+      std::string   jsonOutputName = fileName + geoContextStr + ".json";
+      std::ofstream ofj(jsonOutputName);
+      ofj << std::setw(4) << jout << std::endl;
     }
   }
 

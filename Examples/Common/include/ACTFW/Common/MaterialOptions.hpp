@@ -68,6 +68,9 @@ namespace Options {
                       "building, 3 - reading")(
         "mat-input-file",
         po::value<std::string>()->default_value(""),
+        "The filename for the material, auto-detects loading plugin")(
+        "mat-output-file",
+        po::value<std::string>()->default_value(""),
         "The filename for the material, auto-detects loading plugin");
   }
 

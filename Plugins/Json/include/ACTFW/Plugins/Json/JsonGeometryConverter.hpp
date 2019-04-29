@@ -34,22 +34,45 @@ namespace FW {
 
 namespace Json {
 
+  using SurfaceMaterialRep
+      = std::map<geo_id_value, const Acts::ISurfaceMaterial*>;
+  using VolumeMaterialRep
+      = std::map<geo_id_value, const Acts::IVolumeMaterial*>;
+
   /// @brief Layer representation for Json writing
   struct LayerRep
   {
+    // the layer id
+    Acts::GeometryID layerID;
 
-    Acts::SurfaceMaterialMap                      sensitives;
-    Acts::SurfaceMaterialMap                      approaches;
-    std::shared_ptr<const Acts::ISurfaceMaterial> representing = nullptr;
+    SurfaceMaterialRep            sensitives;
+    SurfaceMaterialRep            approaches;
+    const Acts::ISurfaceMaterial* representing = nullptr;
+
+    /// The LayerRep is actually worth it to write out
+    operator bool() const
+    {
+      return (sensitives.size() != 0 or approaches.size() != 0
+              or representing != nullptr);
+    }
   };
 
   /// @brief Volume representation for Json writing
   struct VolumeRep
   {
+    // the geometry id
+    Acts::GeometryID volumeID;
 
     std::map<geo_id_value, LayerRep> layers;
-    Acts::SurfaceMaterialMap                     boundaries;
-    std::shared_ptr<const Acts::IVolumeMaterial> material = nullptr;
+    SurfaceMaterialRep           boundaries;
+    const Acts::IVolumeMaterial* material = nullptr;
+
+    /// The VolumeRep is actually worth it to write out
+    operator bool() const
+    {
+      return (layers.size() != 0 or boundaries.size() != 0
+              or material != nullptr);
+    }
   };
 
   /// @brief Detector representation for Json writing
@@ -102,6 +125,12 @@ namespace Json {
       /// The name of the writer
       std::string name = "";
 
+      /// Steering to hanlde sensitive data
+      bool processSensitives = true;
+
+      /// Steering to handly boundary data
+      bool processBoundaries = true;
+
       /// Constructor
       ///
       /// @param lname Name of the writer tool
@@ -137,18 +166,26 @@ namespace Json {
     /// Write method
     ///
     /// @param tGeometry is the tracking geometry which contains the material
-    // json trackingGeometryToJson(const TrackingGeometrt& tGeometry);
+    json
+    trackingGeometryToJson(const Acts::TrackingGeometry& tGeometry);
 
   private:
-    /// Write method
+    /// Convert to internal representation method, recursive call
     ///
     /// @param tGeometry is the tracking geometry which contains the material
-    // json trackingVolumeToJson(const TrackingVolume& tVolume);
+    void
+    convertToRep(DetectorRep& detRep, const Acts::TrackingVolume& tVolume);
+
+    /// Convert to internal representation method
+    ///
+    /// @param tGeometry is the tracking geometry which contains the material
+    LayerRep
+    convertToRep(const Acts::Layer& tLayer);
 
     /// Create the Surface Material from Json
-    ///
+    /// - factory method, ownership given
     /// @param material is the json part representing a material object
-    std::shared_ptr<const Acts::ISurfaceMaterial>
+    const Acts::ISurfaceMaterial*
     jsonToSurfaceMaterial(const json& material);
 
     /// Create the Material Matrix from Json
