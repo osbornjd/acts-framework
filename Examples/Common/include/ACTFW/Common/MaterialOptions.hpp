@@ -90,6 +90,9 @@ namespace Options {
         "mat-input-volume",
         po::value<bool>()->default_value(true),
         "Input the volume material description")(
+        "mat-output-data",
+        po::value<bool>()->default_value(true),
+        "Otuput the data field of material description.")(
         "mat-output-sensitives",
         po::value<bool>()->default_value(true),
         "Otuput the sensitive surface material description.")(

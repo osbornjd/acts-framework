@@ -199,6 +199,8 @@ processGeometry(int               argc,
           = vm["mat-output-boundaries"].template as<bool>();
       jmConverterCfg.processVolumes
           = vm["mat-output-volume"].template as<bool>();
+      jmConverterCfg.writeData = vm["mat-output-data"].template as<bool>();
+
       FW::Json::JsonGeometryConverter jmConverter(jmConverterCfg);
 
       auto jout = jmConverter.trackingGeometryToJson(*(tGeometry.get()));

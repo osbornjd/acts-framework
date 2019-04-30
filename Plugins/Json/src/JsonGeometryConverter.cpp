@@ -216,7 +216,7 @@ FW::Json::JsonGeometryConverter::detectorRepToJson(const DetectorRep& detRep)
         ACTS_VERBOSE("a2j: ----> Convert layer " << lkey);
         json layj;
         // first check for approaches
-        if (not lvalue.approaches.empty()) {
+        if (not lvalue.approaches.empty() and m_cfg.processApproaches) {
           ACTS_VERBOSE("a2j: -----> Found " << lvalue.approaches.size()
                                             << " approach surface(s)");
           json approachesj;
@@ -240,7 +240,7 @@ FW::Json::JsonGeometryConverter::detectorRepToJson(const DetectorRep& detRep)
           layj[m_cfg.senkey] = sensitivesj;
         }
         // finally check for representing
-        if (lvalue.representing != nullptr) {
+        if (lvalue.representing != nullptr and m_cfg.processRepresenting) {
           ACTS_VERBOSE("a2j: ------> Convert representing surface ");
           layj[m_cfg.repkey] = surfaceMaterialToJson(*lvalue.representing);
         }
@@ -430,11 +430,13 @@ FW::Json::JsonGeometryConverter::surfaceMaterialToJson(
     if (hsMaterial != nullptr) {
       // type is homogeneous
       smj[m_cfg.typekey] = "homogeneous";
-      // write out the data, it's a [[[X0,L0,Z,A,rho,thickness]]]
-      auto& mp = hsMaterial->materialProperties(0, 0);
-      std::vector<std::vector<std::vector<float>>> mmat
-          = {{convertMaterialProperties(mp)}};
-      smj[m_cfg.datakey] = mmat;
+      if (m_cfg.writeData) {
+        // write out the data, it's a [[[X0,L0,Z,A,rho,thickness]]]
+        auto& mp = hsMaterial->materialProperties(0, 0);
+        std::vector<std::vector<std::vector<float>>> mmat
+            = {{convertMaterialProperties(mp)}};
+        smj[m_cfg.datakey] = mmat;
+      }
     } else {
       // only option remaining: BinnedSurface material
       // now check if we have a homogeneous material
@@ -446,17 +448,19 @@ FW::Json::JsonGeometryConverter::surfaceMaterialToJson(
         bUtility           = &(psMaterial->binUtility());
         // convert the data
         // get the material matrix
-        auto& mpMatrix = bsMaterial->fullMaterial();
-        std::vector<std::vector<std::vector<float>>> mmat;
-        mmat.reserve(mpMatrix.size());
-        for (auto& mpVector : mpMatrix) {
-          std::vector<std::vector<float>> mvec;
-          mvec.reserve(mpVector.size());
-          for (auto& mp : mpVector) {
-            mvec.push_back(convertMaterialProperties(mp));
+        if (m_cfg.writeData) {
+          auto& mpMatrix = bsMaterial->fullMaterial();
+          std::vector<std::vector<std::vector<float>>> mmat;
+          mmat.reserve(mpMatrix.size());
+          for (auto& mpVector : mpMatrix) {
+            std::vector<std::vector<float>> mvec;
+            mvec.reserve(mpVector.size());
+            for (auto& mp : mpVector) {
+              mvec.push_back(convertMaterialProperties(mp));
+            }
           }
+          smj[m_cfg.datakey] = mmat;
         }
-        smj[m_cfg.datakey] = mmat;
       }
     }
   }

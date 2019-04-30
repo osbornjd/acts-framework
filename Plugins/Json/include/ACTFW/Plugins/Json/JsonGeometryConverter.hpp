@@ -140,6 +140,9 @@ namespace Json {
       /// Steering to handle volume data
       bool processVolumes = true;
 
+      /// Write out data
+      bool writeData = true;
+
       /// Constructor
       ///
       /// @param lname Name of the writer tool

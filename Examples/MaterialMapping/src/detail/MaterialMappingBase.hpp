@@ -57,6 +57,8 @@ materialMappingExample(int              argc,
   FW::Options::addCommonOptions<po::options_description>(desc);
   // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
+  // Add the material options
+  FW::Options::addMaterialOptions<po::options_description>(desc);
   // Add the output options
   FW::Options::addInputOptions<po::options_description>(desc);
   // Add the output options
@@ -128,7 +130,7 @@ materialMappingExample(int              argc,
       Acts::getDefaultLogger("SurfaceMaterialMapper", logLevel));
 
   // Get the file name from the options
-  std::string materialFileName = vm["geo-material-file"].as<std::string>();
+  std::string materialFileName = vm["mat-output-file"].as<std::string>();
   /// The writer of the indexed material
   FW::Root::RootIndexedMaterialWriter::Config rimConfig(
       "IndexedMaterialWriter");
