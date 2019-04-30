@@ -1,6 +1,7 @@
 file(GLOB_RECURSE src_files "src/MaterialMapping.cpp")
 if (USE_GEANT4)
-  SET(src_files "src/GeantinoRecording.cpp" ${src_files})
+  SET(src_files "src/GeantinoRecording.cpp" ${src_files})  
+  include(${Geant4_USE_FILE})  
 endif()
 
 add_library(ACTFWMaterialMapping SHARED ${src_files})
