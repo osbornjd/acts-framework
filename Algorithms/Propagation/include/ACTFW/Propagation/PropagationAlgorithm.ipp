@@ -105,6 +105,12 @@ PropagationAlgorithm<propagator_t>::executeTest(
           = result.template get<MaterialInteractor::result_type>();
       pOutput.second = std::move(materialResult);
     }
+
+    // screen output if requested
+    if (m_cfg.debugOutput) {
+      auto& debugResult = result.template get<DebugOutput::result_type>();
+      ACTS_VERBOSE(debugResult.debugString);
+    }
   }
   return pOutput;
 }

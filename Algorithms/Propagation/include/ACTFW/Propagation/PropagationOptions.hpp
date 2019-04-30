@@ -76,7 +76,7 @@ namespace Options {
             {100. * au::_MeV, 100. * au::_GeV}),
         "Transverse momentum range for proprapolated tracks [in GeV].")(
         "prop-max-stepsize",
-        po::value<double>()->default_value(1 * au::_m),
+        po::value<double>()->default_value(10 * au::_m),
         "Maximum step size for the propagation [in mm].")(
         "prop-pt-loopers",
         po::value<double>()->default_value(0.3 * au::_GeV),
@@ -129,10 +129,6 @@ namespace Options {
         = vm["prop-step-collection"].template as<std::string>();
     pAlgConfig.propagationMaterialCollection
         = vm["prop-material-collection"].template as<std::string>();
-    // Switch the debug output on for VERBOSE log level
-    if (vm["loglevel"].template as<size_t>() == 0) {
-      pAlgConfig.debugOutput = true;
-    }
 
     return pAlgConfig;
   }

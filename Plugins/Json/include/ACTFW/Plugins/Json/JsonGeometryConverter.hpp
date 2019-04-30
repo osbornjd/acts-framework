@@ -125,11 +125,20 @@ namespace Json {
       /// The name of the writer
       std::string name = "";
 
-      /// Steering to hanlde sensitive data
+      /// Steering to handle sensitive data
       bool processSensitives = true;
 
-      /// Steering to handly boundary data
+      /// Steering to handle approach data
+      bool processApproaches = true;
+
+      /// Steering to handle representing data
+      bool processRepresenting = true;
+
+      /// Steering to handle boundary data
       bool processBoundaries = true;
+
+      /// Steering to handle volume data
+      bool processVolumes = true;
 
       /// Constructor
       ///
@@ -207,17 +216,6 @@ namespace Json {
     /// @param the SurfaceMaterial
     json
     surfaceMaterialToJson(const Acts::ISurfaceMaterial& sMaterial);
-
-    /// MaterialPropertiesMatrix to json
-    ///
-    /// @param mpMatrix is the vector of vector of MaterialProperties
-    /// json materialMatrixToJson(const Acts::MaterialPropertiesMatrix&
-    /// mpMatrix);
-
-    /// BinUtility to json
-    ///
-    /// @param bu The BinUtility to be converted
-    /// json binUtilityToJson(const Acts::BinUtility& bu);
 
     /// The config class
     Config m_cfg;

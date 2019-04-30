@@ -189,7 +189,18 @@ processGeometry(int               argc,
       // the material writer
       FW::Json::JsonGeometryConverter::Config jmConverterCfg(
           "JsonGeometryConverter", Acts::Logging::INFO);
+      jmConverterCfg.processSensitives
+          = vm["mat-output-sensitives"].template as<bool>();
+      jmConverterCfg.processApproaches
+          = vm["mat-output-approaches"].template as<bool>();
+      jmConverterCfg.processRepresenting
+          = vm["mat-output-representing"].template as<bool>();
+      jmConverterCfg.processBoundaries
+          = vm["mat-output-boundaries"].template as<bool>();
+      jmConverterCfg.processVolumes
+          = vm["mat-output-volume"].template as<bool>();
       FW::Json::JsonGeometryConverter jmConverter(jmConverterCfg);
+
       auto jout = jmConverter.trackingGeometryToJson(*(tGeometry.get()));
       // write prettified JSON to another file
       std::string   jsonOutputName = fileName + geoContextStr + ".json";

@@ -57,12 +57,23 @@ FW::Json::JsonGeometryConverter::jsonToMaterialMaps(const json& materialmaps)
       for (auto & [ vkey, vvalue ] : volj.items()) {
         // create the volume id
         int              vid = std::stoi(vkey);
-        Acts::GeometryID volID(vid, Acts::GeometryID::volume_mask);
+        Acts::GeometryID volumeID(vid, Acts::GeometryID::volume_mask);
         ACTS_VERBOSE("j2a: -> Found Volume " << vid);
         // loop through the information in the volume
         for (auto & [ vckey, vcvalue ] : vvalue.items()) {
-          if (vckey == m_cfg.boukey and not vcvalue.empty()) {
+          if (vckey == m_cfg.boukey and m_cfg.processBoundaries
+              and not vcvalue.empty()) {
             ACTS_VERBOSE("j2a: --> BoundarySurface(s) to be parsed");
+            for (auto & [ bkey, bvalue ] : vcvalue.items()) {
+              // create the boundary id
+              int              bid = std::stoi(bkey);
+              Acts::GeometryID boundaryID(volumeID);
+              boundaryID.add(bid, Acts::GeometryID::boundary_mask);
+              ACTS_VERBOSE("j2a: ---> Found boundary surface " << bid);
+              auto boumat = jsonToSurfaceMaterial(bvalue);
+              maps.first[boundaryID]
+                  = std::shared_ptr<const Acts::ISurfaceMaterial>(boumat);
+            }
           } else if (vckey == m_cfg.laykey) {
             ACTS_VERBOSE("j2a: --> Layer(s) to be parsed");
             // now loop over layers
@@ -70,40 +81,43 @@ FW::Json::JsonGeometryConverter::jsonToMaterialMaps(const json& materialmaps)
             for (auto & [ lkey, lvalue ] : layj.items()) {
               // create the layer id
               int              lid = std::stoi(lkey);
-              Acts::GeometryID layID(volID);
-              layID.add(lid, Acts::GeometryID::layer_mask);
+              Acts::GeometryID layerID(volumeID);
+              layerID.add(lid, Acts::GeometryID::layer_mask);
               ACTS_VERBOSE("j2a: ---> Found Layer " << lid);
               // finally loop over layer components
               for (auto & [ lckey, lcvalue ] : lvalue.items()) {
-                if (lckey == m_cfg.repkey and not lcvalue.empty()) {
+                if (lckey == m_cfg.repkey and m_cfg.processRepresenting
+                    and not lcvalue.empty()) {
                   ACTS_VERBOSE("j2a: ----> Found representing surface");
                   auto repmat = jsonToSurfaceMaterial(lcvalue);
-                  maps.first[layID]
+                  maps.first[layerID]
                       = std::shared_ptr<const Acts::ISurfaceMaterial>(repmat);
-                } else if (lckey == m_cfg.appkey and not lcvalue.empty()) {
+                } else if (lckey == m_cfg.appkey and m_cfg.processApproaches
+                           and not lcvalue.empty()) {
                   ACTS_VERBOSE("j2a: ----> Found approach surface(s)");
                   // loop over approach surfaces
                   for (auto & [ askey, asvalue ] : lcvalue.items()) {
                     // create the layer id, todo set to max value
                     int aid = (askey == "*") ? 0 : std::stoi(askey);
-                    Acts::GeometryID appID(layID);
-                    appID.add(aid, Acts::GeometryID::approach_mask);
+                    Acts::GeometryID approachID(layerID);
+                    approachID.add(aid, Acts::GeometryID::approach_mask);
                     ACTS_VERBOSE("j2a: -----> Approach surface " << askey);
                     auto appmat = jsonToSurfaceMaterial(asvalue);
-                    maps.first[appID]
+                    maps.first[approachID]
                         = std::shared_ptr<const Acts::ISurfaceMaterial>(appmat);
                   }
-                } else if (lckey == m_cfg.senkey and not lcvalue.empty()) {
+                } else if (lckey == m_cfg.senkey and m_cfg.processSensitives
+                           and not lcvalue.empty()) {
                   ACTS_VERBOSE("j2a: ----> Found sensitive surface(s)");
                   // loop over sensitive surfaces
                   for (auto & [ sskey, ssvalue ] : lcvalue.items()) {
                     // create the layer id, todo set to max value
                     int sid = (sskey == "*") ? 0 : std::stoi(sskey);
-                    Acts::GeometryID senID(layID);
-                    senID.add(sid, Acts::GeometryID::sensitive_mask);
+                    Acts::GeometryID senisitiveID(layerID);
+                    senisitiveID.add(sid, Acts::GeometryID::sensitive_mask);
                     ACTS_VERBOSE("j2a: -----> Sensitive surface " << sskey);
                     auto senmat = jsonToSurfaceMaterial(ssvalue);
-                    maps.first[senID]
+                    maps.first[senisitiveID]
                         = std::shared_ptr<const Acts::ISurfaceMaterial>(senmat);
                   }
                 }
@@ -417,8 +431,10 @@ FW::Json::JsonGeometryConverter::surfaceMaterialToJson(
       // type is homogeneous
       smj[m_cfg.typekey] = "homogeneous";
       // write out the data, it's a [[[X0,L0,Z,A,rho,thickness]]]
-      auto& mp           = hsMaterial->materialProperties(0, 0);
-      smj[m_cfg.datakey] = convertMaterialProperties(mp);
+      auto& mp = hsMaterial->materialProperties(0, 0);
+      std::vector<std::vector<std::vector<float>>> mmat
+          = {{convertMaterialProperties(mp)}};
+      smj[m_cfg.datakey] = mmat;
     } else {
       // only option remaining: BinnedSurface material
       // now check if we have a homogeneous material

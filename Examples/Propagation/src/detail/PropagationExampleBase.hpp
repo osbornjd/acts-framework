@@ -132,14 +132,29 @@ propagationExample(int               argc,
                    options_setup_t&  optionsSetup,
                    geometry_setup_t& geometrySetup)
 {
-  // setup and parse options
-  auto desc = FW::Options::makeDefaultOptions();
-  FW::Options::addSequencerOptions(desc);
-  FW::Options::addGeometryOptions(desc);
-  FW::Options::addBFieldOptions(desc);
-  FW::Options::addRandomNumbersOptions(desc);
-  FW::Options::addPropagationOptions(desc);
-  FW::Options::addOutputOptions(desc);
+
+  // Create the config object for the sequencer
+  FW::Sequencer::Config seqConfig;
+  // Now create the sequencer
+  FW::Sequencer sequencer(seqConfig);
+
+  // Declare the supported program options.
+  po::options_description desc("Allowed options");
+  // Add the common options
+  FW::Options::addCommonOptions<po::options_description>(desc);
+  // Add the geometry options
+  FW::Options::addGeometryOptions<po::options_description>(desc);
+  // Add the material options
+  FW::Options::addMaterialOptions<po::options_description>(desc);
+  // Add the bfield options
+  FW::Options::addBFieldOptions<po::options_description>(desc);
+  // Add the random number options
+  FW::Options::addRandomNumbersOptions<po::options_description>(desc);
+  // Add the fatras options
+  FW::Options::addPropagationOptions<po::options_description>(desc);
+  // Add the output options
+  FW::Options::addOutputOptions<po::options_description>(desc);
+
   // Add specific options for this geometry
   optionsSetup(desc);
   auto vm = FW::Options::parse(desc, argc, argv);

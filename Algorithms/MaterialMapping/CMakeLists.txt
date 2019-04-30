@@ -1,5 +1,3 @@
-include(${Geant4_USE_FILE})
-
 file(GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
 
 add_library(ACTFWMaterialMapping SHARED ${src_files})

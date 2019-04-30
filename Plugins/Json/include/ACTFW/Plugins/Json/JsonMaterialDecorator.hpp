@@ -10,7 +10,7 @@
 
 #include <map>
 #include <mutex>
-#include "ACTFW/Plugins/Json/JsonMaterialConverter.hpp"
+#include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Material/IVolumeMaterial.hpp"
@@ -32,20 +32,29 @@ namespace FW {
 namespace Json {
 
   ///@brief Material decorator from ROOT
-  class JsonProtoMaterialDecorator : public Acts::IMaterialDecorator
+  class JsonMaterialDecorator : public Acts::IMaterialDecorator
   {
   public:
-    JsonProtoMaterialDecorator(JsonMaterialReader::Config rConfig,
-                               bool clearSurfaceMaterial = true,
-                               bool clearVolumeMaterial  = true)
+    JsonMaterialDecorator(const JsonGeometryConverter::Config& rConfig,
+                          const std::string&                   jFileName,
+                          bool clearSurfaceMaterial = true,
+                          bool clearVolumeMaterial  = true)
       : m_readerConfig(rConfig)
       , m_clearSurfaceMaterial(clearSurfaceMaterial)
       , m_clearVolumeMaterial(clearVolumeMaterial)
     {
-      // Create the reader with the config
-      JsonMaterialReader sreader(m_readerConfig);
-      // Read the map & return it
-      sreader.read(m_surfaceMaterialMap);
+      // the material reader
+      FW::Json::JsonGeometryConverter::Config jmConverterCfg(
+          "JsonGeometryConverter", Acts::Logging::VERBOSE);
+      FW::Json::JsonGeometryConverter jmConverter(jmConverterCfg);
+
+      std::ifstream ifj(jFileName);
+      json          jin;
+      ifj >> jin;
+
+      auto maps            = jmConverter.jsonToMaterialMaps(jin);
+      m_surfaceMaterialMap = maps.first;
+      m_volumeMaterialMap  = maps.second;
     }
 
     /// Decorate a surface
@@ -79,8 +88,9 @@ namespace Json {
     }
 
   private:
-    JsonMaterialReader::Config m_readerConfig;
-    Acts::SurfaceMaterialMap   m_surfaceMaterialMap;
+    JsonGeometryConverter::Config m_readerConfig;
+    Acts::SurfaceMaterialMap      m_surfaceMaterialMap;
+    Acts::VolumeMaterialMap       m_volumeMaterialMap;
 
     bool m_clearSurfaceMaterial{true};
     bool m_clearVolumeMaterial{true};

@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include <fstream>
+#include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
+#include "ACTFW/Plugins/Json/JsonMaterialDecorator.hpp"
 #include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Surfaces/Surface.hpp"
@@ -63,15 +66,45 @@ namespace Options {
   addMaterialOptions(aopt_t& opt)
   {
     opt.add_options()("mat-type",
-                      po::value<size_t>()->default_value(0),
-                      "The type for the material: 0 - none, 1 - proxy, 2 - "
-                      "building, 3 - reading")(
+                      po::value<size_t>()->default_value(1),
+                      "The type for the material: 0 - none, 1 - "
+                      "building, 2 - reading")(
         "mat-input-file",
         po::value<std::string>()->default_value(""),
         "The filename for the material, auto-detects loading plugin")(
         "mat-output-file",
         po::value<std::string>()->default_value(""),
-        "The filename for the material, auto-detects loading plugin");
+        "The filename for the material, auto-detects loading plugin")(
+        "mat-input-sensitives",
+        po::value<bool>()->default_value(true),
+        "Input the sensitive surface material description.")(
+        "mat-input-approaches",
+        po::value<bool>()->default_value(true),
+        "Input the approach surface material description")(
+        "mat-input-representing",
+        po::value<bool>()->default_value(true),
+        "Input the layer representing surface material description")(
+        "mat-input-boundaries",
+        po::value<bool>()->default_value(true),
+        "Input the lboundary surface material description")(
+        "mat-input-volume",
+        po::value<bool>()->default_value(true),
+        "Input the volume material description")(
+        "mat-output-sensitives",
+        po::value<bool>()->default_value(true),
+        "Otuput the sensitive surface material description.")(
+        "mat-output-approaches",
+        po::value<bool>()->default_value(true),
+        "Otuput the approach surface material description")(
+        "mat-output-representing",
+        po::value<bool>()->default_value(true),
+        "Otuput the layer representing surface material description")(
+        "mat-output-boundaries",
+        po::value<bool>()->default_value(true),
+        "Otuput the lboundary surface material description")(
+        "mat-output-volume",
+        po::value<bool>()->default_value(true),
+        "Otuput the volume material description");
   }
 
   /// Read the material decorator
@@ -84,8 +117,33 @@ namespace Options {
   readMaterialDecorator(const amap_t& vm)
   {
 
-    if (vm["mat-type"].template as<size_t>() == 0) {
+    auto mType = vm["mat-type"].template as<size_t>();
+    if (mType == 0) {
       return std::make_shared<const MaterialWiper>(true, true);
+    } else if (mType == 2) {
+      // determine the file name and type
+      auto mFileName = vm["mat-input-file"].template as<std::string>();
+      if (mFileName.find(".root") != std::string::npos) {
+
+      } else if (mFileName.find(".json") != std::string::npos) {
+        // the material writer
+        FW::Json::JsonGeometryConverter::Config jmConverterCfg(
+            "JsonGeometryConverter", Acts::Logging::INFO);
+        jmConverterCfg.processSensitives
+            = vm["mat-input-sensitives"].template as<bool>();
+        jmConverterCfg.processApproaches
+            = vm["mat-input-approaches"].template as<bool>();
+        jmConverterCfg.processRepresenting
+            = vm["mat-input-representing"].template as<bool>();
+        jmConverterCfg.processBoundaries
+            = vm["mat-input-boundaries"].template as<bool>();
+        jmConverterCfg.processVolumes
+            = vm["mat-input-volume"].template as<bool>();
+        auto jsonDecorator
+            = std::make_shared<const FW::Json::JsonMaterialDecorator>(
+                jmConverterCfg, mFileName);
+        return jsonDecorator;
+      }
     }
 
     return nullptr;
