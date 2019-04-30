@@ -8,9 +8,9 @@
 
 #include <boost/program_options.hpp>
 #include "ACTFW/Common/CommonOptions.hpp"
+#include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/MaterialMapping/GeantinoRecording.hpp"
-#include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
 #include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
