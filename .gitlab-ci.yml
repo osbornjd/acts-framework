@@ -19,7 +19,7 @@ format:
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
   image: gitlab-registry.cern.ch/acts/machines/check:latest
-  before_script: 
+  before_script:
     - git submodule deinit -f external/*
   script:
     - CI/check_format .
@@ -94,13 +94,11 @@ generic_fatras_example:
   <<: *example_base
   script:
     - ACTFWGenericFatrasExample
-  allow_failure: true
 
-root_fatras_example:
+tgeo_fatras_example:
   <<: *example_base
   script:
-    - ACTFWRootFatrasExample
-  allow_failure: true
+    - ACTFWTGeoFatrasExample
 
 generator_particle_gun:
   <<: *example_base
@@ -131,7 +129,6 @@ dd4hep_fatras_example:
   <<: *example_base
   script:
     - ACTFWDD4hepFatrasExample
-  allow_failure: true
 
 dd4hep_geometry_example:
   <<: *example_base
