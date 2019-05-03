@@ -21,11 +21,11 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
-#include "ACTFW/Options/Pythia8Options.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+
 #include "FatrasDigitizationBase.hpp"
 #include "FatrasEvgenBase.hpp"
 #include "FatrasSimulationBase.hpp"
