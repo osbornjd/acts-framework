@@ -82,7 +82,7 @@ public:
   ProcessCode
   skip(size_t skip) override final;
   ProcessCode
-  read(AlgorithmContext context) override final;
+  read(const AlgorithmContext& context) override final;
 
 private:
   const Acts::Logger&

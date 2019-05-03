@@ -28,7 +28,7 @@ FW::ParticleSelector::ParticleSelector(const Config&        cfg,
 }
 
 FW::ProcessCode
-FW::ParticleSelector::execute(FW::AlgorithmContext ctx) const
+FW::ParticleSelector::execute(const FW::AlgorithmContext& ctx) const
 {
   const std::vector<Data::SimVertex<Data::SimParticle>>* all = nullptr;
   std::vector<Data::SimVertex<Data::SimParticle>>        selected;

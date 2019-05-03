@@ -51,7 +51,7 @@ public:
                    Acts::Logging::Level level = Acts::Logging::INFO);
 
   ProcessCode
-  execute(AlgorithmContext ctx) const;
+  execute(const AlgorithmContext& ctx) const;
 
 private:
   Config m_cfg;

@@ -54,7 +54,7 @@ FW::EventGenerator::skip(size_t skip)
 }
 
 FW::ProcessCode
-FW::EventGenerator::read(AlgorithmContext ctx)
+FW::EventGenerator::read(const AlgorithmContext& ctx)
 {
   std::vector<Data::SimVertex<Data::SimParticle>> event;
 
