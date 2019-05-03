@@ -10,6 +10,3 @@ target_include_directories(ActsFrameworkGenerators
 target_link_libraries(ActsFrameworkGenerators PUBLIC ActsCore ACTFramework)
 
 install(TARGETS ActsFrameworkGenerators LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(
-  DIRECTORY ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  FILES_MATCHING PATTERN "*.hpp")
