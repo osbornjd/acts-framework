@@ -142,7 +142,7 @@ FW::Json::JsonGeometryConverter::jsonToMaterialMaps(const json& materialmaps)
 ///
 json
 FW::Json::JsonGeometryConverter::materialMapsToJson(
-    std::pair<Acts::SurfaceMaterialMap, Acts::VolumeMaterialMap>& maps)
+    const Acts::DetectorMaterialMaps& maps)
 {
   DetectorRep detRep;
   // Collect all GeometryIDs per VolumeID for the formatted output

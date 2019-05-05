@@ -1,15 +1,15 @@
 Examples/Propagation/src/detail/PropagationExampleBase.hppset(srcs include/ACTFW/Plugins/Root/RootExCellWriter.hpp
          include/ACTFW/Plugins/Root/RootExCellWriter.ipp
          include/ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp
-         include/ACTFW/Plugins/Root/RootIndexedMaterialReader.hpp
-         include/ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp
+         include/ACTFW/Plugins/Root/RootMaterialReader.hpp
+         include/ACTFW/Plugins/Root/RootMaterialWriter.hpp
          include/ACTFW/Plugins/Root/RootMaterialTrackReader.hpp
          include/ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp
          include/ACTFW/Plugins/Root/RootPropagationStepsWriter.hpp
          include/ACTFW/Plugins/Root/RootParticleWriter.hpp
          include/ACTFW/Plugins/Root/RootSimHitWriter.hpp
-         src/RootIndexedMaterialReader.cpp
-         src/RootIndexedMaterialWriter.cpp
+         src/RootMaterialReader.cpp
+         src/RootMaterialWriter.cpp
          src/RootMaterialTrackReader.cpp
          src/RootMaterialTrackWriter.cpp
          src/RootPlanarClusterWriter.cpp

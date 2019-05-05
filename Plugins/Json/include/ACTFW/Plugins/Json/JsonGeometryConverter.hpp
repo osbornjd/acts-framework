@@ -28,6 +28,8 @@ using SurfaceMaterialMap
 
 using VolumeMaterialMap
     = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
+
+using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
 }
 
 namespace FW {
@@ -125,6 +127,9 @@ namespace Json {
       /// The name of the writer
       std::string name = "";
 
+      /// Optionally the file name
+      std::string fileName = "";
+
       /// Steering to handle sensitive data
       bool processSensitives = true;
 
@@ -172,8 +177,7 @@ namespace Json {
     ///
     /// @param surfaceMaterialMap The indexed material map collection
     json
-    materialMapsToJson(
-        std::pair<Acts::SurfaceMaterialMap, Acts::VolumeMaterialMap>& maps);
+    materialMapsToJson(const Acts::DetectorMaterialMaps& maps);
 
     /// Write method
     ///

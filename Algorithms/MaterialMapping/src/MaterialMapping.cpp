@@ -23,8 +23,6 @@ FW::MaterialMapping::MaterialMapping(const FW::MaterialMapping::Config& cnf,
 {
   if (!m_cfg.materialMapper) {
     throw std::invalid_argument("Missing material mapper");
-  } else if (!m_cfg.indexedMaterialWriter) {
-    throw std::invalid_argument("Missing indexed material writer");
   } else if (!m_cfg.trackingGeometry) {
     throw std::invalid_argument("Missing tracking geometry");
   }
@@ -48,9 +46,15 @@ FW::MaterialMapping::~MaterialMapping()
   writeContext.geoContext      = m_cfg.geoContext;
   writeContext.magFieldContext = m_cfg.magFieldContext;
 
-  // Loop over the state, and write out the maps
-  for (auto& mmap : m_mappingState.surfaceMaterial) {
-    m_cfg.indexedMaterialWriter->write(writeContext, std::move(mmap));
+  Acts::DetectorMaterialMaps detectorMaterial;
+
+  // Loop over the state, and collect the maps for surfaces
+  for (auto & [ key, value ] : m_mappingState.surfaceMaterial) {
+    detectorMaterial.first.insert({key, std::move(value)});
+  }
+
+  for (auto& imw : m_cfg.materialWriters) {
+    imw->write(writeContext, detectorMaterial);
   }
 }
 

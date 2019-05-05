@@ -17,8 +17,10 @@
 #include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
-#include "ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp"
+#include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
+#include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
+#include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
@@ -129,20 +131,50 @@ materialMappingExample(int              argc,
       std::move(propagator),
       Acts::getDefaultLogger("SurfaceMaterialMapper", logLevel));
 
-  // Get the file name from the options
-  std::string materialFileName = vm["mat-output-file"].as<std::string>();
-  /// The writer of the indexed material
-  FW::Root::RootIndexedMaterialWriter::Config rimConfig(
-      "IndexedMaterialWriter");
-  rimConfig.fileName = materialFileName;
-  auto rimRootWriter
-      = std::make_shared<FW::Root::RootIndexedMaterialWriter>(rimConfig);
-
   /// The material mapping algorithm
   FW::MaterialMapping::Config mmAlgConfig(geoContext, mfContext);
-  mmAlgConfig.materialMapper        = smm;
-  mmAlgConfig.trackingGeometry      = tGeometry;
-  mmAlgConfig.indexedMaterialWriter = rimRootWriter;
+  mmAlgConfig.materialMapper   = smm;
+  mmAlgConfig.trackingGeometry = tGeometry;
+
+  // Get the file name from the options
+  std::string materialFileName = vm["mat-output-file"].as<std::string>();
+
+  if (vm["output-root"].template as<bool>()) {
+
+    /// The writer of the indexed material
+    FW::Root::RootMaterialWriter::Config rimConfig("MaterialWriter");
+    rimConfig.fileName = materialFileName + ".root";
+    auto rimRootWriter
+        = std::make_shared<FW::Root::RootMaterialWriter>(rimConfig);
+
+    mmAlgConfig.materialWriters.push_back(rimRootWriter);
+  }
+
+  if (vm["output-json"].template as<bool>()) {
+
+    /// The name of the output file
+    std::string fileName = vm["mat-output-file"].template as<std::string>();
+    // the material writer
+    FW::Json::JsonGeometryConverter::Config jmConverterCfg(
+        "JsonGeometryConverter", Acts::Logging::INFO);
+    jmConverterCfg.processSensitives
+        = vm["mat-output-sensitives"].template as<bool>();
+    jmConverterCfg.processApproaches
+        = vm["mat-output-approaches"].template as<bool>();
+    jmConverterCfg.processRepresenting
+        = vm["mat-output-representing"].template as<bool>();
+    jmConverterCfg.processBoundaries
+        = vm["mat-output-boundaries"].template as<bool>();
+    jmConverterCfg.processVolumes = vm["mat-output-volume"].template as<bool>();
+    jmConverterCfg.writeData      = vm["mat-output-data"].template as<bool>();
+    // The converter on basis of Json
+    jmConverterCfg.fileName = materialFileName + ".json";
+    // The writer
+    auto jimJsonWriter
+        = std::make_shared<FW::Json::JsonMaterialWriter>(jmConverterCfg);
+
+    mmAlgConfig.materialWriters.push_back(jimJsonWriter);
+  }
 
   // Create the material mapping
   auto mmAlg = std::make_shared<FW::MaterialMapping>(mmAlgConfig);

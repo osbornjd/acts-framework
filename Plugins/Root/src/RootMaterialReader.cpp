@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootIndexedMaterialReader.hpp"
+#include "ACTFW/Plugins/Root/RootMaterialReader.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/finder.hpp>
 #include <boost/algorithm/string/iter_find.hpp>
@@ -26,8 +26,8 @@
 #include "TKey.h"
 #include "TList.h"
 
-FW::Root::RootIndexedMaterialReader::RootIndexedMaterialReader(
-    const FW::Root::RootIndexedMaterialReader::Config& cfg)
+FW::Root::RootMaterialReader::RootMaterialReader(
+    const FW::Root::RootMaterialReader::Config& cfg)
   : FW::IReaderT<Acts::SurfaceMaterialMap>(), m_cfg(cfg), m_inputFile(nullptr)
 {
   // Validate the configuration
@@ -48,16 +48,15 @@ FW::Root::RootIndexedMaterialReader::RootIndexedMaterialReader(
   }
 }
 
-FW::Root::RootIndexedMaterialReader::~RootIndexedMaterialReader()
+FW::Root::RootMaterialReader::~RootMaterialReader()
 {
   m_inputFile->Close();
 }
 
 FW::ProcessCode
-FW::Root::RootIndexedMaterialReader::read(
-    Acts::SurfaceMaterialMap& sMaterialMap,
-    size_t /*skip*/,
-    const FW::AlgorithmContext* /*ctx*/)
+FW::Root::RootMaterialReader::read(Acts::SurfaceMaterialMap& sMaterialMap,
+                                   size_t /*skip*/,
+                                   const FW::AlgorithmContext* /*ctx*/)
 {
   // lock the mutex
   std::lock_guard<std::mutex> lock(m_read_mutex);

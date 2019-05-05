@@ -6,44 +6,54 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+///////////////////////////////////////////////////////////////////
+// RootMaterialWriter.h
+///////////////////////////////////////////////////////////////////
+
 #pragma once
 
 #include <map>
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Readers/IReaderT.hpp"
-#include "Acts/Material/IMaterialDecorator.hpp"
+#include "ACTFW/Writers/IWriterT.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
-#include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Material/IVolumeMaterial.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
-
-class TFile;
+#include "TFile.h"
 
 namespace Acts {
 
 using SurfaceMaterialMap
     = std::map<GeometryID, std::shared_ptr<const ISurfaceMaterial>>;
+
+using VolumeMaterialMap
+    = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
+
+using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
 }
 
 namespace FW {
 
 namespace Root {
 
-  /// @class RootIndexedMaterialReader
+  /// @class RootMaterialTrackWriter
   ///
-  /// @brief Read the collection of SurfaceMaterial from a file in order to
-  /// load it onto the TrackingGeometry
-  class RootIndexedMaterialReader
-      : public FW::IReaderT<Acts::SurfaceMaterialMap>
+  /// @brief Writes out MaterialTrack entities from a root file
+  ///
+  /// This service is the root implementation of the IWriterT.
+  /// It writes out a MaterialTrack which is usually generated from
+  /// Geant4 material mapping
+
+  class RootMaterialWriter : public FW::IWriterT<Acts::DetectorMaterialMaps>
   {
+
   public:
     /// @class Config
-    /// Configuration of the Reader
-    class Config
+    /// Configuration of the Writer
+    struct Config
     {
-    public:
       /// The name of the output tree
       std::string folderNameBase = "Material";
       /// The volume identification string
@@ -87,7 +97,7 @@ namespace Root {
       ///
       /// @param lname Name of the writer tool
       /// @param lvl The output logging level
-      Config(const std::string&   lname = "MaterialReader",
+      Config(const std::string&   lname = "MaterialWriter",
              Acts::Logging::Level lvl   = Acts::Logging::INFO)
         : logger(Acts::getDefaultLogger(lname, lvl)), name(lname)
       {
@@ -96,36 +106,31 @@ namespace Root {
 
     /// Constructor
     ///
-    /// @param cfg configuration struct for the reader
-    RootIndexedMaterialReader(const Config& cfg);
+    /// @param cfg The configuration struct
+    RootMaterialWriter(const Config& cfg);
 
     /// Virtual destructor
-    ~RootIndexedMaterialReader() override;
+    ~RootMaterialWriter() override;
 
     /// Framework name() method
     std::string
     name() const final override;
 
-    /// Read method
+    /// Interface method which writes out the MaterialTrack entities
     ///
-    /// @param surfaceMaterialMap The indexed material map collection
-    /// @param skip is the number of skip reads (0 for this reader)
-    /// @param is the AlgorithmContext pointer in case the reader would need
-    /// information about the event context (not true in this case)
+    /// @param context is the algorithm context in case it is contextual
+    /// @param detMaterial are the detector material maps
     FW::ProcessCode
-    read(Acts::SurfaceMaterialMap&   sMaterialMap,
-         size_t                      skip = 0,
-         const FW::AlgorithmContext* ctx  = nullptr) final override;
+    write(const AlgorithmContext&           context,
+          const Acts::DetectorMaterialMaps& detMaterial) final override;
 
   private:
     /// The config class
     Config m_cfg;
-
-    /// The input file
-    TFile* m_inputFile;
-
-    /// mutex used to protect multi-threaded reads
-    std::mutex m_read_mutex;
+    /// mutex used to protect multi-threaded writes
+    std::mutex m_write_mutex;
+    /// The output file name
+    TFile* m_outputFile;
 
     /// Private access to the logging instance
     const Acts::Logger&
@@ -136,49 +141,10 @@ namespace Root {
   };
 
   inline std::string
-  RootIndexedMaterialReader::name() const
+  RootMaterialWriter::name() const
   {
     return m_cfg.name;
   }
-
-  ///@brief Material decorator from ROOT
-  class RootMaterialDecorator : public Acts::IMaterialDecorator
-  {
-  public:
-    RootMaterialDecorator(RootIndexedMaterialReader::Config rConfig)
-      : m_readerConfig(rConfig)
-    {
-      // Create the reader with the config
-      RootIndexedMaterialReader reader(m_readerConfig);
-      // Read the map & return it
-      reader.read(m_surfaceMaterialMap);
-    }
-
-    /// Decorate a surface
-    ///
-    /// @param surface the non-cost surface that is decorated
-    void
-    decorate(Acts::Surface& surface) const final
-    {
-      // Try to find the surface in the map
-      auto sMaterial = m_surfaceMaterialMap.find(surface.geoID());
-      if (sMaterial != m_surfaceMaterialMap.end()) {
-        surface.assignSurfaceMaterial(sMaterial->second);
-      }
-    }
-
-    /// Decorate a TrackingVolume
-    ///
-    /// @param volume the non-cost volume that is decorated
-    void
-    decorate(Acts::TrackingVolume& /*volume*/) const final
-    {
-    }
-
-  private:
-    RootIndexedMaterialReader::Config m_readerConfig;
-    Acts::SurfaceMaterialMap          m_surfaceMaterialMap;
-  };
 
 }  // namespace Root
 }  // namespace FW

@@ -24,8 +24,14 @@
 
 namespace Acts {
 class TrackingGeometry;
-using IndexedSurfaceMaterial
-    = std::pair<GeometryID, std::unique_ptr<const ISurfaceMaterial>>;
+
+using SurfaceMaterialMap
+    = std::map<GeometryID, std::shared_ptr<const ISurfaceMaterial>>;
+
+using VolumeMaterialMap
+    = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
+
+using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
 }
 
 namespace FW {
@@ -67,8 +73,8 @@ public:
     std::shared_ptr<Acts::SurfaceMaterialMapper> materialMapper = nullptr;
 
     /// The writer of the material
-    std::shared_ptr<FW::IWriterT<Acts::IndexedSurfaceMaterial>>
-        indexedMaterialWriter = nullptr;
+    std::vector<std::shared_ptr<FW::IWriterT<Acts::DetectorMaterialMaps>>>
+        materialWriters;
 
     /// The TrackingGeometry to be mapped on
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
