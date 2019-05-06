@@ -14,7 +14,9 @@
 #include "ACTFW/Readers/IReaderT.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
+#include "Acts/Material/IVolumeMaterial.hpp"
 #include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
@@ -25,6 +27,12 @@ namespace Acts {
 
 using SurfaceMaterialMap
     = std::map<GeometryID, std::shared_ptr<const ISurfaceMaterial>>;
+
+using VolumeMaterialMap
+    = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
+
+using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
+
 }
 
 namespace FW {
@@ -35,7 +43,7 @@ namespace Root {
   ///
   /// @brief Read the collection of SurfaceMaterial from a file in order to
   /// load it onto the TrackingGeometry
-  class RootMaterialReader : public FW::IReaderT<Acts::SurfaceMaterialMap>
+  class RootMaterialReader : public FW::IReaderT<Acts::DetectorMaterialMaps>
   {
   public:
     /// @class Config
@@ -107,12 +115,12 @@ namespace Root {
 
     /// Read method
     ///
-    /// @param surfaceMaterialMap The indexed material map collection
+    /// @param detMaterialMap the surface and volume material 
     /// @param skip is the number of skip reads (0 for this reader)
     /// @param is the AlgorithmContext pointer in case the reader would need
     /// information about the event context (not true in this case)
     FW::ProcessCode
-    read(Acts::SurfaceMaterialMap&   sMaterialMap,
+    read(Acts::DetectorMaterialMaps& detMaterialMap,
          size_t                      skip = 0,
          const FW::AlgorithmContext* ctx  = nullptr) final override;
 
@@ -150,7 +158,7 @@ namespace Root {
       // Create the reader with the config
       RootMaterialReader reader(m_readerConfig);
       // Read the map & return it
-      reader.read(m_surfaceMaterialMap);
+      reader.read(m_detectorMaterialMaps);
     }
 
     /// Decorate a surface
@@ -160,8 +168,8 @@ namespace Root {
     decorate(Acts::Surface& surface) const final
     {
       // Try to find the surface in the map
-      auto sMaterial = m_surfaceMaterialMap.find(surface.geoID());
-      if (sMaterial != m_surfaceMaterialMap.end()) {
+      auto sMaterial = m_detectorMaterialMaps.first.find(surface.geoID());
+      if (sMaterial != m_detectorMaterialMaps.first.end()) {
         surface.assignSurfaceMaterial(sMaterial->second);
       }
     }
@@ -170,13 +178,18 @@ namespace Root {
     ///
     /// @param volume the non-cost volume that is decorated
     void
-    decorate(Acts::TrackingVolume& /*volume*/) const final
+    decorate(Acts::TrackingVolume& volume) const final
     {
+      // Try to find the surface in the map
+      auto vMaterial = m_detectorMaterialMaps.second.find(volume.geoID());
+      if (vMaterial != m_detectorMaterialMaps.second.end()) {
+        volume.assignVolumeMaterial(vMaterial->second);
+      }
     }
 
   private:
-    RootMaterialReader::Config m_readerConfig;
-    Acts::SurfaceMaterialMap   m_surfaceMaterialMap;
+    RootMaterialReader::Config  m_readerConfig;
+    Acts::DetectorMaterialMaps  m_detectorMaterialMaps;
   };
 
 }  // namespace Root

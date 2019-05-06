@@ -28,7 +28,7 @@
 
 FW::Root::RootMaterialReader::RootMaterialReader(
     const FW::Root::RootMaterialReader::Config& cfg)
-  : FW::IReaderT<Acts::SurfaceMaterialMap>(), m_cfg(cfg), m_inputFile(nullptr)
+  : FW::IReaderT<Acts::DetectorMaterialMaps>(), m_cfg(cfg), m_inputFile(nullptr)
 {
   // Validate the configuration
   if (m_cfg.folderNameBase.empty()) {
@@ -54,7 +54,7 @@ FW::Root::RootMaterialReader::~RootMaterialReader()
 }
 
 FW::ProcessCode
-FW::Root::RootMaterialReader::read(Acts::SurfaceMaterialMap& sMaterialMap,
+FW::Root::RootMaterialReader::read(Acts::DetectorMaterialMaps& detMaterialMaps,
                                    size_t /*skip*/,
                                    const FW::AlgorithmContext* /*ctx*/)
 {
@@ -194,7 +194,7 @@ FW::Root::RootMaterialReader::read(Acts::SurfaceMaterialMap& sMaterialMap,
     ACTS_VERBOSE("Successfully read Material for : " << geoID.toString());
 
     // Insert into the new collection
-    sMaterialMap[geoID] = std::move(sMaterial);
+    detMaterialMaps.first.insert({geoID,std::move(sMaterial)});
   }
 
   // Announce success
