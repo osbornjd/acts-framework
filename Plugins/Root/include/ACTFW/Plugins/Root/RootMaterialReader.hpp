@@ -12,11 +12,11 @@
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Readers/IReaderT.hpp"
+#include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Material/IVolumeMaterial.hpp"
 #include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
@@ -32,7 +32,6 @@ using VolumeMaterialMap
     = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
 
 using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
-
 }
 
 namespace FW {
@@ -115,7 +114,7 @@ namespace Root {
 
     /// Read method
     ///
-    /// @param detMaterialMap the surface and volume material 
+    /// @param detMaterialMap the surface and volume material
     /// @param skip is the number of skip reads (0 for this reader)
     /// @param is the AlgorithmContext pointer in case the reader would need
     /// information about the event context (not true in this case)
@@ -188,8 +187,8 @@ namespace Root {
     }
 
   private:
-    RootMaterialReader::Config  m_readerConfig;
-    Acts::DetectorMaterialMaps  m_detectorMaterialMaps;
+    RootMaterialReader::Config m_readerConfig;
+    Acts::DetectorMaterialMaps m_detectorMaterialMaps;
   };
 
 }  // namespace Root

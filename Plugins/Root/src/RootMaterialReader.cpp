@@ -194,7 +194,7 @@ FW::Root::RootMaterialReader::read(Acts::DetectorMaterialMaps& detMaterialMaps,
     ACTS_VERBOSE("Successfully read Material for : " << geoID.toString());
 
     // Insert into the new collection
-    detMaterialMaps.first.insert({geoID,std::move(sMaterial)});
+    detMaterialMaps.first.insert({geoID, std::move(sMaterial)});
   }
 
   // Announce success
