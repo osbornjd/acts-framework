@@ -36,7 +36,7 @@ struct PoissonMultiplicityGenerator
   size_t
   operator()(RandomEngine& rng) const
   {
-    return std::poisson_distribution<size_t>(mu)(rng);
+    return (0 < mu) ? std::poisson_distribution<size_t>(mu)(rng) : 0;
   }
 };
 
