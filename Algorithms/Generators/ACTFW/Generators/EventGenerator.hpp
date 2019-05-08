@@ -75,12 +75,16 @@ public:
   EventGenerator(const Config&        cfg,
                  Acts::Logging::Level level = Acts::Logging::INFO);
 
+  /// Name of the reader.
   std::string
   name() const override final;
+  /// Number of available events. Always SIZE_MAX since we generate them.
   size_t
   numEvents() const override final;
+  /// Skip some events. Does nothing at the moment.
   ProcessCode
   skip(size_t skip) override final;
+  /// Generate an event.
   ProcessCode
   read(const AlgorithmContext& context) override final;
 
