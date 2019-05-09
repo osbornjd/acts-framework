@@ -208,6 +208,7 @@ FW::Json::JsonGeometryConverter::detectorRepToJson(const DetectorRep& detRep)
   for (auto & [ key, value ] : detRep.volumes) {
     json volj;
     ACTS_VERBOSE("a2j: -> Writing Volume: " << key);
+    volj[m_cfg.namekey] = value.volumeName;
     // write the layers
     if (not value.layers.empty()) {
       ACTS_VERBOSE("a2j: ---> Found " << value.layers.size() << " layer(s) ");
@@ -350,7 +351,9 @@ FW::Json::JsonGeometryConverter::convertToRep(
   // Write if it's good
   if (volRep) {
     Acts::GeometryID volumeID = tVolume.geoID();
-    geo_id_value     vid      = volumeID.value(Acts::GeometryID::volume_mask);
+    volRep.volumeName         = tVolume.volumeName();
+    volRep.volumeID           = volumeID;
+    geo_id_value vid          = volumeID.value(Acts::GeometryID::volume_mask);
     detRep.volumes.insert({vid, std::move(volRep)});
   }
   return;
@@ -445,7 +448,7 @@ FW::Json::JsonGeometryConverter::surfaceMaterialToJson(
       if (bsMaterial != nullptr) {
         // type is binned
         smj[m_cfg.typekey] = "binned";
-        bUtility           = &(psMaterial->binUtility());
+        bUtility           = &(bsMaterial->binUtility());
         // convert the data
         // get the material matrix
         if (m_cfg.writeData) {
@@ -458,6 +461,7 @@ FW::Json::JsonGeometryConverter::surfaceMaterialToJson(
             for (auto& mp : mpVector) {
               mvec.push_back(convertMaterialProperties(mp));
             }
+            mmat.push_back(std::move(mvec));
           }
           smj[m_cfg.datakey] = mmat;
         }

@@ -9,14 +9,16 @@
 #include <boost/program_options.hpp>
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
+#include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/MaterialMapping/GeantinoRecording.hpp"
-#include "ACTFW/Plugins/DD4hep/GeometryService.hpp"
 #include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 #include "ACTFW/Writers/IWriterT.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
 
 namespace po = boost::program_options;
 
@@ -25,8 +27,8 @@ main(int argc, char* argv[])
 {
   // Declare the supported program options.
   po::options_description desc("Allowed options");
-  // add the standard options
-  FW::Options::addStandardOptions<po::options_description>(desc, 100, 2);
+  // Add the standard/common options
+  FW::Options::addCommonOptions<po::options_description>(desc);
   // add the detector options
   FW::Options::addDD4hepOptions<po::options_description>(desc);
   po::variables_map vm;
@@ -38,14 +40,14 @@ main(int argc, char* argv[])
     std::cout << desc << std::endl;
     return 1;
   }
-  // now read the standard options
-  auto standardOptions
-      = FW::Options::readStandardOptions<po::variables_map>(vm);
-  // @todo update - make program options in separate MR
-  auto   nEvents     = standardOptions.first;
+  // Now read the standard options
+  auto nEvents = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+
   size_t nTracks     = 100;
   int    randomSeed1 = 536235167;
   int    randomSeed2 = 729237523;
+
+  Acts::GeometryContext geoContext;
 
   // DETECTOR:
   // --------------------------------------------------------------------------------
@@ -53,10 +55,10 @@ main(int argc, char* argv[])
   // read the detector config & dd4hep detector
   auto dd4HepDetectorConfig
       = FW::Options::readDD4hepConfig<po::variables_map>(vm);
-  auto geometrySvc
-      = std::make_shared<FW::DD4hep::GeometryService>(dd4HepDetectorConfig);
+  auto geometrySvc = std::make_shared<FW::DD4hep::DD4hepGeometryService>(
+      dd4HepDetectorConfig);
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
-      = geometrySvc->trackingGeometry();
+      = geometrySvc->trackingGeometry(geoContext);
 
   // DD4Hep to Geant4 conversion
   //
@@ -69,20 +71,15 @@ main(int argc, char* argv[])
   // Geant4 JOB:
   // --------------------------------------------------------------------------------
   // set up the writer for
-  FW::Root::RootMaterialTrackWriter::Config g4WriterConfig(
-      "MaterialTrackWriter", Acts::Logging::INFO);
-  g4WriterConfig.fileName = "GeantMaterialTracks.root";
-  g4WriterConfig.treeName = "GeantMaterialTracks";
-  auto g4TrackRecWriter
-      = std::make_shared<FW::Root::RootMaterialTrackWriter>(g4WriterConfig);
+
+  // ---------------------------------------------------------------------------------
 
   // set up the algorithm writing out the material map
   FW::GeantinoRecording::Config g4rConfig;
-  g4rConfig.materialTrackWriter = g4TrackRecWriter;
-  g4rConfig.geant4Service       = dd4hepToG4Svc;
-  g4rConfig.tracksPerEvent      = nTracks;
-  g4rConfig.seed1               = randomSeed1;
-  g4rConfig.seed2               = randomSeed2;
+  g4rConfig.geant4Service  = dd4hepToG4Svc;
+  g4rConfig.tracksPerEvent = nTracks;
+  g4rConfig.seed1          = randomSeed1;
+  g4rConfig.seed2          = randomSeed2;
   // create the geant4 algorithm
   auto g4rAlgorithm
       = std::make_shared<FW::GeantinoRecording>(g4rConfig, Acts::Logging::INFO);
@@ -93,8 +90,26 @@ main(int argc, char* argv[])
   FW::Sequencer::Config g4SeqConfig;
   // now create the sequencer
   FW::Sequencer g4Sequencer(g4SeqConfig);
-  // the writer is a service as it needs initialize, finalize
-  g4Sequencer.addService(g4TrackRecWriter);
-  g4Sequencer.addAlgorithm(g4rAlgorithm);
-  return g4Sequencer.run(nEvents);
+
+  // Output directory
+  std::string outputDir     = vm["output-dir"].template as<std::string>();
+  auto        matCollection = vm["prop-material-collection"].as<std::string>();
+
+  if (vm["output-root"].template as<bool>()) {
+    // Write the propagation steps as ROOT TTree
+    FW::Root::RootMaterialTrackWriter::Config matTrackWriterRootConfig;
+    matTrackWriterRootConfig.collection = matCollection;
+    matTrackWriterRootConfig.filePath
+        = FW::joinPaths(outputDir, matCollection + ".root");
+    auto matTrackWriterRoot
+        = std::make_shared<FW::Root::RootMaterialTrackWriter>(
+            matTrackWriterRootConfig);
+    if (g4Sequencer.addWriters({matTrackWriterRoot})
+        != FW::ProcessCode::SUCCESS)
+      return -1;
+  }
+
+  // Append the algorithm and run
+  g4Sequencer.appendEventAlgorithms({g4rAlgorithm});
+  g4Sequencer.run(nEvents);
 }

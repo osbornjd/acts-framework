@@ -38,7 +38,7 @@ FW::Json::JsonMaterialWriter::write(
 
   auto jout = jmConverter.materialMapsToJson(detMaterial);
   // write prettified JSON to another file
-  std::string   jsonOutputName = m_cfg.fileName + ".json";
+  std::string   jsonOutputName = m_cfg.fileName;
   std::ofstream ofj(jsonOutputName);
   ofj << std::setw(4) << jout << std::endl;
 

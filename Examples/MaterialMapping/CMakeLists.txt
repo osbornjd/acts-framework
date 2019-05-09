@@ -19,7 +19,7 @@ target_link_libraries(ACTFWGenericMaterialMappingExample PRIVATE ${Boost_LIBRARI
 
 install(TARGETS ACTFWGenericMaterialMappingExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-if (USE_GEANT4 AND USE+DD4HEP)  
+if (USE_GEANT4 AND USE_DD4HEP)  
   include(${Geant4_USE_FILE})
   
   add_executable(ACTFWGeantinoRecordingExample src/GeantinoRecordingExample.cpp)

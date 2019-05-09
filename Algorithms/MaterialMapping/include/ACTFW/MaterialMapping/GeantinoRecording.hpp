@@ -49,9 +49,8 @@ public:
   /// @class Config
   struct Config
   {
-    /// The writer writing out the MaterialTrack entities
-    std::shared_ptr<FW::IWriterT<Acts::RecordedMaterialTrack>>
-        materialTrackWriter = nullptr;
+    std::string geantMaterialCollection = "geant-material-tracks";
+
     /// The service possibly providing the Geant4 geometry (optional)
     /// @note If this is not set, the geometry should be given by gdml file
     std::shared_ptr<FW::IGeant4Service> geant4Service = nullptr;
@@ -60,6 +59,7 @@ public:
     std::string gdmlFile;
     /// The number of tracks per event
     size_t tracksPerEvent = 0;
+
     /// random number seed 1
     int seed1 = 12345;
     /// random number seed 2

@@ -35,7 +35,7 @@ FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext& context) const
   return RandomEngine(generateSeed(context));
 }
 
-const unsigned int
+unsigned int
 FW::RandomNumbersSvc::generateSeed(const AlgorithmContext& context) const
 {
   // use Cantor pairing function to generate a unique generator id from

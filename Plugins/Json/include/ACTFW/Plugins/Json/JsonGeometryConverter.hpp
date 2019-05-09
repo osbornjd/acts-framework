@@ -65,6 +65,9 @@ namespace Json {
     // the geometry id
     Acts::GeometryID volumeID;
 
+    /// the namne
+    std::string volumeName;
+
     std::map<geo_id_value, LayerRep> layers;
     SurfaceMaterialRep           boundaries;
     const Acts::IVolumeMaterial* material = nullptr;
@@ -102,6 +105,8 @@ namespace Json {
       std::string detkey = "detector";
       /// The volume identification string
       std::string volkey = "volumes";
+      /// The name identification
+      std::string namekey = "name";
       /// The boundary surface string
       std::string boukey = "boundaries";
       /// The layer identification string
