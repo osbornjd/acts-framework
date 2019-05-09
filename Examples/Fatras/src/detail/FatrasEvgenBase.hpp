@@ -30,7 +30,7 @@ setupEvgenInput(vmap_t&                               vm,
   auto logLevel = FW::Options::readLogLevel(vm);
   auto nEvents  = FW::Options::readNumberOfEvents(vm);
 
-  // Add requeste event generator
+  // Add requested event generator
   auto evgenInput = vm["evg-input-type"].template as<std::string>();
   if (evgenInput == "gun") {
     auto evgCfg          = FW::Options::readParticleGunOptions(vm);
