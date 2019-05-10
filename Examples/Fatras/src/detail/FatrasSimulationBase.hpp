@@ -45,7 +45,6 @@ typedef std::vector<FW::Data::SimVertex<>>      FatrasEvent;
 /// Simple struct to select sensitive surfaces
 struct SurfaceSelector
 {
-
   bool selectSensitive = true;
   bool selectMaterial  = false;
   bool selectPassive   = false;
@@ -104,13 +103,11 @@ setupSimulationAlgorithm(
     std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
     std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
 {
-
   // Read the log level
   Acts::Logging::Level logLevel = FW::Options::readLogLevel(vm);
 
   /// Read the evgen particle collection
-  const std::string& evgenCollection
-      = vm["evg-collection"].template as<std::string>();
+  std::string evgenCollection = "particles";
 
   // Create a navigator for this tracking geometry
   Acts::Navigator cNavigator(tGeometry);

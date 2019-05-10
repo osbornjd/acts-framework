@@ -19,7 +19,7 @@ format:
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
   image: gitlab-registry.cern.ch/acts/machines/check:latest
-  before_script: 
+  before_script:
     - git submodule deinit -f external/*
   script:
     - CI/check_format .
@@ -55,12 +55,12 @@ build:
   script:
     - mkdir build
     - cd build
-    - cmake -GNinja -DUSE_FATRAS=on -DUSE_TGEO=on -DUSE_DD4HEP=on -DUSE_GEANT4=on -DUSE_PYTHIA8=on -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
-    - cmake --build . -- install
+    - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DUSE_DD4HEP=on -DUSE_GEANT4=on -DUSE_TGEO=on -DUSE_PYTHIA8=on ..
+    - cmake --build .
   artifacts:
     paths:
       - build
-      - install
+    expire_in: 6 hours
 
 build_vanilla:
   stage: build
@@ -70,7 +70,7 @@ build_vanilla:
     - mkdir build
     - cd build
     - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
-    - cmake --build . -- install
+    - cmake --build .
 
 .examples: &example_base
   stage: test
@@ -79,7 +79,6 @@ build_vanilla:
   before_script:
     - set +e && source CI/setup_lcg94.sh; set -e
     - export PATH=$PWD/build/bin:$PATH
-
 
 hello_world:
   <<: *example_base
@@ -95,18 +94,21 @@ generic_fatras_example:
   <<: *example_base
   script:
     - ACTFWGenericFatrasExample
-  allow_failure: true
 
-root_fatras_example:
+tgeo_fatras_example:
   <<: *example_base
   script:
-    - ACTFWRootFatrasExample
-  allow_failure: true
+    - ACTFWTGeoFatrasExample
 
-particle_gun_example:
+generator_particle_gun:
   <<: *example_base
   script:
-    - ACTFWParticleGunExample
+    - ActsParticleGun -n 10 --output-root 1 --output-csv 1
+
+generator_pythia8:
+  <<: *example_base
+  script:
+    - ActsPythia8 -n 10 --output-root 1 --output-csv 1
 
 whiteboard_example:
   <<: *example_base
@@ -127,7 +129,6 @@ dd4hep_fatras_example:
   <<: *example_base
   script:
     - ACTFWDD4hepFatrasExample
-  allow_failure: true
 
 dd4hep_geometry_example:
   <<: *example_base
@@ -140,10 +141,7 @@ dd4hep_propagation_example:
     - ACTFWDD4hepPropagationExample
 
 reproducibility_generic_propagation:
-  stage: test
-  tags:
-    - cvmfs
+  <<: *example_base
   script:
-    - source install/bin/setup.sh
     - cd scripts
     - ./testReproducibility.sh GenericPropagation 10 propagation-steps

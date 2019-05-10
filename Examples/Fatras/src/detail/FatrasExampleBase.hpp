@@ -8,8 +8,10 @@
 
 #pragma once
 
-#include <boost/program_options.hpp>
 #include <memory>
+
+#include <boost/program_options.hpp>
+
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Common/GeometryOptions.hpp"
@@ -18,13 +20,12 @@
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/ParticleGun/ParticleGunOptions.hpp"
+#include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
-#include "ACTFW/Plugins/Pythia8/GeneratorOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
+
 #include "FatrasDigitizationBase.hpp"
 #include "FatrasEvgenBase.hpp"
 #include "FatrasSimulationBase.hpp"
@@ -60,11 +61,9 @@ fatrasExample(int               argc,
   // Add the geometry options
   FW::Options::addGeometryOptions<po::options_description>(desc);
   // Add the particle gun options
-  FW::Options::addParticleGunOptions<po::options_description>(desc);
+  FW::Options::addParticleGunOptions(desc);
   // Add the Pythia 8 options
-  FW::Options::addPythia8Options<po::options_description>(desc);
-  // Add the evgen options
-  FW::Options::addEvgenReaderOptions<po::options_description>(desc);
+  FW::Options::addPythia8Options(desc);
   // Add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
   // Add the bfield options
@@ -77,8 +76,8 @@ fatrasExample(int               argc,
   FW::Options::addOutputOptions<po::options_description>(desc);
   // Add program specific options: input / output
   desc.add_options()("evg-input-type",
-                     po::value<std::string>()->default_value("pythia"),
-                     "Type of evgen input 'gun', 'pythia'");
+                     po::value<std::string>()->default_value("pythia8"),
+                     "Type of evgen input 'gun', 'pythia8'");
 
   // Add specific options for this geometry
   optionsSetup(desc);
