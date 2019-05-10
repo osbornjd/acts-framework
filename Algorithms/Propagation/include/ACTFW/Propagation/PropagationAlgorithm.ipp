@@ -153,11 +153,8 @@ PropagationAlgorithm<propagator_t>::execute(
 
   // write simulated data to the event store
   // - the simulated particles
-  if (context.eventStore.add(m_cfg.propagationStepCollection,
-                             std::move(propagationSteps))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  context.eventStore.add(m_cfg.propagationStepCollection,
+                         std::move(propagationSteps));
 
   return ProcessCode::SUCCESS;
 }

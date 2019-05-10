@@ -88,18 +88,12 @@ FW::ParticleSelector::execute(const FW::AlgorithmContext& ctx) const
   }
 
   ACTS_DEBUG("event " << ctx.eventNumber << " selected " << selected.size()
-                      << " from "
-                      << all->size()
-                      << " vertices");
+                      << " from " << all->size() << " vertices");
   ACTS_DEBUG("event " << ctx.eventNumber << " selected " << selParticles
-                      << " from "
-                      << allParticles
-                      << " particles");
+                      << " from " << allParticles << " particles");
 
   // write selected particles
-  if (ctx.eventStore.add(m_cfg.output, std::move(selected))
-      == ProcessCode::ABORT) {
-    return ProcessCode::ABORT;
-  }
+  ctx.eventStore.add(m_cfg.output, std::move(selected));
+
   return ProcessCode::SUCCESS;
 }

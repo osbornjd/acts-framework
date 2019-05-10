@@ -187,15 +187,9 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
   }            // volume loop
 
   // write the SpacePoints to the EventStore
-  if (context.eventStore.add(m_cfg.spacePointCollection, std::move(spacePoints))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  context.eventStore.add(m_cfg.spacePointCollection, std::move(spacePoints));
   // write the clusters to the EventStore
-  if (context.eventStore.add(m_cfg.clusterCollection, std::move(planarClusters))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  context.eventStore.add(m_cfg.clusterCollection, std::move(planarClusters));
 
   return FW::ProcessCode::SUCCESS;
 }

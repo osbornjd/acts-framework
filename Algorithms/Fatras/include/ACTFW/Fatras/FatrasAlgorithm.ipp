@@ -30,8 +30,7 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
     return FW::ProcessCode::ABORT;
 
   ACTS_DEBUG("Read collection '" << m_cfg.inputEventCollection << "' with "
-                                 << inputEvent->size()
-                                 << " vertices");
+                                 << inputEvent->size() << " vertices");
 
   // Output: simulated particles attached to their process vertices
   // we start with a copy of the current event
@@ -45,17 +44,11 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
 
   // Write simulated data to the event store
   // - the simulated particles
-  if (context.eventStore.add(m_cfg.simulatedEventCollection,
-                             std::move(simulatedEvent))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
-
+  context.eventStore.add(m_cfg.simulatedEventCollection,
+                         std::move(simulatedEvent));
   // The simulated hits
-  if (context.eventStore.add(m_cfg.simulatedHitCollection,
-                             std::move(simulatedHits.hits))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  context.eventStore.add(m_cfg.simulatedHitCollection,
+                         std::move(simulatedHits.hits));
+
   return FW::ProcessCode::SUCCESS;
 }

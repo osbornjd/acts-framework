@@ -7,9 +7,12 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
+
 #include <fstream>
 #include <ios>
+#include <map>
 #include <stdexcept>
+
 #include "ACTFW/Barcode/Barcode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"

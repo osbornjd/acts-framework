@@ -61,10 +61,8 @@ FW::WhiteBoardAlgorithm::execute(const FW::AlgorithmContext& context) const
     ACTS_VERBOSE("Written out DataClassOne object as "
                  << dcoCollOut.back().data());
     // write to the EventStore
-    if (context.eventStore.add(m_cfg.outputClassOneCollection,
-                               std::move(dcoCollOut))
-        == FW::ProcessCode::ABORT)
-      return FW::ProcessCode::ABORT;
+    context.eventStore.add(m_cfg.outputClassOneCollection,
+                           std::move(dcoCollOut));
   }
 
   // Writing Class Two
@@ -75,10 +73,8 @@ FW::WhiteBoardAlgorithm::execute(const FW::AlgorithmContext& context) const
     ACTS_VERBOSE("Written out DataClassTwo object as "
                  << dctCollOut.back().data());
     // write to the EventStore
-    if (context.eventStore.add(m_cfg.outputClassTwoCollection,
-                               std::move(dctCollOut))
-        == FW::ProcessCode::ABORT)
-      return FW::ProcessCode::ABORT;
+    context.eventStore.add(m_cfg.outputClassTwoCollection,
+                           std::move(dctCollOut));
   }
   // Return with success
   return FW::ProcessCode::SUCCESS;
