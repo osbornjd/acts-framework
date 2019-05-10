@@ -8,11 +8,12 @@
 
 #pragma once
 
-#include <map>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <typeinfo>
+#include <unordered_map>
 #include <vector>
 
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -79,8 +80,8 @@ private:
     }
   };
 
-  std::unique_ptr<const Acts::Logger> m_logger;
-  std::map<std::string, std::unique_ptr<IHolder>> m_store;
+  std::unique_ptr<const Acts::Logger>                       m_logger;
+  std::unordered_map<std::string, std::unique_ptr<IHolder>> m_store;
 
   const Acts::Logger&
   logger() const
