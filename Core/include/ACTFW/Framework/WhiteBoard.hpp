@@ -41,11 +41,11 @@ public:
 
   /// Store an object on the white board and transfer ownership.
   ///
-  /// @param name Identifier to store it under
+  /// @param name Non-empty identifier to store it under
   /// @param object Movable reference to the transferable object
-  /// @returns ProcessCode::SUCCESS if the object was stored successfully
+  /// @throws std::invalid_argument on empty or duplicate name
   template <typename T>
-  ProcessCode
+  void
   add(const std::string& name, T&& object);
 
   /// Get access to a stored object.
@@ -107,20 +107,17 @@ inline FW::WhiteBoard::WhiteBoard(std::unique_ptr<const Acts::Logger> logger)
 }
 
 template <typename T>
-inline FW::ProcessCode
+inline void
 FW::WhiteBoard::add(const std::string& name, T&& object)
 {
   if (name.empty()) {
-    ACTS_FATAL("Object can not have an empty name");
-    return ProcessCode::ABORT;
+    throw std::invalid_argument("Object can not have an empty name");
   }
   if (0 < m_store.count(name)) {
-    ACTS_FATAL("Object '" << name << "' already exists");
-    return ProcessCode::ABORT;
+    throw std::invalid_argument("Object '" + name + "' already exists");
   }
   m_store.emplace(name, std::make_unique<HolderT<T>>(std::forward<T>(object)));
   ACTS_VERBOSE("Added object '" << name << "'");
-  return ProcessCode::SUCCESS;
 }
 
 template <typename T>
