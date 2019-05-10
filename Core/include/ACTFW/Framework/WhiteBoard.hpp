@@ -57,6 +57,15 @@ public:
   ProcessCode
   get(const std::string& name, const T*& object) const;
 
+  /// Get access to a stored object.
+  ///
+  /// @param[in] name Identifier for the object
+  /// @return reference to the stored object
+  /// @throws std::out_of_range if no object is stored under the requested name
+  template <typename T>
+  const T&
+  get(const std::string& name) const;
+
 private:
   // type-erased value holder for move-constructible types
   struct IHolder
@@ -131,6 +140,20 @@ FW::WhiteBoard::get(const std::string& name, const T*& object) const
     return ProcessCode::ABORT;
   }
   object = &(reinterpret_cast<const HolderT<T>*>(holder)->value);
-  ACTS_VERBOSE("Retrieved object '" << name << "'");
   return ProcessCode::SUCCESS;
+}
+
+template <typename T>
+inline const T&
+FW::WhiteBoard::get(const std::string& name) const
+{
+  auto it = m_store.find(name);
+  if (it == m_store.end()) {
+    throw std::out_of_range("Object '" + name + "' does not exists");
+  }
+  const IHolder* holder = it->second.get();
+  if (typeid(T) != holder->type()) {
+    throw std::out_of_range("Type missmatch for object '" + name + "'");
+  }
+  return &(reinterpret_cast<const HolderT<T>*>(holder)->value);
 }
