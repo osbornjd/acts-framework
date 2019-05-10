@@ -100,6 +100,10 @@ template <typename T>
 inline FW::ProcessCode
 FW::WhiteBoard::add(const std::string& name, T&& object)
 {
+  if (name.empty()) {
+    ACTS_FATAL("Object can not have an empty name");
+    return ProcessCode::ABORT;
+  }
   if (0 < m_store.count(name)) {
     ACTS_FATAL("Object '" << name << "' already exists");
     return ProcessCode::ABORT;
