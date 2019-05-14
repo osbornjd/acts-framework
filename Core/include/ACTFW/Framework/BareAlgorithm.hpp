@@ -40,11 +40,11 @@ public:
   BareAlgorithm(std::string          name,
                 Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Framework name() method
+  /// Provide the name of the algorithm.
   std::string
   name() const final override;
 
-  /// Framework execute method
+  /// Execute the algorithm for one event.
   ///
   /// This function must be implemented by subclasses.
   virtual ProcessCode

@@ -18,27 +18,26 @@ namespace FW {
 class IReader
 {
 public:
-  /// Virtual destructor
+  /// Virtual destructor.
   virtual ~IReader() = default;
 
-  /// Provide the name of the reader
+  /// Provide the name of the reader.
   virtual std::string
   name() const = 0;
+
+  /// Provide the maximum number of events available or SIZE_MAX if undefined.
+  virtual size_t
+  numEvents() const = 0;
 
   /// Skip the next n events.
   virtual ProcessCode
   skip(size_t skip)
       = 0;
 
-  /// Read the next event
+  /// Read the next event.
   virtual ProcessCode
   read(const AlgorithmContext& context)
       = 0;
-
-  /// The number of events to be read in
-  /// @return number of events
-  virtual size_t
-  numEvents() const = 0;
 };
 
 }  // namespace FW

@@ -19,14 +19,14 @@ namespace FW {
 class IAlgorithm
 {
 public:
-  /// Virtual destructor
+  /// Virtual destructor.
   virtual ~IAlgorithm() = default;
 
-  /// Framework name() method
+  /// Provide the name of the algorithm.
   virtual std::string
   name() const = 0;
 
-  /// Framework execute method
+  /// Execute the algorithm for one event.
   virtual ProcessCode
   execute(const AlgorithmContext& context) const = 0;
 };
