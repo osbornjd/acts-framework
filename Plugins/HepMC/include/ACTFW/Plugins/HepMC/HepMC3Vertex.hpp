@@ -8,11 +8,12 @@
 
 #pragma once
 
+#include <HepMC/FourVector.h>
+#include <HepMC/GenParticle.h>
+#include <HepMC/GenVertex.h>
+
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
-#include "HepMC/FourVector.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
 
 namespace FW {
 

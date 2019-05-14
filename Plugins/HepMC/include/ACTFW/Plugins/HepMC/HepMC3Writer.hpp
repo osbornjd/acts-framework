@@ -8,9 +8,10 @@
 
 #pragma once
 
+#include <HepMC/GenEvent.h>
+#include <HepMC/WriterAscii.h>
+
 #include "ACTFW/Utilities/SimulatedWriter.hpp"
-#include "HepMC/GenEvent.h"
-#include "HepMC/WriterAscii.h"
 
 namespace FW {
 

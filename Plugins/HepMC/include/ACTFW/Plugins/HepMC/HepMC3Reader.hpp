@@ -8,9 +8,10 @@
 
 #pragma once
 
+#include <HepMC/GenEvent.h>
+#include <HepMC/ReaderAscii.h>
+
 #include "ACTFW/Utilities/SimulatedReader.hpp"
-#include "HepMC/GenEvent.h"
-#include "HepMC/ReaderAscii.h"
 
 namespace FW {
 

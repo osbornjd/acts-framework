@@ -8,12 +8,12 @@
 
 #pragma once
 
-#include "Acts/Utilities/Units.hpp"
-#include "HepMC/FourVector.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepPID/ParticleIDMethods.hh"
+#include <Acts/Utilities/Units.hpp>
+#include <HepMC/FourVector.h>
+#include <HepMC/GenEvent.h>
+#include <HepMC/GenParticle.h>
+#include <HepMC/GenVertex.h>
+#include <HepPID/ParticleIDMethods.hh>
 
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
