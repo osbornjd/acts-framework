@@ -26,14 +26,11 @@ FW::WhiteBoardAlgorithm::execute(const FW::AlgorithmContext& context) const
   if (!m_cfg.inputClassOneCollection.empty()) {
     ACTS_INFO("Reading ClassOneCollection " << m_cfg.inputClassOneCollection);
     // read in the collection
-    const FW::DataClassOneCollection* dcoCollIn = nullptr;
-    // write to the EventStore
-    if (context.eventStore.get(m_cfg.inputClassOneCollection, dcoCollIn)
-        == FW::ProcessCode::ABORT)
-      return FW::ProcessCode::ABORT;
+    const auto& dcoCollIn = context.eventStore.get<FW::DataClassOneCollection>(
+        m_cfg.inputClassOneCollection);
     // screen output
-    ACTS_VERBOSE("Read DataClassOneCollection with size " << dcoCollIn->size());
-    for (auto& idco : (*dcoCollIn))
+    ACTS_VERBOSE("Read DataClassOneCollection with size " << dcoCollIn.size());
+    for (auto& idco : dcoCollIn)
       ACTS_VERBOSE("Read in  DataClassOne object as " << idco.data());
   }
 
@@ -41,14 +38,11 @@ FW::WhiteBoardAlgorithm::execute(const FW::AlgorithmContext& context) const
   if (!m_cfg.inputClassTwoCollection.empty()) {
     ACTS_INFO("Reading ClassTwoCollection " << m_cfg.inputClassTwoCollection);
     // read in the collection
-    const FW::DataClassTwoCollection* dctCollIn = nullptr;
-    // write to the EventStore
-    if (context.eventStore.get(m_cfg.inputClassTwoCollection, dctCollIn)
-        == FW::ProcessCode::ABORT)
-      return FW::ProcessCode::ABORT;
+    const auto& dctCollIn = context.eventStore.get<FW::DataClassTwoCollection>(
+        m_cfg.inputClassTwoCollection);
     // screen output
-    ACTS_VERBOSE("Read DataClassTwoCollection with size " << dctCollIn->size());
-    for (auto& idct : (*dctCollIn))
+    ACTS_VERBOSE("Read DataClassTwoCollection with size " << dctCollIn.size());
+    for (auto& idct : dctCollIn)
       ACTS_VERBOSE("Read in  DataClassTwo object as " << idct.data());
   }
 

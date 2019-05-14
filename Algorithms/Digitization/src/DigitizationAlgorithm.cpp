@@ -50,14 +50,10 @@ FW::DigitizationAlgorithm::DigitizationAlgorithm(
 FW::ProcessCode
 FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
 {
-  // Prepare the input data collection
-  const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>* simHits
-      = nullptr;
-
-  // Read it from the event store
-  if (context.eventStore.get(m_cfg.simulatedHitCollection, simHits)
-      == FW::ProcessCode::ABORT)
-    return FW::ProcessCode::ABORT;
+  // Read the input data collection from the event store
+  const auto& simHits = context.eventStore.get<
+      typename FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>(
+      m_cfg.simulatedHitCollection);
 
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
                                     << "' from event store.");
@@ -69,7 +65,7 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
   FW::DetectorData<geo_id_value, Acts::Vector3D> spacePoints;
 
   // now digitise
-  for (auto& vData : (*simHits)) {
+  for (auto& vData : simHits) {
     auto volumeKey = vData.first;
     ACTS_DEBUG("- Processing Volume Data collection for volume with ID "
                << volumeKey);

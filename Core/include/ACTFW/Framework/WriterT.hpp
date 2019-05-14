@@ -52,13 +52,13 @@ public:
   std::string
   name() const final override;
 
-  /// No-op default implementation.
-  ProcessCode
-  endRun() override;
-
   /// Read the object and call the type-specific member function.
   ProcessCode
   write(const AlgorithmContext& context) final override;
+
+  /// No-op default implementation.
+  ProcessCode
+  endRun() override;
 
 protected:
   /// Type-specific write function implementation
@@ -117,8 +117,5 @@ template <typename write_data_t>
 inline FW::ProcessCode
 FW::WriterT<write_data_t>::write(const AlgorithmContext& context)
 {
-  const write_data_t* object = nullptr;
-  if (context.eventStore.get(m_objectName, object) != ProcessCode::SUCCESS)
-    return ProcessCode::ABORT;
-  return writeT(context, *object);
+  return writeT(context, context.eventStore.get<write_data_t>(m_objectName));
 }

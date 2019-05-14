@@ -24,17 +24,15 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
   RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
   // Read Particles from input collection
-  const event_collection_t* inputEvent = nullptr;
-  if (context.eventStore.get(m_cfg.inputEventCollection, inputEvent)
-      == FW::ProcessCode::ABORT)
-    return FW::ProcessCode::ABORT;
+  const auto& inputEvent
+      = context.eventStore.get<event_collection_t>(m_cfg.inputEventCollection);
 
   ACTS_DEBUG("Read collection '" << m_cfg.inputEventCollection << "' with "
-                                 << inputEvent->size() << " vertices");
+                                 << inputEvent.size() << " vertices");
 
   // Output: simulated particles attached to their process vertices
   // we start with a copy of the current event
-  event_collection_t simulatedEvent(*inputEvent);
+  event_collection_t simulatedEvent(inputEvent);
 
   // Create the hit collection
   HitCollection<hit_t> simulatedHits;

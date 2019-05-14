@@ -16,7 +16,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "ACTFW/Framework/ProcessCode.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
@@ -47,15 +46,6 @@ public:
   template <typename T>
   void
   add(const std::string& name, T&& object);
-
-  /// Get access to a stored object.
-  ///
-  /// @param[in] name Identifier for the object
-  /// @param[out] object A pointer to the object or nullptr on error
-  /// @returns ProcessCode::SUCCESS if the object was found
-  template <typename T>
-  ProcessCode
-  get(const std::string& name, const T*& object) const;
 
   /// Get access to a stored object.
   ///
@@ -121,26 +111,6 @@ FW::WhiteBoard::add(const std::string& name, T&& object)
 }
 
 template <typename T>
-inline FW::ProcessCode
-FW::WhiteBoard::get(const std::string& name, const T*& object) const
-{
-  auto it = m_store.find(name);
-  if (it == m_store.end()) {
-    object = nullptr;
-    ACTS_FATAL("Object '" << name << "' does not exists");
-    return ProcessCode::ABORT;
-  }
-  const IHolder* holder = it->second.get();
-  if (typeid(T) != holder->type()) {
-    object = nullptr;
-    ACTS_FATAL("Type missmatch for object '" << name << "'");
-    return ProcessCode::ABORT;
-  }
-  object = &(reinterpret_cast<const HolderT<T>*>(holder)->value);
-  return ProcessCode::SUCCESS;
-}
-
-template <typename T>
 inline const T&
 FW::WhiteBoard::get(const std::string& name) const
 {
@@ -152,5 +122,5 @@ FW::WhiteBoard::get(const std::string& name) const
   if (typeid(T) != holder->type()) {
     throw std::out_of_range("Type missmatch for object '" + name + "'");
   }
-  return &(reinterpret_cast<const HolderT<T>*>(holder)->value);
+  return reinterpret_cast<const HolderT<T>*>(holder)->value;
 }
