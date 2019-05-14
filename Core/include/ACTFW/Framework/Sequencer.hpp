@@ -74,33 +74,6 @@ public:
   void
   addWriter(std::shared_ptr<IWriter> writer);
 
-  /// Add services
-  ///
-  /// @param services is the vector of services to be added
-  ProcessCode
-  addServices(std::vector<std::shared_ptr<IService>> services);
-  /// Add context decorators
-  ///
-  /// @param decorators is the vector of decorators to be added
-  ProcessCode
-  addContextDecorators(
-      std::vector<std::shared_ptr<IContextDecorator>> decorators);
-  /// Add algorithms for reading
-  ///
-  /// @param readers is the vector of reader algorithms to be added
-  ProcessCode
-  addReaders(std::vector<std::shared_ptr<IReader>> readers);
-  /// Append algorithms
-  ///
-  /// @param algorithms is the vector of algorithms to be appended
-  ProcessCode
-  appendEventAlgorithms(std::vector<std::shared_ptr<IAlgorithm>> algorithms);
-  /// Add algorithms for writing
-  ///
-  /// @param writers is the vector of writer algorithms to be added
-  ProcessCode
-  addWriters(std::vector<std::shared_ptr<IWriter>> writers);
-
   /// Run the event loop over the given number of events.
   ///
   /// @param events (optional) Number of events to process

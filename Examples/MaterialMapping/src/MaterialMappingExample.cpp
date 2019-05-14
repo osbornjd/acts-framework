@@ -129,7 +129,9 @@ main(int argc, char* argv[])
   FW::Sequencer::Config mapSeqConfig;
   // now create the sequencer
   FW::Sequencer mappingSequencer(mapSeqConfig);
-  mappingSequencer.addServices({mtrReader, mtrWriter, imaterialWriter});
-  mappingSequencer.appendEventAlgorithms({materialMappingAlg});
+  mappingSequencer.addService(mtrReader);
+  mappingSequencer.addService(mtrWriter);
+  mappingSequencer.addService(imaterialWriter);
+  mappingSequencer.addAlgorithm(materialMappingAlg);
   mappingSequencer.run(nEvents);
 }

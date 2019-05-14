@@ -44,9 +44,8 @@ setupDigitization(vmap_t&                               vm,
       = vm["fatras-sim-hits"].template as<std::string>();
 
   // Create the algorithm and add it to the sequencer
-  auto digitzationAlg
-      = std::make_shared<FW::DigitizationAlgorithm>(digiConfig, logLevel);
-  sequencer.appendEventAlgorithms({digitzationAlg});
+  sequencer.addAlgorithm(
+      std::make_shared<FW::DigitizationAlgorithm>(digiConfig, logLevel));
 
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
@@ -61,7 +60,7 @@ setupDigitization(vmap_t&                               vm,
         = std::make_shared<FW::Obj::ObjSpacePointWriter<Acts::Vector3D>>(
             spWriterObjConfig);
     // Add to the sequencer
-    sequencer.addWriters({spWriterObj});
+    sequencer.addWriter(spWriterObj);
   }
 
   // Write digitsation output as Csv files
@@ -73,7 +72,7 @@ setupDigitization(vmap_t&                               vm,
     auto clusteWriterCsv = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(
         clusterWriterCsvConfig);
     // Add to the sequencer
-    sequencer.addWriters({clusteWriterCsv});
+    sequencer.addWriter(clusteWriterCsv);
   }
 
   // Write digitsation output as OBJ files
@@ -87,6 +86,6 @@ setupDigitization(vmap_t&                               vm,
     auto clusteWriterRoot = std::make_shared<FW::Root::RootPlanarClusterWriter>(
         clusterWriterRootConfig);
     // Add to the sequencer
-    sequencer.addWriters({clusteWriterRoot});
+    sequencer.addWriter(clusteWriterRoot);
   }
 }

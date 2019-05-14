@@ -84,43 +84,6 @@ FW::Sequencer::addWriter(std::shared_ptr<IWriter> writer)
 }
 
 FW::ProcessCode
-FW::Sequencer::addServices(std::vector<std::shared_ptr<FW::IService>> services)
-{
-  for (auto& svc : services) { addService(std::move(svc)); }
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Sequencer::addContextDecorators(
-    std::vector<std::shared_ptr<FW::IContextDecorator>> decorators)
-{
-  for (auto& cdr : decorators) { addContextDecorator(std::move(cdr)); }
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Sequencer::addReaders(std::vector<std::shared_ptr<FW::IReader>> readers)
-{
-  for (auto& rdr : readers) { addReader(std::move(rdr)); }
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Sequencer::appendEventAlgorithms(
-    std::vector<std::shared_ptr<FW::IAlgorithm>> algorithms)
-{
-  for (auto& alg : algorithms) { addAlgorithm(std::move(alg)); }
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Sequencer::addWriters(std::vector<std::shared_ptr<FW::IWriter>> writers)
-{
-  for (auto& wrt : writers) { addWriter(std::move(wrt)); }
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
 FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 {
   // Print some introduction

@@ -69,11 +69,8 @@ setupPropgation(sequencer_t&                                  sequencer,
   // Read the propagation config and create the algorithms
   auto pAlgConfig = FW::Options::readPropagationConfig(vm, propagator);
   pAlgConfig.randomNumberSvc = randomNumberSvc;
-  auto propagationAlg = std::make_shared<FW::PropagationAlgorithm<Propagator>>(
-      pAlgConfig, logLevel);
-
-  // Add the propagation algorithm
-  sequencer.appendEventAlgorithms({propagationAlg});
+  sequencer.addAlgorithm(std::make_shared<FW::PropagationAlgorithm<Propagator>>(
+      pAlgConfig, logLevel));
 
   return FW::ProcessCode::SUCCESS;
 }
@@ -112,11 +109,8 @@ setupStraightLinePropgation(
   // Read the propagation config and create the algorithms
   auto pAlgConfig = FW::Options::readPropagationConfig(vm, propagator);
   pAlgConfig.randomNumberSvc = randomNumberSvc;
-  auto propagationAlg = std::make_shared<FW::PropagationAlgorithm<Propagator>>(
-      pAlgConfig, logLevel);
-
-  // Add the propagation algorithm
-  sequencer.appendEventAlgorithms({propagationAlg});
+  sequencer.addAlgorithm(std::make_shared<FW::PropagationAlgorithm<Propagator>>(
+      pAlgConfig, logLevel));
 
   return FW::ProcessCode::SUCCESS;
 }
@@ -181,16 +175,15 @@ propagationExample(int               argc,
   auto contextDecorators = geometry.second;
 
   // Add it to the sequencer
-  sequencer.addContextDecorators(contextDecorators);
+  for (auto cdr : contextDecorators) { sequencer.addContextDecorator(cdr); }
 
   // Create the random number engine
   auto randomNumberSvcCfg
       = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-
   // Add it to the sequencer
-  sequencer.addServices({randomNumberSvc});
+  sequencer.addService(randomNumberSvc);
 
   // Create BField service
   auto bField  = FW::Options::readBField<po::variables_map>(vm);
@@ -232,11 +225,8 @@ propagationExample(int               argc,
     pstepWriterRootConfig.collection = psCollection;
     pstepWriterRootConfig.filePath
         = FW::joinPaths(outputDir, psCollection + ".root");
-    auto pstepWriterRoot
-        = std::make_shared<FW::Root::RootPropagationStepsWriter>(
-            pstepWriterRootConfig);
-    if (sequencer.addWriters({pstepWriterRoot}) != FW::ProcessCode::SUCCESS)
-      return -1;
+    sequencer.addWriter(std::make_shared<FW::Root::RootPropagationStepsWriter>(
+        pstepWriterRootConfig));
   }
 
   if (vm["output-obj"].template as<bool>()) {
@@ -249,10 +239,8 @@ propagationExample(int               argc,
     ObjPropagationStepsWriter::Config pstepWriterObjConfig;
     pstepWriterObjConfig.collection = psCollection;
     pstepWriterObjConfig.outputDir  = outputDir;
-    auto pstepWriteObj
-        = std::make_shared<ObjPropagationStepsWriter>(pstepWriterObjConfig);
-    if (sequencer.addWriters({pstepWriteObj}) != FW::ProcessCode::SUCCESS)
-      return -1;
+    sequencer.addWriter(
+        std::make_shared<ObjPropagationStepsWriter>(pstepWriterObjConfig));
   }
 
   // Initiate the run

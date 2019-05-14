@@ -65,7 +65,7 @@ main(int argc, char* argv[])
   evgenCfg.output                 = "generated_particles";
   evgenCfg.randomNumbers          = rnd;
   evgenCfg.barcodeSvc             = barcode;
-  sequencer.addReaders({std::make_shared<EventGenerator>(evgenCfg, logLevel)});
+  sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
 
   // event selection
   ParticleSelector::Config selectorCfg;
@@ -74,8 +74,8 @@ main(int argc, char* argv[])
   //  selectorCfg.absEtaMax = 2.0;
   //  selectorCfg.ptMin     = 0.5 * _GeV;
   selectorCfg.keepNeutral = false;  // retain only charged particles
-  sequencer.appendEventAlgorithms(
-      {std::make_shared<ParticleSelector>(selectorCfg, logLevel)});
+  sequencer.addAlgorithm(
+      std::make_shared<ParticleSelector>(selectorCfg, logLevel));
 
   // different output modes
   std::string outputDir = vm["output-dir"].as<std::string>();
@@ -85,16 +85,16 @@ main(int argc, char* argv[])
     csvWriterCfg.collection     = selectorCfg.output;
     csvWriterCfg.outputDir      = outputDir;
     csvWriterCfg.outputFileName = "particles.csv";
-    sequencer.addWriters(
-        {std::make_shared<Csv::CsvParticleWriter>(csvWriterCfg, logLevel)});
+    sequencer.addWriter(
+        std::make_shared<Csv::CsvParticleWriter>(csvWriterCfg, logLevel));
   }
   if (vm["output-root"].as<bool>()) {
     Root::RootParticleWriter::Config rootWriterCfg;
     rootWriterCfg.collection = selectorCfg.output;
     rootWriterCfg.filePath   = joinPaths(outputDir, "particles.root");
     rootWriterCfg.barcodeSvc = barcode;
-    sequencer.addWriters(
-        {std::make_shared<Root::RootParticleWriter>(rootWriterCfg, logLevel)});
+    sequencer.addWriter(
+        std::make_shared<Root::RootParticleWriter>(rootWriterCfg, logLevel));
   }
 
   return (sequencer.run(numEvents) == ProcessCode::SUCCESS) ? EXIT_SUCCESS

@@ -69,15 +69,9 @@ struct SurfaceSelector
   bool
   operator()(const Acts::Surface& surface) const
   {
-    if (selectSensitive && surface.associatedDetectorElement()) {
-      return true;
-    }
-    if (selectMaterial && surface.associatedMaterial()) {
-      return true;
-    }
-    if (selectPassive) {
-      return true;
-    }
+    if (selectSensitive && surface.associatedDetectorElement()) { return true; }
+    if (selectMaterial && surface.associatedMaterial()) { return true; }
+    if (selectPassive) { return true; }
     return false;
   }
 };
@@ -131,9 +125,9 @@ setupSimulationAlgorithm(
   typedef Fatras::SelectorListAND<CSelector, CMinPt, CMaxEtaAbs>
       ChargedSelector;
 
-  typedef Fatras::NeutralSelector            NSelector;
-  typedef Fatras::Max<Fatras::casts::absEta> NMaxEtaAbs;
-  typedef Fatras::Min<Fatras::casts::E>      NMinE;
+  typedef Fatras::NeutralSelector                               NSelector;
+  typedef Fatras::Max<Fatras::casts::absEta>                    NMaxEtaAbs;
+  typedef Fatras::Min<Fatras::casts::E>                         NMinE;
   typedef Fatras::SelectorListAND<NSelector, NMinE, NMaxEtaAbs> NeutralSelector;
 
   typedef Fatras::PhysicsList<> PhysicsList;
@@ -175,11 +169,8 @@ setupSimulationAlgorithm(
   fatrasConfig.inputEventCollection = evgenCollection;
 
   // Finally the fatras algorithm
-  auto fatrasAlgorithm
-      = std::make_shared<FatrasAlgorithm>(fatrasConfig, logLevel);
-
-  // Finalize the squencer setting and run
-  sequencer.appendEventAlgorithms({fatrasAlgorithm});
+  sequencer.addAlgorithm(
+      std::make_shared<FatrasAlgorithm>(fatrasConfig, logLevel));
 
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
@@ -192,10 +183,8 @@ setupSimulationAlgorithm(
     pWriterCsvConfig.outputDir  = outputDir;
     pWriterCsvConfig.outputFileName
         = fatrasConfig.simulatedEventCollection + ".csv";
-    auto pWriterCsv
-        = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
-
-    sequencer.addWriters({pWriterCsv});
+    sequencer.addWriter(
+        std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig));
   }
 
   // Write simulation information as ROOT files
@@ -208,8 +197,8 @@ setupSimulationAlgorithm(
         outputDir, fatrasConfig.simulatedEventCollection + ".root");
     pWriterRootConfig.treeName   = fatrasConfig.simulatedEventCollection;
     pWriterRootConfig.barcodeSvc = barcodeSvc;
-    auto pWriterRoot
-        = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
+    sequencer.addWriter(
+        std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig));
 
     // Write simulated hits as ROOT TTree
     FW::Root::RootSimHitWriter::Config fhitWriterRootConfig;
@@ -217,10 +206,8 @@ setupSimulationAlgorithm(
     fhitWriterRootConfig.filePath   = FW::joinPaths(
         outputDir, fatrasConfig.simulatedHitCollection + ".root");
     fhitWriterRootConfig.treeName = fatrasConfig.simulatedHitCollection;
-    auto fhitWriterRoot
-        = std::make_shared<FW::Root::RootSimHitWriter>(fhitWriterRootConfig);
-
-    sequencer.addWriters({pWriterRoot, fhitWriterRoot});
+    sequencer.addWriter(
+        std::make_shared<FW::Root::RootSimHitWriter>(fhitWriterRootConfig));
   }
 }
 

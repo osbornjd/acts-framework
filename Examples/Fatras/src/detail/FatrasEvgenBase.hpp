@@ -37,16 +37,14 @@ setupEvgenInput(vmap_t&                               vm,
     evgCfg.output        = "particles";
     evgCfg.randomNumbers = randomNumberSvc;
     evgCfg.barcodeSvc    = barcodeSvc;
-    sequencer.addReaders(
-        {std::make_shared<FW::EventGenerator>(evgCfg, logLevel)});
+    sequencer.addReader(std::make_shared<FW::EventGenerator>(evgCfg, logLevel));
 
   } else if (evgenInput == "pythia8") {
     auto evgCfg          = FW::Options::readPythia8Options(vm);
     evgCfg.output        = "particles";
     evgCfg.randomNumbers = randomNumberSvc;
     evgCfg.barcodeSvc    = barcodeSvc;
-    sequencer.addReaders(
-        {std::make_shared<FW::EventGenerator>(evgCfg, logLevel)});
+    sequencer.addReader(std::make_shared<FW::EventGenerator>(evgCfg, logLevel));
 
   } else {
     throw std::runtime_error("unknown event generator input: " + evgenInput);
@@ -61,8 +59,8 @@ setupEvgenInput(vmap_t&                               vm,
     pWriterCsvConfig.collection     = "particles";
     pWriterCsvConfig.outputDir      = outputDir;
     pWriterCsvConfig.outputFileName = "particles.csv";
-    sequencer.addWriters(
-        {std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig)});
+    sequencer.addWriter(
+        std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig));
   }
 
   // Write particles as ROOT file
@@ -73,7 +71,7 @@ setupEvgenInput(vmap_t&                               vm,
     pWriterRootConfig.filePath   = FW::joinPaths(outputDir, "particles.root");
     pWriterRootConfig.treeName   = "particles";
     pWriterRootConfig.barcodeSvc = barcodeSvc;
-    sequencer.addWriters(
-        {std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig)});
+    sequencer.addWriter(
+        std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig));
   }
 }
