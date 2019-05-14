@@ -1,11 +1,18 @@
-if(USE_HEPMC3)
-  file(GLOB src_files "src/*.cpp" "include/ACTFW/Plugins/HepMC/*.hpp")
-  add_library(ACTFWPluginHepMC3 SHARED ${src_files})
-  target_include_directories(ACTFWPluginHepMC3 PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
-  target_link_libraries(ACTFWPluginHepMC3 PUBLIC ActsCore ACTFramework)
-  target_link_libraries(ACTFWPluginHepMC3 PRIVATE HepMC3Lib) 
-  target_link_libraries(ACTFWPluginHepMC3 PRIVATE HepPID)
+add_library(
+  ACTFWPluginHepMC3
+  SHARED
+  src/HepMC3Event.cpp
+  src/HepMC3Particle.cpp
+  src/HepMC3Reader.cpp
+  src/HepMC3Vertex.cpp
+  src/HepMC3Writer.cpp)
+target_include_directories(
+  ACTFWPluginHepMC3
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include>
+         ${HEPMC_INCLUDE_DIR})
+target_link_libraries(
+  ACTFWPluginHepMC3
+  PUBLIC ActsCore ACTFramework ${HEPMC_LIBRARIES} HepPID)
 
-  install(TARGETS ACTFWPluginHepMC3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-endif()
+install(TARGETS ACTFWPluginHepMC3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

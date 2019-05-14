@@ -68,16 +68,10 @@ if(USE_PYTHIA8)
   find_package(Pythia8 REQUIRED)
 endif()
 if(USE_HEPMC3)
-  include_directories("$ENV{HEPMC3_DIR}/include")
-  link_directories("$ENV{HEPMC3_DIR}/lib64")
-  add_library(HepMC3Lib SHARED IMPORTED)
-  set_property(TARGET HepMC3Lib PROPERTY IMPORTED_LOCATION "$ENV{HEPMC3_DIR}/lib64/libHepMC.so")
-
-  include_directories("$ENV{HEPPID_INCLUDE_DIR}")
-  link_directories("$ENV{HEPPID_LIBRARY_DIR}")
-  add_library(HepPID SHARED IMPORTED)
-  set_property(TARGET HepPID PROPERTY IMPORTED_LOCATION "$ENV{HEPPID_LIBRARY_DIR}/libHepPID.so")
-  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+  # only works w/ 3.0.x; later versions change name, include prefix, and
+  # namespace to HepMC3 instead of just HepMC.
+  find_package(HepMC REQUIRED)
+  find_package(HepPID REQUIRED)
   add_definitions(-DUSE_HEPMC3)
 endif()
 
