@@ -33,75 +33,75 @@ FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
   m_tbb_init.initialize(num_threads);
 }
 
-FW::ProcessCode
-FW::Sequencer::addContextDecorators(
-    std::vector<std::shared_ptr<FW::IContextDecorator>> decorators)
+void
+FW::Sequencer::addService(std::shared_ptr<IService> service)
 {
-  for (auto& cdr : decorators) {
-    if (!cdr) {
-      ACTS_FATAL("Trying to add empty context decorator");
-      return ProcessCode::ABORT;
-    }
-    m_decorators.push_back(std::move(cdr));
-    ACTS_INFO("Added context decorator " << m_decorators.back()->name());
+  if (not service) {
+    throw std::invalid_argument("Can not add empty/NULL service");
   }
-  return ProcessCode::SUCCESS;
+  m_services.push_back(std::move(service));
+  ACTS_INFO("Added service '" << m_services.back()->name() << "'");
+}
+
+void
+FW::Sequencer::addContextDecorator(std::shared_ptr<IContextDecorator> decorator)
+{
+  if (not decorator) {
+    throw std::invalid_argument("Can not add empty/NULL context decorator");
+  }
+  m_decorators.push_back(std::move(decorator));
+  ACTS_INFO("Added context decarator '" << m_decorators.back()->name() << "'");
+}
+
+void
+FW::Sequencer::addReader(std::shared_ptr<IReader> reader)
+{
+  if (not reader) {
+    throw std::invalid_argument("Can not add empty/NULL reader");
+  }
+  m_readers.push_back(std::move(reader));
+  ACTS_INFO("Added reader '" << m_readers.back()->name() << "'");
+}
+
+void
+FW::Sequencer::addAlgorithm(std::shared_ptr<IAlgorithm> algorithm)
+{
+  if (not algorithm) {
+    throw std::invalid_argument("Can not add empty/NULL algorithm");
+  }
+  m_algorithms.push_back(std::move(algorithm));
+  ACTS_INFO("Added algorithm '" << m_algorithms.back()->name() << "'");
+}
+
+void
+FW::Sequencer::addWriter(std::shared_ptr<IWriter> writer)
+{
+  if (not writer) {
+    throw std::invalid_argument("Can not add empty/NULL writer");
+  }
+  m_writers.push_back(std::move(writer));
+  ACTS_INFO("Added writer '" << m_writers.back()->name() << "'");
 }
 
 FW::ProcessCode
 FW::Sequencer::addServices(std::vector<std::shared_ptr<FW::IService>> services)
 {
-  for (auto& svc : services) {
-    if (!svc) {
-      ACTS_FATAL("Trying to add empty service to sequencer");
-      return ProcessCode::ABORT;
-    }
-    m_services.push_back(std::move(svc));
-    ACTS_INFO("Added service " << m_services.back()->name());
-  }
+  for (auto& svc : services) { addService(std::move(svc)); }
+  return ProcessCode::SUCCESS;
+}
+
+FW::ProcessCode
+FW::Sequencer::addContextDecorators(
+    std::vector<std::shared_ptr<FW::IContextDecorator>> decorators)
+{
+  for (auto& cdr : decorators) { addContextDecorator(std::move(cdr)); }
   return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
 FW::Sequencer::addReaders(std::vector<std::shared_ptr<FW::IReader>> readers)
 {
-  for (auto& rdr : readers) {
-    if (!rdr) {
-      ACTS_FATAL("Trying to add empty reader to sequencer");
-      return ProcessCode::ABORT;
-    }
-    m_readers.push_back(std::move(rdr));
-    ACTS_INFO("Added reader " << m_readers.back()->name());
-  }
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Sequencer::addWriters(std::vector<std::shared_ptr<FW::IWriter>> writers)
-{
-  for (auto& wrt : writers) {
-    if (!wrt) {
-      ACTS_FATAL("Trying to add empty writer to sequencer");
-      return ProcessCode::ABORT;
-    }
-    m_writers.push_back(std::move(wrt));
-    ACTS_INFO("Added writer " << m_writers.back()->name());
-  }
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Sequencer::prependEventAlgorithms(
-    std::vector<std::shared_ptr<FW::IAlgorithm>> algorithms)
-{
-  for (auto& alg : algorithms) {
-    if (!alg) {
-      ACTS_FATAL("Trying to prepend empty algorithm");
-      return ProcessCode::ABORT;
-    }
-    m_algorithms.insert(m_algorithms.begin(), std::move(alg));
-    ACTS_INFO("Prepended algorithm " << m_algorithms.front()->name());
-  }
+  for (auto& rdr : readers) { addReader(std::move(rdr)); }
   return ProcessCode::SUCCESS;
 }
 
@@ -109,14 +109,14 @@ FW::ProcessCode
 FW::Sequencer::appendEventAlgorithms(
     std::vector<std::shared_ptr<FW::IAlgorithm>> algorithms)
 {
-  for (auto& alg : algorithms) {
-    if (!alg) {
-      ACTS_FATAL("Trying to append empty algorithm.");
-      return ProcessCode::ABORT;
-    }
-    m_algorithms.push_back(std::move(alg));
-    ACTS_INFO("Appended algorithm " << m_algorithms.back()->name());
-  }
+  for (auto& alg : algorithms) { addAlgorithm(std::move(alg)); }
+  return ProcessCode::SUCCESS;
+}
+
+FW::ProcessCode
+FW::Sequencer::addWriters(std::vector<std::shared_ptr<FW::IWriter>> writers)
+{
+  for (auto& wrt : writers) { addWriter(std::move(wrt)); }
   return ProcessCode::SUCCESS;
 }
 
@@ -126,9 +126,10 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
   // Print some introduction
   ACTS_INFO("Starting event loop for");
   ACTS_INFO("  " << m_services.size() << " services");
+  ACTS_INFO("  " << m_decorators.size() << " context decorators");
   ACTS_INFO("  " << m_readers.size() << " readers");
-  ACTS_INFO("  " << m_writers.size() << " writers");
   ACTS_INFO("  " << m_algorithms.size() << " algorithms");
+  ACTS_INFO("  " << m_writers.size() << " writers");
 
   // The number of events to be processed
   size_t numEvents = 0;

@@ -8,11 +8,13 @@
 
 #pragma once
 
-#include <boost/optional.hpp>
 #include <memory>
 #include <string>
-#include <tbb/task_scheduler_init.h>
 #include <vector>
+
+#include <boost/optional.hpp>
+#include <tbb/task_scheduler_init.h>
+
 #include "ACTFW/Framework/IAlgorithm.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/IReader.hpp"
@@ -26,7 +28,7 @@ namespace FW {
 /// @class  Sequencer
 ///
 /// This is the backbone of the mini framework, it initializes all algorithms,
-/// calls execute per event and deals with the event store */
+/// calls execute per event and deals with the event store.
 ///
 class Sequencer
 {
@@ -35,7 +37,6 @@ public:
   {
     /// job store logging level
     Acts::Logging::Level jobStoreLogLevel = Acts::Logging::INFO;
-
     /// event store logging level
     Acts::Logging::Level eventStoreLogLevel = Acts::Logging::INFO;
   };
@@ -47,42 +48,58 @@ public:
             std::unique_ptr<const Acts::Logger> logger
             = Acts::getDefaultLogger("Sequencer", Acts::Logging::INFO));
 
-  /// Add context decorators
+  /// Add a service to the set of services.
   ///
-  /// @param decorators is the vector of decorators to be added
-  ProcessCode
-  addContextDecorators(
-      std::vector<std::shared_ptr<IContextDecorator>> decorators);
+  /// @throws std::invalid_argument if the service is NULL.
+  void
+  addService(std::shared_ptr<IService> service);
+  /// Add a context decorator to the set of context decorators.
+  ///
+  /// @throws std::invalid_argument if the decorator is NULL.
+  void
+  addContextDecorator(std::shared_ptr<IContextDecorator> decorator);
+  /// Add a reader to the set of readers.
+  ///
+  /// @throws std::invalid_argument if the reader is NULL.
+  void
+  addReader(std::shared_ptr<IReader> reader);
+  /// Append an algorithm to the sequence of algorithms.
+  ///
+  /// @throws std::invalid_argument if the algorithm is NULL.
+  void
+  addAlgorithm(std::shared_ptr<IAlgorithm> algorithm);
+  /// Add a writer to the set of writers.
+  ///
+  /// @throws std::invalid_argument if the writer is NULL.
+  void
+  addWriter(std::shared_ptr<IWriter> writer);
 
   /// Add services
   ///
   /// @param services is the vector of services to be added
   ProcessCode
   addServices(std::vector<std::shared_ptr<IService>> services);
-
+  /// Add context decorators
+  ///
+  /// @param decorators is the vector of decorators to be added
+  ProcessCode
+  addContextDecorators(
+      std::vector<std::shared_ptr<IContextDecorator>> decorators);
   /// Add algorithms for reading
   ///
   /// @param readers is the vector of reader algorithms to be added
   ProcessCode
   addReaders(std::vector<std::shared_ptr<IReader>> readers);
-
-  /// Add algorithms for writing
-  ///
-  /// @param writers is the vector of writer algorithms to be added
-  ProcessCode
-  addWriters(std::vector<std::shared_ptr<IWriter>> writers);
-
-  /// Prepend algorithms
-  ///
-  /// @param algorithms is the vector of algorithms to be prepended
-  ProcessCode
-  prependEventAlgorithms(std::vector<std::shared_ptr<IAlgorithm>> algorithms);
-
   /// Append algorithms
   ///
   /// @param algorithms is the vector of algorithms to be appended
   ProcessCode
   appendEventAlgorithms(std::vector<std::shared_ptr<IAlgorithm>> algorithms);
+  /// Add algorithms for writing
+  ///
+  /// @param writers is the vector of writer algorithms to be added
+  ProcessCode
+  addWriters(std::vector<std::shared_ptr<IWriter>> writers);
 
   /// Run the event loop over the given number of events.
   ///
@@ -99,11 +116,11 @@ public:
   run(boost::optional<size_t> events, size_t skip = 0);
 
 private:
-  std::vector<std::shared_ptr<IContextDecorator>> m_decorators;
   std::vector<std::shared_ptr<IService>>          m_services;
+  std::vector<std::shared_ptr<IContextDecorator>> m_decorators;
   std::vector<std::shared_ptr<IReader>>           m_readers;
-  std::vector<std::shared_ptr<IWriter>>           m_writers;
   std::vector<std::shared_ptr<IAlgorithm>>        m_algorithms;
+  std::vector<std::shared_ptr<IWriter>>           m_writers;
   Config                                          m_cfg;
   std::unique_ptr<const Acts::Logger>             m_logger;
   tbb::task_scheduler_init                        m_tbb_init;
