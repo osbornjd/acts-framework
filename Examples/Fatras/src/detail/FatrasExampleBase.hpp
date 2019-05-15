@@ -117,7 +117,9 @@ fatrasExample(int               argc,
   auto contextDecorators = geometry.second;
 
   // Add it to the sequencer
-  for (auto cdr : contextDecorators) { sequencer.addContextDecorator(cdr); }
+  for (auto cdr : contextDecorators) {
+    sequencer.addContextDecorator(cdr);
+  }
 
   // (A) EVGEN
   // Setup the evgen input to the simulation

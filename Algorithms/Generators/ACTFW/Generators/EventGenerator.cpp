@@ -105,8 +105,12 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
         }
 
         ACTS_VERBOSE("event " << ctx.eventNumber << " generator=" << iGenerator
-                              << " primary=" << iPrimary << " secondary="
-                              << iSecondary << " nparticles=" << iParticle);
+                              << " primary="
+                              << iPrimary
+                              << " secondary="
+                              << iSecondary
+                              << " nparticles="
+                              << iParticle);
         iSecondary += 1;
         nTotalParticles += iParticle;
       }
@@ -118,10 +122,13 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
     }
     iGenerator += 1;
   }
-  if (m_cfg.shuffle) { std::shuffle(event.begin(), event.end(), rng); }
+  if (m_cfg.shuffle) {
+    std::shuffle(event.begin(), event.end(), rng);
+  }
 
   ACTS_DEBUG("event " << ctx.eventNumber << " nprimaries=" << iPrimary
-                      << " nparticles=" << nTotalParticles);
+                      << " nparticles="
+                      << nTotalParticles);
 
   // move generated event to the store
   ctx.eventStore.add(m_cfg.output, std::move(event));
