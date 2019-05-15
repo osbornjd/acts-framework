@@ -178,8 +178,7 @@ materialValidationExample(int              argc,
   }
 
   // The Log level
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto nEvents = FW::Options::readNumberOfEvents<po::variables_map>(vm);
 
   // Create the random number engine
   auto randomNumberSvcCfg

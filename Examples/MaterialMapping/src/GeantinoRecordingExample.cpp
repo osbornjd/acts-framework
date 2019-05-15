@@ -8,6 +8,7 @@
 
 #include <boost/program_options.hpp>
 #include "ACTFW/Common/CommonOptions.hpp"
+#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
 #include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -29,7 +30,9 @@ main(int argc, char* argv[])
   po::options_description desc("Allowed options");
   // Add the standard/common options
   FW::Options::addCommonOptions<po::options_description>(desc);
-  // add the detector options
+  // Add the output options
+  FW::Options::addOutputOptions<po::options_description>(desc);
+  // Add the detector options
   FW::Options::addDD4hepOptions<po::options_description>(desc);
   po::variables_map vm;
   // Get all options from contain line and store it into the map
@@ -93,7 +96,7 @@ main(int argc, char* argv[])
 
   // Output directory
   std::string outputDir     = vm["output-dir"].template as<std::string>();
-  auto        matCollection = vm["prop-material-collection"].as<std::string>();
+  std::stirng matCollection = g4rConfig.geantMaterialCollection;
 
   if (vm["output-root"].template as<bool>()) {
     // Write the propagation steps as ROOT TTree

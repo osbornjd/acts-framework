@@ -41,7 +41,9 @@ public:
   void
   decorate(Acts::Surface& surface) const final
   {
-    surface.assignSurfaceMaterial(nullptr);
+    if (m_wipeSurfaceMaterial) {
+      surface.assignSurfaceMaterial(nullptr);
+    }
   }
 
   /// Decorate a TrackingVolume
@@ -50,7 +52,9 @@ public:
   void
   decorate(Acts::TrackingVolume& volume) const final
   {
-    volume.assignVolumeMaterial(nullptr);
+    if (m_wipeVolumeMaterial) {
+      volume.assignVolumeMaterial(nullptr);
+    }
   }
 
 private:

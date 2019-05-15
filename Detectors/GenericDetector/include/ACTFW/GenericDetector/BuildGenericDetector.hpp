@@ -724,7 +724,7 @@ namespace Generic {
     for (auto& vb : volumeBuilders) {
       tgConfig.trackingVolumeBuilders.push_back(
           [=](const auto& context, const auto& inner, const auto&) {
-            return vb->trackingVolume(gctx, inner);
+            return vb->trackingVolume(context, inner);
           });
     }
     tgConfig.trackingVolumeHelper = cylinderVolumeHelper;

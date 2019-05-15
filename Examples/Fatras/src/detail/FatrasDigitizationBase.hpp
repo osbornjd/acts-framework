@@ -16,6 +16,7 @@
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSpacePointWriter.hpp"
 #include "ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp"
+#include "ACTFW/Plugins/Txt/TxtPlanarClusterWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleStepper.hpp"
 
@@ -73,6 +74,19 @@ setupDigitization(vmap_t&                               vm,
         clusterWriterCsvConfig);
     // Add to the sequencer
     sequencer.addWriter(clusteWriterCsv);
+  }
+
+  // Write digitsation output as Txt files
+  if (vm["output-txt"].template as<bool>()) {
+    // clusters as root
+    FW::Txt::TxtPlanarClusterWriter::Config clusterWriterTxtConfig;
+    clusterWriterTxtConfig.collection = digiConfig.clusterCollection;
+    clusterWriterTxtConfig.outputDir  = outputDir;
+    clusterWriterTxtConfig.barcodeSvc = barcodeSvc;
+    auto clusteWriterTxt = std::make_shared<FW::Txt::TxtPlanarClusterWriter>(
+        clusterWriterTxtConfig);
+    // Add to the sequencer
+    sequencer.addWriters({clusteWriterTxt});
   }
 
   // Write digitsation output as OBJ files
