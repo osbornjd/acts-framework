@@ -72,7 +72,6 @@ if(USE_HEPMC3)
   # namespace to HepMC3 instead of just HepMC.
   find_package(HepMC REQUIRED)
   find_package(HepPID REQUIRED)
-  add_definitions(-DUSE_HEPMC3)
 endif()
 
 if(BUILD_ACTS)
