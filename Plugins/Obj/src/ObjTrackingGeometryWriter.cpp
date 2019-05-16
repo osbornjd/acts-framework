@@ -7,16 +7,17 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
+
 #include <iostream>
-#include "ACTFW/Writers/IWriterT.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Detector/TrackingVolume.hpp"
-#include "Acts/Layers/Layer.hpp"
-#include "Acts/Surfaces/Surface.hpp"
+
+#include <Acts/Detector/TrackingGeometry.hpp>
+#include <Acts/Detector/TrackingVolume.hpp>
+#include <Acts/Layers/Layer.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 
 FW::Obj::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
     const FW::Obj::ObjTrackingGeometryWriter::Config& cfg)
-  : FW::IWriterT<Acts::TrackingGeometry>(), m_cfg(cfg)
+  : m_cfg(cfg)
 {
 }
 

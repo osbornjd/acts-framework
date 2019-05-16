@@ -11,12 +11,14 @@
 #include <fstream>
 #include <iostream>
 #include <mutex>
+
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Logger.hpp>
+
+#include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Plugins/Obj/ObjHelper.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
-#include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 namespace Obj {
@@ -25,7 +27,7 @@ namespace Obj {
   ///
   /// An Obj writer for the geometry: surface section
   ///
-  class ObjSurfaceWriter : public FW::IWriterT<Acts::Surface>
+  class ObjSurfaceWriter : public IService
   {
   public:
     // @class Config
@@ -80,8 +82,7 @@ namespace Obj {
     /// @param context the Algorithm/Event context of this call
     /// @param surface to be written out
     FW::ProcessCode
-    write(const AlgorithmContext& context,
-          const Acts::Surface&    surface) final override;
+    write(const AlgorithmContext& context, const Acts::Surface& surface);
 
     /// write a bit of string
     /// @param is the string to be written

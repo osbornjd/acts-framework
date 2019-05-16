@@ -8,29 +8,29 @@
 
 #pragma once
 
-#include <mutex>
-
 #include <fstream>
 #include <iostream>
+#include <mutex>
+
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 class TrackingVolume;
 class TrackingGeometry;
-}
+}  // namespace Acts
 
 namespace FW {
-
 namespace Obj {
 
   /// @class ObjTrackingGeometryWriter
   ///
   /// An Obj writer for the geometry: TrackingGeometry master
   /// It delegates the writing of surfaces to the surface writers
-  class ObjTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
+  class ObjTrackingGeometryWriter : public IService
   {
   public:
     // @class Config
@@ -73,7 +73,7 @@ namespace Obj {
     /// @return ProcessCode to indicate success/failure
     FW::ProcessCode
     write(const AlgorithmContext&       context,
-          const Acts::TrackingGeometry& tGeometry) final override;
+          const Acts::TrackingGeometry& tGeometry);
 
   private:
     Config m_cfg;  ///< the config class
@@ -93,4 +93,4 @@ namespace Obj {
   };
 
 }  // namespace Obj
-}  // namepace FW
+}  // namespace FW
