@@ -7,15 +7,16 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
+
 #include <iostream>
 #include <sstream>
-#include "ACTFW/Writers/IWriterT.hpp"
-#include "Acts/Detector/TrackingVolume.hpp"
-#include "Acts/Surfaces/Surface.hpp"
+
+#include <Acts/Detector/TrackingVolume.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 
 FW::Csv::CsvTrackingGeometryWriter::CsvTrackingGeometryWriter(
     const FW::Csv::CsvTrackingGeometryWriter::Config& cfg)
-  : FW::IWriterT<Acts::TrackingGeometry>(), m_cfg(cfg)
+  : m_cfg(cfg)
 {
 }
 
