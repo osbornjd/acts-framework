@@ -2,7 +2,6 @@ set(_sources
   src/Barcode/BarcodeSvc.cpp
   src/Framework/BareAlgorithm.cpp
   src/Framework/Sequencer.cpp
-  src/Random/RandomNumberDistributions.cpp
   src/Random/RandomNumbersSvc.cpp
   src/Utilities/Paths.cpp)
 

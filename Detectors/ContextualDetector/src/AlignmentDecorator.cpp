@@ -7,8 +7,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/ContextualDetector/AlignmentDecorator.hpp"
-#include "ACTFW/Random/RandomNumberDistributions.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
+
+#include <random>
+
+#include <Acts/Detector/TrackingGeometry.hpp>
 
 FW::Contextual::AlignmentDecorator::AlignmentDecorator(
     const FW::Contextual::AlignmentDecorator::Config& cfg,
@@ -35,8 +37,8 @@ FW::Contextual::AlignmentDecorator::decorate(AlgorithmContext& context)
       auto cios = m_iovStatus.size();
       ACTS_VERBOSE("New IOV detected at event " << context.eventNumber
                                                 << ", emulate new alignment.");
-      ACTS_VERBOSE(
-          "New IOV identifier set to " << iov << ", curently valid: " << cios);
+      ACTS_VERBOSE("New IOV identifier set to "
+                   << iov << ", curently valid: " << cios);
 
       for (unsigned int ic = cios; ic <= iov; ++ic) {
         m_iovStatus.push_back(false);
@@ -44,7 +46,7 @@ FW::Contextual::AlignmentDecorator::decorate(AlgorithmContext& context)
 
       // Create an algorithm local random number generator
       RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
-      GaussDist    gauss(0., 1.);
+      std::normal_distribution<double> gauss(0., 1.);
 
       // Are we in a gargabe collection event?
       for (auto& lstore : m_cfg.detectorStore) {

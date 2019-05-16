@@ -29,7 +29,6 @@ public:
 
     std::array<double, 2> gaussParameters   = {{0., 1.}};
     std::array<double, 2> uniformParameters = {{0., 1.}};
-    std::array<double, 2> landauParameters  = {{0., 1.}};
     std::array<double, 2> gammaParameters   = {{0., 1.}};
     int poissonParameter = 40;
 

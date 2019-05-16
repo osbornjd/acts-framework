@@ -11,24 +11,25 @@
 #include <cmath>
 #include <limits>
 #include <memory>
+
+#include <Acts/EventData/NeutralParameters.hpp>
+#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/Extrapolator/Navigator.hpp>
+#include <Acts/Propagator/AbortList.hpp>
+#include <Acts/Propagator/ActionList.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/detail/DebugOutputActor.hpp>
+#include <Acts/Propagator/detail/StandardAborters.hpp>
+#include <Acts/Propagator/detail/SteppingLogger.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
+#include <Acts/Utilities/Definitions.hpp>
+#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Utilities/Units.hpp>
+
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "Acts/EventData/NeutralParameters.hpp"
-#include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/Extrapolator/Navigator.hpp"
-#include "Acts/Propagator/AbortList.hpp"
-#include "Acts/Propagator/ActionList.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Propagator/detail/DebugOutputActor.hpp"
-#include "Acts/Propagator/detail/StandardAborters.hpp"
-#include "Acts/Propagator/detail/SteppingLogger.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
-#include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Utilities/Units.hpp"
 
 /// @brief this test algorithm performs test propagation
 /// within the Acts::Propagator
@@ -108,7 +109,7 @@ private:
   /// @param[in] rnd is the random engine
   /// @param[in] gauss is a gaussian distribution to draw from
   std::unique_ptr<Acts::ActsSymMatrixD<5>>
-  generateCovariance(FW::RandomEngine& rnd, FW::GaussDist& gauss) const;
+  generateCovariance(FW::RandomEngine& rnd, std::normal_distribution<double>& gauss) const;
 
   /// Templated execute test method for
   /// charged and netural particles
