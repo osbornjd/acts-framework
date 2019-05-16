@@ -15,14 +15,16 @@
 
 namespace FW {
 
-/// Interface for event processing algorithms.
+/// Event processing algorithm interface.
+///
+/// An algorithm must have no internal state and can communicate to the
+/// rest of the world only by reading and writting to the event store.
 class IAlgorithm
 {
 public:
-  /// Virtual destructor.
   virtual ~IAlgorithm() = default;
 
-  /// Provide the name of the algorithm.
+  /// The algorithm name.
   virtual std::string
   name() const = 0;
 
