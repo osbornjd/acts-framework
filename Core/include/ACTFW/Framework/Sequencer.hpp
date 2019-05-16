@@ -13,8 +13,7 @@
 #include <vector>
 
 #include <boost/optional.hpp>
-#include <tbb/task_scheduler_init.h>
-
+  
 #include <Acts/Utilities/Logger.hpp>
 
 #include "ACTFW/Framework/IAlgorithm.hpp"
@@ -39,6 +38,8 @@ public:
     Acts::Logging::Level jobStoreLogLevel = Acts::Logging::INFO;
     /// event store logging level
     Acts::Logging::Level eventStoreLogLevel = Acts::Logging::INFO;
+    /// number of threads to run in parallel, negative for automatic value
+    int numThreads = -1;
   };
 
   /// Constructor
@@ -111,7 +112,6 @@ private:
   std::vector<std::shared_ptr<IWriter>>           m_writers;
   Config                                          m_cfg;
   std::unique_ptr<const Acts::Logger>             m_logger;
-  tbb::task_scheduler_init                        m_tbb_init;
 
   const Acts::Logger&
   logger() const

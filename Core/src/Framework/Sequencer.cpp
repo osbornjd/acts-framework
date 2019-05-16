@@ -20,20 +20,18 @@
 
 FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
                          std::unique_ptr<const Acts::Logger> logger)
-  : m_cfg(cfg)
-  , m_logger(std::move(logger))
-  , m_tbb_init(tbb::task_scheduler_init::deferred)
+  : m_cfg(cfg), m_logger(std::move(logger))
 {
-  ROOT::EnableThreadSafety();
-
-  const char* num_threads_str = getenv("ACTSFW_NUM_THREADS");
-  int         num_threads;
-  if (num_threads_str) {
-    num_threads = std::stoi(num_threads_str);
-  } else {
-    num_threads = tbb::task_scheduler_init::automatic;
+  // automatically determine the number of concurrent threads to use
+  if (m_cfg.numThreads < 0) {
+    const char* numThreadsEnv = getenv("ACTSFW_NUM_THREADS");
+    if (numThreadsEnv) {
+      m_cfg.numThreads = std::stoi(numThreadsEnv);
+    } else {
+      m_cfg.numThreads = tbb::task_scheduler_init::default_num_threads();
+    }
   }
-  m_tbb_init.initialize(num_threads);
+  ROOT::EnableThreadSafety();
 }
 
 void
@@ -89,8 +87,7 @@ FW::Sequencer::addWriter(std::shared_ptr<IWriter> writer)
 int
 FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 {
-  // Print some introduction
-  ACTS_INFO("Starting event loop for");
+  ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
   ACTS_INFO("  " << m_services.size() << " services");
   ACTS_INFO("  " << m_decorators.size() << " context decorators");
   ACTS_INFO("  " << m_readers.size() << " readers");
@@ -142,7 +139,7 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
   }
 
   // Execute the event loop
-  ACTS_INFO("Run the event loop");
+  tbb::task_scheduler_init init(m_cfg.numThreads);
   tbb::parallel_for(
       tbb::blocked_range<size_t>(skip, numEvents + skip),
       [&](const tbb::blocked_range<size_t>& r) {
@@ -199,7 +196,6 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
       });
 
   // Call endRun() for writers and services
-  ACTS_INFO("Running end-of-run hooks of writers and services");
   for (auto& wrt : m_writers) {
     if (wrt->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
   }
