@@ -109,7 +109,8 @@ private:
   /// @param[in] rnd is the random engine
   /// @param[in] gauss is a gaussian distribution to draw from
   std::unique_ptr<Acts::ActsSymMatrixD<5>>
-  generateCovariance(FW::RandomEngine& rnd, std::normal_distribution<double>& gauss) const;
+  generateCovariance(FW::RandomEngine&                 rnd,
+                     std::normal_distribution<double>& gauss) const;
 
   /// Templated execute test method for
   /// charged and netural particles

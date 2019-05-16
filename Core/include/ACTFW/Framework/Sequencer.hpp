@@ -13,7 +13,7 @@
 #include <vector>
 
 #include <boost/optional.hpp>
-  
+
 #include <Acts/Utilities/Logger.hpp>
 
 #include "ACTFW/Framework/IAlgorithm.hpp"

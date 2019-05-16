@@ -13,7 +13,7 @@
 template <typename propagator_t>
 std::unique_ptr<Acts::ActsSymMatrixD<5>>
 PropagationAlgorithm<propagator_t>::generateCovariance(
-    FW::RandomEngine& rnd,
+    FW::RandomEngine&                 rnd,
     std::normal_distribution<double>& gauss) const
 {
   if (m_cfg.covarianceTransport && m_cfg.randomNumbers) {

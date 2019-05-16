@@ -135,7 +135,9 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
     // number of skipped evebts
     numEvents -= skip;
     // Check if user wants to process less events than given by the reader
-    if (events && (*events) < numEvents) { numEvents = *events; }
+    if (events && (*events) < numEvents) {
+      numEvents = *events;
+    }
   }
 
   // Execute the event loop
@@ -197,10 +199,14 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 
   // Call endRun() for writers and services
   for (auto& wrt : m_writers) {
-    if (wrt->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
+    if (wrt->endRun() != ProcessCode::SUCCESS) {
+      return EXIT_FAILURE;
+    }
   }
   for (auto& svc : m_services) {
-    if (svc->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
+    if (svc->endRun() != ProcessCode::SUCCESS) {
+      return EXIT_FAILURE;
+    }
   }
   return EXIT_SUCCESS;
 }
