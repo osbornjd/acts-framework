@@ -325,14 +325,6 @@ FW::Sequencer::run()
       return EXIT_FAILURE;
     }
   }
-  for (auto& svc : m_services) {
-    names.push_back("Service:" + svc->name() + ":endRun");
-    clocksAlgorithms.push_back(Duration::zero());
-    StopWatch sw(clocksAlgorithms.back());
-    if (svc->endRun() != ProcessCode::SUCCESS) {
-      return EXIT_FAILURE;
-    }
-  }
 
   // summarize timing
   Duration totalWall = Clock::now() - clockWallStart;

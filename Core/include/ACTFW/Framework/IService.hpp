@@ -54,15 +54,6 @@ public:
   {
     return ProcessCode::SUCCESS;
   }
-
-  /// End-of-run hook to run to be called after all events are processed.
-  ///
-  /// @deprecated Do not use for new code.
-  virtual ProcessCode
-  endRun()
-  {
-    return ProcessCode::SUCCESS;
-  }
 };
 
 }  // namespace FW
