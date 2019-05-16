@@ -15,20 +15,11 @@
 
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
-#include "ACTFW/Utilities/SimulatedVertex.hpp"
 
 namespace FW {
 
-template <class T>
-struct SimulatedParticle;
-
-/// @struct SimulatedParticle<HepMC::GenParticle>
-///
-/// This struct is an explicit implementation of FW::SimulatedParticle for the
-/// translation of HepMC::GenParticle objects into Acts.
-///
-template <>
-struct SimulatedParticle<HepMC::GenParticle>
+/// Helper struct to convert HepMC3 particles to internal format.
+struct HepMC3Particle
 {
 public:
   /// @brief Returns the particle translated into Acts
@@ -110,4 +101,5 @@ public:
   void
   mass(std::shared_ptr<HepMC::GenParticle> particle, const double mass);
 };
-}  // FW
+
+}  // namespace FW

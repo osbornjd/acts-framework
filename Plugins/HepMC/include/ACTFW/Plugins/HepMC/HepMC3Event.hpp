@@ -17,19 +17,11 @@
 
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
-#include "ACTFW/Utilities/SimulatedEvent.hpp"
-#include "ACTFW/Utilities/SimulatedParticle.hpp"
-#include "ACTFW/Utilities/SimulatedVertex.hpp"
 
 namespace FW {
 
-/// @struct SimulatedEvent<HepMC::GenEvent>
-///
-/// This struct is an explicit implementation of FW::SimulatedEvent for the
-/// translation of HepMC::GenEvent objects into Acts.
-///
-template <>
-struct SimulatedEvent<HepMC::GenEvent>
+/// Helper struct to convert HepMC3 event to the internal format.
+struct HepMC3Event
 {
 public:
   ///
@@ -201,4 +193,4 @@ private:
   compareVertices(const std::shared_ptr<Data::SimVertex<>>& actsVertex,
                   const HepMC::GenVertexPtr&                genVertex);
 };
-}  // FW
+}  // namespace FW

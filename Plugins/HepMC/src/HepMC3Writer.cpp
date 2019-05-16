@@ -9,9 +9,8 @@
 #include "ACTFW/Plugins/HepMC/HepMC3Writer.hpp"
 
 bool
-FW::SimulatedWriter<HepMC::WriterAscii, HepMC::GenEvent>::writeEvent(
-    HepMC::WriterAscii&              writer,
-    std::shared_ptr<HepMC::GenEvent> event)
+FW::HepMC3WriterAscii::writeEvent(HepMC::WriterAscii&              writer,
+                                  std::shared_ptr<HepMC::GenEvent> event)
 {
   // Write event from storage
   writer.write_event(*event);
@@ -19,8 +18,7 @@ FW::SimulatedWriter<HepMC::WriterAscii, HepMC::GenEvent>::writeEvent(
 }
 
 bool
-FW::SimulatedWriter<HepMC::WriterAscii, HepMC::GenEvent>::status(
-    HepMC::WriterAscii& writer)
+FW::HepMC3WriterAscii::status(HepMC::WriterAscii& writer)
 {
   return writer.failed();
 }

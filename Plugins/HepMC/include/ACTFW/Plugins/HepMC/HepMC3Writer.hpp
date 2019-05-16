@@ -11,21 +11,10 @@
 #include <HepMC/GenEvent.h>
 #include <HepMC/WriterAscii.h>
 
-#include "ACTFW/Utilities/SimulatedWriter.hpp"
-
 namespace FW {
 
-template <class W, class E>
-struct SimulatedWriter;
-
-/// @struct SimulatedWriter<HepMC::WriterAscii, HepMC::GenEvent>
-///
-/// This structure is the explicit structure to write runs in HepMC
-/// datatypes. It allows calling the functions that always handle primitive or
-/// Acts data types.
-///
-template <>
-struct SimulatedWriter<HepMC::WriterAscii, HepMC::GenEvent>
+/// HepMC3 event writer.
+struct HepMC3WriterAscii
 {
 public:
   /// @brief Writes an event to file
@@ -44,4 +33,4 @@ public:
   bool
   status(HepMC::WriterAscii& writer);
 };
-}  // FW
+}  // namespace FW
