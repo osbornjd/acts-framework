@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Acts/Utilities/Logger.hpp"
+#include <Acts/Utilities/Logger.hpp>
 
 namespace FW {
 

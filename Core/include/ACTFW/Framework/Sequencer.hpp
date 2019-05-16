@@ -15,13 +15,14 @@
 #include <boost/optional.hpp>
 #include <tbb/task_scheduler_init.h>
 
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/IAlgorithm.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/IWriter.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 
