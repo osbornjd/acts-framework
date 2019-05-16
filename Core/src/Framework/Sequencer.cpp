@@ -6,13 +6,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "ACTFW/Framework/Sequencer.hpp"
+
 #include <algorithm>
+#include <cstdlib>
 #include <exception>
 
+#include <TROOT.h>
 #include <tbb/tbb.h>
 
-#include <TROOT.h>
-#include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
 FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
@@ -83,7 +86,7 @@ FW::Sequencer::addWriter(std::shared_ptr<IWriter> writer)
   ACTS_INFO("Added writer '" << m_writers.back()->name() << "'");
 }
 
-FW::ProcessCode
+int
 FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 {
   // Print some introduction
@@ -111,13 +114,13 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
     if (skip != 0) {
       ACTS_ERROR(
           "Number of skipped events given although no readers present. Abort");
-      return ProcessCode::ABORT;
+      return EXIT_FAILURE;
     }
     // Number of events is not given by readers, in this case the parameter
     // 'events' must be specified - Abort, if this is not the case
     if (!events) {
       ACTS_ERROR("Number of events not specified. Abort");
-      return ProcessCode::ABORT;
+      return EXIT_FAILURE;
     }
     // 'events' is specified, set 'numEvents'
     numEvents = *events;
@@ -129,13 +132,13 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
     if (skip > numEvents) {
       ACTS_ERROR("Number of events to be skipped > than total number of "
                  "events. Abort");
-      return ProcessCode::ABORT;
+      return EXIT_FAILURE;
     }
     // The total number of events is the maximum number of events minus the
     // number of skipped evebts
     numEvents -= skip;
     // Check if user wants to process less events than given by the reader
-    if (events && (*events) < numEvents) numEvents = *events;
+    if (events && (*events) < numEvents) { numEvents = *events; }
   }
 
   // Execute the event loop
@@ -168,23 +171,27 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 
           /// Decorate the context
           for (auto& cdr : m_decorators) {
-            if (cdr->decorate(context) != ProcessCode::SUCCESS)
+            if (cdr->decorate(context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to decorate event context");
+            }
           }
           // Read everything in
           for (auto& rdr : m_readers) {
-            if (rdr->read(++context) != ProcessCode::SUCCESS)
+            if (rdr->read(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to read input data");
+            }
           }
           // Process all algorithms
           for (auto& alg : m_algorithms) {
-            if (alg->execute(++context) != ProcessCode::SUCCESS)
+            if (alg->execute(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to process event data");
+            }
           }
           // Write out results
           for (auto& wrt : m_writers) {
-            if (wrt->write(++context) != ProcessCode::SUCCESS)
+            if (wrt->write(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to write output data");
+            }
           }
 
           ACTS_INFO("event " << event << " done");
@@ -193,9 +200,11 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 
   // Call endRun() for writers and services
   ACTS_INFO("Running end-of-run hooks of writers and services");
-  for (auto& wrt : m_writers)
-    if (wrt->endRun() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& svc : m_services)
-    if (svc->endRun() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  return ProcessCode::SUCCESS;
+  for (auto& wrt : m_writers) {
+    if (wrt->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
+  }
+  for (auto& svc : m_services) {
+    if (svc->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
+  }
+  return EXIT_SUCCESS;
 }

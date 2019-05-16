@@ -85,6 +85,5 @@ main(int argc, char* argv[])
         std::make_shared<Root::RootParticleWriter>(rootWriterCfg, logLevel));
   }
 
-  return (sequencer.run(numEvents) == ProcessCode::SUCCESS) ? EXIT_SUCCESS
-                                                            : EXIT_FAILURE;
+  return sequencer.run(numEvents);
 }

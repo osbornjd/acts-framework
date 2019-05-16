@@ -63,7 +63,5 @@ main(int argc, char* argv[])
   sequencer.addAlgorithm(wBoardRead);
 
   // Run the event loop
-  sequencer.run(nEvents);
-
-  return 0;
+  return sequencer.run(nEvents);
 }

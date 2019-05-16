@@ -22,7 +22,6 @@
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/IWriter.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace FW {
 
@@ -77,16 +76,31 @@ public:
 
   /// Run the event loop over the given number of events.
   ///
-  /// @param events (optional) Number of events to process
-  /// @note This parameter is optional when input is read from a file. In this
-  /// scenario, leaving it unset will process events until the end of the file,
-  /// and setting it will put an upper bound on the number of events to be
-  /// processed.
+  /// @param events Number of events to process
   /// @param skip Number of events to skip before processing
+  /// @return status code compatible with the `main()` return code
+  /// @returns EXIT_SUCCESS when everying worked without problems
+  /// @returns EXIT_FAILURE if something went wrong
   ///
-  /// This will run all configured algorithms for each event, potentially in
-  /// parallel, then invoke the endRun hook of writers and services.
-  ProcessCode
+  /// @note If the number of events to process are not given, the sequencer
+  /// will process events until the first reader signals the end-of-file. If
+  /// given, it sets an upper bound.
+  ///
+  /// This function is intended to be run as the last thing in the tool
+  /// main function and its return value can be used directly as the program
+  /// return value, i.e.
+  ///
+  ///     int main(int argc, char* argv[])
+  ///     {
+  ///         Sequencer seq;
+  ///         ... // set up the algorithms
+  ///         return seq.run(...);
+  ///     }
+  ///
+  /// This will run the start-of-run hook for all configured services, run all
+  /// configured readers, algorithms, and writers for each event, then invoke
+  /// the enf-of-run hook of writers and services.
+  int
   run(boost::optional<size_t> events, size_t skip = 0);
 
 private:

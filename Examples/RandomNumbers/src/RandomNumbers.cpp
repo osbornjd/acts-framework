@@ -68,7 +68,5 @@ main(int argc, char* argv[])
   FW::Sequencer sequencer(seqConfig);
   sequencer.addService(randomNumbers);
   sequencer.addAlgorithm(rNumbers);
-  sequencer.run(nEvents);
-
-  return 0;
+  return sequencer.run(nEvents);
 }

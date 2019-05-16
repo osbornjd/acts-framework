@@ -133,5 +133,5 @@ main(int argc, char* argv[])
   mappingSequencer.addService(mtrWriter);
   mappingSequencer.addService(imaterialWriter);
   mappingSequencer.addAlgorithm(materialMappingAlg);
-  mappingSequencer.run(nEvents);
+  return mappingSequencer.run(nEvents);
 }

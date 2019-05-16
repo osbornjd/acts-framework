@@ -245,8 +245,5 @@ propagationExample(int               argc,
         std::make_shared<ObjPropagationStepsWriter>(pstepWriterObjConfig));
   }
 
-  // Initiate the run
-  sequencer.run(nEvents);
-  // Return success code
-  return 0;
+  return sequencer.run(nEvents);
 }

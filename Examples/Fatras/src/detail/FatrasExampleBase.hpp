@@ -140,8 +140,5 @@ fatrasExample(int               argc,
 
   // (E) PATTERN RECOGNITION
 
-  // Initiate the run
-  sequencer.run(nEvents);
-  // Return 0 for success
-  return 0;
+  return sequencer.run(nEvents);
 }

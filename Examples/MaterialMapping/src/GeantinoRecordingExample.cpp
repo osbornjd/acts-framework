@@ -96,5 +96,5 @@ main(int argc, char* argv[])
   // the writer is a service as it needs initialize, finalize
   g4Sequencer.addService(g4TrackRecWriter);
   g4Sequencer.addAlgorithm(g4rAlgorithm);
-  g4Sequencer.run(nEvents);
+  return g4Sequencer.run(nEvents);
 }
