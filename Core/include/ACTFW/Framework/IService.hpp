@@ -15,31 +15,49 @@
 
 #include <string>
 
+#include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace FW {
 
-/// Interface for common services.
+class WhiteBoard;
+
+/// Interface for services.
 ///
-/// @warning Use of this interface is **DEPRECATED**. Its only remaining use
-///          case is to support legacy writers based on the IWriterT subclass,
-///          which should eventually be turned into descendents of the
-///          IWriter/WriterT classes. At this point, IService will be removed.
-///
-/// @todo Remove once all writers have been migrated to IWriter and WriterT
-///
+/// A service should be used to provide constant or slowly changing
+/// per-event information, e.g. alignment, and to handle once-per-run tasks.
+/// In contrast to an `IAlgorithm` it can have internal state.
 class IService
 {
 public:
-  /// Virtual Destructor
+  /// Virtual destructor.
   virtual ~IService() = default;
 
-  /// Framework name() method
+  /// Provide the name of the service.
   virtual std::string
   name() const = 0;
 
-  /// Interface hook to run some code to be executed once all events of a job
-  /// have been processed, typically used for commiting writes to a file
+  /// Start-of-run hook to be called before any events are processed.
+  virtual ProcessCode
+  startRun()
+  {
+    return ProcessCode::SUCCESS;
+  }
+
+  /// Prepare per-event information.
+  ///
+  /// This is intended to add already existing information, e.g. geometry
+  /// or conditions data, to the event store. While possible, complex
+  /// operations should be better implemented as an `IAlgorithm`.
+  virtual ProcessCode
+  prepare(AlgorithmContext& ctx)
+  {
+    return ProcessCode::SUCCESS;
+  }
+
+  /// End-of-run hook to run to be called after all events are processed.
+  ///
+  /// @deprecated Do not use for new code.
   virtual ProcessCode
   endRun()
   {
