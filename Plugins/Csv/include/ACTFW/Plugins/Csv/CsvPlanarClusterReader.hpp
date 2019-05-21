@@ -67,7 +67,7 @@ namespace Csv {
 
     /// Read out data from the input stream
     ProcessCode
-    read(FW::AlgorithmContext ctx) final override;
+    read(const FW::AlgorithmContext& ctx) final override;
 
     /// Return the number of events
     virtual size_t

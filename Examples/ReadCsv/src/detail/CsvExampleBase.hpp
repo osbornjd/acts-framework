@@ -16,59 +16,58 @@
 #include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleReader.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvReaderOptions.hpp"
+#include "ACTFW/Utilities/Options.hpp"
 
 namespace po = boost::program_options;
 
 /// @brief The ReadCsv example
 ///
-/// @tparam geometry_getter_t Type of the geometry getter struct
+/// @tparam options_setup_t are the callable example options
+/// @tparam geometry_setup_t Type of the geometry getter struct
 ///
 /// @param argc the number of argumetns of the call
-/// @param aegv the argument list
-template <typename geometry_options_t, typename geometry_getter_t>
+/// @param argv the argument list
+/// @param optionsSetup is a callable options struct
+/// @param geometrySetup is a callable geometry getter
+template <typename options_setup_t, typename geometry_setup_t>
 int
-CsvExample(int                argc,
-           char*              argv[],
-           geometry_options_t geometryOptions,
-           geometry_getter_t  trackingGeometry)
+CsvExample(int               argc,
+           char*             argv[],
+           options_setup_t&  optionsSetup,
+           geometry_setup_t& geometrySetup)
+
 {
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
-  // Now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-  // Add the Common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Add options for the Csv reading
-  FW::Options::addCsvReaderOptions<po::options_description>(desc);
-  // Add the geometry options
-  FW::Options::addGeometryOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
-  // Add specific options for this geometry
-  geometryOptions(desc);
+  // setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  FW::Options::addGeometryOptions(desc);
+  FW::Options::addCsvReaderOptions(desc);
+  FW::Options::addOutputOptions(desc);
 
-  // Map to store the given program options
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // Print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
+  optionsSetup(desc);
+  auto vm = FW::Options::parse(desc, argc, argv);
+  if (vm.empty()) {
+    return EXIT_FAILURE;
   }
-  // Read the common options : number of events and log level
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
-  // Get the tracking geometry
-  auto tGeometry = trackingGeometry(vm);
+  FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
+
+  // Now read the standard options
+  auto logLevel          = FW::Options::readLogLevel(vm);
+  auto nEvents           = FW::Options::readSequencerConfig(vm).events;
+  auto geometry          = geometrySetup(vm);
+  auto tGeometry         = geometry.first;
+  auto contextDecorators = geometry.second;
+
+  // Add it to the sequencer
+  for (auto cdr : contextDecorators) {
+    sequencer.addContextDecorator(cdr);
+  }
 
   // Input directory
   std::string inputDir = vm["input-dir"].as<std::string>();
@@ -86,18 +85,16 @@ CsvExample(int                argc,
       = vm["output-plCluster-collection"].as<std::string>();
 
   // Read particles as CSV files
-  std::shared_ptr<FW::Csv::CsvParticleReader> particleCsvReader = nullptr;
   if (vm["read-particle-csv"].as<bool>()) {
     FW::Csv::CsvParticleReader::Config particleCsvReaderConfig;
     particleCsvReaderConfig.inputDir      = inputDir;
     particleCsvReaderConfig.inputFileName = inputParticlesFile + ".csv";
     particleCsvReaderConfig.outputParticleCollection = outputParticleCollection;
-    particleCsvReader = std::make_shared<FW::Csv::CsvParticleReader>(
-        particleCsvReaderConfig, logLevel);
+    sequencer.addReader(std::make_shared<FW::Csv::CsvParticleReader>(
+        particleCsvReaderConfig, logLevel));
   }
 
   // Read clusters as CSV files
-  std::shared_ptr<FW::Csv::CsvPlanarClusterReader> plCsvReader = nullptr;
   if (vm["read-plCluster-csv"].as<bool>()) {
     FW::Csv::CsvPlanarClusterReader::Config plCsvReaderConfig;
     plCsvReaderConfig.tGeometry               = tGeometry;
@@ -106,30 +103,9 @@ CsvExample(int                argc,
     plCsvReaderConfig.inputDetailsFileName    = inputDetailsFileName + ".csv";
     plCsvReaderConfig.inputTruthFileName      = inputTruthFileName + ".csv";
     plCsvReaderConfig.outputClusterCollection = outputClusterCollection;
-    plCsvReader = std::make_shared<FW::Csv::CsvPlanarClusterReader>(
-        plCsvReaderConfig, logLevel);
+    sequencer.addReader(std::make_shared<FW::Csv::CsvPlanarClusterReader>(
+        plCsvReaderConfig, logLevel));
   }
 
-  // Output Csv directory
-  std::string outputDir = vm["output-dir"].template as<std::string>();
-
-  // Write back CsvPlanarClusterReader output as Csv files
-  std::shared_ptr<FW::Csv::CsvPlanarClusterWriter> plCsvWriter = nullptr;
-  if (vm["output-csv"].template as<bool>()) {
-    FW::Csv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
-    clusterWriterCsvConfig.collection = outputClusterCollection;
-    clusterWriterCsvConfig.outputDir  = outputDir;
-    plCsvWriter = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(
-        clusterWriterCsvConfig);
-  }
-
-  // Initiate the run
-  if (particleCsvReader) sequencer.addReaders({particleCsvReader});
-  if (plCsvReader) sequencer.addReaders({plCsvReader});
-  if (plCsvWriter) sequencer.addWriters({plCsvWriter});
-  sequencer.appendEventAlgorithms({});
-  sequencer.run(nEvents);
-
-  // Return 0 for success
-  return 0;
+  return sequencer.run();
 }
