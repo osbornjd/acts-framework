@@ -34,7 +34,7 @@ FW::Csv::CsvParticleReader::skip(size_t nEvents)
 }
 
 FW::ProcessCode
-FW::Csv::CsvParticleReader::read(FW::AlgorithmContext ctx)
+FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 {
   std::string pathIs
       = perEventFilepath(m_cfg.inputDir, m_cfg.inputFileName, ctx.eventNumber);
@@ -81,10 +81,7 @@ FW::Csv::CsvParticleReader::read(FW::AlgorithmContext ctx)
   }
 
   // write the truth particles to the EventStore
-  if (ctx.eventStore.add(m_cfg.outputParticleCollection, std::move(particles))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  ctx.eventStore.add(m_cfg.outputParticleCollection, std::move(particles));
 
   return ProcessCode::SUCCESS;
 }

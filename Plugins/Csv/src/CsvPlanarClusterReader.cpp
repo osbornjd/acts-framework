@@ -48,7 +48,7 @@ FW::Csv::CsvPlanarClusterReader::skip(size_t nEvents)
 }
 
 FW::ProcessCode
-FW::Csv::CsvPlanarClusterReader::read(FW::AlgorithmContext ctx)
+FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 {
 
   // Prepare the output data: Clusters
@@ -131,7 +131,7 @@ FW::Csv::CsvPlanarClusterReader::read(FW::AlgorithmContext ctx)
         std::stof(hitVal[1]), std::stof(hitVal[2]), std::stof(hitVal[3]));
     Acts::Vector2D local(0, 0);
     Acts::Vector3D mom(1, 1, 1);
-    hitSurface->globalToLocal(pos, mom, local);
+    hitSurface->globalToLocal(ctx.geoContext, pos, mom, local);
 
     Acts::ActsSymMatrixD<2> cov;
     cov << 0., 0., 0., 0.;
@@ -218,11 +218,7 @@ FW::Csv::CsvPlanarClusterReader::read(FW::AlgorithmContext ctx)
   }
 
   // write the clusters to the EventStore
-  if (ctx.eventStore.add(m_cfg.outputClusterCollection,
-                         std::move(planarClusters))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  ctx.eventStore.add(m_cfg.outputClusterCollection, std::move(planarClusters));
 
   return FW::ProcessCode::SUCCESS;
 }
