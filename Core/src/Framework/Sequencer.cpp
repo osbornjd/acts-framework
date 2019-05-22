@@ -208,7 +208,9 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
   // processing only works w/ a well-known number of events
   // error message are handled by helper function
   auto endEvent = determineEndEvent(events, skip);
-  if (not endEvent) { return EXIT_FAILURE; }
+  if (not endEvent) {
+    return EXIT_FAILURE;
+  }
 
   ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
   ACTS_INFO("  " << m_services.size() << " services");
@@ -277,10 +279,14 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
 
   // Call endRun() for writers and services
   for (auto& wrt : m_writers) {
-    if (wrt->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
+    if (wrt->endRun() != ProcessCode::SUCCESS) {
+      return EXIT_FAILURE;
+    }
   }
   for (auto& svc : m_services) {
-    if (svc->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
+    if (svc->endRun() != ProcessCode::SUCCESS) {
+      return EXIT_FAILURE;
+    }
   }
 
   // summarize processing timing
