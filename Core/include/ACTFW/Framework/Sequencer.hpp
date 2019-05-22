@@ -104,6 +104,9 @@ public:
   run(std::optional<size_t> events, size_t skip = 0);
 
 private:
+  /// List of all configured algorithm names.
+  std::vector<std::string>
+  listAlgorithmNames() const;
   /// Determine end event number to be processed (number of last valid one).
   std::optional<size_t>
   determineEndEvent(std::optional<size_t> requested, size_t skip) const;

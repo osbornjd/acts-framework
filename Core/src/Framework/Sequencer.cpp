@@ -84,18 +84,27 @@ FW::Sequencer::addWriter(std::shared_ptr<IWriter> writer)
   ACTS_INFO("Added writer '" << m_writers.back()->name() << "'");
 }
 
-int
-FW::Sequencer::run(std::optional<size_t> events, size_t skip)
+std::vector<std::string>
+FW::Sequencer::listAlgorithmNames() const
 {
-  ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
-  ACTS_INFO("  " << m_services.size() << " services");
-  ACTS_INFO("  " << m_decorators.size() << " context decorators");
-  ACTS_INFO("  " << m_readers.size() << " readers");
-  ACTS_INFO("  " << m_algorithms.size() << " algorithms");
-  ACTS_INFO("  " << m_writers.size() << " writers");
+  std::vector<std::string> names;
 
-  // The number of events to be processed
-  size_t numEvents = 0;
+  // WARNING this must be done in the same order as in the processing
+  for (const auto& decorator : m_decorators) {
+    names.push_back("decorator:" + decorator->name());
+  }
+  for (const auto& reader : m_readers) {
+    names.push_back("reader:" + reader->name());
+  }
+  for (const auto& algorithm : m_algorithms) {
+    names.push_back("algorithm:" + algorithm->name());
+  }
+  for (const auto& writer : m_writers) {
+    names.push_back("writer:" + writer->name());
+  }
+
+  return names;
+}
 
 std::optional<size_t>
 FW::Sequencer::determineEndEvent(std::optional<size_t> requested,
@@ -159,6 +168,8 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
   ACTS_INFO("  " << m_readers.size() << " readers");
   ACTS_INFO("  " << m_algorithms.size() << " algorithms");
   ACTS_INFO("  " << m_writers.size() << " writers");
+
+  std::vector<std::string> names = listAlgorithmNames();
 
   // Execute the event loop
   tbb::task_scheduler_init init(m_cfg.numThreads);
