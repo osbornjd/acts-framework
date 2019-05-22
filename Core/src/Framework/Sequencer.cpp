@@ -180,26 +180,13 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
           // Use per-event store
           WhiteBoard eventStore(Acts::getDefaultLogger(
               "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
-
-          // This makes sure that each algorithm can have it's own
-          // view of the algorithm context, e.g. for random number
-          // initialization
-          //
           // If we ever wanted to run algorithms in parallel, this needs to be
-          // changed
-          // to Algorithm context copies
-          size_t ialg = 0;
-
-          // Create the Algorithm context
-          //
-          // If we ever wanted to run algorithms in parallel, this needs to be
-          // changed
-          // to Algorithm context copies
-          AlgorithmContext context(ialg++, event, eventStore);
+          // changed to Algorithm context copies
+          AlgorithmContext context(0, event, eventStore);
 
           /// Decorate the context
           for (auto& cdr : m_decorators) {
-            if (cdr->decorate(context) != ProcessCode::SUCCESS) {
+            if (cdr->decorate(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to decorate event context");
             }
           }
@@ -221,21 +208,16 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
               throw std::runtime_error("Failed to write output data");
             }
           }
-
-          ACTS_INFO("event " << event << " done");
+          ACTS_INFO("finished event " << event);
         }
       });
 
   // Call endRun() for writers and services
   for (auto& wrt : m_writers) {
-    if (wrt->endRun() != ProcessCode::SUCCESS) {
-      return EXIT_FAILURE;
-    }
+    if (wrt->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
   }
   for (auto& svc : m_services) {
-    if (svc->endRun() != ProcessCode::SUCCESS) {
-      return EXIT_FAILURE;
-    }
+    if (svc->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
   }
   return EXIT_SUCCESS;
 }
