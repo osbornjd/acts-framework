@@ -85,7 +85,7 @@ FW::Sequencer::addWriter(std::shared_ptr<IWriter> writer)
 }
 
 int
-FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
+FW::Sequencer::run(std::optional<size_t> events, size_t skip)
 {
   ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
   ACTS_INFO("  " << m_services.size() << " services");

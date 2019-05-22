@@ -9,10 +9,9 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
-
-#include <boost/optional.hpp>
 
 #include <Acts/Utilities/Logger.hpp>
 
@@ -102,7 +101,7 @@ public:
   /// configured readers, algorithms, and writers for each event, then invoke
   /// the enf-of-run hook of writers and services.
   int
-  run(boost::optional<size_t> events, size_t skip = 0);
+  run(std::optional<size_t> events, size_t skip = 0);
 
 private:
   std::vector<std::shared_ptr<IService>>          m_services;
