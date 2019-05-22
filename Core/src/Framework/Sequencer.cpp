@@ -9,8 +9,10 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <cstdlib>
 #include <exception>
+#include <valarray>
 
 #include <TROOT.h>
 #include <tbb/tbb.h>
@@ -154,9 +156,55 @@ FW::Sequencer::determineEndEvent(std::optional<size_t> requested,
   }
 }
 
+// helpers for per-algorithm performance counters
+namespace {
+using Clock       = std::chrono::high_resolution_clock;
+using Duration    = Clock::duration;
+using Timepoint   = Clock::time_point;
+using NanoSeconds = std::chrono::duration<double, std::nano>;
+
+// RAII-based stopwatch to time execution within a block
+struct StopWatch
+{
+  Timepoint start;
+  Duration& store;
+
+  StopWatch(Duration& s) : start(Clock::now()), store(s) {}
+  ~StopWatch() { store += Clock::now() - start; }
+};
+
+// Convert duration to a printable string w/ reasonable unit.
+template <typename D>
+inline std::string
+asString(D duration)
+{
+  double ns = std::chrono::duration_cast<NanoSeconds>(duration).count();
+  if (1e9 < std::abs(ns)) {
+    return std::to_string(ns / 1e9) + " s";
+  } else if (1e6 < std::abs(ns)) {
+    return std::to_string(ns / 1e6) + " ms";
+  } else if (1e3 < std::abs(ns)) {
+    return std::to_string(ns / 1e3) + " us";
+  } else {
+    return std::to_string(ns) + " ns";
+  }
+}
+// Convert duration scaled to one event to a printable string.
+template <typename D>
+inline std::string
+perEvent(D duration, size_t numEvents)
+{
+  return asString(duration / numEvents) + "/event";
+}
+
+}  // namespace
+
 int
 FW::Sequencer::run(std::optional<size_t> events, size_t skip)
 {
+  // measure overall wall clock
+  Timepoint clockWallStart = Clock::now();
+
   // processing only works w/ a well-known number of events
   // error message are handled by helper function
   auto endEvent = determineEndEvent(events, skip);
@@ -170,12 +218,16 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
   ACTS_INFO("  " << m_writers.size() << " writers");
 
   std::vector<std::string> names = listAlgorithmNames();
+  std::valarray<Duration>  clocksAlgorithms(names.size());
+  tbb::queuing_mutex       clocksAlgorithmsMutex;
 
   // Execute the event loop
   tbb::task_scheduler_init init(m_cfg.numThreads);
   tbb::parallel_for(
       tbb::blocked_range<size_t>(skip, endEvent.value() + 1),
       [&](const tbb::blocked_range<size_t>& r) {
+        std::valarray<Duration> localClocksAlgorithms(names.size());
+
         for (size_t event = r.begin(); event != r.end(); ++event) {
           // Use per-event store
           WhiteBoard eventStore(Acts::getDefaultLogger(
@@ -183,32 +235,43 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
           // If we ever wanted to run algorithms in parallel, this needs to be
           // changed to Algorithm context copies
           AlgorithmContext context(0, event, eventStore);
+          size_t           ialgo = 0;
 
           /// Decorate the context
           for (auto& cdr : m_decorators) {
+            StopWatch sw(localClocksAlgorithms[ialgo++]);
             if (cdr->decorate(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to decorate event context");
             }
           }
           // Read everything in
           for (auto& rdr : m_readers) {
+            StopWatch sw(localClocksAlgorithms[ialgo++]);
             if (rdr->read(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to read input data");
             }
           }
           // Process all algorithms
           for (auto& alg : m_algorithms) {
+            StopWatch sw(localClocksAlgorithms[ialgo++]);
             if (alg->execute(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to process event data");
             }
           }
           // Write out results
           for (auto& wrt : m_writers) {
+            StopWatch sw(localClocksAlgorithms[ialgo++]);
             if (wrt->write(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to write output data");
             }
           }
           ACTS_INFO("finished event " << event);
+        }
+
+        // add timing info to global information
+        {
+          tbb::queuing_mutex::scoped_lock lock(clocksAlgorithmsMutex);
+          clocksAlgorithms += localClocksAlgorithms;
         }
       });
 
@@ -219,5 +282,19 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
   for (auto& svc : m_services) {
     if (svc->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
   }
+
+  // summarize processing timing
+  size_t   numEvents = endEvent.value() - skip;
+  Duration clockWall = Clock::now() - clockWallStart;
+  ACTS_INFO("Processed " << numEvents << " in " << asString(clockWall)
+                         << " (wall clock)");
+  ACTS_INFO("Average combined time is "
+            << perEvent(clocksAlgorithms.sum(), numEvents));
+  ACTS_INFO("Average time per algorithm");
+  for (size_t i = 0; i < names.size(); ++i) {
+    ACTS_INFO("  " << names[i] << ": "
+                   << perEvent(clocksAlgorithms[i], numEvents));
+  }
+
   return EXIT_SUCCESS;
 }
