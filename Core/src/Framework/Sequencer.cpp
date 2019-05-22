@@ -97,58 +97,76 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
   // The number of events to be processed
   size_t numEvents = 0;
 
+std::optional<size_t>
+FW::Sequencer::determineEndEvent(std::optional<size_t> requested,
+                                 size_t                skip) const
+{
   // There are two possibilities how the event loop can be steered
-  // 1) By the number of given events
-  // 2) By the number of events given by the readers
-  // Calulate minimum and maximum of events to be read in
-  auto min = std::min_element(
+  // 1) By the number of requested events
+  // 2) By the number of events available in the readers
+
+  auto shortestReader = std::min_element(
       m_readers.begin(), m_readers.end(), [](const auto& a, const auto& b) {
         return (a->numEvents() < b->numEvents());
       });
-  // Check if number of events is given by the reader(s)
-  if (min == m_readers.end()) {
-    // 1) In case there are no readers, no event should be skipped
-    if (skip != 0) {
-      ACTS_ERROR(
-          "Number of skipped events given although no readers present. Abort");
-      return EXIT_FAILURE;
+
+  if (shortestReader != m_readers.end()) {
+    // at least one reader is available and there is a maximum number of events
+    size_t endOnFile = (*shortestReader)->numEvents();
+    if (endOnFile <= skip) {
+      // trying to skip too many events is an error
+      ACTS_ERROR("Number of skipped events > than available number of events");
+      return std::optional<size_t>();
+    } else if (not requested) {
+      // without explicit limit, process all events on file after skipping
+      return std::make_optional(endOnFile);
+    } else {
+      // with explicit limit, take the smallest value
+      size_t endRequested = skip + requested.value();
+      if (endOnFile < endRequested) {
+        ACTS_INFO("Restrict number of events to available events");
+        return std::make_optional(endOnFile);
+      } else {
+        return std::make_optional(endRequested);
+      }
     }
-    // Number of events is not given by readers, in this case the parameter
-    // 'events' must be specified - Abort, if this is not the case
-    if (!events) {
-      ACTS_ERROR("Number of events not specified. Abort");
-      return EXIT_FAILURE;
-    }
-    // 'events' is specified, set 'numEvents'
-    numEvents = *events;
   } else {
-    // 2) Number of events given by reader(s)
-    numEvents = ((*min)->numEvents());
-    // Check if the number of skipped events is smaller then the overall number
-    // if events
-    if (skip > numEvents) {
-      ACTS_ERROR("Number of events to be skipped > than total number of "
-                 "events. Abort");
-      return EXIT_FAILURE;
-    }
-    // The total number of events is the maximum number of events minus the
-    // number of skipped evebts
-    numEvents -= skip;
-    // Check if user wants to process less events than given by the reader
-    if (events && (*events) < numEvents) {
-      numEvents = *events;
+    // no readers configure, number of events must be manually specified
+    if (skip != 0) {
+      // without readers, skipping has no meaning
+      ACTS_ERROR("Can not skip events without configured readers");
+      return std::optional<size_t>();
+    } else if (not requested) {
+      ACTS_ERROR("Missing number of events without configured readers");
+      return std::optional<size_t>();
+    } else {
+      return std::make_optional(requested.value());
     }
   }
+}
+
+int
+FW::Sequencer::run(std::optional<size_t> events, size_t skip)
+{
+  // processing only works w/ a well-known number of events
+  // error message are handled by helper function
+  auto endEvent = determineEndEvent(events, skip);
+  if (not endEvent) { return EXIT_FAILURE; }
+
+  ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
+  ACTS_INFO("  " << m_services.size() << " services");
+  ACTS_INFO("  " << m_decorators.size() << " context decorators");
+  ACTS_INFO("  " << m_readers.size() << " readers");
+  ACTS_INFO("  " << m_algorithms.size() << " algorithms");
+  ACTS_INFO("  " << m_writers.size() << " writers");
 
   // Execute the event loop
   tbb::task_scheduler_init init(m_cfg.numThreads);
   tbb::parallel_for(
-      tbb::blocked_range<size_t>(skip, numEvents + skip),
+      tbb::blocked_range<size_t>(skip, endEvent.value() + 1),
       [&](const tbb::blocked_range<size_t>& r) {
         for (size_t event = r.begin(); event != r.end(); ++event) {
-          ACTS_INFO("start event " << event);
-
-          // Setup the event and algorithm context
+          // Use per-event store
           WhiteBoard eventStore(Acts::getDefaultLogger(
               "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
 

@@ -104,6 +104,10 @@ public:
   run(std::optional<size_t> events, size_t skip = 0);
 
 private:
+  /// Determine end event number to be processed (number of last valid one).
+  std::optional<size_t>
+  determineEndEvent(std::optional<size_t> requested, size_t skip) const;
+
   std::vector<std::shared_ptr<IService>>          m_services;
   std::vector<std::shared_ptr<IContextDecorator>> m_decorators;
   std::vector<std::shared_ptr<IReader>>           m_readers;
