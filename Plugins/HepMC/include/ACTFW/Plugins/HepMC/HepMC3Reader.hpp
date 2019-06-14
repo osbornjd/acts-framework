@@ -8,23 +8,13 @@
 
 #pragma once
 
-#include "ACTFW/Utilities/SimulatedReader.hpp"
-#include "HepMC/GenEvent.h"
-#include "HepMC/ReaderAscii.h"
+#include <HepMC/GenEvent.h>
+#include <HepMC/ReaderAscii.h>
 
 namespace FW {
 
-template <class R, class E>
-struct SimulatedReader;
-
-/// @struct SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>
-///
-/// This structure is the explicit structure to read runs from HepMC
-/// datatypes. It allows calling the functions that always handle primitive or
-/// Acts data types.
-///
-template <>
-struct SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>
+/// HepMC3 event reader.
+struct HepMC3ReaderAscii
 {
 public:
   /// @brief Reads an event from file
@@ -40,4 +30,4 @@ public:
   bool
   status(HepMC::ReaderAscii& reader);
 };
-}  // FW
+}  // namespace FW

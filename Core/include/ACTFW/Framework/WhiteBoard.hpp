@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,15 +8,15 @@
 
 #pragma once
 
-#include <map>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <typeinfo>
+#include <unordered_map>
 #include <vector>
 
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/Utilities/Logger.hpp"
+#include <Acts/Utilities/Logger.hpp>
 
 namespace FW {
 
@@ -40,21 +40,21 @@ public:
 
   /// Store an object on the white board and transfer ownership.
   ///
-  /// @param name Identifier to store it under
+  /// @param name Non-empty identifier to store it under
   /// @param object Movable reference to the transferable object
-  /// @returns ProcessCode::SUCCESS if the object was stored successfully
+  /// @throws std::invalid_argument on empty or duplicate name
   template <typename T>
-  ProcessCode
+  void
   add(const std::string& name, T&& object);
 
   /// Get access to a stored object.
   ///
   /// @param[in] name Identifier for the object
-  /// @param[out] object A pointer to the object or nullptr on error
-  /// @returns ProcessCode::SUCCESS if the object was found
+  /// @return reference to the stored object
+  /// @throws std::out_of_range if no object is stored under the requested name
   template <typename T>
-  ProcessCode
-  get(const std::string& name, const T*& object) const;
+  const T&
+  get(const std::string& name) const;
 
 private:
   // type-erased value holder for move-constructible types
@@ -80,7 +80,7 @@ private:
   };
 
   std::unique_ptr<const Acts::Logger> m_logger;
-  std::map<std::string, std::unique_ptr<IHolder>> m_store;
+  std::unordered_map<std::string, std::unique_ptr<IHolder>> m_store;
 
   const Acts::Logger&
   logger() const
@@ -97,35 +97,30 @@ inline FW::WhiteBoard::WhiteBoard(std::unique_ptr<const Acts::Logger> logger)
 }
 
 template <typename T>
-inline FW::ProcessCode
+inline void
 FW::WhiteBoard::add(const std::string& name, T&& object)
 {
+  if (name.empty()) {
+    throw std::invalid_argument("Object can not have an empty name");
+  }
   if (0 < m_store.count(name)) {
-    ACTS_FATAL("Object '" << name << "' already exists");
-    return ProcessCode::ABORT;
+    throw std::invalid_argument("Object '" + name + "' already exists");
   }
   m_store.emplace(name, std::make_unique<HolderT<T>>(std::forward<T>(object)));
   ACTS_VERBOSE("Added object '" << name << "'");
-  return ProcessCode::SUCCESS;
 }
 
 template <typename T>
-inline FW::ProcessCode
-FW::WhiteBoard::get(const std::string& name, const T*& object) const
+inline const T&
+FW::WhiteBoard::get(const std::string& name) const
 {
   auto it = m_store.find(name);
   if (it == m_store.end()) {
-    object = nullptr;
-    ACTS_FATAL("Object '" << name << "' does not exists");
-    return ProcessCode::ABORT;
+    throw std::out_of_range("Object '" + name + "' does not exists");
   }
   const IHolder* holder = it->second.get();
   if (typeid(T) != holder->type()) {
-    object = nullptr;
-    ACTS_FATAL("Type missmatch for object '" << name << "'");
-    return ProcessCode::ABORT;
+    throw std::out_of_range("Type missmatch for object '" + name + "'");
   }
-  object = &(reinterpret_cast<const HolderT<T>*>(holder)->value);
-  ACTS_VERBOSE("Retrieved object '" << name << "'");
-  return ProcessCode::SUCCESS;
+  return reinterpret_cast<const HolderT<T>*>(holder)->value;
 }

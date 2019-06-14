@@ -131,9 +131,6 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
                       << nTotalParticles);
 
   // move generated event to the store
-  if (ctx.eventStore.add(m_cfg.output, std::move(event))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  ctx.eventStore.add(m_cfg.output, std::move(event));
   return FW::ProcessCode::SUCCESS;
 }

@@ -8,25 +8,26 @@
 
 #pragma once
 
-#include <boost/optional.hpp>
 #include <memory>
 #include <string>
-#include <tbb/task_scheduler_init.h>
 #include <vector>
+
+#include <boost/optional.hpp>
+
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/IAlgorithm.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/IWriter.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 
 /// @class  Sequencer
 ///
 /// This is the backbone of the mini framework, it initializes all algorithms,
-/// calls execute per event and deals with the event store */
+/// calls execute per event and deals with the event store.
 ///
 class Sequencer
 {
@@ -35,9 +36,10 @@ public:
   {
     /// job store logging level
     Acts::Logging::Level jobStoreLogLevel = Acts::Logging::INFO;
-
     /// event store logging level
     Acts::Logging::Level eventStoreLogLevel = Acts::Logging::INFO;
+    /// number of threads to run in parallel, negative for automatic value
+    int numThreads = -1;
   };
 
   /// Constructor
@@ -47,66 +49,69 @@ public:
             std::unique_ptr<const Acts::Logger> logger
             = Acts::getDefaultLogger("Sequencer", Acts::Logging::INFO));
 
-  /// Add context decorators
+  /// Add a service to the set of services.
   ///
-  /// @param decorators is the vector of decorators to be added
-  ProcessCode
-  addContextDecorators(
-      std::vector<std::shared_ptr<IContextDecorator>> decorators);
-
-  /// Add services
+  /// @throws std::invalid_argument if the service is NULL.
+  void
+  addService(std::shared_ptr<IService> service);
+  /// Add a context decorator to the set of context decorators.
   ///
-  /// @param services is the vector of services to be added
-  ProcessCode
-  addServices(std::vector<std::shared_ptr<IService>> services);
-
-  /// Add algorithms for reading
+  /// @throws std::invalid_argument if the decorator is NULL.
+  void
+  addContextDecorator(std::shared_ptr<IContextDecorator> decorator);
+  /// Add a reader to the set of readers.
   ///
-  /// @param readers is the vector of reader algorithms to be added
-  ProcessCode
-  addReaders(std::vector<std::shared_ptr<IReader>> readers);
-
-  /// Add algorithms for writing
+  /// @throws std::invalid_argument if the reader is NULL.
+  void
+  addReader(std::shared_ptr<IReader> reader);
+  /// Append an algorithm to the sequence of algorithms.
   ///
-  /// @param writers is the vector of writer algorithms to be added
-  ProcessCode
-  addWriters(std::vector<std::shared_ptr<IWriter>> writers);
-
-  /// Prepend algorithms
+  /// @throws std::invalid_argument if the algorithm is NULL.
+  void
+  addAlgorithm(std::shared_ptr<IAlgorithm> algorithm);
+  /// Add a writer to the set of writers.
   ///
-  /// @param algorithms is the vector of algorithms to be prepended
-  ProcessCode
-  prependEventAlgorithms(std::vector<std::shared_ptr<IAlgorithm>> algorithms);
-
-  /// Append algorithms
-  ///
-  /// @param algorithms is the vector of algorithms to be appended
-  ProcessCode
-  appendEventAlgorithms(std::vector<std::shared_ptr<IAlgorithm>> algorithms);
+  /// @throws std::invalid_argument if the writer is NULL.
+  void
+  addWriter(std::shared_ptr<IWriter> writer);
 
   /// Run the event loop over the given number of events.
   ///
-  /// @param events (optional) Number of events to process
-  /// @note This parameter is optional when input is read from a file. In this
-  /// scenario, leaving it unset will process events until the end of the file,
-  /// and setting it will put an upper bound on the number of events to be
-  /// processed.
+  /// @param events Number of events to process
   /// @param skip Number of events to skip before processing
+  /// @return status code compatible with the `main()` return code
+  /// @returns EXIT_SUCCESS when everying worked without problems
+  /// @returns EXIT_FAILURE if something went wrong
   ///
-  /// This will run all configured algorithms for each event, potentially in
-  /// parallel, then invoke the endRun hook of writers and services.
-  ProcessCode
+  /// @note If the number of events to process are not given, the sequencer
+  /// will process events until the first reader signals the end-of-file. If
+  /// given, it sets an upper bound.
+  ///
+  /// This function is intended to be run as the last thing in the tool
+  /// main function and its return value can be used directly as the program
+  /// return value, i.e.
+  ///
+  ///     int main(int argc, char* argv[])
+  ///     {
+  ///         Sequencer seq;
+  ///         ... // set up the algorithms
+  ///         return seq.run(...);
+  ///     }
+  ///
+  /// This will run the start-of-run hook for all configured services, run all
+  /// configured readers, algorithms, and writers for each event, then invoke
+  /// the enf-of-run hook of writers and services.
+  int
   run(boost::optional<size_t> events, size_t skip = 0);
 
 private:
-  std::vector<std::shared_ptr<IContextDecorator>> m_decorators;
   std::vector<std::shared_ptr<IService>>          m_services;
+  std::vector<std::shared_ptr<IContextDecorator>> m_decorators;
   std::vector<std::shared_ptr<IReader>>           m_readers;
-  std::vector<std::shared_ptr<IWriter>>           m_writers;
   std::vector<std::shared_ptr<IAlgorithm>>        m_algorithms;
+  std::vector<std::shared_ptr<IWriter>>           m_writers;
   Config                                          m_cfg;
   std::unique_ptr<const Acts::Logger>             m_logger;
-  tbb::task_scheduler_init                        m_tbb_init;
 
   const Acts::Logger&
   logger() const

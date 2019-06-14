@@ -10,10 +10,10 @@
 // RandomNumbersOptions.hpp
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ACTFW_OPTIONS_RANDOMNUMBEROPTIONS_HPP
-#define ACTFW_OPTIONS_RANDOMNUMBEROPTIONS_HPP
+#pragma once
 
 #include <iostream>
+
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 namespace po = boost::program_options;
@@ -44,5 +44,3 @@ namespace Options {
   }
 }
 }
-
-#endif  // ACTFW_OPTIONS_RANDOMNUMBEROPTIONS_HPP

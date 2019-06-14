@@ -7,22 +7,24 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
+
 #include <ios>
 #include <iostream>
 #include <stdexcept>
-#include "Acts/Layers/Layer.hpp"
-#include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
-#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
-#include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
-#include "Acts/Surfaces/CylinderBounds.hpp"
-#include "Acts/Surfaces/PlanarBounds.hpp"
-#include "Acts/Surfaces/RadialBounds.hpp"
-#include "Acts/Surfaces/SurfaceBounds.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
+
+#include <Acts/Layers/Layer.hpp>
+#include <Acts/Plugins/Digitization/CartesianSegmentation.hpp>
+#include <Acts/Plugins/Digitization/DigitizationModule.hpp>
+#include <Acts/Plugins/Identification/IdentifiedDetectorElement.hpp>
+#include <Acts/Surfaces/CylinderBounds.hpp>
+#include <Acts/Surfaces/PlanarBounds.hpp>
+#include <Acts/Surfaces/RadialBounds.hpp>
+#include <Acts/Surfaces/SurfaceBounds.hpp>
+#include <Acts/Utilities/GeometryID.hpp>
 
 FW::Csv::CsvSurfaceWriter::CsvSurfaceWriter(
     const FW::Csv::CsvSurfaceWriter::Config& cfg)
-  : FW::IWriterT<Acts::Surface>(), m_cfg(cfg)
+  : m_cfg(cfg)
 {
   // Validate the configuration
   if (!m_cfg.logger) {

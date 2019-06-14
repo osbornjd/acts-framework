@@ -10,8 +10,7 @@
 /// @date 2017-08-03
 /// @author Moritz Kiehnn <msmk@cern.ch>
 
-#ifndef ACTFW_PATHS_H
-#define ACTFW_PATHS_H
+#pragma once
 
 #include <string>
 
@@ -30,5 +29,3 @@ std::string
 perEventFilepath(const std::string& dir, const std::string& name, size_t event);
 
 }  // namespace FW
-
-#endif  // ACTFW_PATHS_H

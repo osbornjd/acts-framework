@@ -6,129 +6,93 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "ACTFW/Framework/Sequencer.hpp"
+
 #include <algorithm>
+#include <cstdlib>
 #include <exception>
 
+#include <TROOT.h>
 #include <tbb/tbb.h>
 
-#include <TROOT.h>
-#include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
 FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
                          std::unique_ptr<const Acts::Logger> logger)
-  : m_cfg(cfg)
-  , m_logger(std::move(logger))
-  , m_tbb_init(tbb::task_scheduler_init::deferred)
+  : m_cfg(cfg), m_logger(std::move(logger))
 {
+  // automatically determine the number of concurrent threads to use
+  if (m_cfg.numThreads < 0) {
+    const char* numThreadsEnv = getenv("ACTSFW_NUM_THREADS");
+    if (numThreadsEnv) {
+      m_cfg.numThreads = std::stoi(numThreadsEnv);
+    } else {
+      m_cfg.numThreads = tbb::task_scheduler_init::default_num_threads();
+    }
+  }
   ROOT::EnableThreadSafety();
-
-  const char* num_threads_str = getenv("ACTSFW_NUM_THREADS");
-  int         num_threads;
-  if (num_threads_str) {
-    num_threads = std::stoi(num_threads_str);
-  } else {
-    num_threads = tbb::task_scheduler_init::automatic;
-  }
-  m_tbb_init.initialize(num_threads);
 }
 
-FW::ProcessCode
-FW::Sequencer::addContextDecorators(
-    std::vector<std::shared_ptr<FW::IContextDecorator>> decorators)
+void
+FW::Sequencer::addService(std::shared_ptr<IService> service)
 {
-  for (auto& cdr : decorators) {
-    if (!cdr) {
-      ACTS_FATAL("Trying to add empty context decorator");
-      return ProcessCode::ABORT;
-    }
-    m_decorators.push_back(std::move(cdr));
-    ACTS_INFO("Added context decorator " << m_decorators.back()->name());
+  if (not service) {
+    throw std::invalid_argument("Can not add empty/NULL service");
   }
-  return ProcessCode::SUCCESS;
+  m_services.push_back(std::move(service));
+  ACTS_INFO("Added service '" << m_services.back()->name() << "'");
 }
 
-FW::ProcessCode
-FW::Sequencer::addServices(std::vector<std::shared_ptr<FW::IService>> services)
+void
+FW::Sequencer::addContextDecorator(std::shared_ptr<IContextDecorator> decorator)
 {
-  for (auto& svc : services) {
-    if (!svc) {
-      ACTS_FATAL("Trying to add empty service to sequencer");
-      return ProcessCode::ABORT;
-    }
-    m_services.push_back(std::move(svc));
-    ACTS_INFO("Added service " << m_services.back()->name());
+  if (not decorator) {
+    throw std::invalid_argument("Can not add empty/NULL context decorator");
   }
-  return ProcessCode::SUCCESS;
+  m_decorators.push_back(std::move(decorator));
+  ACTS_INFO("Added context decarator '" << m_decorators.back()->name() << "'");
 }
 
-FW::ProcessCode
-FW::Sequencer::addReaders(std::vector<std::shared_ptr<FW::IReader>> readers)
+void
+FW::Sequencer::addReader(std::shared_ptr<IReader> reader)
 {
-  for (auto& rdr : readers) {
-    if (!rdr) {
-      ACTS_FATAL("Trying to add empty reader to sequencer");
-      return ProcessCode::ABORT;
-    }
-    m_readers.push_back(std::move(rdr));
-    ACTS_INFO("Added reader " << m_readers.back()->name());
+  if (not reader) {
+    throw std::invalid_argument("Can not add empty/NULL reader");
   }
-  return ProcessCode::SUCCESS;
+  m_readers.push_back(std::move(reader));
+  ACTS_INFO("Added reader '" << m_readers.back()->name() << "'");
 }
 
-FW::ProcessCode
-FW::Sequencer::addWriters(std::vector<std::shared_ptr<FW::IWriter>> writers)
+void
+FW::Sequencer::addAlgorithm(std::shared_ptr<IAlgorithm> algorithm)
 {
-  for (auto& wrt : writers) {
-    if (!wrt) {
-      ACTS_FATAL("Trying to add empty writer to sequencer");
-      return ProcessCode::ABORT;
-    }
-    m_writers.push_back(std::move(wrt));
-    ACTS_INFO("Added writer " << m_writers.back()->name());
+  if (not algorithm) {
+    throw std::invalid_argument("Can not add empty/NULL algorithm");
   }
-  return ProcessCode::SUCCESS;
+  m_algorithms.push_back(std::move(algorithm));
+  ACTS_INFO("Added algorithm '" << m_algorithms.back()->name() << "'");
 }
 
-FW::ProcessCode
-FW::Sequencer::prependEventAlgorithms(
-    std::vector<std::shared_ptr<FW::IAlgorithm>> algorithms)
+void
+FW::Sequencer::addWriter(std::shared_ptr<IWriter> writer)
 {
-  for (auto& alg : algorithms) {
-    if (!alg) {
-      ACTS_FATAL("Trying to prepend empty algorithm");
-      return ProcessCode::ABORT;
-    }
-    m_algorithms.insert(m_algorithms.begin(), std::move(alg));
-    ACTS_INFO("Prepended algorithm " << m_algorithms.front()->name());
+  if (not writer) {
+    throw std::invalid_argument("Can not add empty/NULL writer");
   }
-  return ProcessCode::SUCCESS;
+  m_writers.push_back(std::move(writer));
+  ACTS_INFO("Added writer '" << m_writers.back()->name() << "'");
 }
 
-FW::ProcessCode
-FW::Sequencer::appendEventAlgorithms(
-    std::vector<std::shared_ptr<FW::IAlgorithm>> algorithms)
-{
-  for (auto& alg : algorithms) {
-    if (!alg) {
-      ACTS_FATAL("Trying to append empty algorithm.");
-      return ProcessCode::ABORT;
-    }
-    m_algorithms.push_back(std::move(alg));
-    ACTS_INFO("Appended algorithm " << m_algorithms.back()->name());
-  }
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
+int
 FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 {
-  // Print some introduction
-  ACTS_INFO("Starting event loop for");
+  ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
   ACTS_INFO("  " << m_services.size() << " services");
+  ACTS_INFO("  " << m_decorators.size() << " context decorators");
   ACTS_INFO("  " << m_readers.size() << " readers");
-  ACTS_INFO("  " << m_writers.size() << " writers");
   ACTS_INFO("  " << m_algorithms.size() << " algorithms");
+  ACTS_INFO("  " << m_writers.size() << " writers");
 
   // The number of events to be processed
   size_t numEvents = 0;
@@ -147,13 +111,13 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
     if (skip != 0) {
       ACTS_ERROR(
           "Number of skipped events given although no readers present. Abort");
-      return ProcessCode::ABORT;
+      return EXIT_FAILURE;
     }
     // Number of events is not given by readers, in this case the parameter
     // 'events' must be specified - Abort, if this is not the case
     if (!events) {
       ACTS_ERROR("Number of events not specified. Abort");
-      return ProcessCode::ABORT;
+      return EXIT_FAILURE;
     }
     // 'events' is specified, set 'numEvents'
     numEvents = *events;
@@ -165,17 +129,19 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
     if (skip > numEvents) {
       ACTS_ERROR("Number of events to be skipped > than total number of "
                  "events. Abort");
-      return ProcessCode::ABORT;
+      return EXIT_FAILURE;
     }
     // The total number of events is the maximum number of events minus the
     // number of skipped evebts
     numEvents -= skip;
     // Check if user wants to process less events than given by the reader
-    if (events && (*events) < numEvents) numEvents = *events;
+    if (events && (*events) < numEvents) {
+      numEvents = *events;
+    }
   }
 
   // Execute the event loop
-  ACTS_INFO("Run the event loop");
+  tbb::task_scheduler_init init(m_cfg.numThreads);
   tbb::parallel_for(
       tbb::blocked_range<size_t>(skip, numEvents + skip),
       [&](const tbb::blocked_range<size_t>& r) {
@@ -204,23 +170,27 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
 
           /// Decorate the context
           for (auto& cdr : m_decorators) {
-            if (cdr->decorate(context) != ProcessCode::SUCCESS)
+            if (cdr->decorate(context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to decorate event context");
+            }
           }
           // Read everything in
           for (auto& rdr : m_readers) {
-            if (rdr->read(++context) != ProcessCode::SUCCESS)
+            if (rdr->read(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to read input data");
+            }
           }
           // Process all algorithms
           for (auto& alg : m_algorithms) {
-            if (alg->execute(++context) != ProcessCode::SUCCESS)
+            if (alg->execute(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to process event data");
+            }
           }
           // Write out results
           for (auto& wrt : m_writers) {
-            if (wrt->write(++context) != ProcessCode::SUCCESS)
+            if (wrt->write(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to write output data");
+            }
           }
 
           ACTS_INFO("event " << event << " done");
@@ -228,10 +198,15 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
       });
 
   // Call endRun() for writers and services
-  ACTS_INFO("Running end-of-run hooks of writers and services");
-  for (auto& wrt : m_writers)
-    if (wrt->endRun() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  for (auto& svc : m_services)
-    if (svc->endRun() != ProcessCode::SUCCESS) return ProcessCode::ABORT;
-  return ProcessCode::SUCCESS;
+  for (auto& wrt : m_writers) {
+    if (wrt->endRun() != ProcessCode::SUCCESS) {
+      return EXIT_FAILURE;
+    }
+  }
+  for (auto& svc : m_services) {
+    if (svc->endRun() != ProcessCode::SUCCESS) {
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
 }

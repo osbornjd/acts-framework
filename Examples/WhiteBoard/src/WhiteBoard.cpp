@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -59,10 +59,9 @@ main(int argc, char* argv[])
   FW::Sequencer::Config seqConfig;
   seqConfig.eventStoreLogLevel = logLevel;
   FW::Sequencer sequencer(seqConfig);
-  sequencer.appendEventAlgorithms({wBoardWrite, wBoardRead});
+  sequencer.addAlgorithm(wBoardWrite);
+  sequencer.addAlgorithm(wBoardRead);
 
   // Run the event loop
-  sequencer.run(nEvents);
-
-  return 0;
+  return sequencer.run(nEvents);
 }

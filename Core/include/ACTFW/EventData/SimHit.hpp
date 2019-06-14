@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "Acts/Utilities/Definitions.hpp"
+#include <Acts/Utilities/Definitions.hpp>
 
 namespace Acts {
 class Surface;

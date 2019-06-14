@@ -48,9 +48,6 @@ main(int argc, char* argv[])
 
   // Now create the sequencer
   FW::Sequencer sequencer(seqConfig);
-  sequencer.appendEventAlgorithms({hWorld});
-  sequencer.run(nEvents);
-
-  // Return 0 for success
-  return 0;
+  sequencer.addAlgorithm(hWorld);
+  return sequencer.run(nEvents);
 }

@@ -6,13 +6,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "Acts/Utilities/Helpers.hpp"
+#include <random>
+
+#include <Acts/Utilities/Helpers.hpp>
 
 template <typename propagator_t>
 std::unique_ptr<Acts::ActsSymMatrixD<5>>
 PropagationAlgorithm<propagator_t>::generateCovariance(
-    FW::RandomEngine& rnd,
-    FW::GaussDist&    gauss) const
+    FW::RandomEngine&                 rnd,
+    std::normal_distribution<double>& gauss) const
 {
   if (m_cfg.covarianceTransport && m_cfg.randomNumbers) {
     // we start from the correlation matrix
@@ -102,12 +104,15 @@ PropagationAlgorithm<propagator_t>::execute(
   FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
   // Setup random number distributions for some quantities
-  FW::GaussDist   d0Dist(0., m_cfg.d0Sigma);
-  FW::GaussDist   z0Dist(0., m_cfg.z0Sigma);
-  FW::UniformDist phiDist(m_cfg.phiRange.first, m_cfg.phiRange.second);
-  FW::UniformDist etaDist(m_cfg.etaRange.first, m_cfg.etaRange.second);
-  FW::UniformDist ptDist(m_cfg.ptRange.first, m_cfg.ptRange.second);
-  FW::UniformDist qDist(0., 1.);
+  std::normal_distribution<double>       d0Dist(0., m_cfg.d0Sigma);
+  std::normal_distribution<double>       z0Dist(0., m_cfg.z0Sigma);
+  std::uniform_real_distribution<double> phiDist(m_cfg.phiRange.first,
+                                                 m_cfg.phiRange.second);
+  std::uniform_real_distribution<double> etaDist(m_cfg.etaRange.first,
+                                                 m_cfg.etaRange.second);
+  std::uniform_real_distribution<double> ptDist(m_cfg.ptRange.first,
+                                                m_cfg.ptRange.second);
+  std::uniform_real_distribution<double> qDist(0., 1.);
 
   std::shared_ptr<const Acts::PerigeeSurface> surface
       = Acts::Surface::makeShared<Acts::PerigeeSurface>(
@@ -153,11 +158,8 @@ PropagationAlgorithm<propagator_t>::execute(
 
   // write simulated data to the event store
   // - the simulated particles
-  if (context.eventStore.add(m_cfg.propagationStepCollection,
-                             std::move(propagationSteps))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  context.eventStore.add(m_cfg.propagationStepCollection,
+                         std::move(propagationSteps));
 
   return ProcessCode::SUCCESS;
 }

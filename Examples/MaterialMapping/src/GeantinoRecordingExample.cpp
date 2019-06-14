@@ -94,7 +94,7 @@ main(int argc, char* argv[])
   // now create the sequencer
   FW::Sequencer g4Sequencer(g4SeqConfig);
   // the writer is a service as it needs initialize, finalize
-  g4Sequencer.addServices({g4TrackRecWriter});
-  g4Sequencer.appendEventAlgorithms({g4rAlgorithm});
-  g4Sequencer.run(nEvents);
+  g4Sequencer.addService(g4TrackRecWriter);
+  g4Sequencer.addAlgorithm(g4rAlgorithm);
+  return g4Sequencer.run(nEvents);
 }

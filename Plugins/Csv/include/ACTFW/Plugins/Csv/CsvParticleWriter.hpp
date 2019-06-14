@@ -9,6 +9,7 @@
 #pragma once
 
 #include <vector>
+
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"

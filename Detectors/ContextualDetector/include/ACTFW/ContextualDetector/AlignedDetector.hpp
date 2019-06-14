@@ -9,6 +9,7 @@
 #pragma once
 
 #include <boost/program_options.hpp>
+
 #include "ACTFW/ContextualDetector/AlignedDetectorElement.hpp"
 #include "ACTFW/ContextualDetector/AlignmentDecorator.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"

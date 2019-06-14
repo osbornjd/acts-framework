@@ -11,8 +11,7 @@
 /// @author Andreas Salburger
 /// @author Moritz Kiehnn <msmk@cern.ch>
 
-#ifndef ACTFW_ISERVICE_H
-#define ACTFW_ISERVICE_H
+#pragma once
 
 #include <string>
 
@@ -49,5 +48,3 @@ public:
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_ISERVICE_H

@@ -175,11 +175,8 @@ setupSimulationAlgorithm(
   fatrasConfig.inputEventCollection = evgenCollection;
 
   // Finally the fatras algorithm
-  auto fatrasAlgorithm
-      = std::make_shared<FatrasAlgorithm>(fatrasConfig, logLevel);
-
-  // Finalize the squencer setting and run
-  sequencer.appendEventAlgorithms({fatrasAlgorithm});
+  sequencer.addAlgorithm(
+      std::make_shared<FatrasAlgorithm>(fatrasConfig, logLevel));
 
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
@@ -192,10 +189,8 @@ setupSimulationAlgorithm(
     pWriterCsvConfig.outputDir  = outputDir;
     pWriterCsvConfig.outputFileName
         = fatrasConfig.simulatedEventCollection + ".csv";
-    auto pWriterCsv
-        = std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig);
-
-    sequencer.addWriters({pWriterCsv});
+    sequencer.addWriter(
+        std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig));
   }
 
   // Write simulation information as ROOT files
@@ -208,8 +203,8 @@ setupSimulationAlgorithm(
         outputDir, fatrasConfig.simulatedEventCollection + ".root");
     pWriterRootConfig.treeName   = fatrasConfig.simulatedEventCollection;
     pWriterRootConfig.barcodeSvc = barcodeSvc;
-    auto pWriterRoot
-        = std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig);
+    sequencer.addWriter(
+        std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig));
 
     // Write simulated hits as ROOT TTree
     FW::Root::RootSimHitWriter::Config fhitWriterRootConfig;
@@ -217,10 +212,8 @@ setupSimulationAlgorithm(
     fhitWriterRootConfig.filePath   = FW::joinPaths(
         outputDir, fatrasConfig.simulatedHitCollection + ".root");
     fhitWriterRootConfig.treeName = fatrasConfig.simulatedHitCollection;
-    auto fhitWriterRoot
-        = std::make_shared<FW::Root::RootSimHitWriter>(fhitWriterRootConfig);
-
-    sequencer.addWriters({pWriterRoot, fhitWriterRoot});
+    sequencer.addWriter(
+        std::make_shared<FW::Root::RootSimHitWriter>(fhitWriterRootConfig));
   }
 }
 

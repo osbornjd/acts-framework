@@ -9,17 +9,15 @@
 #include "ACTFW/Plugins/HepMC/HepMC3Reader.hpp"
 
 bool
-FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>::readEvent(
-    HepMC::ReaderAscii&              reader,
-    std::shared_ptr<HepMC::GenEvent> event)
+FW::HepMC3ReaderAscii::readEvent(HepMC::ReaderAscii&              reader,
+                                 std::shared_ptr<HepMC::GenEvent> event)
 {
   // Read event and store it
   return reader.read_event(*event);
 }
 
 bool
-FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent>::status(
-    HepMC::ReaderAscii& reader)
+FW::HepMC3ReaderAscii::status(HepMC::ReaderAscii& reader)
 {
   return !reader.failed();
 }

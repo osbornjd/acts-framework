@@ -55,7 +55,6 @@ main(int argc, char* argv[])
   rNumbersConfig.randomNumbers     = randomNumbers;
   rNumbersConfig.gaussParameters   = {{0., 1.}};
   rNumbersConfig.uniformParameters = {{0., 1.}};
-  rNumbersConfig.landauParameters  = {{1., 7.}};
   rNumbersConfig.gammaParameters   = {{1., 1.}};
   rNumbersConfig.drawsPerEvent     = 5000;
 
@@ -66,9 +65,7 @@ main(int argc, char* argv[])
   FW::Sequencer::Config seqConfig;
   // Create the sequencer and run the example
   FW::Sequencer sequencer(seqConfig);
-  sequencer.addServices({randomNumbers});
-  sequencer.appendEventAlgorithms({rNumbers});
-  sequencer.run(nEvents);
-
-  return 0;
+  sequencer.addService(randomNumbers);
+  sequencer.addAlgorithm(rNumbers);
+  return sequencer.run(nEvents);
 }

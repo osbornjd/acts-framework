@@ -30,12 +30,12 @@ FW::ParticleSelector::ParticleSelector(const Config&        cfg,
 FW::ProcessCode
 FW::ParticleSelector::execute(const FW::AlgorithmContext& ctx) const
 {
-  const std::vector<Data::SimVertex<Data::SimParticle>>* all = nullptr;
-  std::vector<Data::SimVertex<Data::SimParticle>>        selected;
+  std::vector<Data::SimVertex<Data::SimParticle>> selected;
 
   // get input particles
-  if (ctx.eventStore.get(m_cfg.input, all) == ProcessCode::ABORT)
-    return ProcessCode::ABORT;
+  const auto& input
+      = ctx.eventStore.get<std::vector<Data::SimVertex<Data::SimParticle>>>(
+          m_cfg.input);
 
   auto within = [](double x, double min, double max) {
     return (min <= x) and (x < max);
@@ -58,7 +58,7 @@ FW::ParticleSelector::execute(const FW::AlgorithmContext& ctx) const
   size_t allParticles = 0;
   size_t selParticles = 0;
 
-  for (const auto& vertex : *all) {
+  for (const auto& vertex : input) {
 
     allParticles += vertex.in.size();
     allParticles += vertex.out.size();
@@ -89,7 +89,7 @@ FW::ParticleSelector::execute(const FW::AlgorithmContext& ctx) const
 
   ACTS_DEBUG("event " << ctx.eventNumber << " selected " << selected.size()
                       << " from "
-                      << all->size()
+                      << input.size()
                       << " vertices");
   ACTS_DEBUG("event " << ctx.eventNumber << " selected " << selParticles
                       << " from "
@@ -97,9 +97,7 @@ FW::ParticleSelector::execute(const FW::AlgorithmContext& ctx) const
                       << " particles");
 
   // write selected particles
-  if (ctx.eventStore.add(m_cfg.output, std::move(selected))
-      == ProcessCode::ABORT) {
-    return ProcessCode::ABORT;
-  }
+  ctx.eventStore.add(m_cfg.output, std::move(selected));
+
   return ProcessCode::SUCCESS;
 }

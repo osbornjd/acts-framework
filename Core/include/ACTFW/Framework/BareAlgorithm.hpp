@@ -12,15 +12,15 @@
 /// @author Andreas Salzburger
 /// @author Moritz Kiehn <msmk@cern.ch>
 
-#ifndef ACTFW_BAREALGORITHM_H
-#define ACTFW_BAREALGORITHM_H
+#pragma once
 
 #include <memory>
 #include <string>
 
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/IAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 
@@ -40,11 +40,11 @@ public:
   BareAlgorithm(std::string          name,
                 Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Framework name() method
+  /// Provide the name of the algorithm.
   std::string
   name() const final override;
 
-  /// Framework execute method
+  /// Execute the algorithm for one event.
   ///
   /// This function must be implemented by subclasses.
   virtual ProcessCode
@@ -63,5 +63,3 @@ private:
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_BAREALGORITHM_H

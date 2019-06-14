@@ -20,26 +20,27 @@
 int
 main(int argc, char* argv[])
 {
-  FW::SimulatedReader<HepMC::ReaderAscii, HepMC::GenEvent> simReader;
+  FW::HepMC3ReaderAscii simReader;
 
   std::cout << "Preparing reader " << std::flush;
   HepMC::ReaderAscii reader("test.hepmc3");
-  if (simReader.status(reader))
+  if (simReader.status(reader)) {
     std::cout << "succesful" << std::endl;
-  else
+  } else {
     std::cout << "failed" << std::endl;
+  }
 
   std::shared_ptr<HepMC::GenEvent> genevt(new HepMC::GenEvent());
 
   std::cout << "Reading event " << std::flush;
-  if (simReader.readEvent(reader, genevt))
+  if (simReader.readEvent(reader, genevt)) {
     std::cout << "succesful" << std::endl;
-  else
+  } else {
     std::cout << "failed" << std::endl;
-
+  }
   std::cout << std::endl;
 
-  FW::SimulatedEvent<HepMC::GenEvent> simEvent;
+  FW::HepMC3Event simEvent;
 
   std::cout << "Event data:" << std::endl;
   std::cout << "Units: ";

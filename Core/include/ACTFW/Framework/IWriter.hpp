@@ -10,8 +10,7 @@
 /// @date 2017-07-25
 /// @author Moritz Kiehnn <msmk@cern.ch>
 
-#ifndef ACTFW_IWRITER_H
-#define ACTFW_IWRITER_H
+#pragma once
 
 #include <string>
 
@@ -24,24 +23,22 @@ namespace FW {
 class IWriter
 {
 public:
-  /// Virtual destructor
+  /// Virtual destructor.
   virtual ~IWriter() = default;
 
-  /// Provide the name of the writer
+  /// Provide the name of the writer.
   virtual std::string
   name() const = 0;
+
+  /// Write data for one event to the output stream.
+  virtual ProcessCode
+  write(const AlgorithmContext& context)
+      = 0;
 
   /// Finish the run (e.g. aggregate statistics, write down output, close files)
   virtual ProcessCode
   endRun()
       = 0;
-
-  /// write data to the output stream
-  virtual ProcessCode
-  write(const AlgorithmContext& context)
-      = 0;
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_IWRITER_H

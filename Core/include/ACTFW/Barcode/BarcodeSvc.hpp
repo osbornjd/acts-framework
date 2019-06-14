@@ -11,11 +11,12 @@
 #include <array>
 #include <string>
 
+#include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Barcode/Barcode.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 

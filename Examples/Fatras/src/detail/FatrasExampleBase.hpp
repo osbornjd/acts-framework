@@ -103,13 +103,13 @@ fatrasExample(int               argc,
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
 
   // Add it to the sequencer
-  sequencer.addServices({randomNumberSvc});
+  sequencer.addService(randomNumberSvc);
   // Create the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
   auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
       barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
   // Add it to the sequencer
-  sequencer.addServices({barcodeSvc});
+  sequencer.addService(barcodeSvc);
 
   // Create the geometry and the context decorators
   auto geometry          = geometrySetup(vm);
@@ -117,7 +117,9 @@ fatrasExample(int               argc,
   auto contextDecorators = geometry.second;
 
   // Add it to the sequencer
-  sequencer.addContextDecorators(contextDecorators);
+  for (auto cdr : contextDecorators) {
+    sequencer.addContextDecorator(cdr);
+  }
 
   // (A) EVGEN
   // Setup the evgen input to the simulation
@@ -138,8 +140,5 @@ fatrasExample(int               argc,
 
   // (E) PATTERN RECOGNITION
 
-  // Initiate the run
-  sequencer.run(nEvents);
-  // Return 0 for success
-  return 0;
+  return sequencer.run(nEvents);
 }

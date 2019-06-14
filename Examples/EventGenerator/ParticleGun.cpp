@@ -64,7 +64,7 @@ main(int argc, char* argv[])
   evgenCfg.output                 = "particles";
   evgenCfg.randomNumbers          = rnd;
   evgenCfg.barcodeSvc             = barcode;
-  sequencer.addReaders({std::make_shared<EventGenerator>(evgenCfg, logLevel)});
+  sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
 
   // different output modes
   std::string outputDir = vm["output-dir"].as<std::string>();
@@ -73,18 +73,17 @@ main(int argc, char* argv[])
     csvWriterCfg.collection     = evgenCfg.output;
     csvWriterCfg.outputDir      = outputDir;
     csvWriterCfg.outputFileName = "particles.csv";
-    sequencer.addWriters(
-        {std::make_shared<Csv::CsvParticleWriter>(csvWriterCfg, logLevel)});
+    sequencer.addWriter(
+        std::make_shared<Csv::CsvParticleWriter>(csvWriterCfg, logLevel));
   }
   if (vm["output-root"].as<bool>()) {
     Root::RootParticleWriter::Config rootWriterCfg;
     rootWriterCfg.collection = evgenCfg.output;
     rootWriterCfg.filePath   = joinPaths(outputDir, "particles.root");
     rootWriterCfg.barcodeSvc = barcode;
-    sequencer.addWriters(
-        {std::make_shared<Root::RootParticleWriter>(rootWriterCfg, logLevel)});
+    sequencer.addWriter(
+        std::make_shared<Root::RootParticleWriter>(rootWriterCfg, logLevel));
   }
 
-  return (sequencer.run(numEvents) == ProcessCode::SUCCESS) ? EXIT_SUCCESS
-                                                            : EXIT_FAILURE;
+  return sequencer.run(numEvents);
 }

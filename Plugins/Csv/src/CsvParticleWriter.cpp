@@ -7,9 +7,12 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
+
 #include <fstream>
 #include <ios>
+#include <map>
 #include <stdexcept>
+
 #include "ACTFW/Barcode/Barcode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
@@ -37,15 +40,12 @@ FW::Csv::CsvParticleWriter::writeT(
   }
 
   // do we have the hits per particle written out ?
-  bool hppPresent = m_cfg.hitsPerParticleCollection != "";
-
+  bool hppPresent = !m_cfg.hitsPerParticleCollection.empty();
+  // use pointer instead of reference since it is optional
   const std::map<barcode_type, size_t>* hitsPerParticle = nullptr;
-  if (hppPresent
-      && context.eventStore.get(m_cfg.hitsPerParticleCollection,
-                                hitsPerParticle)
-          == ProcessCode::ABORT) {
-    throw std::ios_base::failure(
-        "Could not retrieve hits/particle reference map.");
+  if (hppPresent) {
+    hitsPerParticle = &context.eventStore.get<std::map<barcode_type, size_t>>(
+        m_cfg.hitsPerParticleCollection);
   }
 
   // write csv header

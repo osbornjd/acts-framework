@@ -14,17 +14,17 @@
 //
 //
 
-#ifndef ACTFW_RANDOM_RANDOMNUMBERSSVC_H
-#define ACTFW_RANDOM_RANDOMNUMBERSSVC_H 1
+#pragma once
 
 #include <memory>
 #include <random>
 #include <string>
 
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 
@@ -97,5 +97,3 @@ private:
 };
 
 }  // namespace FW
-
-#endif  // ACTFW_RANDOM_RANDOMNUMBERSSVC_H

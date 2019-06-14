@@ -11,18 +11,17 @@
 #include <fstream>
 #include <iostream>
 #include <mutex>
+
+#include <Acts/Detector/TrackingGeometry.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 class TrackingVolume;
-}
-namespace FW {
-class ISurfaceWriter;
 }
 
 namespace FW {
@@ -32,7 +31,7 @@ namespace Csv {
   ///
   /// An Csv writer for the geometry
   /// It delegates the writing of surfaces to the surface writers
-  class CsvTrackingGeometryWriter : public FW::IWriterT<Acts::TrackingGeometry>
+  class CsvTrackingGeometryWriter : public IService
   {
   public:
     // @class Config
@@ -77,7 +76,7 @@ namespace Csv {
     /// @return ProcessCode to indicate success/failure
     FW::ProcessCode
     write(const AlgorithmContext&       context,
-          const Acts::TrackingGeometry& tGeometry) final override;
+          const Acts::TrackingGeometry& tGeometry);
 
   private:
     Config m_cfg;  ///< the config class
@@ -97,4 +96,4 @@ namespace Csv {
   };
 
 }  // namespace Csv
-}  // namesapce FW
+}  // namespace FW

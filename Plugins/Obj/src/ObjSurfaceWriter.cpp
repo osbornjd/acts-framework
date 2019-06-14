@@ -7,19 +7,21 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
+
 #include <ios>
 #include <iostream>
 #include <stdexcept>
-#include "Acts/Layers/Layer.hpp"
-#include "Acts/Surfaces/CylinderBounds.hpp"
-#include "Acts/Surfaces/PlanarBounds.hpp"
-#include "Acts/Surfaces/RadialBounds.hpp"
-#include "Acts/Surfaces/SurfaceBounds.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
+
+#include <Acts/Layers/Layer.hpp>
+#include <Acts/Surfaces/CylinderBounds.hpp>
+#include <Acts/Surfaces/PlanarBounds.hpp>
+#include <Acts/Surfaces/RadialBounds.hpp>
+#include <Acts/Surfaces/SurfaceBounds.hpp>
+#include <Acts/Utilities/GeometryID.hpp>
 
 FW::Obj::ObjSurfaceWriter::ObjSurfaceWriter(
     const FW::Obj::ObjSurfaceWriter::Config& cfg)
-  : FW::IWriterT<Acts::Surface>(), m_cfg(cfg)
+  : m_cfg(cfg)
 {
   // Validate the configuration
   if (!m_cfg.logger) {

@@ -10,9 +10,11 @@
 
 #include <cmath>
 #include <vector>
+
+#include <Acts/Utilities/Definitions.hpp>
+
 #include "ACTFW/Barcode/Barcode.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
-#include "Acts/Utilities/Definitions.hpp"
 
 namespace FW {
 
