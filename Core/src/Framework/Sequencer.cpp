@@ -20,9 +20,8 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
-FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
-                         std::unique_ptr<const Acts::Logger> logger)
-  : m_cfg(cfg), m_logger(std::move(logger))
+FW::Sequencer::Sequencer(const Sequencer::Config& cfg)
+  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("Sequencer", m_cfg.logLevel))
 {
   // automatically determine the number of concurrent threads to use
   if (m_cfg.numThreads < 0) {
@@ -208,9 +207,7 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
   // processing only works w/ a well-known number of events
   // error message are handled by helper function
   auto endEvent = determineEndEvent(events, skip);
-  if (not endEvent) {
-    return EXIT_FAILURE;
-  }
+  if (not endEvent) { return EXIT_FAILURE; }
 
   ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
   ACTS_INFO("  " << m_services.size() << " services");
@@ -233,7 +230,7 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
         for (size_t event = r.begin(); event != r.end(); ++event) {
           // Use per-event store
           WhiteBoard eventStore(Acts::getDefaultLogger(
-              "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
+              "EventStore#" + std::to_string(event), m_cfg.logLevel));
           // If we ever wanted to run algorithms in parallel, this needs to be
           // changed to Algorithm context copies
           AlgorithmContext context(0, event, eventStore);
@@ -279,14 +276,10 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
 
   // Call endRun() for writers and services
   for (auto& wrt : m_writers) {
-    if (wrt->endRun() != ProcessCode::SUCCESS) {
-      return EXIT_FAILURE;
-    }
+    if (wrt->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
   }
   for (auto& svc : m_services) {
-    if (svc->endRun() != ProcessCode::SUCCESS) {
-      return EXIT_FAILURE;
-    }
+    if (svc->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
   }
 
   // summarize processing timing

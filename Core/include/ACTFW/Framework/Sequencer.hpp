@@ -23,30 +23,24 @@
 
 namespace FW {
 
-/// @class  Sequencer
+/// A simple algorithm sequencer for event processing.
 ///
-/// This is the backbone of the mini framework, it initializes all algorithms,
-/// calls execute per event and deals with the event store.
-///
+/// This is the backbone of the framework. It reads events from file,
+/// runs the configured algorithms for each event, and writes selected data
+/// back to a file.
 class Sequencer
 {
 public:
   struct Config
   {
-    /// job store logging level
-    Acts::Logging::Level jobStoreLogLevel = Acts::Logging::INFO;
-    /// event store logging level
-    Acts::Logging::Level eventStoreLogLevel = Acts::Logging::INFO;
+    /// logging level
+    Acts::Logging::Level logLevel = Acts::Logging::INFO;
     /// number of threads to run in parallel, negative for automatic value
     int numThreads = -1;
   };
 
-  /// Constructor
-  ///
-  /// @param cfg is the configuration object
-  Sequencer(const Config&                       cfg,
-            std::unique_ptr<const Acts::Logger> logger
-            = Acts::getDefaultLogger("Sequencer", Acts::Logging::INFO));
+  /// Construct a sequencer with a given config.
+  Sequencer(const Config& cfg);
 
   /// Add a service to the set of services.
   ///

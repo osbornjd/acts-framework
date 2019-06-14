@@ -57,7 +57,7 @@ main(int argc, char* argv[])
 
   // Create the event loop
   FW::Sequencer::Config seqConfig;
-  seqConfig.eventStoreLogLevel = logLevel;
+  seqConfig.logLevel = logLevel;
   FW::Sequencer sequencer(seqConfig);
   sequencer.addAlgorithm(wBoardWrite);
   sequencer.addAlgorithm(wBoardRead);
