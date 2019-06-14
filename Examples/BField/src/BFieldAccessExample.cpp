@@ -10,7 +10,8 @@
 #include <boost/progress.hpp>
 #include <random>
 #include <string>
-#include "ACTFW/Common/CommonOptions.hpp"
+
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
@@ -133,7 +134,7 @@ main(int argc, char* argv[])
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the standard options
-  FW::Options::addCommonOptions<po::options_description>(desc);
+  FW::Options::addCommonOptions(desc);
   // Add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
   // Add an output file
@@ -166,7 +167,7 @@ main(int argc, char* argv[])
     return 1;
   }
   // Now read the standard options
-  auto nEvents = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+  auto nEvents = FW::Options::readNumberOfEvents(vm);
 
   // A test magnetic field context
   Acts::MagneticFieldContext magFieldContext = Acts::MagneticFieldContext();

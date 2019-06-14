@@ -6,11 +6,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <boost/program_options.hpp>
 #include <cstdlib>
 #include <memory>
-#include "ACTFW/Common/CommonOptions.hpp"
+
+#include <boost/program_options.hpp>
+
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "RandomNumbersAlgorithm.hpp"
@@ -27,7 +29,7 @@ main(int argc, char* argv[])
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
+  FW::Options::addCommonOptions(desc);
   // Add the random number options
   FW::Options::addRandomNumbersOptions<po::options_description>(desc);
   // Map to store the given program options
@@ -42,8 +44,8 @@ main(int argc, char* argv[])
   }
 
   // Read the common options : number of events and log level
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto nEvents  = FW::Options::readNumberOfEvents(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Create the random number engine
   auto randomNumbersCfg

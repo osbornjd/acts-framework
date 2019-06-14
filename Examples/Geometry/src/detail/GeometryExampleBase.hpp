@@ -8,16 +8,16 @@
 
 #pragma once
 
-#include <boost/program_options.hpp>
 #include <memory>
 #include <string>
 #include <vector>
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/GeometryOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
+
+#include <boost/program_options.hpp>
+
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvWriterOptions.hpp"
@@ -43,13 +43,13 @@ processGeometry(int               argc,
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the standard/common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
+  FW::Options::addCommonOptions(desc);
   // Add options for the Obj writing
   FW::Options::addObjWriterOptions<po::options_description>(desc);
   // Add the geometry options
-  FW::Options::addGeometryOptions<po::options_description>(desc);
+  FW::Options::addGeometryOptions(desc);
   // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
+  FW::Options::addOutputOptions(desc);
   // Add specific options for this geometry
   optionsSetup(desc);
 
@@ -64,10 +64,10 @@ processGeometry(int               argc,
   }
 
   // Now read the standard options
-  auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
-  auto nEvents   = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto geometry  = geometrySetup(vm);
-  auto tGeometry = geometry.first;
+  auto logLevel          = FW::Options::readLogLevel(vm);
+  auto nEvents           = FW::Options::readNumberOfEvents(vm);
+  auto geometry          = geometrySetup(vm);
+  auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 
   // The detectors
@@ -99,9 +99,7 @@ processGeometry(int               argc,
     std::string geoContextStr = "";
     if (contextDecorators.size() > 0) {
       // We need indeed a context object
-      if (nEvents > 1) {
-        geoContextStr = "_geoContext" + std::to_string(ievt);
-      }
+      if (nEvents > 1) { geoContextStr = "_geoContext" + std::to_string(ievt); }
     }
 
     // ---------------------------------------------------------------------------------
@@ -148,9 +146,7 @@ processGeometry(int               argc,
       tgObjWriter->write(context, *tGeometry);
 
       // Close the output streams
-      for (auto sStreams : subStreams) {
-        sStreams->close();
-      }
+      for (auto sStreams : subStreams) { sStreams->close(); }
     }
 
     // CSV output

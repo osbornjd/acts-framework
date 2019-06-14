@@ -8,12 +8,12 @@
 
 #pragma once
 
-#include <boost/program_options.hpp>
 #include <memory>
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/GeometryOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
+
+#include <boost/program_options.hpp>
+
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Plugins/Obj/ObjPropagationStepsWriter.hpp"
@@ -55,7 +55,7 @@ setupPropgation(sequencer_t&                                  sequencer,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
@@ -94,7 +94,7 @@ setupStraightLinePropgation(
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
@@ -141,9 +141,9 @@ propagationExample(int               argc,
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
+  FW::Options::addCommonOptions(desc);
   // Add the geometry options
-  FW::Options::addGeometryOptions<po::options_description>(desc);
+  FW::Options::addGeometryOptions(desc);
   // Add the bfield options
   FW::Options::addBFieldOptions<po::options_description>(desc);
   // Add the random number options
@@ -151,7 +151,7 @@ propagationExample(int               argc,
   // Add the fatras options
   FW::Options::addPropagationOptions<po::options_description>(desc);
   // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
+  FW::Options::addOutputOptions(desc);
 
   // Add specific options for this geometry
   optionsSetup(desc);
@@ -168,16 +168,14 @@ propagationExample(int               argc,
   }
 
   // Now read the standard options
-  auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
-  auto nEvents   = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto geometry  = geometrySetup(vm);
-  auto tGeometry = geometry.first;
+  auto logLevel          = FW::Options::readLogLevel(vm);
+  auto nEvents           = FW::Options::readNumberOfEvents(vm);
+  auto geometry          = geometrySetup(vm);
+  auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 
   // Add it to the sequencer
-  for (auto cdr : contextDecorators) {
-    sequencer.addContextDecorator(cdr);
-  }
+  for (auto cdr : contextDecorators) { sequencer.addContextDecorator(cdr); }
 
   // Create the random number engine
   auto randomNumberSvcCfg

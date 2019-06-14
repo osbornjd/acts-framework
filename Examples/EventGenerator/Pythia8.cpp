@@ -13,10 +13,9 @@
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"

@@ -9,10 +9,10 @@
 #pragma once
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
 #include "ACTFW/Digitization/DigitizationOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSpacePointWriter.hpp"
 #include "ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp"
@@ -27,7 +27,7 @@ setupDigitization(vmap_t&                               vm,
                   std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc)
 {
   // Read the standard options
-  auto logLevel = FW::Options::readLogLevel<vmap_t>(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Set the module stepper
   auto pmStepper = std::make_shared<Acts::PlanarModuleStepper>(

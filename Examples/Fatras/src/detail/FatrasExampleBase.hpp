@@ -13,13 +13,11 @@
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/GeometryOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Digitization/DigitizationOptions.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
@@ -57,9 +55,9 @@ fatrasExample(int               argc,
   // Declare the supported program options.
   po::options_description desc("Allowed options");
   // Add the Common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
+  FW::Options::addCommonOptions(desc);
   // Add the geometry options
-  FW::Options::addGeometryOptions<po::options_description>(desc);
+  FW::Options::addGeometryOptions(desc);
   // Add the particle gun options
   FW::Options::addParticleGunOptions(desc);
   // Add the Pythia 8 options
@@ -73,7 +71,7 @@ fatrasExample(int               argc,
   // Add the digization options
   FW::Options::addDigitizationOptions<po::options_description>(desc);
   // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
+  FW::Options::addOutputOptions(desc);
   // Add program specific options: input / output
   desc.add_options()("evg-input-type",
                      po::value<std::string>()->default_value("pythia8"),
@@ -93,8 +91,8 @@ fatrasExample(int               argc,
     return 1;
   }
   // Read the common options : number of events and log level
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto nEvents  = FW::Options::readNumberOfEvents(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Create the random number engine
   auto randomNumberSvcCfg
@@ -117,9 +115,7 @@ fatrasExample(int               argc,
   auto contextDecorators = geometry.second;
 
   // Add it to the sequencer
-  for (auto cdr : contextDecorators) {
-    sequencer.addContextDecorator(cdr);
-  }
+  for (auto cdr : contextDecorators) { sequencer.addContextDecorator(cdr); }
 
   // (A) EVGEN
   // Setup the evgen input to the simulation
