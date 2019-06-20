@@ -8,19 +8,25 @@
 
 #pragma once
 
-#include <Acts/Utilities/Logger.hpp>
+#include <string>
 
-namespace boost::program_options {
-class options_description;
-class variables_map;
-}  // namespace boost::program_options
+#include <Acts/Utilities/Logger.hpp>
+#include <boost/program_options.hpp>
+
+#include "ACTFW/Framework/Sequencer.hpp"
 
 namespace FW {
 namespace Options {
 
-  /// Add common options needed e.g. for the sequencer.
+  /// Construct the options description with minimal default options.
+  ///
+  /// @param caption Optional help text caption
+  boost::program_options::options_description
+  makeDefaultOptions(std::string caption = std::string());
+
+  /// Add sequencer options, e.g. number of events
   void
-  addCommonOptions(boost::program_options::options_description& opt);
+  addSequencerOptions(boost::program_options::options_description& opt);
 
   /// Add common geometry-related options.
   void
@@ -30,13 +36,23 @@ namespace Options {
   void
   addOutputOptions(boost::program_options::options_description& opt);
 
+  /// Parse options and return the resulting variables map.
+  ///
+  /// Automatically prints the help text if requested.
+  ///
+  /// @returns Empty variables map if help text was shown.
+  boost::program_options::variables_map
+  parse(const boost::program_options::options_description& opt,
+        int                                                argc,
+        char*                                              argv[]);
+
   /// Read the log level.
   Acts::Logging::Level
   readLogLevel(const boost::program_options::variables_map& vm);
 
-  /// Read number-of-events to be processed
-  size_t
-  readNumberOfEvents(const boost::program_options::variables_map& vm);
+  /// Read the sequencer config.
+  Sequencer::Config
+  readSequencerConfig(const boost::program_options::variables_map& vm);
 
 }  // namespace Options
 }  // namespace FW
