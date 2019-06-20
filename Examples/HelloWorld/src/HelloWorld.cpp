@@ -9,13 +9,9 @@
 #include <cstdlib>
 #include <memory>
 
-#include <boost/program_options.hpp>
-
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "HelloWorldAlgorithm.hpp"
-
-namespace po = boost::program_options;
 
 /// Main read evgen executable
 ///
@@ -24,32 +20,18 @@ namespace po = boost::program_options;
 int
 main(int argc, char* argv[])
 {
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the standard options
-  FW::Options::addCommonOptions(desc);
-  // Map to store the given program options
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // Print help if reqested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
-  }
-  // Read the common options
-  auto nEvents  = FW::Options::readNumberOfEvents(vm);
+  // setup and parse options
+  auto opt = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(opt);
+  auto vm = FW::Options::parse(opt, argc, argv);
+  if (vm.empty()) { return EXIT_FAILURE; }
+
+  FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
+
   auto logLevel = FW::Options::readLogLevel(vm);
 
-  // And add the hello world algorithm
-  std::shared_ptr<FW::IAlgorithm> hWorld(new FW::HelloWorldAlgorithm(logLevel));
+  // add w/ HelloWorld algorithm
+  sequencer.addAlgorithm(std::make_shared<FW::HelloWorldAlgorithm>(logLevel));
 
-  // Create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
-
-  // Now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-  sequencer.addAlgorithm(hWorld);
-  return sequencer.run(nEvents);
+  return sequencer.run();
 }

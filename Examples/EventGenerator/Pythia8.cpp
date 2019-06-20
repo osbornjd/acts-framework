@@ -10,7 +10,6 @@
 #include <memory>
 
 #include <Acts/Utilities/Units.hpp>
-#include <boost/program_options.hpp>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -29,27 +28,17 @@ using namespace FW;
 int
 main(int argc, char* argv[])
 {
-  namespace po = boost::program_options;
-
-  // define command line options and parse them
-  po::options_description desc("Allowed options");
-  Options::addCommonOptions(desc);
+  // setup and parse options
+  auto desc = Options::makeDefaultOptions();
+  Options::addSequencerOptions(desc);
   Options::addRandomNumbersOptions(desc);
   Options::addPythia8Options(desc);
   Options::addOutputOptions(desc);
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return EXIT_FAILURE;
-  }
+  auto vm = Options::parse(desc, argc, argv);
+  if (vm.empty()) { return EXIT_FAILURE; }
 
-  Acts::Logging::Level logLevel  = Options::readLogLevel(vm);
-  size_t               numEvents = Options::readNumberOfEvents(vm);
-
-  Sequencer::Config sequencerCfg;
+  auto              logLevel     = Options::readLogLevel(vm);
+  Sequencer::Config sequencerCfg = Options::readSequencerConfig(vm);
   Sequencer         sequencer(sequencerCfg);
 
   // basic services
@@ -96,5 +85,5 @@ main(int argc, char* argv[])
         std::make_shared<Root::RootParticleWriter>(rootWriterCfg, logLevel));
   }
 
-  return sequencer.run(numEvents);
+  return sequencer.run();
 }

@@ -28,7 +28,6 @@ setupEvgenInput(vmap_t&                               vm,
 {
   // Read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);
-  auto nEvents  = FW::Options::readNumberOfEvents(vm);
 
   // Add requested event generator
   auto evgenInput = vm["evg-input-type"].template as<std::string>();

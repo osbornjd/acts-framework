@@ -12,8 +12,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/program_options.hpp>
-
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -29,9 +27,6 @@
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/GeometryContext.hpp"
 
-namespace po = boost::program_options;
-
-/// @brief Event algorithm to process and write out a geometry
 template <typename options_setup_t, typename geometry_setup_t>
 int
 processGeometry(int               argc,
@@ -39,33 +34,22 @@ processGeometry(int               argc,
                 options_setup_t&  optionsSetup,
                 geometry_setup_t& geometrySetup)
 {
-
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the standard/common options
-  FW::Options::addCommonOptions(desc);
-  // Add options for the Obj writing
-  FW::Options::addObjWriterOptions<po::options_description>(desc);
-  // Add the geometry options
+  // setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
   FW::Options::addGeometryOptions(desc);
-  // Add the output options
+  FW::Options::addObjWriterOptions(desc);
   FW::Options::addOutputOptions(desc);
   // Add specific options for this geometry
   optionsSetup(desc);
-
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // Print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
-  }
+  auto vm = FW::Options::parse(desc, argc, argv);
+  if (vm.empty()) { return EXIT_FAILURE; }
 
   // Now read the standard options
-  auto logLevel          = FW::Options::readLogLevel(vm);
-  auto nEvents           = FW::Options::readNumberOfEvents(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
+  // TODO Check whether this truly needs to be event-based. If yes switch to
+  // Sequencer-based tool, otherwise remove.
+  auto nEvents           = FW::Options::readSequencerConfig(vm).events;
   auto geometry          = geometrySetup(vm);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;

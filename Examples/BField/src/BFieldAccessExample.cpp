@@ -11,8 +11,8 @@
 #include <random>
 #include <string>
 
-#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Utilities/Options.hpp"
@@ -72,9 +72,7 @@ accessStepWise(field_t&         bField,
           // access the field with the cell
           auto field_from_cache = bField.getField(position, bCache);
           // check
-          if (!field_direct.isApprox(field_from_cache)) {
-            ++mismatched;
-          }
+          if (!field_direct.isApprox(field_from_cache)) { ++mismatched; }
           // increase the step
           currentStep += access_step;
           // show the progress bar
@@ -114,9 +112,7 @@ accessRandom(field_t&         bField,
     // access the field with the cell
     auto field_from_cache = bField.getField(position, bCache);
     // check
-    if (!field_direct.isApprox(field_from_cache)) {
-      ++mismatched;
-    }
+    if (!field_direct.isApprox(field_from_cache)) { ++mismatched; }
     // show the progress bar
     ++show_progress;
   }
@@ -132,12 +128,9 @@ int
 main(int argc, char* argv[])
 {
   // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the standard options
-  FW::Options::addCommonOptions(desc);
-  // Add the bfield options
-  FW::Options::addBFieldOptions<po::options_description>(desc);
-  // Add an output file
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  FW::Options::addBFieldOptions(desc);
   desc.add_options()("bf-phi-range",
                      po::value<read_range>()->default_value({-M_PI, M_PI}),
                      "range in which the phi parameter is generated.")(
@@ -156,30 +149,24 @@ main(int argc, char* argv[])
       "bf-tracklength",
       po::value<double>()->default_value(100.),
       "track length in [mm] magnetic field access.");
-  // Map to store the given program options
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // Print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
-  }
-  // Now read the standard options
-  auto nEvents = FW::Options::readNumberOfEvents(vm);
+  auto vm = FW::Options::parse(desc, argc, argv);
+  if (vm.empty()) { return EXIT_FAILURE; }
 
   // A test magnetic field context
   Acts::MagneticFieldContext magFieldContext = Acts::MagneticFieldContext();
 
-  // Create BField service
+  // TODO
+  // Why does this need number-of-events? If it really does emulate
+  // per-event access patterns this should be switched to a proper
+  // Sequencer-based tool. Otherwise it should be removed.
+  auto nEvents = FW::Options::readSequencerConfig(vm).events;
   auto bField  = FW::Options::readBField<po::variables_map>(vm);
   auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
   auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
 
   if (!field2D && !field3D) {
     std::cout << "Bfield map could not be read. Exiting." << std::endl;
-    return -1;
+    return EXIT_FAILURE;
   }
 
   // Get the phi and eta range
@@ -243,6 +230,5 @@ main(int argc, char* argv[])
                                           track_length);
   }
 
-  // Return 0 for success
-  return 0;
+  return EXIT_SUCCESS;
 }

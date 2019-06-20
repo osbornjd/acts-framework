@@ -28,8 +28,6 @@
 #include "FatrasEvgenBase.hpp"
 #include "FatrasSimulationBase.hpp"
 
-namespace po = boost::program_options;
-
 /// @brief The Fatras example
 ///
 /// This instantiates the geometry and runs fast track simultion
@@ -48,55 +46,33 @@ fatrasExample(int               argc,
               options_setup_t&  optionsSetup,
               geometry_setup_t& geometrySetup)
 {
-  // Create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
-  // Now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the Common options
-  FW::Options::addCommonOptions(desc);
-  // Add the geometry options
-  FW::Options::addGeometryOptions(desc);
-  // Add the particle gun options
-  FW::Options::addParticleGunOptions(desc);
-  // Add the Pythia 8 options
-  FW::Options::addPythia8Options(desc);
-  // Add the random number options
-  FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // Add the bfield options
-  FW::Options::addBFieldOptions<po::options_description>(desc);
-  // Add the fatras options
-  FW::Options::addFatrasOptions<po::options_description>(desc);
-  // Add the digization options
-  FW::Options::addDigitizationOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addOutputOptions(desc);
-  // Add program specific options: input / output
-  desc.add_options()("evg-input-type",
-                     po::value<std::string>()->default_value("pythia8"),
-                     "Type of evgen input 'gun', 'pythia8'");
+  using boost::program_options::value;
 
+  // setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  FW::Options::addGeometryOptions(desc);
+  FW::Options::addParticleGunOptions(desc);
+  FW::Options::addPythia8Options(desc);
+  FW::Options::addRandomNumbersOptions(desc);
+  FW::Options::addBFieldOptions(desc);
+  FW::Options::addFatrasOptions(desc);
+  FW::Options::addDigitizationOptions(desc);
+  FW::Options::addOutputOptions(desc);
+  desc.add_options()("evg-input-type",
+                     value<std::string>()->default_value("pythia8"),
+                     "Type of evgen input 'gun', 'pythia8'");
   // Add specific options for this geometry
   optionsSetup(desc);
+  auto vm = FW::Options::parse(desc, argc, argv);
+  if (vm.empty()) { return EXIT_FAILURE; }
 
-  // Map to store the given program options
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // Print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
-  }
-  // Read the common options : number of events and log level
-  auto nEvents  = FW::Options::readNumberOfEvents(vm);
+  FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
+
   auto logLevel = FW::Options::readLogLevel(vm);
 
   // Create the random number engine
-  auto randomNumberSvcCfg
-      = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
+  auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
 
@@ -119,22 +95,19 @@ fatrasExample(int               argc,
 
   // (A) EVGEN
   // Setup the evgen input to the simulation
-  setupEvgenInput<po::variables_map>(
-      vm, sequencer, barcodeSvc, randomNumberSvc);
+  setupEvgenInput(vm, sequencer, barcodeSvc, randomNumberSvc);
 
   // (B) SIMULATION
   // Setup the simulation
-  setupSimulation<po::variables_map>(
-      vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
+  setupSimulation(vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
 
   // (C) DIGITIZATION
   // Setup the digitization
-  setupDigitization<po::variables_map>(
-      vm, sequencer, barcodeSvc, randomNumberSvc);
+  setupDigitization(vm, sequencer, barcodeSvc, randomNumberSvc);
 
   // (D) TRUTH TRACKING
 
   // (E) PATTERN RECOGNITION
 
-  return sequencer.run(nEvents);
+  return sequencer.run();
 }
