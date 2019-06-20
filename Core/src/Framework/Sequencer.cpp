@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <chrono>
-#include <cstdlib>
 #include <exception>
 #include <valarray>
 
@@ -107,52 +106,45 @@ FW::Sequencer::listAlgorithmNames() const
   return names;
 }
 
-std::optional<size_t>
-FW::Sequencer::determineEndEvent(std::optional<size_t> requested,
-                                 size_t                skip) const
+std::size_t
+FW::Sequencer::determineEndEvent() const
 {
-  // There are two possibilities how the event loop can be steered
-  // 1) By the number of requested events
-  // 2) By the number of events available in the readers
+  // beware of possible overflow due to events == SIZE_MAX
+  // use saturated add from http://locklessinc.com/articles/sat_arithmetic/
+  std::size_t endRequested = m_cfg.skip + m_cfg.events;
+  endRequested |= -(endRequested < m_cfg.events);
 
-  auto shortestReader = std::min_element(
+  // determine maximum events available from readers
+  std::size_t endOnFile      = SIZE_MAX;
+  auto        shortestReader = std::min_element(
       m_readers.begin(), m_readers.end(), [](const auto& a, const auto& b) {
         return (a->numEvents() < b->numEvents());
       });
-
   if (shortestReader != m_readers.end()) {
-    // at least one reader is available and there is a maximum number of events
-    size_t endOnFile = (*shortestReader)->numEvents();
-    if (endOnFile <= skip) {
-      // trying to skip too many events is an error
-      ACTS_ERROR("Number of skipped events > than available number of events");
-      return std::optional<size_t>();
-    } else if (not requested) {
-      // without explicit limit, process all events on file after skipping
-      return std::make_optional(endOnFile);
-    } else {
-      // with explicit limit, take the smallest value
-      size_t endRequested = skip + requested.value();
-      if (endOnFile < endRequested) {
-        ACTS_INFO("Restrict number of events to available events");
-        return std::make_optional(endOnFile);
-      } else {
-        return std::make_optional(endRequested);
-      }
-    }
-  } else {
-    // no readers configure, number of events must be manually specified
-    if (skip != 0) {
-      // without readers, skipping has no meaning
-      ACTS_ERROR("Can not skip events without configured readers");
-      return std::optional<size_t>();
-    } else if (not requested) {
-      ACTS_ERROR("Missing number of events without configured readers");
-      return std::optional<size_t>();
-    } else {
-      return std::make_optional(requested.value());
-    }
+    endOnFile = (*shortestReader)->numEvents();
   }
+
+  // without readers, skipping has no meaning
+  if (m_readers.empty() and (0 < m_cfg.skip)) {
+    ACTS_ERROR("Can not skip events without configured readers");
+    return SIZE_MAX;
+  }
+  // trying to skip too many events must be an error
+  if (endOnFile <= m_cfg.skip) {
+    ACTS_ERROR("Less events available than requested to skip");
+    return SIZE_MAX;
+  }
+  std::size_t endEvent = std::min(endRequested, endOnFile);
+
+  if (endEvent == SIZE_MAX) {
+    ACTS_ERROR("Could not determine number of events");
+    return SIZE_MAX;
+  }
+  if (endOnFile < endRequested) {
+    ACTS_INFO("Restrict number of events to available events");
+  }
+
+  return endEvent;
 }
 
 // helpers for per-algorithm performance counters
@@ -199,15 +191,15 @@ perEvent(D duration, size_t numEvents)
 }  // namespace
 
 int
-FW::Sequencer::run(std::optional<size_t> events, size_t skip)
+FW::Sequencer::run()
 {
   // measure overall wall clock
   Timepoint clockWallStart = Clock::now();
 
   // processing only works w/ a well-known number of events
-  // error message are handled by helper function
-  auto endEvent = determineEndEvent(events, skip);
-  if (not endEvent) { return EXIT_FAILURE; }
+  // error message are already handled by the helper function
+  std::size_t endEvent = determineEndEvent();
+  if (endEvent == SIZE_MAX) { return EXIT_FAILURE; }
 
   ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
   ACTS_INFO("  " << m_services.size() << " services");
@@ -223,7 +215,7 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
   // Execute the event loop
   tbb::task_scheduler_init init(m_cfg.numThreads);
   tbb::parallel_for(
-      tbb::blocked_range<size_t>(skip, endEvent.value() + 1),
+      tbb::blocked_range<size_t>(m_cfg.skip, endEvent),
       [&](const tbb::blocked_range<size_t>& r) {
         std::valarray<Duration> localClocksAlgorithms(names.size());
 
@@ -283,7 +275,7 @@ FW::Sequencer::run(std::optional<size_t> events, size_t skip)
   }
 
   // summarize processing timing
-  size_t   numEvents = endEvent.value() - skip;
+  size_t   numEvents = endEvent - m_cfg.skip;
   Duration clockWall = Clock::now() - clockWallStart;
   ACTS_INFO("Processed " << numEvents << " in " << asString(clockWall)
                          << " (wall clock)");
