@@ -6,6 +6,7 @@ stages:
 variables:
     BUILD_TYPE: Release
     GIT_SUBMODULE_STRATEGY: recursive
+    EVENTS: 10
 
 image: gitlab-registry.cern.ch/acts/machines/slc6:latest
 
@@ -83,65 +84,65 @@ build_vanilla:
 hello_world:
   <<: *example_base
   script:
-    - ACTFWHelloWorldExample
+    - ACTFWHelloWorldExample -n ${EVENTS}
 
 generic_propagation:
   <<: *example_base
   script:
-    - ACTFWGenericPropagationExample
+    - ACTFWGenericPropagationExample -n ${EVENTS}
 
 generic_fatras_example:
   <<: *example_base
   script:
-    - ACTFWGenericFatrasExample
+    - ACTFWGenericFatrasExample -n ${EVENTS}
 
 tgeo_fatras_example:
   <<: *example_base
   script:
-    - ACTFWTGeoFatrasExample
+    - ACTFWTGeoFatrasExample -n ${EVENTS}
 
 generator_particle_gun:
   <<: *example_base
   script:
-    - ActsParticleGun -n 10 --output-root 1 --output-csv 1
+    - ActsParticleGun -n ${EVENTS} --output-root 1 --output-csv 1
 
 generator_pythia8:
   <<: *example_base
   script:
-    - ActsPythia8 -n 10 --output-root 1 --output-csv 1
+    - ActsPythia8 -n ${EVENTS} --output-root 1 --output-csv 1
 
 whiteboard_example:
   <<: *example_base
   script:
-    - ACTFWWhiteBoardExample
+    - ACTFWWhiteBoardExample -n ${EVENTS}
 
 generic_geometry_example:
   <<: *example_base
   script:
-    - ACTFWGenericGeometryExample
+    - ACTFWGenericGeometryExample -n ${EVENTS}
 
 random_number_example:
   <<: *example_base
   script:
-    - ACTFWRandomNumberExample
+    - ACTFWRandomNumberExample -n ${EVENTS}
 
 dd4hep_fatras_example:
   <<: *example_base
   script:
-    - ACTFWDD4hepFatrasExample
+    - ACTFWDD4hepFatrasExample -n ${EVENTS}
 
 dd4hep_geometry_example:
   <<: *example_base
   script:
-    - ACTFWDD4hepGeometryExample
+    - ACTFWDD4hepGeometryExample -n ${EVENTS}
 
 dd4hep_propagation_example:
   <<: *example_base
   script:
-    - ACTFWDD4hepPropagationExample
+    - ACTFWDD4hepPropagationExample -n ${EVENTS}
 
 reproducibility_generic_propagation:
   <<: *example_base
   script:
     - cd scripts
-    - ./testReproducibility.sh GenericPropagation 10 propagation-steps
+    - ./testReproducibility.sh GenericPropagation ${EVENTS} propagation-steps
