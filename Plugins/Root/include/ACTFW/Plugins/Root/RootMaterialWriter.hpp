@@ -15,7 +15,6 @@
 #include <map>
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Material/IVolumeMaterial.hpp"
 #include "Acts/Utilities/Definitions.hpp"
@@ -46,7 +45,7 @@ namespace Root {
   /// It writes out a MaterialTrack which is usually generated from
   /// Geant4 material mapping
 
-  class RootMaterialWriter : public FW::IWriterT<Acts::DetectorMaterialMaps>
+  class RootMaterialWriter
   {
 
   public:
@@ -110,11 +109,11 @@ namespace Root {
     RootMaterialWriter(const Config& cfg);
 
     /// Virtual destructor
-    ~RootMaterialWriter() override;
+    ~RootMaterialWriter();
 
     /// Framework name() method
     std::string
-    name() const final override;
+    name() const;
 
     /// Interface method which writes out the MaterialTrack entities
     ///
@@ -122,7 +121,7 @@ namespace Root {
     /// @param detMaterial are the detector material maps
     FW::ProcessCode
     write(const AlgorithmContext&           context,
-          const Acts::DetectorMaterialMaps& detMaterial) final override;
+          const Acts::DetectorMaterialMaps& detMaterial);
 
   private:
     /// The config class

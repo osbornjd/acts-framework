@@ -15,7 +15,6 @@
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Material/IVolumeMaterial.hpp"
 #include "Acts/Utilities/Definitions.hpp"
@@ -40,7 +39,7 @@ namespace Json {
   ///
   /// @brief Writes out Detector material maps
   /// using the Json Geometry converter
-  class JsonMaterialWriter : public FW::IWriterT<Acts::DetectorMaterialMaps>
+  class JsonMaterialWriter 
   {
 
   public:
@@ -50,11 +49,10 @@ namespace Json {
     JsonMaterialWriter(const JsonGeometryConverter::Config& cfg);
 
     /// Virtual destructor
-    ~JsonMaterialWriter() override;
+    ~JsonMaterialWriter();
 
     /// Framework name() method
-    std::string
-    name() const final override;
+    std::string name() const;
 
     /// Interface method which writes out the MaterialTrack entities
     ///
@@ -62,7 +60,7 @@ namespace Json {
     /// @param ism is the indexed surface material
     FW::ProcessCode
     write(const AlgorithmContext&           context,
-          const Acts::DetectorMaterialMaps& detMaterial) final override;
+          const Acts::DetectorMaterialMaps& detMaterial);
 
   private:
     /// The config class of the converter

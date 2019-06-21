@@ -19,7 +19,6 @@
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
-#include "ACTFW/Plugins/Txt/TxtParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
@@ -192,21 +191,6 @@ setupSimulationAlgorithm(
         = fatrasConfig.simulatedEventCollection + ".csv";
     sequencer.addWriter(
         std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig));
-  }
-
-  // Write simulation information as Txt files
-  std::shared_ptr<FW::Txt::TxtParticleWriter> pWriterTxt = nullptr;
-  if (vm["output-txt"].template as<bool>()) {
-    FW::Txt::TxtParticleWriter::Config pWriterTxtConfig;
-    pWriterTxtConfig.collection        = fatrasConfig.simulatedEventCollection;
-    pWriterTxtConfig.outputDir         = outputDir;
-    pWriterTxtConfig.outputTrkFileName = "tracks.txt";
-    pWriterTxtConfig.outputVtxFileName = "vertices.txt";
-    pWriterTxtConfig.barcodeSvc        = barcodeSvc;
-    auto pWriterTxt
-        = std::make_shared<FW::Txt::TxtParticleWriter>(pWriterTxtConfig);
-
-    sequencer.addWriters({pWriterTxt});
   }
 
   // Write simulation information as ROOT files

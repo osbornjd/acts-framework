@@ -1,6 +1,5 @@
 add_subdirectory(Digitization)
 add_subdirectory(Fatras)
 add_subdirectory(Generators)
-add_subdirectory(MaterialMapping)
-add_subdirectory(ParticleGun)
+#add_subdirectory(MaterialMapping)
 add_subdirectory(Propagation)

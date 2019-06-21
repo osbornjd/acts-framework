@@ -11,7 +11,6 @@
 #include <map>
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Readers/IReaderT.hpp"
 #include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
@@ -42,7 +41,7 @@ namespace Root {
   ///
   /// @brief Read the collection of SurfaceMaterial from a file in order to
   /// load it onto the TrackingGeometry
-  class RootMaterialReader : public FW::IReaderT<Acts::DetectorMaterialMaps>
+  class RootMaterialReader
   {
   public:
     /// @class Config
@@ -106,11 +105,11 @@ namespace Root {
     RootMaterialReader(const Config& cfg);
 
     /// Virtual destructor
-    ~RootMaterialReader() override;
+    ~RootMaterialReader();
 
     /// Framework name() method
     std::string
-    name() const final override;
+    name() const;
 
     /// Read method
     ///

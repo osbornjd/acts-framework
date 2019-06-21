@@ -13,10 +13,6 @@
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/GeometryOptions.hpp"
-#include "ACTFW/Common/MaterialOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Digitization/DigitizationOptions.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -27,8 +23,7 @@
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
-#include "Acts/Material/IMaterialDecorator.hpp"
+
 #include "FatrasDigitizationBase.hpp"
 #include "FatrasEvgenBase.hpp"
 #include "FatrasSimulationBase.hpp"
@@ -51,36 +46,19 @@ fatrasExample(int               argc,
               options_setup_t&  optionsSetup,
               geometry_setup_t& geometrySetup)
 {
+  using boost::program_options::value;
 
-  // Create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
-  // Now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the Common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Add the geometry options
-  FW::Options::addGeometryOptions<po::options_description>(desc);
-  // Add the material options
-  FW::Options::addMaterialOptions<po::options_description>(desc);
-  // Add the particle gun options
-  FW::Options::addParticleGunOptions<po::options_description>(desc);
-  // Add the Pythia 8 options
-  FW::Options::addPythia8Options<po::options_description>(desc);
-  // Add the evgen options
-  FW::Options::addEvgenReaderOptions<po::options_description>(desc);
-  // Add the random number options
-  FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // Add the bfield options
-  FW::Options::addBFieldOptions<po::options_description>(desc);
-  // Add the fatras options
-  FW::Options::addFatrasOptions<po::options_description>(desc);
-  // Add the digization options
-  FW::Options::addDigitizationOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
-  // Add program specific options: input / output
+  // setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  FW::Options::addGeometryOptions(desc);
+  FW::Options::addParticleGunOptions(desc);
+  FW::Options::addPythia8Options(desc);
+  FW::Options::addRandomNumbersOptions(desc);
+  FW::Options::addBFieldOptions(desc);
+  FW::Options::addFatrasOptions(desc);
+  FW::Options::addDigitizationOptions(desc);
+  FW::Options::addOutputOptions(desc);
   desc.add_options()("evg-input-type",
                      value<std::string>()->default_value("pythia8"),
                      "Type of evgen input 'gun', 'pythia8'");
@@ -109,11 +87,8 @@ fatrasExample(int               argc,
   // Add it to the sequencer
   sequencer.addService(barcodeSvc);
 
-  // Material loading from external source
-  auto mDecorator = FW::Options::readMaterialDecorator<po::variables_map>(vm);
-
   // Create the geometry and the context decorators
-  auto geometry          = geometrySetup(vm, mDecorator);
+  auto geometry          = geometrySetup(vm, nullptr);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 

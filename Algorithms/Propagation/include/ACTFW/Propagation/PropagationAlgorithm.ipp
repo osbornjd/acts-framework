@@ -205,18 +205,14 @@ PropagationAlgorithm<propagator_t>::execute(
   }
 
   // Write the propagation step data to the event store
-  if (context.eventStore.add(m_cfg.propagationStepCollection,
-                             std::move(propagationSteps))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  context.eventStore.add(m_cfg.propagationStepCollection,
+                             std::move(propagationSteps));
 
   // Write the recorded material to the event store
-  if (m_cfg.recordMaterialInteractions
-      && context.eventStore.add(m_cfg.propagationMaterialCollection,
-                                std::move(recordedMaterial))
-          == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
+  if (m_cfg.recordMaterialInteractions){
+    context.eventStore.add(m_cfg.propagationMaterialCollection,
+                           std::move(recordedMaterial));
+    
   }
 
   return ProcessCode::SUCCESS;

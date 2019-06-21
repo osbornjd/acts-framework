@@ -86,7 +86,7 @@ setupDigitization(vmap_t&                               vm,
     auto clusteWriterTxt = std::make_shared<FW::Txt::TxtPlanarClusterWriter>(
         clusterWriterTxtConfig);
     // Add to the sequencer
-    sequencer.addWriters({clusteWriterTxt});
+    sequencer.addWriter(clusteWriterTxt);
   }
 
   // Write digitsation output as OBJ files

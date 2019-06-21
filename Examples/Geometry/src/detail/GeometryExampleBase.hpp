@@ -11,6 +11,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -18,15 +19,13 @@
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvWriterOptions.hpp"
-#include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjWriterOptions.hpp"
+#include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Material/IMaterialDecorator.hpp"
-#include "Acts/Plugins/Json/lib/json.hpp"
 #include "Acts/Utilities/GeometryContext.hpp"
 
 template <typename options_setup_t, typename geometry_setup_t>
@@ -36,20 +35,12 @@ processGeometry(int               argc,
                 options_setup_t&  optionsSetup,
                 geometry_setup_t& geometrySetup)
 {
-
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the standard/common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Add options for the Obj writing
-  FW::Options::addObjWriterOptions<po::options_description>(desc);
-  // Add the geometry options
-  FW::Options::addGeometryOptions<po::options_description>(desc);
-  // Add the geometry options
-  FW::Options::addMaterialOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
-
+  // setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  FW::Options::addGeometryOptions(desc);
+  FW::Options::addObjWriterOptions(desc);
+  FW::Options::addOutputOptions(desc);
   // Add specific options for this geometry
   optionsSetup(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
@@ -58,13 +49,11 @@ processGeometry(int               argc,
   }
 
   // Now read the standard options
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-
-  // Material loading from external source
-  auto mDecorator = FW::Options::readMaterialDecorator<po::variables_map>(vm);
-
-  auto geometry          = geometrySetup(vm, mDecorator);
+  auto logLevel = FW::Options::readLogLevel(vm);
+  // TODO Check whether this truly needs to be event-based. If yes switch to
+  // Sequencer-based tool, otherwise remove.
+  auto nEvents           = FW::Options::readSequencerConfig(vm).events;
+  auto geometry          = geometrySetup(vm, nullptr);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 
@@ -80,136 +69,107 @@ processGeometry(int               argc,
 
   for (size_t ievt = 0; ievt < nEvents; ++ievt) {
 
-    // Setup the event and algorithm context
-    FW::WhiteBoard eventStore(
-        Acts::getDefaultLogger("EventStore#" + std::to_string(0), logLevel));
-    size_t ialg = 0;
+     // Setup the event and algorithm context
+     FW::WhiteBoard eventStore(
+         Acts::getDefaultLogger("EventStore#" + std::to_string(0), logLevel));
+     size_t ialg = 0;
 
-    // The geometry context
-    FW::AlgorithmContext context(ialg, ievt, eventStore);
+     // The geometry context
+     FW::AlgorithmContext context(ialg, ievt, eventStore);
 
-    /// Decorate the context
-    for (auto& cdr : contextDecorators) {
-      if (cdr->decorate(context) != FW::ProcessCode::SUCCESS)
-        throw std::runtime_error("Failed to decorate event context");
-    }
+     /// Decorate the context
+     for (auto& cdr : contextDecorators) {
+       if (cdr->decorate(context) != FW::ProcessCode::SUCCESS)
+         throw std::runtime_error("Failed to decorate event context");
+     }
 
-    std::string geoContextStr = "";
-    if (contextDecorators.size() > 0) {
-      // We need indeed a context object
-      if (nEvents > 1) {
-        geoContextStr = "_geoContext" + std::to_string(ievt);
-      }
-    }
+     std::string geoContextStr = "";
+     if (contextDecorators.size() > 0) {
+       // We need indeed a context object
+       if (nEvents > 1) {
+         geoContextStr = "_geoContext" + std::to_string(ievt);
+       }
+     }
 
-    // ---------------------------------------------------------------------------------
-    // Output directory
-    std::string outputDir = vm["output-dir"].template as<std::string>();
+     // ---------------------------------------------------------------------------------
+     // Output directory
+     std::string outputDir = vm["output-dir"].template as<std::string>();
 
-    // OBJ output
-    if (vm["output-obj"].as<bool>()) {
-      // The writers
-      std::vector<std::shared_ptr<FW::Obj::ObjSurfaceWriter>> subWriters;
-      std::vector<std::shared_ptr<std::ofstream>>             subStreams;
-      // Loop and create the obj output writers per defined sub detector
-      for (auto sdet : subDetectors) {
-        // Sub detector stream
-        auto sdStream = std::shared_ptr<std::ofstream>(new std::ofstream);
-        std::string sdOutputName
-            = FW::joinPaths(outputDir, sdet + geoContextStr + ".obj");
-        sdStream->open(sdOutputName);
-        // Object surface writers
-        FW::Obj::ObjSurfaceWriter::Config sdObjWriterConfig
-            = FW::Options::readObjSurfaceWriterConfig(
-                vm, sdet, surfaceLogLevel);
-        sdObjWriterConfig.outputStream = sdStream;
-        // Let's not write the layer surface when we have misalignment
-        if (contextDecorators.size() > 0) {
-          sdObjWriterConfig.outputLayerSurface = false;
-        }
-        auto sdObjWriter
-            = std::make_shared<FW::Obj::ObjSurfaceWriter>(sdObjWriterConfig);
-        // Push back
-        subWriters.push_back(sdObjWriter);
-        subStreams.push_back(sdStream);
-      }
+     // OBJ output
+     if (vm["output-obj"].as<bool>()) {
+       // The writers
+       std::vector<std::shared_ptr<FW::Obj::ObjSurfaceWriter>> subWriters;
+       std::vector<std::shared_ptr<std::ofstream>>             subStreams;
+       // Loop and create the obj output writers per defined sub detector
+       for (auto sdet : subDetectors) {
+         // Sub detector stream
+         auto sdStream = std::shared_ptr<std::ofstream>(new std::ofstream);
+         std::string sdOutputName
+             = FW::joinPaths(outputDir, sdet + geoContextStr + ".obj");
+         sdStream->open(sdOutputName);
+         // Object surface writers
+         FW::Obj::ObjSurfaceWriter::Config sdObjWriterConfig
+             = FW::Options::readObjSurfaceWriterConfig(
+                 vm, sdet, surfaceLogLevel);
+         sdObjWriterConfig.outputStream = sdStream;
+         // Let's not write the layer surface when we have misalignment
+         if (contextDecorators.size() > 0) {
+           sdObjWriterConfig.outputLayerSurface = false;
+         }
+         auto sdObjWriter
+             = std::make_shared<FW::Obj::ObjSurfaceWriter>(sdObjWriterConfig);
+         // Push back
+         subWriters.push_back(sdObjWriter);
+         subStreams.push_back(sdStream);
+       }
 
-      // Configure the tracking geometry writer
-      auto tgObjWriterConfig = FW::Options::readObjTrackingGeometryWriterConfig(
-          vm, "ObjTrackingGeometryWriter", volumeLogLevel);
+       // Configure the tracking geometry writer
+       auto tgObjWriterConfig = FW::Options::readObjTrackingGeometryWriterConfig(
+           vm, "ObjTrackingGeometryWriter", volumeLogLevel);
 
-      tgObjWriterConfig.surfaceWriters = subWriters;
-      auto tgObjWriter = std::make_shared<FW::Obj::ObjTrackingGeometryWriter>(
-          tgObjWriterConfig);
+       tgObjWriterConfig.surfaceWriters = subWriters;
+       auto tgObjWriter = std::make_shared<FW::Obj::ObjTrackingGeometryWriter>(
+           tgObjWriterConfig);
 
-      // Write the tracking geometry object
-      tgObjWriter->write(context, *tGeometry);
+       // Write the tracking geometry object
+       tgObjWriter->write(context, *tGeometry);
 
-      // Close the output streams
-      for (auto sStreams : subStreams) {
-        sStreams->close();
-      }
-    }
+       // Close the output streams
+       for (auto sStreams : subStreams) {
+         sStreams->close();
+       }
+     }
 
-    // CSV output
-    if (vm["output-csv"].as<bool>()) {
+     // CSV output
+     if (vm["output-csv"].as<bool>()) {
 
-      auto        csvStream = std::shared_ptr<std::ofstream>(new std::ofstream);
-      std::string csvOutputName = "Detector" + geoContextStr + ".csv";
-      csvStream->open(csvOutputName);
+       auto        csvStream = std::shared_ptr<std::ofstream>(new std::ofstream);
+       std::string csvOutputName = "Detector" + geoContextStr + ".csv";
+       csvStream->open(csvOutputName);
 
-      FW::Csv::CsvSurfaceWriter::Config sfCsvWriterConfig
-          = FW::Options::readCsvSurfaceWriterConfig(vm, "CsvSurfaceWriter");
-      sfCsvWriterConfig.outputStream = csvStream;
-      auto sfCsvWriter
-          = std::make_shared<FW::Csv::CsvSurfaceWriter>(sfCsvWriterConfig);
+       FW::Csv::CsvSurfaceWriter::Config sfCsvWriterConfig
+           = FW::Options::readCsvSurfaceWriterConfig(vm, "CsvSurfaceWriter");
+       sfCsvWriterConfig.outputStream = csvStream;
+       auto sfCsvWriter
+           = std::make_shared<FW::Csv::CsvSurfaceWriter>(sfCsvWriterConfig);
 
-      // Configure the tracking geometry writer
-      FW::Csv::CsvTrackingGeometryWriter::Config tgCsvWriterConfig
-          = FW::Options::readCsvTrackingGeometryWriterConfig(
-              vm, "CsvTrackingGeometryWriter");
-      tgCsvWriterConfig.surfaceWriter = sfCsvWriter;
-      tgCsvWriterConfig.layerPrefix   = "\n";
-      // The tracking geometry writer
-      auto tgCsvWriter = std::make_shared<FW::Csv::CsvTrackingGeometryWriter>(
-          tgCsvWriterConfig);
+       // Configure the tracking geometry writer
+       FW::Csv::CsvTrackingGeometryWriter::Config tgCsvWriterConfig
+           = FW::Options::readCsvTrackingGeometryWriterConfig(
+               vm, "CsvTrackingGeometryWriter");
+       tgCsvWriterConfig.surfaceWriter = sfCsvWriter;
+       tgCsvWriterConfig.layerPrefix   = "\n";
+       // The tracking geometry writer
+       auto tgCsvWriter = std::make_shared<FW::Csv::CsvTrackingGeometryWriter>(
+           tgCsvWriterConfig);
 
-      // Write the tracking geometry object
-      tgCsvWriter->write(context, *(tGeometry.get()));
+       // Write the tracking geometry object
+       tgCsvWriter->write(context, *(tGeometry.get()));
 
-      // Close the file
-      csvStream->close();
-    }
-
-    // OBJ output
-    if (vm["output-json"].as<bool>()) {
-
-      /// The name of the output file
-      std::string fileName = vm["mat-output-file"].template as<std::string>();
-      // the material writer
-      FW::Json::JsonGeometryConverter::Config jmConverterCfg(
-          "JsonGeometryConverter", Acts::Logging::INFO);
-      jmConverterCfg.processSensitives
-          = vm["mat-output-sensitives"].template as<bool>();
-      jmConverterCfg.processApproaches
-          = vm["mat-output-approaches"].template as<bool>();
-      jmConverterCfg.processRepresenting
-          = vm["mat-output-representing"].template as<bool>();
-      jmConverterCfg.processBoundaries
-          = vm["mat-output-boundaries"].template as<bool>();
-      jmConverterCfg.processVolumes
-          = vm["mat-output-volume"].template as<bool>();
-      jmConverterCfg.writeData = vm["mat-output-data"].template as<bool>();
-
-      FW::Json::JsonGeometryConverter jmConverter(jmConverterCfg);
-
-      auto jout = jmConverter.trackingGeometryToJson(*(tGeometry.get()));
-      // write prettified JSON to another file
-      std::string   jsonOutputName = fileName + geoContextStr + ".json";
-      std::ofstream ofj(jsonOutputName);
-      ofj << std::setw(4) << jout << std::endl;
-    }
-  }
-
-  return 0;
-}
+       // Close the file
+       csvStream->close();
+     }
+   }
+ 
+   return 0;
+ }

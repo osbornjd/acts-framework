@@ -9,12 +9,11 @@
 #pragma once
 
 #include <memory>
+
 #include <boost/program_options.hpp>
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/GeometryOptions.hpp"
-#include "ACTFW/Common/MaterialOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
+
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Plugins/Obj/ObjPropagationStepsWriter.hpp"
@@ -29,7 +28,6 @@
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "Acts/MagneticField/SharedBField.hpp"
-#include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
@@ -48,11 +46,11 @@
 /// @return a process code
 template <typename sequencer_t, typename bfield_t>
 FW::ProcessCode
-setupPropagation(sequencer_t&                                  sequencer,
-                 bfield_t                                      bfield,
-                 po::variables_map&                            vm,
-                 std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
-                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
+setupPropgation(sequencer_t&                                  sequencer,
+                bfield_t                                      bfield,
+                boost::program_options::variables_map&        vm,
+                std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
+                std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
   auto logLevel = FW::Options::readLogLevel(vm);
@@ -132,29 +130,14 @@ propagationExample(int               argc,
                    options_setup_t&  optionsSetup,
                    geometry_setup_t& geometrySetup)
 {
-
-  // Create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
-  // Now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Add the geometry options
-  FW::Options::addGeometryOptions<po::options_description>(desc);
-  // Add the material options
-  FW::Options::addMaterialOptions<po::options_description>(desc);
-  // Add the bfield options
-  FW::Options::addBFieldOptions<po::options_description>(desc);
-  // Add the random number options
-  FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // Add the fatras options
-  FW::Options::addPropagationOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
-
+  // setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  FW::Options::addGeometryOptions(desc);
+  FW::Options::addBFieldOptions(desc);
+  FW::Options::addRandomNumbersOptions(desc);
+  FW::Options::addPropagationOptions(desc);
+  FW::Options::addOutputOptions(desc);
   // Add specific options for this geometry
   optionsSetup(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
@@ -162,14 +145,11 @@ propagationExample(int               argc,
     return EXIT_FAILURE;
   }
 
+  FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
+
   // Now read the standard options
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-
-  // Material loading from external source
-  auto mDecorator = FW::Options::readMaterialDecorator<po::variables_map>(vm);
-
-  auto geometry          = geometrySetup(vm, mDecorator);
+  auto logLevel          = FW::Options::readLogLevel(vm);
+  auto geometry          = geometrySetup(vm, nullptr);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 
@@ -194,24 +174,24 @@ propagationExample(int               argc,
     // Straight line stepper was chosen
     setupStraightLinePropgation(sequencer, vm, randomNumberSvc, tGeometry);
   } else if (field2D) {
-    // Define the interpolated b-field: 2D
+    // Define the interpolated b-field
     using BField = Acts::SharedBField<InterpolatedBFieldMap2D>;
     BField fieldMap(field2D);
-    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else if (field3D) {
-    // Define the interpolated b-field: 3D
+    // Define the interpolated b-field
     using BField = Acts::SharedBField<InterpolatedBFieldMap3D>;
     BField fieldMap(field3D);
-    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else if (vm["bf-context-scalable"].template as<bool>()) {
     using SField = FW::BField::ScalableBField;
     SField fieldMap(*std::get<std::shared_ptr<SField>>(bField));
-    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else {
     // Create the constant  field
     using CField = Acts::ConstantBField;
     CField fieldMap(*std::get<std::shared_ptr<CField>>(bField));
-    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   }
 
   // ---------------------------------------------------------------------------------

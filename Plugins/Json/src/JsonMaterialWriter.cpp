@@ -16,7 +16,6 @@
 
 FW::Json::JsonMaterialWriter::JsonMaterialWriter(
     const FW::Json::JsonGeometryConverter::Config& cfg)
-  : FW::IWriterT<Acts::DetectorMaterialMaps>(), m_cfg(cfg)
 {
   // Validate the configuration
   if (m_cfg.name.empty()) {
@@ -30,7 +29,6 @@ FW::Json::JsonMaterialWriter::~JsonMaterialWriter()
 
 FW::ProcessCode
 FW::Json::JsonMaterialWriter::write(
-    const AlgorithmContext& /*context*/,
     const Acts::DetectorMaterialMaps& detMaterial)
 {
 
