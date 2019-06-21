@@ -86,16 +86,16 @@ FW::Sequencer::listAlgorithmNames() const
 
   // WARNING this must be done in the same order as in the processing
   for (const auto& decorator : m_decorators) {
-    names.push_back("decorator:" + decorator->name());
+    names.push_back("Decorator:" + decorator->name());
   }
   for (const auto& reader : m_readers) {
-    names.push_back("reader:" + reader->name());
+    names.push_back("Reader:" + reader->name());
   }
   for (const auto& algorithm : m_algorithms) {
-    names.push_back("algorithm:" + algorithm->name());
+    names.push_back("Algorithm:" + algorithm->name());
   }
   for (const auto& writer : m_writers) {
-    names.push_back("writer:" + writer->name());
+    names.push_back("Writer:" + writer->name());
   }
 
   return names;
