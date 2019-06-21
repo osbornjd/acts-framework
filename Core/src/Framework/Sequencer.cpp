@@ -296,9 +296,15 @@ FW::Sequencer::run()
 
   // Call endRun() for writers and services
   for (auto& wrt : m_writers) {
+    names.push_back("Writer:" + wrt->name() + ":endRun");
+    clocksAlgorithms.push_back(Duration::zero());
+    StopWatch sw(clocksAlgorithms.back());
     if (wrt->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
   }
   for (auto& svc : m_services) {
+    names.push_back("Service:" + svc->name() + ":endRun");
+    clocksAlgorithms.push_back(Duration::zero());
+    StopWatch sw(clocksAlgorithms.back());
     if (svc->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
   }
 
