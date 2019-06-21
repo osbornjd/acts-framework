@@ -41,6 +41,8 @@ public:
     Acts::Logging::Level logLevel = Acts::Logging::INFO;
     /// number of parallel threads to run, negative for automatic determination
     int numThreads = -1;
+    /// output directory for timing information, empty for working directory
+    std::string outputDir;
   };
 
   Sequencer(const Config& cfg);

@@ -19,6 +19,7 @@
 
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 
 FW::Sequencer::Sequencer(const Sequencer::Config& cfg)
   : m_cfg(cfg), m_logger(Acts::getDefaultLogger("Sequencer", m_cfg.logLevel))
@@ -321,7 +322,10 @@ FW::Sequencer::run()
     ACTS_DEBUG("  " << names[i] << ": "
                     << perEvent(clocksAlgorithms[i], numEvents));
   }
-  storeTiming(names, clocksAlgorithms, numEvents, "timing.tsv");
+  storeTiming(names,
+              clocksAlgorithms,
+              numEvents,
+              joinPaths(m_cfg.outputDir, "timing.tsv"));
 
   return EXIT_SUCCESS;
 }
