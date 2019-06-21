@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <chrono>
 #include <exception>
-#include <valarray>
+#include <numeric>
 
 #include <TROOT.h>
 #include <dfe/dfe_namedtuple.hpp>
@@ -198,7 +198,7 @@ struct TimingInfo
 };
 void
 storeTiming(const std::vector<std::string>& identifiers,
-            const std::valarray<Duration>&  durations,
+            const std::vector<Duration>&    durations,
             std::size_t                     numEvents,
             std::string                     path)
 {
@@ -234,7 +234,7 @@ FW::Sequencer::run()
   ACTS_INFO("  " << m_writers.size() << " writers");
 
   std::vector<std::string> names = listAlgorithmNames();
-  std::valarray<Duration>  clocksAlgorithms(names.size());
+  std::vector<Duration>    clocksAlgorithms(names.size(), Duration::zero());
   tbb::queuing_mutex       clocksAlgorithmsMutex;
 
   // Execute the event loop
@@ -242,7 +242,8 @@ FW::Sequencer::run()
   tbb::parallel_for(
       tbb::blocked_range<size_t>(m_cfg.skip, endEvent),
       [&](const tbb::blocked_range<size_t>& r) {
-        std::valarray<Duration> localClocksAlgorithms(names.size());
+        std::vector<Duration> localClocksAlgorithms(names.size(),
+                                                    Duration::zero());
 
         for (size_t event = r.begin(); event != r.end(); ++event) {
           // Use per-event store
@@ -287,7 +288,9 @@ FW::Sequencer::run()
         // add timing info to global information
         {
           tbb::queuing_mutex::scoped_lock lock(clocksAlgorithmsMutex);
-          clocksAlgorithms += localClocksAlgorithms;
+          for (std::size_t i = 0; i < clocksAlgorithms.size(); ++i) {
+            clocksAlgorithms[i] += localClocksAlgorithms[i];
+          }
         }
       });
 
@@ -300,12 +303,13 @@ FW::Sequencer::run()
   }
 
   // summarize timing
-  Duration    clockWall = Clock::now() - clockWallStart;
+  Duration totalWall = Clock::now() - clockWallStart;
+  Duration totalReal = std::accumulate(
+      clocksAlgorithms.begin(), clocksAlgorithms.end(), Duration::zero());
   std::size_t numEvents = endEvent - m_cfg.skip;
-  ACTS_INFO("Processed " << numEvents << " events in " << asString(clockWall)
+  ACTS_INFO("Processed " << numEvents << " events in " << asString(totalWall)
                          << " (wall clock)");
-  ACTS_INFO("Average time per event: " << perEvent(clocksAlgorithms.sum(),
-                                                   numEvents));
+  ACTS_INFO("Average time per event: " << perEvent(totalReal, numEvents));
   ACTS_DEBUG("Average time per algorithm:");
   for (size_t i = 0; i < names.size(); ++i) {
     ACTS_DEBUG("  " << names[i] << ": "
