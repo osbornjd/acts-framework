@@ -13,5 +13,5 @@ target_include_directories(
 target_link_libraries(
   ACTFramework
   PUBLIC ActsCore ${ROOT_LIBRARIES}
-  PRIVATE ${TBB_LIBRARIES})
+  PRIVATE ${TBB_LIBRARIES} dfelibs)
 install(TARGETS ACTFramework LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

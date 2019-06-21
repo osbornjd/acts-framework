@@ -14,6 +14,7 @@
 #include <valarray>
 
 #include <TROOT.h>
+#include <dfe/dfe_namedtuple.hpp>
 #include <tbb/tbb.h>
 
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -142,11 +143,13 @@ FW::Sequencer::determineEndEvent() const
   return endEvent;
 }
 
-// helpers for per-algorithm performance counters
+// helpers for per-algorithm timing information
 namespace {
+
 using Clock       = std::chrono::high_resolution_clock;
 using Duration    = Clock::duration;
 using Timepoint   = Clock::time_point;
+using Seconds     = std::chrono::duration<double>;
 using NanoSeconds = std::chrono::duration<double, std::nano>;
 
 // RAII-based stopwatch to time execution within a block
@@ -175,12 +178,39 @@ asString(D duration)
     return std::to_string(ns) + " ns";
   }
 }
+
 // Convert duration scaled to one event to a printable string.
 template <typename D>
 inline std::string
 perEvent(D duration, size_t numEvents)
 {
   return asString(duration / numEvents) + "/event";
+}
+
+// Store timing data
+struct TimingInfo
+{
+  std::string identifier;
+  double      time_total_s;
+  double      time_perevent_s;
+
+  DFE_NAMEDTUPLE(TimingInfo, identifier, time_total_s, time_perevent_s);
+};
+void
+storeTiming(const std::vector<std::string>& identifiers,
+            const std::valarray<Duration>&  durations,
+            std::size_t                     numEvents,
+            std::string                     path)
+{
+  dfe::TsvNamedTupleWriter<TimingInfo> writer(std::move(path), 4);
+  for (size_t i = 0; i < identifiers.size(); ++i) {
+    TimingInfo info;
+    info.identifier = identifiers[i];
+    info.time_total_s
+        = std::chrono::duration_cast<Seconds>(durations[i]).count();
+    info.time_perevent_s = info.time_total_s / numEvents;
+    writer.append(info);
+  }
 }
 
 }  // namespace
@@ -269,18 +299,19 @@ FW::Sequencer::run()
     if (svc->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
   }
 
-  // summarize processing timing
-  size_t   numEvents = endEvent - m_cfg.skip;
-  Duration clockWall = Clock::now() - clockWallStart;
-  ACTS_INFO("Processed " << numEvents << " in " << asString(clockWall)
+  // summarize timing
+  Duration    clockWall = Clock::now() - clockWallStart;
+  std::size_t numEvents = endEvent - m_cfg.skip;
+  ACTS_INFO("Processed " << numEvents << " events in " << asString(clockWall)
                          << " (wall clock)");
-  ACTS_INFO("Average combined time is "
-            << perEvent(clocksAlgorithms.sum(), numEvents));
-  ACTS_INFO("Average time per algorithm");
+  ACTS_INFO("Average time per event: " << perEvent(clocksAlgorithms.sum(),
+                                                   numEvents));
+  ACTS_DEBUG("Average time per algorithm:");
   for (size_t i = 0; i < names.size(); ++i) {
-    ACTS_INFO("  " << names[i] << ": "
-                   << perEvent(clocksAlgorithms[i], numEvents));
+    ACTS_DEBUG("  " << names[i] << ": "
+                    << perEvent(clocksAlgorithms[i], numEvents));
   }
+  storeTiming(names, clocksAlgorithms, numEvents, "timing.tsv");
 
   return EXIT_SUCCESS;
 }
