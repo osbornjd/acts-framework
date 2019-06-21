@@ -38,7 +38,10 @@ FW::Options::addSequencerOptions(
                     "available events will be processed.")(
       "skip",
       value<size_t>()->default_value(0),
-      "The number of events to skip");
+      "The number of events to skip")(
+      "jobs,j",
+      value<int>()->default_value(-1),
+      "Number of parallel jobs, negative for automatic.");
 }
 
 void
@@ -110,6 +113,8 @@ FW::Options::readSequencerConfig(
 
   cfg.skip = vm["skip"].as<size_t>();
   if (not vm["events"].empty()) { cfg.events = vm["events"].as<size_t>(); }
-  cfg.logLevel = readLogLevel(vm);
+  cfg.logLevel   = readLogLevel(vm);
+  cfg.numThreads = vm["jobs"].as<int>();
+
   return cfg;
 }
