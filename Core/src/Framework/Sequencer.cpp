@@ -24,12 +24,7 @@ FW::Sequencer::Sequencer(const Sequencer::Config& cfg)
 {
   // automatically determine the number of concurrent threads to use
   if (m_cfg.numThreads < 0) {
-    const char* numThreadsEnv = getenv("ACTSFW_NUM_THREADS");
-    if (numThreadsEnv) {
-      m_cfg.numThreads = std::stoi(numThreadsEnv);
-    } else {
-      m_cfg.numThreads = tbb::task_scheduler_init::default_num_threads();
-    }
+    m_cfg.numThreads = tbb::task_scheduler_init::default_num_threads();
   }
   ROOT::EnableThreadSafety();
 }
