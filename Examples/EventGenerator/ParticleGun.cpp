@@ -10,12 +10,10 @@
 #include <memory>
 
 #include <Acts/Utilities/Units.hpp>
-#include <boost/program_options.hpp>
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
@@ -29,28 +27,20 @@ using namespace FW;
 int
 main(int argc, char* argv[])
 {
-  using namespace boost::program_options;
-
-  // define command line options and parse them
-  options_description desc("Allowed options");
-  Options::addCommonOptions(desc);
+  // setup and parse options
+  auto desc = Options::makeDefaultOptions();
+  Options::addSequencerOptions(desc);
   Options::addRandomNumbersOptions(desc);
   Options::addParticleGunOptions(desc);
   Options::addOutputOptions(desc);
-  variables_map vm;
-  store(parse_command_line(argc, argv, desc), vm);
-  notify(vm);
-  // print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
+  auto vm = Options::parse(desc, argc, argv);
+  if (vm.empty()) {
     return EXIT_FAILURE;
   }
 
-  Acts::Logging::Level logLevel  = Options::readLogLevel(vm);
-  size_t               numEvents = Options::readNumberOfEvents(vm);
+  Sequencer sequencer(Options::readSequencerConfig(vm));
 
-  Sequencer::Config sequencerCfg;
-  Sequencer         sequencer(sequencerCfg);
+  Acts::Logging::Level logLevel = Options::readLogLevel(vm);
 
   // basic services
   RandomNumbersSvc::Config rndCfg;
@@ -85,5 +75,5 @@ main(int argc, char* argv[])
         std::make_shared<Root::RootParticleWriter>(rootWriterCfg, logLevel));
   }
 
-  return sequencer.run(numEvents);
+  return sequencer.run();
 }

@@ -9,9 +9,9 @@
 #pragma once
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/EventGenerator.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
@@ -28,7 +28,6 @@ setupEvgenInput(vmap_t&                               vm,
 {
   // Read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);
-  auto nEvents  = FW::Options::readNumberOfEvents(vm);
 
   // Add requested event generator
   auto evgenInput = vm["evg-input-type"].template as<std::string>();

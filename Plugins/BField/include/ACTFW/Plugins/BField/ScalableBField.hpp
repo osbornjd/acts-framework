@@ -35,10 +35,9 @@ namespace BField {
       double scalor = 1.;
 
       /// @brief constructor with context
-      Cache(std::reference_wrapper<const Acts::MagneticFieldContext> mcfg)
+      Cache(const Acts::MagneticFieldContext& mcfg)
       {
-        auto sbContext = std::any_cast<const ScalableBFieldContext>(mcfg);
-        scalor         = sbContext.scalor;
+        scalor = std::any_cast<const ScalableBFieldContext>(mcfg).scalor;
       }
     };
 

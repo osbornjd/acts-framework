@@ -8,12 +8,12 @@
 
 #pragma once
 
-#include <boost/program_options.hpp>
 #include <memory>
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/GeometryOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
+
+#include <boost/program_options.hpp>
+
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Plugins/Obj/ObjPropagationStepsWriter.hpp"
@@ -32,8 +32,6 @@
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
 
-namespace po = boost::program_options;
-
 /// @brief Propgation setup
 ///
 /// @tparam sequencer_t Type of the sequencer of the framework
@@ -50,12 +48,12 @@ template <typename sequencer_t, typename bfield_t>
 FW::ProcessCode
 setupPropgation(sequencer_t&                                  sequencer,
                 bfield_t                                      bfield,
-                po::variables_map&                            vm,
+                boost::program_options::variables_map&        vm,
                 std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
@@ -89,12 +87,12 @@ template <typename sequencer_t>
 FW::ProcessCode
 setupStraightLinePropgation(
     sequencer_t&                                  sequencer,
-    po::variables_map&                            vm,
+    boost::program_options::variables_map&        vm,
     std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
@@ -132,46 +130,27 @@ propagationExample(int               argc,
                    options_setup_t&  optionsSetup,
                    geometry_setup_t& geometrySetup)
 {
-
-  // Create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
-  // Now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Add the geometry options
-  FW::Options::addGeometryOptions<po::options_description>(desc);
-  // Add the bfield options
-  FW::Options::addBFieldOptions<po::options_description>(desc);
-  // Add the random number options
-  FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // Add the fatras options
-  FW::Options::addPropagationOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
-
+  // setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  FW::Options::addGeometryOptions(desc);
+  FW::Options::addBFieldOptions(desc);
+  FW::Options::addRandomNumbersOptions(desc);
+  FW::Options::addPropagationOptions(desc);
+  FW::Options::addOutputOptions(desc);
   // Add specific options for this geometry
   optionsSetup(desc);
-
-  // Map to store the given program options
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // Print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
+  auto vm = FW::Options::parse(desc, argc, argv);
+  if (vm.empty()) {
+    return EXIT_FAILURE;
   }
 
+  FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
+
   // Now read the standard options
-  auto logLevel  = FW::Options::readLogLevel<po::variables_map>(vm);
-  auto nEvents   = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto geometry  = geometrySetup(vm);
-  auto tGeometry = geometry.first;
+  auto logLevel          = FW::Options::readLogLevel(vm);
+  auto geometry          = geometrySetup(vm);
+  auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 
   // Add it to the sequencer
@@ -180,15 +159,14 @@ propagationExample(int               argc,
   }
 
   // Create the random number engine
-  auto randomNumberSvcCfg
-      = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
+  auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
   // Add it to the sequencer
   sequencer.addService(randomNumberSvc);
 
   // Create BField service
-  auto bField  = FW::Options::readBField<po::variables_map>(vm);
+  auto bField  = FW::Options::readBField(vm);
   auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
   auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
 
@@ -245,5 +223,5 @@ propagationExample(int               argc,
         std::make_shared<ObjPropagationStepsWriter>(pstepWriterObjConfig));
   }
 
-  return sequencer.run(nEvents);
+  return sequencer.run();
 }

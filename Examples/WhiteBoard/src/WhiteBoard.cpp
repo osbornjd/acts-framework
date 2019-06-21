@@ -7,61 +7,42 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include <boost/program_options.hpp>
+
 #include <cstdlib>
 #include <memory>
-#include "ACTFW/Common/CommonOptions.hpp"
+
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "WhiteBoardAlgorithm.hpp"
 
-namespace po = boost::program_options;
-
-/// Main read evgen executable
-///
-/// @param argc The argument count
-/// @param argv The argument list
 int
 main(int argc, char* argv[])
 {
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the standard/common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Map to store the given program options
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
+  // setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  auto vm = FW::Options::parse(desc, argc, argv);
+  if (vm.empty()) {
+    return EXIT_FAILURE;
   }
-  // Read the common options
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+
+  FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
+
+  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Create an algorithm that writes to the event store
   FW::WhiteBoardAlgorithm::Config wBoardConfigWrite;
   wBoardConfigWrite.outputClassOneCollection = "ClassOneCollection";
   wBoardConfigWrite.outputClassTwoCollection = "ClassTwoCollection";
-  auto wBoardWrite
-      = std::make_shared<FW::WhiteBoardAlgorithm>(wBoardConfigWrite, logLevel);
+  sequencer.addAlgorithm(
+      std::make_shared<FW::WhiteBoardAlgorithm>(wBoardConfigWrite, logLevel));
 
   // Create an algorithm that reads from the event store
   FW::WhiteBoardAlgorithm::Config wBoardConfigRead;
   wBoardConfigRead.inputClassOneCollection = "ClassOneCollection";
   wBoardConfigRead.inputClassTwoCollection = "ClassTwoCollection";
-  auto wBoardRead
-      = std::make_shared<FW::WhiteBoardAlgorithm>(wBoardConfigRead, logLevel);
+  sequencer.addAlgorithm(
+      std::make_shared<FW::WhiteBoardAlgorithm>(wBoardConfigRead, logLevel));
 
-  // Create the event loop
-  FW::Sequencer::Config seqConfig;
-  seqConfig.eventStoreLogLevel = logLevel;
-  FW::Sequencer sequencer(seqConfig);
-  sequencer.addAlgorithm(wBoardWrite);
-  sequencer.addAlgorithm(wBoardRead);
-
-  // Run the event loop
-  return sequencer.run(nEvents);
+  return sequencer.run();
 }

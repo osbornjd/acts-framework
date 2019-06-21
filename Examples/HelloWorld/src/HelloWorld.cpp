@@ -6,14 +6,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <boost/program_options.hpp>
 #include <cstdlib>
 #include <memory>
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Framework/Sequencer.hpp"
-#include "HelloWorldAlgorithm.hpp"
 
-namespace po = boost::program_options;
+#include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
+#include "HelloWorldAlgorithm.hpp"
 
 /// Main read evgen executable
 ///
@@ -22,32 +20,20 @@ namespace po = boost::program_options;
 int
 main(int argc, char* argv[])
 {
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the standard options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Map to store the given program options
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // Print help if reqested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
+  // setup and parse options
+  auto opt = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(opt);
+  auto vm = FW::Options::parse(opt, argc, argv);
+  if (vm.empty()) {
+    return EXIT_FAILURE;
   }
-  // Read the common options
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
-  // And add the hello world algorithm
-  std::shared_ptr<FW::IAlgorithm> hWorld(new FW::HelloWorldAlgorithm(logLevel));
+  FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
 
-  // Create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
+  auto logLevel = FW::Options::readLogLevel(vm);
 
-  // Now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-  sequencer.addAlgorithm(hWorld);
-  return sequencer.run(nEvents);
+  // add w/ HelloWorld algorithm
+  sequencer.addAlgorithm(std::make_shared<FW::HelloWorldAlgorithm>(logLevel));
+
+  return sequencer.run();
 }

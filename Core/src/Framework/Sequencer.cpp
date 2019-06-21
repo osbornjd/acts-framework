@@ -9,27 +9,24 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 
 #include <algorithm>
-#include <cstdlib>
+#include <chrono>
 #include <exception>
+#include <numeric>
 
 #include <TROOT.h>
+#include <dfe/dfe_namedtuple.hpp>
 #include <tbb/tbb.h>
 
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 
-FW::Sequencer::Sequencer(const Sequencer::Config&            cfg,
-                         std::unique_ptr<const Acts::Logger> logger)
-  : m_cfg(cfg), m_logger(std::move(logger))
+FW::Sequencer::Sequencer(const Sequencer::Config& cfg)
+  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("Sequencer", m_cfg.logLevel))
 {
   // automatically determine the number of concurrent threads to use
   if (m_cfg.numThreads < 0) {
-    const char* numThreadsEnv = getenv("ACTSFW_NUM_THREADS");
-    if (numThreadsEnv) {
-      m_cfg.numThreads = std::stoi(numThreadsEnv);
-    } else {
-      m_cfg.numThreads = tbb::task_scheduler_init::default_num_threads();
-    }
+    m_cfg.numThreads = tbb::task_scheduler_init::default_num_threads();
   }
   ROOT::EnableThreadSafety();
 }
@@ -84,9 +81,154 @@ FW::Sequencer::addWriter(std::shared_ptr<IWriter> writer)
   ACTS_INFO("Added writer '" << m_writers.back()->name() << "'");
 }
 
-int
-FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
+std::vector<std::string>
+FW::Sequencer::listAlgorithmNames() const
 {
+  std::vector<std::string> names;
+
+  // WARNING this must be done in the same order as in the processing
+  for (const auto& decorator : m_decorators) {
+    names.push_back("Decorator:" + decorator->name());
+  }
+  for (const auto& reader : m_readers) {
+    names.push_back("Reader:" + reader->name());
+  }
+  for (const auto& algorithm : m_algorithms) {
+    names.push_back("Algorithm:" + algorithm->name());
+  }
+  for (const auto& writer : m_writers) {
+    names.push_back("Writer:" + writer->name());
+  }
+
+  return names;
+}
+
+std::size_t
+FW::Sequencer::determineEndEvent() const
+{
+  // beware of possible overflow due to events == SIZE_MAX
+  // use saturated add from http://locklessinc.com/articles/sat_arithmetic/
+  std::size_t endRequested = m_cfg.skip + m_cfg.events;
+  endRequested |= -(endRequested < m_cfg.events);
+
+  // determine maximum events available from readers
+  std::size_t endOnFile      = SIZE_MAX;
+  auto        shortestReader = std::min_element(
+      m_readers.begin(), m_readers.end(), [](const auto& a, const auto& b) {
+        return (a->numEvents() < b->numEvents());
+      });
+  if (shortestReader != m_readers.end()) {
+    endOnFile = (*shortestReader)->numEvents();
+  }
+
+  // without readers, skipping has no meaning
+  if (m_readers.empty() and (0 < m_cfg.skip)) {
+    ACTS_ERROR("Can not skip events without configured readers");
+    return SIZE_MAX;
+  }
+  // trying to skip too many events must be an error
+  if (endOnFile <= m_cfg.skip) {
+    ACTS_ERROR("Less events available than requested to skip");
+    return SIZE_MAX;
+  }
+  std::size_t endEvent = std::min(endRequested, endOnFile);
+
+  if (endEvent == SIZE_MAX) {
+    ACTS_ERROR("Could not determine number of events");
+    return SIZE_MAX;
+  }
+  if (endOnFile < endRequested) {
+    ACTS_INFO("Restrict number of events to available events");
+  }
+
+  return endEvent;
+}
+
+// helpers for per-algorithm timing information
+namespace {
+
+using Clock       = std::chrono::high_resolution_clock;
+using Duration    = Clock::duration;
+using Timepoint   = Clock::time_point;
+using Seconds     = std::chrono::duration<double>;
+using NanoSeconds = std::chrono::duration<double, std::nano>;
+
+// RAII-based stopwatch to time execution within a block
+struct StopWatch
+{
+  Timepoint start;
+  Duration& store;
+
+  StopWatch(Duration& s) : start(Clock::now()), store(s) {}
+  ~StopWatch() { store += Clock::now() - start; }
+};
+
+// Convert duration to a printable string w/ reasonable unit.
+template <typename D>
+inline std::string
+asString(D duration)
+{
+  double ns = std::chrono::duration_cast<NanoSeconds>(duration).count();
+  if (1e9 < std::abs(ns)) {
+    return std::to_string(ns / 1e9) + " s";
+  } else if (1e6 < std::abs(ns)) {
+    return std::to_string(ns / 1e6) + " ms";
+  } else if (1e3 < std::abs(ns)) {
+    return std::to_string(ns / 1e3) + " us";
+  } else {
+    return std::to_string(ns) + " ns";
+  }
+}
+
+// Convert duration scaled to one event to a printable string.
+template <typename D>
+inline std::string
+perEvent(D duration, size_t numEvents)
+{
+  return asString(duration / numEvents) + "/event";
+}
+
+// Store timing data
+struct TimingInfo
+{
+  std::string identifier;
+  double      time_total_s;
+  double      time_perevent_s;
+
+  DFE_NAMEDTUPLE(TimingInfo, identifier, time_total_s, time_perevent_s);
+};
+void
+storeTiming(const std::vector<std::string>& identifiers,
+            const std::vector<Duration>&    durations,
+            std::size_t                     numEvents,
+            std::string                     path)
+{
+  dfe::TsvNamedTupleWriter<TimingInfo> writer(std::move(path), 4);
+  for (size_t i = 0; i < identifiers.size(); ++i) {
+    TimingInfo info;
+    info.identifier = identifiers[i];
+    info.time_total_s
+        = std::chrono::duration_cast<Seconds>(durations[i]).count();
+    info.time_perevent_s = info.time_total_s / numEvents;
+    writer.append(info);
+  }
+}
+
+}  // namespace
+
+int
+FW::Sequencer::run()
+{
+  // measure overall wall clock
+  Timepoint clockWallStart = Clock::now();
+
+  // processing only works w/ a well-known number of events
+  // error message are already handled by the helper function
+  std::size_t endEvent = determineEndEvent();
+  if (endEvent == SIZE_MAX) {
+    return EXIT_FAILURE;
+  }
+
   ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
   ACTS_INFO("  " << m_services.size() << " services");
   ACTS_INFO("  " << m_decorators.size() << " context decorators");
@@ -94,119 +236,102 @@ FW::Sequencer::run(boost::optional<size_t> events, size_t skip)
   ACTS_INFO("  " << m_algorithms.size() << " algorithms");
   ACTS_INFO("  " << m_writers.size() << " writers");
 
-  // The number of events to be processed
-  size_t numEvents = 0;
-
-  // There are two possibilities how the event loop can be steered
-  // 1) By the number of given events
-  // 2) By the number of events given by the readers
-  // Calulate minimum and maximum of events to be read in
-  auto min = std::min_element(
-      m_readers.begin(), m_readers.end(), [](const auto& a, const auto& b) {
-        return (a->numEvents() < b->numEvents());
-      });
-  // Check if number of events is given by the reader(s)
-  if (min == m_readers.end()) {
-    // 1) In case there are no readers, no event should be skipped
-    if (skip != 0) {
-      ACTS_ERROR(
-          "Number of skipped events given although no readers present. Abort");
-      return EXIT_FAILURE;
-    }
-    // Number of events is not given by readers, in this case the parameter
-    // 'events' must be specified - Abort, if this is not the case
-    if (!events) {
-      ACTS_ERROR("Number of events not specified. Abort");
-      return EXIT_FAILURE;
-    }
-    // 'events' is specified, set 'numEvents'
-    numEvents = *events;
-  } else {
-    // 2) Number of events given by reader(s)
-    numEvents = ((*min)->numEvents());
-    // Check if the number of skipped events is smaller then the overall number
-    // if events
-    if (skip > numEvents) {
-      ACTS_ERROR("Number of events to be skipped > than total number of "
-                 "events. Abort");
-      return EXIT_FAILURE;
-    }
-    // The total number of events is the maximum number of events minus the
-    // number of skipped evebts
-    numEvents -= skip;
-    // Check if user wants to process less events than given by the reader
-    if (events && (*events) < numEvents) {
-      numEvents = *events;
-    }
-  }
+  std::vector<std::string> names = listAlgorithmNames();
+  std::vector<Duration>    clocksAlgorithms(names.size(), Duration::zero());
+  tbb::queuing_mutex       clocksAlgorithmsMutex;
 
   // Execute the event loop
   tbb::task_scheduler_init init(m_cfg.numThreads);
   tbb::parallel_for(
-      tbb::blocked_range<size_t>(skip, numEvents + skip),
+      tbb::blocked_range<size_t>(m_cfg.skip, endEvent),
       [&](const tbb::blocked_range<size_t>& r) {
+        std::vector<Duration> localClocksAlgorithms(names.size(),
+                                                    Duration::zero());
+
         for (size_t event = r.begin(); event != r.end(); ++event) {
-          ACTS_INFO("start event " << event);
-
-          // Setup the event and algorithm context
+          // Use per-event store
           WhiteBoard eventStore(Acts::getDefaultLogger(
-              "EventStore#" + std::to_string(event), m_cfg.eventStoreLogLevel));
-
-          // This makes sure that each algorithm can have it's own
-          // view of the algorithm context, e.g. for random number
-          // initialization
-          //
+              "EventStore#" + std::to_string(event), m_cfg.logLevel));
           // If we ever wanted to run algorithms in parallel, this needs to be
-          // changed
-          // to Algorithm context copies
-          size_t ialg = 0;
-
-          // Create the Algorithm context
-          //
-          // If we ever wanted to run algorithms in parallel, this needs to be
-          // changed
-          // to Algorithm context copies
-          AlgorithmContext context(ialg++, event, eventStore);
+          // changed to Algorithm context copies
+          AlgorithmContext context(0, event, eventStore);
+          size_t           ialgo = 0;
 
           /// Decorate the context
           for (auto& cdr : m_decorators) {
-            if (cdr->decorate(context) != ProcessCode::SUCCESS) {
+            StopWatch sw(localClocksAlgorithms[ialgo++]);
+            if (cdr->decorate(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to decorate event context");
             }
           }
           // Read everything in
           for (auto& rdr : m_readers) {
+            StopWatch sw(localClocksAlgorithms[ialgo++]);
             if (rdr->read(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to read input data");
             }
           }
           // Process all algorithms
           for (auto& alg : m_algorithms) {
+            StopWatch sw(localClocksAlgorithms[ialgo++]);
             if (alg->execute(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to process event data");
             }
           }
           // Write out results
           for (auto& wrt : m_writers) {
+            StopWatch sw(localClocksAlgorithms[ialgo++]);
             if (wrt->write(++context) != ProcessCode::SUCCESS) {
               throw std::runtime_error("Failed to write output data");
             }
           }
+          ACTS_INFO("finished event " << event);
+        }
 
-          ACTS_INFO("event " << event << " done");
+        // add timing info to global information
+        {
+          tbb::queuing_mutex::scoped_lock lock(clocksAlgorithmsMutex);
+          for (std::size_t i = 0; i < clocksAlgorithms.size(); ++i) {
+            clocksAlgorithms[i] += localClocksAlgorithms[i];
+          }
         }
       });
 
   // Call endRun() for writers and services
   for (auto& wrt : m_writers) {
+    names.push_back("Writer:" + wrt->name() + ":endRun");
+    clocksAlgorithms.push_back(Duration::zero());
+    StopWatch sw(clocksAlgorithms.back());
     if (wrt->endRun() != ProcessCode::SUCCESS) {
       return EXIT_FAILURE;
     }
   }
   for (auto& svc : m_services) {
+    names.push_back("Service:" + svc->name() + ":endRun");
+    clocksAlgorithms.push_back(Duration::zero());
+    StopWatch sw(clocksAlgorithms.back());
     if (svc->endRun() != ProcessCode::SUCCESS) {
       return EXIT_FAILURE;
     }
   }
+
+  // summarize timing
+  Duration totalWall = Clock::now() - clockWallStart;
+  Duration totalReal = std::accumulate(
+      clocksAlgorithms.begin(), clocksAlgorithms.end(), Duration::zero());
+  std::size_t numEvents = endEvent - m_cfg.skip;
+  ACTS_INFO("Processed " << numEvents << " events in " << asString(totalWall)
+                         << " (wall clock)");
+  ACTS_INFO("Average time per event: " << perEvent(totalReal, numEvents));
+  ACTS_DEBUG("Average time per algorithm:");
+  for (size_t i = 0; i < names.size(); ++i) {
+    ACTS_DEBUG("  " << names[i] << ": "
+                    << perEvent(clocksAlgorithms[i], numEvents));
+  }
+  storeTiming(names,
+              clocksAlgorithms,
+              numEvents,
+              joinPaths(m_cfg.outputDir, "timing.tsv"));
+
   return EXIT_SUCCESS;
 }

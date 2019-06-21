@@ -8,11 +8,10 @@
 
 #pragma once
 
+#include <cstdlib>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <boost/optional.hpp>
 
 #include <Acts/Utilities/Logger.hpp>
 
@@ -24,30 +23,29 @@
 
 namespace FW {
 
-/// @class  Sequencer
+/// A simple algorithm sequencer for event processing.
 ///
-/// This is the backbone of the mini framework, it initializes all algorithms,
-/// calls execute per event and deals with the event store.
-///
+/// This is the backbone of the framework. It reads events from file,
+/// runs the configured algorithms for each event, and writes selected data
+/// back to a file.
 class Sequencer
 {
 public:
   struct Config
   {
-    /// job store logging level
-    Acts::Logging::Level jobStoreLogLevel = Acts::Logging::INFO;
-    /// event store logging level
-    Acts::Logging::Level eventStoreLogLevel = Acts::Logging::INFO;
-    /// number of threads to run in parallel, negative for automatic value
+    /// number of events to skip at the beginning
+    std::size_t skip = 0;
+    /// number of events to process, SIZE_MAX to process all available events
+    std::size_t events = SIZE_MAX;
+    /// logging level
+    Acts::Logging::Level logLevel = Acts::Logging::INFO;
+    /// number of parallel threads to run, negative for automatic determination
     int numThreads = -1;
+    /// output directory for timing information, empty for working directory
+    std::string outputDir;
   };
 
-  /// Constructor
-  ///
-  /// @param cfg is the configuration object
-  Sequencer(const Config&                       cfg,
-            std::unique_ptr<const Acts::Logger> logger
-            = Acts::getDefaultLogger("Sequencer", Acts::Logging::INFO));
+  Sequencer(const Config& cfg);
 
   /// Add a service to the set of services.
   ///
@@ -75,15 +73,13 @@ public:
   void
   addWriter(std::shared_ptr<IWriter> writer);
 
-  /// Run the event loop over the given number of events.
+  /// Run the event loop.
   ///
-  /// @param events Number of events to process
-  /// @param skip Number of events to skip before processing
   /// @return status code compatible with the `main()` return code
   /// @returns EXIT_SUCCESS when everying worked without problems
   /// @returns EXIT_FAILURE if something went wrong
   ///
-  /// @note If the number of events to process are not given, the sequencer
+  /// @note If the number of events to process is undefined, the sequencer
   /// will process events until the first reader signals the end-of-file. If
   /// given, it sets an upper bound.
   ///
@@ -93,24 +89,33 @@ public:
   ///
   ///     int main(int argc, char* argv[])
   ///     {
+  ///         Sequencer::Config cfg;
+  ///         ... // configure the sequencer
   ///         Sequencer seq;
   ///         ... // set up the algorithms
-  ///         return seq.run(...);
+  ///         return seq.run();
   ///     }
   ///
   /// This will run the start-of-run hook for all configured services, run all
   /// configured readers, algorithms, and writers for each event, then invoke
   /// the enf-of-run hook of writers and services.
   int
-  run(boost::optional<size_t> events, size_t skip = 0);
+  run();
 
 private:
+  /// List of all configured algorithm names.
+  std::vector<std::string>
+  listAlgorithmNames() const;
+  /// Determine end event, i.e. index after last valid one, SIZE_MAX for error.
+  std::size_t
+  determineEndEvent() const;
+
+  Config                                          m_cfg;
   std::vector<std::shared_ptr<IService>>          m_services;
   std::vector<std::shared_ptr<IContextDecorator>> m_decorators;
   std::vector<std::shared_ptr<IReader>>           m_readers;
   std::vector<std::shared_ptr<IAlgorithm>>        m_algorithms;
   std::vector<std::shared_ptr<IWriter>>           m_writers;
-  Config                                          m_cfg;
   std::unique_ptr<const Acts::Logger>             m_logger;
 
   const Acts::Logger&
