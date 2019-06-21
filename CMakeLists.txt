@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 
 project(ActsFramework LANGUAGES CXX)
 
@@ -106,6 +106,7 @@ function(add_subdirectory_if path)
 endfunction()
 
 add_subdirectory(external/acts-fatras)
+add_subdirectory(external/dfelibs)
 
 add_subdirectory(Core)
 add_subdirectory(Detectors)
