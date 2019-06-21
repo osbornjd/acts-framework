@@ -282,7 +282,7 @@ namespace Generic {
           moduleDigitizationPtr
               = std::make_shared<const Acts::DigitizationModule>(
                   moduleSegmentation,
-                  m_cfg.centralModuleThickness.at(icl),
+                  0.5 * m_cfg.centralModuleThickness.at(icl),
                   m_cfg.centralModuleReadoutSide.at(icl),
                   m_cfg.centralModuleLorentzAngle.at(icl));
         }
@@ -524,7 +524,7 @@ namespace Generic {
             moduleDigitizationPtr
                 = std::make_shared<const Acts::DigitizationModule>(
                     moduleSegmentation,
-                    moduleThickness,
+                    0.5 * moduleThickness,
                     m_cfg.posnegModuleReadoutSide.at(ipnl).at(ipnR),
                     m_cfg.posnegModuleLorentzAngle.at(ipnl).at(ipnR));
           }
@@ -572,7 +572,8 @@ namespace Generic {
                                                        moduleTransform,
                                                        moduleBounds,
                                                        moduleThickness,
-                                                       moduleMaterialPtr);
+                                                       moduleMaterialPtr,
+                                                       moduleDigitizationPtr);
             layerStore.push_back(module);
 
             // now deal with the potential backside
@@ -605,7 +606,8 @@ namespace Generic {
                                                          moduleTransform,
                                                          moduleBounds,
                                                          moduleThickness,
-                                                         moduleMaterialPtr);
+                                                         moduleMaterialPtr,
+                                                         moduleDigitizationPtr);
               // Put into the detector store
               layerStore.push_back(std::move(bsmodule));
               // register the backside of the binmembers
@@ -630,9 +632,9 @@ namespace Generic {
           layerBinsR *= m_cfg.posnegLayerBinMultipliers.first;
         }
         size_t layerBinsPhi = 0;
-        // take the maximum phi bins in that layer
+        // take the minimum phi bins in that layer
         for (unsigned int phiBins : m_cfg.posnegModulePhiBins.at(ipnl)) {
-          layerBinsPhi = phiBins > layerBinsPhi ? phiBins : layerBinsPhi;
+          layerBinsPhi = phiBins < layerBinsPhi ? phiBins : layerBinsPhi;
           layerBinsPhi *= m_cfg.posnegLayerBinMultipliers.second;
         }
         // create the layers with the surface arrays

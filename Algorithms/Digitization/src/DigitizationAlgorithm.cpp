@@ -67,16 +67,18 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
   // now digitise
   for (auto& vData : simHits) {
     auto volumeKey = vData.first;
-    ACTS_DEBUG("- Processing Volume Data collection for volume with ID "
-               << volumeKey);
+    ACTS_VERBOSE("- Processing Volume Data collection for volume with ID "
+                 << volumeKey);
     for (auto& lData : vData.second) {
       auto layerKey = lData.first;
-      ACTS_DEBUG("-- Processing Layer Data collection for layer with ID "
-                 << layerKey);
+      ACTS_VERBOSE("-- Processing Layer Data collection for layer with ID "
+                   << layerKey);
       for (auto& sData : lData.second) {
         auto moduleKey = sData.first;
-        ACTS_DEBUG("-- Processing Module Data collection for module with ID "
-                   << moduleKey);
+        ACTS_VERBOSE("-- Processing Module Data collection for module with ID "
+                     << moduleKey);
+        ACTS_VERBOSE("-- Recieved " << sData.second.size()
+                                    << " input data objects.");
         // get the hit parameters
         for (auto& hit : sData.second) {
           // get the surface
@@ -105,7 +107,7 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
               Acts::Vector2D localIntersection(localIntersect3D.x(),
                                                localIntersect3D.y());
               Acts::Vector3D localDirection(invTransfrom.linear()
-                                            * hit.direction);
+                                            * hit.direction.normalized());
               // now calculate the steps through the silicon
               std::vector<Acts::DigitizationStep> dSteps
                   = m_cfg.planarModuleStepper->cellSteps(context.geoContext,
@@ -113,7 +115,10 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
                                                          localIntersection,
                                                          localDirection);
               // everything under threshold or edge effects
-              if (!dSteps.size()) continue;
+              if (!dSteps.size()) {
+                ACTS_VERBOSE("No steps returned from stepper.");
+                continue;
+              }
               /// let' create a cluster - centroid method
               double localX    = 0.;
               double localY    = 0.;

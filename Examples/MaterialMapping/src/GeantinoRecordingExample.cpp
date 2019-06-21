@@ -96,7 +96,7 @@ main(int argc, char* argv[])
 
   // Output directory
   std::string outputDir     = vm["output-dir"].template as<std::string>();
-  std::stirng matCollection = g4rConfig.geantMaterialCollection;
+  std::string matCollection = g4rConfig.geantMaterialCollection;
 
   if (vm["output-root"].template as<bool>()) {
     // Write the propagation steps as ROOT TTree
