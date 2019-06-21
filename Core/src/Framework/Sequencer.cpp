@@ -225,7 +225,9 @@ FW::Sequencer::run()
   // processing only works w/ a well-known number of events
   // error message are already handled by the helper function
   std::size_t endEvent = determineEndEvent();
-  if (endEvent == SIZE_MAX) { return EXIT_FAILURE; }
+  if (endEvent == SIZE_MAX) {
+    return EXIT_FAILURE;
+  }
 
   ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
   ACTS_INFO("  " << m_services.size() << " services");
@@ -300,13 +302,17 @@ FW::Sequencer::run()
     names.push_back("Writer:" + wrt->name() + ":endRun");
     clocksAlgorithms.push_back(Duration::zero());
     StopWatch sw(clocksAlgorithms.back());
-    if (wrt->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
+    if (wrt->endRun() != ProcessCode::SUCCESS) {
+      return EXIT_FAILURE;
+    }
   }
   for (auto& svc : m_services) {
     names.push_back("Service:" + svc->name() + ":endRun");
     clocksAlgorithms.push_back(Duration::zero());
     StopWatch sw(clocksAlgorithms.back());
-    if (svc->endRun() != ProcessCode::SUCCESS) { return EXIT_FAILURE; }
+    if (svc->endRun() != ProcessCode::SUCCESS) {
+      return EXIT_FAILURE;
+    }
   }
 
   // summarize timing

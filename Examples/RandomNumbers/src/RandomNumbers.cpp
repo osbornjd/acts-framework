@@ -23,7 +23,9 @@ main(int argc, char* argv[])
   FW::Options::addSequencerOptions(desc);
   FW::Options::addRandomNumbersOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
-  if (vm.empty()) { return EXIT_FAILURE; }
+  if (vm.empty()) {
+    return EXIT_FAILURE;
+  }
 
   auto logLevel = FW::Options::readLogLevel(vm);
 

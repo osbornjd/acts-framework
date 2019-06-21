@@ -24,7 +24,9 @@ main(int argc, char* argv[])
   auto opt = FW::Options::makeDefaultOptions();
   FW::Options::addSequencerOptions(opt);
   auto vm = FW::Options::parse(opt, argc, argv);
-  if (vm.empty()) { return EXIT_FAILURE; }
+  if (vm.empty()) {
+    return EXIT_FAILURE;
+  }
 
   FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
 
