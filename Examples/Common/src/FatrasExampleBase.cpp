@@ -76,9 +76,6 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   // Setup the evgen input to the simulation
   setupEvgenInput(vm, sequencer, barcodeSvc, randomNumberSvc);
 
-  // Get the tracking geometry
-  auto tGeometry = trackingGeometry(vm);
-
   // (B) SIMULATION
   // Setup the simulation
   setupSimulation(vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
