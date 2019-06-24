@@ -1,9 +1,17 @@
-add_library(ACTFramework SHARED
+set(_sources
   src/Framework/BareAlgorithm.cpp
   src/Framework/BareService.cpp
   src/Framework/RandomNumbers.cpp
   src/Framework/Sequencer.cpp
-  src/Utilities/Paths.cpp)
+  src/Utilities/Paths.cpp
+  src/Random/RandomNumbersSvc.cpp
+  src/Utilities/Paths.cpp
+  src/Utilities/Helpers.cpp
+  src/Validation/EffPlotTool.cpp
+  src/Validation/ResPlotTool.cpp)
+
+add_library(ACTFramework SHARED ${_sources})
+
 target_include_directories(
   ACTFramework
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${ROOT_INCLUDE_DIRS}
