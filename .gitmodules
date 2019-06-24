@@ -6,4 +6,4 @@
 	url = ../acts-fatras.git
 [submodule "external/dfelibs"]
 	path = external/dfelibs
-	url = ../../msmk/dfelibs
+	url = ../../msmk/dfelibs.git
