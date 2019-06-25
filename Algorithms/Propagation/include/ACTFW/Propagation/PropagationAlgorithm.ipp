@@ -206,13 +206,12 @@ PropagationAlgorithm<propagator_t>::execute(
 
   // Write the propagation step data to the event store
   context.eventStore.add(m_cfg.propagationStepCollection,
-                             std::move(propagationSteps));
+                         std::move(propagationSteps));
 
   // Write the recorded material to the event store
-  if (m_cfg.recordMaterialInteractions){
+  if (m_cfg.recordMaterialInteractions) {
     context.eventStore.add(m_cfg.propagationMaterialCollection,
                            std::move(recordedMaterial));
-    
   }
 
   return ProcessCode::SUCCESS;

@@ -39,7 +39,7 @@ namespace Json {
   ///
   /// @brief Writes out Detector material maps
   /// using the Json Geometry converter
-  class JsonMaterialWriter 
+  class JsonMaterialWriter
   {
 
   public:
@@ -52,7 +52,8 @@ namespace Json {
     ~JsonMaterialWriter();
 
     /// Framework name() method
-    std::string name() const;
+    std::string
+    name() const;
 
     /// Interface method which writes out the MaterialTrack entities
     ///
