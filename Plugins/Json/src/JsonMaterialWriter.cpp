@@ -15,7 +15,9 @@
 #include "Acts/Utilities/GeometryID.hpp"
 
 FW::Json::JsonMaterialWriter::JsonMaterialWriter(
-    const FW::Json::JsonGeometryConverter::Config& cfg)
+    const FW::Json::JsonGeometryConverter::Config& cfg,
+    const std::string&                             fileName)
+  : m_fileName(fileName)
 {
   // Validate the configuration
   if (m_cfg.name.empty()) {
@@ -31,12 +33,10 @@ void
 FW::Json::JsonMaterialWriter::write(
     const Acts::DetectorMaterialMaps& detMaterial)
 {
-
+  // Evoke the converter
   FW::Json::JsonGeometryConverter jmConverter(m_cfg);
-
   auto jout = jmConverter.materialMapsToJson(detMaterial);
-  // write prettified JSON to another file
-  std::string   jsonOutputName = m_cfg.fileName;
-  std::ofstream ofj(jsonOutputName);
+  // And write the file
+  std::ofstream ofj(m_fileName);
   ofj << std::setw(4) << jout << std::endl;
 }

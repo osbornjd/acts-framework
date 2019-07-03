@@ -11,10 +11,9 @@
 #include <boost/program_options.hpp>
 #include <memory>
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-//#include "ACTFW/Plugins/Root/RootMaterialReader.hpp"
-#include "ACTFW/GeometryInterfaces/MaterialWiper.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
@@ -162,14 +161,10 @@ materialValidationExample(int              argc,
   // Now read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);
 
-  // Material decoration
-  std::shared_ptr<const Acts::IMaterialDecorator> matDeco = nullptr;
-  auto matType = vm["mat-input-type"].as<std::string>();
-  if (matType == "none") {
-    matDeco = std::make_shared<const Acts::MaterialWiper>();
-  }
-  auto geometry  = geometrySetup(vm, matDeco);
-  auto tGeometry = geometry.first;
+  // The geometry, material and decoration
+  auto geometry          = FW::Geometry::build(vm, geometrySetup);
+  auto tGeometry         = geometry.first;
+  auto contextDecorators = geometry.second;
 
   // Create the random number engine
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);

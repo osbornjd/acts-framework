@@ -12,7 +12,6 @@
 
 #include <Acts/Utilities/Logger.hpp>
 #include <boost/program_options.hpp>
-
 #include "ACTFW/Framework/Sequencer.hpp"
 
 namespace FW {

@@ -68,7 +68,10 @@ FW::Options::addMaterialOptions(
 {
   opt.add_options()("mat-input-type",
                     value<std::string>()->default_value("none"),
-                    "The way material is loaded: 'none', 'build', 'file'.");
+                    "The way material is loaded: 'none', 'build', 'file'.")(
+      "mat-input-file",
+      value<std::string>()->default_value(""),
+      "Name of the material map file, '.json' or '.root'.");
 }
 
 void

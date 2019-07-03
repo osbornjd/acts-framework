@@ -15,12 +15,11 @@
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/GeometryInterfaces/MaterialWiper.hpp"
+#include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvWriterOptions.hpp"
-#include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjWriterOptions.hpp"
@@ -28,6 +27,13 @@
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/GeometryContext.hpp"
+
+/// @brief templated method to process a geometry
+///
+/// @tparam options_setup_t callable options setup
+/// @tparam geometry_setup_t callable geonmetry setup
+///
+///
 
 template <typename options_setup_t, typename geometry_setup_t>
 int
@@ -53,13 +59,9 @@ processGeometry(int               argc,
   // Now read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);
   auto nEvents  = FW::Options::readSequencerConfig(vm).events;
-  // Material decoration
-  std::shared_ptr<const Acts::IMaterialDecorator> matDeco = nullptr;
-  auto matType = vm["mat-input-type"].as<std::string>();
-  if (matType == "none") {
-    matDeco = std::make_shared<const Acts::MaterialWiper>();
-  }
-  auto geometry          = geometrySetup(vm, matDeco);
+
+  // The geometry, material and decoration
+  auto geometry          = FW::Geometry::build(vm, geometrySetup);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 

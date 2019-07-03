@@ -17,6 +17,7 @@
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
@@ -87,12 +88,11 @@ fatrasExample(int               argc,
   // Add it to the sequencer
   sequencer.addService(barcodeSvc);
 
-  // Create the geometry and the context decorators
-  auto geometry          = geometrySetup(vm, nullptr);
+  // The geometry, material and decoration
+  auto geometry          = FW::Geometry::build(vm, geometrySetup);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
-
-  // Add it to the sequencer
+  // Add the decorator to the sequencer
   for (auto cdr : contextDecorators) {
     sequencer.addContextDecorator(cdr);
   }

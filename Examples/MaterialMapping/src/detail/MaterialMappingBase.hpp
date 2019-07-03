@@ -10,18 +10,15 @@
 
 #include <boost/program_options.hpp>
 #include <memory>
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/GeometryOptions.hpp"
-#include "ACTFW/Common/InputOptions.hpp"
-#include "ACTFW/Common/MaterialOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
 #include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
+#include "ACTFW/options/CommonOptions.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
 #include "Acts/Plugins/MaterialMapping/SurfaceMaterialMapper.hpp"
@@ -49,50 +46,32 @@ materialMappingExample(int              argc,
                        geometry_setup_t geometrySetup)
 {
 
-  // Create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
-  // Now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Add the geometry options
-  FW::Options::addGeometryOptions<po::options_description>(desc);
-  // Add the material options
-  FW::Options::addMaterialOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addInputOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
+  // Setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  FW::Options::addGeometryOptions(desc);
+  FW::Options::addMaterialOptions(desc);
+  FW::Options::addBFieldOptions(desc);
+  FW::Options::addRandomNumbersOptions(desc);
+  FW::Options::addPropagationOptions(desc);
+  FW::Options::addOutputOptions(desc);
 
   // Add specific options for this geometry
   optionsSetup(desc);
-
-  // Map to store the given program options
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // Print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
+  auto vm = FW::Options::parse(desc, argc, argv);
+  if (vm.empty()) {
+    return EXIT_FAILURE;
   }
 
-  /// Default contexts
-  Acts::GeometryContext      geoContext;
-  Acts::MagneticFieldContext mfContext;
+  FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
 
-  // The Log level
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  // Get the log level
+  auto logLevel = FW::Options::readLogLevel(vm);
 
-  // Material loading from external source
-  auto mDecorator = FW::Options::readMaterialDecorator<po::variables_map>(vm);
-  // Get the tracking geometry and setup the propagator
-  auto geometry  = geometrySetup(vm, mDecorator);
+  // The geometry, material and decoration
+  auto geometry  = FW::Geometry::build(vm, geometrySetup);
   auto tGeometry = geometry.first;
+
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
 
@@ -167,11 +146,9 @@ materialMappingExample(int              argc,
         = vm["mat-output-boundaries"].template as<bool>();
     jmConverterCfg.processVolumes = vm["mat-output-volume"].template as<bool>();
     jmConverterCfg.writeData      = vm["mat-output-data"].template as<bool>();
-    // The converter on basis of Json
-    jmConverterCfg.fileName = materialFileName + ".json";
     // The writer
-    auto jimJsonWriter
-        = std::make_shared<FW::Json::JsonMaterialWriter>(jmConverterCfg);
+    auto jimJsonWriter = std::make_shared<FW::Json::JsonMaterialWriter>(
+        jmConverterCfg, materialFileName + ".json";);
 
     mmAlgConfig.materialWriters.push_back(jimJsonWriter);
   }
@@ -180,10 +157,10 @@ materialMappingExample(int              argc,
   auto mmAlg = std::make_shared<FW::MaterialMapping>(mmAlgConfig);
 
   // Apend the Algorithm
-  sequencer.appendEventAlgorithms({mmAlg});
+  sequencer.appendAlgorithm(mmAlg);
 
   // Initiate the run
-  sequencer.run(nEvents);
+  sequencer.run();
   // Return success code
   return 0;
 }

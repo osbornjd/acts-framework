@@ -16,6 +16,7 @@
 #include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 
+// @note This file will go into the acts-core
 namespace Acts {
 
 /// @class MaterialWiper

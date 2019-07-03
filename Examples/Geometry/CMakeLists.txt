@@ -1,11 +1,11 @@
 set(_common_libraries
   ActsCore
   ACTFramework
-  ACTFWGeometryInterfaces
   ACTFWExamplesCommon
   ACTFWObjPlugin
   ACTFWCsvPlugin
   ACTFWJsonPlugin
+  ACTFWRootPlugin
   ${Boost_LIBRARIES})
 
 # Generic detector

@@ -132,9 +132,6 @@ namespace Json {
       /// The name of the writer
       std::string name = "";
 
-      /// Optionally the file name
-      std::string fileName = "";
-
       /// Steering to handle sensitive data
       bool processSensitives = true;
 

@@ -13,7 +13,7 @@
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/GeometryInterfaces/MaterialWiper.hpp"
+#include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
@@ -152,16 +152,10 @@ propagationExample(int               argc,
   // Now read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);
 
-  // Material decoration
-  std::shared_ptr<const Acts::IMaterialDecorator> matDeco = nullptr;
-  auto matType = vm["mat-input-type"].as<std::string>();
-  if (matType == "none") {
-    matDeco = std::make_shared<const Acts::MaterialWiper>();
-  }
-  auto geometry          = geometrySetup(vm, matDeco);
+  // The geometry, material and decoration
+  auto geometry          = FW::Geometry::build(vm, geometrySetup);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
-
   // Add the decorator to the sequencer
   for (auto cdr : contextDecorators) {
     sequencer.addContextDecorator(cdr);

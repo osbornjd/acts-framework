@@ -41,11 +41,6 @@ FW::MaterialMapping::~MaterialMapping()
   // Finalize all the maps using the cached state
   m_cfg.materialMapper->finalizeMaps(m_mappingState);
 
-  // Create a fake context for writing
-  AlgorithmContext writeContext(0, 0, m_whiteBoard);
-  writeContext.geoContext      = m_cfg.geoContext;
-  writeContext.magFieldContext = m_cfg.magFieldContext;
-
   Acts::DetectorMaterialMaps detectorMaterial;
 
   // Loop over the state, and collect the maps for surfaces

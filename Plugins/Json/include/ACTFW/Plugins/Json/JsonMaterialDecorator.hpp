@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <fstream>
 #include <map>
 #include <mutex>
 #include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
@@ -53,7 +54,7 @@ namespace Json {
           "JsonGeometryConverter", Acts::Logging::VERBOSE);
       FW::Json::JsonGeometryConverter jmConverter(jmConverterCfg);
 
-      std::ifstream ifj(jFileName);
+      std::ifstream ifj(jFileName.c_str());
       json          jin;
       ifj >> jin;
 

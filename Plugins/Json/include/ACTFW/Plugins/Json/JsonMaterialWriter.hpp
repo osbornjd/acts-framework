@@ -47,7 +47,8 @@ namespace Json {
     /// Constructor
     ///
     /// @param cfg The configuration struct of the converter
-    JsonMaterialWriter(const JsonGeometryConverter::Config& cfg);
+    JsonMaterialWriter(const JsonGeometryConverter::Config& cfg,
+                       const std::string&                   fileName);
 
     /// Virtual destructor
     ~JsonMaterialWriter();
@@ -62,8 +63,8 @@ namespace Json {
     /// The config class of the converter
     JsonGeometryConverter::Config m_cfg;
 
-    /// mutex used to protect multi-threaded writes
-    std::mutex m_write_mutex;
+    /// The file name
+    std::string m_fileName;
 
     /// Private access to the logging instance
     const Acts::Logger&

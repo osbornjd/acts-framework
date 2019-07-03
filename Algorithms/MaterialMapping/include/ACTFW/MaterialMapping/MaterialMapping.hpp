@@ -14,12 +14,9 @@
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/MaterialMapping/IMaterialWriter.hpp"
 #include "Acts/Plugins/MaterialMapping/SurfaceMaterialMapper.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "Acts/Utilities/MagneticFieldContext.hpp"
 
 namespace Acts {
 
@@ -60,7 +57,6 @@ public:
   /// of the MaterialMapping algorithm
   struct Config
   {
-
     /// Constructor with geometry and magnetic field contexts
     Config(std::reference_wrapper<const Acts::GeometryContext>      gctx,
            std::reference_wrapper<const Acts::MagneticFieldContext> mctx)
@@ -108,8 +104,6 @@ private:
   Config m_cfg;  //!< internal config object
   Acts::SurfaceMaterialMapper::State
       m_mappingState;  //!< Material mapping state
-
-  WhiteBoard m_whiteBoard;
 };
 
 }  // namespace FW
