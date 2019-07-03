@@ -1,4 +1,7 @@
-set(sources src/RootMaterialTrackWriter.cpp
+set(sources src/RootMaterialDecorator.cpp
+            src/RootMaterialWriter.cpp            
+            src/RootMaterialTrackReader.cpp
+            src/RootMaterialTrackWriter.cpp
             src/RootPlanarClusterWriter.cpp
             src/RootParticleWriter.cpp
             src/RootSimHitWriter.cpp

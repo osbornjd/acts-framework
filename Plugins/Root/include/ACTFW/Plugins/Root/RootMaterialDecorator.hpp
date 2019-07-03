@@ -29,19 +29,16 @@ using SurfaceMaterialMap
 
 using VolumeMaterialMap
     = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
-
-using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
 }
 
 namespace FW {
 
 namespace Root {
 
-  /// @class RootMaterialReader
+  /// @class RootMaterialDecorator
   ///
-  /// @brief Read the collection of SurfaceMaterial from a file in order to
-  /// load it onto the TrackingGeometry
-  class RootMaterialReader
+  /// @brief Read the collection of SurfaceMaterial & VolumeMaterial
+  class RootMaterialDecorator : public Acts::IMaterialDecorator
   {
   public:
     /// @class Config
@@ -102,62 +99,10 @@ namespace Root {
     /// Constructor
     ///
     /// @param cfg configuration struct for the reader
-    RootMaterialReader(const Config& cfg);
+    RootMaterialDecorator(const Config& cfg);
 
-    /// Virtual destructor
-    ~RootMaterialReader();
-
-    /// Framework name() method
-    std::string
-    name() const;
-
-    /// Read method
-    ///
-    /// @param detMaterialMap the surface and volume material
-    /// @param skip is the number of skip reads (0 for this reader)
-    /// @param is the AlgorithmContext pointer in case the reader would need
-    /// information about the event context (not true in this case)
-    FW::ProcessCode
-    read(Acts::DetectorMaterialMaps& detMaterialMap,
-         size_t                      skip = 0,
-         const FW::AlgorithmContext* ctx  = nullptr) final override;
-
-  private:
-    /// The config class
-    Config m_cfg;
-
-    /// The input file
-    TFile* m_inputFile;
-
-    /// mutex used to protect multi-threaded reads
-    std::mutex m_read_mutex;
-
-    /// Private access to the logging instance
-    const Acts::Logger&
-    logger() const
-    {
-      return *m_cfg.logger;
-    }
-  };
-
-  inline std::string
-  RootMaterialReader::name() const
-  {
-    return m_cfg.name;
-  }
-
-  ///@brief Material decorator from ROOT
-  class RootMaterialDecorator : public Acts::IMaterialDecorator
-  {
-  public:
-    RootMaterialDecorator(RootMaterialReader::Config rConfig)
-      : m_readerConfig(rConfig)
-    {
-      // Create the reader with the config
-      RootMaterialReader reader(m_readerConfig);
-      // Read the map & return it
-      reader.read(m_detectorMaterialMaps);
-    }
+    /// Destructor
+    ~RootMaterialDecorator();
 
     /// Decorate a surface
     ///
@@ -165,9 +110,13 @@ namespace Root {
     void
     decorate(Acts::Surface& surface) const final
     {
+      // Null out the material for this surface
+      if (m_clearSurfaceMaterial) {
+        surface.assignSurfaceMaterial(nullptr);
+      }
       // Try to find the surface in the map
-      auto sMaterial = m_detectorMaterialMaps.first.find(surface.geoID());
-      if (sMaterial != m_detectorMaterialMaps.first.end()) {
+      auto sMaterial = m_surfaceMaterialMap.find(surface.geoID());
+      if (sMaterial != m_surfaceMaterialMap.end()) {
         surface.assignSurfaceMaterial(sMaterial->second);
       }
     }
@@ -178,17 +127,39 @@ namespace Root {
     void
     decorate(Acts::TrackingVolume& volume) const final
     {
+      // Null out the material for this volume
+      if (m_clearSurfaceMaterial) {
+        volume.assignVolumeMaterial(nullptr);
+      }
       // Try to find the surface in the map
-      auto vMaterial = m_detectorMaterialMaps.second.find(volume.geoID());
-      if (vMaterial != m_detectorMaterialMaps.second.end()) {
+      auto vMaterial = m_volumeMaterialMap.find(volume.geoID());
+      if (vMaterial != m_volumeMaterialMap.end()) {
         volume.assignVolumeMaterial(vMaterial->second);
       }
     }
 
   private:
-    RootMaterialReader::Config m_readerConfig;
-    Acts::DetectorMaterialMaps m_detectorMaterialMaps;
-  };
+    /// The config class
+    Config m_cfg;
 
+    /// The input file
+    TFile* m_inputFile{nullptr};
+
+    /// Surface based material
+    Acts::SurfaceMaterialMap m_surfaceMaterialMap;
+
+    /// Volume based material
+    Acts::VolumeMaterialMap m_volumeMaterialMap;
+
+    bool m_clearSurfaceMaterial{true};
+    bool m_clearVolumeMaterial{true};
+
+    /// Private access to the logging instance
+    const Acts::Logger&
+    logger() const
+    {
+      return *m_cfg.logger;
+    }
+  };
 }  // namespace Root
 }  // namespace FW

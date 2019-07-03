@@ -33,7 +33,10 @@ namespace FW {
 
 namespace Json {
 
-  ///@brief Material decorator from ROOT
+  /// @brief Material decorator from Json format
+  ///
+  /// This reads in material maps for surfaces and volumes
+  /// from a json file
   class JsonMaterialDecorator : public Acts::IMaterialDecorator
   {
   public:

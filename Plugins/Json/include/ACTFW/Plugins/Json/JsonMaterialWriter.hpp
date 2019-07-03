@@ -35,6 +35,7 @@ using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
 namespace FW {
 
 namespace Json {
+
   /// @class Json Material writer
   ///
   /// @brief Writes out Detector material maps
@@ -51,17 +52,11 @@ namespace Json {
     /// Virtual destructor
     ~JsonMaterialWriter();
 
-    /// Framework name() method
-    std::string
-    name() const;
-
-    /// Interface method which writes out the MaterialTrack entities
+    /// Write out the material map
     ///
-    /// @param context is the algorithm context in case it is contextual
-    /// @param ism is the indexed surface material
-    FW::ProcessCode
-    write(const AlgorithmContext&           context,
-          const Acts::DetectorMaterialMaps& detMaterial);
+    /// @param detMaterial is the SurfaceMaterial and VolumeMaterial maps
+    void
+    write(const Acts::DetectorMaterialMaps& detMaterial);
 
   private:
     /// The config class of the converter
@@ -77,12 +72,6 @@ namespace Json {
       return *m_cfg.logger;
     }
   };
-
-  inline std::string
-  JsonMaterialWriter::name() const
-  {
-    return m_cfg.name;
-  }
 
 }  // namespace Json
 }  // namespace FW

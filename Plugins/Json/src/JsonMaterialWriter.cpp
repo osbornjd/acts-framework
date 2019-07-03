@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -27,7 +27,7 @@ FW::Json::JsonMaterialWriter::~JsonMaterialWriter()
 {
 }
 
-FW::ProcessCode
+void
 FW::Json::JsonMaterialWriter::write(
     const Acts::DetectorMaterialMaps& detMaterial)
 {
@@ -39,7 +39,4 @@ FW::Json::JsonMaterialWriter::write(
   std::string   jsonOutputName = m_cfg.fileName;
   std::ofstream ofj(jsonOutputName);
   ofj << std::setw(4) << jout << std::endl;
-
-  // return success
-  return FW::ProcessCode::SUCCESS;
 }

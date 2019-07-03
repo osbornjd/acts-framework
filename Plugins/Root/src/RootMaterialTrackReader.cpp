@@ -119,11 +119,7 @@ FW::Root::RootMaterialTrackReader::read(const FW::AlgorithmContext& context)
     }
 
     // Write to the collection to the EventStore
-    if (context.eventStore.add(m_cfg.collection, std::move(mtrackCollection))
-        == FW::ProcessCode::ABORT) {
-      ACTS_ERROR("Could not write the material steps into the EventStore!");
-      return FW::ProcessCode::ABORT;
-    }
+    context.eventStore.add(m_cfg.collection, std::move(mtrackCollection));
   }
   // Return success flag
   return FW::ProcessCode::SUCCESS;

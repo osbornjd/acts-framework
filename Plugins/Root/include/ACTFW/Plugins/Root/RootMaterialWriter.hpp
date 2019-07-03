@@ -15,6 +15,7 @@
 #include <map>
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Material/IVolumeMaterial.hpp"
 #include "Acts/Utilities/Definitions.hpp"
@@ -37,19 +38,16 @@ namespace FW {
 
 namespace Root {
 
-  /// @class RootMaterialTrackWriter
+  /// @brief Material decorator from Root format
   ///
-  /// @brief Writes out MaterialTrack entities from a root file
-  ///
-  /// This service is the root implementation of the IWriterT.
-  /// It writes out a MaterialTrack which is usually generated from
-  /// Geant4 material mapping
-
+  /// This reads in material maps for surfaces and volumes
+  /// from a root file
   class RootMaterialWriter
   {
 
   public:
     /// @class Config
+    ///
     /// Configuration of the Writer
     struct Config
     {
@@ -111,23 +109,16 @@ namespace Root {
     /// Virtual destructor
     ~RootMaterialWriter();
 
-    /// Framework name() method
-    std::string
-    name() const;
-
-    /// Interface method which writes out the MaterialTrack entities
+    /// Write out the material map
     ///
-    /// @param context is the algorithm context in case it is contextual
-    /// @param detMaterial are the detector material maps
-    FW::ProcessCode
-    write(const AlgorithmContext&           context,
-          const Acts::DetectorMaterialMaps& detMaterial);
+    /// @param detMaterial is the SurfaceMaterial and VolumeMaterial maps
+    void
+    write(const Acts::DetectorMaterialMaps& detMaterial);
 
   private:
     /// The config class
     Config m_cfg;
-    /// mutex used to protect multi-threaded writes
-    std::mutex m_write_mutex;
+
     /// The output file name
     TFile* m_outputFile;
 
@@ -138,12 +129,6 @@ namespace Root {
       return *m_cfg.logger;
     }
   };
-
-  inline std::string
-  RootMaterialWriter::name() const
-  {
-    return m_cfg.name;
-  }
 
 }  // namespace Root
 }  // namespace FW

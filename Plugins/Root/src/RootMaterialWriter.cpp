@@ -17,9 +17,7 @@
 
 FW::Root::RootMaterialWriter::RootMaterialWriter(
     const FW::Root::RootMaterialWriter::Config& cfg)
-  : FW::IWriterT<Acts::DetectorMaterialMaps>()
-  , m_cfg(cfg)
-  , m_outputFile(nullptr)
+  : m_cfg(cfg), m_outputFile(nullptr)
 {
   // Validate the configuration
   if (m_cfg.folderNameBase.empty()) {
@@ -44,19 +42,17 @@ FW::Root::RootMaterialWriter::~RootMaterialWriter()
   m_outputFile->Close();
 }
 
-FW::ProcessCode
+void
 FW::Root::RootMaterialWriter::write(
-    const AlgorithmContext&           context,
     const Acts::DetectorMaterialMaps& detMaterial)
 {
-  // lock the mutex
-  std::lock_guard<std::mutex> lock(m_write_mutex);
 
   // Change to the output file
   m_outputFile->cd();
 
   auto& surfaceMaps = detMaterial.first;
   for (auto & [ key, value ] : surfaceMaps) {
+
     // Get the Surface material
     const Acts::ISurfaceMaterial* sMaterial = value.get();
 
@@ -217,7 +213,4 @@ FW::Root::RootMaterialWriter::write(
     Z->Write();
     rho->Write();
   }
-
-  // return success
-  return FW::ProcessCode::SUCCESS;
 }

@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootMaterialReader.hpp"
+#include "ACTFW/Plugins/Root/RootMaterialDecorator.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/finder.hpp>
 #include <boost/algorithm/string/iter_find.hpp>
@@ -26,9 +26,9 @@
 #include "TKey.h"
 #include "TList.h"
 
-FW::Root::RootMaterialReader::RootMaterialReader(
-    const FW::Root::RootMaterialReader::Config& cfg)
-  : FW::IReaderT<Acts::DetectorMaterialMaps>(), m_cfg(cfg), m_inputFile(nullptr)
+FW::Root::RootMaterialDecorator::RootMaterialDecorator(
+    const FW::Root::RootMaterialDecorator::Config& cfg)
+  : m_cfg(cfg), m_inputFile(nullptr)
 {
   // Validate the configuration
   if (m_cfg.folderNameBase.empty()) {
@@ -46,20 +46,6 @@ FW::Root::RootMaterialReader::RootMaterialReader(
   if (!m_inputFile) {
     throw std::ios_base::failure("Could not open '" + m_cfg.fileName);
   }
-}
-
-FW::Root::RootMaterialReader::~RootMaterialReader()
-{
-  m_inputFile->Close();
-}
-
-FW::ProcessCode
-FW::Root::RootMaterialReader::read(Acts::DetectorMaterialMaps& detMaterialMaps,
-                                   size_t /*skip*/,
-                                   const FW::AlgorithmContext* /*ctx*/)
-{
-  // lock the mutex
-  std::lock_guard<std::mutex> lock(m_read_mutex);
 
   // Get the list of keys from the file
   TList* tlist = m_inputFile->GetListOfKeys();
@@ -194,9 +180,11 @@ FW::Root::RootMaterialReader::read(Acts::DetectorMaterialMaps& detMaterialMaps,
     ACTS_VERBOSE("Successfully read Material for : " << geoID.toString());
 
     // Insert into the new collection
-    detMaterialMaps.first.insert({geoID, std::move(sMaterial)});
+    m_surfaceMaterialMap.insert({geoID, std::move(sMaterial)});
   }
+}
 
-  // Announce success
-  return FW::ProcessCode::SUCCESS;
+FW::Root::RootMaterialDecorator::~RootMaterialDecorator()
+{
+  m_inputFile->Close();
 }
