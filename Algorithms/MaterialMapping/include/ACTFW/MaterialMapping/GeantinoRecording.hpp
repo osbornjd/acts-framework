@@ -12,7 +12,6 @@
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
 #include "Acts/Extrapolator/MaterialInteractor.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"

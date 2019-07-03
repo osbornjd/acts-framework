@@ -53,8 +53,9 @@ FW::MaterialMapping::~MaterialMapping()
     detectorMaterial.first.insert({key, std::move(value)});
   }
 
+  // Loop over the available writers and write the maps
   for (auto& imw : m_cfg.materialWriters) {
-    imw->write(writeContext, detectorMaterial);
+    imw->writeMaterial(detectorMaterial);
   }
 }
 
@@ -62,14 +63,10 @@ FW::ProcessCode
 FW::MaterialMapping::execute(const FW::AlgorithmContext& context) const
 {
 
-  const std::vector<Acts::RecordedMaterialTrack>* mtrackCollection = nullptr;
-
   // Write to the collection to the EventStore
-  if (context.eventStore.get(m_cfg.collection, mtrackCollection)
-      == FW::ProcessCode::ABORT) {
-    ACTS_ERROR("Could not read the material steps from EventStore!");
-    return FW::ProcessCode::ABORT;
-  }
+  const auto& mtrackCollection
+      = context.eventStore.get<const std::vector<Acts::RecordedMaterialTrack>*>(
+          m_cfg.collection);
 
   // To make it work with the framework needs a lock guard
   auto mappingState

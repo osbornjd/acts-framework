@@ -65,11 +65,8 @@ FW::GeantinoRecording::execute(const FW::AlgorithmContext& context) const
                         << " MaterialTracks. Writing them now onto file...");
 
   // Write the recorded material to the event store
-  if (context.eventStore.add(m_cfg.geantMaterialCollection,
-                             std::move(recordedMaterial))
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  context.eventStore.add(m_cfg.geantMaterialCollection,
+                         std::move(recordedMaterial));
 
   return FW::ProcessCode::SUCCESS;
 }

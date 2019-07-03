@@ -15,15 +15,17 @@
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
-#include "Acts/Material/ISurfaceMaterial.hpp"
+#include "ACTFW/MaterialMapping/IMaterialWriter.hpp"
 #include "Acts/Plugins/MaterialMapping/SurfaceMaterialMapper.hpp"
 #include "Acts/Utilities/GeometryContext.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/MagneticFieldContext.hpp"
 
 namespace Acts {
+
 class TrackingGeometry;
+class ISurfaceMaterial;
+class IVolumeMaterial;
 
 using SurfaceMaterialMap
     = std::map<GeometryID, std::shared_ptr<const ISurfaceMaterial>>;
@@ -73,14 +75,14 @@ public:
     std::shared_ptr<Acts::SurfaceMaterialMapper> materialMapper = nullptr;
 
     /// The writer of the material
-    std::vector<std::shared_ptr<FW::IWriterT<Acts::DetectorMaterialMaps>>>
-        materialWriters;
+    std::vector<std::shared_ptr<IMaterialWriter>> materialWriters;
 
     /// The TrackingGeometry to be mapped on
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = nullptr;
 
     // Geometry context for the state creation
     std::reference_wrapper<const Acts::GeometryContext> geoContext;
+
     // MagneticField  context for the state creation
     std::reference_wrapper<const Acts::MagneticFieldContext> magFieldContext;
   };
