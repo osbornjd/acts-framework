@@ -9,7 +9,6 @@ set(_common_libraries
   ACTFWFatras
   ACTFWObjPlugin
   ACTFWRootPlugin
-  ACTFWTxtPlugin
   ActsFrameworkGenerators
   ActsFrameworkPythia8)
 
