@@ -32,6 +32,10 @@ namespace Options {
   void
   addGeometryOptions(boost::program_options::options_description& opt);
 
+  /// Add common material-related options.
+  void
+  addMaterialOptions(boost::program_options::options_description& opt);
+
   /// Add common output-related options.
   void
   addOutputOptions(boost::program_options::options_description& opt);

@@ -15,6 +15,7 @@
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/GeometryInterfaces/MaterialWiper.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
@@ -39,6 +40,7 @@ processGeometry(int               argc,
   auto desc = FW::Options::makeDefaultOptions();
   FW::Options::addSequencerOptions(desc);
   FW::Options::addGeometryOptions(desc);
+  FW::Options::addMaterialOptions(desc);
   FW::Options::addObjWriterOptions(desc);
   FW::Options::addOutputOptions(desc);
   // Add specific options for this geometry
@@ -50,10 +52,14 @@ processGeometry(int               argc,
 
   // Now read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);
-  // TODO Check whether this truly needs to be event-based. If yes switch to
-  // Sequencer-based tool, otherwise remove.
-  auto nEvents           = FW::Options::readSequencerConfig(vm).events;
-  auto geometry          = geometrySetup(vm, nullptr);
+  auto nEvents  = FW::Options::readSequencerConfig(vm).events;
+  // Material decoration
+  std::shared_ptr<const Acts::IMaterialDecorator> matDeco = nullptr;
+  auto matType = vm["mat-input-type"].as<std::string>();
+  if (matType == "none") {
+    matDeco = std::make_shared<const Acts::MaterialWiper>();
+  }
+  auto geometry          = geometrySetup(vm, matDeco);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 
@@ -61,11 +67,11 @@ processGeometry(int               argc,
   read_strings subDetectors = vm["geo-subdetectors"].as<read_strings>();
 
   auto surfaceLogLevel
-      = Acts::Logging::Level(vm["geo-surface-loglevel"].template as<size_t>());
+      = Acts::Logging::Level(vm["geo-surface-loglevel"].as<size_t>());
   auto layerLogLevel
-      = Acts::Logging::Level(vm["geo-layer-loglevel"].template as<size_t>());
+      = Acts::Logging::Level(vm["geo-layer-loglevel"].as<size_t>());
   auto volumeLogLevel
-      = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
+      = Acts::Logging::Level(vm["geo-volume-loglevel"].as<size_t>());
 
   for (size_t ievt = 0; ievt < nEvents; ++ievt) {
 

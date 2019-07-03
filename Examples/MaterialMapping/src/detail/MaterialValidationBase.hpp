@@ -10,13 +10,11 @@
 
 #include <boost/program_options.hpp>
 #include <memory>
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/GeometryOptions.hpp"
-#include "ACTFW/Common/MaterialOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/Root/RootMaterialReader.hpp"
+//#include "ACTFW/Plugins/Root/RootMaterialReader.hpp"
+#include "ACTFW/GeometryInterfaces/MaterialWiper.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
@@ -55,7 +53,7 @@ setupPropagation(sequencer_t&                                  sequencer,
                  std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
@@ -73,7 +71,7 @@ setupPropagation(sequencer_t&                                  sequencer,
       pAlgConfig, logLevel);
 
   // Add the propagation algorithm
-  sequencer.appendEventAlgorithms({propagationAlg});
+  sequencer.addAlgorithm({propagationAlg});
 
   return FW::ProcessCode::SUCCESS;
 }
@@ -97,7 +95,7 @@ setupStraightLinePropagation(
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
@@ -116,7 +114,7 @@ setupStraightLinePropagation(
       pAlgConfig, logLevel);
 
   // Add the propagation algorithm
-  sequencer.appendEventAlgorithms({propagationAlg});
+  sequencer.addAlgorithm({propagationAlg});
 
   return FW::ProcessCode::SUCCESS;
 }
@@ -142,58 +140,43 @@ materialValidationExample(int              argc,
                           geometry_setup_t geometrySetup)
 {
 
-  // Create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
-  // Now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Add the geometry options
-  FW::Options::addGeometryOptions<po::options_description>(desc);
-  // Add the material options
-  FW::Options::addMaterialOptions<po::options_description>(desc);
-  // Add the bfield options
-  FW::Options::addBFieldOptions<po::options_description>(desc);
-  // Add the random number options
-  FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // Add the fatras options
-  FW::Options::addPropagationOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
+  // Setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  FW::Options::addGeometryOptions(desc);
+  FW::Options::addMaterialOptions(desc);
+  FW::Options::addBFieldOptions(desc);
+  FW::Options::addRandomNumbersOptions(desc);
+  FW::Options::addPropagationOptions(desc);
+  FW::Options::addOutputOptions(desc);
 
   // Add specific options for this geometry
   optionsSetup(desc);
-
-  // Map to store the given program options
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // Print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
+  auto vm = FW::Options::parse(desc, argc, argv);
+  if (vm.empty()) {
+    return EXIT_FAILURE;
   }
 
-  // The Log level
-  auto nEvents = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+  FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
+
+  // Now read the standard options
+  auto logLevel = FW::Options::readLogLevel(vm);
+
+  // Material decoration
+  std::shared_ptr<const Acts::IMaterialDecorator> matDeco = nullptr;
+  auto matType = vm["mat-input-type"].as<std::string>();
+  if (matType == "none") {
+    matDeco = std::make_shared<const Acts::MaterialWiper>();
+  }
+  auto geometry  = geometrySetup(vm, matDeco);
+  auto tGeometry = geometry.first;
 
   // Create the random number engine
-  auto randomNumberSvcCfg
-      = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
+  auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
   // Add it to the sequencer
-  sequencer.addServices({randomNumberSvc});
-
-  // Material loading from external source
-  auto mDecorator = FW::Options::readMaterialDecorator<po::variables_map>(vm);
-
-  // Set up the geometry
-  auto geometry  = geometrySetup(vm, mDecorator);
-  auto tGeometry = geometry.first;
+  sequencer.addService(randomNumberSvc);
 
   // Create BField service
   auto bField  = FW::Options::readBField<po::variables_map>(vm);
@@ -236,12 +219,11 @@ materialValidationExample(int              argc,
     auto matTrackWriterRoot
         = std::make_shared<FW::Root::RootMaterialTrackWriter>(
             matTrackWriterRootConfig);
-    if (sequencer.addWriters({matTrackWriterRoot}) != FW::ProcessCode::SUCCESS)
-      return -1;
+    sequencer.addWriter(matTrackWriterRoot);
   }
 
   // Initiate the run
-  sequencer.run(nEvents);
+  sequencer.run();
   // Return success code
   return 0;
 }

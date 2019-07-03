@@ -1,4 +1,5 @@
-set(sources src/RootPlanarClusterWriter.cpp
+set(sources src/RootMaterialTrackWriter.cpp
+            src/RootPlanarClusterWriter.cpp
             src/RootParticleWriter.cpp
             src/RootSimHitWriter.cpp
             src/RootPropagationStepsWriter.cpp)

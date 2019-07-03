@@ -63,6 +63,15 @@ FW::Options::addGeometryOptions(
 }
 
 void
+FW::Options::addMaterialOptions(
+    boost::program_options::options_description& opt)
+{
+  opt.add_options()("mat-input-type",
+                    value<std::string>()->default_value("none"),
+                    "The way material is loaded: 'none', 'build', 'file'.");
+}
+
+void
 FW::Options::addOutputOptions(boost::program_options::options_description& opt)
 {
   // Add specific options for this example
