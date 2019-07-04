@@ -7,17 +7,15 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <boost/program_options.hpp>
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
 #include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/MaterialMapping/GeantinoRecording.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "ACTFW/Writers/IWriterT.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/GeometryContext.hpp"
 
@@ -27,24 +25,19 @@ int
 main(int argc, char* argv[])
 {
   // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the standard/common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
-  // Add the detector options
-  FW::Options::addDD4hepOptions<po::options_description>(desc);
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
+  // Setup and parse options
+  auto desc = FW::Options::makeDefaultOptions();
+  FW::Options::addSequencerOptions(desc);
+  FW::Options::addOutputOptions(desc);
+  FW::Options::addDD4hepOptions(desc);
+
+  // Parse the options
+  auto vm = FW::Options::parse(desc, argc, argv);
+  if (vm.empty()) {
+    return EXIT_FAILURE;
   }
-  // Now read the standard options
-  auto nEvents = FW::Options::readNumberOfEvents<po::variables_map>(vm);
+
+  FW::Sequencer g4sequencer(FW::Options::readSequencerConfig(vm));
 
   size_t nTracks     = 100;
   int    randomSeed1 = 536235167;
@@ -87,13 +80,6 @@ main(int argc, char* argv[])
   auto g4rAlgorithm
       = std::make_shared<FW::GeantinoRecording>(g4rConfig, Acts::Logging::INFO);
 
-  // Geant4 job - these can be many Geant4 jobs, indeed
-  //
-  // create the config object for the sequencer
-  FW::Sequencer::Config g4SeqConfig;
-  // now create the sequencer
-  FW::Sequencer g4Sequencer(g4SeqConfig);
-
   // Output directory
   std::string outputDir     = vm["output-dir"].template as<std::string>();
   std::string matCollection = g4rConfig.geantMaterialCollection;
@@ -107,12 +93,10 @@ main(int argc, char* argv[])
     auto matTrackWriterRoot
         = std::make_shared<FW::Root::RootMaterialTrackWriter>(
             matTrackWriterRootConfig);
-    if (g4Sequencer.addWriters({matTrackWriterRoot})
-        != FW::ProcessCode::SUCCESS)
-      return -1;
+    g4sequencer.addWriter(matTrackWriterRoot);
   }
 
   // Append the algorithm and run
-  g4Sequencer.appendEventAlgorithms({g4rAlgorithm});
-  g4Sequencer.run(nEvents);
+  g4sequencer.addAlgorithm(g4rAlgorithm);
+  g4sequencer.run();
 }

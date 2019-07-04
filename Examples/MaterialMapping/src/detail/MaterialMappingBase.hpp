@@ -13,17 +13,20 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
+#include "ACTFW/Propagation/PropagationOptions.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "ACTFW/options/CommonOptions.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Extrapolator/Navigator.hpp"
 #include "Acts/Plugins/MaterialMapping/SurfaceMaterialMapper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
+#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Utilities/MagneticFieldContext.hpp"
 
 namespace po = boost::program_options;
 
@@ -51,8 +54,6 @@ materialMappingExample(int              argc,
   FW::Options::addSequencerOptions(desc);
   FW::Options::addGeometryOptions(desc);
   FW::Options::addMaterialOptions(desc);
-  FW::Options::addBFieldOptions(desc);
-  FW::Options::addRandomNumbersOptions(desc);
   FW::Options::addPropagationOptions(desc);
   FW::Options::addOutputOptions(desc);
 
@@ -71,6 +72,10 @@ materialMappingExample(int              argc,
   // The geometry, material and decoration
   auto geometry  = FW::Geometry::build(vm, geometrySetup);
   auto tGeometry = geometry.first;
+
+  /// Default contexts
+  Acts::GeometryContext      geoContext;
+  Acts::MagneticFieldContext mfContext;
 
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
@@ -99,8 +104,7 @@ materialMappingExample(int              argc,
     auto matTrackReaderRoot
         = std::make_shared<FW::Root::RootMaterialTrackReader>(
             matTrackReaderRootConfig);
-    if (sequencer.addReaders({matTrackReaderRoot}) != FW::ProcessCode::SUCCESS)
-      return -1;
+    sequencer.addReader(matTrackReaderRoot);
   }
 
   /// The material mapper
@@ -120,17 +124,17 @@ materialMappingExample(int              argc,
 
   if (vm["output-root"].template as<bool>()) {
 
-    /// The writer of the indexed material
-    FW::Root::RootMaterialWriter::Config rimConfig("MaterialWriter");
-    rimConfig.fileName = materialFileName + ".root";
-    auto rimRootWriter
-        = std::make_shared<FW::Root::RootMaterialWriter>(rimConfig);
-
-    mmAlgConfig.materialWriters.push_back(rimRootWriter);
+    // The writer of the indexed material
+    FW::Root::RootMaterialWriter::Config rmwConfig("MaterialWriter");
+    rmwConfig.fileName = materialFileName + ".root";
+    FW::Root::RootMaterialWriter rmwImpl(rmwConfig);
+    // Fullfill the IMaterialWriter interface
+    using RootWriter = FW::MaterialWriterT<FW::Root::RootMaterialWriter>;
+    mmAlgConfig.materialWriters.push_back(
+        std::make_shared<RootWriter>(std::move(rmwImpl)));
   }
 
   if (vm["output-json"].template as<bool>()) {
-
     /// The name of the output file
     std::string fileName = vm["mat-output-file"].template as<std::string>();
     // the material writer
@@ -147,17 +151,19 @@ materialMappingExample(int              argc,
     jmConverterCfg.processVolumes = vm["mat-output-volume"].template as<bool>();
     jmConverterCfg.writeData      = vm["mat-output-data"].template as<bool>();
     // The writer
-    auto jimJsonWriter = std::make_shared<FW::Json::JsonMaterialWriter>(
-        jmConverterCfg, materialFileName + ".json";);
-
-    mmAlgConfig.materialWriters.push_back(jimJsonWriter);
+    FW::Json::JsonMaterialWriter jmwImpl(jmConverterCfg,
+                                         materialFileName + ".json");
+    // Fullfill the IMaterialWriter interface
+    using JsonWriter = FW::MaterialWriterT<FW::Json::JsonMaterialWriter>;
+    mmAlgConfig.materialWriters.push_back(
+        std::make_shared<JsonWriter>(std::move(jmwImpl)));
   }
 
   // Create the material mapping
   auto mmAlg = std::make_shared<FW::MaterialMapping>(mmAlgConfig);
 
-  // Apend the Algorithm
-  sequencer.appendAlgorithm(mmAlg);
+  // Append the Algorithm
+  sequencer.addAlgorithm(mmAlg);
 
   // Initiate the run
   sequencer.run();
