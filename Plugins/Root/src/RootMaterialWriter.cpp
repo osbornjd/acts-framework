@@ -73,7 +73,7 @@ FW::Root::RootMaterialWriter::write(
     m_outputFile->mkdir(tdName.c_str());
     m_outputFile->cd(tdName.c_str());
 
-    ACTS_INFO("Writing out map at " << tdName);
+    ACTS_VERBOSE("Writing out map at " << tdName);
 
     size_t bins0 = 1, bins1 = 1;
     // understand what sort of material you have in mind
@@ -212,5 +212,85 @@ FW::Root::RootMaterialWriter::write(
     A->Write();
     Z->Write();
     rho->Write();
+  }
+}
+
+void
+FW::Root::RootMaterialWriter::write(const Acts::TrackingGeometry& tGeometry)
+{
+  // Create a detector material map and loop recursively through it
+  Acts::DetectorMaterialMaps detMatMap;
+  auto                       hVolume = tGeometry.highestTrackingVolume();
+  if (hVolume != nullptr) {
+    collectMaterial(*hVolume, detMatMap);
+  }
+  // Write the resulting map to the file
+  write(detMatMap);
+}
+
+void
+FW::Root::RootMaterialWriter::collectMaterial(
+    const Acts::TrackingVolume& tVolume,
+    Acts::DetectorMaterialMaps& detMatMap)
+{
+
+  // If the volume has volume material, write that
+  if (tVolume.volumeMaterialPtr() != nullptr and m_cfg.processVolumes) {
+    detMatMap.second[tVolume.geoID()] = tVolume.volumeMaterialPtr();
+  }
+
+  // If confined layers exist, loop over them and collect the layer material
+  if (tVolume.confinedLayers() != nullptr) {
+    for (auto& lay : tVolume.confinedLayers()->arrayObjects()) {
+      collectMaterial(*lay, detMatMap);
+    }
+  }
+
+  // If any of the boundary surfaces has material collect that
+  if (m_cfg.processBoundaries) {
+    for (auto& bou : tVolume.boundarySurfaces()) {
+      const auto& bSurface = bou->surfaceRepresentation();
+      if (bSurface.surfaceMaterialPtr() != nullptr) {
+        detMatMap.first[bSurface.geoID()] = bSurface.surfaceMaterialPtr();
+      }
+    }
+  }
+
+  // If the volume has sub volumes, step down
+  if (tVolume.confinedVolumes() != nullptr) {
+    for (auto& tvol : tVolume.confinedVolumes()->arrayObjects()) {
+      collectMaterial(*tvol, detMatMap);
+    }
+  }
+}
+
+void
+FW::Root::RootMaterialWriter::collectMaterial(
+    const Acts::Layer&          tLayer,
+    Acts::DetectorMaterialMaps& detMatMap)
+{
+  // If the representing surface has material, collect it
+  const auto& rSurface = tLayer.surfaceRepresentation();
+  if (rSurface.surfaceMaterialPtr() != nullptr and m_cfg.processRepresenting) {
+    detMatMap.first[rSurface.geoID()] = rSurface.surfaceMaterialPtr();
+  }
+
+  // Check the approach surfaces
+  if (tLayer.approachDescriptor() != nullptr and m_cfg.processApproaches) {
+    for (auto& aSurface : tLayer.approachDescriptor()->containedSurfaces()) {
+      if (aSurface->surfaceMaterialPtr() != nullptr) {
+        detMatMap.first[aSurface->geoID()] = aSurface->surfaceMaterialPtr();
+      }
+    }
+  }
+
+  // Check the sensitive surfaces
+  if (tLayer.surfaceArray() != nullptr and m_cfg.processSensitives) {
+    // sensitive surface loop
+    for (auto& sSurface : tLayer.surfaceArray()->surfaces()) {
+      if (sSurface->surfaceMaterialPtr() != nullptr) {
+        detMatMap.first[sSurface->geoID()] = sSurface->surfaceMaterialPtr();
+      }
+    }
   }
 }

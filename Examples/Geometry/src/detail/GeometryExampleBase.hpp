@@ -183,15 +183,14 @@ processGeometry(int               argc,
     // Get the file name from the options
     std::string materialFileName = vm["mat-output-file"].as<std::string>();
 
-    // if (!materialFileName.empty() and vm["output-root"].template as<bool>())
-    // {
-    //
-    //  // The writer of the indexed material
-    //  FW::Root::RootMaterialWriter::Config rmwConfig("MaterialWriter");
-    //  rmwConfig.fileName = materialFileName + ".root";
-    //  FW::Root::RootMaterialWriter rmwImpl(rmwConfig);
-    //
-    //}
+    if (!materialFileName.empty() and vm["output-root"].template as<bool>()) {
+
+      // The writer of the indexed material
+      FW::Root::RootMaterialWriter::Config rmwConfig("MaterialWriter");
+      rmwConfig.fileName = materialFileName + ".root";
+      FW::Root::RootMaterialWriter rmwImpl(rmwConfig);
+      rmwImpl.write(*tGeometry);
+    }
 
     if (!materialFileName.empty() and vm["output-json"].template as<bool>()) {
       /// The name of the output file

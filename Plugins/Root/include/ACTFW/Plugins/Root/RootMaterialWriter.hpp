@@ -15,9 +15,12 @@
 #include <map>
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Detector/TrackingVolume.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Material/IVolumeMaterial.hpp"
+#include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
@@ -51,6 +54,22 @@ namespace Root {
     /// Configuration of the Writer
     struct Config
     {
+
+      /// Steering to handle sensitive data
+      bool processSensitives = true;
+
+      /// Steering to handle approach data
+      bool processApproaches = true;
+
+      /// Steering to handle representing data
+      bool processRepresenting = true;
+
+      /// Steering to handle boundary data
+      bool processBoundaries = true;
+
+      /// Steering to handle volume data
+      bool processVolumes = true;
+
       /// The name of the output tree
       std::string folderNameBase = "Material";
       /// The volume identification string
@@ -115,7 +134,29 @@ namespace Root {
     void
     write(const Acts::DetectorMaterialMaps& detMaterial);
 
+    /// Write out the material map from Geometry
+    ///
+    /// @param tGeometry is the TrackingGeometry
+    void
+    write(const Acts::TrackingGeometry& tGeometry);
+
   private:
+    /// Collect the material from the tracking geometry
+    ///
+    /// @param tVolume The TrackingVolume for the material to be collected
+    /// @param [in,out] detMatMap the map to be filled
+    void
+    collectMaterial(const Acts::TrackingVolume& tVolume,
+                    Acts::DetectorMaterialMaps& detMatMap);
+
+    /// Collect the material from the tracking geometry
+    ///
+    /// @param tLayer The TrackingVolume for the material to be collected
+    /// @param [in,out] detMatMap the map to be filled
+    void
+    collectMaterial(const Acts::Layer&          tLayer,
+                    Acts::DetectorMaterialMaps& detMatMap);
+
     /// The config class
     Config m_cfg;
 

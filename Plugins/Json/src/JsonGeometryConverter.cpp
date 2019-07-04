@@ -321,7 +321,7 @@ FW::Json::JsonGeometryConverter::convertToRep(
   }
   // write the material if there's one
   if (tVolume.volumeMaterial() != nullptr) {
-    volRep.material = tVolume.volumeMaterial().get();
+    volRep.material = tVolume.volumeMaterial();
   }
   // there are confied layers
   if (tVolume.confinedLayers()) {
