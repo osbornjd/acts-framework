@@ -94,7 +94,7 @@ namespace Root {
       ///
       /// @param lname Name of the writer tool
       /// @param lvl The output logging level
-      Config(const std::string&   lname = "MaterialWriter",
+      Config(const std::string&   lname = "RootMaterialWriter",
              Acts::Logging::Level lvl   = Acts::Logging::INFO)
         : logger(Acts::getDefaultLogger(lname, lvl)), name(lname)
       {

@@ -130,7 +130,6 @@ setupStraightLinePropagation(
 ///
 /// @param optionsSetup is a struct to generate example specific options
 /// @param geometrySteup is a struct to generate the geometry
-///
 template <typename options_setup_t, typename geometry_setup_t>
 int
 materialValidationExample(int              argc,
@@ -213,7 +212,7 @@ materialValidationExample(int              argc,
         = FW::joinPaths(outputDir, matCollection + ".root");
     auto matTrackWriterRoot
         = std::make_shared<FW::Root::RootMaterialTrackWriter>(
-            matTrackWriterRootConfig);
+            matTrackWriterRootConfig, logLevel);
     sequencer.addWriter(matTrackWriterRoot);
   }
 
