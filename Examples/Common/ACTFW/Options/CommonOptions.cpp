@@ -33,7 +33,7 @@ FW::Options::addSequencerOptions(
 {
   // sequencer options
   opt.add_options()("events,n",
-                    value<size_t>(),
+                    value<size_t>()->default_value(1),
                     "The number of events to process. If not given, all "
                     "available events will be processed.")(
       "skip",
@@ -67,11 +67,32 @@ FW::Options::addMaterialOptions(
     boost::program_options::options_description& opt)
 {
   opt.add_options()("mat-input-type",
-                    value<std::string>()->default_value("none"),
+                    value<std::string>()->default_value("build"),
                     "The way material is loaded: 'none', 'build', 'file'.")(
       "mat-input-file",
       value<std::string>()->default_value(""),
-      "Name of the material map file, '.json' or '.root'.");
+      "Name of the material map input file, supported: '.json' or '.root'.")(
+      "mat-output-file",
+      value<std::string>()->default_value(""),
+      "Name of the material map output file (without extension).")(
+      "mat-output-sensitives",
+      value<bool>()->default_value(true),
+      "Write material information of sensitive surfaces.")(
+      "mat-output-approaches",
+      value<bool>()->default_value(true),
+      "Write material information of approach surfaces.")(
+      "mat-output-representing",
+      value<bool>()->default_value(true),
+      "Write material information of representing surfaces.")(
+      "mat-output-boundaries",
+      value<bool>()->default_value(true),
+      "Write material information of boundary surfaces.")(
+      "mat-output-volumes",
+      value<bool>()->default_value(true),
+      "Write material information of dense volumes.")(
+      "mat-output-data",
+      value<bool>()->default_value(true),
+      "Output the data field(s), otherwise it stays a proxy.");
 }
 
 void

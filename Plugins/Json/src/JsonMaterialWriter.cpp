@@ -40,3 +40,14 @@ FW::Json::JsonMaterialWriter::write(
   std::ofstream ofj(m_fileName);
   ofj << std::setw(4) << jout << std::endl;
 }
+
+void
+FW::Json::JsonMaterialWriter::write(const Acts::TrackingGeometry& tGeometry)
+{
+  // Evoke the converter
+  FW::Json::JsonGeometryConverter jmConverter(m_cfg);
+  auto jout = jmConverter.trackingGeometryToJson(tGeometry);
+  // And write the file
+  std::ofstream ofj(m_fileName);
+  ofj << std::setw(4) << jout << std::endl;
+}

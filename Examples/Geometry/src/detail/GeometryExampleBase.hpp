@@ -20,9 +20,11 @@
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvWriterOptions.hpp"
+#include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjWriterOptions.hpp"
+#include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
@@ -176,6 +178,43 @@ processGeometry(int               argc,
 
       // Close the file
       csvStream->close();
+    }
+
+    // Get the file name from the options
+    std::string materialFileName = vm["mat-output-file"].as<std::string>();
+
+    // if (!materialFileName.empty() and vm["output-root"].template as<bool>())
+    // {
+    //
+    //  // The writer of the indexed material
+    //  FW::Root::RootMaterialWriter::Config rmwConfig("MaterialWriter");
+    //  rmwConfig.fileName = materialFileName + ".root";
+    //  FW::Root::RootMaterialWriter rmwImpl(rmwConfig);
+    //
+    //}
+
+    if (!materialFileName.empty() and vm["output-json"].template as<bool>()) {
+      /// The name of the output file
+      std::string fileName = vm["mat-output-file"].template as<std::string>();
+      // the material writer
+      FW::Json::JsonGeometryConverter::Config jmConverterCfg(
+          "JsonGeometryConverter", Acts::Logging::INFO);
+      jmConverterCfg.processSensitives
+          = vm["mat-output-sensitives"].template as<bool>();
+      jmConverterCfg.processApproaches
+          = vm["mat-output-approaches"].template as<bool>();
+      jmConverterCfg.processRepresenting
+          = vm["mat-output-representing"].template as<bool>();
+      jmConverterCfg.processBoundaries
+          = vm["mat-output-boundaries"].template as<bool>();
+      jmConverterCfg.processVolumes
+          = vm["mat-output-volumes"].template as<bool>();
+      jmConverterCfg.writeData = vm["mat-output-data"].template as<bool>();
+      // The writer
+      FW::Json::JsonMaterialWriter jmwImpl(jmConverterCfg,
+                                           materialFileName + ".json");
+
+      jmwImpl.write(*tGeometry);
     }
   }
 

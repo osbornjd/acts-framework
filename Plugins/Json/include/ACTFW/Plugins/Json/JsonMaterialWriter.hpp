@@ -23,6 +23,8 @@
 
 namespace Acts {
 
+class TrackingGeometry;
+
 using SurfaceMaterialMap
     = std::map<GeometryID, std::shared_ptr<const ISurfaceMaterial>>;
 
@@ -58,6 +60,12 @@ namespace Json {
     /// @param detMaterial is the SurfaceMaterial and VolumeMaterial maps
     void
     write(const Acts::DetectorMaterialMaps& detMaterial);
+
+    /// Write out the material map from Geometry
+    ///
+    /// @param tGeometry is the TrackingGeometry
+    void
+    write(const Acts::TrackingGeometry& tGeometry);
 
   private:
     /// The config class of the converter

@@ -58,7 +58,7 @@ namespace Geometry {
       }
     }
 
-    /// return the geometry and context decorators
+    /// Return the geometry and context decorators
     return geometrySetup(vm, matDeco);
   }
 

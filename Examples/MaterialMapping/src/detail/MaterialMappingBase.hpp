@@ -122,7 +122,7 @@ materialMappingExample(int              argc,
   // Get the file name from the options
   std::string materialFileName = vm["mat-output-file"].as<std::string>();
 
-  if (vm["output-root"].template as<bool>()) {
+  if (!materialFileName.empty() and vm["output-root"].template as<bool>()) {
 
     // The writer of the indexed material
     FW::Root::RootMaterialWriter::Config rmwConfig("MaterialWriter");
@@ -134,7 +134,7 @@ materialMappingExample(int              argc,
         std::make_shared<RootWriter>(std::move(rmwImpl)));
   }
 
-  if (vm["output-json"].template as<bool>()) {
+  if (!materialFileName.empty() and vm["output-json"].template as<bool>()) {
     /// The name of the output file
     std::string fileName = vm["mat-output-file"].template as<std::string>();
     // the material writer
@@ -148,8 +148,9 @@ materialMappingExample(int              argc,
         = vm["mat-output-representing"].template as<bool>();
     jmConverterCfg.processBoundaries
         = vm["mat-output-boundaries"].template as<bool>();
-    jmConverterCfg.processVolumes = vm["mat-output-volume"].template as<bool>();
-    jmConverterCfg.writeData      = vm["mat-output-data"].template as<bool>();
+    jmConverterCfg.processVolumes
+        = vm["mat-output-volumes"].template as<bool>();
+    jmConverterCfg.writeData = vm["mat-output-data"].template as<bool>();
     // The writer
     FW::Json::JsonMaterialWriter jmwImpl(jmConverterCfg,
                                          materialFileName + ".json");

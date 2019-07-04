@@ -124,7 +124,7 @@ accessRandom(field_t&         bField,
             << " mismatches" << std::endl;
 }
 
-/// @brief Main executable
+/// @brief main executable
 ///
 /// @param argc The argument count
 /// @param argv The argument list
