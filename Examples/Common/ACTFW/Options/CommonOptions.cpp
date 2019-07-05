@@ -116,6 +116,28 @@ FW::Options::addOutputOptions(boost::program_options::options_description& opt)
       "Switch on to write '.json' ouput file(s).");
 }
 
+void
+FW::Options::addInputOptions(boost::program_options::options_description& opt)
+{
+  // Add specific options for this example
+  opt.add_options()("input-dir",
+                    value<std::string>()->default_value(""),
+                    "Input directory location.")(
+      "input-files",
+      value<read_strings>()->multitoken()->default_value({}),
+      "Input files, space separated.")("input-root",
+                                       value<bool>()->default_value(false),
+                                       "Switch on to read '.root' file(s).")(
+      "input-csv",
+      value<bool>()->default_value(false),
+      "Switch on to read '.csv' file(s).")("input-obj",
+                                           value<bool>()->default_value(false),
+                                           "Switch on to read '.obj' file(s).")(
+      "input-json",
+      value<bool>()->default_value(false),
+      "Switch on to read '.json' file(s).");
+}
+
 boost::program_options::variables_map
 FW::Options::parse(const boost::program_options::options_description& opt,
                    int                                                argc,

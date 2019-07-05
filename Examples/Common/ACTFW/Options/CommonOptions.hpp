@@ -35,6 +35,10 @@ namespace Options {
   void
   addMaterialOptions(boost::program_options::options_description& opt);
 
+  /// Add common input-related options.
+  void
+  addInputOptions(boost::program_options::options_description& opt);
+
   /// Add common output-related options.
   void
   addOutputOptions(boost::program_options::options_description& opt);

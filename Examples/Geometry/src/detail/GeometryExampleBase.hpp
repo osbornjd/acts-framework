@@ -209,8 +209,9 @@ processGeometry(int               argc,
       jmConverterCfg.processVolumes
           = vm["mat-output-volumes"].template as<bool>();
       jmConverterCfg.writeData = vm["mat-output-data"].template as<bool>();
+
       // The writer
-      FW::Json::JsonMaterialWriter jmwImpl(jmConverterCfg,
+      FW::Json::JsonMaterialWriter jmwImpl(std::move(jmConverterCfg),
                                            materialFileName + ".json");
 
       jmwImpl.write(*tGeometry);

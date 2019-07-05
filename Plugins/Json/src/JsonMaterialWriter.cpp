@@ -17,7 +17,7 @@
 FW::Json::JsonMaterialWriter::JsonMaterialWriter(
     const FW::Json::JsonGeometryConverter::Config& cfg,
     const std::string&                             fileName)
-  : m_fileName(fileName)
+  : m_cfg(cfg), m_fileName(fileName)
 {
   // Validate the configuration
   if (m_cfg.name.empty()) {

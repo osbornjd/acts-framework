@@ -13,6 +13,7 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
+#include "ACTFW/MaterialMapping/MaterialMappingOptions.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
@@ -54,7 +55,9 @@ materialMappingExample(int              argc,
   FW::Options::addSequencerOptions(desc);
   FW::Options::addGeometryOptions(desc);
   FW::Options::addMaterialOptions(desc);
+  FW::Options::addMaterialMappingOptions(desc);
   FW::Options::addPropagationOptions(desc);
+  FW::Options::addInputOptions(desc);
   FW::Options::addOutputOptions(desc);
 
   // Add specific options for this geometry
@@ -87,12 +90,12 @@ materialMappingExample(int              argc,
   SlStepper  stepper;
   Propagator propagator(std::move(stepper), std::move(navigator));
 
-  auto matCollection = vm["input-collection"].template as<std::string>();
+  auto matCollection = vm["mat-mapping-collection"].template as<std::string>();
 
   // ---------------------------------------------------------------------------------
   // Input directory & input file handling
   std::string intputDir   = vm["input-dir"].template as<std::string>();
-  std::string intputFiles = vm["input-files"].template as<std::string>();
+  auto        intputFiles = vm["input-files"].template as<read_strings>();
 
   if (vm["input-root"].template as<bool>()) {
     // Read the material step information from a ROOT TTree
@@ -100,7 +103,7 @@ materialMappingExample(int              argc,
     if (not matCollection.empty()) {
       matTrackReaderRootConfig.collection = matCollection;
     }
-    matTrackReaderRootConfig.fileList = FW::splitFiles(intputFiles, ',');
+    matTrackReaderRootConfig.fileList = intputFiles;
     auto matTrackReaderRoot
         = std::make_shared<FW::Root::RootMaterialTrackReader>(
             matTrackReaderRootConfig);

@@ -60,14 +60,14 @@ FW::MaterialMapping::execute(const FW::AlgorithmContext& context) const
 
   // Write to the collection to the EventStore
   const auto& mtrackCollection
-      = context.eventStore.get<const std::vector<Acts::RecordedMaterialTrack>*>(
+      = context.eventStore.get<std::vector<Acts::RecordedMaterialTrack>>(
           m_cfg.collection);
 
   // To make it work with the framework needs a lock guard
   auto mappingState
       = const_cast<Acts::SurfaceMaterialMapper::State*>(&m_mappingState);
 
-  for (auto mTrack : (*mtrackCollection)) {
+  for (auto mTrack : mtrackCollection) {
     // Map this one onto the geometry
     m_cfg.materialMapper->mapMaterialTrack(*mappingState, mTrack);
   }

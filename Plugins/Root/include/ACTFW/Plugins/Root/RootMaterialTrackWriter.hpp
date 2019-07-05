@@ -48,11 +48,11 @@ namespace Root {
     struct Config
     {
       std::string collection
-          = "materialtracks";             ///< material collection to write
+          = "material-tracks";            ///< material collection to write
       std::string filePath = "";          ///< path of the output file
       std::string fileMode = "RECREATE";  ///< file access mode
-      std::string treeName = "materialtracks";  ///< name of the output tree
-      TFile*      rootFile = nullptr;           ///< common root file
+      std::string treeName = "material-tracks";  ///< name of the output tree
+      TFile*      rootFile = nullptr;            ///< common root file
 
       /// Re-calculate total values from individual steps (for cross-checks)
       bool recalculateTotals = false;
