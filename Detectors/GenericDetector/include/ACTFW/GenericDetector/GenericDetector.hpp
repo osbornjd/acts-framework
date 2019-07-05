@@ -69,12 +69,16 @@ struct GenericGeometry
     Acts::Logging::Level volumeLogLevel
         = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
 
+    bool buildProto
+        = (vm["mat-input-type"].template as<std::string>() == "proto");
+
     /// Return the generic detector
     TrackingGeometryPtr gGeometry
         = FW::Generic::buildDetector<DetectorElement>(nominalContext,
                                                       detectorStore,
                                                       buildLevel,
                                                       std::move(mdecorator),
+                                                      buildProto,
                                                       surfaceLogLevel,
                                                       layerLogLevel,
                                                       volumeLogLevel);

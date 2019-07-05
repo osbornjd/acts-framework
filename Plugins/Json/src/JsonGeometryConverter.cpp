@@ -29,7 +29,7 @@
 
 FW::Json::JsonGeometryConverter::JsonGeometryConverter(
     const FW::Json::JsonGeometryConverter::Config& cfg)
-  : m_cfg(cfg)
+  : m_cfg(std::move(cfg))
 {
   // Validate the configuration
   if (!m_cfg.logger) {
@@ -47,7 +47,6 @@ FW::Json::JsonGeometryConverter::jsonToMaterialMaps(const json& materialmaps)
   ACTS_VERBOSE("j2a: Reading material maps from json file.");
   ACTS_VERBOSE("j2a: Found entries for " << j.count(m_cfg.volkey)
                                          << " volume(s).");
-
   // structured binding
   for (auto & [ key, value ] : j.items()) {
     // check if this the volume key

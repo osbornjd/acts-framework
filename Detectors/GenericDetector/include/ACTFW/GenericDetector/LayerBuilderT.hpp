@@ -57,8 +57,9 @@ namespace Generic {
 
       /// the material concentration: -1 inner, 0 central, 1 outer
       std::vector<int> centralLayerMaterialConcentration;
-      /// the assigned material propertis @todo change to surface material
-      std::vector<Acts::MaterialProperties> centralLayerMaterialProperties;
+      /// The assigned surface material
+      std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>
+          centralLayerMaterial;
 
       /// The pre-produced proto layers for the negative part
       std::vector<ProtoLayerSurfaces> negativeProtoLayers;
@@ -66,18 +67,19 @@ namespace Generic {
       /// The pre-produced proto layers for the positive part
       std::vector<ProtoLayerSurfaces> positiveProtoLayers;
 
-      /// the material concentration: -1 inner, 0 central, 1 outer
+      /// The material concentration: -1 inner, 0 central, 1 outer
       std::vector<int> posnegLayerMaterialConcentration;
 
-      /// the material prooperties @todo change to surface material
-      std::vector<Acts::MaterialProperties> posnegLayerMaterialProperties;
+      /// The surface material
+      std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>
+          posnegLayerMaterial;
 
-      /// helper tools: layer creator
+      /// Helper tools: layer creator
       std::shared_ptr<const Acts::LayerCreator> layerCreator = nullptr;
-      /// helper tools: central passive layer builder
+      /// Helper tools: central passive layer builder
       std::shared_ptr<const Acts::ILayerBuilder> centralPassiveLayerBuilder
           = nullptr;
-      /// helper tools: p/n passive layer builder
+      /// Helper tools: p/n passive layer builder
       std::shared_ptr<const Acts::ILayerBuilder> posnegPassiveLayerBuilder
           = nullptr;
     };
@@ -142,12 +144,9 @@ namespace Generic {
           gctx, cpl.surfaces, cpl.bins0, cpl.bins1, cpl.protoLayer);
 
       // the layer is built let's see if it needs material
-      if (m_cfg.centralLayerMaterialProperties.size()) {
-        // get the material from configuration
-        Acts::MaterialProperties layerMaterialProperties
-            = m_cfg.centralLayerMaterialProperties.at(icl);
-        std::shared_ptr<const Acts::ISurfaceMaterial> layerMaterialPtr(
-            new Acts::HomogeneousSurfaceMaterial(layerMaterialProperties));
+      if (m_cfg.centralLayerMaterial.size()) {
+        std::shared_ptr<const Acts::ISurfaceMaterial> layerMaterialPtr
+            = m_cfg.centralLayerMaterial.at(icl);
         // central material
         if (m_cfg.centralLayerMaterialConcentration.at(icl) == 0.) {
           // the layer surface is the material surface
@@ -228,10 +227,9 @@ namespace Generic {
           gctx, ple.surfaces, ple.bins0, ple.bins1, ple.protoLayer);
 
       // the layer is built let's see if it needs material
-      if (m_cfg.posnegLayerMaterialProperties.size()) {
-        std::shared_ptr<const Acts::ISurfaceMaterial> layerMaterialPtr(
-            new Acts::HomogeneousSurfaceMaterial(
-                m_cfg.posnegLayerMaterialProperties[ipnl]));
+      if (m_cfg.posnegLayerMaterial.size()) {
+        std::shared_ptr<const Acts::ISurfaceMaterial> layerMaterialPtr
+            = m_cfg.posnegLayerMaterial[ipnl];
         // central material
         if (m_cfg.posnegLayerMaterialConcentration.at(ipnl) == 0.) {
           // assign the surface material - the layer surface is the material

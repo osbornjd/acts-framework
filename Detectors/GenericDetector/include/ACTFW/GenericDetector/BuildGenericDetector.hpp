@@ -19,6 +19,7 @@
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
 #include "Acts/Material/Material.hpp"
+#include "Acts/Material/ProtoSurfaceMaterial.hpp"
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
 #include "Acts/Tools/CylinderVolumeHelper.hpp"
 #include "Acts/Tools/LayerArrayCreator.hpp"
@@ -27,6 +28,7 @@
 #include "Acts/Tools/SurfaceArrayCreator.hpp"
 #include "Acts/Tools/TrackingGeometryBuilder.hpp"
 #include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Utilities/BinUtility.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
@@ -97,6 +99,8 @@ namespace Generic {
   ///          1 - pixel detector only
   ///          2 - full barrel only
   ///          3 - full detector (without stereo modules)
+  /// @param matDecorator is the source for material decoration
+  /// @param protoMaterial is a flag to steer proto material to be loaded
   /// @param surfaceLLevel is the surface building logging level
   /// @param layerLLevel is the layer building logging level
   /// @param volumeLLevel is the volume building logging level
@@ -109,6 +113,7 @@ namespace Generic {
                 size_t                                          level,
                 std::shared_ptr<const Acts::IMaterialDecorator> matDecorator
                 = nullptr,
+                bool                 protoMaterial = false,
                 Acts::Logging::Level surfaceLLevel = Acts::Logging::INFO,
                 Acts::Logging::Level layerLLevel   = Acts::Logging::INFO,
                 Acts::Logging::Level volumeLLevel  = Acts::Logging::INFO)
@@ -151,18 +156,40 @@ namespace Generic {
     std::vector<std::shared_ptr<const Acts::ITrackingVolumeBuilder>>
         volumeBuilders;
 
+    // Prepare the proto material - in case it's desinged to do so
+    // - cylindrical
+    Acts::BinUtility pCylinderUtility(10, -1, 1, Acts::closed, Acts::binPhi);
+    pCylinderUtility += Acts::BinUtility(10, -1, 1, Acts::open, Acts::binZ);
+    auto pCylinderMaterial
+        = std::make_shared<const Acts::ProtoSurfaceMaterial>(pCylinderUtility);
+    // - disc
+    Acts::BinUtility pDiscUtility(10, 0, 1, Acts::open, Acts::binR);
+    pDiscUtility += Acts::BinUtility(10, -1, 1, Acts::closed, Acts::binPhi);
+    auto pDiscMaterial
+        = std::make_shared<const Acts::ProtoSurfaceMaterial>(pDiscUtility);
+    // - plane
+    Acts::BinUtility pPlaneUtility(1, -1, 1, Acts::open, Acts::binX);
+    auto             pPlaneMaterial
+        = std::make_shared<const Acts::ProtoSurfaceMaterial>(pPlaneUtility);
+
     //-------------------------------------------------------------------------------------
     // Beam Pipe
     //-------------------------------------------------------------------------------------
+    // BeamPipe material
+    std::shared_ptr<const Acts::ISurfaceMaterial> beamPipeMaterial
+        = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+            Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 0.8));
+    if (protoMaterial) {
+      beamPipeMaterial = pCylinderMaterial;
+    }
+
     // configure the beam pipe layer builder
     Acts::PassiveLayerBuilder::Config bplConfig;
     bplConfig.layerIdentification     = "BeamPipe";
     bplConfig.centralLayerRadii       = std::vector<double>(1, 19.);
     bplConfig.centralLayerHalflengthZ = std::vector<double>(1, 3000.);
     bplConfig.centralLayerThickness   = std::vector<double>(1, 0.8);
-    bplConfig.centralLayerMaterial
-        = {std::make_shared<Acts::HomogeneousSurfaceMaterial>(
-            Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 0.8))};
+    bplConfig.centralLayerMaterial    = {beamPipeMaterial};
     auto beamPipeBuilder = std::make_shared<const Acts::PassiveLayerBuilder>(
         bplConfig, Acts::getDefaultLogger("BeamPipeLayerBuilder", layerLLevel));
     // create the volume for the beam pipe
@@ -187,13 +214,44 @@ namespace Generic {
     // some prep work
     // envelope for layers
     std::pair<double, double> pcEnvelope(2., 2.);
-    // Module material - X0, L0, A, Z, Rho
-    Acts::Material pcMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
+
+    double pCentralModuleT = 0.15;
+    double pEndcapModuleT  = 0.15;
+
+    // Module material properties - X0, L0, A, Z, Rho
+    Acts::Material           pcMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
+    Acts::MaterialProperties pcModuleMaterial(
+        95.7, 465.2, 28.03, 14., 2.32e-3, pCentralModuleT);
+
+    Acts::MaterialProperties peModuleMaterial(
+        95.7, 465.2, 28.03, 14., 2.32e-3, pEndcapModuleT);
+
     // Layer material properties - thickness, X0, L0, A, Z, Rho
     Acts::MaterialProperties pcmbProperties(
         95.7, 465.2, 28.03, 14., 2.32e-3, 1.5 * Acts::units::_mm);
     Acts::MaterialProperties pcmecProperties(
         95.7, 465.2, 28.03, 14., 2.32e-3, 1.5 * Acts::units::_mm);
+
+    // Module, central and disc material
+    std::shared_ptr<const Acts::ISurfaceMaterial> pCentralMaterial
+        = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+            pcmbProperties);
+    std::shared_ptr<const Acts::ISurfaceMaterial> pEndcapMaterial
+        = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+            pcmecProperties);
+    std::shared_ptr<const Acts::ISurfaceMaterial> pCentralModuleMaterial
+        = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+            pcModuleMaterial);
+    std::shared_ptr<const Acts::ISurfaceMaterial> pEndcapModuleMaterial
+        = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+            peModuleMaterial);
+    if (protoMaterial) {
+      pCentralMaterial       = pCylinderMaterial;
+      pCentralModuleMaterial = pPlaneMaterial;
+      pEndcapMaterial        = pDiscMaterial;
+      pEndcapModuleMaterial  = pPlaneMaterial;
+    }
+
     // configure the pixel proto layer builder
     typename ProtoLayerCreator::Config pplConfig;
     // standard, an approach envelope
@@ -207,12 +265,15 @@ namespace Generic {
         = {pcEnvelope, pcEnvelope, pcEnvelope, pcEnvelope};
     pplConfig.centralModuleBinningSchema
         = {{16, 14}, {32, 14}, {52, 14}, {78, 14}};
-    pplConfig.centralModuleTiltPhi   = {0.14, 0.14, 0.14, 0.14};
-    pplConfig.centralModuleHalfX     = {8.4, 8.4, 8.4, 8.4};
-    pplConfig.centralModuleHalfY     = {36., 36., 36., 36.};
-    pplConfig.centralModuleThickness = {0.15, 0.15, 0.15, 0.15};
-    pplConfig.centralModuleMaterial
-        = {pcMaterial, pcMaterial, pcMaterial, pcMaterial};
+    pplConfig.centralModuleTiltPhi = {0.14, 0.14, 0.14, 0.14};
+    pplConfig.centralModuleHalfX   = {8.4, 8.4, 8.4, 8.4};
+    pplConfig.centralModuleHalfY   = {36., 36., 36., 36.};
+    pplConfig.centralModuleThickness
+        = {pCentralModuleT, pCentralModuleT, pCentralModuleT, pCentralModuleT};
+    pplConfig.centralModuleMaterial = {pCentralModuleMaterial,
+                                       pCentralModuleMaterial,
+                                       pCentralModuleMaterial,
+                                       pCentralModuleMaterial};
     // pitch definitions
     pplConfig.centralModuleReadoutBinsX = {336, 336, 336, 336};
     pplConfig.centralModuleReadoutBinsY = {1280, 1280, 1280, 1280};
@@ -255,15 +316,17 @@ namespace Generic {
                                       1. * Acts::units::_mm,
                                       1. * Acts::units::_mm,
                                       1. * Acts::units::_mm};
-    std::vector<double>         perHX = {8.4, 8.4};    // half length x
-    std::vector<double>         perHY = {36., 36.};    // half length y
-    std::vector<size_t>         perBP = {40, 68};      // bins in phi
-    std::vector<double>         perT  = {0.15, 0.15};  // module thickness
-    std::vector<size_t>         perBX = {336, 336};    // bins in x
-    std::vector<size_t>         perBY = {1280, 1280};  // bins in y
-    std::vector<int>            perRS = {-1, -1};      // readout side
-    std::vector<double>         perLA = {0., 0.};      // lorentz angle
-    std::vector<Acts::Material> perM  = {pcMaterial, pcMaterial};  // material
+    std::vector<double> perHX = {8.4, 8.4};  // half length x
+    std::vector<double> perHY = {36., 36.};  // half length y
+    std::vector<size_t> perBP = {40, 68};    // bins in phi
+    std::vector<double> perT
+        = {pEndcapModuleT, pEndcapModuleT};    // module thickness
+    std::vector<size_t> perBX = {336, 336};    // bins in x
+    std::vector<size_t> perBY = {1280, 1280};  // bins in y
+    std::vector<int>    perRS = {-1, -1};      // readout side
+    std::vector<double> perLA = {0., 0.};      // lorentz angle
+    std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>> perM
+        = {pEndcapModuleMaterial, pEndcapModuleMaterial};  // material
 
     pplConfig.posnegModuleMinHalfX = std::vector<std::vector<double>>(7, perHX);
     pplConfig.posnegModuleMaxHalfX = {};
@@ -277,8 +340,9 @@ namespace Generic {
     pplConfig.posnegModuleReadoutSide = std::vector<std::vector<int>>(7, perRS);
     pplConfig.posnegModuleLorentzAngle
         = std::vector<std::vector<double>>(7, perLA);
-    pplConfig.posnegModuleMaterial
-        = std::vector<std::vector<Acts::Material>>(7, perM);
+    pplConfig.posnegModuleMaterial = std::
+        vector<std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>>(
+            7, perM);
 
     // no frontside/backside
     pplConfig.posnegModuleFrontsideStereo = {};
@@ -313,19 +377,19 @@ namespace Generic {
     plbConfig.centralProtoLayers
         = pplCreator.centralProtoLayers(gctx, detectorStore);
     plbConfig.centralLayerMaterialConcentration = {1, 1, 1, 1};
-    plbConfig.centralLayerMaterialProperties
-        = {pcmbProperties, pcmbProperties, pcmbProperties, pcmbProperties};
+    plbConfig.centralLayerMaterial              = {
+        pCentralMaterial, pCentralMaterial, pCentralMaterial, pCentralMaterial};
     if (level > 0) {
       // material concentration is always behind the layer in the pixels
       plbConfig.posnegLayerMaterialConcentration = std::vector<int>(7, 0);
       // layer structure surface has pixel material properties
-      plbConfig.posnegLayerMaterialProperties = {pcmecProperties,
-                                                 pcmecProperties,
-                                                 pcmecProperties,
-                                                 pcmecProperties,
-                                                 pcmecProperties,
-                                                 pcmecProperties,
-                                                 pcmecProperties};
+      plbConfig.posnegLayerMaterial = {pEndcapMaterial,
+                                       pEndcapMaterial,
+                                       pEndcapMaterial,
+                                       pEndcapMaterial,
+                                       pEndcapMaterial,
+                                       pEndcapMaterial,
+                                       pEndcapMaterial};
       // negative proto layers
       plbConfig.negativeProtoLayers
           = pplCreator.negativeProtoLayers(gctx, detectorStore);
@@ -356,14 +420,21 @@ namespace Generic {
       //-------------------------------------------------------------------------------------
       // Pixel Support Tybe (PST)
       //-------------------------------------------------------------------------------------
+      // Material
+      std::shared_ptr<const Acts::ISurfaceMaterial> pstMaterial
+          = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+              Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 1.8));
+      if (protoMaterial) {
+        pstMaterial = pCylinderMaterial;
+      }
+
+      // Configuration
       Acts::PassiveLayerBuilder::Config pstConfig;
       pstConfig.layerIdentification     = "PST";
       pstConfig.centralLayerRadii       = std::vector<double>(1, 200.);
       pstConfig.centralLayerHalflengthZ = std::vector<double>(1, 2800.);
       pstConfig.centralLayerThickness   = std::vector<double>(1, 1.8);
-      pstConfig.centralLayerMaterial
-          = {std::make_shared<Acts::HomogeneousSurfaceMaterial>(
-              Acts::MaterialProperties(352.8, 407., 9.012, 4., 1.848e-3, 1.8))};
+      pstConfig.centralLayerMaterial    = {pstMaterial};
       auto pstBuilder = std::make_shared<const Acts::PassiveLayerBuilder>(
           pstConfig, Acts::getDefaultLogger("PSTBuilder", layerLLevel));
       // create the volume for the beam pipe
@@ -389,16 +460,46 @@ namespace Generic {
       // fill necessary vectors for configuration
       //-------------------------------------------------------------------------------------
       // some prep work
+
+      double ssCentralModuleT = 0.25;
+      double ssEndcapModuleT  = 0.25;
       // envelope double
       std::pair<double, double> ssEnvelope(2., 2.);
+
+      // Module material properties - X0, L0, A, Z, Rho
+      Acts::Material           sscMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
+      Acts::MaterialProperties sscModuleMaterial(
+          95.7, 465.2, 28.03, 14., 2.32e-3, ssCentralModuleT);
+
+      Acts::MaterialProperties sseModuleMaterial(
+          95.7, 465.2, 28.03, 14., 2.32e-3, ssEndcapModuleT);
+
       // Layer material properties - thickness, X0, L0, A, Z, Rho
       Acts::MaterialProperties ssbmProperties(
           95.7, 465.2, 28.03, 14., 2.32e-3, 2. * Acts::units::_mm);
       Acts::MaterialProperties ssecmProperties(
           95.7, 465.2, 28.03, 14., 2.32e-3, 2.5 * Acts::units::_mm);
 
-      // Module material - X0, L0, A, Z, Rho
-      Acts::Material ssMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
+      // Module, central and disc material
+      std::shared_ptr<const Acts::ISurfaceMaterial> ssCentralMaterial
+          = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+              ssbmProperties);
+      std::shared_ptr<const Acts::ISurfaceMaterial> ssEndcapMaterial
+          = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+              ssecmProperties);
+      std::shared_ptr<const Acts::ISurfaceMaterial> ssCentralModuleMaterial
+          = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+              sscModuleMaterial);
+      std::shared_ptr<const Acts::ISurfaceMaterial> ssEndcapModuleMaterial
+          = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+              sseModuleMaterial);
+      if (protoMaterial) {
+        ssCentralMaterial       = pCylinderMaterial;
+        ssCentralModuleMaterial = pPlaneMaterial;
+        ssEndcapMaterial        = pDiscMaterial;
+        ssEndcapModuleMaterial  = pPlaneMaterial;
+      }
+
       // ----------------------------------------------------------------------------
       // Configure the short strip proto layer builder
       typename ProtoLayerCreator::Config ssplConfig;
@@ -413,7 +514,10 @@ namespace Generic {
       ssplConfig.centralModuleTiltPhi   = {-0.15, -0.15, -0.15, -0.15};
       ssplConfig.centralModuleHalfX     = {24., 24., 24., 24.};
       ssplConfig.centralModuleHalfY     = {54., 54., 54., 54.};
-      ssplConfig.centralModuleThickness = {0.25, 0.25, 0.25, 0.25};
+      ssplConfig.centralModuleThickness = {ssCentralModuleT,
+                                           ssCentralModuleT,
+                                           ssCentralModuleT,
+                                           ssCentralModuleT};
 
       ssplConfig.centralModuleReadoutBinsX
           = {600, 600, 600, 600};  // 80 um pitch
@@ -422,8 +526,10 @@ namespace Generic {
       ssplConfig.centralModuleReadoutSide  = {1, 1, 1, 1};
       ssplConfig.centralModuleLorentzAngle = {0.12, 0.12, 0.12, 0.12};
 
-      ssplConfig.centralModuleMaterial
-          = {ssMaterial, ssMaterial, ssMaterial, ssMaterial};
+      ssplConfig.centralModuleMaterial = {ssCentralModuleMaterial,
+                                          ssCentralModuleMaterial,
+                                          ssCentralModuleMaterial,
+                                          ssCentralModuleMaterial};
       ssplConfig.centralModuleFrontsideStereo = {};
       ssplConfig.centralModuleBacksideStereo  = {};
       ssplConfig.centralModuleBacksideGap     = {};
@@ -452,10 +558,13 @@ namespace Generic {
       std::vector<int>    mrReadoutSide  = {1, 1, 1};
       std::vector<double> mrLorentzAngle = {0., 0., 0.};
 
-      std::vector<size_t>         mPhiBins   = {54, 56, 60};
-      std::vector<double>         mThickness = {0.25, 0.25, 0.25};
-      std::vector<Acts::Material> mMaterial
-          = {ssMaterial, ssMaterial, ssMaterial};
+      std::vector<size_t> mPhiBins = {54, 56, 60};
+      std::vector<double> mThickness
+          = {ssEndcapModuleT, ssEndcapModuleT, ssEndcapModuleT};
+      std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>> mMaterial
+          = {ssEndcapModuleMaterial,
+             ssEndcapModuleMaterial,
+             ssEndcapModuleMaterial};
 
       ssplConfig.posnegLayerBinMultipliers = {1, 2};
 
@@ -484,8 +593,9 @@ namespace Generic {
       ssplConfig.posnegModuleLorentzAngle
           = std::vector<std::vector<double>>(nposnegs, mrLorentzAngle);
 
-      ssplConfig.posnegModuleMaterial
-          = std::vector<std::vector<Acts::Material>>(nposnegs, mMaterial);
+      ssplConfig.posnegModuleMaterial = std::
+          vector<std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>>(
+              nposnegs, mMaterial);
 
       ssplConfig.posnegModuleFrontsideStereo = {};
       ssplConfig.posnegModuleBacksideStereo  = {};
@@ -520,8 +630,10 @@ namespace Generic {
       sslbConfig.centralProtoLayers
           = ssplCreator.centralProtoLayers(gctx, detectorStore);
       sslbConfig.centralLayerMaterialConcentration = {-1, -1, -1, -1};
-      sslbConfig.centralLayerMaterialProperties
-          = {ssbmProperties, ssbmProperties, ssbmProperties, ssbmProperties};
+      sslbConfig.centralLayerMaterial              = {ssCentralMaterial,
+                                         ssCentralMaterial,
+                                         ssCentralMaterial,
+                                         ssCentralMaterial};
 
       if (level > 2) {
         sslbConfig.negativeProtoLayers
@@ -531,8 +643,9 @@ namespace Generic {
 
         sslbConfig.posnegLayerMaterialConcentration
             = std::vector<int>(nposnegs, 0);
-        sslbConfig.posnegLayerMaterialProperties
-            = std::vector<Acts::MaterialProperties>(nposnegs, ssecmProperties);
+        sslbConfig.posnegLayerMaterial
+            = std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>(
+                nposnegs, ssEndcapMaterial);
       }
 
       // define the builder
@@ -561,16 +674,47 @@ namespace Generic {
       //-------------------------------------------------------------------------------------
       // fill necessary vectors for configuration
       //-------------------------------------------------------------------------------------
+
       // some prep work
       // envelope double
       std::pair<double, double> lsEnvelope(2., 2.);
+
+      double lsCentralModuleT = 0.35;
+      double lsEndcapModuleT  = 0.35;
+
+      // Module material properties - X0, L0, A, Z, Rho
+      Acts::Material           lsMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
+      Acts::MaterialProperties lscModuleMaterial(
+          95.7, 465.2, 28.03, 14., 2.32e-3, lsCentralModuleT);
+
+      Acts::MaterialProperties lseModuleMaterial(
+          95.7, 465.2, 28.03, 14., 2.32e-3, lsEndcapModuleT);
+
       // Layer material properties - thickness, X0, L0, A, Z, Rho - barrel
       Acts::MaterialProperties lsbmProperties(
           95.7, 465.2, 28.03, 14., 2.32e-3, 2.5 * Acts::units::_mm);
       Acts::MaterialProperties lsecmProperties(
           95.7, 465.2, 28.03, 14., 2.32e-3, 3.5 * Acts::units::_mm);
-      // Module material - X0, L0, A, Z, Rho
-      Acts::Material lsMaterial(95.7, 465.2, 28.03, 14., 2.32e-3);
+
+      // Module, central and disc material
+      std::shared_ptr<const Acts::ISurfaceMaterial> lsCentralMaterial
+          = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+              lsbmProperties);
+      std::shared_ptr<const Acts::ISurfaceMaterial> lsEndcapMaterial
+          = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+              lsecmProperties);
+      std::shared_ptr<const Acts::ISurfaceMaterial> lsCentralModuleMaterial
+          = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+              lscModuleMaterial);
+      std::shared_ptr<const Acts::ISurfaceMaterial> lsEndcapModuleMaterial
+          = std::make_shared<const Acts::HomogeneousSurfaceMaterial>(
+              lseModuleMaterial);
+      if (protoMaterial) {
+        lsCentralMaterial       = pCylinderMaterial;
+        lsCentralModuleMaterial = pPlaneMaterial;
+        lsEndcapMaterial        = pDiscMaterial;
+        lsEndcapModuleMaterial  = pPlaneMaterial;
+      }
 
       // The proto layer creator
       typename ProtoLayerCreator::Config lsplConfig;
@@ -584,8 +728,9 @@ namespace Generic {
       lsplConfig.centralModuleTiltPhi       = {-0.15, -0.15};
       lsplConfig.centralModuleHalfX         = {24., 24.};
       lsplConfig.centralModuleHalfY         = {54., 54.};
-      lsplConfig.centralModuleThickness     = {0.35, 0.35};
-      lsplConfig.centralModuleMaterial      = {lsMaterial, lsMaterial};
+      lsplConfig.centralModuleThickness = {lsCentralModuleT, lsCentralModuleT};
+      lsplConfig.centralModuleMaterial
+          = {lsCentralModuleMaterial, lsCentralModuleMaterial};
 
       lsplConfig.centralModuleReadoutBinsX = {400, 400};  // 120 um pitch
       lsplConfig.centralModuleReadoutBinsY = {10, 10};    // 10 strips = 10.8 mm
@@ -614,8 +759,8 @@ namespace Generic {
       mrMaxHx    = {64.2, 72.};
       mrHy       = {78., 78.};
       mPhiBins   = {48, 50};
-      mThickness = {0.35, 0.35};
-      mMaterial  = {lsMaterial, lsMaterial};
+      mThickness = {lsEndcapModuleT, lsEndcapModuleT};
+      mMaterial  = {lsEndcapModuleMaterial, lsEndcapModuleMaterial};
 
       mrReadoutBinsX = {1070, 1200};  // 120 um pitch
       mrReadoutBinsY = {15, 15};      // 15 strips - 10.2 mm
@@ -649,8 +794,9 @@ namespace Generic {
       lsplConfig.posnegModuleLorentzAngle
           = std::vector<std::vector<double>>(nposnegs, mrLorentzAngle);
 
-      lsplConfig.posnegModuleMaterial
-          = std::vector<std::vector<Acts::Material>>(nposnegs, mMaterial);
+      lsplConfig.posnegModuleMaterial = std::
+          vector<std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>>(
+              nposnegs, mMaterial);
       lsplConfig.posnegModuleFrontsideStereo = {};
       lsplConfig.posnegModuleBacksideStereo  = {};
       lsplConfig.posnegModuleBacksideGap     = {};
@@ -681,16 +827,16 @@ namespace Generic {
       lslbConfig.layerCreator                      = layerCreator;
       lslbConfig.layerIdentification               = "LStrip";
       lslbConfig.centralLayerMaterialConcentration = {-1, -1};
-      lslbConfig.centralLayerMaterialProperties
-          = {lsbmProperties, lsbmProperties};
+      lslbConfig.centralLayerMaterial = {lsCentralMaterial, lsCentralMaterial};
       lslbConfig.centralProtoLayers
           = lsplCreator.centralProtoLayers(gctx, detectorStore);
 
       if (level > 2) {
         lslbConfig.posnegLayerMaterialConcentration
             = std::vector<int>(nposnegs, 0);
-        lslbConfig.posnegLayerMaterialProperties
-            = std::vector<Acts::MaterialProperties>(nposnegs, lsecmProperties);
+        lslbConfig.posnegLayerMaterial
+            = std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>(
+                nposnegs, lsEndcapMaterial);
         lslbConfig.negativeProtoLayers
             = lsplCreator.negativeProtoLayers(gctx, detectorStore);
         lslbConfig.positiveProtoLayers

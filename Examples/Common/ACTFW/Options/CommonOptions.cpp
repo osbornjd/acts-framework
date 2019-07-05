@@ -66,9 +66,10 @@ void
 FW::Options::addMaterialOptions(
     boost::program_options::options_description& opt)
 {
-  opt.add_options()("mat-input-type",
-                    value<std::string>()->default_value("build"),
-                    "The way material is loaded: 'none', 'build', 'file'.")(
+  opt.add_options()(
+      "mat-input-type",
+      value<std::string>()->default_value("build"),
+      "The way material is loaded: 'none', 'build', 'proto', 'file'.")(
       "mat-input-file",
       value<std::string>()->default_value(""),
       "Name of the material map input file, supported: '.json' or '.root'.")(
@@ -92,7 +93,7 @@ FW::Options::addMaterialOptions(
       "Write material information of dense volumes.")(
       "mat-output-data",
       value<bool>()->default_value(true),
-      "Output the data field(s), otherwise it stays a proxy.");
+      "Output the data field(s).");
 }
 
 void

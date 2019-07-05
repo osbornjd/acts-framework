@@ -134,19 +134,14 @@ namespace Json {
 
       /// Steering to handle sensitive data
       bool processSensitives = true;
-
       /// Steering to handle approach data
       bool processApproaches = true;
-
       /// Steering to handle representing data
       bool processRepresenting = true;
-
       /// Steering to handle boundary data
       bool processBoundaries = true;
-
       /// Steering to handle volume data
       bool processVolumes = true;
-
       /// Write out data
       bool writeData = true;
 

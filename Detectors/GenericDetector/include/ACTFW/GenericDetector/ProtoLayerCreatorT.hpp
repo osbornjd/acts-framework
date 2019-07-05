@@ -14,9 +14,7 @@
 #include "Acts/Detector/DetectorElementBase.hpp"
 #include "Acts/Layers/ApproachDescriptor.hpp"
 #include "Acts/Layers/ProtoLayer.hpp"
-#include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
-#include "Acts/Material/Material.hpp"
-#include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
 #include "Acts/Surfaces/PlanarBounds.hpp"
@@ -103,8 +101,9 @@ namespace Generic {
       std::vector<int> centralModuleReadoutSide;
       /// the central volume readout schema
       std::vector<double> centralModuleLorentzAngle;
-      /// the module material @todo change to surface material
-      std::vector<Acts::Material> centralModuleMaterial;
+      /// the module material
+      std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>
+          centralModuleMaterial;
       /// the module front side stereo (if exists)
       std::vector<double> centralModuleFrontsideStereo;
       /// the module back side stereo (if exists)
@@ -140,8 +139,9 @@ namespace Generic {
       std::vector<std::vector<int>> posnegModuleReadoutSide;
       /// the central volume readout schema
       std::vector<std::vector<double>> posnegModuleLorentzAngle;
-      /// the module material @todo change to surface material
-      std::vector<std::vector<Acts::Material>> posnegModuleMaterial;
+      /// the module material
+      std::vector<std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>>
+          posnegModuleMaterial;
       /// the module front side stereo (if exists)
       std::vector<std::vector<double>> posnegModuleFrontsideStereo;
       /// the module back side stereo (if exists)
@@ -293,12 +293,7 @@ namespace Generic {
             = nullptr;
         if (m_cfg.centralModuleMaterial.size()) {
           // get the sensor material from configuration
-          Acts::Material moduleMaterial = m_cfg.centralModuleMaterial.at(icl);
-          Acts::MaterialProperties moduleMaterialProperties(moduleMaterial,
-                                                            moduleThickness);
-          // create a new surface material
-          moduleMaterialPtr = std::shared_ptr<const Acts::ISurfaceMaterial>(
-              new Acts::HomogeneousSurfaceMaterial(moduleMaterialProperties));
+          moduleMaterialPtr = m_cfg.centralModuleMaterial.at(icl);
         }
 
         // confirm
@@ -533,11 +528,8 @@ namespace Generic {
           std::shared_ptr<const Acts::ISurfaceMaterial> moduleMaterialPtr
               = nullptr;
           if (m_cfg.posnegModuleMaterial.size()) {
-            Acts::MaterialProperties moduleMaterialProperties(
-                m_cfg.posnegModuleMaterial.at(ipnl).at(ipnR), moduleThickness);
             // and create the shared pointer
-            moduleMaterialPtr = std::shared_ptr<const Acts::ISurfaceMaterial>(
-                new Acts::HomogeneousSurfaceMaterial(moduleMaterialProperties));
+            moduleMaterialPtr = m_cfg.posnegModuleMaterial.at(ipnl).at(ipnR);
           }
 
           // low loop over the phi positions and build the stuff
