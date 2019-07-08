@@ -3,7 +3,6 @@ set(_common_libraries
   ACTFramework
   ACTFWPropagation
   ACTFWExamplesCommon
-  ACTFWGeometryInterfaces
   ACTFWBFieldPlugin
   ACTFWObjPlugin
   ACTFWJsonPlugin
@@ -50,7 +49,7 @@ if (USE_TGEO)
     ${Boost_INCLUDE_DIRS})
   target_link_libraries(ACTFWTGeoPropagationExample PRIVATE
     ${_common_libraries}
-    ACTFWTGeoDetector)
+    ACTFWTGeoDetector ACTFWGeometryInterfaces)
   install(
     TARGETS ACTFWTGeoPropagationExample
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -64,7 +63,7 @@ if (USE_DD4HEP)
     ${DD4hep_INCLUDE_DIRS})
   target_link_libraries(ACTFWDD4hepPropagationExample PRIVATE
     ${_common_libraries}
-    ACTFWDD4hepDetector
+    ACTFWDD4hepDetector ACTFWGeometryInterfaces
     ${DD4hep_LIBRARIES})
   install(
     TARGETS ACTFWDD4hepPropagationExample
