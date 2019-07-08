@@ -53,6 +53,7 @@ fatrasExample(int               argc,
   auto desc = FW::Options::makeDefaultOptions();
   FW::Options::addSequencerOptions(desc);
   FW::Options::addGeometryOptions(desc);
+  FW::Options::addMaterialOptions(desc);
   FW::Options::addParticleGunOptions(desc);
   FW::Options::addPythia8Options(desc);
   FW::Options::addRandomNumbersOptions(desc);
