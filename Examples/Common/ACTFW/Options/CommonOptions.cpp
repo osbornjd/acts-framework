@@ -33,7 +33,7 @@ FW::Options::addSequencerOptions(
 {
   // sequencer options
   opt.add_options()("events,n",
-                    value<size_t>()->default_value(1),
+                    value<size_t>(),
                     "The number of events to process. If not given, all "
                     "available events will be processed.")(
       "skip",
