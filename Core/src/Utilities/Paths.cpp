@@ -39,7 +39,7 @@ FW::perEventFilepath(const std::string& dir,
 }
 
 std::vector<std::string>
-FW::splitFiles(const std::string& files, char delim)
+FW::splitByDelimiter(const std::string& files, char delim)
 {
   std::vector<std::string> fileList;
 
