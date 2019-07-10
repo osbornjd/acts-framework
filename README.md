@@ -6,7 +6,7 @@ for production usage.
 ## Build requirements
 
 The framework can be build in different configurations. The minimal setup
-requires a C++14 compatible compiler, the Intel TBB library, ROOT, and all
+requires a C++17 compatible compiler, the Intel TBB library, ROOT, and all
 requirements of the core ACTS library. Additional packages might be required
 depending on which of the following built options
 
