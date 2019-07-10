@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,78 +10,66 @@
 // MaterialMapping.cpp
 ///////////////////////////////////////////////////////////////////
 
+#include "ACTFW/MaterialMapping/MaterialMapping.hpp"
 #include <iostream>
 #include <stdexcept>
-
-#include <TTree.h>
-
-#include "ACTFW/MaterialMapping/MaterialMapping.hpp"
-#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
-#include "Acts/Plugins/MaterialMapping/SurfaceMaterialRecord.hpp"
+#include "ACTFW/Framework/WhiteBoard.hpp"
 
 FW::MaterialMapping::MaterialMapping(const FW::MaterialMapping::Config& cnf,
                                      Acts::Logging::Level               level)
-  : FW::BareAlgorithm("MaterialMapping", level), m_cfg(cnf)
+  : FW::BareAlgorithm("MaterialMapping", level)
+  , m_cfg(cnf)
+  , m_mappingState(cnf.geoContext, cnf.magFieldContext)
 {
-  if (!m_cfg.materialTrackReader) {
-    throw std::invalid_argument("Missing material track reader");
-  } else if (!m_cfg.materialMapper) {
+  if (!m_cfg.materialMapper) {
     throw std::invalid_argument("Missing material mapper");
-  } else if (!m_cfg.materialTrackWriter) {
-    throw std::invalid_argument("Missing material track writer");
-  } else if (!m_cfg.indexedMaterialWriter) {
-    throw std::invalid_argument("Missing indexed material writer");
   } else if (!m_cfg.trackingGeometry) {
     throw std::invalid_argument("Missing tracking geometry");
+  }
+
+  ACTS_INFO("This algorithm requires inter-event information, "
+            << "run in single-threaded mode!");
+
+  // Generate and retrieve the central cache object
+  m_mappingState = m_cfg.materialMapper->createState(
+      m_cfg.geoContext, m_cfg.magFieldContext, *m_cfg.trackingGeometry);
+}
+
+FW::MaterialMapping::~MaterialMapping()
+{
+
+  // Finalize all the maps using the cached state
+  m_cfg.materialMapper->finalizeMaps(m_mappingState);
+
+  Acts::DetectorMaterialMaps detectorMaterial;
+
+  // Loop over the state, and collect the maps for surfaces
+  for (auto & [ key, value ] : m_mappingState.surfaceMaterial) {
+    detectorMaterial.first.insert({key, std::move(value)});
+  }
+
+  // Loop over the available writers and write the maps
+  for (auto& imw : m_cfg.materialWriters) {
+    imw->writeMaterial(detectorMaterial);
   }
 }
 
 FW::ProcessCode
-    FW::MaterialMapping::execute(FW::AlgorithmContext /*context*/) const
+FW::MaterialMapping::execute(const FW::AlgorithmContext& context) const
 {
-  // retrive a cache object
-  Acts::MaterialMapper::Cache mCache
-      = m_cfg.materialMapper->materialMappingCache(*m_cfg.trackingGeometry);
 
-  // access the tree and read the records
-  Acts::MaterialTrack inputTrack;
+  // Write to the collection to the EventStore
+  const auto& mtrackCollection
+      = context.eventStore.get<std::vector<Acts::RecordedMaterialTrack>>(
+          m_cfg.collection);
 
-  for (size_t itc = 0;
-       m_cfg.materialTrackReader->read(inputTrack) != FW::ProcessCode::ABORT;
-       ++itc) {
-    ACTS_VERBOSE("Read MaterialTrack " << itc << " from file, it has "
-                                       << inputTrack.materialSteps().size()
-                                       << " steps.");
+  // To make it work with the framework needs a lock guard
+  auto mappingState
+      = const_cast<Acts::SurfaceMaterialMapper::State*>(&m_mappingState);
 
-    // some screen output to know what is going on
-    ACTS_VERBOSE("These will be mapped onto "
-                 << mCache.surfaceMaterialRecords.size()
-                 << " surfaces.");
-
-    // perform the mapping
-    auto mappedTrack
-        = m_cfg.materialMapper->mapMaterialTrack(mCache, inputTrack);
-
-    // write out the material for validation purpose
-    m_cfg.materialTrackWriter->write(mappedTrack);
-
-    // break if configured
-    if (m_cfg.maximumTrackRecords > 0 && itc > m_cfg.maximumTrackRecords) {
-      ACTS_VERBOSE("Maximum track records reached. Stopping.");
-      break;
-    }
-  }
-  /// get the maps back
-  std::map<Acts::GeometryID, Acts::SurfaceMaterial*> sMaterialMaps
-      = m_cfg.materialMapper->createSurfaceMaterial(mCache);
-
-  //// write the maps out to a file
-  ACTS_INFO("Writing out the material maps for " << sMaterialMaps.size()
-                                                 << " material surfaces");
-  // loop over the material maps
-  for (auto& sMap : sMaterialMaps) {
-    // write out map by map
-    m_cfg.indexedMaterialWriter->write(sMap);
+  for (auto mTrack : mtrackCollection) {
+    // Map this one onto the geometry
+    m_cfg.materialMapper->mapMaterialTrack(*mappingState, mTrack);
   }
 
   return FW::ProcessCode::SUCCESS;

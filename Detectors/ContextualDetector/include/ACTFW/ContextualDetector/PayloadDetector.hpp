@@ -63,12 +63,15 @@ struct PayloadGeometry
   /// optionally the geometry context decorator(s)
   ///
   /// @tparam variable_map_t Type of the variable map template for parameters
+  /// @tparam material_decorator_t Type of the material decorator
+  ///
   /// @param vm the parameter map object
+  /// @param mdecorator the actual material decorator
   ///
   /// @return a TrackingGeometry object, and optional context decorator(s)
-  template <typename variable_map_t>
+  template <typename variable_map_t, typename material_decorator_t>
   std::pair<TrackingGeometryPtr, ContextDecorators>
-  operator()(variable_map_t& vm)
+  operator()(variable_map_t& vm, material_decorator_t mdecorator)
   {
     // --------------------------------------------------------------------------------
     DetectorElement::ContextType nominalContext;
@@ -80,11 +83,16 @@ struct PayloadGeometry
     Acts::Logging::Level volumeLogLevel
         = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
 
-    /// return the generic detector
+    bool buildProto
+        = (vm["mat-input-type"].template as<std::string>() == "proto");
+
+    /// return the generic detector - with payload context decorator
     TrackingGeometryPtr pTrackingGeometry
         = FW::Generic::buildDetector<DetectorElement>(nominalContext,
                                                       detectorStore,
                                                       0,
+                                                      std::move(mdecorator),
+                                                      buildProto,
                                                       surfaceLogLevel,
                                                       layerLogLevel,
                                                       volumeLogLevel);

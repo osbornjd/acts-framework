@@ -13,6 +13,7 @@
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
@@ -130,30 +131,32 @@ propagationExample(int               argc,
                    options_setup_t&  optionsSetup,
                    geometry_setup_t& geometrySetup)
 {
-  // setup and parse options
+  // Setup and parse options
   auto desc = FW::Options::makeDefaultOptions();
   FW::Options::addSequencerOptions(desc);
   FW::Options::addGeometryOptions(desc);
+  FW::Options::addMaterialOptions(desc);
   FW::Options::addBFieldOptions(desc);
   FW::Options::addRandomNumbersOptions(desc);
   FW::Options::addPropagationOptions(desc);
   FW::Options::addOutputOptions(desc);
+
   // Add specific options for this geometry
   optionsSetup(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
   }
-
   FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
 
   // Now read the standard options
-  auto logLevel          = FW::Options::readLogLevel(vm);
-  auto geometry          = geometrySetup(vm);
+  auto logLevel = FW::Options::readLogLevel(vm);
+
+  // The geometry, material and decoration
+  auto geometry          = FW::Geometry::build(vm, geometrySetup);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
-
-  // Add it to the sequencer
+  // Add the decorator to the sequencer
   for (auto cdr : contextDecorators) {
     sequencer.addContextDecorator(cdr);
   }

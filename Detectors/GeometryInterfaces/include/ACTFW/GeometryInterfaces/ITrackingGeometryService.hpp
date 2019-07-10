@@ -10,7 +10,7 @@
 // ITrackingGeometryService.hpp
 ///////////////////////////////////////////////////////////////////
 
-#pragma
+#pragma once
 
 #include <memory>
 #include "ACTFW/Framework/IService.hpp"

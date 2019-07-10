@@ -14,9 +14,7 @@
 #include "Acts/Detector/DetectorElementBase.hpp"
 #include "Acts/Layers/ApproachDescriptor.hpp"
 #include "Acts/Layers/ProtoLayer.hpp"
-#include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
-#include "Acts/Material/Material.hpp"
-#include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
 #include "Acts/Surfaces/PlanarBounds.hpp"
@@ -103,8 +101,9 @@ namespace Generic {
       std::vector<int> centralModuleReadoutSide;
       /// the central volume readout schema
       std::vector<double> centralModuleLorentzAngle;
-      /// the module material @todo change to surface material
-      std::vector<Acts::Material> centralModuleMaterial;
+      /// the module material
+      std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>
+          centralModuleMaterial;
       /// the module front side stereo (if exists)
       std::vector<double> centralModuleFrontsideStereo;
       /// the module back side stereo (if exists)
@@ -140,8 +139,9 @@ namespace Generic {
       std::vector<std::vector<int>> posnegModuleReadoutSide;
       /// the central volume readout schema
       std::vector<std::vector<double>> posnegModuleLorentzAngle;
-      /// the module material @todo change to surface material
-      std::vector<std::vector<Acts::Material>> posnegModuleMaterial;
+      /// the module material
+      std::vector<std::vector<std::shared_ptr<const Acts::ISurfaceMaterial>>>
+          posnegModuleMaterial;
       /// the module front side stereo (if exists)
       std::vector<std::vector<double>> posnegModuleFrontsideStereo;
       /// the module back side stereo (if exists)
@@ -282,23 +282,18 @@ namespace Generic {
           moduleDigitizationPtr
               = std::make_shared<const Acts::DigitizationModule>(
                   moduleSegmentation,
-                  m_cfg.centralModuleThickness.at(icl),
+                  0.5 * m_cfg.centralModuleThickness.at(icl),
                   m_cfg.centralModuleReadoutSide.at(icl),
                   m_cfg.centralModuleLorentzAngle.at(icl));
         }
 
         // prepartation :
         // create the Module material from input
-        std::shared_ptr<const Acts::SurfaceMaterial> moduleMaterialPtr
+        std::shared_ptr<const Acts::ISurfaceMaterial> moduleMaterialPtr
             = nullptr;
         if (m_cfg.centralModuleMaterial.size()) {
           // get the sensor material from configuration
-          Acts::Material moduleMaterial = m_cfg.centralModuleMaterial.at(icl);
-          Acts::MaterialProperties moduleMaterialProperties(moduleMaterial,
-                                                            moduleThickness);
-          // create a new surface material
-          moduleMaterialPtr = std::shared_ptr<const Acts::SurfaceMaterial>(
-              new Acts::HomogeneousSurfaceMaterial(moduleMaterialProperties));
+          moduleMaterialPtr = m_cfg.centralModuleMaterial.at(icl);
         }
 
         // confirm
@@ -524,20 +519,17 @@ namespace Generic {
             moduleDigitizationPtr
                 = std::make_shared<const Acts::DigitizationModule>(
                     moduleSegmentation,
-                    moduleThickness,
+                    0.5 * moduleThickness,
                     m_cfg.posnegModuleReadoutSide.at(ipnl).at(ipnR),
                     m_cfg.posnegModuleLorentzAngle.at(ipnl).at(ipnR));
           }
           // (3) module material
           // create the Module material from input
-          std::shared_ptr<const Acts::SurfaceMaterial> moduleMaterialPtr
+          std::shared_ptr<const Acts::ISurfaceMaterial> moduleMaterialPtr
               = nullptr;
           if (m_cfg.posnegModuleMaterial.size()) {
-            Acts::MaterialProperties moduleMaterialProperties(
-                m_cfg.posnegModuleMaterial.at(ipnl).at(ipnR), moduleThickness);
             // and create the shared pointer
-            moduleMaterialPtr = std::shared_ptr<const Acts::SurfaceMaterial>(
-                new Acts::HomogeneousSurfaceMaterial(moduleMaterialProperties));
+            moduleMaterialPtr = m_cfg.posnegModuleMaterial.at(ipnl).at(ipnR);
           }
 
           // low loop over the phi positions and build the stuff
@@ -572,7 +564,8 @@ namespace Generic {
                                                        moduleTransform,
                                                        moduleBounds,
                                                        moduleThickness,
-                                                       moduleMaterialPtr);
+                                                       moduleMaterialPtr,
+                                                       moduleDigitizationPtr);
             layerStore.push_back(module);
 
             // now deal with the potential backside
@@ -605,7 +598,8 @@ namespace Generic {
                                                          moduleTransform,
                                                          moduleBounds,
                                                          moduleThickness,
-                                                         moduleMaterialPtr);
+                                                         moduleMaterialPtr,
+                                                         moduleDigitizationPtr);
               // Put into the detector store
               layerStore.push_back(std::move(bsmodule));
               // register the backside of the binmembers
@@ -630,9 +624,9 @@ namespace Generic {
           layerBinsR *= m_cfg.posnegLayerBinMultipliers.first;
         }
         size_t layerBinsPhi = 0;
-        // take the maximum phi bins in that layer
+        // take the minimum phi bins in that layer
         for (unsigned int phiBins : m_cfg.posnegModulePhiBins.at(ipnl)) {
-          layerBinsPhi = phiBins > layerBinsPhi ? phiBins : layerBinsPhi;
+          layerBinsPhi = phiBins < layerBinsPhi ? phiBins : layerBinsPhi;
           layerBinsPhi *= m_cfg.posnegLayerBinMultipliers.second;
         }
         // create the layers with the surface arrays

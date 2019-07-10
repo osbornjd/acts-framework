@@ -6,13 +6,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/// @file
-/// @date 2017-08-03
-/// @author Moritz Kiehnn <msmk@cern.ch>
-
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace FW {
 
@@ -27,5 +24,12 @@ joinPaths(const std::string& dir, const std::string& name);
 /// @params event event number
 std::string
 perEventFilepath(const std::string& dir, const std::string& name, size_t event);
+
+/// Brief split a file list into a vector of file names to add
+///
+/// @param files The joint file list
+/// @param tag The splitting tag
+std::vector<std::string>
+splitByDelimiter(const std::string& files, char delim);
 
 }  // namespace FW

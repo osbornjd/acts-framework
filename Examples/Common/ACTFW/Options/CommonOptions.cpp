@@ -63,6 +63,40 @@ FW::Options::addGeometryOptions(
 }
 
 void
+FW::Options::addMaterialOptions(
+    boost::program_options::options_description& opt)
+{
+  opt.add_options()(
+      "mat-input-type",
+      value<std::string>()->default_value("build"),
+      "The way material is loaded: 'none', 'build', 'proto', 'file'.")(
+      "mat-input-file",
+      value<std::string>()->default_value(""),
+      "Name of the material map input file, supported: '.json' or '.root'.")(
+      "mat-output-file",
+      value<std::string>()->default_value(""),
+      "Name of the material map output file (without extension).")(
+      "mat-output-sensitives",
+      value<bool>()->default_value(true),
+      "Write material information of sensitive surfaces.")(
+      "mat-output-approaches",
+      value<bool>()->default_value(true),
+      "Write material information of approach surfaces.")(
+      "mat-output-representing",
+      value<bool>()->default_value(true),
+      "Write material information of representing surfaces.")(
+      "mat-output-boundaries",
+      value<bool>()->default_value(true),
+      "Write material information of boundary surfaces.")(
+      "mat-output-volumes",
+      value<bool>()->default_value(true),
+      "Write material information of dense volumes.")(
+      "mat-output-data",
+      value<bool>()->default_value(true),
+      "Output the data field(s).");
+}
+
+void
 FW::Options::addOutputOptions(boost::program_options::options_description& opt)
 {
   // Add specific options for this example
@@ -81,6 +115,28 @@ FW::Options::addOutputOptions(boost::program_options::options_description& opt)
       "output-json",
       value<bool>()->default_value(false),
       "Switch on to write '.json' ouput file(s).");
+}
+
+void
+FW::Options::addInputOptions(boost::program_options::options_description& opt)
+{
+  // Add specific options for this example
+  opt.add_options()("input-dir",
+                    value<std::string>()->default_value(""),
+                    "Input directory location.")(
+      "input-files",
+      value<read_strings>()->multitoken()->default_value({}),
+      "Input files, space separated.")("input-root",
+                                       value<bool>()->default_value(false),
+                                       "Switch on to read '.root' file(s).")(
+      "input-csv",
+      value<bool>()->default_value(false),
+      "Switch on to read '.csv' file(s).")("input-obj",
+                                           value<bool>()->default_value(false),
+                                           "Switch on to read '.obj' file(s).")(
+      "input-json",
+      value<bool>()->default_value(false),
+      "Switch on to read '.json' file(s).");
 }
 
 boost::program_options::variables_map

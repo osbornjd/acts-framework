@@ -15,17 +15,27 @@
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvWriterOptions.hpp"
+#include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjWriterOptions.hpp"
+#include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Utilities/GeometryContext.hpp"
+
+/// @brief templated method to process a geometry
+///
+/// @tparam options_setup_t callable options setup
+/// @tparam geometry_setup_t callable geonmetry setup
+///
+///
 
 template <typename options_setup_t, typename geometry_setup_t>
 int
@@ -38,6 +48,7 @@ processGeometry(int               argc,
   auto desc = FW::Options::makeDefaultOptions();
   FW::Options::addSequencerOptions(desc);
   FW::Options::addGeometryOptions(desc);
+  FW::Options::addMaterialOptions(desc);
   FW::Options::addObjWriterOptions(desc);
   FW::Options::addOutputOptions(desc);
   // Add specific options for this geometry
@@ -49,10 +60,10 @@ processGeometry(int               argc,
 
   // Now read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);
-  // TODO Check whether this truly needs to be event-based. If yes switch to
-  // Sequencer-based tool, otherwise remove.
-  auto nEvents           = FW::Options::readSequencerConfig(vm).events;
-  auto geometry          = geometrySetup(vm);
+  auto nEvents  = FW::Options::readSequencerConfig(vm).events;
+
+  // The geometry, material and decoration
+  auto geometry          = FW::Geometry::build(vm, geometrySetup);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 
@@ -60,11 +71,11 @@ processGeometry(int               argc,
   read_strings subDetectors = vm["geo-subdetectors"].as<read_strings>();
 
   auto surfaceLogLevel
-      = Acts::Logging::Level(vm["geo-surface-loglevel"].template as<size_t>());
+      = Acts::Logging::Level(vm["geo-surface-loglevel"].as<size_t>());
   auto layerLogLevel
-      = Acts::Logging::Level(vm["geo-layer-loglevel"].template as<size_t>());
+      = Acts::Logging::Level(vm["geo-layer-loglevel"].as<size_t>());
   auto volumeLogLevel
-      = Acts::Logging::Level(vm["geo-volume-loglevel"].template as<size_t>());
+      = Acts::Logging::Level(vm["geo-volume-loglevel"].as<size_t>());
 
   for (size_t ievt = 0; ievt < nEvents; ++ievt) {
 
@@ -167,6 +178,43 @@ processGeometry(int               argc,
 
       // Close the file
       csvStream->close();
+    }
+
+    // Get the file name from the options
+    std::string materialFileName = vm["mat-output-file"].as<std::string>();
+
+    if (!materialFileName.empty() and vm["output-root"].template as<bool>()) {
+
+      // The writer of the indexed material
+      FW::Root::RootMaterialWriter::Config rmwConfig("MaterialWriter");
+      rmwConfig.fileName = materialFileName + ".root";
+      FW::Root::RootMaterialWriter rmwImpl(rmwConfig);
+      rmwImpl.write(*tGeometry);
+    }
+
+    if (!materialFileName.empty() and vm["output-json"].template as<bool>()) {
+      /// The name of the output file
+      std::string fileName = vm["mat-output-file"].template as<std::string>();
+      // the material writer
+      FW::Json::JsonGeometryConverter::Config jmConverterCfg(
+          "JsonGeometryConverter", Acts::Logging::INFO);
+      jmConverterCfg.processSensitives
+          = vm["mat-output-sensitives"].template as<bool>();
+      jmConverterCfg.processApproaches
+          = vm["mat-output-approaches"].template as<bool>();
+      jmConverterCfg.processRepresenting
+          = vm["mat-output-representing"].template as<bool>();
+      jmConverterCfg.processBoundaries
+          = vm["mat-output-boundaries"].template as<bool>();
+      jmConverterCfg.processVolumes
+          = vm["mat-output-volumes"].template as<bool>();
+      jmConverterCfg.writeData = vm["mat-output-data"].template as<bool>();
+
+      // The writer
+      FW::Json::JsonMaterialWriter jmwImpl(std::move(jmConverterCfg),
+                                           materialFileName + ".json");
+
+      jmwImpl.write(*tGeometry);
     }
   }
 

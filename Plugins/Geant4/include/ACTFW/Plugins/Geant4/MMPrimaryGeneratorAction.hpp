@@ -7,11 +7,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ///////////////////////////////////////////////////////////////////
-// MMPrimaryGeneratorAction.h
+// MMPrimaryGeneratorAction.hpp
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ACTFW_PLUGINS_GEANT4_MMPRIMARYGENERATORACTION_H
-#define ACTFW_PLUGINS_GEANT4_MMPRIMARYGENERATORACTION_H
+#pragma once
 
 #include <memory>
 #include "G4SystemOfUnits.hh"
@@ -23,7 +22,7 @@ class G4ParticleGun;
 class G4Event;
 
 namespace FW {
-namespace G4 {
+namespace Geant4 {
 
   /// @class MMPrimaryGeneratorAction
   ///
@@ -82,5 +81,3 @@ namespace G4 {
 
 }  // namespace G4
 }  // namespace FW
-
-#endif  // GEANT4MATERIALMAPPING_MMPRIMARYGENERATORACTION_H

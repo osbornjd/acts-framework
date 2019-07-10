@@ -12,7 +12,6 @@
 
 #include <Acts/Utilities/Logger.hpp>
 #include <boost/program_options.hpp>
-
 #include "ACTFW/Framework/Sequencer.hpp"
 
 namespace FW {
@@ -31,6 +30,14 @@ namespace Options {
   /// Add common geometry-related options.
   void
   addGeometryOptions(boost::program_options::options_description& opt);
+
+  /// Add common material-related options.
+  void
+  addMaterialOptions(boost::program_options::options_description& opt);
+
+  /// Add common input-related options.
+  void
+  addInputOptions(boost::program_options::options_description& opt);
 
   /// Add common output-related options.
   void

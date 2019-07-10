@@ -74,7 +74,7 @@ public:
   RandomEngine
   spawnGenerator(const AlgorithmContext& context) const;
 
-  const unsigned int
+  unsigned int
   generateSeed(const AlgorithmContext& context) const;
 
   /// Ask for the seed

@@ -75,14 +75,14 @@ FW::Obj::ObjTrackingGeometryWriter::write(const AlgorithmContext&     context,
       // layer prefix
       surfaceWriter->write(m_cfg.layerPrefix);
       // try to write the material surface as well
-      if (layer->surfaceRepresentation().associatedMaterial()) {
+      if (layer->surfaceRepresentation().surfaceMaterial()) {
         surfaceWriter->write(context, layer->surfaceRepresentation());
       }
       // the the approaching surfaces and check if they have material
       if (layer->approachDescriptor()) {
         // loop over the contained Surfaces
         for (auto& cSurface : layer->approachDescriptor()->containedSurfaces())
-          if (cSurface->associatedMaterial()) {
+          if (cSurface->surfaceMaterial()) {
             surfaceWriter->write(context, *cSurface);
           }
       }

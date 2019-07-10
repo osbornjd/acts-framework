@@ -1,3 +1,4 @@
 add_library(ACTFWExamplesCommon STATIC ACTFW/Options/CommonOptions.cpp)
 target_include_directories(ACTFWExamplesCommon PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 target_link_libraries(ACTFWExamplesCommon PUBLIC ActsCore ACTFramework)
+target_link_libraries(ACTFWExamplesCommon PUBLIC ACTFWObjPlugin ACTFWCsvPlugin ACTFWJsonPlugin ACTFWRootPlugin)
