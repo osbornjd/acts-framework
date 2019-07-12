@@ -1,10 +1,14 @@
-
-# example outputs
-*.root
 # common bin dirs
-build
-install
+build*
+install*
 
+# data outputs
+*.csv
+*.hepmc
+*.hepm3
+*.json
+*.obj
+*.root
 
 # Prerequisites
 *.d
