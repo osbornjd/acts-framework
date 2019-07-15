@@ -235,8 +235,8 @@ FW::Root::RootMaterialWriter::collectMaterial(
 {
 
   // If the volume has volume material, write that
-  if (tVolume.volumeMaterialPtr() != nullptr and m_cfg.processVolumes) {
-    detMatMap.second[tVolume.geoID()] = tVolume.volumeMaterialPtr();
+  if (tVolume.volumeMaterialSharedPtr() != nullptr and m_cfg.processVolumes) {
+    detMatMap.second[tVolume.geoID()] = tVolume.volumeMaterialSharedPtr();
   }
 
   // If confined layers exist, loop over them and collect the layer material
@@ -250,8 +250,8 @@ FW::Root::RootMaterialWriter::collectMaterial(
   if (m_cfg.processBoundaries) {
     for (auto& bou : tVolume.boundarySurfaces()) {
       const auto& bSurface = bou->surfaceRepresentation();
-      if (bSurface.surfaceMaterialPtr() != nullptr) {
-        detMatMap.first[bSurface.geoID()] = bSurface.surfaceMaterialPtr();
+      if (bSurface.surfaceMaterialSharedPtr() != nullptr) {
+        detMatMap.first[bSurface.geoID()] = bSurface.surfaceMaterialSharedPtr();
       }
     }
   }
@@ -271,15 +271,17 @@ FW::Root::RootMaterialWriter::collectMaterial(
 {
   // If the representing surface has material, collect it
   const auto& rSurface = tLayer.surfaceRepresentation();
-  if (rSurface.surfaceMaterialPtr() != nullptr and m_cfg.processRepresenting) {
-    detMatMap.first[rSurface.geoID()] = rSurface.surfaceMaterialPtr();
+  if (rSurface.surfaceMaterialSharedPtr() != nullptr
+      and m_cfg.processRepresenting) {
+    detMatMap.first[rSurface.geoID()] = rSurface.surfaceMaterialSharedPtr();
   }
 
   // Check the approach surfaces
   if (tLayer.approachDescriptor() != nullptr and m_cfg.processApproaches) {
     for (auto& aSurface : tLayer.approachDescriptor()->containedSurfaces()) {
-      if (aSurface->surfaceMaterialPtr() != nullptr) {
-        detMatMap.first[aSurface->geoID()] = aSurface->surfaceMaterialPtr();
+      if (aSurface->surfaceMaterialSharedPtr() != nullptr) {
+        detMatMap.first[aSurface->geoID()]
+            = aSurface->surfaceMaterialSharedPtr();
       }
     }
   }
@@ -288,8 +290,9 @@ FW::Root::RootMaterialWriter::collectMaterial(
   if (tLayer.surfaceArray() != nullptr and m_cfg.processSensitives) {
     // sensitive surface loop
     for (auto& sSurface : tLayer.surfaceArray()->surfaces()) {
-      if (sSurface->surfaceMaterialPtr() != nullptr) {
-        detMatMap.first[sSurface->geoID()] = sSurface->surfaceMaterialPtr();
+      if (sSurface->surfaceMaterialSharedPtr() != nullptr) {
+        detMatMap.first[sSurface->geoID()]
+            = sSurface->surfaceMaterialSharedPtr();
       }
     }
   }
