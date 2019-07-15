@@ -271,7 +271,8 @@ FW::Root::RootMaterialWriter::collectMaterial(
 {
   // If the representing surface has material, collect it
   const auto& rSurface = tLayer.surfaceRepresentation();
-  if (rSurface.surfaceMaterialSharedPtr() != nullptr and m_cfg.processRepresenting) {
+  if (rSurface.surfaceMaterialSharedPtr() != nullptr
+      and m_cfg.processRepresenting) {
     detMatMap.first[rSurface.geoID()] = rSurface.surfaceMaterialSharedPtr();
   }
 
@@ -279,7 +280,8 @@ FW::Root::RootMaterialWriter::collectMaterial(
   if (tLayer.approachDescriptor() != nullptr and m_cfg.processApproaches) {
     for (auto& aSurface : tLayer.approachDescriptor()->containedSurfaces()) {
       if (aSurface->surfaceMaterialSharedPtr() != nullptr) {
-        detMatMap.first[aSurface->geoID()] = aSurface->surfaceMaterialSharedPtr();
+        detMatMap.first[aSurface->geoID()]
+            = aSurface->surfaceMaterialSharedPtr();
       }
     }
   }
@@ -289,7 +291,8 @@ FW::Root::RootMaterialWriter::collectMaterial(
     // sensitive surface loop
     for (auto& sSurface : tLayer.surfaceArray()->surfaces()) {
       if (sSurface->surfaceMaterialSharedPtr() != nullptr) {
-        detMatMap.first[sSurface->geoID()] = sSurface->surfaceMaterialSharedPtr();
+        detMatMap.first[sSurface->geoID()]
+            = sSurface->surfaceMaterialSharedPtr();
       }
     }
   }
