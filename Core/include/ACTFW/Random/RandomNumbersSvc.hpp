@@ -16,37 +16,28 @@
 
 #pragma once
 
-#include <memory>
+#include <cstdint>
 #include <random>
-#include <string>
-
-#include <Acts/Utilities/Logger.hpp>
 
 #include "ACTFW/Framework/AlgorithmContext.hpp"
-#include "ACTFW/Framework/IService.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace FW {
 
-/// @class RandomNumbersSvc
+/// The random number generator used in the framework.
+using RandomEngine = std::mt19937;  ///< Mersenne Twister
+
+/// Provide event and algorithm specific random number generator.s
 ///
-/// This service provides Algorithm-local random number generators, allowing for
-/// thread-safe, lock-free and reproducible random number generation across
+/// This provides local random number generators, allowing for
+/// thread-safe, lock-free, and reproducible random number generation across
 /// single-threaded and multi-threaded test framework runs.
 ///
-/// The following random number generator ("engine") is used:
-///
-using RandomEngine = std::mt19937;  ///< Mersenne Twister
-///
-/// The role of the RandomNumbersSvc is only to spawn Algorithm-local random
-/// number generators ("engines"). It does not, in and of itself, accomodate
-/// requests for specific random number distributions (uniform, gaussian, etc).
-///
-/// For this purpose, clients should spawn their own local distribution objects
-/// as needed, following the C++11 STL design. See RandomNumberDistributions.hpp
-/// for some examples of distributions that can be used.
-///
-class RandomNumbersSvc : public IService
+/// The role of the RandomNumbersSvc is only to spawn local random number
+/// generators. It does not, in and of itself, accomodate requests for specific
+/// random number distributions (uniform, gaussian, etc). For this purpose,
+/// clients should spawn their own local distribution objects
+/// as needed, following the C++11 STL design.
+class RandomNumbersSvc
 {
 public:
   struct Config
@@ -54,15 +45,7 @@ public:
     unsigned int seed = 1234567890;  ///< random seed
   };
 
-  /// Constructor
-  RandomNumbersSvc(const Config&                       cfg,
-                   std::unique_ptr<const Acts::Logger> logger
-                   = Acts::getDefaultLogger("RandomNumbersSvc",
-                                            Acts::Logging::INFO));
-
-  /// Framework name() method
-  std::string
-  name() const final override;
+  RandomNumbersSvc(const Config& cfg);
 
   /// Spawn an algorithm-local random number generator. To avoid inefficiencies
   /// and multiple uses of a given RNG seed, this should only be done once per
@@ -74,6 +57,10 @@ public:
   RandomEngine
   spawnGenerator(const AlgorithmContext& context) const;
 
+  /// Generate a event and algorithm specific seed value.
+  ///
+  /// This should only be used in special cases e.g. where a custom
+  /// random engine is used and `spawnGenerator` can not be used.
   unsigned int
   generateSeed(const AlgorithmContext& context) const;
 
@@ -85,15 +72,7 @@ public:
   }
 
 private:
-  Config                              m_cfg;  ///< the configuration class
-  std::unique_ptr<const Acts::Logger> m_logger;
-
-  /// Private access to the logging instance
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_logger;
-  }
+  Config m_cfg;
 };
 
 }  // namespace FW
