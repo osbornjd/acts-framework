@@ -18,14 +18,14 @@
 namespace FW {
 
 class WhiteBoard;
-class RandomNumbersSvc;
+class RandomNumbers;
 
 class RandomNumbersAlgorithm : public FW::BareAlgorithm
 {
 public:
   struct Config
   {
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
+    std::shared_ptr<FW::RandomNumbers> randomNumbers = nullptr;
 
     std::array<double, 2> gaussParameters   = {{0., 1.}};
     std::array<double, 2> uniformParameters = {{0., 1.}};

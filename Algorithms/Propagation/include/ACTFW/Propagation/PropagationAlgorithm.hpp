@@ -66,7 +66,7 @@ public:
     propagator_t propagator;
 
     /// how to set it up
-    std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
+    std::shared_ptr<RandomNumbers> randomNumberSvc = nullptr;
 
     /// proapgation mode
     int mode = 0;

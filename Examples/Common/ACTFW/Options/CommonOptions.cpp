@@ -176,7 +176,9 @@ FW::Options::readSequencerConfig(
 {
   Sequencer::Config cfg;
   cfg.skip = vm["skip"].as<size_t>();
-  if (not vm["events"].empty()) { cfg.events = vm["events"].as<size_t>(); }
+  if (not vm["events"].empty()) {
+    cfg.events = vm["events"].as<size_t>();
+  }
   cfg.logLevel   = readLogLevel(vm);
   cfg.numThreads = vm["jobs"].as<int>();
   if (not vm["output-dir"].empty()) {
@@ -186,11 +188,11 @@ FW::Options::readSequencerConfig(
 }
 
 // Read the random numbers config.
-FW::RandomNumbersSvc::Config
+FW::RandomNumbers::Config
 FW::Options::readRandomNumbersConfig(
     const boost::program_options::variables_map& vm)
 {
-  FW::RandomNumbersSvc::Config cfg;
+  FW::RandomNumbers::Config cfg;
   cfg.seed = vm["rnd-seed"].as<uint64_t>();
   return cfg;
 }

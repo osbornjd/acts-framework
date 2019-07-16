@@ -101,7 +101,7 @@ setupSimulationAlgorithm(
     po::variables_map&                            vm,
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
     std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
-    std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
+    std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
   // Read the log level
   Acts::Logging::Level logLevel = FW::Options::readLogLevel(vm);
@@ -131,9 +131,9 @@ setupSimulationAlgorithm(
   typedef Fatras::SelectorListAND<CSelector, CMinPt, CMaxEtaAbs>
       ChargedSelector;
 
-  typedef Fatras::NeutralSelector                               NSelector;
-  typedef Fatras::Max<Fatras::casts::absEta>                    NMaxEtaAbs;
-  typedef Fatras::Min<Fatras::casts::E>                         NMinE;
+  typedef Fatras::NeutralSelector            NSelector;
+  typedef Fatras::Max<Fatras::casts::absEta> NMaxEtaAbs;
+  typedef Fatras::Min<Fatras::casts::E>      NMinE;
   typedef Fatras::SelectorListAND<NSelector, NMinE, NMaxEtaAbs> NeutralSelector;
 
   typedef Fatras::PhysicsList<> PhysicsList;
@@ -234,7 +234,7 @@ setupSimulation(vmap_t&                                       vm,
                 FW::Sequencer&                                sequencer,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
                 std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
-                std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
+                std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
   // Create BField service
   auto bField  = FW::Options::readBField<po::variables_map>(vm);

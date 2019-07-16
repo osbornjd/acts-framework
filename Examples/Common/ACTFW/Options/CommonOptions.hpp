@@ -13,8 +13,8 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <boost/program_options.hpp>
 
-#include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
+#include "ACTFW/Framework/Sequencer.hpp"
 
 namespace FW {
 namespace Options {
@@ -68,7 +68,7 @@ namespace Options {
   readSequencerConfig(const boost::program_options::variables_map& vm);
 
   // Read the random numbers config.
-  RandomNumbersSvc::Config
+  RandomNumbers::Config
   readRandomNumbersConfig(const boost::program_options::variables_map& vm);
 
 }  // namespace Options

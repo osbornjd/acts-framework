@@ -49,7 +49,7 @@ FW::ProcessCode
 setupPropgation(sequencer_t&                                  sequencer,
                 bfield_t                                      bfield,
                 boost::program_options::variables_map&        vm,
-                std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
+                std::shared_ptr<FW::RandomNumbers>            randomNumberSvc,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
@@ -88,7 +88,7 @@ FW::ProcessCode
 setupStraightLinePropgation(
     sequencer_t&                                  sequencer,
     boost::program_options::variables_map&        vm,
-    std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
+    std::shared_ptr<FW::RandomNumbers>            randomNumberSvc,
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
@@ -163,7 +163,7 @@ propagationExample(int               argc,
   // Create the random number engine
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
-      = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
+      = std::make_shared<FW::RandomNumbers>(randomNumberSvcCfg);
 
   // Create BField service
   auto bField  = FW::Options::readBField(vm);

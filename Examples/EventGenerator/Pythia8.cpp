@@ -43,8 +43,8 @@ main(int argc, char* argv[])
   Sequencer         sequencer(sequencerCfg);
 
   // basic services
-  auto rnd = std::make_shared<RandomNumbersSvc>(
-      Options::readRandomNumbersConfig(vm));
+  auto rnd
+      = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
   auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
 
   // event generation w/ process guns

@@ -21,10 +21,10 @@
 
 template <typename vmap_t>
 void
-setupEvgenInput(vmap_t&                               vm,
-                FW::Sequencer&                        sequencer,
-                std::shared_ptr<FW::BarcodeSvc>       barcodeSvc,
-                std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc)
+setupEvgenInput(vmap_t&                            vm,
+                FW::Sequencer&                     sequencer,
+                std::shared_ptr<FW::BarcodeSvc>    barcodeSvc,
+                std::shared_ptr<FW::RandomNumbers> randomNumberSvc)
 {
   // Read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);

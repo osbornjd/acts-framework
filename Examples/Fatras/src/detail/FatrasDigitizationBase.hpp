@@ -21,10 +21,10 @@
 
 template <typename vmap_t>
 void
-setupDigitization(vmap_t&                               vm,
-                  FW::Sequencer&                        sequencer,
-                  std::shared_ptr<FW::BarcodeSvc>       barcodeSvc,
-                  std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc)
+setupDigitization(vmap_t&                            vm,
+                  FW::Sequencer&                     sequencer,
+                  std::shared_ptr<FW::BarcodeSvc>    barcodeSvc,
+                  std::shared_ptr<FW::RandomNumbers> randomNumberSvc)
 {
   // Read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);

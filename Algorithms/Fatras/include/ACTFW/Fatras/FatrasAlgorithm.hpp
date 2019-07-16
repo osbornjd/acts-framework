@@ -71,7 +71,7 @@ public:
     simulator_t simulator;
 
     /// FW random number service
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
+    std::shared_ptr<FW::RandomNumbers> randomNumberSvc = nullptr;
 
     /// the input event collection name
     std::string inputEventCollection = "";

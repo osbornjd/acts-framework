@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 //
-//  RandomNumbersSvc.cpp
+//  RandomNumbers.cpp
 //  ACTFW
 //
 //  Created by Andreas Salzburger on 17/05/16.
@@ -16,16 +16,18 @@
 
 #include "ACTFW/Framework/RandomNumbers.hpp"
 
-FW::RandomNumbersSvc::RandomNumbersSvc(const Config& cfg) : m_cfg(cfg) {}
+FW::RandomNumbers::RandomNumbers(const Config& cfg) : m_cfg(cfg)
+{
+}
 
 FW::RandomEngine
-FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext& context) const
+FW::RandomNumbers::spawnGenerator(const AlgorithmContext& context) const
 {
   return RandomEngine(generateSeed(context));
 }
 
 uint64_t
-FW::RandomNumbersSvc::generateSeed(const AlgorithmContext& context) const
+FW::RandomNumbers::generateSeed(const AlgorithmContext& context) const
 {
   // use Cantor pairing function to generate a unique generator id from
   // algorithm and event number to get a consistent seed

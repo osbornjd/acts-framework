@@ -77,7 +77,7 @@ fatrasExample(int               argc,
   // Create the random number engine
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
-      = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
+      = std::make_shared<FW::RandomNumbers>(randomNumberSvcCfg);
   // Create the barcode service
   auto barcodeSvc = std::make_shared<FW::BarcodeSvc>(FW::BarcodeSvc::Config());
 

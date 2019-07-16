@@ -9,6 +9,7 @@
 #include <boost/program_options.hpp>
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
 #include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"

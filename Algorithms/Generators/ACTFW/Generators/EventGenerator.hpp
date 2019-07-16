@@ -20,14 +20,12 @@
 #include <Acts/Utilities/Definitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 
 namespace FW {
-
-class BarcodeSvc;
-class RandomNumbersSvc;
 
 /// Event generator based on separate process and vertex generators.
 ///
@@ -67,7 +65,7 @@ public:
     /// Shuffle generated vertices to mix generator output
     bool shuffle = false;
     /// The random number service
-    std::shared_ptr<RandomNumbersSvc> randomNumbers = nullptr;
+    std::shared_ptr<RandomNumbers> randomNumbers = nullptr;
     /// The barcode service to generate particle identifiers
     std::shared_ptr<BarcodeSvc> barcodeSvc = nullptr;
   };

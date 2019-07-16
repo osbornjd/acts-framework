@@ -33,7 +33,7 @@ main(int argc, char* argv[])
 
   // Create the random number engine
   auto randomNumbersCfg = FW::Options::readRandomNumbersConfig(vm);
-  auto randomNumbers = std::make_shared<FW::RandomNumbersSvc>(randomNumbersCfg);
+  auto randomNumbers = std::make_shared<FW::RandomNumbers>(randomNumbersCfg);
 
   // Create the config object for the hello world algorithm
   FW::RandomNumbersAlgorithm::Config rNumbersConfig;

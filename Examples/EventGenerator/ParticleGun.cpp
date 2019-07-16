@@ -42,8 +42,8 @@ main(int argc, char* argv[])
   Acts::Logging::Level logLevel = Options::readLogLevel(vm);
 
   // basic services
-  auto rnd = std::make_shared<RandomNumbersSvc>(
-      Options::readRandomNumbersConfig(vm));
+  auto rnd
+      = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
   auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
 
   // event generation w/ particle gun
