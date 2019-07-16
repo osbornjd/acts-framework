@@ -6,15 +6,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "HelloWorldAlgorithm.hpp"
+#include "HelloLoggerAlgorithm.hpp"
 
-FW::HelloWorldAlgorithm::HelloWorldAlgorithm(Acts::Logging::Level level)
-  : FW::BareAlgorithm("HelloWorld", level)
+FW::HelloLoggerAlgorithm::HelloLoggerAlgorithm(Acts::Logging::Level level)
+  : FW::BareAlgorithm("HelloLogger", level)
 {
 }
 
 FW::ProcessCode
-FW::HelloWorldAlgorithm::execute(const AlgorithmContext& context) const
+FW::HelloLoggerAlgorithm::execute(const AlgorithmContext& context) const
 {
   ACTS_INFO(" Hello World! (from event " << context.eventNumber << ")");
   ACTS_DEBUG("  - that's an ACTS_DEBUG message");

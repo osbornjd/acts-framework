@@ -14,7 +14,7 @@
 FW::HelloWhiteBoardAlgorithm::HelloWhiteBoardAlgorithm(
     const Config&        cfg,
     Acts::Logging::Level level)
-  : FW::BareAlgorithm("HelloWhiteBoardAlgorithm", level), m_cfg(cfg)
+  : FW::BareAlgorithm("HelloWhiteBoard", level), m_cfg(cfg)
 {
   // non-optional config settings must be checked on construction.
   if (m_cfg.input.empty()) {

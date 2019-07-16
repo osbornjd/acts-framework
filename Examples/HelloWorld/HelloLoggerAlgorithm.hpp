@@ -15,12 +15,12 @@
 namespace FW {
 
 /// A simple algorithm that just prints hello world.
-class HelloWorldAlgorithm : public FW::BareAlgorithm
+class HelloLoggerAlgorithm : public FW::BareAlgorithm
 {
 public:
-  HelloWorldAlgorithm(Acts::Logging::Level level);
+  HelloLoggerAlgorithm(Acts::Logging::Level level);
 
-  // Per-event method.
+  // Log a few messages.
   FW::ProcessCode
   execute(const AlgorithmContext& context) const final override;
 };

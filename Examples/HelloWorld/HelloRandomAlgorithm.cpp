@@ -17,7 +17,7 @@
 FW::HelloRandomAlgorithm::HelloRandomAlgorithm(
     const HelloRandomAlgorithm::Config& cfg,
     Acts::Logging::Level                level)
-  : BareAlgorithm("HelloRandomAlgorithm", level), m_cfg(cfg)
+  : BareAlgorithm("HelloRandom", level), m_cfg(cfg)
 {
   if (!m_cfg.randomNumbers) {
     throw std::invalid_argument("Missing random number service");
