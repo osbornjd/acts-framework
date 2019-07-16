@@ -14,7 +14,7 @@
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Geometry/GeometryContext.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"

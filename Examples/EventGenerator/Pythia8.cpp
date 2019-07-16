@@ -12,13 +12,13 @@
 #include <Acts/Utilities/Units.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
 using namespace Acts::units;

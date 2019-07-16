@@ -17,7 +17,7 @@
 #include <Pythia8/Pythia.h>
 
 #include "ACTFW/EventData/SimVertex.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 
 namespace FW {
 

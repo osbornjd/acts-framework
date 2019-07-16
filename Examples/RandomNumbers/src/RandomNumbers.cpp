@@ -9,9 +9,10 @@
 #include <cstdlib>
 #include <memory>
 
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+
 #include "RandomNumbersAlgorithm.hpp"
 
 int

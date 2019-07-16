@@ -14,7 +14,7 @@
 
 #include <random>
 
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 
 namespace FW {
 

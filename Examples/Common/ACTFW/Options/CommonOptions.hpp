@@ -14,7 +14,7 @@
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 
 namespace FW {
 namespace Options {

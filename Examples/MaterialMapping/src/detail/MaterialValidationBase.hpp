@@ -8,8 +8,11 @@
 
 #pragma once
 
-#include <boost/program_options.hpp>
 #include <memory>
+
+#include <boost/program_options.hpp>
+
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
@@ -17,7 +20,6 @@
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"

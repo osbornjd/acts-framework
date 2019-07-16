@@ -22,7 +22,7 @@
 
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/IReader.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 
 namespace FW {
 

@@ -14,7 +14,6 @@
 
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 FW::EventGenerator::EventGenerator(const Config&        cfg,
                                    Acts::Logging::Level level)

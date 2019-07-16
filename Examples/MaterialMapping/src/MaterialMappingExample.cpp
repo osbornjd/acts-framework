@@ -17,7 +17,7 @@
 #include "ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Random/RandomNumbers.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Plugins/MaterialMapping/MaterialMapper.hpp"
 

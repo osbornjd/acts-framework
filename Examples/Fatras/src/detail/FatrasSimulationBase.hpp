@@ -14,12 +14,12 @@
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Fatras/FatrasAlgorithm.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
@@ -131,9 +131,9 @@ setupSimulationAlgorithm(
   typedef Fatras::SelectorListAND<CSelector, CMinPt, CMaxEtaAbs>
       ChargedSelector;
 
-  typedef Fatras::NeutralSelector            NSelector;
-  typedef Fatras::Max<Fatras::casts::absEta> NMaxEtaAbs;
-  typedef Fatras::Min<Fatras::casts::E>      NMinE;
+  typedef Fatras::NeutralSelector                               NSelector;
+  typedef Fatras::Max<Fatras::casts::absEta>                    NMaxEtaAbs;
+  typedef Fatras::Min<Fatras::casts::E>                         NMinE;
   typedef Fatras::SelectorListAND<NSelector, NMinE, NMaxEtaAbs> NeutralSelector;
 
   typedef Fatras::PhysicsList<> PhysicsList;

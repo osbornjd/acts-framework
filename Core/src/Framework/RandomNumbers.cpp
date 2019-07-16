@@ -14,7 +14,7 @@
 //
 //
 
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 
 FW::RandomNumbersSvc::RandomNumbersSvc(const Config& cfg) : m_cfg(cfg) {}
 

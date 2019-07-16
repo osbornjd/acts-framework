@@ -11,7 +11,7 @@
 #include <iostream>
 #include <random>
 
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 
 FW::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
     const RandomNumbersAlgorithm::Config& cfg,

@@ -12,9 +12,10 @@
 
 #include <boost/program_options.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Digitization/DigitizationOptions.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
@@ -22,7 +23,6 @@
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 #include "FatrasDigitizationBase.hpp"
 #include "FatrasEvgenBase.hpp"

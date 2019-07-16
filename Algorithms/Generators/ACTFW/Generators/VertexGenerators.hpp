@@ -18,7 +18,7 @@
 #include <Acts/Utilities/Definitions.hpp>
 #include <Acts/Utilities/Units.hpp>
 
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 
 namespace FW {
 
