@@ -79,9 +79,6 @@ fatrasExample(int               argc,
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-
-  // Add it to the sequencer
-  sequencer.addService(randomNumberSvc);
   // Create the barcode service
   auto barcodeSvc = std::make_shared<FW::BarcodeSvc>(FW::BarcodeSvc::Config());
 

@@ -165,8 +165,6 @@ propagationExample(int               argc,
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-  // Add it to the sequencer
-  sequencer.addService(randomNumberSvc);
 
   // Create BField service
   auto bField  = FW::Options::readBField(vm);
