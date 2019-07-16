@@ -1,11 +1,8 @@
-set(_sources
-  src/Barcode/BarcodeSvc.cpp
+add_library(ACTFramework SHARED
   src/Framework/BareAlgorithm.cpp
   src/Framework/Sequencer.cpp
   src/Random/RandomNumbersSvc.cpp
   src/Utilities/Paths.cpp)
-
-add_library(ACTFramework SHARED ${_sources})
 target_include_directories(
   ACTFramework
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${ROOT_INCLUDE_DIRS}
