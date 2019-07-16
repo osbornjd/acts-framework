@@ -1,6 +1,7 @@
 add_executable(ACTFWHelloWorldExample
   HelloWorld.cpp
   HelloRandomAlgorithm.cpp
+  HelloWhiteBoardAlgorithm.cpp
   HelloWorldAlgorithm.cpp)
 target_include_directories(ACTFWHelloWorldExample
   PRIVATE ${Boost_INCLUDE_DIRS})

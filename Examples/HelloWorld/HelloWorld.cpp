@@ -17,6 +17,7 @@
 #include "ACTFW/Options/CommonOptions.hpp"
 
 #include "HelloRandomAlgorithm.hpp"
+#include "HelloWhiteBoardAlgorithm.hpp"
 #include "HelloWorldAlgorithm.hpp"
 
 int
@@ -57,5 +58,13 @@ main(int argc, char* argv[])
   sequencer.addAlgorithm(
       std::make_shared<FW::HelloRandomAlgorithm>(rndCfg, logLevel));
 
+  // add HelloWhiteBoardAlgorithm the reads/writes data from/to the event store
+  FW::HelloWhiteBoardAlgorithm::Config wbCfg;
+  wbCfg.input  = "some_data";
+  wbCfg.output = "other_data";
+  sequencer.addAlgorithm(
+      std::make_shared<FW::HelloWhiteBoardAlgorithm>(wbCfg, logLevel));
+
+  // Run all configured algorithms and return the appropriate status.
   return sequencer.run();
 }
