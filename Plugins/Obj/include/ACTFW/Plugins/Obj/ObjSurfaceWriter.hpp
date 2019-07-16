@@ -16,7 +16,6 @@
 #include <Acts/Utilities/Logger.hpp>
 
 #include "ACTFW/Framework/AlgorithmContext.hpp"
-#include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Plugins/Obj/ObjHelper.hpp"
 
@@ -27,7 +26,7 @@ namespace Obj {
   ///
   /// An Obj writer for the geometry: surface section
   ///
-  class ObjSurfaceWriter : public IService
+  class ObjSurfaceWriter
   {
   public:
     // @class Config
@@ -76,7 +75,7 @@ namespace Obj {
 
     /// Framework name() method
     std::string
-    name() const final override;
+    name() const;
 
     /// The write interface
     /// @param context the Algorithm/Event context of this call
