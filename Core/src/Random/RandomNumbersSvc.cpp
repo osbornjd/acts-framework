@@ -24,14 +24,14 @@ FW::RandomNumbersSvc::spawnGenerator(const AlgorithmContext& context) const
   return RandomEngine(generateSeed(context));
 }
 
-unsigned int
+uint64_t
 FW::RandomNumbersSvc::generateSeed(const AlgorithmContext& context) const
 {
   // use Cantor pairing function to generate a unique generator id from
   // algorithm and event number to get a consistent seed
   // see https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-  const unsigned int k1 = context.algorithmNumber;
-  const unsigned int k2 = context.eventNumber;
-  const unsigned int id = (k1 + k2) * (k1 + k2 + 1) / 2 + k2;
+  const uint64_t k1 = context.algorithmNumber;
+  const uint64_t k2 = context.eventNumber;
+  const uint64_t id = (k1 + k2) * (k1 + k2 + 1) / 2 + k2;
   return m_cfg.seed + id;
 }

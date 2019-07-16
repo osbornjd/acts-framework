@@ -49,7 +49,7 @@ FW::Options::addRandomNumbersOptions(
     boost::program_options::options_description& opt)
 {
   opt.add_options()("rnd-seed",
-                    value<int>()->default_value(1234567890),
+                    value<uint64_t>()->default_value(1234567890u),
                     "Random numbers seed.");
 }
 
@@ -176,9 +176,7 @@ FW::Options::readSequencerConfig(
 {
   Sequencer::Config cfg;
   cfg.skip = vm["skip"].as<size_t>();
-  if (not vm["events"].empty()) {
-    cfg.events = vm["events"].as<size_t>();
-  }
+  if (not vm["events"].empty()) { cfg.events = vm["events"].as<size_t>(); }
   cfg.logLevel   = readLogLevel(vm);
   cfg.numThreads = vm["jobs"].as<int>();
   if (not vm["output-dir"].empty()) {
@@ -193,6 +191,6 @@ FW::Options::readRandomNumbersConfig(
     const boost::program_options::variables_map& vm)
 {
   FW::RandomNumbersSvc::Config cfg;
-  cfg.seed = vm["rnd-seed"].as<int>();
+  cfg.seed = vm["rnd-seed"].as<uint64_t>();
   return cfg;
 }

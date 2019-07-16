@@ -42,7 +42,7 @@ class RandomNumbersSvc
 public:
   struct Config
   {
-    unsigned int seed = 1234567890;  ///< random seed
+    uint64_t seed = 1234567890u;  ///< random seed
   };
 
   RandomNumbersSvc(const Config& cfg);
@@ -61,7 +61,7 @@ public:
   ///
   /// This should only be used in special cases e.g. where a custom
   /// random engine is used and `spawnGenerator` can not be used.
-  unsigned int
+  uint64_t
   generateSeed(const AlgorithmContext& context) const;
 
 private:
