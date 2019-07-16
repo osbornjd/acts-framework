@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/EventGenerator.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"

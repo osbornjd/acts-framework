@@ -11,7 +11,7 @@
 
 #include <Acts/Utilities/Units.hpp>
 
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
