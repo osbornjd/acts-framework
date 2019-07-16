@@ -55,13 +55,15 @@ main(int argc, char* argv[])
   rndCfg.uniformParameters = {{-1.23, 4.25}};
   rndCfg.gammaParameters   = {{1., 1.}};
   rndCfg.drawsPerEvent     = 5000;
+  rndCfg.output            = "random_data";
   sequencer.addAlgorithm(
       std::make_shared<FW::HelloRandomAlgorithm>(rndCfg, logLevel));
 
   // add HelloWhiteBoardAlgorithm the reads/writes data from/to the event store
   FW::HelloWhiteBoardAlgorithm::Config wbCfg;
-  wbCfg.input  = "some_data";
-  wbCfg.output = "other_data";
+  // use data from previous algorithm as input
+  wbCfg.input  = rndCfg.output;
+  wbCfg.output = "copied_data";
   sequencer.addAlgorithm(
       std::make_shared<FW::HelloWhiteBoardAlgorithm>(wbCfg, logLevel));
 

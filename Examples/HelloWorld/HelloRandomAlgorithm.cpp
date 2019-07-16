@@ -11,6 +11,8 @@
 #include <random>
 
 #include "ACTFW/Framework/RandomNumbers.hpp"
+#include "ACTFW/Framework/WhiteBoard.hpp"
+#include "HelloData.hpp"
 
 FW::HelloRandomAlgorithm::HelloRandomAlgorithm(
     const HelloRandomAlgorithm::Config& cfg,
@@ -20,15 +22,18 @@ FW::HelloRandomAlgorithm::HelloRandomAlgorithm(
   if (!m_cfg.randomNumbers) {
     throw std::invalid_argument("Missing random number service");
   }
+  if (m_cfg.output.empty()) {
+    throw std::invalid_argument("Missing output collection");
+  }
 }
 
 FW::ProcessCode
-FW::HelloRandomAlgorithm::execute(const AlgorithmContext& context) const
+FW::HelloRandomAlgorithm::execute(const AlgorithmContext& ctx) const
 {
   ACTS_INFO("Running random number generation");
 
   // Create the local random number generator
-  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
+  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
 
   // Spawn some random number distributions
   std::normal_distribution<double>       gaussDist(m_cfg.gaussParameters[0],
@@ -41,6 +46,8 @@ FW::HelloRandomAlgorithm::execute(const AlgorithmContext& context) const
 
   ACTS_INFO(m_cfg.drawsPerEvent << " draws per event will be done");
 
+  // generate collection of random numbers
+  HelloDataCollection collection;
   for (size_t idraw = 0; idraw < m_cfg.drawsPerEvent; ++idraw) {
     double gauss   = gaussDist(rng);
     double uniform = uniformDist(rng);
@@ -51,7 +58,17 @@ FW::HelloRandomAlgorithm::execute(const AlgorithmContext& context) const
     ACTS_VERBOSE("Uniform : " << uniform);
     ACTS_VERBOSE("Gamma   : " << gamma);
     ACTS_VERBOSE("Poisson : " << poisson);
+
+    HelloData x;
+    x.x = gauss;
+    x.a = uniform;
+    x.b = gamma;
+    x.t = poisson;
+    collection.push_back(x);
   }
+
+  // transfer generated data to the event store.
+  ctx.eventStore.add(m_cfg.output, std::move(collection));
 
   return FW::ProcessCode::SUCCESS;
 }

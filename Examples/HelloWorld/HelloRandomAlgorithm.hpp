@@ -10,25 +10,28 @@
 
 #include <array>
 #include <memory>
+#include <string>
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 
 namespace FW {
 
-/// An example algorithm that uses the random number generator.
+/// An example algorithm that uses the random number generator to generate data.
 class HelloRandomAlgorithm : public FW::BareAlgorithm
 {
 public:
   struct Config
   {
     std::shared_ptr<FW::RandomNumbers> randomNumbers = nullptr;
-
+    /// Random distribution parameters.
     std::array<double, 2> gaussParameters   = {{0., 1.}};
     std::array<double, 2> uniformParameters = {{0., 1.}};
     std::array<double, 2> gammaParameters   = {{0., 1.}};
     int                   poissonParameter  = 40;
     size_t                drawsPerEvent     = 0;
+    /// Where to store the generated data in the event store.
+    std::string output;
   };
 
   HelloRandomAlgorithm(const Config&        cnf,
