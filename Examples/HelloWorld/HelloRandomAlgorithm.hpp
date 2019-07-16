@@ -39,7 +39,7 @@ public:
 
   // Generate random numbers from various distributions.
   FW::ProcessCode
-  execute(const AlgorithmContext& context) const final override;
+  execute(const AlgorithmContext& ctx) const final override;
 
 private:
   Config m_cfg;

@@ -22,7 +22,7 @@ public:
 
   // Log a few messages.
   FW::ProcessCode
-  execute(const AlgorithmContext& context) const final override;
+  execute(const AlgorithmContext& ctx) const final override;
 };
 
 }  // namespace FW

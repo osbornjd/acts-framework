@@ -1,0 +1,55 @@
+// This file is part of the Acts project.
+//
+// Copyright (C) 2019 Acts project team
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#pragma once
+
+#include <cstddef>
+#include <memory>
+#include <string>
+
+#include <Acts/Utilities/Logger.hpp>
+
+#include "ACTFW/Framework/IService.hpp"
+
+namespace FW {
+
+/// A simple service that adds an event block index.
+class HelloService : public IService
+{
+public:
+  struct Config
+  {
+    /// How many events in one block.
+    std::size_t eventsPerBlock = 4;
+    /// Under which name to store the block index.
+    std::string blockIndexName = "eventBlock";
+  };
+
+  HelloService(const Config& cfg, Acts::Logging::Level level);
+
+  std::string
+  name() const final override;
+
+  void
+  startRun() final override;
+
+  void
+  prepare(AlgorithmContext& ctx) final override;
+
+private:
+  const Acts::Logger&
+  logger() const
+  {
+    return *m_logger;
+  }
+
+  Config                              m_cfg;
+  std::unique_ptr<const Acts::Logger> m_logger;
+};
+
+}  // namespace FW

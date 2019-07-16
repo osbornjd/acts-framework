@@ -18,6 +18,7 @@
 
 #include "HelloLoggerAlgorithm.hpp"
 #include "HelloRandomAlgorithm.hpp"
+#include "HelloService.hpp"
 #include "HelloWhiteBoardAlgorithm.hpp"
 
 int
@@ -66,6 +67,11 @@ main(int argc, char* argv[])
   wbCfg.output = "copied_data";
   sequencer.addAlgorithm(
       std::make_shared<FW::HelloWhiteBoardAlgorithm>(wbCfg, logLevel));
+
+  // add HelloService that generates an event block index.
+  FW::HelloService::Config svcCfg;
+  svcCfg.eventsPerBlock = 3;
+  sequencer.addService(std::make_shared<FW::HelloService>(svcCfg, logLevel));
 
   // Run all configured algorithms and return the appropriate status.
   return sequencer.run();

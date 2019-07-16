@@ -8,15 +8,23 @@
 
 #include "HelloLoggerAlgorithm.hpp"
 
+#include <cstddef>
+
+#include "ACTFW/Framework/WhiteBoard.hpp"
+
 FW::HelloLoggerAlgorithm::HelloLoggerAlgorithm(Acts::Logging::Level level)
   : FW::BareAlgorithm("HelloLogger", level)
 {
 }
 
 FW::ProcessCode
-FW::HelloLoggerAlgorithm::execute(const AlgorithmContext& context) const
+FW::HelloLoggerAlgorithm::execute(const AlgorithmContext& ctx) const
 {
-  ACTS_INFO(" Hello World! (from event " << context.eventNumber << ")");
+  // using hard-coded data name should be avoided, but i'm a bit lazy tonight.
+  auto block = ctx.eventStore.get<std::size_t>("eventBlock");
+
+  ACTS_INFO(" Hello World! (from event=" << ctx.eventNumber
+                                         << ", block=" << block << ")");
   ACTS_DEBUG("  - that's an ACTS_DEBUG message");
   ACTS_VERBOSE("  - that's an ACTS_VERBOSE message");
   return FW::ProcessCode::SUCCESS;

@@ -32,7 +32,7 @@ public:
 
   /// Read input and copy to the output
   FW::ProcessCode
-  execute(const AlgorithmContext& context) const final override;
+  execute(const AlgorithmContext& ctx) const final override;
 
 private:
   Config m_cfg;
