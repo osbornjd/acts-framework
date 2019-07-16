@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -226,7 +226,7 @@ FW::Sequencer::run()
   Timepoint clockWallStart = Clock::now();
 
   // processing only works w/ a well-known number of events
-  // error message are already handled by the helper function
+  // error message is already handled by the helper function
   std::size_t endEvent = determineEndEvent();
   if (endEvent == SIZE_MAX) {
     return EXIT_FAILURE;
@@ -247,9 +247,8 @@ FW::Sequencer::run()
   for (auto& service : m_services) {
     names.push_back("Service:" + service->name() + ":startRun");
     clocksAlgorithms.push_back(Duration::zero());
-    if (service->startRun() != ProcessCode::SUCCESS) {
-      return EXIT_FAILURE;
-    }
+    StopWatch sw(clocksAlgorithms.back());
+    service->startRun();
   }
 
   // execute the parallel event loop
@@ -272,9 +271,7 @@ FW::Sequencer::run()
           // Prepare event store w/ service information
           for (auto& service : m_services) {
             StopWatch sw(localClocksAlgorithms[ialgo++]);
-            if (service->prepare(++context) != ProcessCode::SUCCESS) {
-              throw std::runtime_error("Failed to prepare event");
-            }
+            service->prepare(++context);
           }
           /// Decorate the context
           for (auto& cdr : m_decorators) {
