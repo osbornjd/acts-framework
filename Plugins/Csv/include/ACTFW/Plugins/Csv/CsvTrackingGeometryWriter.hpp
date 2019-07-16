@@ -16,7 +16,6 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
-#include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 
@@ -31,7 +30,7 @@ namespace Csv {
   ///
   /// An Csv writer for the geometry
   /// It delegates the writing of surfaces to the surface writers
-  class CsvTrackingGeometryWriter : public IService
+  class CsvTrackingGeometryWriter
   {
   public:
     // @class Config
@@ -68,7 +67,7 @@ namespace Csv {
     /// Framework name() method
     /// @return the name of the tool
     std::string
-    name() const final override;
+    name() const;
 
     /// The write interface
     /// @param context The algorithm/event context under which this is called
