@@ -64,13 +64,6 @@ public:
   unsigned int
   generateSeed(const AlgorithmContext& context) const;
 
-  /// Ask for the seed
-  unsigned int
-  seed() const
-  {
-    return m_cfg.seed;
-  }
-
 private:
   Config m_cfg;
 };
