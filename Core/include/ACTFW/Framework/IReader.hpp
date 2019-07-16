@@ -33,11 +33,6 @@ public:
   virtual size_t
   numEvents() const = 0;
 
-  /// Skip the next n events.
-  virtual ProcessCode
-  skip(size_t skip)
-      = 0;
-
   /// Read data for the requested event and write it into the event store.
   ///
   /// As a result of the parallelization and/or skipping events, this method

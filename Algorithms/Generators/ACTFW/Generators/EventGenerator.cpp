@@ -47,13 +47,6 @@ FW::EventGenerator::numEvents() const
 }
 
 FW::ProcessCode
-FW::EventGenerator::skip(size_t skip)
-{
-  // TODO 2018-03-13 msmk: how should skip be handled? ignore?
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
 FW::EventGenerator::read(const AlgorithmContext& ctx)
 {
   std::vector<Data::SimVertex<Data::SimParticle>> event;
