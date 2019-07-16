@@ -16,6 +16,7 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 
+#include "HelloRandomAlgorithm.hpp"
 #include "HelloWorldAlgorithm.hpp"
 
 int
@@ -44,6 +45,17 @@ main(int argc, char* argv[])
 
   // add HelloWorld algorithm that does nothing
   sequencer.addAlgorithm(std::make_shared<FW::HelloWorldAlgorithm>(logLevel));
+
+  // add HelloRandom algorithm that uses RandomNumbers to generate some
+  // random numbers from various distributions.
+  FW::HelloRandomAlgorithm::Config rndCfg;
+  rndCfg.randomNumbers     = rnd;
+  rndCfg.gaussParameters   = {{0., 2.5}};
+  rndCfg.uniformParameters = {{-1.23, 4.25}};
+  rndCfg.gammaParameters   = {{1., 1.}};
+  rndCfg.drawsPerEvent     = 5000;
+  sequencer.addAlgorithm(
+      std::make_shared<FW::HelloRandomAlgorithm>(rndCfg, logLevel));
 
   return sequencer.run();
 }
