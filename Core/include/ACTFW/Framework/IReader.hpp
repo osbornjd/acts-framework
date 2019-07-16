@@ -15,14 +15,17 @@
 
 namespace FW {
 
-/// Interface for reading data.
+/// Event data reader interface.
+///
+/// Read data from disk and add it to the event store. The reader can have
+/// internal state and implementations are responsible to handle concurrent
+/// calls.
 class IReader
 {
 public:
-  /// Virtual destructor.
   virtual ~IReader() = default;
 
-  /// Provide the name of the reader.
+  /// The reader name.
   virtual std::string
   name() const = 0;
 
@@ -35,7 +38,11 @@ public:
   skip(size_t skip)
       = 0;
 
-  /// Read the next event.
+  /// Read data for the requested event and write it into the event store.
+  ///
+  /// As a result of the parallelization and/or skipping events, this method
+  /// will most likely not be called in order. Implementations must use the
+  /// event number provided to select the proper data to be read.
   virtual ProcessCode
   read(const AlgorithmContext& context)
       = 0;
