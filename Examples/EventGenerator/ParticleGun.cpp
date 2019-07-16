@@ -17,7 +17,6 @@
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
@@ -43,9 +42,8 @@ main(int argc, char* argv[])
   Acts::Logging::Level logLevel = Options::readLogLevel(vm);
 
   // basic services
-  RandomNumbersSvc::Config rndCfg;
-  rndCfg.seed  = 123;
-  auto rnd     = std::make_shared<RandomNumbersSvc>(rndCfg);
+  auto rnd = std::make_shared<RandomNumbersSvc>(
+      Options::readRandomNumbersConfig(vm));
   auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
 
   // event generation w/ particle gun

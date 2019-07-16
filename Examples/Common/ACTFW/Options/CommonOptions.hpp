@@ -12,7 +12,9 @@
 
 #include <Acts/Utilities/Logger.hpp>
 #include <boost/program_options.hpp>
+
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 namespace FW {
 namespace Options {
@@ -26,6 +28,10 @@ namespace Options {
   /// Add sequencer options, e.g. number of events
   void
   addSequencerOptions(boost::program_options::options_description& opt);
+
+  /// Add random number options such as the global seed.
+  void
+  addRandomNumbersOptions(boost::program_options::options_description& opt);
 
   /// Add common geometry-related options.
   void
@@ -60,6 +66,10 @@ namespace Options {
   /// Read the sequencer config.
   Sequencer::Config
   readSequencerConfig(const boost::program_options::variables_map& vm);
+
+  // Read the random numbers config.
+  RandomNumbersSvc::Config
+  readRandomNumbersConfig(const boost::program_options::variables_map& vm);
 
 }  // namespace Options
 }  // namespace FW

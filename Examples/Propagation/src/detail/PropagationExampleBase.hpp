@@ -21,7 +21,6 @@
 #include "ACTFW/Plugins/Root/RootPropagationStepsWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
-#include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
