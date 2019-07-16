@@ -47,8 +47,7 @@ main(int argc, char* argv[])
   RandomNumbersSvc::Config rndCfg;
   rndCfg.seed  = 123;
   auto rnd     = std::make_shared<RandomNumbersSvc>(rndCfg);
-  auto barcode = std::make_shared<BarcodeSvc>(
-      BarcodeSvc::Config(), Acts::getDefaultLogger("BarcodeSvc", logLevel));
+  auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
 
   // event generation w/ process guns
   EventGenerator::Config evgenCfg = Options::readPythia8Options(vm);

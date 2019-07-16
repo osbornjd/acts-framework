@@ -83,11 +83,7 @@ fatrasExample(int               argc,
   // Add it to the sequencer
   sequencer.addService(randomNumberSvc);
   // Create the barcode service
-  FW::BarcodeSvc::Config barcodeSvcCfg;
-  auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
-      barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
-  // Add it to the sequencer
-  sequencer.addService(barcodeSvc);
+  auto barcodeSvc = std::make_shared<FW::BarcodeSvc>(FW::BarcodeSvc::Config());
 
   // The geometry, material and decoration
   auto geometry          = FW::Geometry::build(vm, geometrySetup);
