@@ -8,19 +8,6 @@
 
 #include <boost/program_options.hpp>
 #include <memory>
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Common/CommonOptions.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
-#include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
-#include "ACTFW/Plugins/Pythia8/Generator.hpp"
-#include "ACTFW/Plugins/Pythia8/GeneratorOptions.hpp"
-#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include "ACTFW/Random/RandomNumbersOptions.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "ACTFW/ReadEvgen/EvgenReader.hpp"
-#include "ACTFW/ReadEvgen/ReadEvgenOptions.hpp"
 
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
@@ -28,64 +15,54 @@
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
 
+#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/Common/OutputOptions.hpp"
+#include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
+#include "ACTFW/Options/Pythia8Options.hpp"
+#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
+#include "ACTFW/Random/RandomNumbersOptions.hpp"
+#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
+
 #include "VertexFitAlgorithm.hpp"
 
-namespace po = boost::program_options;
-
-/// Main read evgen executable
+/// Main vertex fitter example executable
 ///
 /// @param argc The argument count
 /// @param argv The argument list
 int
 main(int argc, char* argv[])
 {
-  // Declare the supported program options.
-  po::options_description desc("Allowed options");
-  // Add the common options
-  FW::Options::addCommonOptions<po::options_description>(desc);
-  // Add the random number options
-  FW::Options::addRandomNumbersOptions<po::options_description>(desc);
-  // Add the pythia 8 options
-  FW::Options::addPythia8Options<po::options_description>(desc);
-  // Add the evgen options
-  FW::Options::addEvgenReaderOptions<po::options_description>(desc);
-  // Add the output options
-  FW::Options::addOutputOptions<po::options_description>(desc);
-  // map to store the given program options
-  po::variables_map vm;
-  // Get all options from contain line and store it into the map
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
-  // print help if requested
-  if (vm.count("help")) {
-    std::cout << desc << std::endl;
-    return 1;
+  // setup and parse options
+  auto desc = Options::makeDefaultOptions();
+  Options::addSequencerOptions(desc);
+  Options::addRandomNumbersOptions(desc);
+  Options::addPythia8Options(desc);
+  Options::addOutputOptions(desc);
+  auto vm = Options::parse(desc, argc, argv);
+  if (vm.empty()) {
+    return EXIT_FAILURE;
   }
-  // Read the common options
-  auto nEvents  = FW::Options::readNumberOfEvents<po::variables_map>(vm);
-  auto logLevel = FW::Options::readLogLevel<po::variables_map>(vm);
 
-  // Create the random number engine
-  auto randomNumberSvcCfg
-      = FW::Options::readRandomNumbersConfig<po::variables_map>(vm);
-  auto randomNumberSvc
-      = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-  // Now read the pythia8 configs
-  auto pythia8Configs = FW::Options::readPythia8Config<po::variables_map>(vm);
-  pythia8Configs.first.randomNumberSvc  = randomNumberSvc;
-  pythia8Configs.second.randomNumberSvc = randomNumberSvc;
-  // The hard scatter generator
-  auto hsPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
-      pythia8Configs.first,
-      Acts::getDefaultLogger("HardScatterPythia8Generator", logLevel));
-  // The pileup generator
-  auto puPythiaGenerator = std::make_shared<FW::GPythia8::Generator>(
-      pythia8Configs.second,
-      Acts::getDefaultLogger("PileUpPythia8Generator", logLevel));
-  // Create the barcode service
-  FW::BarcodeSvc::Config barcodeSvcCfg;
-  auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
-      barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
+  auto              logLevel     = Options::readLogLevel(vm);
+  Sequencer::Config sequencerCfg = Options::readSequencerConfig(vm);
+  Sequencer         sequencer(sequencerCfg);
+
+  // basic services
+  RandomNumbersSvc::Config rndCfg;
+  rndCfg.seed  = 123;
+  auto rnd     = std::make_shared<RandomNumbersSvc>(rndCfg);
+  auto barcode = std::make_shared<BarcodeSvc>(
+      BarcodeSvc::Config(), Acts::getDefaultLogger("BarcodeSvc", logLevel));
+
+  // event generation w/ process guns
+  EventGenerator::Config evgenCfg = Options::readPythia8Options(vm);
+  evgenCfg.output                 = "generated_particles";
+  evgenCfg.randomNumbers          = rnd;
+  evgenCfg.barcodeSvc             = barcode;
+  sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
 
   // Set up constant B-Field
   Acts::ConstantBField bField(Acts::Vector3D(0., 0., 1.) * Acts::units::_T);
@@ -121,18 +98,6 @@ main(int argc, char* argv[])
                                                                                   ConstantBField>>>>(
           vertexFitterCfg, extractParameters);
 
-  // Now read the evgen config & set the missing parts
-  auto readEvgenCfg                   = FW::Options::readEvgenConfig(vm);
-  readEvgenCfg.hardscatterEventReader = hsPythiaGenerator;
-  readEvgenCfg.pileupEventReader      = puPythiaGenerator;
-  readEvgenCfg.randomNumberSvc        = randomNumberSvc;
-  readEvgenCfg.barcodeSvc             = barcodeSvc;
-  readEvgenCfg.nEvents                = nEvents;
-
-  // Create the read Algorithm
-  auto readEvgen = std::make_shared<FW::EvgenReader>(
-      readEvgenCfg, Acts::getDefaultLogger("EvgenVertexingReader", logLevel));
-
   // Add the fit algorithm with Billoir fitter
   FWE::VertexFitAlgorithm::Config vertexFitCfg;
   vertexFitCfg.collection      = readEvgenCfg.evgenCollection;
@@ -140,18 +105,10 @@ main(int argc, char* argv[])
   vertexFitCfg.vertexFitter    = billoirFitter;
   vertexFitCfg.bField          = bField;
 
-  std::shared_ptr<FW::IAlgorithm> vertexFitAlgo
-      = std::make_shared<FWE::VertexFitAlgorithm>(vertexFitCfg, logLevel);
+  sequencer.addAlgorithm(
+      std::make_shared<FWE::VertexFitAlgorithm>(vertexFitCfg, logLevel));
 
-  // Create the config object for the sequencer
-  FW::Sequencer::Config seqConfig;
-  // Now create the sequencer
-  FW::Sequencer sequencer(seqConfig);
-  sequencer.addServices({randomNumberSvc});
-  sequencer.addReaders({readEvgen});
-  sequencer.appendEventAlgorithms({vertexFitAlgo});
-
-  sequencer.run(nEvents);
+  sequencer.run();
 
   return 0;
 }

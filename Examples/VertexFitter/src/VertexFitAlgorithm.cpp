@@ -48,12 +48,9 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
   const double ipResB = 0.23055;
   const double ipResC = 20. * Acts::units::_um;
 
-  /// Create and fill input event
-  const std::vector<FW::Data::SimVertex<>>* inputEvent = nullptr;
-  if (context.eventStore.get(m_cfg.collection, inputEvent)
-      == FW::ProcessCode::ABORT) {
-    return FW::ProcessCode::ABORT;
-  }
+  const auto& vertexCollection
+      = context.eventStore.get<std::vector<FW::Data::SimVertex<>>>(
+          m_cfg.collection);
 
   /// Define perigee surface center coordinates
   const Acts::Vector3D surfaceCenter(0., 0., 0.);
@@ -88,7 +85,7 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
   std::vector<Acts::Vector3D> trueVertices;
   int                         vCount = 0;
   /// Start looping over all vertices in current event
-  for (auto& vtx : (*inputEvent)) {
+  for (auto& vtx : vertexCollection) {
     vCount++;
     /// Vector to store smeared tracks at current vertex
     BoundParamsVector smrdTracksAtVtx;
