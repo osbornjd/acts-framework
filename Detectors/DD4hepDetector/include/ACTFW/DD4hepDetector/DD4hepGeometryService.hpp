@@ -8,19 +8,20 @@
 
 #pragma once
 
+#include <functional>
 #include <memory>
+
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Utilities/BinningType.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
+#include <TGeoNode.h>
+
+#include "ACTFW/Framework/BareService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/GeometryInterfaces/IDD4hepService.hpp"
-#include "ACTFW/GeometryInterfaces/ITGeoService.hpp"
-#include "ACTFW/GeometryInterfaces/ITrackingGeometryService.hpp"
-#include "Acts/Utilities/BinningType.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "DD4hep/DetElement.h"
-#include "DD4hep/Detector.h"
-#include "TGeoNode.h"
 
 namespace FW {
-
 namespace DD4hep {
 
   /// @class DD4hepGeometryService
@@ -30,23 +31,15 @@ namespace DD4hep {
   /// The DD4hepGeometryService creates the DD4hep, the TGeo and the ACTS
   /// TrackingGeometry
   /// from DD4hep xml input. The geometries are created only on demand.
-
-  class DD4hepGeometryService : public FW::IDD4hepService,
-                                public FW::ITGeoService,
-                                public FW::ITrackingGeometryService
+  class DD4hepGeometryService : public BareService
   {
   public:
-    /// @class Config
-    /// nested config file of the DD4hepGeometryService
-    class Config
+    struct Config
     {
-    public:
-      /// The default logger
-      std::shared_ptr<const Acts::Logger> logger;
+      /// Log level for the geometry service.
+      Acts::Logging::Level logLevel = Acts::Logging::Level::INFO;
       /// XML-file with the detector description
       std::vector<std::string> xmlFileNames;
-      /// Logger for the geometry transformation
-      Acts::Logging::Level lvl;
       /// The name of the service
       std::string name;
       /// Binningtype in phi
@@ -69,55 +62,33 @@ namespace DD4hep {
       /// layers (e.g. barrel, endcap volumes) have no specific shape
       /// (assemblies)
       double envelopeZ;
-
       double defaultLayerThickness;
-
       std::function<void(std::vector<dd4hep::DetElement>& detectors)>
           sortDetectors;
-
-      Config(const std::string&   lname = "DD4hepGeometryService",
-             Acts::Logging::Level level = Acts::Logging::INFO)
-        : logger(Acts::getDefaultLogger(lname, level))
-        , xmlFileNames()
-        , lvl(level)
-        , name(lname)
-        , bTypePhi(Acts::equidistant)
-        , bTypeR(Acts::equidistant)
-        , bTypeZ(Acts::equidistant)
-        , envelopeR(0.)
-        , envelopeZ(0.)
-      {
-      }
     };
-    /// Constructor
+
     DD4hepGeometryService(const Config& cfg);
-
-    /// Virtual destructor
-    ~DD4hepGeometryService() override;
-
-    /// Framework name() method
-    std::string
-    name() const final override;
+    ~DD4hepGeometryService() final override;
 
     /// Interface method to access the DD4hep geometry
     /// @return The world DD4hep DetElement
     dd4hep::DetElement
-    dd4hepGeometry() final override;
+    dd4hepGeometry();
 
     /// Interface method to Access the TGeo geometry
     /// @return The world TGeoNode (physical volume)
     TGeoNode*
-    tgeoGeometry() final override;
+    tgeoGeometry();
 
     /// Interface method to access to the interface of the DD4hep geometry
     dd4hep::Detector*
-    lcdd() final override;
+    lcdd();
 
     /// Interface method to access the ACTS TrackingGeometry
     ///
     /// @param gctx is the geometry context object
     std::unique_ptr<const Acts::TrackingGeometry>
-    trackingGeometry(const Acts::GeometryContext& gctx) final override;
+    trackingGeometry(const Acts::GeometryContext& gctx);
 
   private:
     /// Private method to initiate building of the DD4hep geometry
@@ -136,13 +107,6 @@ namespace DD4hep {
     dd4hep::DetElement m_dd4hepGeometry;
     /// The ACTS TrackingGeometry
     std::unique_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
-
-    /// Private access to the logging instance
-    const Acts::Logger&
-    logger() const
-    {
-      return *m_cfg.logger;
-    }
   };
 
 }  // namespace DD4hep

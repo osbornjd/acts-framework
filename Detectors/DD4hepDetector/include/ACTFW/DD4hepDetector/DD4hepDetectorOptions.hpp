@@ -9,11 +9,12 @@
 #pragma once
 
 #include <cstdlib>
-#include <iostream>
 #include <utility>
+
+#include <Acts/Utilities/Units.hpp>
+
 #include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
 #include "ACTFW/Utilities/Options.hpp"
-#include "Acts/Utilities/Units.hpp"
 
 namespace po = boost::program_options;
 
@@ -115,14 +116,9 @@ namespace Options {
   FW::DD4hep::DD4hepGeometryService::Config
   readDD4hepConfig(const amap_t& vm)
   {
-    Acts::Logging::Level logLevel
+    FW::DD4hep::DD4hepGeometryService::Config gsConfig;
+    gsConfig.logLevel
         = Acts::Logging::Level(vm["dd4hep-loglevel"].template as<size_t>());
-    std::cout << "- the geometry building output log level is set to "
-              << logLevel << std::endl;
-    // DETECTOR configuration:
-    // --------------------------------------------------------------------------------
-    FW::DD4hep::DD4hepGeometryService::Config gsConfig("GeometryService",
-                                                       logLevel);
     gsConfig.xmlFileNames = vm["dd4hep-input"].template as<read_strings>();
     gsConfig.bTypePhi     = Acts::equidistant;
     gsConfig.bTypeR       = Acts::arbitrary;
@@ -131,9 +127,10 @@ namespace Options {
     gsConfig.envelopeZ    = vm["dd4hep-envelopeZ"].template as<double>();
     gsConfig.defaultLayerThickness
         = vm["dd4hep-layerThickness"].template as<double>();
-    if (vm["dd4hep-buildFCChh"].template as<bool>())
+    if (vm["dd4hep-buildFCChh"].template as<bool>()) {
       gsConfig.sortDetectors = sortFCChhDetElements;
+    }
     return gsConfig;
   }
-}
-}
+}  // namespace Options
+}  // namespace FW

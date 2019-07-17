@@ -7,6 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
+
 #include "Acts/Geometry/CylinderVolumeBuilder.hpp"
 #include "Acts/Geometry/CylinderVolumeHelper.hpp"
 #include "Acts/Geometry/LayerArrayCreator.hpp"
@@ -18,19 +19,13 @@
 
 FW::DD4hep::DD4hepGeometryService::DD4hepGeometryService(
     const FW::DD4hep::DD4hepGeometryService::Config& cfg)
-  : m_cfg(cfg), m_lcdd(), m_dd4hepGeometry(), m_trackingGeometry()
+  : BareService("DD4hepGeometryService", cfg.logLevel), m_cfg(cfg)
 {
 }
 
 FW::DD4hep::DD4hepGeometryService::~DD4hepGeometryService()
 {
   if (m_lcdd) m_lcdd->destroyInstance();
-}
-
-std::string
-FW::DD4hep::DD4hepGeometryService::name() const
-{
-  return m_cfg.name;
 }
 
 FW::ProcessCode
@@ -75,7 +70,7 @@ FW::DD4hep::DD4hepGeometryService::buildTrackingGeometry(
   // set the tracking geometry
   m_trackingGeometry
       = std::move(Acts::convertDD4hepDetector(dd4hepGeometry(),
-                                              m_cfg.lvl,
+                                              m_cfg.logLevel,
                                               m_cfg.bTypePhi,
                                               m_cfg.bTypeR,
                                               m_cfg.bTypeZ,
