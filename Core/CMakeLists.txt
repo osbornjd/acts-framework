@@ -1,5 +1,6 @@
 add_library(ACTFramework SHARED
   src/Framework/BareAlgorithm.cpp
+  src/Framework/BareService.cpp
   src/Framework/RandomNumbers.cpp
   src/Framework/Sequencer.cpp
   src/Utilities/Paths.cpp)
