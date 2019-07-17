@@ -9,17 +9,14 @@
 #pragma once
 
 #include <cstddef>
-#include <memory>
 #include <string>
 
-#include <Acts/Utilities/Logger.hpp>
-
-#include "ACTFW/Framework/IService.hpp"
+#include "ACTFW/Framework/BareService.hpp"
 
 namespace FW {
 
 /// A simple service that adds an event block index.
-class HelloService : public IService
+class HelloService : public BareService
 {
 public:
   struct Config
@@ -32,9 +29,6 @@ public:
 
   HelloService(const Config& cfg, Acts::Logging::Level level);
 
-  std::string
-  name() const final override;
-
   void
   startRun() final override;
 
@@ -42,14 +36,7 @@ public:
   prepare(AlgorithmContext& ctx) final override;
 
 private:
-  const Acts::Logger&
-  logger() const
-  {
-    return *m_logger;
-  }
-
-  Config                              m_cfg;
-  std::unique_ptr<const Acts::Logger> m_logger;
+  Config m_cfg;
 };
 
 }  // namespace FW

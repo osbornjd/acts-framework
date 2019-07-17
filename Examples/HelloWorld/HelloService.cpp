@@ -13,14 +13,8 @@
 namespace FW {
 
 HelloService::HelloService(const Config& cfg, Acts::Logging::Level level)
-  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("HelloService", level))
+  : BareService("HelloService", level), m_cfg(cfg)
 {
-}
-
-std::string
-HelloService::name() const
-{
-  return "HelloService";
 }
 
 void
