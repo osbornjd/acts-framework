@@ -14,6 +14,7 @@
 #include "Acts/Surfaces/TrapezoidBounds.hpp"
 #include "DD4hep/CartesianGridXY.h"
 #include "DD4hep/Segmentations.h"
+#include "Acts/Utilities/Units.hpp"
 
 /// In case several sensitive modules have the same segmentation it can and
 /// should be shared between these modules to save memory and time.
