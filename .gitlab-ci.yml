@@ -119,20 +119,10 @@ generator_pythia8:
   script:
     - ActsPythia8 -n ${EVENTS} --output-root 1 --output-csv 1
 
-whiteboard_example:
-  extends: .run
-  script:
-    - ACTFWWhiteBoardExample -n ${EVENTS}
-
 generic_geometry_example:
   extends: .run
   script:
     - ACTFWGenericGeometryExample -n ${EVENTS}
-
-random_number_example:
-  extends: .run
-  script:
-    - ACTFWRandomNumberExample -n ${EVENTS}
 
 dd4hep_fatras_example:
   extends: .run
