@@ -55,7 +55,17 @@ versions:
 
 # build jobs
 
-build:
+build-minimal:
+  stage: build
+  tags:
+    - cvmfs
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+    - cmake --build .
+
+build-full:
   stage: build
   tags:
     - cvmfs
@@ -68,16 +78,6 @@ build:
     paths:
       - build
     expire_in: 6 hours
-
-build_vanilla:
-  stage: build
-  tags:
-    - cvmfs
-  script:
-    - mkdir build
-    - cd build
-    - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
-    - cmake --build .
 
 # test jobs
 
