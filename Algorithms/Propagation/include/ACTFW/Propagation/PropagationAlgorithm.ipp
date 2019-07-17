@@ -160,7 +160,7 @@ PropagationAlgorithm<propagator_t>::execute(
     double p      = pt / sin(theta);
     double charge = qDist(rng) > 0.5 ? 1. : -1.;
     double qop    = charge / p;
-    double t = 0;
+    double t      = 0;
     // parameters
     Acts::BoundVector pars;
     pars << d0, z0, phi, theta, qop, t;
