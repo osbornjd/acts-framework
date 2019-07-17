@@ -12,11 +12,11 @@
 #include <memory>
 #include <mutex>
 
+#include <Acts/Material/SurfaceMaterialMapper.hpp>
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/BareAlgorithm.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/MaterialMapping/IMaterialWriter.hpp"
-#include "Acts/Material/SurfaceMaterialMapper.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 

@@ -9,8 +9,10 @@
 #pragma once
 
 #include <iostream>
+
+#include <Acts/Utilities/Units.hpp>
+
 #include "ACTFW/Utilities/Options.hpp"
-#include "Acts/Utilities/Units.hpp"
 
 namespace po = boost::program_options;
 

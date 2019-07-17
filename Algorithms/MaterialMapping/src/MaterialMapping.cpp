@@ -11,8 +11,10 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
+
 #include <iostream>
 #include <stdexcept>
+
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
 FW::MaterialMapping::MaterialMapping(const FW::MaterialMapping::Config& cnf,
