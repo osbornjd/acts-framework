@@ -11,7 +11,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <Acts/Detector/TrackingVolume.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 
 FW::Csv::CsvTrackingGeometryWriter::CsvTrackingGeometryWriter(

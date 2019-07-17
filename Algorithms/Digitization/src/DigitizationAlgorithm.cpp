@@ -18,15 +18,15 @@
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "Acts/Detector/DetectorElementBase.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/Geometry/DetectorElementBase.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleStepper.hpp"
 #include "Acts/Plugins/Digitization/Segmentation.hpp"
 #include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
 #include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
 
 FW::DigitizationAlgorithm::DigitizationAlgorithm(

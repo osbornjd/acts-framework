@@ -11,10 +11,10 @@
 #include <stdexcept>
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/Geometry/TrackingVolume.hpp"
 #include "Acts/Propagator/detail/ConstrainedStep.hpp"
 #include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
 
 FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
     const FW::Root::RootPropagationStepsWriter::Config& cfg,

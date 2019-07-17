@@ -15,7 +15,7 @@
 #include <memory>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 
 namespace Acts {
 class TrackingGeometry;

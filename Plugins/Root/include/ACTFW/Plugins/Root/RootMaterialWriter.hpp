@@ -15,14 +15,14 @@
 #include <map>
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
+#include "Acts/Geometry/TrackingVolume.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Material/IVolumeMaterial.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "TFile.h"
 

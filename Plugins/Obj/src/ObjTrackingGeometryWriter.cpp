@@ -10,9 +10,9 @@
 
 #include <iostream>
 
-#include <Acts/Detector/TrackingGeometry.hpp>
-#include <Acts/Detector/TrackingVolume.hpp>
-#include <Acts/Layers/Layer.hpp>
+#include <Acts/Geometry/Layer.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 
 FW::Obj::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(

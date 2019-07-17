@@ -15,11 +15,11 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Material/BinnedSurfaceMaterial.hpp"
 #include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
 #include "Acts/Utilities/BinUtility.hpp"
 #include "Acts/Utilities/BinningType.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
 #include "TFile.h"
 #include "TH2F.h"
 #include "TIterator.h"

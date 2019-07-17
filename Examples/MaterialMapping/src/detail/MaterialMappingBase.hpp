@@ -21,13 +21,13 @@
 #include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Extrapolator/Navigator.hpp"
-#include "Acts/Plugins/MaterialMapping/SurfaceMaterialMapper.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
+#include "Acts/Material/SurfaceMaterialMapper.hpp"
+#include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
-#include "Acts/Utilities/MagneticFieldContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/MagneticField/MagneticFieldContext.hpp"
 
 namespace po = boost::program_options;
 

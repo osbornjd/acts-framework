@@ -16,7 +16,7 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 
 namespace FW {
 

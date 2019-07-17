@@ -10,8 +10,8 @@
 #include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
 #include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 
 using TrackingGeometryPtr = std::shared_ptr<const Acts::TrackingGeometry>;
 using ContextDecorators   = std::vector<std::shared_ptr<FW::IContextDecorator>>;

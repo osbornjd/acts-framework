@@ -12,7 +12,7 @@
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "Acts/Extrapolator/MaterialInteractor.hpp"
+#include "Acts/Propagator/MaterialInteractor.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "TTree.h"
 

@@ -15,10 +15,10 @@
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Material/IVolumeMaterial.hpp"
 #include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {

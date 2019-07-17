@@ -9,7 +9,7 @@
 #pragma once
 
 #include <map>
-#include "Acts/Utilities/GeometryID.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 
 namespace Acts {
 
