@@ -26,10 +26,9 @@ namespace FW {
 
 /// A helper class for users to implement framework algorithms
 ///
-/// This class can be used for algorithms that only implement the per-event
-/// execute method. All other methods have locked default no-op implementations.
-/// Algorithms that do not fit this scheme should implement the algorithm
-/// interface directly without this helper class.
+/// This class provides default implementations for most interface methods and
+/// and adds a default logger that can be used directly in subclasses.
+/// Algorithm implementations only need to implement the `execute` method.
 class BareAlgorithm : public IAlgorithm
 {
 public:
@@ -40,7 +39,7 @@ public:
   BareAlgorithm(std::string          name,
                 Acts::Logging::Level level = Acts::Logging::INFO);
 
-  /// Provide the name of the algorithm.
+  /// The algorithm name.
   std::string
   name() const final override;
 
