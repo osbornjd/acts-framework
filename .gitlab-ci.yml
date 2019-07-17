@@ -81,7 +81,7 @@ build-full:
 
 # test jobs
 
-.examples: &example_base
+.run:
   stage: test
   tags:
     - cvmfs
@@ -90,67 +90,67 @@ build-full:
     - export PATH=$PWD/build/bin:$PATH
 
 hello_world:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWHelloWorldExample -n ${EVENTS}
 
 generic_propagation:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWGenericPropagationExample -n ${EVENTS}
 
 generic_fatras_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWGenericFatrasExample -n ${EVENTS}
 
 tgeo_fatras_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWTGeoFatrasExample -n ${EVENTS}
 
 generator_particle_gun:
-  <<: *example_base
+  extends: .run
   script:
     - ActsParticleGun -n ${EVENTS} --output-root 1 --output-csv 1
 
 generator_pythia8:
-  <<: *example_base
+  extends: .run
   script:
     - ActsPythia8 -n ${EVENTS} --output-root 1 --output-csv 1
 
 whiteboard_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWWhiteBoardExample -n ${EVENTS}
 
 generic_geometry_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWGenericGeometryExample -n ${EVENTS}
 
 random_number_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWRandomNumberExample -n ${EVENTS}
 
 dd4hep_fatras_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWDD4hepFatrasExample -n ${EVENTS}
 
 dd4hep_geometry_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWDD4hepGeometryExample -n ${EVENTS}
 
 dd4hep_propagation_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWDD4hepPropagationExample -n ${EVENTS}
 
 reproducibility_generic_propagation:
-  <<: *example_base
+  extends: .run
   script:
     - cd scripts
     - ./testReproducibility.sh GenericPropagation ${EVENTS} propagation-steps
