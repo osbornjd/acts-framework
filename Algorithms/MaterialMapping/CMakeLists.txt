@@ -1,7 +1,7 @@
 file(GLOB_RECURSE src_files "src/MaterialMapping.cpp")
 if (USE_GEANT4)
-  SET(src_files "src/GeantinoRecording.cpp" ${src_files})  
-  include(${Geant4_USE_FILE})  
+  SET(src_files "src/GeantinoRecording.cpp" ${src_files})
+  include(${Geant4_USE_FILE})
 endif()
 
 add_library(ACTFWMaterialMapping SHARED ${src_files})
@@ -9,7 +9,7 @@ target_include_directories(ACTFWMaterialMapping PUBLIC $<BUILD_INTERFACE:${CMAKE
 target_link_libraries(ACTFWMaterialMapping PUBLIC ActsCore)
 target_link_libraries(ACTFWMaterialMapping PUBLIC ACTFramework)
 if (USE_GEANT4)
-  target_link_libraries(ACTFWMaterialMapping PUBLIC ACTFWGeant4Plugin ACTFWGeometryInterfaces)
+  target_link_libraries(ACTFWMaterialMapping PUBLIC ACTFWGeant4Plugin)
 endif()
 
 install(TARGETS ACTFWMaterialMapping LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
