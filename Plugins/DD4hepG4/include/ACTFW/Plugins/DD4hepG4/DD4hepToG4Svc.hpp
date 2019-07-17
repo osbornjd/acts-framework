@@ -10,15 +10,14 @@
 #define DD4HEP_DD4HEPTOG4SVC_H
 
 #include <memory>
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/GeometryInterfaces/IDD4hepService.hpp"
-#include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "G4RunManager.hh"
-#include "G4VUserDetectorConstruction.hh"
+
+#include <Acts/Utilities/Logger.hpp>
+#include <G4RunManager.hh>
+#include <G4VUserDetectorConstruction.hh>
+
+#include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
 
 namespace FW {
-
 namespace DD4hepG4 {
 
   /// @class DD4hepToG4Svc
@@ -26,10 +25,8 @@ namespace DD4hepG4 {
   /// The DD4hepToG4Svc provides the Geant4 geometry from DD4hep input.
   /// @TODO This class should only be temporary - later it should be replaced by
   /// TGeoToGeant4
-
-  class DD4hepToG4Svc : public FW::IGeant4Service
+  class DD4hepToG4Svc
   {
-
   public:
     /// @class Config
     /// nested config file of DD4hepToG4Svc
@@ -39,7 +36,7 @@ namespace DD4hepG4 {
       /// The default logger
       std::shared_ptr<const Acts::Logger> logger;
       /// The Service for accessing the DD4hep geometry
-      std::shared_ptr<FW::IDD4hepService> dd4hepService;
+      std::shared_ptr<DD4hep::DD4hepGeometryService> dd4hepService;
       /// The name of the service
       std::string name;
 
@@ -51,21 +48,15 @@ namespace DD4hepG4 {
       {
       }
     };
-    /// Constructor
+
     DD4hepToG4Svc(const Config& cfg);
-
-    /// Virtual destructor
-    ~DD4hepToG4Svc() override;
-
-    /// Framework name() method
-    std::string
-    name() const final override;
+    ~DD4hepToG4Svc();
 
     /// Interface method to access the geant4 geometry
     /// @return G4VUserDetectorConstruction from which the Geant4 geometry is
     /// constructed
     G4VUserDetectorConstruction*
-    geant4Geometry() final override;
+    geant4Geometry();
 
   private:
     /// Private method building the detector in Geant4 geometry

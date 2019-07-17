@@ -21,12 +21,6 @@ FW::DD4hepG4::DD4hepToG4Svc::~DD4hepToG4Svc()
   // delete m_geant4Geometry;
 }
 
-std::string
-FW::DD4hepG4::DD4hepToG4Svc::name() const
-{
-  return m_cfg.name;
-}
-
 FW::ProcessCode
 FW::DD4hepG4::DD4hepToG4Svc::buildGeant4Geometry()
 {
