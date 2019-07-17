@@ -1,5 +1,4 @@
 stages:
-    - check
     - build
     - test
 
@@ -15,8 +14,13 @@ before_script:
     # setup scripts do not like that
     - set +e && source CI/setup_lcg94.sh; set -e
 
+# check jobs
+# these are technically pre-built checks and were previously in a separate
+# pre-build stage. they are now part of the build stage so the user can get
+# feedback from both the non-build checks and the build jobs at the same time.
+
 format:
-  stage: check
+  stage: build
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
   image: gitlab-registry.cern.ch/acts/machines/check:latest
@@ -30,7 +34,7 @@ format:
     when: on_failure
 
 license:
-  stage: check
+  stage: build
   image: python:alpine3.6
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
@@ -41,13 +45,15 @@ license:
     - CI/check_license.py .
 
 versions:
-  stage: check
+  stage: build
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
   tags:
     - cvmfs
   script:
     - ./CI/show_versions.sh
+
+# build jobs
 
 build:
   stage: build
@@ -72,6 +78,8 @@ build_vanilla:
     - cd build
     - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
     - cmake --build .
+
+# test jobs
 
 .examples: &example_base
   stage: test
