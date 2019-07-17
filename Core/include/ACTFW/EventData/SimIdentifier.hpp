@@ -9,6 +9,7 @@
 #pragma once
 
 #include <vector>
+#include "Acts/EventData/MeasurementHelpers.hpp"
 
 namespace FW {
 
@@ -21,7 +22,7 @@ namespace Data {
   ///
   /// Identifier implementation for the ACTS framework
   /// including MC truth information
-  class SimIdentifier
+  class SimIdentifier : public Acts::MinimalSourceLink
   {
   public:
     typedef unsigned long long identifier_type;
@@ -170,7 +171,7 @@ namespace Data {
     return m_truthParticles;
   }
 
-}  // end of namespace Test
+}  // namespace Data
 }  // end of namespace FW
 
 using Identifier = FW::Data::SimIdentifier;
