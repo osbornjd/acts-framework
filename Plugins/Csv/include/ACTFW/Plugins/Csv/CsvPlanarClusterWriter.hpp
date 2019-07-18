@@ -17,12 +17,18 @@ namespace Csv {
 
   /// Write out a planar cluster collection in comma-separated-value format.
   ///
-  /// This writes one file per event into the configured output directory. By
-  /// default it writes to the current working directory. Files are named
-  /// using the following schema
+  /// This writes multiples file per event containing information about the
+  /// space points, local constituent cells, and hit-particle truth mapping
+  /// into the configured output directory. By default it writes to the
+  /// current working directory. Files are named using the following schema
   ///
+  ///     event000000001-cells.csv
   ///     event000000001-hits.csv
+  ///     event000000001-truth.csv
+  ///     event000000002-cells.csv
   ///     event000000002-hits.csv
+  ///     event000000002-truth.csv
+  ///     ...
   ///
   /// and each line in the file corresponds to one hit/cluster.
   class CsvPlanarClusterWriter
@@ -33,9 +39,12 @@ namespace Csv {
 
     struct Config
     {
-      std::string collection;           ///< which collection to write
-      std::string outputDir;            ///< where to place output files
-      size_t      outputPrecision = 6;  ///< floating point precision
+      /// Which cluster collection to write.
+      std::string collection;
+      /// Where to place output files
+      std::string outputDir;
+      /// Number of decimal digits for floating point precision in output.
+      std::size_t outputPrecision = 6;
     };
 
     /// Constructor with
