@@ -1,5 +1,4 @@
 stages:
-    - check
     - build
     - test
 
@@ -15,8 +14,13 @@ before_script:
     # setup scripts do not like that
     - set +e && source CI/setup_lcg94.sh; set -e
 
+# check jobs
+# these are technically pre-built checks and were previously in a separate
+# pre-build stage. they are now part of the build stage so the user can get
+# feedback from both the non-build checks and the build jobs at the same time.
+
 format:
-  stage: check
+  stage: build
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
   image: gitlab-registry.cern.ch/acts/machines/check:latest
@@ -30,7 +34,7 @@ format:
     when: on_failure
 
 license:
-  stage: check
+  stage: build
   image: python:alpine3.6
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
@@ -41,7 +45,7 @@ license:
     - CI/check_license.py .
 
 versions:
-  stage: check
+  stage: build
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
   tags:
@@ -49,7 +53,19 @@ versions:
   script:
     - ./CI/show_versions.sh
 
-build:
+# build jobs
+
+build-minimal:
+  stage: build
+  tags:
+    - cvmfs
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+    - cmake --build .
+
+build-full:
   stage: build
   tags:
     - cvmfs
@@ -63,17 +79,9 @@ build:
       - build
     expire_in: 6 hours
 
-build_vanilla:
-  stage: build
-  tags:
-    - cvmfs
-  script:
-    - mkdir build
-    - cd build
-    - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
-    - cmake --build .
+# test jobs
 
-.examples: &example_base
+.run:
   stage: test
   tags:
     - cvmfs
@@ -82,67 +90,67 @@ build_vanilla:
     - export PATH=$PWD/build/bin:$PATH
 
 hello_world:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWHelloWorldExample -n ${EVENTS}
 
 generic_propagation:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWGenericPropagationExample -n ${EVENTS}
 
 generic_fatras_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWGenericFatrasExample -n ${EVENTS}
 
 tgeo_fatras_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWTGeoFatrasExample -n ${EVENTS}
 
 generator_particle_gun:
-  <<: *example_base
+  extends: .run
   script:
     - ActsParticleGun -n ${EVENTS} --output-root 1 --output-csv 1
 
 generator_pythia8:
-  <<: *example_base
+  extends: .run
   script:
     - ActsPythia8 -n ${EVENTS} --output-root 1 --output-csv 1
 
 whiteboard_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWWhiteBoardExample -n ${EVENTS}
 
 generic_geometry_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWGenericGeometryExample -n ${EVENTS}
 
 random_number_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWRandomNumberExample -n ${EVENTS}
 
 dd4hep_fatras_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWDD4hepFatrasExample -n ${EVENTS}
 
 dd4hep_geometry_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWDD4hepGeometryExample -n ${EVENTS}
 
 dd4hep_propagation_example:
-  <<: *example_base
+  extends: .run
   script:
     - ACTFWDD4hepPropagationExample -n ${EVENTS}
 
 reproducibility_generic_propagation:
-  <<: *example_base
+  extends: .run
   script:
     - cd scripts
     - ./testReproducibility.sh GenericPropagation ${EVENTS} propagation-steps
