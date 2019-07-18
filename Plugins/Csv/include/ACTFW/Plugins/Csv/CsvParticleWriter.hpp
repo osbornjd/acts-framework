@@ -18,35 +18,38 @@
 namespace FW {
 namespace Csv {
 
-  using SimVertex      = Data::SimVertex<Data::SimParticle>;
-  using ParticleWriter = WriterT<std::vector<Data::SimVertex<>>>;
-
-  /// Write out a the particles associated to a list of process vertices,
-  /// the particles are in comma-separated-value format.
+  /// Write out a the particles in the TrackML comma-separated-value format.
   ///
   /// This writer is restricted to outgoing particles, it is designed for
   /// generated particle information.
   ///
   /// This writes one file per event into the configured output directory. By
-  /// default it writes to the current working directory.
-  /// Files are named using the following schema
+  /// default it writes to the current working directory. Files are named
+  /// using the following schema
   ///
-  ///     event000000001-particles.csv
-  ///     event000000002-particles.csv
+  ///     event000000001-<outputFileName>
+  ///     event000000002-<outputFileName>
+  ///     ...
   ///
   /// and each line in the file corresponds to one particle.
-  class CsvParticleWriter : public ParticleWriter
+  class CsvParticleWriter
+    : public WriterT<std::vector<Data::SimVertex<Data::SimParticle>>>
   {
   public:
+    using Base = WriterT<std::vector<Data::SimVertex<Data::SimParticle>>>;
+
     struct Config
     {
-      std::string collection;           ///< which collection to write
-      std::string outputDir;            ///< where to place output files
-      std::string outputFileName;       ///< output file name
-      size_t      outputPrecision = 6;  ///< floating point precision
-
-      /// try to get the hits per particle map
-      std::string hitsPerParticleCollection = "";
+      /// Which particle collection to write.
+      std::string collection;
+      /// Input collection to map particle ids to number of hits (optional).
+      std::string hitsPerParticleCollection;
+      /// Where to place output files.
+      std::string outputDir;
+      /// Output file name suffix
+      std::string outputFileName = "particles.csv";
+      /// Number of decimal digits for floating point precision in output.
+      std::size_t outputPrecision = 6;
     };
 
     /// constructor
