@@ -12,7 +12,8 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <Acts/Layers/Layer.hpp>
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Geometry/Layer.hpp>
 #include <Acts/Plugins/Digitization/CartesianSegmentation.hpp>
 #include <Acts/Plugins/Digitization/DigitizationModule.hpp>
 #include <Acts/Plugins/Identification/IdentifiedDetectorElement.hpp>
@@ -20,7 +21,6 @@
 #include <Acts/Surfaces/PlanarBounds.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/SurfaceBounds.hpp>
-#include <Acts/Utilities/GeometryID.hpp>
 
 FW::Csv::CsvSurfaceWriter::CsvSurfaceWriter(
     const FW::Csv::CsvSurfaceWriter::Config& cfg)

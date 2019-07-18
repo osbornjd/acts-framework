@@ -10,8 +10,8 @@
 #include <ios>
 #include <iostream>
 #include <stdexcept>
+#include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Material/BinnedSurfaceMaterial.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
 #include "TFile.h"
 #include "TH2F.h"
 

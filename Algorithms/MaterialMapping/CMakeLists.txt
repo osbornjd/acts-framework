@@ -6,7 +6,7 @@ endif()
 
 add_library(ACTFWMaterialMapping SHARED ${src_files})
 target_include_directories(ACTFWMaterialMapping PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
-target_link_libraries(ACTFWMaterialMapping PUBLIC ActsCore ActsMaterialMappingPlugin)
+target_link_libraries(ACTFWMaterialMapping PUBLIC ActsCore)
 target_link_libraries(ACTFWMaterialMapping PUBLIC ACTFramework)
 if (USE_GEANT4)
   target_link_libraries(ACTFWMaterialMapping PUBLIC ACTFWGeant4Plugin ACTFWGeometryInterfaces)

@@ -11,9 +11,10 @@
 #include <iostream>
 
 #include "ACTFW/GenericDetector/GenericDetectorElement.hpp"
-#include "Acts/Detector/DetectorElementBase.hpp"
-#include "Acts/Layers/ApproachDescriptor.hpp"
-#include "Acts/Layers/ProtoLayer.hpp"
+#include "Acts/Geometry/ApproachDescriptor.hpp"
+#include "Acts/Geometry/DetectorElementBase.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Geometry/ProtoLayer.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Plugins/Digitization/CartesianSegmentation.hpp"
 #include "Acts/Plugins/Digitization/DigitizationModule.hpp"
@@ -25,7 +26,6 @@
 #include "Acts/Utilities/BinUtility.hpp"
 #include "Acts/Utilities/BinnedArray.hpp"
 #include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
 

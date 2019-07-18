@@ -11,8 +11,8 @@
 #include <ios>
 #include <iostream>
 #include <stdexcept>
+#include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Material/BinnedSurfaceMaterial.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
 
 FW::Json::JsonMaterialWriter::JsonMaterialWriter(
     const FW::Json::JsonGeometryConverter::Config& cfg,

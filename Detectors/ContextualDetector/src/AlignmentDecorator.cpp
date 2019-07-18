@@ -10,7 +10,7 @@
 
 #include <random>
 
-#include <Acts/Detector/TrackingGeometry.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
 
 FW::Contextual::AlignmentDecorator::AlignmentDecorator(
     const FW::Contextual::AlignmentDecorator::Config& cfg,

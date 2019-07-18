@@ -27,8 +27,8 @@
 #include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 
 /// @brief templated method to process a geometry
 ///

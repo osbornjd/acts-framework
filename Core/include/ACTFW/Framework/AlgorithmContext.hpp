@@ -10,9 +10,9 @@
 
 #include <memory>
 
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Utilities/CalibrationContext.hpp>
-#include <Acts/Utilities/GeometryContext.hpp>
-#include <Acts/Utilities/MagneticFieldContext.hpp>
 
 namespace FW {
 

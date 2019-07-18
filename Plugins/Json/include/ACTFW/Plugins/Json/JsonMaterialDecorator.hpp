@@ -12,7 +12,7 @@
 #include <map>
 #include <mutex>
 #include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
-#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Geometry/TrackingVolume.hpp"
 #include "Acts/Material/IMaterialDecorator.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Material/IVolumeMaterial.hpp"

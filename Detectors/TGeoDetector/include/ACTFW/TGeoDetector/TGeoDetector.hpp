@@ -8,9 +8,9 @@
 
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/TGeoDetector/BuildTGeoDetector.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Plugins/TGeo/TGeoDetectorElement.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
 
 using DetectorElementPtr  = std::shared_ptr<const Acts::TGeoDetectorElement>;
 using TrackingGeometryPtr = std::shared_ptr<const Acts::TrackingGeometry>;

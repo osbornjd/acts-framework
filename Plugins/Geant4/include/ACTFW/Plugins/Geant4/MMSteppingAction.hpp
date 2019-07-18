@@ -13,7 +13,7 @@
 #pragma once
 
 #include <vector>
-#include "Acts/Extrapolator/MaterialInteractor.hpp"
+#include "Acts/Propagator/MaterialInteractor.hpp"
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
 

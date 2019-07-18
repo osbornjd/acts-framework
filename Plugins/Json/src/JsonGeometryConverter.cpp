@@ -17,15 +17,15 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include "Acts/Detector/TrackingVolume.hpp"
-#include "Acts/Layers/ApproachDescriptor.hpp"
+#include "Acts/Geometry/ApproachDescriptor.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/Geometry/TrackingVolume.hpp"
 #include "Acts/Material/BinnedSurfaceMaterial.hpp"
 #include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
 #include "Acts/Material/ProtoSurfaceMaterial.hpp"
 #include "Acts/Surfaces/SurfaceArray.hpp"
 #include "Acts/Utilities/BinUtility.hpp"
 #include "Acts/Utilities/BinningType.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
 
 FW::Json::JsonGeometryConverter::JsonGeometryConverter(
     const FW::Json::JsonGeometryConverter::Config& cfg)

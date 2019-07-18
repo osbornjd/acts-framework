@@ -8,7 +8,7 @@
 
 #include "ACTFW/ContextualDetector/PayloadDecorator.hpp"
 #include "ACTFW/ContextualDetector/PayloadDetectorElement.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 
 FW::Contextual::PayloadDecorator::PayloadDecorator(
     const FW::Contextual::PayloadDecorator::Config& cfg,

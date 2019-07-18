@@ -160,11 +160,12 @@ PropagationAlgorithm<propagator_t>::execute(
     double p      = pt / sin(theta);
     double charge = qDist(rng) > 0.5 ? 1. : -1.;
     double qop    = charge / p;
+    double t      = 0;
     // parameters
-    Acts::ActsVectorD<5> pars;
-    pars << d0, z0, phi, theta, qop;
+    Acts::BoundVector pars;
+    pars << d0, z0, phi, theta, qop, t;
     // some screen output
-    std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+    std::unique_ptr<Acts::BoundMatrix> cov = nullptr;
 
     Acts::Vector3D sPosition(0., 0., 0.);
     Acts::Vector3D sMomentum(0., 0., 0.);

@@ -13,7 +13,7 @@
 #pragma once
 
 #include <memory>
-#include "Acts/Extrapolator/MaterialInteractor.hpp"
+#include "Acts/Propagator/MaterialInteractor.hpp"
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 

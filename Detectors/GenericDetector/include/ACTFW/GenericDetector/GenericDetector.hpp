@@ -13,7 +13,7 @@
 #include "ACTFW/GenericDetector/BuildGenericDetector.hpp"
 #include "ACTFW/GenericDetector/GenericDetectorElement.hpp"
 #include "ACTFW/GenericDetector/GenericDetectorOptions.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
 using DetectorElement     = FW::Generic::GenericDetectorElement;
