@@ -28,6 +28,8 @@
 
 #include "VertexFitAlgorithm.hpp"
 
+using namespace FW;
+
 /// Main vertex fitter example executable
 ///
 /// @param argc The argument count
@@ -100,8 +102,8 @@ main(int argc, char* argv[])
 
   // Add the fit algorithm with Billoir fitter
   FWE::VertexFitAlgorithm::Config vertexFitCfg;
-  vertexFitCfg.collection      = readEvgenCfg.evgenCollection;
-  vertexFitCfg.randomNumberSvc = randomNumberSvc;
+  vertexFitCfg.collection      = evgenCfg.output;
+  vertexFitCfg.randomNumberSvc = rnd;
   vertexFitCfg.vertexFitter    = billoirFitter;
   vertexFitCfg.bField          = bField;
 

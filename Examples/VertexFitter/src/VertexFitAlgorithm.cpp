@@ -17,8 +17,6 @@
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
 
-#include <tbb/tbb.h>
-
 #include "Acts/Vertexing/LinearizedTrack.hpp"
 #include "Acts/Vertexing/LinearizedTrackFactory.hpp"
 #include "Acts/Vertexing/Vertex.hpp"
@@ -174,7 +172,7 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
 
   assert(smrdTrackCollection.size() == trueVertices.size());
 
-  tbb::concurrent_vector<Acts::Vertex<InputTrack>> fittedVerticesVector;
+  std::vector<Acts::Vertex<InputTrack>> fittedVerticesVector;
 
   // Vertex constraint
   Acts::Vertex<InputTrack> myConstraint;
@@ -194,59 +192,61 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
       context.geoContext,
       context.magFieldContext,
       myConstraint);  /// in-event parallel vertex fitting
-  tbb::parallel_for(
-      tbb::blocked_range<size_t>(0, smrdTrackCollection.size()),
-      [&](const tbb::blocked_range<size_t>& r) {
-        for (size_t vertex_idx = r.begin(); vertex_idx != r.end();
-             ++vertex_idx) {
 
-          BoundParamsVector& currentParamVectorAtVtx
-              = smrdTrackCollection[vertex_idx];
+  for (size_t vertex_idx = 0; vertex_idx < trueVertices.size(); ++vertex_idx) {
 
-          if (currentParamVectorAtVtx.size() > 1) {
+    BoundParamsVector& currentParamVectorAtVtx
+        = smrdTrackCollection[vertex_idx];
 
-            Acts::Vertex<InputTrack> fittedVertex;
-            if (!m_cfg.doConstrainedFit) {
-              fittedVertex
-                  = m_cfg.vertexFitter
-                        ->fit(inputTrackCollection[vertex_idx], vfOptions)
-                        .value();
-            } else {
-              fittedVertex
-                  = m_cfg.vertexFitter
-                        ->fit(inputTrackCollection[vertex_idx], vfOptionsConstr)
-                        .value();
-            }
+    if (currentParamVectorAtVtx.size() > 1) {
 
-            Acts::Vector3D currentTrueVtx = trueVertices[vertex_idx];
-            Acts::Vector3D diffVtx = currentTrueVtx - fittedVertex.position();
-
-            ACTS_INFO("Event: " << context.eventNumber << ", vertex "
-                                << vertex_idx
-                                << " with "
-                                << currentParamVectorAtVtx.size()
-                                << " tracks");
-            ACTS_INFO("True Vertex: "
-                      << "("
-                      << currentTrueVtx[0]
-                      << ","
-                      << currentTrueVtx[1]
-                      << ","
-                      << currentTrueVtx[2]
-                      << ")");
-            ACTS_INFO("Fitted Vertex: "
-                      << "("
-                      << fittedVertex.position()[0]
-                      << ","
-                      << fittedVertex.position()[1]
-                      << ","
-                      << fittedVertex.position()[2]
-                      << ")");
-
-            fittedVerticesVector.push_back(fittedVertex);
-          }
+      Acts::Vertex<InputTrack> fittedVertex;
+      if (!m_cfg.doConstrainedFit) {
+        auto fitRes = m_cfg.vertexFitter->fit(inputTrackCollection[vertex_idx],
+                                              vfOptions);
+        if (fitRes.ok()) {
+          fittedVertex = *fitRes;
+        } else {
+          ACTS_ERROR("Error in vertex fit.");
         }
-      });
+      } else {
+
+        auto fitRes = m_cfg.vertexFitter->fit(inputTrackCollection[vertex_idx],
+                                              vfOptionsConstr);
+        if (fitRes.ok()) {
+          fittedVertex = *fitRes;
+        } else {
+          ACTS_ERROR("Error in vertex fit.");
+        }
+      }
+
+      Acts::Vector3D currentTrueVtx = trueVertices[vertex_idx];
+      Acts::Vector3D diffVtx        = currentTrueVtx - fittedVertex.position();
+
+      ACTS_INFO("Event: " << context.eventNumber << ", vertex " << vertex_idx
+                          << " with "
+                          << currentParamVectorAtVtx.size()
+                          << " tracks");
+      ACTS_INFO("True Vertex: "
+                << "("
+                << currentTrueVtx[0]
+                << ","
+                << currentTrueVtx[1]
+                << ","
+                << currentTrueVtx[2]
+                << ")");
+      ACTS_INFO("Fitted Vertex: "
+                << "("
+                << fittedVertex.position()[0]
+                << ","
+                << fittedVertex.position()[1]
+                << ","
+                << fittedVertex.position()[2]
+                << ")");
+
+      fittedVerticesVector.push_back(fittedVertex);
+    }
+  }
 
   return FW::ProcessCode::SUCCESS;
 }
