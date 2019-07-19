@@ -33,7 +33,7 @@ namespace Options {
   {
     opt.add_options()("input-name",
                       po::value<std::string>()->default_value("input_event"),
-                      "Input collection name.")(
+                      "Track converter input collection name.")(
         "output-name",
         po::value<std::string>()->default_value("track_output"),
         "Collection name of the produced tracks.");

@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/EventToTrackConverter.hpp"
+#include "ACTFW/Simulation/EventToTrackConverter.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -29,6 +29,8 @@ FW::EventToTrackConverterAlgorithm::EventToTrackConverterAlgorithm(
     throw std::invalid_argument("Missing input collection");
   } else if (m_cfg.outputCollection.empty()) {
     throw std::invalid_argument("Missing output collection");
+  } else if (m_cfg.randomNumberSvc == nullptr) {
+    throw std::invalid_argument("Missing random number service");
   }
 }
 
@@ -80,10 +82,8 @@ FW::EventToTrackConverterAlgorithm::execute(
 
       // get perigee parameters
       const auto& perigeeParameters = (*result).endParameters->parameters();
-      const auto  paramCov          = (*result).endParameters->covariance();
 
       auto newTrackParams = perigeeParameters;
-      auto newTrackCov = std::make_unique<Acts::ActsSymMatrixD<5>>(*paramCov);
 
       if (m_cfg.doSmearing) {
 
@@ -121,13 +121,14 @@ FW::EventToTrackConverterAlgorithm::execute(
         covMat->diagonal() << rn_d0 * rn_d0, rn_z0 * rn_z0, rn_ph * rn_ph,
             rn_th * rn_th, rn_qp * rn_qp;
 
-        (*newTrackCov) += (*covMat);
+        trackCollection.push_back(Acts::BoundParameters(context.geoContext,
+                                                        std::move(covMat),
+                                                        newTrackParams,
+                                                        perigeeSurface));
+      } else {
+        trackCollection.push_back(Acts::BoundParameters(
+            context.geoContext, nullptr, newTrackParams, perigeeSurface));
       }
-
-      trackCollection.push_back(Acts::BoundParameters(context.geoContext,
-                                                      std::move(newTrackCov),
-                                                      newTrackParams,
-                                                      perigeeSurface));
 
     }  // end iteration over all particle at vertex
   }    // end iteration over all vertices
