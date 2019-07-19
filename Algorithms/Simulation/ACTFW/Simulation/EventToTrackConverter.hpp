@@ -19,7 +19,10 @@
 #include "Acts/Utilities/Units.hpp"
 
 namespace FW {
-
+/// @brief Converter that takes a generator event
+/// (i.e. a std::vector<SimVertex>) and produces a
+/// std::vector<Acts::BoundParameter>. It also allows
+/// the possibility of parameter smearing.
 class EventToTrackConverterAlgorithm : public BareAlgorithm
 {
 public:
@@ -67,8 +70,13 @@ public:
   execute(const AlgorithmContext& context) const final override;
 
 private:
-  Config m_cfg;  /// config struct
+  /// Config struct
+  Config m_cfg;
 
+  /// @brief Function that corrects phi and theta wraps
+  ///
+  /// @param phiIn Phi
+  /// @param thetaIn Theta
   void
   correctPhiThetaPeriodicity(double& phiIn, double& thetaIn) const;
 };
