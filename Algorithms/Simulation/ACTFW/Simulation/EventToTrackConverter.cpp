@@ -73,7 +73,7 @@ FW::EventToTrackConverterAlgorithm::execute(
 
       // Define start track params
       Acts::CurvilinearParameters start(
-          nullptr, particle.position(), ptclMom, particle.q());
+          nullptr, particle.position(), ptclMom, particle.q(), 0.);
       // Run propagator
       auto result = propagator.propagate(start, *perigeeSurface, pOptions);
       if (!result.ok()) {
@@ -108,7 +108,7 @@ FW::EventToTrackConverterAlgorithm::execute(
         double rn_qp = gaussDist_qp(rng);
 
         Acts::TrackParametersBase::ParVector_t smrdParamVec;
-        smrdParamVec << rn_d0, rn_z0, rn_ph, rn_th, rn_qp;
+        smrdParamVec << rn_d0, rn_z0, rn_ph, rn_th, rn_qp, 0.;
 
         // Update track parameters
         newTrackParams += smrdParamVec;
@@ -116,11 +116,11 @@ FW::EventToTrackConverterAlgorithm::execute(
         correctPhiThetaPeriodicity(newTrackParams[0], newTrackParams[1]);
 
         // Update track covariance
-        std::unique_ptr<Acts::ActsSymMatrixD<5>> covMat
-            = std::make_unique<Acts::ActsSymMatrixD<5>>();
+        std::unique_ptr<Acts::BoundSymMatrix> covMat
+            = std::make_unique<Acts::BoundSymMatrix>();
         covMat->setZero();
         covMat->diagonal() << rn_d0 * rn_d0, rn_z0 * rn_z0, rn_ph * rn_ph,
-            rn_th * rn_th, rn_qp * rn_qp;
+            rn_th * rn_th, rn_qp * rn_qp, 1.;
 
         trackCollection.push_back(Acts::BoundParameters(context.geoContext,
                                                         std::move(covMat),
