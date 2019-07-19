@@ -16,7 +16,6 @@
 #include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
-#include "ACTFW/Common/OutputOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
