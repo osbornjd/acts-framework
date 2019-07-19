@@ -94,11 +94,12 @@ FW::EventToTrackConverterAlgorithm::execute(
             + m_cfg.ipResC;
         // except for IP resolution, following variances are rough guesses
         // Gaussian distribution for IP resolution
-        FW::GaussDist gaussDist_IP(0., ipRes);
+        std::normal_distribution<double> gaussDist_IP(0., ipRes);
         // Gaussian distribution for angular resolution
-        FW::GaussDist gaussDist_angular(0., 0.1);
+        std::normal_distribution<double> gaussDist_angular(0., 0.1);
         // Gaussian distribution for q/p (momentum) resolution
-        FW::GaussDist gaussDist_qp(0., 0.1 * perigeeParameters[4]);
+        std::normal_distribution<double> gaussDist_qp(
+            0., 0.1 * perigeeParameters[4]);
 
         double rn_d0 = gaussDist_IP(rng);
         double rn_z0 = gaussDist_IP(rng);

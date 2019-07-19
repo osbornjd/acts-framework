@@ -12,7 +12,6 @@
 #include <memory>
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Utilities/Definitions.hpp"
