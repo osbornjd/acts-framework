@@ -7,7 +7,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "VertexFitAlgorithm.hpp"
-#include "ACTFW/Random/RandomNumberDistributions.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
