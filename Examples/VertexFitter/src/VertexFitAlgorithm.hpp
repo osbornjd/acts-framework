@@ -20,21 +20,7 @@
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Vertexing/IVertexFitter.hpp"
-
-struct InputTrack
-{
-  InputTrack(const Acts::BoundParameters& params) : m_parameters(params) {}
-
-  const Acts::BoundParameters&
-  parameters() const
-  {
-    return m_parameters;
-  }
-
-private:
-  Acts::BoundParameters m_parameters;
-};
+#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
 
 namespace FWE {
 
@@ -43,18 +29,19 @@ class VertexFitAlgorithm : public FW::BareAlgorithm
 public:
   struct Config
   {
-    std::string collection;  ///< Input particle collection
-    std::string collectionOut = "paramCollection";  ///< Output collection
-    std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc = nullptr;
+    /// Input track collection
+    std::string trackCollection;  ///< Input track collection
+
+    /// Vertex fitter
     std::
         shared_ptr<Acts::
-                       IVertexFitter<InputTrack,
-                                     Acts::
-                                         Propagator<Acts::
-                                                        EigenStepper<Acts::
-                                                                         ConstantBField>>>>
-                         vertexFitter = nullptr;
-    Acts::ConstantBField bField;
+                       FullBilloirVertexFitter<Acts::ConstantBField,
+                                               Acts::BoundParameters,
+                                               Acts::
+                                                   Propagator<Acts::
+                                                                  EigenStepper<Acts::
+                                                                                   ConstantBField>>>>
+            vertexFitter = nullptr;
 
     bool doConstrainedFit = false;
   };
