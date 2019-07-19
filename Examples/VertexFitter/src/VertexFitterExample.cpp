@@ -27,6 +27,7 @@
 
 #include "VertexFitAlgorithm.hpp"
 
+#include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
 #include "ACTFW/Simulation/EventToTrackConverter.hpp"
 #include "ACTFW/Simulation/EventToTrackConverterOptions.hpp"
 #include "ACTFW/Simulation/TrackSelector.hpp"
@@ -61,11 +62,24 @@ main(int argc, char* argv[])
   auto barcode = std::make_shared<BarcodeSvc>(
       BarcodeSvc::Config(), Acts::getDefaultLogger("BarcodeSvc", logLevel));
 
-  // event generation w/ process guns
-  EventGenerator::Config evgenCfg = Options::readPythia8Options(vm);
-  evgenCfg.output                 = "generated_particles";
-  evgenCfg.randomNumbers          = rnd;
-  evgenCfg.barcodeSvc             = barcode;
+  // Set up event generator producing one single hard collision
+  Pythia8Generator::Config hardCfg;
+  hardCfg.pdgBeam0  = vm["evg-pdgBeam0"].template as<int>();
+  hardCfg.pdgBeam1  = vm["evg-pdgBeam1"].template as<int>();
+  hardCfg.cmsEnergy = vm["evg-cmsEnergy"].template as<double>();
+  hardCfg.settings  = {vm["evg-hsProcess"].template as<std::string>()};
+
+  auto vtxStdXY = vm["evg-vertex-xy-std"].template as<double>();
+  auto vtxStdZ  = vm["evg-vertex-z-std"].template as<double>();
+
+  EventGenerator::Config evgenCfg;
+  evgenCfg.generators = {{FixedMultiplicityGenerator{1},
+                          GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ},
+                          Pythia8Generator::makeFunction(hardCfg)}};
+
+  evgenCfg.output        = "generated_particles";
+  evgenCfg.randomNumbers = rnd;
+  evgenCfg.barcodeSvc    = barcode;
 
   // Set up constant B-Field
   Acts::ConstantBField bField(Acts::Vector3D(0., 0., 1.) * Acts::units::_T);
