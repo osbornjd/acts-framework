@@ -24,8 +24,8 @@
 #include "VertexFitAlgorithm.hpp"
 
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
-#include "ACTFW/Simulation/EventToTrackConverter.hpp"
-#include "ACTFW/Simulation/TrackSelector.hpp"
+#include "ACTFW/TruthTracking/TrackSelector.hpp"
+#include "ACTFW/TruthTracking/TruthVerticesToTracks.hpp"
 
 using namespace FW;
 
@@ -77,8 +77,8 @@ main(int argc, char* argv[])
   // Set magnetic field
   Acts::Vector3D bField(0., 0., 1. * Acts::units::_T);
 
-  // Set up event to track converter algorithm
-  EventToTrackConverterAlgorithm::Config trkConvConfig;
+  // Set up TruthVerticesToTracks converter algorithm
+  TruthVerticesToTracksAlgorithm::Config trkConvConfig;
   trkConvConfig.randomNumberSvc  = rnd;
   trkConvConfig.bField           = bField;
   trkConvConfig.inputCollection  = evgenCfg.output;
@@ -103,7 +103,7 @@ main(int argc, char* argv[])
 
   sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
 
-  sequencer.addAlgorithm(std::make_shared<EventToTrackConverterAlgorithm>(
+  sequencer.addAlgorithm(std::make_shared<TruthVerticesToTracksAlgorithm>(
       trkConvConfig, logLevel));
 
   sequencer.addAlgorithm(

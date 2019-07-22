@@ -23,7 +23,7 @@ namespace FW {
 /// (i.e. a std::vector<SimVertex>) and produces a
 /// std::vector<Acts::BoundParameter>. It also allows
 /// the possibility of parameter smearing.
-class EventToTrackConverterAlgorithm : public BareAlgorithm
+class TruthVerticesToTracksAlgorithm : public BareAlgorithm
 {
 public:
   /// Nested configuration struct
@@ -54,11 +54,11 @@ public:
     double ipResC = 20. * Acts::units::_um;
   };
 
-  /// Constructor of the EventToTrackConverter algorithm
+  /// Constructor of the TruthVerticesToTracks algorithm
   ///
   /// @param cfg is the config struct to configure the algorihtm
   /// @param level is the logging level
-  EventToTrackConverterAlgorithm(const Config&        cfg,
+  TruthVerticesToTracksAlgorithm(const Config&        cfg,
                                  Acts::Logging::Level level
                                  = Acts::Logging::INFO);
 

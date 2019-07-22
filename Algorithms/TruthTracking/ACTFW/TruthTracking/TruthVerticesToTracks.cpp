@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Simulation/EventToTrackConverter.hpp"
+#include "ACTFW/TruthTracking/TruthVerticesToTracks.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -21,10 +21,10 @@
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 
-FW::EventToTrackConverterAlgorithm::EventToTrackConverterAlgorithm(
-    const FW::EventToTrackConverterAlgorithm::Config& cfg,
+FW::TruthVerticesToTracksAlgorithm::TruthVerticesToTracksAlgorithm(
+    const FW::TruthVerticesToTracksAlgorithm::Config& cfg,
     Acts::Logging::Level                              level)
-  : FW::BareAlgorithm("EventToTrackConverterAlgorithm", level), m_cfg(cfg)
+  : FW::BareAlgorithm("TruthVerticesToTracksAlgorithm", level), m_cfg(cfg)
 {
   if (m_cfg.inputCollection.empty()) {
     throw std::invalid_argument("Missing input collection");
@@ -36,7 +36,7 @@ FW::EventToTrackConverterAlgorithm::EventToTrackConverterAlgorithm(
 }
 
 FW::ProcessCode
-FW::EventToTrackConverterAlgorithm::execute(
+FW::TruthVerticesToTracksAlgorithm::execute(
     const AlgorithmContext& context) const
 {
 
@@ -144,7 +144,7 @@ FW::EventToTrackConverterAlgorithm::execute(
 }
 
 void
-FW::EventToTrackConverterAlgorithm::correctPhiThetaPeriodicity(
+FW::TruthVerticesToTracksAlgorithm::correctPhiThetaPeriodicity(
     double& phiIn,
     double& thetaIn) const
 {
