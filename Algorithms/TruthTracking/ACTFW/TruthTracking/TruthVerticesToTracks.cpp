@@ -116,7 +116,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
         // Update track parameters
         newTrackParams += smrdParamVec;
         // Correct for phi and theta wrap
-        correctPhiThetaPeriodicity(newTrackParams[0], newTrackParams[1]);
+        correctPhiThetaPeriodicity(newTrackParams[2], newTrackParams[3]);
 
         // Update track covariance
         std::unique_ptr<Acts::BoundSymMatrix> covMat
