@@ -50,7 +50,7 @@ public:
     /// Define parameter for pt-dependent IP resolution
     /// of the form sigma_d/z(p_t[GeV]) = A*exp(-B*p_t[GeV]) + C
     double ipResA = 100.7439 * Acts::units::_um;
-    double ipResB = 0.23055;
+    double ipResB = 0.23055 / Acts::units::_GeV;
     double ipResC = 20. * Acts::units::_um;
   };
 

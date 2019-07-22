@@ -54,10 +54,9 @@ main(int argc, char* argv[])
   auto logLevel = Options::readLogLevel(vm);
 
   // basic services
-  RandomNumbersSvc::Config rndCfg;
-  rndCfg.seed  = 123;
-  auto rnd     = std::make_shared<RandomNumbersSvc>(rndCfg);
-  auto barcode = std::make_shared<BarcodeSvc>(
+  RandomNumbersSvc::Config rndCfg  = Options::readRandomNumbersConfig(vm);
+  auto                     rnd     = std::make_shared<RandomNumbersSvc>(rndCfg);
+  auto                     barcode = std::make_shared<BarcodeSvc>(
       BarcodeSvc::Config(), Acts::getDefaultLogger("BarcodeSvc", logLevel));
 
   // Set up event generator producing one single hard collision

@@ -88,8 +88,7 @@ FW::EventToTrackConverterAlgorithm::execute(
       if (m_cfg.doSmearing) {
 
         // Calculate pt-dependent IP resolution
-        const double particlePt
-            = Acts::VectorHelpers::perp(ptclMom) / Acts::units::_GeV;
+        const double particlePt = Acts::VectorHelpers::perp(ptclMom);
         const double ipRes = m_cfg.ipResA * std::exp(-m_cfg.ipResB * particlePt)
             + m_cfg.ipResC;
         // except for IP resolution, following variances are rough guesses

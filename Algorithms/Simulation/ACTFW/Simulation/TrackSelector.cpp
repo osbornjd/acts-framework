@@ -57,7 +57,7 @@ FW::TrackSelector::execute(const FW::AlgorithmContext& ctx) const
   for (const auto& track : input) {
 
     if (isValidTrack(track)) {
-      selected.push_back(std::move(track));
+      selected.push_back(track);
     }
   }
 
