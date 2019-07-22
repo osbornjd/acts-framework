@@ -141,7 +141,5 @@ main(int argc, char* argv[])
   sequencer.addAlgorithm(
       std::make_shared<FWE::VertexFitAlgorithm>(vertexFitCfg, logLevel));
 
-  sequencer.run();
-
-  return 0;
+  return sequencer.run();
 }
