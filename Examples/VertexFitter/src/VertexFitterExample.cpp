@@ -10,10 +10,6 @@
 #include <memory>
 
 #include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
 
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -78,13 +74,8 @@ main(int argc, char* argv[])
   evgenCfg.randomNumbers = rnd;
   evgenCfg.barcodeSvc    = barcode;
 
-  // Set up constant B-Field
-  Acts::ConstantBField bField(Acts::Vector3D(0., 0., 1.) * Acts::units::_T);
-  // Set up Eigenstepper
-  Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
-  // Set up propagator with void navigator
-  Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator(
-      stepper);
+  // Set magnetic field
+  Acts::Vector3D bField(0., 0., 1. * Acts::units::_T);
 
   // Set up event to track converter algorithm
   EventToTrackConverterAlgorithm::Config trkConvConfig;
@@ -102,29 +93,10 @@ main(int argc, char* argv[])
   selectorConfig.ptMin       = 400. * Acts::units::_MeV;
   selectorConfig.keepNeutral = false;
 
-  // Set up Billoir Vertex Fitter
-  Acts::
-      FullBilloirVertexFitter<Acts::ConstantBField,
-                              Acts::BoundParameters,
-                              Acts::
-                                  Propagator<Acts::
-                                                 EigenStepper<Acts::
-                                                                  ConstantBField>>>::
-          Config vertexFitterCfg(bField, propagator);
-  auto           billoirFitter = std::
-      make_shared<Acts::
-                      FullBilloirVertexFitter<Acts::ConstantBField,
-                                              Acts::BoundParameters,
-                                              Acts::
-                                                  Propagator<Acts::
-                                                                 EigenStepper<Acts::
-                                                                                  ConstantBField>>>>(
-          vertexFitterCfg);
-
   // Add the fit algorithm with Billoir fitter
   FWE::VertexFitAlgorithm::Config vertexFitCfg;
   vertexFitCfg.trackCollection = selectorConfig.output;
-  vertexFitCfg.vertexFitter    = billoirFitter;
+  vertexFitCfg.bField          = bField;
 
   Sequencer::Config sequencerCfg = Options::readSequencerConfig(vm);
   Sequencer         sequencer(sequencerCfg);

@@ -16,11 +16,6 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
 
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
-
 namespace FWE {
 
 class VertexFitAlgorithm : public FW::BareAlgorithm
@@ -31,16 +26,8 @@ public:
     /// Input track collection
     std::string trackCollection;  ///< Input track collection
 
-    /// Vertex fitter
-    std::
-        shared_ptr<Acts::
-                       FullBilloirVertexFitter<Acts::ConstantBField,
-                                               Acts::BoundParameters,
-                                               Acts::
-                                                   Propagator<Acts::
-                                                                  EigenStepper<Acts::
-                                                                                   ConstantBField>>>>
-            vertexFitter = nullptr;
+    /// The magnetic field
+    Acts::Vector3D bField;
 
     bool doConstrainedFit = false;
   };

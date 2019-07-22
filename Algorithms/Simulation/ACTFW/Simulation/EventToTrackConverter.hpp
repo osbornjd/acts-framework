@@ -38,7 +38,7 @@ public:
     std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
 
     /// The magnetic field
-    Acts::ConstantBField bField;
+    Acts::Vector3D bField;
 
     /// Reference position relatice to which track
     /// parameters will be defined

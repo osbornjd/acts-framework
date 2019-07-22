@@ -15,6 +15,7 @@
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Surfaces/PerigeeSurface.hpp"
@@ -46,8 +47,11 @@ FW::EventToTrackConverterAlgorithm::execute(
   std::shared_ptr<Acts::PerigeeSurface> perigeeSurface
       = Acts::Surface::makeShared<Acts::PerigeeSurface>(m_cfg.refPosition);
 
+  // Set up constant B-Field
+  Acts::ConstantBField bField(m_cfg.bField);
+
   // Set up stepper
-  Acts::EigenStepper<Acts::ConstantBField> stepper(m_cfg.bField);
+  Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
 
   // Set up propagator with void navigator
   Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>> propagator(
