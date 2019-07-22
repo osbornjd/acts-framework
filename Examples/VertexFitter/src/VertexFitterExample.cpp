@@ -29,7 +29,6 @@
 
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
 #include "ACTFW/Simulation/EventToTrackConverter.hpp"
-#include "ACTFW/Simulation/EventToTrackConverterOptions.hpp"
 #include "ACTFW/Simulation/TrackSelector.hpp"
 
 using namespace FW;
@@ -47,7 +46,6 @@ main(int argc, char* argv[])
   Options::addRandomNumbersOptions(desc);
   Options::addPythia8Options(desc);
   Options::addOutputOptions(desc);
-  Options::addEventToTrackConverterOptions(desc);
   auto vm = Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
@@ -90,16 +88,16 @@ main(int argc, char* argv[])
       stepper);
 
   // Set up event to track converter algorithm
-  EventToTrackConverterAlgorithm::Config trkConvConfig
-      = Options::readEventToTrackConverterConfig(vm);
-  trkConvConfig.randomNumberSvc = rnd;
-  trkConvConfig.bField          = bField;
-  trkConvConfig.inputCollection = evgenCfg.output;
+  EventToTrackConverterAlgorithm::Config trkConvConfig;
+  trkConvConfig.randomNumberSvc  = rnd;
+  trkConvConfig.bField           = bField;
+  trkConvConfig.inputCollection  = evgenCfg.output;
+  trkConvConfig.outputCollection = "all_tracks";
 
   // Set up track selector
   TrackSelector::Config selectorConfig;
   selectorConfig.input       = trkConvConfig.outputCollection;
-  selectorConfig.output      = "selectedTracks";
+  selectorConfig.output      = "selected_tracks";
   selectorConfig.absEtaMax   = 2.5;
   selectorConfig.rhoMax      = 4 * Acts::units::_mm;
   selectorConfig.ptMin       = 400. * Acts::units::_MeV;
