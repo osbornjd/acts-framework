@@ -22,6 +22,8 @@
 
 #include <iostream>
 
+using namespace Acts::UnitLiterals;
+
 FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
                                             Acts::Logging::Level level)
   : FW::BareAlgorithm("VertexFit", level), m_cfg(cfg)
@@ -42,9 +44,9 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
   Acts::Vertex<Acts::BoundParameters> myConstraint;
   Acts::ActsSymMatrixD<3>             myCovMat;
   // Set some arbitrary large values on the main diagonal
-  myCovMat(0, 0) = 30.;
-  myCovMat(1, 1) = 30.;
-  myCovMat(2, 2) = 30.;
+  myCovMat(0, 0) = 30_um;
+  myCovMat(1, 1) = 30_um;
+  myCovMat(2, 2) = 30_um;
   myConstraint.setCovariance(std::move(myCovMat));
   myConstraint.setPosition(Acts::Vector3D(0, 0, 0));
 
