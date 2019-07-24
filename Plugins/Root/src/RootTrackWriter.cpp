@@ -322,8 +322,8 @@ FW::Root::RootTrackWriter::writeT(const AlgorithmContext& ctx,
       m_layerID.push_back(geoID.value(Acts::GeometryID::layer_mask));
       m_moduleID.push_back(geoID.value(Acts::GeometryID::sensitive_mask));
 
-      // get the uncalibrated measurement
-      auto meas = std::get<Measurement>(*state.measurement.uncalibrated);
+      auto meas = std::get<Measurement>(**state.measurement.uncalibrated);
+
       // get local position
       Acts::Vector2D local(meas.parameters()[Acts::ParDef::eLOC_0],
                            meas.parameters()[Acts::ParDef::eLOC_1]);
