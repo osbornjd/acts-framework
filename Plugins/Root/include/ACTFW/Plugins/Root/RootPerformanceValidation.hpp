@@ -13,6 +13,7 @@
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 #include "ACTFW/Validation/EffPlotTool.hpp"
@@ -29,7 +30,7 @@ class TTree;
 namespace FW {
 namespace Root {
 
-  using Identifier  = Acts::GeometryID;
+  using Identifier  = Data::SimSourceLink;
   using Measurement = Acts::
       Measurement<Identifier, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>;
   using TrackState        = Acts::TrackState<Identifier, Acts::BoundParameters>;

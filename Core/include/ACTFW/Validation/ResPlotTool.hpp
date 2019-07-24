@@ -13,6 +13,7 @@
 #include "ACTFW/Barcode/Barcode.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/Utilities/Helpers.hpp"
 #include "Acts/EventData/Measurement.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
@@ -31,7 +32,7 @@ namespace FW {
 // For the moment, the entry is state-wise.
 class ResPlotTool
 {
-  using Identifier  = Acts::GeometryID;
+  using Identifier  = Data::SimSourceLink;
   using Measurement = Acts::
       Measurement<Identifier, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>;
   using TrackStateVector

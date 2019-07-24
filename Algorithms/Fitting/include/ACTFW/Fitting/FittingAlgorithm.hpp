@@ -18,6 +18,7 @@
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -39,7 +40,7 @@ class FittingAlgorithm : public BareAlgorithm
 {
 public:
   // A few initialisations and definitionas
-  using Identifier  = Acts::GeometryID;
+  using Identifier  = Data::SimSourceLink;
   using TrackState  = Acts::TrackState<Identifier, Acts::BoundParameters>;
   using TrackMap    = std::map<barcode_type, std::vector<TrackState>>;
   using ParticleMap = std::map<barcode_type, Data::SimParticle>;
