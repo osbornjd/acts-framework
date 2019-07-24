@@ -6,6 +6,7 @@ set(sources src/RootMaterialDecorator.cpp
             src/RootParticleWriter.cpp
             src/RootPropagationStepsWriter.cpp
             src/RootSimHitWriter.cpp
+            src/RootTrackParameterWriter.cpp
           )
 
 add_library(ACTFWRootPlugin SHARED ${sources})
