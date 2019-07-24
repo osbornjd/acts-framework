@@ -65,10 +65,10 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
   ChargedStepper    cStepper(std::move(fieldMap));
   ChargedPropagator cPropagator(std::move(cStepper), std::move(cNavigator));
 
-  using Updator  = Acts::GainMatrixUpdator<Acts::BoundParameters>;
+  using Updater  = Acts::GainMatrixUpdater<Acts::BoundParameters>;
   using Smoother = Acts::GainMatrixSmoother<Acts::BoundParameters>;
 
-  using KalmanFitter = Acts::KalmanFitter<ChargedPropagator, Updator, Smoother>;
+  using KalmanFitter = Acts::KalmanFitter<ChargedPropagator, Updater, Smoother>;
 
   KalmanFitter kFitter(
       cPropagator, Acts::getDefaultLogger("KalmanFilter", Acts::Logging::INFO));
