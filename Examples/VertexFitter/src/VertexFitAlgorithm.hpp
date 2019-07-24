@@ -15,6 +15,9 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "Acts/Utilities/Units.hpp"
+
+using namespace Acts::UnitLiterals;
 
 namespace FWE {
 
@@ -24,12 +27,18 @@ public:
   struct Config
   {
     /// Input track collection
-    std::string trackCollection;  ///< Input track collection
+    std::string trackCollection;
 
     /// The magnetic field
     Acts::Vector3D bField;
 
     bool doConstrainedFit = false;
+
+    /// Vertex constraint covariance matrix
+    Acts::ActsSymMatrixD<3> constraintCov
+        = Acts::Vector3D(3_mm, 3_mm, 10_mm).asDiagonal();
+    /// Vertex constraint position
+    Acts::Vector3D constraintPos = Acts::Vector3D(0, 0, 0);
   };
 
   /// Constructor

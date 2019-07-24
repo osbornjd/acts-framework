@@ -15,7 +15,6 @@
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Utilities/Units.hpp"
 #include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
 
 #include "Acts/Vertexing/LinearizedTrack.hpp"
@@ -23,8 +22,6 @@
 #include "Acts/Vertexing/Vertex.hpp"
 
 #include <iostream>
-
-using namespace Acts::UnitLiterals;
 
 FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
                                             Acts::Logging::Level level)
@@ -58,25 +55,12 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
   VertexFitter::Config vertexFitterCfg(bField, propagator);
   VertexFitter         vertexFitter(vertexFitterCfg);
 
-  // Vertex constraint
-  Acts::Vertex<Acts::BoundParameters> myConstraint;
-  Acts::ActsSymMatrixD<3>             myCovMat;
-  // Set some arbitrary large values on the main diagonal
-  myCovMat(0, 0) = 30_um;
-  myCovMat(1, 1) = 30_um;
-  myCovMat(2, 2) = 30_um;
-  myConstraint.setCovariance(std::move(myCovMat));
-  myConstraint.setPosition(Acts::Vector3D(0, 0, 0));
-
-  // Vertex fitter options
-  Acts::VertexFitterOptions<Acts::BoundParameters> vfOptions(
-      context.geoContext, context.magFieldContext);
-
-  Acts::VertexFitterOptions<Acts::BoundParameters> vfOptionsConstr(
-      context.geoContext, context.magFieldContext, myConstraint);
-
   Acts::Vertex<Acts::BoundParameters> fittedVertex;
   if (!m_cfg.doConstrainedFit) {
+    // Vertex fitter options
+    Acts::VertexFitterOptions<Acts::BoundParameters> vfOptions(
+        context.geoContext, context.magFieldContext);
+
     auto fitRes = vertexFitter.fit(inputTrackCollection, vfOptions);
     if (fitRes.ok()) {
       fittedVertex = *fitRes;
@@ -84,6 +68,15 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
       ACTS_ERROR("Error in vertex fit.");
     }
   } else {
+    // Vertex constraint
+    Acts::Vertex<Acts::BoundParameters> theConstraint;
+
+    theConstraint.setCovariance(m_cfg.constraintCov);
+    theConstraint.setPosition(m_cfg.constraintPos);
+
+    // Vertex fitter options
+    Acts::VertexFitterOptions<Acts::BoundParameters> vfOptionsConstr(
+        context.geoContext, context.magFieldContext, theConstraint);
 
     auto fitRes = vertexFitter.fit(inputTrackCollection, vfOptionsConstr);
     if (fitRes.ok()) {

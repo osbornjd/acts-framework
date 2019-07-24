@@ -26,9 +26,9 @@ FW::TruthVerticesToTracksAlgorithm::TruthVerticesToTracksAlgorithm(
     Acts::Logging::Level                              level)
   : FW::BareAlgorithm("TruthVerticesToTracksAlgorithm", level), m_cfg(cfg)
 {
-  if (m_cfg.inputCollection.empty()) {
+  if (m_cfg.input.empty()) {
     throw std::invalid_argument("Missing input collection");
-  } else if (m_cfg.outputCollection.empty()) {
+  } else if (m_cfg.output.empty()) {
     throw std::invalid_argument("Missing output collection");
   } else if (m_cfg.randomNumberSvc == nullptr) {
     throw std::invalid_argument("Missing random number service");
@@ -41,8 +41,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
 {
 
   const auto& vertexCollection
-      = context.eventStore.get<std::vector<FW::Data::SimVertex<>>>(
-          m_cfg.inputCollection);
+      = context.eventStore.get<std::vector<FW::Data::SimVertex<>>>(m_cfg.input);
 
   std::shared_ptr<Acts::PerigeeSurface> perigeeSurface
       = Acts::Surface::makeShared<Acts::PerigeeSurface>(m_cfg.refPosition);
@@ -138,7 +137,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
   }    // end iteration over all vertices
 
   // write the SpacePoints to the EventStore
-  context.eventStore.add(m_cfg.outputCollection, std::move(trackCollection));
+  context.eventStore.add(m_cfg.output, std::move(trackCollection));
 
   return FW::ProcessCode::SUCCESS;
 }

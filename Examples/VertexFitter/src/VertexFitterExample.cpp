@@ -75,18 +75,18 @@ main(int argc, char* argv[])
   evgenCfg.barcodeSvc    = barcode;
 
   // Set magnetic field
-  Acts::Vector3D bField(0., 0., 1. * Acts::units::_T);
+  Acts::Vector3D bField(0., 0., 2. * Acts::units::_T);
 
   // Set up TruthVerticesToTracks converter algorithm
   TruthVerticesToTracksAlgorithm::Config trkConvConfig;
-  trkConvConfig.randomNumberSvc  = rnd;
-  trkConvConfig.bField           = bField;
-  trkConvConfig.inputCollection  = evgenCfg.output;
-  trkConvConfig.outputCollection = "all_tracks";
+  trkConvConfig.randomNumberSvc = rnd;
+  trkConvConfig.bField          = bField;
+  trkConvConfig.input           = evgenCfg.output;
+  trkConvConfig.output          = "all_tracks";
 
   // Set up track selector
   TrackSelector::Config selectorConfig;
-  selectorConfig.input       = trkConvConfig.outputCollection;
+  selectorConfig.input       = trkConvConfig.output;
   selectorConfig.output      = "selected_tracks";
   selectorConfig.absEtaMax   = 2.5;
   selectorConfig.rhoMax      = 4 * Acts::units::_mm;

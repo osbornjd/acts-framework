@@ -30,9 +30,9 @@ public:
   struct Config
   {
     /// Input event (vertex collection)
-    std::string inputCollection = "";
+    std::string input = "";
     /// Output track collection
-    std::string outputCollection = "";
+    std::string output = "";
 
     /// FW random number service
     std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
