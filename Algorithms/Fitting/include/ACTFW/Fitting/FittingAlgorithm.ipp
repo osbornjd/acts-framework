@@ -167,11 +167,11 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
         = -q / (fp * fp) * m_cfg.parameterSigma[4] * Acts::units::_GeV;
 
     // prepare the covariance
-    Acts::ActsSymMatrixD<5> cov;
-    cov << pow(loc0Res, 2), 0., 0., 0., 0., 0., pow(loc1Res, 2), 0., 0., 0., 0.,
-        0., pow(phiRes, 2), 0., 0., 0., 0., 0., pow(thetaRes, 2), 0., 0., 0.,
-        0., 0., pow(qOpRes, 2);
-    auto covPtr = std::make_unique<const Acts::ActsSymMatrixD<5>>(cov);
+    Acts::BoundSymMatrix cov;
+    cov.setZero();
+    cov.diagonal() << pow(loc0Res, 2), pow(loc1Res, 2), pow(phiRes, 2),
+        pow(thetaRes, 2), pow(qOpRes, 2), 0;
+    auto covPtr = std::make_unique<const Acts::BoundSymMatrix>(cov);
 
     // prepare the initial momentum
     double         rPhi   = fphi + phiRes * gauss(generator);
@@ -194,7 +194,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
 
     // then create the start parameters using the prepared momentum and position
     Acts::SingleCurvilinearTrackParameters<Acts::ChargedPolicy> rStart(
-        std::move(covPtr), rPos, rMom, q);
+        std::move(covPtr), rPos, rMom, q, 0);
 
     // set the target surface
     const Acts::Surface* rSurface = &rStart.referenceSurface();

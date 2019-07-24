@@ -23,7 +23,7 @@ FW::ResPlotTool::ResPlotTool(const FW::ResPlotTool::Config& cfg,
   PlotHelpers::Binning bResidual = m_cfg.varBinning["Residual"];
   PlotHelpers::Binning bPull     = m_cfg.varBinning["Pull"];
   ACTS_DEBUG("Initialize the histograms for residual and pull plots");
-  for (unsigned int parID = 0; parID < Acts::NGlobalPars; parID++) {
+  for (unsigned int parID = 0; parID < Acts::BoundParsDim; parID++) {
     std::string parName = m_cfg.paramNames.at(parID);
     // residual distributions
     m_res[parName]
@@ -137,7 +137,7 @@ FW::ResPlotTool::ResPlotTool(const FW::ResPlotTool::Config& cfg,
 
 FW::ResPlotTool::~ResPlotTool()
 {
-  for (unsigned int parID = 0; parID < Acts::NGlobalPars; parID++) {
+  for (unsigned int parID = 0; parID < Acts::BoundParsDim; parID++) {
     std::string parName = m_cfg.paramNames.at(parID);
     delete m_res[parName];
     delete m_res_vs_eta[parName];
@@ -166,7 +166,7 @@ void
 FW::ResPlotTool::write()
 {
   ACTS_DEBUG("Write the hists to output file.");
-  for (unsigned int parID = 0; parID < Acts::NGlobalPars; parID++) {
+  for (unsigned int parID = 0; parID < Acts::BoundParsDim; parID++) {
     std::string parName = m_cfg.paramNames.at(parID);
     m_res[parName]->Write();
     m_res_vs_eta[parName]->Write();
@@ -251,7 +251,7 @@ FW::ResPlotTool::fill(const Acts::GeometryContext& gctx,
       auto trackParameter = smoothed.parameters();
       auto covariance     = *smoothed.covariance();
       // fill the histograms for residual and pull
-      for (unsigned int parID = 0; parID < Acts::NGlobalPars; parID++) {
+      for (unsigned int parID = 0; parID < Acts::BoundParsDim; parID++) {
         std::string parName  = m_cfg.paramNames.at(parID);
         float       residual = trackParameter[parID] - truthParameter[parID];
         PlotHelpers::fillHisto(m_res[parName], residual);
@@ -282,7 +282,7 @@ FW::ResPlotTool::refinement()
   PlotHelpers::Binning bEta = m_cfg.varBinning["Eta"];
   PlotHelpers::Binning bR   = m_cfg.varBinning["R"];
   PlotHelpers::Binning bZ   = m_cfg.varBinning["Z"];
-  for (unsigned int parID = 0; parID < Acts::NGlobalPars; parID++) {
+  for (unsigned int parID = 0; parID < Acts::BoundParsDim; parID++) {
     std::string parName = m_cfg.paramNames.at(parID);
     for (int j = 1; j <= bEta.nBins; j++) {
       TH1D* temp_res = m_res_vs_eta[parName]->ProjectionY(

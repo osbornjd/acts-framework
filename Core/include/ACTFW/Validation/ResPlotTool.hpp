@@ -46,7 +46,7 @@ public:
   {
     /// parameter sets to do plots
     std::vector<std::string> paramNames
-        = {"LOC_0", "LOC_1", "PHI", "THETA", "QOP"};
+        = {"LOC_0", "LOC_1", "PHI", "THETA", "QOP", "TIME"};
     /// Binning info for variables
     std::map<std::string, PlotHelpers::Binning> varBinning
         = {{"Eta", PlotHelpers::Binning("#eta", 50, -4, 4)},
