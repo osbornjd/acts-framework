@@ -70,18 +70,23 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
 
   using KalmanFitter = Acts::KalmanFitter<ChargedPropagator, Updator, Smoother>;
 
-  KalmanFitter kFitter(cPropagator);
+  KalmanFitter kFitter(
+      cPropagator, Acts::getDefaultLogger("KalmanFilter", Acts::Logging::INFO));
 
   using FittingAlgorithm = FW::FittingAlgorithm<KalmanFitter>;
 
   typename FittingAlgorithm::Config fittingConfig
       = FW::Options::readFittingConfig<po::variables_map, KalmanFitter>(
-          vm, kFitter);
+          vm, std::move(kFitter));
   fittingConfig.randomNumberSvc = randomNumberSvc;
+
+  std::string trackCollection          = fittingConfig.trackCollection;
+  std::string simulatedEventCollection = fittingConfig.simulatedEventCollection;
+  std::string simulatedHitCollection   = fittingConfig.simulatedHitCollection;
 
   // Finally the fitting algorithm
   sequencer.addAlgorithm(
-      std::make_shared<FittingAlgorithm>(fittingConfig, logLevel));
+      std::make_shared<FittingAlgorithm>(std::move(fittingConfig), logLevel));
 
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
@@ -89,14 +94,12 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
   // Write fitted tracks as ROOT files
   if (vm["output-root"].template as<bool>()) {
     FW::Root::RootTrackWriter::Config tWriterRootConfig;
-    tWriterRootConfig.trackCollection = fittingConfig.trackCollection;
-    tWriterRootConfig.simulatedEventCollection
-        = fittingConfig.simulatedEventCollection;
-    tWriterRootConfig.simulatedHitCollection
-        = fittingConfig.simulatedHitCollection;
+    tWriterRootConfig.trackCollection          = trackCollection;
+    tWriterRootConfig.simulatedEventCollection = simulatedEventCollection;
+    tWriterRootConfig.simulatedHitCollection   = simulatedHitCollection;
     tWriterRootConfig.filePath
-        = FW::joinPaths(outputDir, fittingConfig.trackCollection + ".root");
-    tWriterRootConfig.treeName = fittingConfig.trackCollection;
+        = FW::joinPaths(outputDir, trackCollection + ".root");
+    tWriterRootConfig.treeName = trackCollection;
     sequencer.addWriter(
         std::make_shared<FW::Root::RootTrackWriter>(tWriterRootConfig));
   }
@@ -105,14 +108,12 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
   if (vm["output-root"].template as<bool>()) {
     FW::ResPlotTool::Config                     resPlotToolConfig;
     FW::Root::RootPerformanceValidation::Config perfValidationConfig;
-    perfValidationConfig.resPlotToolConfig = resPlotToolConfig;
-    perfValidationConfig.trackCollection   = fittingConfig.trackCollection;
-    perfValidationConfig.simulatedEventCollection
-        = fittingConfig.simulatedEventCollection;
-    perfValidationConfig.simulatedHitCollection
-        = fittingConfig.simulatedHitCollection;
-    perfValidationConfig.filePath = FW::joinPaths(
-        outputDir, fittingConfig.trackCollection + "_performance.root");
+    perfValidationConfig.resPlotToolConfig        = resPlotToolConfig;
+    perfValidationConfig.trackCollection          = trackCollection;
+    perfValidationConfig.simulatedEventCollection = simulatedEventCollection;
+    perfValidationConfig.simulatedHitCollection   = simulatedHitCollection;
+    perfValidationConfig.filePath
+        = FW::joinPaths(outputDir, trackCollection + "_performance.root");
     sequencer.addWriter(std::make_shared<FW::Root::RootPerformanceValidation>(
         perfValidationConfig));
   }
