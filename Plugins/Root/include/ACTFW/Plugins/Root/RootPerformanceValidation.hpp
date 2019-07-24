@@ -21,7 +21,7 @@
 #include "Acts/EventData/Measurement.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/EventData/TrackState.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
 
 class TFile;

@@ -16,18 +16,18 @@
 #include "ACTFW/Plugins/Root/RootPerformanceValidation.hpp"
 #include "ACTFW/Plugins/Root/RootTrackWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Extrapolator/Navigator.hpp"
 #include "Acts/Fitter/GainMatrixSmoother.hpp"
-#include "Acts/Fitter/GainMatrixUpdator.hpp"
+#include "Acts/Fitter/GainMatrixUpdater.hpp"
 #include "Acts/Fitter/KalmanFitter.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "Acts/MagneticField/SharedBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
+#include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
 
 /// @brief Fitting setup
 ///
