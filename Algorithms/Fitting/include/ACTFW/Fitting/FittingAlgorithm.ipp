@@ -65,7 +65,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
 
   // Prepare the measurements for KalmanFitter
   ACTS_DEBUG("Prepare the measurements and then tracks");
-  TrackMap tracks;
+  std::map<barcode_type, std::vector<Data::SimSourceLink>> sourceLinkMap;
   for (auto& vData : (*simHits)) {
     for (auto& lData : vData.second) {
       for (auto& sData : lData.second) {
@@ -94,29 +94,25 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
           double dy = resY * gauss(generator);
 
           // move a ,LOC_0, LOC_1 measurement
-          Acts::Measurement<Identifier,
-                            Acts::ParDef::eLOC_0,
-                            Acts::ParDef::eLOC_1>
-              m01(hitSurface->getSharedPtr(),
-                  geoID,
-                  cov2D,
-                  local[Acts::ParDef::eLOC_0] + dx,
-                  local[Acts::ParDef::eLOC_1] + dy);
+          // make source link which includes smeared hit
+
+          Acts::BoundMatrix cov{};
+          cov.topLeftCorner<2, 2>() = cov2D;
+
+          Acts::BoundVector loc{};
+          loc.head<2>() << local[Acts::ParDef::eLOC_0] + dx,
+              local[Acts::ParDef::eLOC_1] + dy;
+
+          Data::SimSourceLink sourceLink{&hit, 2, loc, cov};
 
           // find the truth particle this hit belongs to via the barcode
-          auto trackStates = tracks.find(barcode);
-          if (trackStates == tracks.end()) {
-            tracks[barcode] = std::vector<TrackState>();
-            trackStates     = tracks.find(barcode);
-          }
-          // insert the measurement for this truth particle
-          (trackStates->second).push_back(TrackState(std::move(m01)));
+          sourceLinkMap[barcode].push_back(sourceLink);
         }  // hit loop
-      }    // moudle loop
+      }    // module loop
     }      // layer loop
   }        // volume loop
 
-  ACTS_DEBUG("There are " << tracks.size() << " tracks for this event ");
+  ACTS_DEBUG("There are " << sourceLinkMap.size() << " tracks for this event ");
 
   // Get the truth particle
   ACTS_DEBUG("Get truth particle.");
@@ -129,15 +125,13 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
 
   // Start to perform fit to the prepared tracks
   int itrack = 0;
-  for (TrackMap::iterator it = tracks.begin(); it != tracks.end(); ++it) {
-    if (it->first == 0) continue;
+  for (auto & [ barcode, sourceLinks ] : sourceLinkMap) {
+    if (barcode) continue;
     itrack++;
-    barcode_type barcode  = it->first;
-    auto         particle = particles.find(barcode)->second;
+    auto particle = particles.find(barcode)->second;
 
-    auto measurements = it->second;
     ACTS_DEBUG("Start processing itrack = " << itrack << " with nStates = "
-                                            << measurements.size()
+                                            << sourceLinks.size()
                                             << " and truth particle id = "
                                             << barcode);
 
@@ -206,7 +200,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
                                         rSurface);
 
     // perform the fit with KalmanFitter
-    auto fittedResult = m_cfg.kFitter.fit(measurements, rStart, kfOptions);
+    auto fittedResult = m_cfg.kFitter.fit(sourceLinks, rStart, kfOptions);
     ACTS_DEBUG("Finish the fitting.");
 
     // get the fitted parameters
