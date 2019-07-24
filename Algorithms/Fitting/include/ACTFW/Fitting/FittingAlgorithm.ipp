@@ -8,9 +8,9 @@
 
 template <typename kalman_Fitter_t>
 FW::FittingAlgorithm<kalman_Fitter_t>::FittingAlgorithm(
-    const Config&        cfg,
+    Config               cfg,
     Acts::Logging::Level level)
-  : FW::BareAlgorithm("FittingAlgorithm", level), m_cfg(cfg)
+  : FW::BareAlgorithm("FittingAlgorithm", level), m_cfg(std::move(cfg))
 {
   if (m_cfg.simulatedHitCollection.empty()) {
     throw std::invalid_argument("Missing input hits collection");

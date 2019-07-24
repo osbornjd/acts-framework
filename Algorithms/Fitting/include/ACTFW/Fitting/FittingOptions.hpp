@@ -56,7 +56,7 @@ namespace Options {
   ///@param vm the options map to be read out
   template <typename AMAP, typename kalman_Fitter_t>
   typename FittingAlgorithm<kalman_Fitter_t>::Config
-  readFittingConfig(const AMAP& vm, kalman_Fitter_t& fitter)
+  readFittingConfig(const AMAP& vm, kalman_Fitter_t fitter)
   {
     // Create a config
     typename FittingAlgorithm<kalman_Fitter_t>::Config fittingConfig(

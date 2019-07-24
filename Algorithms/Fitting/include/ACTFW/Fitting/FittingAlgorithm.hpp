@@ -70,7 +70,7 @@ public:
   ///
   /// @param cfg is the config struct to configure the algorihtm
   /// @param level is the logging level
-  FittingAlgorithm(const Config&        cfg,
+  FittingAlgorithm(Config               cfg,
                    Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// Framework execute method of the fitting algorithm
