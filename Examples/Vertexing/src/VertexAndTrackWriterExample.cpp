@@ -91,7 +91,15 @@ main(int argc, char* argv[])
 
   Root::RootVertexAndTracksWriter::Config writerCfg;
   writerCfg.collection = selectorConfig.output;
-  writerCfg.filePath   = "./testfile.root";
+
+  int         nPileup        = vm["evg-pileup"].template as<int>();
+  int         nEvents        = vm["events"].as<size_t>();
+  std::string pileupString   = std::to_string(nPileup);
+  std::string nEventsString  = std::to_string(nEvents);
+  std::string outputDir      = vm["output-dir"].as<std::string>();
+  std::string outputFilePath = outputDir + "VertexAndTracksCollection_n"
+      + nEventsString + "_p" + pileupString + ".root";
+  writerCfg.filePath = outputFilePath;
 
   Sequencer::Config sequencerCfg = Options::readSequencerConfig(vm);
   Sequencer         sequencer(sequencerCfg);

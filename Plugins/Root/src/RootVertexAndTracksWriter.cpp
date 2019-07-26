@@ -99,17 +99,19 @@ FW::Root::RootVertexAndTracksWriter::writeT(
     const AlgorithmContext&             context,
     const std::vector<VertexAndTracks>& vertexAndTracksCollection)
 {
-  ClearAll();
 
-  if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
+  if (m_outputFile == nullptr || vertexAndTracksCollection.empty()) {
+    return ProcessCode::SUCCESS;
+  }
 
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
+  ClearAll();
+
   // Get the event number
   m_eventNr = context.eventNumber;
 
-  int count = 0;
   for (auto& vertexAndTracks : vertexAndTracksCollection) {
 
     // Collect the vertex information
