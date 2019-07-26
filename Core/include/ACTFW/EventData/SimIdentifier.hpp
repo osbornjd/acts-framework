@@ -22,7 +22,7 @@ namespace Data {
   ///
   /// Identifier implementation for the ACTS framework
   /// including MC truth information
-  class SimIdentifier
+  class SimIdentifier : public Acts::MinimalSourceLink
   {
   public:
     typedef unsigned long long identifier_type;
