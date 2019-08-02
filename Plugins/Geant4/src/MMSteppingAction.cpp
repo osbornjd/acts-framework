@@ -68,6 +68,7 @@ FW::Geant4::MMSteppingAction::UserSteppingAction(const G4Step* step)
       if (A != 0.) A /= nElements;
       if (A != 0.) Z /= nElements;
     }
+
     // create the RecordedMaterialProperties
     const auto& prePos  = step->GetPreStepPoint()->GetPosition();
     const auto& postPos = step->GetPostStepPoint()->GetPosition();
