@@ -1,12 +1,10 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-#pragma once
 
 #include <boost/program_options.hpp>
 #include <memory>
@@ -29,25 +27,12 @@
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
 
+#include "ACTFW/Detector/IBaseDetector.hpp"
+
 namespace po = boost::program_options;
 
-/// @brief The material validation example, it runs a propagation
-/// and then writes out the material information
-///
-/// @tparam option_setup_t Type of the option setter
-/// @tparam geometry_setup_t Type of the geometry setter
-///
-/// @param argc the number of argumetns of the call
-/// @param atgv the argument list
-/// @param optionsSetup is the access struct to the additional options
-/// @param geometrySetup is the access struct for the trackingGeometry
-///
-template <typename options_setup_t, typename geometry_setup_t>
 int
-materialMappingExample(int              argc,
-                       char*            argv[],
-                       options_setup_t  optionsSetup,
-                       geometry_setup_t geometrySetup)
+materialMappingExample(int argc, char* argv[], FW::IBaseDetector& detector)
 {
 
   // Setup and parse options
@@ -61,7 +46,7 @@ materialMappingExample(int              argc,
   FW::Options::addOutputOptions(desc);
 
   // Add specific options for this geometry
-  optionsSetup(desc);
+  detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
@@ -73,7 +58,7 @@ materialMappingExample(int              argc,
   auto logLevel = FW::Options::readLogLevel(vm);
 
   // The geometry, material and decoration
-  auto geometry  = FW::Geometry::build(vm, geometrySetup);
+  auto geometry  = FW::Geometry::build(vm, detector);
   auto tGeometry = geometry.first;
 
   /// Default contexts

@@ -9,6 +9,7 @@
 #pragma once
 
 #include "ACTFW/Plugins/Root/RootBFieldWriter.hpp"
+#include "ACTFW/Utilities/Options.hpp"
 
 namespace FW {
 namespace BField {
@@ -41,5 +42,5 @@ namespace BField {
 
     FW::Root::RootBFieldWriter<bfield_t>::run(writerConfig);
   }
-}
-}
+}  // namespace BField
+}  // namespace FW

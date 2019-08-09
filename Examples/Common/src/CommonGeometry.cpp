@@ -6,9 +6,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
-
 #include <string>
+
+#include <boost/program_options.hpp>
 
 #include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Utilities/Logger.hpp>
@@ -16,6 +16,8 @@
 #include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "ACTFW/Plugins/Json/JsonMaterialDecorator.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialDecorator.hpp"
+
+#include "ACTFW/Detector/IBaseDetector.hpp"
 
 namespace FW {
 namespace Geometry {
@@ -29,9 +31,10 @@ namespace Geometry {
   /// @param geometrySetup the callable geometry setup
   ///
   /// @return a pair of TrackingGeometry and context decorators
-  template <typename options_map_t, typename geometry_setup_t>
-  auto
-  build(const options_map_t& vm, geometry_setup_t& geometrySetup)
+  std::pair<std::shared_ptr<const Acts::TrackingGeometry>,
+            std::vector<std::shared_ptr<FW::IContextDecorator>>>
+  build(const boost::program_options::variables_map& vm,
+        IBaseDetector&                               detector)
   {
 
     // Material decoration
@@ -59,8 +62,8 @@ namespace Geometry {
     }
 
     /// Return the geometry and context decorators
-    return geometrySetup(vm, matDeco);
+    return detector.finalize(vm, matDeco);
   }
 
-}  // namespace
-}  // namespace
+}  // namespace Geometry
+}  // namespace FW

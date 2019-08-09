@@ -17,6 +17,7 @@
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
@@ -41,6 +42,8 @@
 
 typedef FW::Data::SimHit<FW::Data::SimParticle> FatrasHit;
 typedef std::vector<FW::Data::SimVertex<>>      FatrasEvent;
+
+namespace po = boost::program_options;
 
 /// Simple struct to select sensitive surfaces
 struct SurfaceSelector
@@ -237,7 +240,7 @@ setupSimulation(vmap_t&                                       vm,
                 std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
   // Create BField service
-  auto bField  = FW::Options::readBField<po::variables_map>(vm);
+  auto bField  = FW::Options::readBField(vm);
   auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
   auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
 

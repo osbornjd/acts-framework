@@ -1,12 +1,10 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-#pragma once
 
 #include <memory>
 
@@ -32,6 +30,10 @@
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
 
+#include "ACTFW/Detector/IBaseDetector.hpp"
+
+namespace {
+
 /// @brief Propgation setup
 ///
 /// @tparam sequencer_t Type of the sequencer of the framework
@@ -46,11 +48,11 @@
 /// @return a process code
 template <typename sequencer_t, typename bfield_t>
 FW::ProcessCode
-setupPropgation(sequencer_t&                                  sequencer,
-                bfield_t                                      bfield,
-                boost::program_options::variables_map&        vm,
-                std::shared_ptr<FW::RandomNumbers>            randomNumberSvc,
-                std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
+setupPropagation(sequencer_t&                                  sequencer,
+                 bfield_t                                      bfield,
+                 boost::program_options::variables_map&        vm,
+                 std::shared_ptr<FW::RandomNumbers>            randomNumberSvc,
+                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
   auto logLevel = FW::Options::readLogLevel(vm);
@@ -112,23 +114,10 @@ setupStraightLinePropgation(
 
   return FW::ProcessCode::SUCCESS;
 }
+}  // namespace
 
-/// The Propagation example
-///
-/// @tparam options_setup_t are the callable example options
-/// @tparam geometry_setup_t Type of the geometry getter struct
-///
-/// @param argc the number of argumetns of the call
-/// @param argv the argument list
-/// @param optionsSetup is a callable options struct
-/// @param geometrySetup is a callable geometry getter
-///
-template <typename options_setup_t, typename geometry_setup_t>
 int
-propagationExample(int               argc,
-                   char*             argv[],
-                   options_setup_t&  optionsSetup,
-                   geometry_setup_t& geometrySetup)
+propagationExample(int argc, char* argv[], FW::IBaseDetector& detector)
 {
   // Setup and parse options
   auto desc = FW::Options::makeDefaultOptions();
@@ -141,24 +130,20 @@ propagationExample(int               argc,
   FW::Options::addOutputOptions(desc);
 
   // Add specific options for this geometry
-  optionsSetup(desc);
+  detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
-  if (vm.empty()) {
-    return EXIT_FAILURE;
-  }
+  if (vm.empty()) { return EXIT_FAILURE; }
   FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
 
   // Now read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);
 
   // The geometry, material and decoration
-  auto geometry          = FW::Geometry::build(vm, geometrySetup);
+  auto geometry          = FW::Geometry::build(vm, detector);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
   // Add the decorator to the sequencer
-  for (auto cdr : contextDecorators) {
-    sequencer.addContextDecorator(cdr);
-  }
+  for (auto cdr : contextDecorators) { sequencer.addContextDecorator(cdr); }
 
   // Create the random number engine
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
@@ -177,21 +162,21 @@ propagationExample(int               argc,
     // Define the interpolated b-field
     using BField = Acts::SharedBField<InterpolatedBFieldMap2D>;
     BField fieldMap(field2D);
-    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else if (field3D) {
     // Define the interpolated b-field
     using BField = Acts::SharedBField<InterpolatedBFieldMap3D>;
     BField fieldMap(field3D);
-    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else if (vm["bf-context-scalable"].template as<bool>()) {
     using SField = FW::BField::ScalableBField;
     SField fieldMap(*std::get<std::shared_ptr<SField>>(bField));
-    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else {
     // Create the constant  field
     using CField = Acts::ConstantBField;
     CField fieldMap(*std::get<std::shared_ptr<CField>>(bField));
-    setupPropgation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   }
 
   // ---------------------------------------------------------------------------------

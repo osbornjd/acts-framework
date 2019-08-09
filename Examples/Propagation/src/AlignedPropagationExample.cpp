@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/ContextualDetector/AlignedDetector.hpp"
-#include "detail/PropagationExampleBase.hpp"
+#include "ACTFW/Propagation/PropagationExampleBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,9 +17,8 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  AlignedOptions  alignedOptions;
-  AlignedGeometry alignedGeometry;
+  AlignedDetector alignedDetector;
 
   // now process it
-  return propagationExample(argc, argv, alignedOptions, alignedGeometry);
+  return propagationExample(argc, argv, alignedDetector);
 }

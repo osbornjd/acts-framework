@@ -1,12 +1,10 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-#pragma once
 
 #include <memory>
 
@@ -24,27 +22,14 @@
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 
-#include "FatrasDigitizationBase.hpp"
-#include "FatrasEvgenBase.hpp"
-#include "FatrasSimulationBase.hpp"
+#include "detail/FatrasDigitizationBase.hpp"
+#include "detail/FatrasEvgenBase.hpp"
+#include "detail/FatrasSimulationBase.hpp"
 
-/// @brief The Fatras example
-///
-/// This instantiates the geometry and runs fast track simultion
-///
-/// @tparam options_setup_t are the callable example options
-/// @tparam geometry_setup_t Type of the geometry getter struct
-///
-/// @param argc the number of argumetns of the call
-/// @param argv the argument list
-/// @param optionsSetup is a callable options struct
-/// @param geometrySetup is a callable geometry getter
-template <typename options_setup_t, typename geometry_setup_t>
+#include "ACTFW/Detector/IBaseDetector.hpp"
+
 int
-fatrasExample(int               argc,
-              char*             argv[],
-              options_setup_t&  optionsSetup,
-              geometry_setup_t& geometrySetup)
+fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
 {
   using boost::program_options::value;
 
@@ -64,7 +49,7 @@ fatrasExample(int               argc,
                      value<std::string>()->default_value("pythia8"),
                      "Type of evgen input 'gun', 'pythia8'");
   // Add specific options for this geometry
-  optionsSetup(desc);
+  detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
@@ -82,7 +67,7 @@ fatrasExample(int               argc,
   auto barcodeSvc = std::make_shared<FW::BarcodeSvc>(FW::BarcodeSvc::Config());
 
   // The geometry, material and decoration
-  auto geometry          = FW::Geometry::build(vm, geometrySetup);
+  auto geometry          = FW::Geometry::build(vm, detector);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
   // Add the decorator to the sequencer

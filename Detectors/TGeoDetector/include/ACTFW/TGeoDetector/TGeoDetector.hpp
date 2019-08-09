@@ -6,60 +6,30 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Framework/IContextDecorator.hpp"
-#include "ACTFW/TGeoDetector/BuildTGeoDetector.hpp"
-#include "Acts/Geometry/GeometryContext.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Plugins/TGeo/TGeoDetectorElement.hpp"
+#pragma once
 
-using DetectorElementPtr  = std::shared_ptr<const Acts::TGeoDetectorElement>;
-using TrackingGeometryPtr = std::shared_ptr<const Acts::TrackingGeometry>;
-using ContextDecorators   = std::vector<std::shared_ptr<FW::IContextDecorator>>;
-using DetectorStore       = std::vector<DetectorElementPtr>;
+#include <memory>
+#include <vector>
 
-/// @brief adding some specific options for this geometry type
-struct TGeoOptions
+#include "ACTFW/Detector/IBaseDetector.hpp"
+#include "ACTFW/Utilities/OptionsFwd.hpp"
+
+namespace Acts {
+class TGeoDetectorElement;
+}
+
+struct TGeoDetector : public FW::IBaseDetector
 {
-  /// @brief operator to be called to add options for the generic detector
-  ///
-  // @tparam options_t Type of the options object
-  /// @param opt Options object to which dedicated job options can be attached
-  template <typename options_t>
-  void
-  operator()(options_t& opt)
-  {
-    FW::Options::addTGeoGeometryOptions<options_t>(opt);
-  }
-};
+  using DetectorElementPtr = std::shared_ptr<const Acts::TGeoDetectorElement>;
+  using DetectorStore      = std::vector<DetectorElementPtr>;
 
-/// @brief geometry getter, the operator() will be called int the example base
-struct TGeoGeometry
-{
-
+  /// The Store of the detector elements (lifetime: job)
   DetectorStore detectorStore;
 
-  //// @brief operator called to construct the tracking geometry and create
-  /// optionally the geometry context decorator(s)
-  ///
-  /// @tparam variable_map_t Type of the variable map template for parameters
-  /// @tparam material_decorator_t Type of the material decorator
-  ///
-  /// @param vm the parameter map object
-  /// @param mdecorator the actual material decorator
-  ///
-  /// @return a TrackingGeometry object, and optional context decorator(s)
-  template <typename variable_map_t, typename material_decorator_t>
-  std::pair<TrackingGeometryPtr, ContextDecorators>
-  operator()(variable_map_t& vm, material_decorator_t /*mdecorator*/)
-  {
-    Acts::GeometryContext tGeoContext;
-    TrackingGeometryPtr   tgeoTrackingGeometry
-        = FW::TGeo::buildTGeoDetector<variable_map_t>(
-            vm, tGeoContext, detectorStore);
+  void
+  addOptions(boost::program_options::options_description& opt) const override;
 
-    ContextDecorators tgeoContextDeocrators = {};
-    // return the pair of geometry and empty decorators
-    return std::make_pair<TrackingGeometryPtr, ContextDecorators>(
-        std::move(tgeoTrackingGeometry), std::move(tgeoContextDeocrators));
-  }
+  std::pair<FW::IBaseDetector::TrackingGeometryPtr, ContextDecorators>
+  finalize(const boost::program_options::variables_map&    vm,
+           std::shared_ptr<const Acts::IMaterialDecorator> mdecorator) override;
 };

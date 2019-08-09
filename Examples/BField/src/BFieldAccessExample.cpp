@@ -8,15 +8,18 @@
 
 #include <boost/program_options.hpp>
 #include <boost/progress.hpp>
-#include <random>
-#include <string>
 
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Utilities/Options.hpp"
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Utilities/Units.hpp"
+
+#include <random>
+#include <string>
 
 /// The main executable
 ///
@@ -165,7 +168,7 @@ main(int argc, char* argv[])
   // per-event access patterns this should be switched to a proper
   // Sequencer-based tool. Otherwise it should be removed.
   auto nEvents = FW::Options::readSequencerConfig(vm).events;
-  auto bField  = FW::Options::readBField<po::variables_map>(vm);
+  auto bField  = FW::Options::readBField(vm);
   auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
   auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
 

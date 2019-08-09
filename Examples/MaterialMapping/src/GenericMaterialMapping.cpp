@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/GenericDetector/GenericDetector.hpp"
-#include "detail/MaterialMappingBase.hpp"
+#include "ACTFW/MaterialMapping/MaterialMappingBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,8 +17,7 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  GenericOptions  genericOptions;
-  GenericGeometry genericGeometry;
+  GenericDetector detector;
   // now process it
-  return materialMappingExample(argc, argv, genericOptions, genericGeometry);
+  return materialMappingExample(argc, argv, detector);
 }

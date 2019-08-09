@@ -119,7 +119,7 @@ namespace Contextual {
     m_alignedTransforms[iov] = std::move(alignedTransform);
   }
 
-  const std::vector<std::unique_ptr<Acts::Transform3D>>&
+  inline const std::vector<std::unique_ptr<Acts::Transform3D>>&
   AlignedDetectorElement::alignedTransforms() const
   {
     return m_alignedTransforms;
