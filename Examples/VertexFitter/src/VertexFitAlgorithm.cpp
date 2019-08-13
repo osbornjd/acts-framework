@@ -7,7 +7,11 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "VertexFitAlgorithm.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+
+#include <iostream>
+
+#include "ACTFW/Framework/RandomNumbers.hpp"
+#include "ACTFW/Framework/WhiteBoard.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
@@ -16,12 +20,9 @@
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
-
 #include "Acts/Vertexing/LinearizedTrack.hpp"
 #include "Acts/Vertexing/LinearizedTrackFactory.hpp"
 #include "Acts/Vertexing/Vertex.hpp"
-
-#include <iostream>
 
 FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
                                             Acts::Logging::Level level)
