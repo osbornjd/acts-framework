@@ -14,7 +14,6 @@
 
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-
 #include "Acts/EventData/TrackParameters.hpp"
 
 FW::TrackSelector::TrackSelector(const Config& cfg, Acts::Logging::Level level)

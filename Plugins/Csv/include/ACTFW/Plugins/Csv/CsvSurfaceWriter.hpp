@@ -16,7 +16,6 @@
 #include <Acts/Utilities/Logger.hpp>
 
 #include "ACTFW/Framework/AlgorithmContext.hpp"
-#include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 
 namespace FW {
@@ -25,7 +24,7 @@ namespace Csv {
   /// @class CsvSurfaceWriter
   ///
   /// A Cvs surface writer for the geometry
-  class CsvSurfaceWriter : public IService
+  class CsvSurfaceWriter
   {
   public:
     // @class Config
@@ -70,7 +69,7 @@ namespace Csv {
 
     /// Framework name() method
     std::string
-    name() const final override;
+    name() const;
 
     /// The write interface
     /// @param context The algorithmic context needed for the full info

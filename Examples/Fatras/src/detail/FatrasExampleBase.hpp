@@ -12,9 +12,10 @@
 
 #include <boost/program_options.hpp>
 
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
 #include "ACTFW/Digitization/DigitizationOptions.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
@@ -22,8 +23,6 @@
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
-#include "ACTFW/Random/RandomNumbersOptions.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 #include "FatrasDigitizationBase.hpp"
 #include "FatrasEvgenBase.hpp"
@@ -78,16 +77,9 @@ fatrasExample(int               argc,
   // Create the random number engine
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
-      = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-
-  // Add it to the sequencer
-  sequencer.addService(randomNumberSvc);
+      = std::make_shared<FW::RandomNumbers>(randomNumberSvcCfg);
   // Create the barcode service
-  FW::BarcodeSvc::Config barcodeSvcCfg;
-  auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
-      barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
-  // Add it to the sequencer
-  sequencer.addService(barcodeSvc);
+  auto barcodeSvc = std::make_shared<FW::BarcodeSvc>(FW::BarcodeSvc::Config());
 
   // The geometry, material and decoration
   auto geometry          = FW::Geometry::build(vm, geometrySetup);

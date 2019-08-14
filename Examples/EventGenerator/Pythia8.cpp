@@ -11,15 +11,14 @@
 
 #include <Acts/Utilities/Units.hpp>
 
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include "ACTFW/Random/RandomNumbersOptions.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
 using namespace Acts::units;
@@ -44,11 +43,9 @@ main(int argc, char* argv[])
   Sequencer         sequencer(sequencerCfg);
 
   // basic services
-  RandomNumbersSvc::Config rndCfg;
-  rndCfg.seed  = 123;
-  auto rnd     = std::make_shared<RandomNumbersSvc>(rndCfg);
-  auto barcode = std::make_shared<BarcodeSvc>(
-      BarcodeSvc::Config(), Acts::getDefaultLogger("BarcodeSvc", logLevel));
+  auto rnd
+      = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
+  auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
 
   // event generation w/ process guns
   EventGenerator::Config evgenCfg = Options::readPythia8Options(vm);

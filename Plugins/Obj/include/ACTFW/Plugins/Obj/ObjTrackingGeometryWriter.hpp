@@ -14,7 +14,6 @@
 
 #include <Acts/Utilities/Logger.hpp>
 
-#include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 
@@ -30,7 +29,7 @@ namespace Obj {
   ///
   /// An Obj writer for the geometry: TrackingGeometry master
   /// It delegates the writing of surfaces to the surface writers
-  class ObjTrackingGeometryWriter : public IService
+  class ObjTrackingGeometryWriter
   {
   public:
     // @class Config
@@ -65,7 +64,7 @@ namespace Obj {
     /// Framework name() method
     /// @return the name of the tool
     std::string
-    name() const final override;
+    name() const;
 
     /// The write interface
     /// @param context the Algorithm/Event context of this call

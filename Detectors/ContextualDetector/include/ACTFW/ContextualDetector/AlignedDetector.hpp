@@ -126,10 +126,10 @@ struct AlignedGeometry
         = Acts::Logging::Level(vm["align-loglevel"].template as<size_t>());
 
     // Let's create a reandom number service
-    FW::RandomNumbersSvc::Config randomNumberConfig;
+    FW::RandomNumbers::Config randomNumberConfig;
     randomNumberConfig.seed = vm["align-seed"].template as<size_t>();
     auto randomNumberSvc
-        = std::make_shared<FW::RandomNumbersSvc>(randomNumberConfig);
+        = std::make_shared<FW::RandomNumbers>(randomNumberConfig);
 
     // Alignment decorator service
     Decorator::Config agcsConfig;

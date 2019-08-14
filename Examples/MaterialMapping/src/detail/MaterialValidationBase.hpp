@@ -8,8 +8,11 @@
 
 #pragma once
 
-#include <boost/program_options.hpp>
 #include <memory>
+
+#include <boost/program_options.hpp>
+
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
@@ -17,8 +20,6 @@
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
-#include "ACTFW/Random/RandomNumbersOptions.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
@@ -48,7 +49,7 @@ FW::ProcessCode
 setupPropagation(sequencer_t&                                  sequencer,
                  bfield_t                                      bfield,
                  po::variables_map&                            vm,
-                 std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
+                 std::shared_ptr<FW::RandomNumbers>            randomNumberSvc,
                  std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
@@ -90,7 +91,7 @@ FW::ProcessCode
 setupStraightLinePropagation(
     sequencer_t&                                  sequencer,
     po::variables_map&                            vm,
-    std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc,
+    std::shared_ptr<FW::RandomNumbers>            randomNumberSvc,
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
 {
   // Get the log level
@@ -168,9 +169,7 @@ materialValidationExample(int              argc,
   // Create the random number engine
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
-      = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-  // Add it to the sequencer
-  sequencer.addService(randomNumberSvc);
+      = std::make_shared<FW::RandomNumbers>(randomNumberSvcCfg);
 
   // Create BField service
   auto bField  = FW::Options::readBField<po::variables_map>(vm);

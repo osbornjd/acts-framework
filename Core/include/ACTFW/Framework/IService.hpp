@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -15,36 +15,46 @@
 
 #include <string>
 
-#include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTFW/Framework/AlgorithmContext.hpp"
 
 namespace FW {
 
-/// Interface for common services.
+class WhiteBoard;
+
+/// Service interface.
 ///
-/// @warning Use of this interface is **DEPRECATED**. Its only remaining use
-///          case is to support legacy writers based on the IWriterT subclass,
-///          which should eventually be turned into descendents of the
-///          IWriter/WriterT classes. At this point, IService will be removed.
-///
-/// @todo Remove once all writers have been migrated to IWriter and WriterT
-///
+/// A service should be used to provide constant or slowly changing
+/// per-event information, e.g. geometry with or without alignment, magnetic
+/// field, ..., and to handle once-per-run tasks. In contrast to an
+/// algorithm (i.e. inheriting from IAlgorithm), a service can have an internal
+/// state and each
+/// implementation has to ensure that concurrent calls are valid.
 class IService
 {
 public:
-  /// Virtual Destructor
   virtual ~IService() = default;
 
-  /// Framework name() method
+  /// The service name.
   virtual std::string
   name() const = 0;
 
-  /// Interface hook to run some code to be executed once all events of a job
-  /// have been processed, typically used for commiting writes to a file
-  virtual ProcessCode
-  endRun()
-  {
-    return ProcessCode::SUCCESS;
-  }
+  /// Start-of-run hook to be called before any events are processed.
+  ///
+  /// Should throw an exception for non-recoverable errors.
+  virtual void
+  startRun()
+      = 0;
+
+  /// Prepare per-event information.
+  ///
+  /// This is intended to add already existing information, e.g. geometry
+  /// or conditions data, to the event store. While possible, complex
+  /// operations should be better implemented as an regular algorithm.
+  ///
+  /// Should throw an exception on non-recoverable errors.
+  virtual void
+  prepare(AlgorithmContext& ctx)
+      = 0;
 };
 
 }  // namespace FW

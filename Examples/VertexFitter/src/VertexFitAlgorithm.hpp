@@ -12,9 +12,6 @@
 
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/Utilities/Units.hpp"
 
 using namespace Acts::UnitLiterals;

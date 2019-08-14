@@ -45,6 +45,15 @@ FW::Options::addSequencerOptions(
 }
 
 void
+FW::Options::addRandomNumbersOptions(
+    boost::program_options::options_description& opt)
+{
+  opt.add_options()("rnd-seed",
+                    value<uint64_t>()->default_value(1234567890u),
+                    "Random numbers seed.");
+}
+
+void
 FW::Options::addGeometryOptions(
     boost::program_options::options_description& opt)
 {
@@ -175,5 +184,15 @@ FW::Options::readSequencerConfig(
   if (not vm["output-dir"].empty()) {
     cfg.outputDir = vm["output-dir"].as<std::string>();
   }
+  return cfg;
+}
+
+// Read the random numbers config.
+FW::RandomNumbers::Config
+FW::Options::readRandomNumbersConfig(
+    const boost::program_options::variables_map& vm)
+{
+  FW::RandomNumbers::Config cfg;
+  cfg.seed = vm["rnd-seed"].as<uint64_t>();
   return cfg;
 }

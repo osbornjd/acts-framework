@@ -12,9 +12,9 @@ message(STATUS "Building with standard version: C++${CMAKE_CXX_STANDARD}")
 option(BUILD_ACTS "Build acts-core as submodule" ON)
 option(USE_DD4HEP "Build DD4hep-based geometry code" OFF)
 option(USE_GEANT4 "Build Geant4-based code" OFF)
-option(USE_TGEO "Build TGeo-based geometry code" OFF)
-option(USE_PYTHIA8 "Build Pythia8-based code" OFF)
 option(USE_HEPMC3 "Build HepMC3-based code" OFF)
+option(USE_PYTHIA8 "Build Pythia8-based code" OFF)
+option(USE_TGEO "Build TGeo-based geometry code" OFF)
 
 # Use the framework identifier instead of the bare Acts one
 add_definitions(-DACTS_CORE_IDENTIFIER_PLUGIN="${CMAKE_CURRENT_SOURCE_DIR}/Core/include/ACTFW/EventData/SimIdentifier.hpp")

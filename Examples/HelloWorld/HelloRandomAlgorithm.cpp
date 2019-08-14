@@ -1,35 +1,39 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "RandomNumbersAlgorithm.hpp"
+#include "HelloRandomAlgorithm.hpp"
 
-#include <iostream>
 #include <random>
 
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
+#include "ACTFW/Framework/WhiteBoard.hpp"
+#include "HelloData.hpp"
 
-FW::RandomNumbersAlgorithm::RandomNumbersAlgorithm(
-    const RandomNumbersAlgorithm::Config& cfg,
-    Acts::Logging::Level                  level)
-  : BareAlgorithm("RandomNumbersAlgorithm", level), m_cfg(cfg)
+FW::HelloRandomAlgorithm::HelloRandomAlgorithm(
+    const HelloRandomAlgorithm::Config& cfg,
+    Acts::Logging::Level                level)
+  : BareAlgorithm("HelloRandom", level), m_cfg(cfg)
 {
   if (!m_cfg.randomNumbers) {
     throw std::invalid_argument("Missing random number service");
   }
+  if (m_cfg.output.empty()) {
+    throw std::invalid_argument("Missing output collection");
+  }
 }
 
 FW::ProcessCode
-FW::RandomNumbersAlgorithm::execute(const AlgorithmContext& context) const
+FW::HelloRandomAlgorithm::execute(const AlgorithmContext& ctx) const
 {
-
   ACTS_INFO("Running random number generation");
-  // Create a random number generator
-  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(context);
+
+  // Create the local random number generator
+  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
 
   // Spawn some random number distributions
   std::normal_distribution<double> gaussDist(m_cfg.gaussParameters[0],
@@ -42,6 +46,8 @@ FW::RandomNumbersAlgorithm::execute(const AlgorithmContext& context) const
 
   ACTS_INFO(m_cfg.drawsPerEvent << " draws per event will be done");
 
+  // generate collection of random numbers
+  HelloDataCollection collection;
   for (size_t idraw = 0; idraw < m_cfg.drawsPerEvent; ++idraw) {
     double gauss   = gaussDist(rng);
     double uniform = uniformDist(rng);
@@ -52,6 +58,17 @@ FW::RandomNumbersAlgorithm::execute(const AlgorithmContext& context) const
     ACTS_VERBOSE("Uniform : " << uniform);
     ACTS_VERBOSE("Gamma   : " << gamma);
     ACTS_VERBOSE("Poisson : " << poisson);
+
+    HelloData x;
+    x.x = gauss;
+    x.a = uniform;
+    x.b = gamma;
+    x.t = poisson;
+    collection.push_back(x);
   }
+
+  // transfer generated data to the event store.
+  ctx.eventStore.add(m_cfg.output, std::move(collection));
+
   return FW::ProcessCode::SUCCESS;
 }

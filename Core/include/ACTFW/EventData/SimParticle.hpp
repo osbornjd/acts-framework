@@ -17,7 +17,7 @@
 #include <Acts/Utilities/Helpers.hpp>
 #include <Acts/Utilities/Units.hpp>
 
-#include "ACTFW/Barcode/Barcode.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 
 namespace FW {
 

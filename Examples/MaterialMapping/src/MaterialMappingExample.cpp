@@ -9,6 +9,7 @@
 #include <boost/program_options.hpp>
 #include "ACTFW/Common/CommonOptions.hpp"
 #include "ACTFW/Extrapolation/ExtrapolationUtils.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
 #include "ACTFW/Plugins/DD4hep/DD4hepDetectorOptions.hpp"
@@ -17,7 +18,7 @@
 #include "ACTFW/Plugins/Root/RootIndexedMaterialWriter.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Random/RandomNumbers.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Plugins/MaterialMapping/MaterialMapper.hpp"
 

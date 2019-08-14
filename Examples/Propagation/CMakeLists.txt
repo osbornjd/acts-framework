@@ -49,7 +49,7 @@ if (USE_TGEO)
     ${Boost_INCLUDE_DIRS})
   target_link_libraries(ACTFWTGeoPropagationExample PRIVATE
     ${_common_libraries}
-    ACTFWTGeoDetector ACTFWGeometryInterfaces)
+    ACTFWTGeoDetector)
   install(
     TARGETS ACTFWTGeoPropagationExample
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -63,7 +63,7 @@ if (USE_DD4HEP)
     ${DD4hep_INCLUDE_DIRS})
   target_link_libraries(ACTFWDD4hepPropagationExample PRIVATE
     ${_common_libraries}
-    ACTFWDD4hepDetector ACTFWGeometryInterfaces
+    ACTFWDD4hepDetector
     ${DD4hep_LIBRARIES})
   install(
     TARGETS ACTFWDD4hepPropagationExample

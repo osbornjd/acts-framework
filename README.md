@@ -12,8 +12,9 @@ depending on which of the following built options
 
 *   USE_DD4HEP
 *   USE_GEANT4
-*   USE_PYTHIA8
 *   USE_HEPMC3
+*   USE_PYTHIA8
+*   USE_TGEO
 
 are activated/deactivated during the configuration step, e.g. as `cmake
 -DUSE_DD4HEP=on ...`. The ACTS Core library and the ACTS Fatras library will be
@@ -47,33 +48,56 @@ run automatically with your specific version.
 ## Guidelines for writing an algorithm
 
 All examples in the framework are based on a simple event loop, i.e. a logic
-that executes a set of event readers, event writers, and event algorithms for
-each event. To simplify interactions between different algorithms please follow
+that executes a set of services, readers, processing algorithms, and writers for
+each event. The available algorithms differ in their purpose and consequently
+in the interface they provide:
+
+*   A service uses the `IService` interface and must implement the `startRun`
+    and the `prepare` methods. A service is intended to provide slowly changing
+    of constant information, e.g. geometry and alignment, for each event.
+    Computationally expensive initialization should be executed in the
+    `startRun` method. A service can have an internal state and each
+    implementation has to ensure that concurrent calls are valid. Services are
+    called before all other algorithms.
+*   A reader uses the `IReader` interface and must implement the `numEvents`
+    and `read` methods. A reader should be used to read per-event data from
+    disk and provide it to other algorithms via the event store. A reader
+    can have an internal state and each implementation has to ensure that
+    concurrent calls are valid. Readers are called after the services.
+*   A processing algorithm uses the `IAlgorithm` interface and must implement
+    the `execute` method. Anything that processes event data e.g. simulations
+    or reconstruction algorithms should use this interface. A processing
+    algorithm **must not** have an internal state in order to be callable
+    concurrently without additional precautions. Processing algorithms are
+    called after the readers. Most algorithms should try to use the
+    `BareAlgorithm` helper class to simplify the implementation.
+*   A writer uses the `IWriter` interface and must implement the `write` and
+    `endRun` methods. The writer takes existing data from the event store
+    and writes it to disk. A writer can not modify the event store but can
+    have an internal state. Each implementation has to ensure that
+    concurrent calls are valid. Writers are called after all other algorithms.
+
+All algorithms also have to implement the `name` method to identify them.
+
+To simplify interactions between different algorithms please adhere to
 the following guidelines:
 
-*   An algorithm must implement the `name`, `initialize`, `finalize`, and
-    `execute` methods defined in the `IAlgorithm` interface. `initialize` and
-    `finalize` are executed exactly once, before and after all events were
-    processed. All computationally expensive one-time code should run in the
-    `initialize` method and not already in the constructor. The `execute`
-    method for each event may be called in parallel.
-*   Simple algorithms that have no internal state can use the `BaseAlgorithm`
-    as a base class and only need to implement the `execute` method.
-*   Communication between different algorithms should only happen via the event
-    store provided by the `AlgorithmContext`. Output collections or objects
-    should be transfered to the store at the end of the execution. To allow
-    to run the same algorithm with multiple configurations the names of
+*   Communication between different algorithms **must** only happen via the
+    event store provided by the `AlgorithmContext`. Output collections or
+    objects should be transfered to the store at the end of the execution.
+    To allow to run the same algorithm with multiple configurations the names of
     input and output objects should be configurable for an algorithm.
+*   Try to avoid tight coupling between algorithms. Use the predefined event
+    data types to exchange data. That way algorithms can be easily exchanged.
 *   Strictly separate computation from input and output. Input and output
     algorithms must be implemented using the `IReader` and `IWriter` interface.
     They should only read in the data from file and add them to the event store
     or read objects from the event store and write them to file. Again,
     names of the objects that are read/written should be configurable.
 
-## Guidelines for writing an algorithm
-
 Examples should be written in a modular way using the framework components,
 such as writers and the sequencer. Options are to be defined using the
-boost::program_options syntax.
+`boost::program_options` syntax.
+
 
 [git-book-submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules

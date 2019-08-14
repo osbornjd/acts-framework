@@ -12,9 +12,8 @@
 #include <cstdint>
 #include <stdexcept>
 
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 
 FW::EventGenerator::EventGenerator(const Config&        cfg,
                                    Acts::Logging::Level level)
@@ -44,13 +43,6 @@ size_t
 FW::EventGenerator::numEvents() const
 {
   return SIZE_MAX;
-}
-
-FW::ProcessCode
-FW::EventGenerator::skip(size_t skip)
-{
-  // TODO 2018-03-13 msmk: how should skip be handled? ignore?
-  return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode

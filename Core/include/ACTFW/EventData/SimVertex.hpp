@@ -13,7 +13,7 @@
 
 #include <Acts/Utilities/Definitions.hpp>
 
-#include "ACTFW/Barcode/Barcode.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 
 namespace FW {

@@ -14,8 +14,8 @@
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/EventData/NeutralParameters.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Propagator/AbortList.hpp"
@@ -66,7 +66,7 @@ public:
     propagator_t propagator;
 
     /// how to set it up
-    std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
+    std::shared_ptr<RandomNumbers> randomNumberSvc = nullptr;
 
     /// proapgation mode
     int mode = 0;

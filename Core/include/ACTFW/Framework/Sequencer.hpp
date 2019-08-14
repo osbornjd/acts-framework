@@ -98,7 +98,7 @@ public:
   ///
   /// This will run the start-of-run hook for all configured services, run all
   /// configured readers, algorithms, and writers for each event, then invoke
-  /// the enf-of-run hook of writers and services.
+  /// the end-of-run hook for all configured writers.
   int
   run();
 

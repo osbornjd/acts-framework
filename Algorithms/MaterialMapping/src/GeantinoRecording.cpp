@@ -7,15 +7,18 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/MaterialMapping/GeantinoRecording.hpp"
+
 #include <iostream>
 #include <stdexcept>
+
+#include <FTFP_BERT.hh>
+
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Plugins/Geant4/MMDetectorConstruction.hpp"
 #include "ACTFW/Plugins/Geant4/MMEventAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMPrimaryGeneratorAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMRunAction.hpp"
 #include "ACTFW/Plugins/Geant4/MMSteppingAction.hpp"
-#include "FTFP_BERT.hh"
 
 FW::GeantinoRecording::GeantinoRecording(
     const FW::GeantinoRecording::Config& cnf,

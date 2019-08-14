@@ -19,23 +19,26 @@
 
 namespace FW {
 
-/// Interface for writing data.
+/// Event data writer interface.
+///
+/// Get data from the event store and write it to disk. The writer can have
+/// internal state and implementations are responsible to handle concurrent
+/// calls.
 class IWriter
 {
 public:
-  /// Virtual destructor.
   virtual ~IWriter() = default;
 
-  /// Provide the name of the writer.
+  /// The writer name.
   virtual std::string
   name() const = 0;
 
-  /// Write data for one event to the output stream.
+  /// Write data from one event.
   virtual ProcessCode
   write(const AlgorithmContext& context)
       = 0;
 
-  /// Finish the run (e.g. aggregate statistics, write down output, close files)
+  /// End the run (e.g. aggregate statistics, write down output, close files).
   virtual ProcessCode
   endRun()
       = 0;

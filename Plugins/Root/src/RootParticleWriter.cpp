@@ -7,15 +7,18 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include <TFile.h>
-#include <TTree.h>
+
 #include <ios>
 #include <stdexcept>
-#include "Acts/Utilities/Helpers.hpp"
+
+#include <TFile.h>
+#include <TTree.h>
+
+#include <Acts/Utilities/Helpers.hpp>
 
 using Acts::VectorHelpers::eta;
-using Acts::VectorHelpers::phi;
 using Acts::VectorHelpers::perp;
+using Acts::VectorHelpers::phi;
 
 FW::Root::RootParticleWriter::RootParticleWriter(
     const FW::Root::RootParticleWriter::Config& cfg,

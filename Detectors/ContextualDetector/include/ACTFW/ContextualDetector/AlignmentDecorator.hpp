@@ -13,8 +13,7 @@
 #include "ACTFW/ContextualDetector/AlignedDetectorElement.hpp"
 #include "ACTFW/Framework/AlgorithmContext.hpp"
 #include "ACTFW/Framework/IContextDecorator.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
-#include "Acts/Geometry/GeometryContext.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
@@ -45,7 +44,7 @@ namespace Contextual {
       /// Flush store size - garbage collection
       unsigned int flushSize = 200;
 
-      std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
+      std::shared_ptr<RandomNumbers> randomNumberSvc = nullptr;
 
       /// Gaussian module parameters - 6 Degrees of freedom
       double gSigmaX = 0.;  // smear position along local x Axis

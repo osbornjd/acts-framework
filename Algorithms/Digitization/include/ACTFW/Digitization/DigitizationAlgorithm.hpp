@@ -10,9 +10,9 @@
 
 #include <map>
 #include <memory>
+
 #include "ACTFW/Framework/BareAlgorithm.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/detail/Axis.hpp"
@@ -21,7 +21,7 @@
 namespace Acts {
 class PlanarModuleStepper;
 class TrackingGeomtetyr;
-}
+}  // namespace Acts
 
 namespace FW {
 
@@ -32,11 +32,8 @@ typedef std::pair<ResolutionGrid,ResolutionGrid> LayerResolution;
 typedef std::map<Acts::GeometryID, std::shared_ptr<LayerResolution> > ResolutionMap;
 /// clang-format on
 
-class RandomNumbersSvc;
-
-/// Algorithm to create planar clusters from fast or full
-/// simulation hits.
-/// 
+/// Algorithm to create planar clusters from fast or full simulation hits.
+///
 /// If a resolution file is given, this is used either
 /// to smear with a gaussian distribution, or to fill
 /// the covariance matrix
@@ -55,13 +52,13 @@ public:
     /// input resolution file, needed for gaussian smearing
     std::string resolutionFile         = "";
     /// FW random number service
-    std::shared_ptr<RandomNumbersSvc> randomNumberSvc              = nullptr;
+    std::shared_ptr<RandomNumbers> randomNumberSvc = nullptr;
     /// module stepper from ACTS core for geometric clustering
-    std::shared_ptr<Acts::PlanarModuleStepper> planarModuleStepper = nullptr;    
+    std::shared_ptr<Acts::PlanarModuleStepper> planarModuleStepper = nullptr;
   };
 
   /// Constructor of the digitization algorithm
-  /// 
+  ///
   /// @param cfg is the config struct to configure the algorihtm
   /// @param level is the logging level
   DigitizationAlgorithm(const Config&        cfg,
@@ -69,9 +66,9 @@ public:
 
                         
   /// Framework execute method of the digitization algorithm
-  /// 
-  /// @param context is the algorithm context that holds event-wise information 
-  /// @return a process code to steer the algporithm flow                      
+  ///
+  /// @param context is the algorithm context that holds event-wise information
+  /// @return a process code to steer the algporithm flow
   ProcessCode
   execute(const AlgorithmContext& context) const final override;
 
@@ -80,4 +77,3 @@ private:
 };
 
 }  // namespace FW
-

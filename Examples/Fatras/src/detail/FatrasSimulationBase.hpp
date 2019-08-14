@@ -8,18 +8,18 @@
 
 #pragma once
 
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Fatras/FatrasAlgorithm.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
@@ -101,7 +101,7 @@ setupSimulationAlgorithm(
     po::variables_map&                            vm,
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
     std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
-    std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
+    std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
   // Read the log level
   Acts::Logging::Level logLevel = FW::Options::readLogLevel(vm);
@@ -234,7 +234,7 @@ setupSimulation(vmap_t&                                       vm,
                 FW::Sequencer&                                sequencer,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
                 std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
-                std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
+                std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
   // Create BField service
   auto bField  = FW::Options::readBField<po::variables_map>(vm);

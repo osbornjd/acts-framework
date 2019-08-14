@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -87,6 +87,9 @@ FW::Sequencer::listAlgorithmNames() const
   std::vector<std::string> names;
 
   // WARNING this must be done in the same order as in the processing
+  for (const auto& service : m_services) {
+    names.push_back("Service:" + service->name());
+  }
   for (const auto& decorator : m_decorators) {
     names.push_back("Decorator:" + decorator->name());
   }
@@ -223,7 +226,7 @@ FW::Sequencer::run()
   Timepoint clockWallStart = Clock::now();
 
   // processing only works w/ a well-known number of events
-  // error message are already handled by the helper function
+  // error message is already handled by the helper function
   std::size_t endEvent = determineEndEvent();
   if (endEvent == SIZE_MAX) {
     return EXIT_FAILURE;
@@ -240,7 +243,15 @@ FW::Sequencer::run()
   std::vector<Duration>    clocksAlgorithms(names.size(), Duration::zero());
   tbb::queuing_mutex       clocksAlgorithmsMutex;
 
-  // Execute the event loop
+  // run start-of-run hooks
+  for (auto& service : m_services) {
+    names.push_back("Service:" + service->name() + ":startRun");
+    clocksAlgorithms.push_back(Duration::zero());
+    StopWatch sw(clocksAlgorithms.back());
+    service->startRun();
+  }
+
+  // execute the parallel event loop
   tbb::task_scheduler_init init(m_cfg.numThreads);
   tbb::parallel_for(
       tbb::blocked_range<size_t>(m_cfg.skip, endEvent),
@@ -257,6 +268,11 @@ FW::Sequencer::run()
           AlgorithmContext context(0, event, eventStore);
           size_t           ialgo = 0;
 
+          // Prepare event store w/ service information
+          for (auto& service : m_services) {
+            StopWatch sw(localClocksAlgorithms[ialgo++]);
+            service->prepare(++context);
+          }
           /// Decorate the context
           for (auto& cdr : m_decorators) {
             StopWatch sw(localClocksAlgorithms[ialgo++]);
@@ -271,7 +287,7 @@ FW::Sequencer::run()
               throw std::runtime_error("Failed to read input data");
             }
           }
-          // Process all algorithms
+          // Execute all algorithms
           for (auto& alg : m_algorithms) {
             StopWatch sw(localClocksAlgorithms[ialgo++]);
             if (alg->execute(++context) != ProcessCode::SUCCESS) {
@@ -297,20 +313,12 @@ FW::Sequencer::run()
         }
       });
 
-  // Call endRun() for writers and services
+  // run end-of-run hooks
   for (auto& wrt : m_writers) {
     names.push_back("Writer:" + wrt->name() + ":endRun");
     clocksAlgorithms.push_back(Duration::zero());
     StopWatch sw(clocksAlgorithms.back());
     if (wrt->endRun() != ProcessCode::SUCCESS) {
-      return EXIT_FAILURE;
-    }
-  }
-  for (auto& svc : m_services) {
-    names.push_back("Service:" + svc->name() + ":endRun");
-    clocksAlgorithms.push_back(Duration::zero());
-    StopWatch sw(clocksAlgorithms.back());
-    if (svc->endRun() != ProcessCode::SUCCESS) {
       return EXIT_FAILURE;
     }
   }

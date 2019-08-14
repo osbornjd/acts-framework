@@ -9,13 +9,14 @@
 #pragma once
 
 #include <memory>
+
+#include <Acts/Propagator/MaterialInteractor.hpp>
+#include <Acts/Utilities/Definitions.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <G4RunManager.hh>
+
 #include "ACTFW/Framework/BareAlgorithm.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
-#include "Acts/Propagator/MaterialInteractor.hpp"
-#include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "G4RunManager.hh"
+#include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
 
 namespace Acts {
 // Using some short hands for Recorded Material
@@ -26,11 +27,9 @@ using RecordedMaterial = MaterialInteractor::result_type;
 //   and the Recorded material
 using RecordedMaterialTrack
     = std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
-}
+}  // namespace Acts
 
 namespace FW {
-
-class WhiteBoard;
 
 /// @class GeantinoRecording
 ///
@@ -41,7 +40,6 @@ class WhiteBoard;
 /// the MaterialTrack entities which are needed for material mapping.
 /// The input for the geant4 geometry can be either provided by a gdml file
 /// or an implementation of the IGeant4Service.
-
 class GeantinoRecording : public FW::BareAlgorithm
 {
 public:
@@ -52,7 +50,7 @@ public:
 
     /// The service possibly providing the Geant4 geometry (optional)
     /// @note If this is not set, the geometry should be given by gdml file
-    std::shared_ptr<FW::IGeant4Service> geant4Service = nullptr;
+    std::shared_ptr<DD4hepG4::DD4hepToG4Svc> geant4Service = nullptr;
 
     /// The possible gmdl input (optional)
     std::string gdmlFile;
@@ -78,4 +76,4 @@ private:
   /// G4 run manager
   std::unique_ptr<G4RunManager> m_runManager;
 };
-}
+}  // namespace FW
