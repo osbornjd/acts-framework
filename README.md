@@ -99,5 +99,4 @@ Examples should be written in a modular way using the framework components,
 such as writers and the sequencer. Options are to be defined using the
 `boost::program_options` syntax.
 
-
 [git-book-submodules]: https://git-scm.com/book/en/v2/Git-Tools-Submodules
