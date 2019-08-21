@@ -9,6 +9,7 @@
 #include "ACTFW/TruthTracking/TruthVerticesToTracks.hpp"
 
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 
 #include "ACTFW/EventData/SimParticle.hpp"
@@ -76,7 +77,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
 
       // Define start track params
       Acts::CurvilinearParameters start(
-          nullptr, particle.position(), ptclMom, particle.q(), 0.);
+          std::nullopt, particle.position(), ptclMom, particle.q(), 0.);
       // Run propagator
       auto result = propagator.propagate(start, *perigeeSurface, pOptions);
       if (!result.ok()) {
@@ -118,10 +119,9 @@ FW::TruthVerticesToTracksAlgorithm::execute(
         correctPhiThetaPeriodicity(newTrackParams[2], newTrackParams[3]);
 
         // Update track covariance
-        std::unique_ptr<Acts::BoundSymMatrix> covMat
-            = std::make_unique<Acts::BoundSymMatrix>();
-        covMat->setZero();
-        covMat->diagonal() << rn_d0 * rn_d0, rn_z0 * rn_z0, rn_ph * rn_ph,
+        Acts::BoundSymMatrix covMat;
+        covMat.setZero();
+        covMat.diagonal() << rn_d0 * rn_d0, rn_z0 * rn_z0, rn_ph * rn_ph,
             rn_th * rn_th, rn_qp * rn_qp, 1.;
 
         trackCollection.push_back(Acts::BoundParameters(context.geoContext,
@@ -130,7 +130,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
                                                         perigeeSurface));
       } else {
         trackCollection.push_back(Acts::BoundParameters(
-            context.geoContext, nullptr, newTrackParams, perigeeSurface));
+            context.geoContext, std::nullopt, newTrackParams, perigeeSurface));
       }
 
     }  // end iteration over all particle at vertex

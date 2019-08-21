@@ -11,26 +11,29 @@
 #include <Acts/Utilities/Helpers.hpp>
 
 template <typename propagator_t>
-std::unique_ptr<Acts::ActsSymMatrixD<5>>
+std::optional<Acts::ActsSymMatrixD<Acts::BoundParsDim>>
 PropagationAlgorithm<propagator_t>::generateCovariance(
     FW::RandomEngine&                 rnd,
     std::normal_distribution<double>& gauss) const
 {
   if (m_cfg.covarianceTransport && m_cfg.randomNumbers) {
     // we start from the correlation matrix
-    auto newCov = std::make_unique<Acts::ActsSymMatrixD<5>>(m_cfg.correlations);
+    Acts::ActsSymMatrixD<Acts::BoundParsDim> newCov(m_cfg.correlations);
     // then we draw errors according to the error values
-    Acts::ActsVectorD<5> covs_smeared = m_cfg.covariances;
-    for (size_t k = 0; k < 5; ++k) covs_smeared[k] *= gauss(rnd);
+    Acts::ActsVectorD<Acts::BoundParsDim> covs_smeared = m_cfg.covariances;
+    for (size_t k = 0; k < size_t(Acts::BoundParsDim); ++k) {
+      covs_smeared[k] *= gauss(rnd);
+    }
     // and apply a double loop
-    for (size_t i = 0; i < 5; ++i)
-      for (size_t j = 0; j < 5; ++j) {
-        (*newCov)(i, j) *= covs_smeared[i];
-        (*newCov)(i, j) *= covs_smeared[j];
+    for (size_t i = 0; i < size_t(Acts::BoundParsDim); ++i) {
+      for (size_t j = 0; j < size_t(Acts::BoundParsDim); ++j) {
+        (newCov)(i, j) *= covs_smeared[i];
+        (newCov)(i, j) *= covs_smeared[j];
       }
-    return std::move(newCov);
+    }
+    return newCov;
   }
-  return nullptr;
+  return std::nullopt;
 }
 
 template <typename propagator_t>
@@ -165,7 +168,7 @@ PropagationAlgorithm<propagator_t>::execute(
     Acts::BoundVector pars;
     pars << d0, z0, phi, theta, qop, t;
     // some screen output
-    std::unique_ptr<Acts::BoundMatrix> cov = nullptr;
+    std::optional<Acts::BoundMatrix> cov = std::nullopt;
 
     Acts::Vector3D sPosition(0., 0., 0.);
     Acts::Vector3D sMomentum(0., 0., 0.);
@@ -175,14 +178,14 @@ PropagationAlgorithm<propagator_t>::execute(
     if (charge) {
       // charged extrapolation - with hit recording
       Acts::BoundParameters startParameters(
-          context.geoContext, std::move(cov), std::move(pars), surface);
+          context.geoContext, cov, std::move(pars), surface);
       sPosition = startParameters.position();
       sMomentum = startParameters.momentum();
       pOutput   = executeTest<Acts::TrackParameters>(context, startParameters);
     } else {
       // execute the test for neeutral particles
       Acts::NeutralBoundParameters neutralParameters(
-          context.geoContext, std::move(cov), std::move(pars), surface);
+          context.geoContext, cov, std::move(pars), surface);
       sPosition = neutralParameters.position();
       sMomentum = neutralParameters.momentum();
       pOutput

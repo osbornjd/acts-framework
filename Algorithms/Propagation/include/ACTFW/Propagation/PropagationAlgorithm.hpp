@@ -11,6 +11,7 @@
 #include <cmath>
 #include <limits>
 #include <memory>
+#include <optional>
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
@@ -98,7 +99,7 @@ public:
     /// Max step size steering
     double maxStepSize = 1. * Acts::units::_mm;
 
-    /// the step collection to be stored
+    /// The step collection to be stored
     std::string propagationStepCollection = "PropagationSteps";
 
     /// The material collection to be stored
@@ -107,11 +108,13 @@ public:
     /// covariance transport
     bool covarianceTransport = true;
 
-    /// the covariance values
-    Acts::ActsVectorD<5> covariances = Acts::ActsVectorD<5>::Zero();
+    /// The covariance values
+    Acts::ActsVectorD<Acts::BoundParsDim> covariances
+        = Acts::ActsVectorD<Acts::BoundParsDim>::Zero();
 
-    /// the correlation terms
-    Acts::ActsSymMatrixD<5> correlations = Acts::ActsSymMatrixD<5>::Identity();
+    /// The correlation terms
+    Acts::ActsSymMatrixD<Acts::BoundParsDim> correlations
+        = Acts::ActsSymMatrixD<Acts::BoundParsDim>::Identity();
   };
 
   /// Constructor
@@ -131,7 +134,7 @@ private:
   /// Private helper method to create a corrleated covariance matrix
   /// @param[in] rnd is the random engine
   /// @param[in] gauss is a gaussian distribution to draw from
-  std::unique_ptr<Acts::ActsSymMatrixD<5>>
+  std::optional<Acts::ActsSymMatrixD<Acts::BoundParsDim>>
   generateCovariance(FW::RandomEngine&                 rnd,
                      std::normal_distribution<double>& gauss) const;
 
