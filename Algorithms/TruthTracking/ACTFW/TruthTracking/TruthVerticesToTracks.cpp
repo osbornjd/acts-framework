@@ -110,7 +110,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
         std::normal_distribution<double> gaussDist_angular(0., m_cfg.angRes);
         // Gaussian distribution for q/p (momentum) resolution
         std::normal_distribution<double> gaussDist_qp(
-            0., m_cfg.qpRes * perigeeParameters[4]);
+            0., m_cfg.qpRelRes * perigeeParameters[4]);
 
         double rn_d0 = gaussDist_IP(rng);
         double rn_z0 = gaussDist_IP(rng);

@@ -22,6 +22,8 @@
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
 
+using namespace Acts::UnitLiterals;
+
 namespace FW {
 
 /// @brief Converter that takes a generator event
@@ -54,14 +56,14 @@ public:
 
     /// Define parameter for pt-dependent IP resolution
     /// of the form sigma_d/z(p_t[GeV]) = A*exp(-B*p_t[GeV]) + C
-    double ipResA = 30 * Acts::units::_um;
-    double ipResB = 0.3 / Acts::units::_GeV;
-    double ipResC = 20. * Acts::units::_um;
+    double ipResA = 30_um;
+    double ipResB = 0.3 / 1_GeV;
+    double ipResC = 20_um;
 
     /// Angular resolution
     double angRes = 0.05;
-    /// q/p resolution factor
-    double qpRes = 0.001;
+    /// q/p relative resolution factor
+    double qpRelRes = 0.001;
   };
 
   /// Constructor of the TruthVerticesToTracks algorithm

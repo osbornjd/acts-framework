@@ -10,8 +10,7 @@ set(_common_libraries
   ${Boost_LIBRARIES})
 
 # Fitter example
-file(GLOB_RECURSE src_fit_files "src/VertexFit*.cpp")
-add_executable(ACTFWVertexFitterExample ${src_fit_files})
+add_executable(ACTFWVertexFitterExample src/VertexFitterExample.cpp src/VertexFitAlgorithm.cpp)
 target_include_directories(ACTFWVertexFitterExample PRIVATE
   ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWVertexFitterExample PRIVATE
@@ -22,8 +21,7 @@ install(
 
 
 # Finder example
-file(GLOB_RECURSE src_find_files "src/VertexFind*.cpp")
-add_executable(ACTFWVertexFinderExample ${src_find_files})
+add_executable(ACTFWVertexFinderExample src/VertexFinderExample.cpp src/VertexFindingAlgorithm.cpp)
 target_include_directories(ACTFWVertexFinderExample PRIVATE
   ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWVertexFinderExample PRIVATE
