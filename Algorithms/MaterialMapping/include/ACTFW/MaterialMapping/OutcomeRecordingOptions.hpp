@@ -43,7 +43,7 @@ namespace Options {
         "phi",
         po::value<double>()->default_value(0.),
         "Phi angle of the primary particle.")(
-        "Theta",
+        "theta",
         po::value<double>()->default_value(0.5 * M_PI),
         "Theta angle of the primary particle.")(
         "lockpos",

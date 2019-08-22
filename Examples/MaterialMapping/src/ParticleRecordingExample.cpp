@@ -108,8 +108,7 @@ main(int argc, char* argv[])
   }
 
   FW::Sequencer g4sequencer(FW::Options::readSequencerConfig(vm));
-
-  size_t nTracks     = 100;
+  
   int    randomSeed1 = 536235167;
   int    randomSeed2 = 729237523;
 
@@ -137,7 +136,6 @@ main(int argc, char* argv[])
   // Geant4 JOB:
   // --------------------------------------------------------------------------------
   // set up the writer for
-
   // ---------------------------------------------------------------------------------
 
   // set up the algorithm writing out the material map
