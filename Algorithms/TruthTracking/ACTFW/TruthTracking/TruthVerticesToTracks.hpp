@@ -11,14 +11,21 @@
 #include <map>
 #include <memory>
 
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
+#include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
+#include "ACTFW/TruthTracking/VertexAndTracks.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
 
+using namespace Acts::UnitLiterals;
+
 namespace FW {
+
 /// @brief Converter that takes a generator event
 /// (i.e. a std::vector<SimVertex>) and produces a
 /// std::vector<Acts::BoundParameter>. It also allows
@@ -49,9 +56,14 @@ public:
 
     /// Define parameter for pt-dependent IP resolution
     /// of the form sigma_d/z(p_t[GeV]) = A*exp(-B*p_t[GeV]) + C
-    double ipResA = 100.7439 * Acts::units::_um;
-    double ipResB = 0.23055 / Acts::units::_GeV;
-    double ipResC = 20. * Acts::units::_um;
+    double ipResA = 30_um;
+    double ipResB = 0.3 / 1_GeV;
+    double ipResC = 20_um;
+
+    /// Angular resolution
+    double angRes = 0.05;
+    /// q/p relative resolution factor
+    double qpRelRes = 0.001;
   };
 
   /// Constructor of the TruthVerticesToTracks algorithm
