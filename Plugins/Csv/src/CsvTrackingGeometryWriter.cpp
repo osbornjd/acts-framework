@@ -14,16 +14,32 @@
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 
-FW::Csv::CsvTrackingGeometryWriter::CsvTrackingGeometryWriter(
-    const FW::Csv::CsvTrackingGeometryWriter::Config& cfg)
+using namespace FW;
+using namespace FW::Csv;
+
+CsvTrackingGeometryWriter::CsvTrackingGeometryWriter(
+    const CsvTrackingGeometryWriter::Config& cfg)
   : m_cfg(cfg)
 {
 }
 
 std::string
-FW::Csv::CsvTrackingGeometryWriter::name() const
+CsvTrackingGeometryWriter::name() const
 {
   return m_cfg.name;
+}
+
+ProcessCode
+CsvTrackingGeometryWriter::write(const AlgorithmContext& context)
+{
+  return ProcessCode::SUCCESS;
+}
+
+/// Write geometry using the default context.
+ProcessCode
+CsvTrackingGeometryWriter::endRun()
+{
+  return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
