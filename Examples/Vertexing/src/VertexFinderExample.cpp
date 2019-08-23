@@ -23,7 +23,7 @@
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
 #include "ACTFW/TruthTracking/TrackSelector.hpp"
 #include "ACTFW/TruthTracking/TruthVerticesToTracks.hpp"
-#include "VertexFindingAlgorithm.hpp"
+#include "ACTFW/Vertexing/VertexFindingAlgorithm.hpp"
 
 using namespace FW;
 

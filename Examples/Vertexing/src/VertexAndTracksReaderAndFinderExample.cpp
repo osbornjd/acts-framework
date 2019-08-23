@@ -17,7 +17,7 @@
 #include "ACTFW/Plugins/Root/RootVertexAndTracksReader.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
-#include "VertexFindingAlgorithm.hpp"
+#include "ACTFW/Vertexing/VertexFindingAlgorithm.hpp"
 
 using namespace FW;
 
