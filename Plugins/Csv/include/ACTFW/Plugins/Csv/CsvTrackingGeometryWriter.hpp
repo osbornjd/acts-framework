@@ -29,46 +29,26 @@ namespace Csv {
   class CsvTrackingGeometryWriter : public IWriter
   {
   public:
-    // @class Config
-    //
-    // The nested config class
-    class Config
+    struct Config
     {
-    public:
       /// The tracking geometry that should be written.
       const Acts::TrackingGeometry* trackingGeometry = nullptr;
       /// Where to place output files.
       std::string outputDir;
       /// Number of decimal digits for floating point precision in output.
       std::size_t outputPrecision = 6;
-      /// write sensitive surfaces
-      bool outputSensitive = true;
-      /// write the layer surface out
-      bool outputLayerSurface = false;
-      /// the default logger
-      std::shared_ptr<const Acts::Logger> logger;
       /// the name of the writer
       std::string name = "";
       /// surfaceWriters
       std::shared_ptr<CsvSurfaceWriter> surfaceWriter = nullptr;
       std::string                       filePrefix    = "";
       std::string                       layerPrefix   = "";
-
-      /// Constructor for the nested config class
-      /// @param lname is the name of the writer
-      /// @lvl is the screen output logging level
-      Config(const std::string&   lname = "CsvTrackingGeometryWriter",
-             Acts::Logging::Level lvl   = Acts::Logging::INFO)
-        : logger(Acts::getDefaultLogger(lname, lvl))
-        , name(lname)
-        , surfaceWriter()
-      {
-      }
     };
 
     /// Constructor
     /// @param cfg is the configuration class
-    CsvTrackingGeometryWriter(const Config& cfg);
+    CsvTrackingGeometryWriter(const Config&        cfg,
+                              Acts::Logging::Level lvl = Acts::Logging::INFO);
 
     std::string
     name() const override;
@@ -90,21 +70,21 @@ namespace Csv {
           const Acts::TrackingGeometry& tGeometry);
 
   private:
-    Config                      m_cfg;
-    const Acts::TrackingVolume* m_world;
+    Config                              m_cfg;
+    const Acts::TrackingVolume*         m_world;
+    std::unique_ptr<const Acts::Logger> m_logger;
+
+    const Acts::Logger&
+    logger() const
+    {
+      return *m_logger;
+    }
 
     /// process this volume
     /// @param context The algorithm/event context under which this is called
     /// @param tVolume the volume to be processed
     void
     write(const AlgorithmContext& context, const Acts::TrackingVolume& tVolume);
-
-    /// Private access to the logging instance
-    const Acts::Logger&
-    logger() const
-    {
-      return *m_cfg.logger;
-    }
   };
 
 }  // namespace Csv

@@ -27,8 +27,12 @@ using namespace FW;
 using namespace FW::Csv;
 
 CsvTrackingGeometryWriter::CsvTrackingGeometryWriter(
-    const CsvTrackingGeometryWriter::Config& cfg)
-  : m_cfg(cfg), m_world(nullptr)
+    const CsvTrackingGeometryWriter::Config& cfg,
+    Acts::Logging::Level                     lvl)
+  : m_cfg(cfg)
+  , m_world(nullptr)
+  , m_logger(Acts::getDefaultLogger("CsvTrackingGeometryWriter", lvl))
+
 {
   if (not m_cfg.trackingGeometry) {
     throw std::invalid_argument("Missing tracking geometry");
@@ -152,13 +156,15 @@ writeVolume(SurfaceWriter&               writer,
 }  // namespace
 
 ProcessCode
-CsvTrackingGeometryWriter::write(const AlgorithmContext& context)
+CsvTrackingGeometryWriter::write(const AlgorithmContext& ctx)
 {
-  /// TODO write per-event geometry if requested
+  SurfaceWriter writer(
+      perEventFilepath(m_cfg.outputDir, "detectors.csv", ctx.eventNumber),
+      m_cfg.outputPrecision);
+  writeVolume(writer, *m_world, ctx.geoContext);
   return ProcessCode::SUCCESS;
 }
 
-/// Write geometry using the default context.
 ProcessCode
 CsvTrackingGeometryWriter::endRun()
 {
