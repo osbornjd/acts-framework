@@ -8,11 +8,9 @@
 
 #include "ACTFW/Plugins/Csv/CsvWriterOptions.hpp"
 
-using namespace FW;
-using namespace FW::Options;
-
 void
-addCsvWriterOptions(boost::program_options::options_description& opt)
+FW::Options::addCsvWriterOptions(
+    boost::program_options::options_description& opt)
 {
   using namespace boost::program_options;
 
@@ -23,7 +21,8 @@ addCsvWriterOptions(boost::program_options::options_description& opt)
 }
 
 FW::Csv::CsvParticleWriter::Config
-readCsvParticleWriter(const boost::program_options::variables_map& vm)
+FW::Options::readCsvParticleWriter(
+    const boost::program_options::variables_map& vm)
 {
   FW::Csv::CsvParticleWriter::Config cfg;
   if (not vm["output-dir"].empty()) {
@@ -34,7 +33,7 @@ readCsvParticleWriter(const boost::program_options::variables_map& vm)
 }
 
 FW::Csv::CsvPlanarClusterWriter::Config
-readCsvPlanarClusterWriterConfig(
+FW::Options::readCsvPlanarClusterWriterConfig(
     const boost::program_options::variables_map& vm)
 {
   FW::Csv::CsvPlanarClusterWriter::Config cfg;
@@ -46,7 +45,7 @@ readCsvPlanarClusterWriterConfig(
 }
 
 FW::Csv::CsvTrackingGeometryWriter::Config
-readCsvTrackingGeometryWriterConfig(
+FW::Options::readCsvTrackingGeometryWriterConfig(
     const boost::program_options::variables_map& vm)
 {
   FW::Csv::CsvTrackingGeometryWriter::Config cfg;
