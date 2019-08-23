@@ -36,11 +36,9 @@ FW::Csv::CsvParticleWriter::writeT(
     const FW::AlgorithmContext&           context,
     const std::vector<Data::SimVertex<>>& vertices)
 {
-  // do we have the hits per particle written out ?
-  bool hppPresent = !m_cfg.hitsPerParticleCollection.empty();
   // use pointer instead of reference since it is optional
   const std::map<barcode_type, size_t>* hitsPerParticle = nullptr;
-  if (hppPresent) {
+  if (not m_cfg.hitsPerParticleCollection.empty()) {
     hitsPerParticle = &context.eventStore.get<std::map<barcode_type, size_t>>(
         m_cfg.hitsPerParticleCollection);
   }
