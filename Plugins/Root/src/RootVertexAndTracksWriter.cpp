@@ -138,11 +138,6 @@ FW::Root::RootVertexAndTracksWriter::writeT(
       Eigen::Map<Acts::BoundSymMatrix>(vec.data(), cov.rows(), cov.cols())
           = cov;
 
-      for (auto i : vec) {
-        std::cout << i << std::endl;
-      }
-      std::cout << std::endl;
-
       m_trkCov.push_back(vec);
     }
   }

@@ -66,11 +66,6 @@ namespace Root {
     std::string
     name() const final override;
 
-    /// Skip a few events in the IO stream
-    /// @param [in] nEvents is the number of skipped events
-    ProcessCode
-    skip(size_t nEvents) final override;
-
     /// Read out data from the input stream
     ///
     /// @param context The algorithm context
@@ -127,11 +122,6 @@ namespace Root {
   RootVertexAndTracksReader::numEvents() const
   {
     return m_events;
-  }
-
-  inline ProcessCode RootVertexAndTracksReader::skip(size_t /*nEvents*/)
-  {
-    return ProcessCode::SUCCESS;
   }
 
 }  // namespace Root

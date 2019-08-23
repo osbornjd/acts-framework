@@ -102,9 +102,8 @@ FW::Root::RootVertexAndTracksReader::read(const FW::AlgorithmContext& context)
             std::vector<double> trkCovVec = (*m_ptrTrkCov)[trkId];
 
             // Construct track covariance
-            std::unique_ptr<Acts::BoundSymMatrix> covMat
-                = std::make_unique<Acts::BoundSymMatrix>(
-                    Eigen::Map<Acts::BoundSymMatrix>(trkCovVec.data()));
+            Acts::BoundSymMatrix covMat
+                = Eigen::Map<Acts::BoundSymMatrix>(trkCovVec.data());
 
             // Create track parameters and add to track list
             std::shared_ptr<Acts::PerigeeSurface> perigeeSurface
