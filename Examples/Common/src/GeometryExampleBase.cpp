@@ -15,7 +15,6 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
-#include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvWriterOptions.hpp"
 #include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
@@ -68,7 +67,7 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
 
     // Setup the event and algorithm context
     FW::WhiteBoard eventStore(
-        Acts::getDefaultLogger("EventStore#" + std::to_string(0), logLevel));
+        Acts::getDefaultLogger("EventStore#" + std::to_string(ievt), logLevel));
     size_t ialg = 0;
 
     // The geometry context
@@ -135,32 +134,16 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
 
     // CSV output
     if (vm["output-csv"].as<bool>()) {
-
-      auto        csvStream = std::shared_ptr<std::ofstream>(new std::ofstream);
-      std::string csvOutputName = "Detector" + geoContextStr + ".csv";
-      csvStream->open(csvOutputName);
-
-      FW::Csv::CsvSurfaceWriter::Config sfCsvWriterConfig
-          = FW::Options::readCsvSurfaceWriterConfig(vm, "CsvSurfaceWriter");
-      sfCsvWriterConfig.outputStream = csvStream;
-      auto sfCsvWriter
-          = std::make_shared<FW::Csv::CsvSurfaceWriter>(sfCsvWriterConfig);
-
-      // Configure the tracking geometry writer
-      FW::Csv::CsvTrackingGeometryWriter::Config tgCsvWriterConfig
-          = FW::Options::readCsvTrackingGeometryWriterConfig(
-              vm, "CsvTrackingGeometryWriter");
-      tgCsvWriterConfig.surfaceWriter = sfCsvWriter;
-      tgCsvWriterConfig.layerPrefix   = "\n";
-      // The tracking geometry writer
+      // setup the tracking geometry writer
+      FW::Csv::CsvTrackingGeometryWriter::Config tgCsvWriterConfig;
+      tgCsvWriterConfig.trackingGeometry = tGeometry.get();
+      tgCsvWriterConfig.outputDir = outputDir;
+      tgCsvWriterConfig.writePerEvent = true;
       auto tgCsvWriter = std::make_shared<FW::Csv::CsvTrackingGeometryWriter>(
           tgCsvWriterConfig);
 
       // Write the tracking geometry object
-      tgCsvWriter->write(context, *(tGeometry.get()));
-
-      // Close the file
-      csvStream->close();
+      tgCsvWriter->write(context);
     }
 
     // Get the file name from the options
