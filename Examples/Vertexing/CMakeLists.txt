@@ -30,9 +30,8 @@ install(
   TARGETS ACTFWVertexFinderExample
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-  # Writer example
-file(GLOB_RECURSE src_wr_files "src/VertexAndTrackWriterExample.cpp")
-add_executable(ACTFWVertexWriterExample ${src_wr_files})
+# Writer example
+add_executable(ACTFWVertexWriterExample src/VertexAndTrackWriterExample.cpp)
 target_include_directories(ACTFWVertexWriterExample PRIVATE
   ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWVertexWriterExample PRIVATE
@@ -41,11 +40,8 @@ install(
   TARGETS ACTFWVertexWriterExample
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-set(sources src/VertexAndTracksReaderAndFinderExample.cpp
-            src/VertexFindingAlgorithm.cpp)
-
-  # Reader example
-add_executable(ACTFWVertexReaderExample ${sources})
+# Reader example
+add_executable(ACTFWVertexReaderExample src/VertexAndTracksReaderAndFinderExample.cpp src/VertexFindingAlgorithm.cpp)
 target_include_directories(ACTFWVertexReaderExample PRIVATE
   ${Boost_INCLUDE_DIRS})
 target_link_libraries(ACTFWVertexReaderExample PRIVATE
