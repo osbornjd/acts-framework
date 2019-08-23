@@ -52,15 +52,15 @@ namespace Csv {
                               Acts::Logging::Level lvl = Acts::Logging::INFO);
 
     std::string
-    name() const override;
+    name() const final override;
 
     /// Write geometry using the per-event context (optional).
     ProcessCode
-    write(const AlgorithmContext& context) override;
+    write(const AlgorithmContext& context) final override;
 
     /// Write geometry using the default context.
     ProcessCode
-    endRun() override;
+    endRun() final override;
 
   private:
     Config                              m_cfg;
