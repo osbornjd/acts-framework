@@ -22,7 +22,7 @@
 #include "ACTFW/TruthTracking/TruthVerticesToTracks.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
-#include "VertexFitAlgorithm.hpp"
+#include "ACTFW/Vertexing/VertexFitAlgorithm.hpp"
 
 using namespace FW;
 
