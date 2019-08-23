@@ -49,11 +49,6 @@ namespace Csv {
     std::string
     name() const final override;
 
-    /// Skip a few events in the IO stream
-    /// @param [in] nEvents is the number of skipped events
-    ProcessCode
-    skip(size_t nEvents) final override;
-
     /// Read out data from the input stream
     ProcessCode
     read(const FW::AlgorithmContext& ctx) final override;

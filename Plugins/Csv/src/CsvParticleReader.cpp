@@ -28,12 +28,6 @@ FW::Csv::CsvParticleReader::CsvParticleReader(
 }
 
 FW::ProcessCode
-FW::Csv::CsvParticleReader::skip(size_t nEvents)
-{
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
 FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 {
   std::string pathIs

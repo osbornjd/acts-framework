@@ -42,12 +42,6 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
 }
 
 FW::ProcessCode
-FW::Csv::CsvPlanarClusterReader::skip(size_t nEvents)
-{
-  return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
 FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 {
 
