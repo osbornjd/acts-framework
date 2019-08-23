@@ -22,10 +22,17 @@ class TrackingVolume;
 namespace FW {
 namespace Csv {
 
-  /// @class CsvTrackingGeometryWriter
+  /// Write out the geometry for all sensitive detector surfaces.
   ///
-  /// An Csv writer for the geometry
-  /// It delegates the writing of surfaces to the surface writers
+  /// This writes a `detectors.csv` file at the end of the run using the
+  /// default context to determine the geometry. If configured, it also writes
+  /// an additional file for each event using the following schema
+  ///
+  ///     event000000001-detectors.csv
+  ///     event000000002-detectors.csv
+  ///     ...
+  ///
+  /// that uses the per-event context to determine the geometry.
   class CsvTrackingGeometryWriter : public IWriter
   {
   public:
@@ -37,12 +44,8 @@ namespace Csv {
       std::string outputDir;
       /// Number of decimal digits for floating point precision in output.
       std::size_t outputPrecision = 6;
-      /// the name of the writer
-      std::string name = "";
-      /// surfaceWriters
-      std::shared_ptr<CsvSurfaceWriter> surfaceWriter = nullptr;
-      std::string                       filePrefix    = "";
-      std::string                       layerPrefix   = "";
+      /// Whether to write the per-event file.
+      bool writePerEvent = false;
     };
 
     /// Constructor
@@ -61,14 +64,6 @@ namespace Csv {
     ProcessCode
     endRun() override;
 
-    /// The write interface
-    /// @param context The algorithm/event context under which this is called
-    /// @param tGeometry is the geometry to be written out
-    /// @return ProcessCode to indicate success/failure
-    FW::ProcessCode
-    write(const AlgorithmContext&       context,
-          const Acts::TrackingGeometry& tGeometry);
-
   private:
     Config                              m_cfg;
     const Acts::TrackingVolume*         m_world;
@@ -79,12 +74,6 @@ namespace Csv {
     {
       return *m_logger;
     }
-
-    /// process this volume
-    /// @param context The algorithm/event context under which this is called
-    /// @param tVolume the volume to be processed
-    void
-    write(const AlgorithmContext& context, const Acts::TrackingVolume& tVolume);
   };
 
 }  // namespace Csv

@@ -66,9 +66,9 @@ namespace Options {
                                       = "CsvTrackingGeometryWriter")
   {
     FW::Csv::CsvTrackingGeometryWriter::Config objTgConfig;
-    objTgConfig.filePrefix = vm["csv-tg-fileheader"].template as<std::string>();
-    objTgConfig.layerPrefix
-        = vm["csv-tg-layerheader"].template as<std::string>();
+    // objTgConfig.filePrefix = vm["csv-tg-fileheader"].template as<std::string>();
+    // objTgConfig.layerPrefix
+    //     = vm["csv-tg-layerheader"].template as<std::string>();
     // Return the config object
     return objTgConfig;
   }

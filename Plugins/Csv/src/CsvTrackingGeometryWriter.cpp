@@ -46,7 +46,7 @@ CsvTrackingGeometryWriter::CsvTrackingGeometryWriter(
 std::string
 CsvTrackingGeometryWriter::name() const
 {
-  return m_cfg.name;
+  return "CsvTrackingGeometryWriter";
 }
 
 namespace {
@@ -158,6 +158,7 @@ writeVolume(SurfaceWriter&               writer,
 ProcessCode
 CsvTrackingGeometryWriter::write(const AlgorithmContext& ctx)
 {
+  if (not m_cfg.writePerEvent) { return ProcessCode::SUCCESS; }
   SurfaceWriter writer(
       perEventFilepath(m_cfg.outputDir, "detectors.csv", ctx.eventNumber),
       m_cfg.outputPrecision);
@@ -172,59 +173,4 @@ CsvTrackingGeometryWriter::endRun()
                        m_cfg.outputPrecision);
   writeVolume(writer, *m_world, Acts::GeometryContext());
   return ProcessCode::SUCCESS;
-}
-
-FW::ProcessCode
-FW::Csv::CsvTrackingGeometryWriter::write(
-    const AlgorithmContext&       context,
-    const Acts::TrackingGeometry& tGeometry)
-{
-  ACTS_DEBUG(">>Csv: Writer for TrackingGeometry object called.");
-  // get the world volume
-  auto world = tGeometry.highestTrackingVolume();
-  if (world) write(context, *world);
-  // return the success code
-  return FW::ProcessCode::SUCCESS;
-}
-
-/// process this volume
-void
-FW::Csv::CsvTrackingGeometryWriter::write(const AlgorithmContext&     context,
-                                          const Acts::TrackingVolume& tVolume)
-{
-  ACTS_DEBUG(">>Csv: Writer for TrackingVolume object called.");
-  // get the confined layers and process them
-  if (tVolume.confinedLayers()) {
-    ACTS_VERBOSE(">>Csv: Layers are present, process them.");
-    // loop over the layers
-    for (auto layer : tVolume.confinedLayers()->arrayObjects()) {
-      // we jump navigation layers
-      if (layer->layerType() == Acts::navigation) continue;
-      // find the right surfacewriter
-      auto surfaceWriter = m_cfg.surfaceWriter;
-      // bail out if you have no surface writer
-      if (!surfaceWriter) return;
-      // layer prefix
-      surfaceWriter->write(m_cfg.layerPrefix);
-      // check for sensitive surfaces
-      if (layer->surfaceArray() && surfaceWriter) {
-        // the current module thickness
-        std::vector<double> cValues;
-        // loop over the surface
-        for (auto surface : layer->surfaceArray()->surfaces()) {
-          if (surface
-              && surfaceWriter->write(context, *surface)
-                  == FW::ProcessCode::ABORT)
-            return;
-        }
-      }
-    }
-  }
-  // get the confined volumes and step down the hierarchy
-  if (tVolume.confinedVolumes()) {
-    // loop over the volumes and write what they have
-    for (auto volume : tVolume.confinedVolumes()->arrayObjects()) {
-      write(context, *volume.get());
-    }
-  }
 }
