@@ -51,9 +51,9 @@ struct CellData
   uint64_t hit_id;
   // These should have been named channel{0,1} but we cannot change it now
   // to avoid breaking backward compatibility.
-  int32_t  ch0, ch1;
-  int32_t  timestamp;
-  int32_t  value;
+  int32_t ch0, ch1;
+  int32_t timestamp;
+  int32_t value;
 
   DFE_NAMEDTUPLE(CellData, hit_id, ch0, ch1, timestamp, value);
 };
@@ -66,6 +66,45 @@ struct TruthData
   float    tpx, tpy, tpz;
 
   DFE_NAMEDTUPLE(TruthData, hit_id, particle_id, tx, ty, tz, tt, tpx, tpy, tpz);
+};
+
+struct SurfaceData
+{
+  uint32_t volume_id, layer_id, module_id;
+  float    cx, cy, cz;
+  float    rot_xu, rot_xv, rot_xw;
+  float    rot_yu, rot_yv, rot_yw;
+  float    rot_zu, rot_zv, rot_zw;
+  // limits and pitchs are not always available and need invalid defaults.
+  float module_t     = -1;
+  float module_minhu = -1;
+  float module_maxhu = -1;
+  float module_hv    = -1;
+  float pitch_u      = -1;
+  float pitch_v      = -1;
+
+  DFE_NAMEDTUPLE(SurfaceData,
+                 volume_id,
+                 layer_id,
+                 module_id,
+                 cx,
+                 cy,
+                 cz,
+                 rot_xu,
+                 rot_xv,
+                 rot_xw,
+                 rot_yu,
+                 rot_yv,
+                 rot_yw,
+                 rot_zu,
+                 rot_zv,
+                 rot_zw,
+                 module_t,
+                 module_minhu,
+                 module_maxhu,
+                 module_hv,
+                 pitch_u,
+                 pitch_v);
 };
 
 }  // namespace FW

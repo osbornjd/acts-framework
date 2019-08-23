@@ -8,10 +8,6 @@
 
 #pragma once
 
-#include <fstream>
-#include <iostream>
-#include <mutex>
-
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
@@ -39,6 +35,16 @@ namespace Csv {
     class Config
     {
     public:
+      /// The tracking geometry that should be written.
+      const Acts::TrackingGeometry* trackingGeometry = nullptr;
+      /// Where to place output files.
+      std::string outputDir;
+      /// Number of decimal digits for floating point precision in output.
+      std::size_t outputPrecision = 6;
+      /// write sensitive surfaces
+      bool outputSensitive = true;
+      /// write the layer surface out
+      bool outputLayerSurface = false;
       /// the default logger
       std::shared_ptr<const Acts::Logger> logger;
       /// the name of the writer
@@ -84,7 +90,8 @@ namespace Csv {
           const Acts::TrackingGeometry& tGeometry);
 
   private:
-    Config m_cfg;  ///< the config class
+    Config                      m_cfg;
+    const Acts::TrackingVolume* m_world;
 
     /// process this volume
     /// @param context The algorithm/event context under which this is called
