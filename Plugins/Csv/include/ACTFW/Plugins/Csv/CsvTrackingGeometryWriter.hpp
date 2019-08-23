@@ -9,11 +9,9 @@
 #pragma once
 
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
 #include "ACTFW/Framework/IWriter.hpp"
-#include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
 
 namespace Acts {
 class TrackingVolume;
