@@ -38,9 +38,7 @@ main(int argc, char* argv[])
                      "Input root file to read.");
   auto vm = Options::parse(desc, argc, argv);
 
-  if (vm.empty()) {
-    return EXIT_FAILURE;
-  }
+  if (vm.empty()) { return EXIT_FAILURE; }
 
   auto logLevel = Options::readLogLevel(vm);
 

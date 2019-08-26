@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2019 Acts project team
+// Copyright (C) 2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -14,8 +14,8 @@
 #include "Acts/Utilities/Helpers.hpp"
 
 using Acts::VectorHelpers::eta;
-using Acts::VectorHelpers::phi;
 using Acts::VectorHelpers::perp;
+using Acts::VectorHelpers::phi;
 
 FW::Root::RootVertexAndTracksWriter::RootVertexAndTracksWriter(
     const FW::Root::RootVertexAndTracksWriter::Config& cfg,
@@ -62,9 +62,7 @@ FW::Root::RootVertexAndTracksWriter::RootVertexAndTracksWriter(
 
 FW::Root::RootVertexAndTracksWriter::~RootVertexAndTracksWriter()
 {
-  if (m_outputFile) {
-    m_outputFile->Close();
-  }
+  if (m_outputFile) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
@@ -74,8 +72,7 @@ FW::Root::RootVertexAndTracksWriter::endRun()
     m_outputFile->cd();
     m_outputTree->Write();
     ACTS_INFO("Wrote event to tree '" << m_cfg.treeName << "' in '"
-                                      << m_cfg.filePath
-                                      << "'");
+                                      << m_cfg.filePath << "'");
   }
   return ProcessCode::SUCCESS;
 }
