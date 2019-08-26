@@ -24,6 +24,12 @@
 #include "ACTFW/Framework/WriterT.hpp"
 #include "ACTFW/Barcode/BarcodeSvc.hpp"
 
+#include "ACTFW/DD4hepDetector/DD4hepDetector.hpp"
+#include "ACTFW/Random/RandomNumbersOptions.hpp"
+#include "../../Fatras/src/detail/FatrasDigitizationBase.hpp"
+#include "../../Fatras/src/detail/FatrasEvgenBase.hpp"
+#include "../../Fatras/src/detail/FatrasSimulationBase.hpp"
+
 namespace po = boost::program_options;
 
 using PartRec = std::vector<std::vector<FW::Geant4::ParticleRecord>>;
@@ -90,9 +96,63 @@ public:
 };
 }
 
+FW::Sequencer
+fatrasSequencerBuild(const boost::program_options::variables_map& vm)
+{
+	FW::Sequencer fatrasSequencer(FW::Options::readSequencerConfig(vm));
+	  DD4hepGeometry dd4HepGeometry;
+
+	// Set wood
+  auto logLevel = FW::Options::readLogLevel(vm);
+
+  // Create the random number engine
+  auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
+  auto randomNumberSvc
+      = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
+      
+  // Add it to the sequencer
+  sequencer.addService(randomNumberSvc);
+  // Create the barcode service
+  FW::BarcodeSvc::Config barcodeSvcCfg;
+  auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
+      barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
+  // Add it to the sequencer
+  fatrasSequencer.addService(barcodeSvc);
+
+  // The geometry, material and decoration
+  auto geometry          = FW::Geometry::build(vm, dd4HepGeometry);
+  auto tGeometry         = geometry.first;
+  auto contextDecorators = geometry.second;
+  // Add the decorator to the sequencer
+  for (auto cdr : contextDecorators) {
+    fatrasSequencer.addContextDecorator(cdr);
+  }
+
+  // (A) EVGEN
+  // Setup the evgen input to the simulation
+  setupEvgenInput(vm, fatrasSequencer, barcodeSvc, randomNumberSvc);
+
+  // (B) SIMULATION
+  // Setup the simulation
+  setupSimulation(vm, fatrasSequencer, tGeometry, barcodeSvc, randomNumberSvc);
+
+  // (C) DIGITIZATION
+  // Setup the digitization
+  setupDigitization(vm, fatrasSequencer, barcodeSvc, randomNumberSvc);
+  
+  // (D) TRUTH TRACKING
+
+  // (E) PATTERN RECOGNITION
+  
+  
+  return fatrasSequencer;
+}
+
 int
 main(int argc, char* argv[])
 {
+  DD4hepOptions  dd4HepOptions;
+
   // Declare the supported program options.
   // Setup and parse options
   auto desc = FW::Options::makeDefaultOptions();
@@ -100,17 +160,31 @@ main(int argc, char* argv[])
   FW::Options::addOutputOptions(desc);
   FW::Options::addDD4hepOptions(desc);
   FW::Options::addOutcomeRecordingOptions(desc);
+  FW::Options::addGeometryOptions(desc);
+  FW::Options::addParticleGunOptions(desc); // TODO: Replace whatever is given here and in outcomerecoptions
+  FW::Options::addBFieldOptions(desc);
+  FW::Options::addFatrasOptions(desc);
+  FW::Options::addRandomNumbersOptions(desc);
+  FW::Options::addMaterialOptions(desc);
+  FW::Options::addPythia8Options(desc);
+  FW::Options::addRandomNumbersOptions(desc);
+  FW::Options::addDigitizationOptions(desc);
+  desc.add_options()("evg-input-type",
+                     value<std::string>()->default_value("pythia8"),
+                     "Type of evgen input 'gun', 'pythia8'");
 
-  // Parse the options
+  // Add specific options for this geometry
+  dd4HepOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
   }
-
-  FW::Sequencer g4sequencer(FW::Options::readSequencerConfig(vm));
   
+  FW::Sequencer g4Sequencer(FW::Options::readSequencerConfig(vm));
   int    randomSeed1 = 536235167;
   int    randomSeed2 = 729237523;
+
+  FW::Sequencer fatrasSequencer = fatrasSequencerBuild(vm);
 
   Acts::GeometryContext geoContext;
 
@@ -164,3 +238,82 @@ main(int argc, char* argv[])
   g4sequencer.addAlgorithm(g4rAlgorithm);
   g4sequencer.run();
 }
+
+
+////////////////////////////////////////////////////////////////////////
+
+//~ int
+//~ fatrasExample(int               argc,
+              //~ char*             argv[])
+//~ {
+  //~ DD4hepOptions  dd4HepOptions;
+  //~ DD4hepGeometry dd4HepGeometry;
+  //~ using boost::program_options::value;
+
+  //~ // setup and parse options
+  //~ auto desc = FW::Options::makeDefaultOptions();
+  //~ FW::Options::addSequencerOptions(desc);
+  //~ FW::Options::addGeometryOptions(desc);
+  //~ FW::Options::addMaterialOptions(desc);
+  //~ FW::Options::addParticleGunOptions(desc);
+  //~ FW::Options::addPythia8Options(desc);
+  //~ FW::Options::addRandomNumbersOptions(desc);
+  //~ FW::Options::addBFieldOptions(desc);
+  //~ FW::Options::addFatrasOptions(desc);
+  //~ FW::Options::addDigitizationOptions(desc);
+  //~ FW::Options::addOutputOptions(desc);
+  //~ desc.add_options()("evg-input-type",
+                     //~ value<std::string>()->default_value("pythia8"),
+                     //~ "Type of evgen input 'gun', 'pythia8'");
+  //~ // Add specific options for this geometry
+  //~ optionsSetup(desc);
+  //~ auto vm = FW::Options::parse(desc, argc, argv);
+  //~ if (vm.empty()) {
+    //~ return EXIT_FAILURE;
+  //~ }
+
+  //~ FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
+
+  //~ auto logLevel = FW::Options::readLogLevel(vm);
+
+  //~ // Create the random number engine
+  //~ auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
+  //~ auto randomNumberSvc
+      //~ = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
+
+  //~ // Add it to the sequencer
+  //~ sequencer.addService(randomNumberSvc);
+  //~ // Create the barcode service
+  //~ FW::BarcodeSvc::Config barcodeSvcCfg;
+  //~ auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
+      //~ barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
+  //~ // Add it to the sequencer
+  //~ sequencer.addService(barcodeSvc);
+
+  //~ // The geometry, material and decoration
+  //~ auto geometry          = FW::Geometry::build(vm, geometrySetup);
+  //~ auto tGeometry         = geometry.first;
+  //~ auto contextDecorators = geometry.second;
+  //~ // Add the decorator to the sequencer
+  //~ for (auto cdr : contextDecorators) {
+    //~ sequencer.addContextDecorator(cdr);
+  //~ }
+
+  //~ // (A) EVGEN
+  //~ // Setup the evgen input to the simulation
+  //~ setupEvgenInput(vm, sequencer, barcodeSvc, randomNumberSvc);
+
+  //~ // (B) SIMULATION
+  //~ // Setup the simulation
+  //~ setupSimulation(vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
+
+  //~ // (C) DIGITIZATION
+  //~ // Setup the digitization
+  //~ setupDigitization(vm, sequencer, barcodeSvc, randomNumberSvc);
+
+  //~ // (D) TRUTH TRACKING
+
+  //~ // (E) PATTERN RECOGNITION
+
+  //~ return sequencer.run();
+//~ }

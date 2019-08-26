@@ -192,91 +192,91 @@ namespace Data {
     }
 
     /// @brief Access methods: p
-    const double
+    double
     p() const
     {
       return m_p;
     }
 
     /// @brief Access methods: pT
-    const double
+    double
     pT() const
     {
       return m_pT;
     }
 
     /// @brief Access methods: E
-    const double
+    double
     E() const
     {
       return m_E;
     }
 
     /// @brief Access methods: m
-    const double
+    double
     m() const
     {
       return m_m;
     }
 
     /// @brief Access methods: beta
-    const double
+    double
     beta() const
     {
       return m_beta;
     }
 
     /// @brief Access methods: gamma
-    const double
+    double
     gamma() const
     {
       return m_gamma;
     }
 
     /// @brief Access methods: charge
-    const double
+    double
     q() const
     {
       return m_q;
     }
 
     /// @brief Access methods: pdg code
-    const pdg_type
+    pdg_type
     pdg() const
     {
       return m_pdg;
     }
 
     /// @brief Access methods: barcode
-    const barcode_type
+    barcode_type
     barcode() const
     {
       return m_barcode;
     }
 
     /// @brief Access methods: path/X0
-    const double
+    double
     pathInX0() const
     {
       return m_pathInX0;
     }
 
     /// @brief Access methods: limit/X0
-    const double
+    double
     limitInX0() const
     {
       return m_limitInX0;
     }
 
     /// @brief Access methods: pdg code
-    const double
+    double
     pathInL0() const
     {
       return m_limitInX0;
     }
 
     /// @brief Access methods: barcode
-    const double
+    double
     limitInL0() const
     {
       return m_limitInL0;

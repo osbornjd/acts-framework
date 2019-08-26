@@ -69,7 +69,7 @@ namespace Data {
     }
     // and now push back
     (moduleData->second).push_back(std::move(obj));
-  };
+  }
 
   /// @brief Read and return the module data
   ///
@@ -98,7 +98,7 @@ namespace Data {
     if (moduleData == (layerData->second).end()) return nullptr;
     // and now return as a pointer
     return (&(moduleData->second));
-  };
+  }
 
   /// @brief Read and return the layer data
   ///
@@ -123,7 +123,7 @@ namespace Data {
     if (layerData == (volumeData->second).end()) return nullptr;
     // and now return as a pointer
     return (&(layerData->second));
-  };
+  }
 
 }  // namespace Data
 }  // namespace FW

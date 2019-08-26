@@ -2,8 +2,17 @@ set(_common_libraries
   ActsCore
   ACTFramework
   ACTFWExamplesCommon
+  ACTFWDigitization
+  FatrasCore
+  ACTFWBFieldPlugin
+  ACTFWCsvPlugin
+  ACTFWFatras
+  ACTFWObjPlugin
+  ACTFWRootPlugin
+  ActsFrameworkGenerators
+  ActsFrameworkPythia8
   ${Boost_LIBRARIES})
-
+  
 set(_plugin_libraries
   ACTFWRootPlugin
   ACTFWJsonPlugin
@@ -49,7 +58,7 @@ if (USE_GEANT4 AND USE_DD4HEP)
   target_link_libraries(ACTFWParticleRecordingExample PRIVATE 
    ACTFWExamplesCommon ACTFWMaterialMapping ACTFWDD4hepG4Plugin)
   target_link_libraries(ACTFWParticleRecordingExample PRIVATE 
-   ACTFWDD4hepDetector ${DD4hep_LIBRARIES} ${Geant4_LIBRARIES} ${Boost_LIBRARIES})
+   ${_common_libraries} ACTFWDD4hepDetector ${DD4hep_LIBRARIES} ${Geant4_LIBRARIES} ${Boost_LIBRARIES})
    
   install(TARGETS ACTFWParticleRecordingExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
