@@ -65,15 +65,11 @@ FW::TrackSelector::execute(const FW::AlgorithmContext& ctx) const
                  std::back_inserter(sel.tracks),
                  isValidTrack);
     // Only retain vertex if it still contains tracks
-    if (not sel.tracks.empty()) {
-      selected.push_back(std::move(sel));
-    }
+    if (not sel.tracks.empty()) { selected.push_back(std::move(sel)); }
   }
 
   ACTS_DEBUG("event " << ctx.eventNumber << " selected " << selected.size()
-                      << " from "
-                      << input.size()
-                      << " vertices.");
+                      << " from " << input.size() << " vertices.");
 
   // write selected tracks
   ctx.eventStore.add(m_cfg.output, std::move(selected));

@@ -132,9 +132,7 @@ propagationExample(int argc, char* argv[], FW::IBaseDetector& detector)
   // Add specific options for this geometry
   detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
-  if (vm.empty()) {
-    return EXIT_FAILURE;
-  }
+  if (vm.empty()) { return EXIT_FAILURE; }
   FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
 
   // Now read the standard options
@@ -145,9 +143,7 @@ propagationExample(int argc, char* argv[], FW::IBaseDetector& detector)
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
   // Add the decorator to the sequencer
-  for (auto cdr : contextDecorators) {
-    sequencer.addContextDecorator(cdr);
-  }
+  for (auto cdr : contextDecorators) { sequencer.addContextDecorator(cdr); }
 
   // Create the random number engine
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);

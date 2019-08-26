@@ -43,9 +43,7 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
   // Add specific options for this geometry
   detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
-  if (vm.empty()) {
-    return EXIT_FAILURE;
-  }
+  if (vm.empty()) { return EXIT_FAILURE; }
 
   // Now read the standard options
   auto logLevel = FW::Options::readLogLevel(vm);
@@ -85,9 +83,7 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
     std::string geoContextStr = "";
     if (contextDecorators.size() > 0) {
       // We need indeed a context object
-      if (nEvents > 1) {
-        geoContextStr = "_geoContext" + std::to_string(ievt);
-      }
+      if (nEvents > 1) { geoContextStr = "_geoContext" + std::to_string(ievt); }
     }
 
     // ---------------------------------------------------------------------------------
@@ -134,9 +130,7 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
       tgObjWriter->write(context, *tGeometry);
 
       // Close the output streams
-      for (auto sStreams : subStreams) {
-        sStreams->close();
-      }
+      for (auto sStreams : subStreams) { sStreams->close(); }
     }
 
     // CSV output

@@ -138,9 +138,7 @@ materialValidationExample(int argc, char* argv[], FW::IBaseDetector& detector)
   // Add specific options for this geometry
   detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
-  if (vm.empty()) {
-    return EXIT_FAILURE;
-  }
+  if (vm.empty()) { return EXIT_FAILURE; }
 
   FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
 

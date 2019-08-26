@@ -72,15 +72,9 @@ struct SurfaceSelector
   bool
   operator()(const Acts::Surface& surface) const
   {
-    if (selectSensitive && surface.associatedDetectorElement()) {
-      return true;
-    }
-    if (selectMaterial && surface.surfaceMaterial()) {
-      return true;
-    }
-    if (selectPassive) {
-      return true;
-    }
+    if (selectSensitive && surface.associatedDetectorElement()) { return true; }
+    if (selectMaterial && surface.surfaceMaterial()) { return true; }
+    if (selectPassive) { return true; }
     return false;
   }
 };
@@ -134,9 +128,9 @@ setupSimulationAlgorithm(
   typedef Fatras::SelectorListAND<CSelector, CMinPt, CMaxEtaAbs>
       ChargedSelector;
 
-  typedef Fatras::NeutralSelector            NSelector;
-  typedef Fatras::Max<Fatras::casts::absEta> NMaxEtaAbs;
-  typedef Fatras::Min<Fatras::casts::E>      NMinE;
+  typedef Fatras::NeutralSelector                               NSelector;
+  typedef Fatras::Max<Fatras::casts::absEta>                    NMaxEtaAbs;
+  typedef Fatras::Min<Fatras::casts::E>                         NMinE;
   typedef Fatras::SelectorListAND<NSelector, NMinE, NMaxEtaAbs> NeutralSelector;
 
   typedef Fatras::PhysicsList<> PhysicsList;

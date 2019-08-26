@@ -61,9 +61,7 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
 
     Acts::Vertex<Acts::BoundParameters> fittedVertex;
     if (!m_cfg.doConstrainedFit) {
-      if (inputTrackCollection.size() < 2) {
-        continue;
-      }
+      if (inputTrackCollection.size() < 2) { continue; }
       // Vertex fitter options
       Acts::VertexFitterOptions<Acts::BoundParameters> vfOptions(
           context.geoContext, context.magFieldContext);
@@ -94,21 +92,13 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
     }
 
     ACTS_INFO("Fitted Vertex: "
-              << "("
-              << fittedVertex.position()[0]
-              << ","
-              << fittedVertex.position()[1]
-              << ","
-              << fittedVertex.position()[2]
+              << "(" << fittedVertex.position()[0] << ","
+              << fittedVertex.position()[1] << "," << fittedVertex.position()[2]
               << ")");
     ACTS_INFO("Truth Vertex: "
-              << "("
-              << vertexAndTracks.vertex.position[0]
-              << ","
-              << vertexAndTracks.vertex.position[1]
-              << ","
-              << vertexAndTracks.vertex.position[2]
-              << ")");
+              << "(" << vertexAndTracks.vertex.position[0] << ","
+              << vertexAndTracks.vertex.position[1] << ","
+              << vertexAndTracks.vertex.position[2] << ")");
   }
 
   return FW::ProcessCode::SUCCESS;
