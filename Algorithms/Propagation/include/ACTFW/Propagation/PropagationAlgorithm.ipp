@@ -168,7 +168,6 @@ PropagationAlgorithm<propagator_t>::execute(
     Acts::BoundVector pars;
     pars << d0, z0, phi, theta, qop, t;
     // some screen output
-    std::optional<Acts::BoundMatrix> cov = std::nullopt;
 
     Acts::Vector3D sPosition(0., 0., 0.);
     Acts::Vector3D sMomentum(0., 0., 0.);
@@ -178,14 +177,14 @@ PropagationAlgorithm<propagator_t>::execute(
     if (charge) {
       // charged extrapolation - with hit recording
       Acts::BoundParameters startParameters(
-          context.geoContext, cov, std::move(pars), surface);
+          context.geoContext, std::nullopt, std::move(pars), surface);
       sPosition = startParameters.position();
       sMomentum = startParameters.momentum();
       pOutput   = executeTest<Acts::TrackParameters>(context, startParameters);
     } else {
       // execute the test for neeutral particles
       Acts::NeutralBoundParameters neutralParameters(
-          context.geoContext, cov, std::move(pars), surface);
+          context.geoContext, std::nullopt, std::move(pars), surface);
       sPosition = neutralParameters.position();
       sMomentum = neutralParameters.momentum();
       pOutput

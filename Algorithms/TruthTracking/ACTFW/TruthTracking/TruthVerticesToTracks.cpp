@@ -87,9 +87,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
           std::nullopt, particle.position(), ptclMom, particle.q(), 0.);
       // Run propagator
       auto result = propagator.propagate(start, *perigeeSurface, pOptions);
-      if (!result.ok()) {
-        continue;
-      }
+      if (!result.ok()) { continue; }
 
       // get perigee parameters
       const auto& perigeeParameters = (*result).endParameters->parameters();
@@ -133,10 +131,8 @@ FW::TruthVerticesToTracksAlgorithm::execute(
         covMat.diagonal() << rn_d0 * rn_d0, rn_z0 * rn_z0, rn_ph * rn_ph,
             rn_th * rn_th, rn_qp * rn_qp, 1.;
 
-        trackCollection.push_back(Acts::BoundParameters(context.geoContext,
-                                                        std::move(covMat),
-                                                        newTrackParams,
-                                                        perigeeSurface));
+        trackCollection.push_back(Acts::BoundParameters(
+            context.geoContext, covMat, newTrackParams, perigeeSurface));
       } else {
         trackCollection.push_back(Acts::BoundParameters(
             context.geoContext, std::nullopt, newTrackParams, perigeeSurface));
@@ -162,12 +158,8 @@ FW::TruthVerticesToTracksAlgorithm::correctPhiThetaPeriodicity(
     double& thetaIn) const
 {
   double tmpPhi = std::fmod(phiIn, 2 * M_PI);  // temp phi
-  if (tmpPhi > M_PI) {
-    tmpPhi -= 2 * M_PI;
-  }
-  if (tmpPhi < -M_PI && tmpPhi > -2 * M_PI) {
-    tmpPhi += 2 * M_PI;
-  }
+  if (tmpPhi > M_PI) { tmpPhi -= 2 * M_PI; }
+  if (tmpPhi < -M_PI && tmpPhi > -2 * M_PI) { tmpPhi += 2 * M_PI; }
 
   double tmpTht = std::fmod(thetaIn, 2 * M_PI);  // temp theta
   if (tmpTht < -M_PI) {
