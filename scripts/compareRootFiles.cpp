@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -46,10 +46,10 @@
   }
 
 #define CHECK_EQUAL(v1, v2, msg)                                               \
-  CHECK((v1) == (v2), msg << " (" << (v1) << " vs " << (v2) << ')')
+  CHECK((v1) == (v2), msg << "(" << (v1) << " vs " << (v2) << ") ")
 
 #define CHECK_STR_EQUAL(s1, s2, msg)                                           \
-  CHECK(strcmp((s1), (s2)) == 0, msg << " (" << (s1) << " vs " << (s2) << ')')
+  CHECK(strcmp((s1), (s2)) == 0, msg << " (" << (s1) << " vs " << (s2) << ") ")
 
 // This script returns 0 if the files have identical contents except for event
 // ordering, and a nonzero result if the contents differ or an error occured.
@@ -60,6 +60,7 @@
 // If the optional skip_unsupported_branches flag is set, the script will ignore
 // unsupported branch types in the input file instead of aborting.
 //
+
 int
 compareRootFiles(std::string file1,
                  std::string file2,
