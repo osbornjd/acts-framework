@@ -5,7 +5,7 @@ target_include_directories(ACTFWDD4hepDetector PUBLIC $<BUILD_INTERFACE:${CMAKE_
 target_include_directories(ACTFWDD4hepDetector PUBLIC ${DD4hep_INCLUDE_DIRS})
 target_include_directories(ACTFWDD4hepDetector PUBLIC ${ROOT_INCLUDE_DIRS})
 target_link_libraries(ACTFWDD4hepDetector PUBLIC ACTFramework)
-target_link_libraries(ACTFWDD4hepDetector PUBLIC ActsCore ActsDigitizationPlugin ActsDD4hepPlugin)
+target_link_libraries(ACTFWDD4hepDetector PUBLIC ActsCore ActsDigitizationPlugin ActsDD4hepPlugin ACTFWDetectorsCommon)
 target_link_libraries(ACTFWDD4hepDetector PUBLIC ${ROOT_LIBRARIES})
 target_link_libraries(ACTFWDD4hepDetector PUBLIC ${DD4hep_LIBRARIES})
  

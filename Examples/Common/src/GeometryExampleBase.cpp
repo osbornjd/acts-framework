@@ -6,8 +6,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,19 +28,10 @@
 #include "Acts/Geometry/GeometryContext.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
 
-/// @brief templated method to process a geometry
-///
-/// @tparam options_setup_t callable options setup
-/// @tparam geometry_setup_t callable geonmetry setup
-///
-///
+#include "ACTFW/Detector/IBaseDetector.hpp"
 
-template <typename options_setup_t, typename geometry_setup_t>
 int
-processGeometry(int               argc,
-                char*             argv[],
-                options_setup_t&  optionsSetup,
-                geometry_setup_t& geometrySetup)
+processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
 {
   // setup and parse options
   auto desc = FW::Options::makeDefaultOptions();
@@ -52,7 +41,7 @@ processGeometry(int               argc,
   FW::Options::addObjWriterOptions(desc);
   FW::Options::addOutputOptions(desc);
   // Add specific options for this geometry
-  optionsSetup(desc);
+  detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
@@ -63,7 +52,7 @@ processGeometry(int               argc,
   auto nEvents  = FW::Options::readSequencerConfig(vm).events;
 
   // The geometry, material and decoration
-  auto geometry          = FW::Geometry::build(vm, geometrySetup);
+  auto geometry          = FW::Geometry::build(vm, detector);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 

@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/Units.hpp"
@@ -320,6 +321,6 @@ namespace Root {
     }
   };
 
-}  // namespace BField
+}  // namespace Root
 
 }  // namespace FW

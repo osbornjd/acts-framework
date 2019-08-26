@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/ContextualDetector/PayloadDetector.hpp"
-#include "detail/FatrasExampleBase.hpp"
+#include "ACTFW/Fatras/FatrasExampleBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,9 +17,8 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  PayloadOptions  payloadOptions;
-  PayloadGeometry payloadGeometry;
+  PayloadDetector detector;
 
   // now process it
-  return fatrasExample(argc, argv, payloadOptions, payloadGeometry);
+  return fatrasExample(argc, argv, detector);
 }

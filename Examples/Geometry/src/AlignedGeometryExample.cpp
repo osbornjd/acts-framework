@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/ContextualDetector/AlignedDetector.hpp"
-#include "detail/GeometryExampleBase.hpp"
+#include "ACTFW/Geometry/GeometryExampleBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,9 +17,8 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  AlignedOptions  alignedOptions;
-  AlignedGeometry alignedGeometry;
+  AlignedDetector alignedDetector;
 
   // now process it
-  return processGeometry(argc, argv, alignedOptions, alignedGeometry);
+  return processGeometry(argc, argv, alignedDetector);
 }

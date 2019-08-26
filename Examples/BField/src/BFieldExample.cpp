@@ -15,6 +15,8 @@
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "detail/BFieldWritingBase.hpp"
 
+namespace po = boost::program_options;
+
 /// The main executable
 ///
 /// Creates an InterpolatedBFieldMap from a txt or csv file and writes out the

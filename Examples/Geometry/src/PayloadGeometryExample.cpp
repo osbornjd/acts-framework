@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/ContextualDetector/PayloadDetector.hpp"
-#include "detail/GeometryExampleBase.hpp"
+#include "ACTFW/Geometry/GeometryExampleBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,9 +17,8 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  PayloadOptions  payloadOptions;
-  PayloadGeometry payloadGeometry;
+  PayloadDetector detector;
 
   // now process it
-  return processGeometry(argc, argv, payloadOptions, payloadGeometry);
+  return processGeometry(argc, argv, detector);
 }

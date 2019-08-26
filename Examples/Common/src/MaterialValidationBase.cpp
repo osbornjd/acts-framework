@@ -1,17 +1,16 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
-
-#include <memory>
-
 #include <boost/program_options.hpp>
 
+#include <boost/program_options.hpp>
+#include <memory>
+#include "ACTFW/Detector/IBaseDetector.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
@@ -32,6 +31,7 @@
 
 namespace po = boost::program_options;
 
+namespace {
 /// @brief Propagation setup
 ///
 /// @tparam sequencer_t Type of the sequencer of the framework
@@ -119,24 +119,10 @@ setupStraightLinePropagation(
   return FW::ProcessCode::SUCCESS;
 }
 
-/// @brief The material validation example, it runs a propagation
-/// and then writes out the material information
-///
-/// @tparam options_setup_t Type of the options generator
-/// @tparam geometry_setup_t Type of the geometry generator
-///
-/// @param argc the number of argumetns of the call
-/// @param atgv the argument list
-///
-///
-/// @param optionsSetup is a struct to generate example specific options
-/// @param geometrySteup is a struct to generate the geometry
-template <typename options_setup_t, typename geometry_setup_t>
+}  // namespace
+
 int
-materialValidationExample(int              argc,
-                          char*            argv[],
-                          options_setup_t  optionsSetup,
-                          geometry_setup_t geometrySetup)
+materialValidationExample(int argc, char* argv[], FW::IBaseDetector& detector)
 {
 
   // Setup and parse options
@@ -150,7 +136,7 @@ materialValidationExample(int              argc,
   FW::Options::addOutputOptions(desc);
 
   // Add specific options for this geometry
-  optionsSetup(desc);
+  detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
@@ -162,7 +148,7 @@ materialValidationExample(int              argc,
   auto logLevel = FW::Options::readLogLevel(vm);
 
   // The geometry, material and decoration
-  auto geometry          = FW::Geometry::build(vm, geometrySetup);
+  auto geometry          = FW::Geometry::build(vm, detector);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
 
@@ -172,7 +158,7 @@ materialValidationExample(int              argc,
       = std::make_shared<FW::RandomNumbers>(randomNumberSvcCfg);
 
   // Create BField service
-  auto bField  = FW::Options::readBField<po::variables_map>(vm);
+  auto bField  = FW::Options::readBField(vm);
   auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
   auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
   auto fieldC  = std::get<std::shared_ptr<Acts::ConstantBField>>(bField);

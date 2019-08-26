@@ -133,10 +133,8 @@ FW::TruthVerticesToTracksAlgorithm::execute(
         covMat.diagonal() << rn_d0 * rn_d0, rn_z0 * rn_z0, rn_ph * rn_ph,
             rn_th * rn_th, rn_qp * rn_qp, 1.;
 
-        trackCollection.push_back(Acts::BoundParameters(context.geoContext,
-                                                        std::move(covMat),
-                                                        newTrackParams,
-                                                        perigeeSurface));
+        trackCollection.push_back(Acts::BoundParameters(
+            context.geoContext, covMat, newTrackParams, perigeeSurface));
       } else {
         trackCollection.push_back(Acts::BoundParameters(
             context.geoContext, std::nullopt, newTrackParams, perigeeSurface));

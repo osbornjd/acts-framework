@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/DD4hepDetector/DD4hepDetector.hpp"
-#include "detail/PropagationExampleBase.hpp"
+#include "ACTFW/Propagation/PropagationExampleBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,9 +17,8 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  DD4hepOptions  dd4HepOptions;
-  DD4hepGeometry dd4HepGeometry;
+  DD4hepDetector detector;
 
   // now process it
-  return propagationExample(argc, argv, dd4HepOptions, dd4HepGeometry);
+  return propagationExample(argc, argv, detector);
 }

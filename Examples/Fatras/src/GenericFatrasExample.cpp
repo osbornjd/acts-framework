@@ -6,8 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "ACTFW/Fatras/FatrasExampleBase.hpp"
 #include "ACTFW/GenericDetector/GenericDetector.hpp"
-#include "detail/FatrasExampleBase.hpp"
 
 /// @brief main executable
 ///
@@ -17,9 +17,8 @@ int
 main(int argc, char* argv[])
 {
   // --------------------------------------------------------------------------------
-  GenericOptions  genericOptions;
-  GenericGeometry genericGeometry;
+  GenericDetector detector;
 
   // now process it
-  return fatrasExample(argc, argv, genericOptions, genericGeometry);
+  return fatrasExample(argc, argv, detector);
 }
