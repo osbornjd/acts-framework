@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2017-2018 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26,7 +26,7 @@ namespace Csv {
   ///
   /// and each line in the file corresponds to one hit/cluster.
   class CsvPlanarClusterWriter
-      : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
+    : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
   {
   public:
     using Base = WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>;

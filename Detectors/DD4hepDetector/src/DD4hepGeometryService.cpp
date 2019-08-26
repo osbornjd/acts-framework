@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -32,9 +32,7 @@ FW::ProcessCode
 FW::DD4hep::DD4hepGeometryService::buildDD4hepGeometry()
 {
   m_lcdd = &(dd4hep::Detector::getInstance());
-  for (auto& file : m_cfg.xmlFileNames) {
-    m_lcdd->fromCompact(file.c_str());
-  }
+  for (auto& file : m_cfg.xmlFileNames) { m_lcdd->fromCompact(file.c_str()); }
   m_lcdd->volumeManager();
   m_lcdd->apply("DD4hepVolumeManager", 0, 0);
   m_dd4hepGeometry = m_lcdd->world();
@@ -86,8 +84,6 @@ std::unique_ptr<const Acts::TrackingGeometry>
 FW::DD4hep::DD4hepGeometryService::trackingGeometry(
     const Acts::GeometryContext& gctx)
 {
-  if (!m_trackingGeometry) {
-    buildTrackingGeometry(gctx);
-  }
+  if (!m_trackingGeometry) { buildTrackingGeometry(gctx); }
   return std::move(m_trackingGeometry);
 }

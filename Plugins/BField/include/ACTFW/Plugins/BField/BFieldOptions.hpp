@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34,16 +34,16 @@ namespace BField {
 }
 }  // namespace FW
 
-using InterpolatedMapper2D = Acts::
-    InterpolatedBFieldMapper<Acts::detail::Grid<Acts::Vector2D,
-                                                Acts::detail::EquidistantAxis,
-                                                Acts::detail::EquidistantAxis>>;
+using InterpolatedMapper2D = Acts::InterpolatedBFieldMapper<
+    Acts::detail::Grid<Acts::Vector2D,
+                       Acts::detail::EquidistantAxis,
+                       Acts::detail::EquidistantAxis>>;
 
-using InterpolatedMapper3D = Acts::
-    InterpolatedBFieldMapper<Acts::detail::Grid<Acts::Vector3D,
-                                                Acts::detail::EquidistantAxis,
-                                                Acts::detail::EquidistantAxis,
-                                                Acts::detail::EquidistantAxis>>;
+using InterpolatedMapper3D = Acts::InterpolatedBFieldMapper<
+    Acts::detail::Grid<Acts::Vector3D,
+                       Acts::detail::EquidistantAxis,
+                       Acts::detail::EquidistantAxis,
+                       Acts::detail::EquidistantAxis>>;
 
 using InterpolatedBFieldMap2D
     = Acts::InterpolatedBFieldMap<InterpolatedMapper2D>;

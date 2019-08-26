@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2019 Acts project team
+// Copyright (C) 2017-2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -46,7 +46,7 @@ FW::MaterialMapping::~MaterialMapping()
   Acts::DetectorMaterialMaps detectorMaterial;
 
   // Loop over the state, and collect the maps for surfaces
-  for (auto & [ key, value ] : m_mappingState.surfaceMaterial) {
+  for (auto& [key, value] : m_mappingState.surfaceMaterial) {
     detectorMaterial.first.insert({key, std::move(value)});
   }
 

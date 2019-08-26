@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2017-2018 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -46,7 +46,7 @@ namespace Obj {
 
   protected:
     ProcessCode
-    writeT(const AlgorithmContext& context,
+    writeT(const AlgorithmContext&              context,
            const DetectorData<geo_id_value, T>& spacePoints);
 
   private:
@@ -77,7 +77,7 @@ inline FW::Obj::ObjSpacePointWriter<T>::ObjSpacePointWriter(
 template <typename T>
 inline FW::ProcessCode
 FW::Obj::ObjSpacePointWriter<T>::writeT(
-    const FW::AlgorithmContext& context,
+    const FW::AlgorithmContext&              context,
     const FW::DetectorData<geo_id_value, T>& spacePoints)
 {
   // open per-event file

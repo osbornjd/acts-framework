@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,10 +9,10 @@
 #include "Acts/Plugins/DD4hep/ActsExtension.hpp"
 #include "DD4hep/DetFactoryHelper.h"
 
-using dd4hep::Volume;
+using dd4hep::DetElement;
 using dd4hep::PlacedVolume;
 using dd4hep::Tube;
-using dd4hep::DetElement;
+using dd4hep::Volume;
 
 static dd4hep::Ref_t
 create_element(dd4hep::Detector& lcdd, xml_h e, dd4hep::SensitiveDetector)

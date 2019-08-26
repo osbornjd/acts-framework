@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2019 Acts project team
+// Copyright (C) 2017-2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25,8 +25,8 @@ struct FrameworkRndmEngine : public Pythia8::RndmEngine
 };
 }  // namespace
 
-std::function<std::vector<FW::Data::SimVertex<FW::Data::SimParticle>>(
-    FW::RandomEngine&)>
+std::function<
+    std::vector<FW::Data::SimVertex<FW::Data::SimParticle>>(FW::RandomEngine&)>
 FW::Pythia8Generator::makeFunction(const FW::Pythia8Generator::Config& cfg)
 {
   auto gen = std::make_shared<Pythia8Generator>(cfg);

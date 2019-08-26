@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2017-2018 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -17,8 +17,8 @@
 #include "Acts/Utilities/Helpers.hpp"
 
 using Acts::VectorHelpers::eta;
-using Acts::VectorHelpers::phi;
 using Acts::VectorHelpers::perp;
+using Acts::VectorHelpers::phi;
 
 FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
     const FW::Root::RootMaterialTrackWriter::Config& cfg,

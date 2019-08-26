@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -45,8 +45,6 @@ FW::splitByDelimiter(const std::string& files, char delim)
 
   std::stringstream ss(files);
   std::string       token;
-  while (getline(ss, token, delim)) {
-    fileList.push_back(token);
-  }
+  while (getline(ss, token, delim)) { fileList.push_back(token); }
   return fileList;
 }

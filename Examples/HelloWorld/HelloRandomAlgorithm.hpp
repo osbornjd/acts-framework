@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2019 Acts project team
+// Copyright (C) 2017-2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,8 +28,8 @@ public:
     std::array<double, 2> gaussParameters   = {{0., 1.}};
     std::array<double, 2> uniformParameters = {{0., 1.}};
     std::array<double, 2> gammaParameters   = {{0., 1.}};
-    int    poissonParameter = 40;
-    size_t drawsPerEvent    = 0;
+    int                   poissonParameter  = 40;
+    size_t                drawsPerEvent     = 0;
     /// Where to store the generated data in the event store.
     std::string output;
   };

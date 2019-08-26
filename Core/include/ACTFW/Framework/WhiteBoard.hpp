@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2019 Acts project team
+// Copyright (C) 2017-2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -79,7 +79,7 @@ private:
     }
   };
 
-  std::unique_ptr<const Acts::Logger> m_logger;
+  std::unique_ptr<const Acts::Logger>                       m_logger;
   std::unordered_map<std::string, std::unique_ptr<IHolder>> m_store;
 
   const Acts::Logger&

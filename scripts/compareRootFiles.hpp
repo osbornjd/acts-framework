@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -487,39 +487,32 @@ private:
                const std::string& branchName,
                const std::string  elemType)
   {
-// clang-format off
 
-    // We support vectors of different types by switching across type (strings)
-    #define CREATE_VECTOR__HANDLE_TYPE(type_name)  \
-    if(elemType == #type_name) {  \
-      return BranchComparisonHarness::create<std::vector<type_name>>(  \
-        treeMetadata,  \
-        branchName  \
-      );  \
-    }
+// We support vectors of different types by switching across type (strings)
+#define CREATE_VECTOR__HANDLE_TYPE(type_name)                                  \
+  if (elemType == #type_name) {                                                \
+    return BranchComparisonHarness::create<std::vector<type_name>>(            \
+        treeMetadata, branchName);                                             \
+  }
 
     // Handle vectors of booleans
     CREATE_VECTOR__HANDLE_TYPE(bool)
 
     // Handle vectors of all standard floating-point types
-    else CREATE_VECTOR__HANDLE_TYPE(float)
-    else CREATE_VECTOR__HANDLE_TYPE(double)
+    else CREATE_VECTOR__HANDLE_TYPE(float) else CREATE_VECTOR__HANDLE_TYPE(
+        double)
 
-    // For integer types, we'll want to handle both signed and unsigned versions
-    #define CREATE_VECTOR__HANDLE_INTEGER_TYPE(integer_type_name)  \
-    CREATE_VECTOR__HANDLE_TYPE(integer_type_name)  \
-    else CREATE_VECTOR__HANDLE_TYPE(unsigned integer_type_name)
+// For integer types, we'll want to handle both signed and unsigned versions
+#define CREATE_VECTOR__HANDLE_INTEGER_TYPE(integer_type_name)                  \
+  CREATE_VECTOR__HANDLE_TYPE(integer_type_name)                                \
+  else CREATE_VECTOR__HANDLE_TYPE(unsigned integer_type_name)
 
-    // Handle vectors of all standard integer types
-    else CREATE_VECTOR__HANDLE_INTEGER_TYPE(char)
-    else CREATE_VECTOR__HANDLE_INTEGER_TYPE(short)
-    else CREATE_VECTOR__HANDLE_INTEGER_TYPE(int)
-    else CREATE_VECTOR__HANDLE_INTEGER_TYPE(long)
+        // Handle vectors of all standard integer types
+        else CREATE_VECTOR__HANDLE_INTEGER_TYPE(char) else CREATE_VECTOR__HANDLE_INTEGER_TYPE(
+            short) else CREATE_VECTOR__HANDLE_INTEGER_TYPE(int) else CREATE_VECTOR__HANDLE_INTEGER_TYPE(long)
 
-    // Throw an exception if the vector element type is not recognized
-    else throw UnsupportedBranchType();
-
-    // clang-format on
+        // Throw an exception if the vector element type is not recognized
+        else throw UnsupportedBranchType();
   }
 
   // This helper method provides general string conversion for all supported
@@ -538,9 +531,7 @@ private:
   toString(const std::vector<U>& vector)
   {
     std::ostringstream oss{"{ "};
-    for (const auto& data : vector) {
-      oss << data << "  \t";
-    }
+    for (const auto& data : vector) { oss << data << "  \t"; }
     oss << " }";
     return oss.str();
   }

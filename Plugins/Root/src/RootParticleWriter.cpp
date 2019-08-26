@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -71,9 +71,7 @@ FW::Root::RootParticleWriter::RootParticleWriter(
 
 FW::Root::RootParticleWriter::~RootParticleWriter()
 {
-  if (m_outputFile) {
-    m_outputFile->Close();
-  }
+  if (m_outputFile) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
@@ -83,8 +81,7 @@ FW::Root::RootParticleWriter::endRun()
     m_outputFile->cd();
     m_outputTree->Write();
     ACTS_INFO("Wrote particles to tree '" << m_cfg.treeName << "' in '"
-                                          << m_cfg.filePath
-                                          << "'");
+                                          << m_cfg.filePath << "'");
   }
   return ProcessCode::SUCCESS;
 }

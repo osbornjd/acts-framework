@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2019 Acts project team
+// Copyright (C) 2017-2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26,7 +26,7 @@ FW::ParametricProcessGenerator::operator()(FW::RandomEngine& rng) const
   Uniform phiDist(m_cfg.phiRange[0], m_cfg.phiRange[1]);
   Uniform etaDist(m_cfg.etaRange[0], m_cfg.etaRange[1]);
   Uniform ptDist(m_cfg.ptRange[0], m_cfg.ptRange[1]);
-  auto generateChargeSign = [=](RandomEngine& rng) {
+  auto    generateChargeSign = [=](RandomEngine& rng) {
     return (m_cfg.randomCharge and (Uniform(0.0, 1.0)(rng) < 0.5)) ? -1.0 : 1.0;
   };
 

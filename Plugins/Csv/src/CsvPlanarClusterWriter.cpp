@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -31,7 +31,7 @@ FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
 
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterWriter::writeT(
-    const AlgorithmContext& context,
+    const AlgorithmContext&                                          context,
     const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& clusters)
 {
   // open per-event hits file

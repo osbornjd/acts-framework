@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2016-2018 Acts project team
+// Copyright (C) 2016-2018 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -14,10 +14,10 @@ namespace Generic {
 
   /// helper method for cylinder
   std::vector<Acts::Vector3D>
-  modulePositionsCylinder(double radius,
-                          double zStagger,
-                          double moduleHalfLength,
-                          double lOverlap,
+  modulePositionsCylinder(double                     radius,
+                          double                     zStagger,
+                          double                     moduleHalfLength,
+                          double                     lOverlap,
                           const std::pair<int, int>& binningSchema)
   {
     int nPhiBins = binningSchema.first;
@@ -95,8 +95,9 @@ namespace Generic {
     for (size_t ir = 0; ir < radii.size(); ++ir) {
       // generate the z value
       // convention inner ring is closer to origin : makes sense
-      double rz = radii.size() == 1 ? z : (ir % 2 ? z + 0.5 * ringStagger
-                                                  : z - 0.5 * ringStagger);
+      double rz = radii.size() == 1
+          ? z
+          : (ir % 2 ? z + 0.5 * ringStagger : z - 0.5 * ringStagger);
       // fill the ring positions
       double psStagger = phiSubStagger.size() ? phiSubStagger[ir] : 0.;
       mPositions.push_back(modulePositionsRing(

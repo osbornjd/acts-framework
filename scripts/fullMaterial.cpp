@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -52,13 +52,12 @@ fullMaterial(std::string inFile,
   std::vector<Acts::MaterialTrack> mrecords;
   std::cout << "Accessing Branch 'MaterialTracks'" << std::endl;
   TTreeReaderValue<Acts::MaterialTrack> mtRecord(reader, "MaterialTracks");
-  while (reader.Next()) {
-    mrecords.push_back(*mtRecord);
-  }
+  while (reader.Next()) { mrecords.push_back(*mtRecord); }
   inputFile.Close();
 
-  std::cout << "Creating new output file: " << outFile << " and writing "
-                                                          "material maps"
+  std::cout << "Creating new output file: " << outFile
+            << " and writing "
+               "material maps"
             << std::endl;
   TFile outputFile(outFile.c_str(), "recreate");
   // thickness

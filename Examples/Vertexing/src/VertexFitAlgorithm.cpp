@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2019 Acts project team
+// Copyright (C) 2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -61,9 +61,7 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
 
     Acts::Vertex<Acts::BoundParameters> fittedVertex;
     if (!m_cfg.doConstrainedFit) {
-      if (inputTrackCollection.size() < 2) {
-        continue;
-      }
+      if (inputTrackCollection.size() < 2) { continue; }
       // Vertex fitter options
       Acts::VertexFitterOptions<Acts::BoundParameters> vfOptions(
           context.geoContext, context.magFieldContext);
@@ -94,21 +92,13 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
     }
 
     ACTS_INFO("Fitted Vertex: "
-              << "("
-              << fittedVertex.position()[0]
-              << ","
-              << fittedVertex.position()[1]
-              << ","
-              << fittedVertex.position()[2]
+              << "(" << fittedVertex.position()[0] << ","
+              << fittedVertex.position()[1] << "," << fittedVertex.position()[2]
               << ")");
     ACTS_INFO("Truth Vertex: "
-              << "("
-              << vertexAndTracks.vertex.position[0]
-              << ","
-              << vertexAndTracks.vertex.position[1]
-              << ","
-              << vertexAndTracks.vertex.position[2]
-              << ")");
+              << "(" << vertexAndTracks.vertex.position[0] << ","
+              << vertexAndTracks.vertex.position[1] << ","
+              << vertexAndTracks.vertex.position[2] << ")");
   }
 
   return FW::ProcessCode::SUCCESS;

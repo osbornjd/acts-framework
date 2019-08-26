@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2019 Acts project team
+// Copyright (C) 2017-2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -30,7 +30,7 @@ using VolumeMaterialMap
     = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
 
 using DetectorMaterialMaps = std::pair<SurfaceMaterialMap, VolumeMaterialMap>;
-}
+}  // namespace Acts
 
 namespace FW {
 
@@ -69,8 +69,8 @@ namespace Json {
     std::string volumeName;
 
     std::map<geo_id_value, LayerRep> layers;
-    SurfaceMaterialRep           boundaries;
-    const Acts::IVolumeMaterial* material = nullptr;
+    SurfaceMaterialRep               boundaries;
+    const Acts::IVolumeMaterial*     material = nullptr;
 
     /// The VolumeRep is actually worth it to write out
     operator bool() const

@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2016-2019 Acts project team
+// Copyright (C) 2016-2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -81,20 +81,16 @@ FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& context) const
   std::vector<Acts::BoundParameters> inputTrackCollection;
 
   int counte = 0;
-  for (auto& bla : input) {
-    counte += bla.tracks.size();
-  }
+  for (auto& bla : input) { counte += bla.tracks.size(); }
 
   ACTS_INFO("Truth vertices in event: " << input.size());
 
   for (auto& vertexAndTracks : input) {
-    ACTS_INFO("\t True vertex at (" << vertexAndTracks.vertex.position[0] << ","
-                                    << vertexAndTracks.vertex.position[1]
-                                    << ","
-                                    << vertexAndTracks.vertex.position[2]
-                                    << ") with "
-                                    << vertexAndTracks.tracks.size()
-                                    << " tracks.");
+    ACTS_INFO("\t True vertex at ("
+              << vertexAndTracks.vertex.position[0] << ","
+              << vertexAndTracks.vertex.position[1] << ","
+              << vertexAndTracks.vertex.position[2] << ") with "
+              << vertexAndTracks.tracks.size() << " tracks.");
     inputTrackCollection.insert(inputTrackCollection.end(),
                                 vertexAndTracks.tracks.begin(),
                                 vertexAndTracks.tracks.end());
@@ -112,15 +108,9 @@ FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& context) const
     unsigned int count = 0;
     for (const auto& vtx : vertexCollection) {
       ACTS_INFO("\t" << ++count << ". vertex at "
-                     << "("
-                     << vtx.position()[0]
-                     << ","
-                     << vtx.position()[1]
-                     << ","
-                     << vtx.position()[2]
-                     << ") with "
-                     << vtx.tracks().size()
-                     << " tracks.");
+                     << "(" << vtx.position()[0] << "," << vtx.position()[1]
+                     << "," << vtx.position()[2] << ") with "
+                     << vtx.tracks().size() << " tracks.");
     }
   } else {
     ACTS_ERROR("Error in vertex finder.");

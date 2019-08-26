@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2019 Acts project team
+// Copyright (C) 2017-2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,7 +28,7 @@ using SurfaceMaterialMap
 
 using VolumeMaterialMap
     = std::map<GeometryID, std::shared_ptr<const IVolumeMaterial>>;
-}
+}  // namespace Acts
 
 namespace FW {
 
@@ -70,9 +70,7 @@ namespace Json {
     decorate(Acts::Surface& surface) const final
     {
       // Clear the material if registered to do so
-      if (m_clearSurfaceMaterial) {
-        surface.assignSurfaceMaterial(nullptr);
-      }
+      if (m_clearSurfaceMaterial) { surface.assignSurfaceMaterial(nullptr); }
 
       // Try to find the surface in the map
       auto sMaterial = m_surfaceMaterialMap.find(surface.geoID());
@@ -88,9 +86,7 @@ namespace Json {
     decorate(Acts::TrackingVolume& volume) const final
     {
       // Clear the material if registered to do so
-      if (m_clearVolumeMaterial) {
-        volume.assignVolumeMaterial(nullptr);
-      }
+      if (m_clearVolumeMaterial) { volume.assignVolumeMaterial(nullptr); }
     }
 
   private:

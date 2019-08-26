@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2019 Acts project team
+// Copyright (C) 2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -88,13 +88,9 @@ FW::ParticleSelector::execute(const FW::AlgorithmContext& ctx) const
   }
 
   ACTS_DEBUG("event " << ctx.eventNumber << " selected " << selected.size()
-                      << " from "
-                      << input.size()
-                      << " vertices");
+                      << " from " << input.size() << " vertices");
   ACTS_DEBUG("event " << ctx.eventNumber << " selected " << selParticles
-                      << " from "
-                      << allParticles
-                      << " particles");
+                      << " from " << allParticles << " particles");
 
   // write selected particles
   ctx.eventStore.add(m_cfg.output, std::move(selected));

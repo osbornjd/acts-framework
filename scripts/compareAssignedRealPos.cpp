@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -53,7 +53,7 @@ compareAssignedRealPos(std::string inFile,
     TH2F*       r_z_assigned = (TH2F*)dir->Get("r_z_assigned");
     TH2F*       x_y          = (TH2F*)dir->Get("x_y");
     TH2F*       x_y_assigned = (TH2F*)dir->Get("x_y_assigned");
-    if (entry == 17) entry   = 20;
+    if (entry == 17) entry = 20;
     if (entry == 10 || entry == 50) entry++;
     if (r_z && r_z_assigned) {
       canvas1->cd();

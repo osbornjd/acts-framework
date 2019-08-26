@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2018 Acts project team
+// Copyright (C) 2018 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,8 +28,7 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
       = context.eventStore.get<event_collection_t>(m_cfg.inputEventCollection);
 
   ACTS_DEBUG("Read collection '" << m_cfg.inputEventCollection << "' with "
-                                 << inputEvent.size()
-                                 << " vertices");
+                                 << inputEvent.size() << " vertices");
 
   // Output: simulated particles attached to their process vertices
   // we start with a copy of the current event

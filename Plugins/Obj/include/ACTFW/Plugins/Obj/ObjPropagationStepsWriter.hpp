@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,7 +28,7 @@ namespace Obj {
   /// One Thread per write call and hence thread safe
   template <typename step_t>
   class ObjPropagationStepsWriter
-      : public WriterT<std::vector<std::vector<step_t>>>
+    : public WriterT<std::vector<std::vector<step_t>>>
   {
   public:
     using Base = WriterT<std::vector<std::vector<step_t>>>;
@@ -108,5 +108,5 @@ namespace Obj {
     }
   };
 
-}  // namespace Root
+}  // namespace Obj
 }  // namespace FW

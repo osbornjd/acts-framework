@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2019 Acts project team
+// Copyright (C) 2017-2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -33,9 +33,7 @@ main(int argc, char* argv[])
   // parse options from command line flags
   auto vm = FW::Options::parse(opt, argc, argv);
   // an empty varaibles map indicates an error
-  if (vm.empty()) {
-    return EXIT_FAILURE;
-  }
+  if (vm.empty()) { return EXIT_FAILURE; }
 
   // extract some common options
   auto logLevel = FW::Options::readLogLevel(vm);

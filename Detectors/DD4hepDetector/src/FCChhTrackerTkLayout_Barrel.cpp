@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,10 +13,10 @@
 
 #include "DD4hep/DetFactoryHelper.h"
 
-using dd4hep::Volume;
 using dd4hep::DetElement;
-using dd4hep::xml::Dimension;
 using dd4hep::PlacedVolume;
+using dd4hep::Volume;
+using dd4hep::xml::Dimension;
 
 namespace det {
 static dd4hep::Ref_t
@@ -45,7 +45,7 @@ createTkLayoutTrackerBarrel(dd4hep::Detector&         lcdd,
   dd4hep::Tube topVolumeShape(dimensions.rmin(),
                               dimensions.rmax(),
                               (dimensions.zmax() - dimensions.zmin()) * 0.5);
-  Volume topVolume(detectorName, topVolumeShape, lcdd.air());
+  Volume       topVolume(detectorName, topVolumeShape, lcdd.air());
   topVolume.setVisAttributes(lcdd.invisible());
 
   // counts all layers - incremented in the inner loop over repeat - tags

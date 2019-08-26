@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -46,8 +46,8 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     double     l_rmax   = x_layer.outer_r();
     double     l_length = x_layer.z();
     // Create Volume and DetElement for Layer
-    string layer_name = det_name + _toString((int)layer_num, "layer%d");
-    Volume layer_vol(layer_name,
+    string     layer_name = det_name + _toString((int)layer_num, "layer%d");
+    Volume     layer_vol(layer_name,
                      Tube(l_rmin, l_rmax, l_length),
                      lcdd.material(x_layer.materialStr()));
     DetElement lay_det(cylinderVolume, layer_name, layer_num);

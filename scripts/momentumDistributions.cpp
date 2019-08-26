@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 Acts project team
+// Copyright (C) 2017 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -50,8 +50,9 @@ momentumDistributions(std::string inFile,
   tree->SetBranchAddress("StepZ", &z);
 
   Int_t entries = tree->GetEntries();
-  std::cout << "Creating new output file: " << outFile << " and writing "
-                                                          "material maps"
+  std::cout << "Creating new output file: " << outFile
+            << " and writing "
+               "material maps"
             << std::endl;
   TFile outputFile(outFile.c_str(), "recreate");
 

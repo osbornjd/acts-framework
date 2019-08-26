@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2019 Acts project team
+// Copyright (C) 2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -37,8 +37,8 @@ FW::Contextual::AlignmentDecorator::decorate(AlgorithmContext& context)
       auto cios = m_iovStatus.size();
       ACTS_VERBOSE("New IOV detected at event " << context.eventNumber
                                                 << ", emulate new alignment.");
-      ACTS_VERBOSE(
-          "New IOV identifier set to " << iov << ", curently valid: " << cios);
+      ACTS_VERBOSE("New IOV identifier set to "
+                   << iov << ", curently valid: " << cios);
 
       for (unsigned int ic = cios; ic <= iov; ++ic) {
         m_iovStatus.push_back(false);

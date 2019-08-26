@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2019 Acts project team
+// Copyright (C) 2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -87,9 +87,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
           std::nullopt, particle.position(), ptclMom, particle.q(), 0.);
       // Run propagator
       auto result = propagator.propagate(start, *perigeeSurface, pOptions);
-      if (!result.ok()) {
-        continue;
-      }
+      if (!result.ok()) { continue; }
 
       // get perigee parameters
       const auto& perigeeParameters = (*result).endParameters->parameters();
@@ -160,12 +158,8 @@ FW::TruthVerticesToTracksAlgorithm::correctPhiThetaPeriodicity(
     double& thetaIn) const
 {
   double tmpPhi = std::fmod(phiIn, 2 * M_PI);  // temp phi
-  if (tmpPhi > M_PI) {
-    tmpPhi -= 2 * M_PI;
-  }
-  if (tmpPhi < -M_PI && tmpPhi > -2 * M_PI) {
-    tmpPhi += 2 * M_PI;
-  }
+  if (tmpPhi > M_PI) { tmpPhi -= 2 * M_PI; }
+  if (tmpPhi < -M_PI && tmpPhi > -2 * M_PI) { tmpPhi += 2 * M_PI; }
 
   double tmpTht = std::fmod(thetaIn, 2 * M_PI);  // temp theta
   if (tmpTht < -M_PI) {

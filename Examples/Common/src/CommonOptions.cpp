@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2019 Acts project team
+// Copyright (C) 2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -176,9 +176,7 @@ FW::Options::readSequencerConfig(
 {
   Sequencer::Config cfg;
   cfg.skip = vm["skip"].as<size_t>();
-  if (not vm["events"].empty()) {
-    cfg.events = vm["events"].as<size_t>();
-  }
+  if (not vm["events"].empty()) { cfg.events = vm["events"].as<size_t>(); }
   cfg.logLevel   = readLogLevel(vm);
   cfg.numThreads = vm["jobs"].as<int>();
   if (not vm["output-dir"].empty()) {
