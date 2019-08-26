@@ -5,7 +5,7 @@ target_include_directories(ACTFWBFieldPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CU
 target_include_directories(ACTFWBFieldPlugin PUBLIC ${ROOT_INCLUDE_DIRS})
 target_link_libraries(ACTFWBFieldPlugin PUBLIC ActsCore)
 target_link_libraries(ACTFWBFieldPlugin PUBLIC ACTFramework)
-target_link_libraries(ACTFWBFieldPlugin PUBLIC ${ROOT_LIBRARIES})
+target_link_libraries(ACTFWBFieldPlugin PUBLIC ${ROOT_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 
 install(TARGETS ACTFWBFieldPlugin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
