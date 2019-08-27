@@ -7,6 +7,8 @@ set(sources src/RootMaterialDecorator.cpp
             src/RootPropagationStepsWriter.cpp
             src/RootSimHitWriter.cpp
             src/RootTrackParameterWriter.cpp
+            src/RootVertexAndTracksWriter.cpp
+            src/RootVertexAndTracksReader.cpp
           )
 
 add_library(ACTFWRootPlugin SHARED ${sources})
@@ -16,5 +18,5 @@ target_include_directories(
 target_link_libraries(
   ACTFWRootPlugin
   PUBLIC ActsCore ActsDigitizationPlugin IdentificationPlugin
-         ACTFramework ACTFWPropagation ${ROOT_LIBRARIES} Threads::Threads)
+         ACTFramework ACTFWPropagation ActsFrameworkTruthTracking ${ROOT_LIBRARIES} Threads::Threads)
 install(TARGETS ACTFWRootPlugin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
