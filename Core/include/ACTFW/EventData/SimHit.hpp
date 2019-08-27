@@ -68,6 +68,7 @@ namespace Data {
       simHit.surface   = &surface;
       simHit.position  = position;
       simHit.direction = direction;
+      simHit.timeStamp = time;
       simHit.value     = value;
       simHit.particle  = simParticle;
       return simHit;

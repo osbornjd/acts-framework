@@ -11,7 +11,7 @@
 #include <memory>
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/GeometryInterfaces/IGeant4Service.hpp"
+#include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
 #include "Acts/Propagator/MaterialInteractor.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
@@ -31,7 +31,7 @@ public:
 
     /// The service possibly providing the Geant4 geometry (optional)
     /// @note If this is not set, the geometry should be given by gdml file
-    std::shared_ptr<FW::IGeant4Service> geant4Service = nullptr;
+    std::shared_ptr<DD4hepG4::DD4hepToG4Svc> geant4Service = nullptr;
 
     /// The possible gmdl input (optional)
     std::string gdmlFile;

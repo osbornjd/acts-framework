@@ -23,7 +23,7 @@ template <typename vmap_t>
 void
 setupDigitization(vmap_t&                            vm,
                   FW::Sequencer&                     sequencer,
-                  std::shared_ptr<FW::BarcodeSvc>    barcodeSvc,
+                  std::shared_ptr<FW::BarcodeSvc>    /*unused*/,
                   std::shared_ptr<FW::RandomNumbers> randomNumberSvc)
 {
   // Read the standard options

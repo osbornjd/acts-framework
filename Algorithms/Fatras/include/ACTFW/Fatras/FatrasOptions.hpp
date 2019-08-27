@@ -81,13 +81,9 @@ namespace Options {
     fatrasConfig.simulatedEventCollection
         = vm["fatras-sim-particles"].template as<std::string>();
 
-    typedef Fatras::ChargedSelector            CSelector;
     typedef Fatras::Max<Fatras::casts::absEta> CMaxEtaAbs;
     typedef Fatras::Min<Fatras::casts::pT>     CMinPt;
-    typedef Fatras::SelectorListAND<CSelector, CMinPt, CMaxEtaAbs>
-        ChargedSelector;
 
-    typedef Fatras::NeutralSelector            NSelector;
     typedef Fatras::Max<Fatras::casts::absEta> NMaxEtaAbs;
     typedef Fatras::Min<Fatras::casts::E>      NMinE;
 

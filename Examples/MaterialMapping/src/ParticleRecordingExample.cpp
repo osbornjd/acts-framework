@@ -6,6 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <string>
 #include <boost/program_options.hpp>
 #include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
 #include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
@@ -14,7 +15,7 @@
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Geometry/GeometryContext.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
@@ -22,13 +23,15 @@
 
 #include "ACTFW/Plugins/Geant4/OREventAction.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 
 #include "ACTFW/DD4hepDetector/DD4hepDetector.hpp"
-#include "ACTFW/Random/RandomNumbersOptions.hpp"
-#include "../../Fatras/src/detail/FatrasDigitizationBase.hpp"
-#include "../../Fatras/src/detail/FatrasEvgenBase.hpp"
-#include "../../Fatras/src/detail/FatrasSimulationBase.hpp"
+//~ #include "ACTFW/Random/RandomNumbersOptions.hpp"
+#include "../../Common/src/detail/FatrasDigitizationBase.hpp"
+#include "../../Common/src/detail/FatrasEvgenBase.hpp"
+#include "../../Common/src/detail/FatrasSimulationBase.hpp"
+#include "ACTFW/Geometry/CommonGeometry.hpp"
+
 
 namespace po = boost::program_options;
 
@@ -97,30 +100,21 @@ public:
 }
 
 FW::Sequencer
-fatrasSequencerBuild(const boost::program_options::variables_map& vm)
+fatrasSequencerBuild(boost::program_options::variables_map& vm, DD4hepDetector& detector)
 {
 	FW::Sequencer fatrasSequencer(FW::Options::readSequencerConfig(vm));
-	  DD4hepGeometry dd4HepGeometry;
-
-	// Set wood
-  auto logLevel = FW::Options::readLogLevel(vm);
 
   // Create the random number engine
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
-      = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-      
-  // Add it to the sequencer
-  sequencer.addService(randomNumberSvc);
+      = std::make_shared<FW::RandomNumbers>(randomNumberSvcCfg);
+
   // Create the barcode service
   FW::BarcodeSvc::Config barcodeSvcCfg;
-  auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
-      barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
-  // Add it to the sequencer
-  fatrasSequencer.addService(barcodeSvc);
+  auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(barcodeSvcCfg);
 
   // The geometry, material and decoration
-  auto geometry          = FW::Geometry::build(vm, dd4HepGeometry);
+  auto geometry          = FW::Geometry::build(vm, detector);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
   // Add the decorator to the sequencer
@@ -151,7 +145,9 @@ fatrasSequencerBuild(const boost::program_options::variables_map& vm)
 int
 main(int argc, char* argv[])
 {
-  DD4hepOptions  dd4HepOptions;
+	using po::value;
+	
+  DD4hepDetector detector;
 
   // Declare the supported program options.
   // Setup and parse options
@@ -174,7 +170,7 @@ main(int argc, char* argv[])
                      "Type of evgen input 'gun', 'pythia8'");
 
   // Add specific options for this geometry
-  dd4HepOptions(desc);
+  detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
   if (vm.empty()) {
     return EXIT_FAILURE;
@@ -184,7 +180,7 @@ main(int argc, char* argv[])
   int    randomSeed1 = 536235167;
   int    randomSeed2 = 729237523;
 
-  FW::Sequencer fatrasSequencer = fatrasSequencerBuild(vm);
+  FW::Sequencer fatrasSequencer = fatrasSequencerBuild(vm, detector);
 
   Acts::GeometryContext geoContext;
 
@@ -232,88 +228,9 @@ main(int argc, char* argv[])
     auto writer
         = std::make_shared<FW::ParticleRecordWriting>(
             config);
-    g4sequencer.addWriter(writer);
+    g4Sequencer.addWriter(writer);
 
   // Append the algorithm and run
-  g4sequencer.addAlgorithm(g4rAlgorithm);
-  g4sequencer.run();
+  g4Sequencer.addAlgorithm(g4rAlgorithm);
+  g4Sequencer.run();
 }
-
-
-////////////////////////////////////////////////////////////////////////
-
-//~ int
-//~ fatrasExample(int               argc,
-              //~ char*             argv[])
-//~ {
-  //~ DD4hepOptions  dd4HepOptions;
-  //~ DD4hepGeometry dd4HepGeometry;
-  //~ using boost::program_options::value;
-
-  //~ // setup and parse options
-  //~ auto desc = FW::Options::makeDefaultOptions();
-  //~ FW::Options::addSequencerOptions(desc);
-  //~ FW::Options::addGeometryOptions(desc);
-  //~ FW::Options::addMaterialOptions(desc);
-  //~ FW::Options::addParticleGunOptions(desc);
-  //~ FW::Options::addPythia8Options(desc);
-  //~ FW::Options::addRandomNumbersOptions(desc);
-  //~ FW::Options::addBFieldOptions(desc);
-  //~ FW::Options::addFatrasOptions(desc);
-  //~ FW::Options::addDigitizationOptions(desc);
-  //~ FW::Options::addOutputOptions(desc);
-  //~ desc.add_options()("evg-input-type",
-                     //~ value<std::string>()->default_value("pythia8"),
-                     //~ "Type of evgen input 'gun', 'pythia8'");
-  //~ // Add specific options for this geometry
-  //~ optionsSetup(desc);
-  //~ auto vm = FW::Options::parse(desc, argc, argv);
-  //~ if (vm.empty()) {
-    //~ return EXIT_FAILURE;
-  //~ }
-
-  //~ FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
-
-  //~ auto logLevel = FW::Options::readLogLevel(vm);
-
-  //~ // Create the random number engine
-  //~ auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
-  //~ auto randomNumberSvc
-      //~ = std::make_shared<FW::RandomNumbersSvc>(randomNumberSvcCfg);
-
-  //~ // Add it to the sequencer
-  //~ sequencer.addService(randomNumberSvc);
-  //~ // Create the barcode service
-  //~ FW::BarcodeSvc::Config barcodeSvcCfg;
-  //~ auto                   barcodeSvc = std::make_shared<FW::BarcodeSvc>(
-      //~ barcodeSvcCfg, Acts::getDefaultLogger("BarcodeSvc", logLevel));
-  //~ // Add it to the sequencer
-  //~ sequencer.addService(barcodeSvc);
-
-  //~ // The geometry, material and decoration
-  //~ auto geometry          = FW::Geometry::build(vm, geometrySetup);
-  //~ auto tGeometry         = geometry.first;
-  //~ auto contextDecorators = geometry.second;
-  //~ // Add the decorator to the sequencer
-  //~ for (auto cdr : contextDecorators) {
-    //~ sequencer.addContextDecorator(cdr);
-  //~ }
-
-  //~ // (A) EVGEN
-  //~ // Setup the evgen input to the simulation
-  //~ setupEvgenInput(vm, sequencer, barcodeSvc, randomNumberSvc);
-
-  //~ // (B) SIMULATION
-  //~ // Setup the simulation
-  //~ setupSimulation(vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
-
-  //~ // (C) DIGITIZATION
-  //~ // Setup the digitization
-  //~ setupDigitization(vm, sequencer, barcodeSvc, randomNumberSvc);
-
-  //~ // (D) TRUTH TRACKING
-
-  //~ // (E) PATTERN RECOGNITION
-
-  //~ return sequencer.run();
-//~ }
