@@ -1,6 +1,7 @@
 #file(GLOB_RECURSE src_files "src")
 set(src_files src/CommonGeometry.cpp src/CommonOptions.cpp src/GeometryExampleBase.cpp src/MaterialMappingBase.cpp src/MaterialValidationBase.cpp src/PropagationExampleBase.cpp)
 
+# append Fatras example is Pythia8 is avaialbe
 if(USE_PYTHIA8)
   list(APPEND src_files src/FatrasExampleBase.cpp)
 endif()
@@ -15,3 +16,7 @@ target_link_libraries(ACTFWExamplesCommon PUBLIC ACTFWObjPlugin
 if(USE_PYTHIA8)
   target_link_libraries(ACTFWExamplesCommon PUBLIC ActsFrameworkPythia8)
 endif()
+
+install(TARGETS ACTFWExamplesCommon LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+  
