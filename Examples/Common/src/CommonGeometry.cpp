@@ -60,6 +60,7 @@ namespace Geometry {
             rootMatDecConfig);
       }
     }
+
     /// Return the geometry and context decorators
     return detector.finalize(vm, matDeco);
   }
