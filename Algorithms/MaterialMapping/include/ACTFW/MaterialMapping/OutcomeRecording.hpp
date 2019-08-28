@@ -42,14 +42,14 @@ public:
     int seed1 = 12345;
     /// random number seed 2
     int seed2 = 45678;
-    
-	std::string particleName = "pi+";
-	double energy = 1000.;
-	
+
+	int pdg = "pi+";
+	double momentum = 1000.;
+
 	bool lockAngle = false;
 	double phi = 0.;
 	double theta = 0.5 * M_PI;
-	
+
 	bool lockPosition = false;
 	Acts::Vector3D pos = {0., 0., 0.};
   };

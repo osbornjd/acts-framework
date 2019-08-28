@@ -14,6 +14,7 @@
 #include "ACTFW/Generators/ParametricProcessGenerator.hpp"
 #include "ACTFW/Generators/VertexGenerators.hpp"
 #include "ACTFW/Utilities/Options.hpp"
+#include "ACTFW/MaterialMapping/OutcomeRecording.hpp"
 
 void
 FW::Options::addParticleGunOptions(
@@ -86,6 +87,42 @@ FW::Options::readParticleGunOptions(
        FixedVertexGenerator{{0.0, 0.0, 0.0, 0.0}},
        ParametricProcessGenerator{pgCfg}},
   };
+
+  return cfg;
+}
+
+FW::OutcomeRecording::Config
+FW::Options::readOutcomeRecordingConfig(
+	const boost::program_options::variables_map& vm)
+{
+  // read the range as vector (missing istream for std::array)
+  auto d0  = vm["pg-d0-range"].template as<read_range>();
+  auto z0  = vm["pg-z0-range"].template as<read_range>();
+  auto phi = vm["pg-phi-range"].template as<read_range>();
+  auto eta = vm["pg-eta-range"].template as<read_range>();
+  auto pt  = vm["pg-pt-range"].template as<read_range>();
+
+  double x = (d0[0] + d0[1]) * 0.5 * sin((phi[0] + phi[1]) * 0.5);
+  double y = (d0[0] + d0[1]) * 0.5 * cos((phi[0] + phi[1]) * 0.5);
+  double z = (z0[0] + z0[1]) * 0.5 / Acts::units::_mm;
+  
+  double etaMean = (eta[0] + eta[1]) * 0.5;
+  double theta = atan(exp(-etaMean)) * 2.;
+  
+  double phiMean = (phi[0] + phi[1]) * 0.5;
+  double ptMean = (pt[0] + pt[1]) * 0.5 / Acts::units::_GeV;
+  
+  Acts::Vector3D momentum(ptMean * std::cos(phiMean), ptMean * std::sin(phiMean), ptMean * std::sinh(etaMean));
+  
+  FW::OutcomeRecording::Config cfg;
+  cfg.tracksPerEvent = vm["pg-nparticles"].template as<size_t>();
+  cfg.pos = {x, y, z};
+  cfg.lockPosition = true;
+  cfg.phi = phiMean;
+  cfg.theta = theta;
+  cfg.lockAngle = true;
+  cfg.momentum = momentum;
+  cfg.pdg          = vm["pg-pdg"].template as<int>();
 
   return cfg;
 }

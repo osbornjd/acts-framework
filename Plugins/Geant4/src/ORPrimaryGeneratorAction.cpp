@@ -21,8 +21,8 @@ FW::Geant4::ORPrimaryGeneratorAction*
     = nullptr;
 
 FW::Geant4::ORPrimaryGeneratorAction::ORPrimaryGeneratorAction(
-    const G4String& particleName,
-    G4double        energy,
+    const G4int& pdg,
+    G4double        momentum,
 	 G4bool lockAngle,
 	 G4double phi,
 	 G4double theta,
@@ -43,9 +43,9 @@ FW::Geant4::ORPrimaryGeneratorAction::ORPrimaryGeneratorAction(
 
   // default particle kinematic
   G4ParticleTable*      particleTable = G4ParticleTable::GetParticleTable();
-  G4ParticleDefinition* particle = particleTable->FindParticle(particleName);
+  G4ParticleDefinition* particle = particleTable->FindParticle(pdg);
   fParticleGun->SetParticleDefinition(particle);
-  fParticleGun->SetParticleEnergy(energy);
+  fParticleGun->SetParticleMomentum(momentum);
   G4UnitDefinition::PrintUnitsTable();
 
   // set the random seeds

@@ -37,8 +37,8 @@ namespace Geant4 {
   {
   public:
     /// Constructor
-    ORPrimaryGeneratorAction(const G4String& particleName = "geantino",
-                             G4double        energy       = 1000. * MeV,
+    ORPrimaryGeneratorAction(const G4int& pdg = 211,
+                             G4double        momentum       = 1000. * MeV,
                              G4bool lockAngle = false,
                              G4double phi = 0.,
                              G4double theta = 0.5 * M_PI,

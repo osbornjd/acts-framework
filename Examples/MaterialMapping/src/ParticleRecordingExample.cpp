@@ -19,14 +19,12 @@
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Geometry/GeometryContext.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
-#include "ACTFW/MaterialMapping/OutcomeRecordingOptions.hpp"
 
 #include "ACTFW/Plugins/Geant4/OREventAction.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 #include "ACTFW/EventData/Barcode.hpp"
 
 #include "ACTFW/DD4hepDetector/DD4hepDetector.hpp"
-//~ #include "ACTFW/Random/RandomNumbersOptions.hpp"
 #include "../../Common/src/detail/FatrasDigitizationBase.hpp"
 #include "../../Common/src/detail/FatrasEvgenBase.hpp"
 #include "../../Common/src/detail/FatrasSimulationBase.hpp"
@@ -155,7 +153,6 @@ main(int argc, char* argv[])
   FW::Options::addSequencerOptions(desc);
   FW::Options::addOutputOptions(desc);
   FW::Options::addDD4hepOptions(desc);
-  FW::Options::addOutcomeRecordingOptions(desc);
   FW::Options::addGeometryOptions(desc);
   FW::Options::addParticleGunOptions(desc); // TODO: Replace whatever is given here and in outcomerecoptions
   FW::Options::addBFieldOptions(desc);
@@ -175,7 +172,7 @@ main(int argc, char* argv[])
   if (vm.empty()) {
     return EXIT_FAILURE;
   }
-  
+
   FW::Sequencer g4Sequencer(FW::Options::readSequencerConfig(vm));
   int    randomSeed1 = 536235167;
   int    randomSeed2 = 729237523;
