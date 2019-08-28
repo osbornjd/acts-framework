@@ -19,4 +19,5 @@ target_link_libraries(
   ACTFWRootPlugin
   PUBLIC ActsCore ActsDigitizationPlugin IdentificationPlugin
          ACTFramework ACTFWPropagation ActsFrameworkTruthTracking ${ROOT_LIBRARIES} Threads::Threads)
+         
 install(TARGETS ACTFWRootPlugin LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
