@@ -206,7 +206,7 @@ main(int argc, char* argv[])
   // ---------------------------------------------------------------------------------
 
   // set up the algorithm writing out the material map
-  FW::OutcomeRecording::Config g4rConfig = FW::Options::readOutcomeRecordingConfig<po::variables_map>(vm);
+  FW::OutcomeRecording::Config g4rConfig = FW::Options::readOutcomeRecordingConfig(vm);
   g4rConfig.geant4Service  = dd4hepToG4Svc;
   g4rConfig.seed1          = randomSeed1;
   g4rConfig.seed2          = randomSeed2;

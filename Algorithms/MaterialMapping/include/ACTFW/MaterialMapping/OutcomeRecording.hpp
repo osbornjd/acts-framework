@@ -43,7 +43,7 @@ public:
     /// random number seed 2
     int seed2 = 45678;
 
-	int pdg = "pi+";
+	int pdg = 211;
 	double momentum = 1000.;
 
 	bool lockAngle = false;

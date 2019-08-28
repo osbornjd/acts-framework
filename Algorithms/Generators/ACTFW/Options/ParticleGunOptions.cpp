@@ -14,7 +14,6 @@
 #include "ACTFW/Generators/ParametricProcessGenerator.hpp"
 #include "ACTFW/Generators/VertexGenerators.hpp"
 #include "ACTFW/Utilities/Options.hpp"
-#include "ACTFW/MaterialMapping/OutcomeRecording.hpp"
 
 void
 FW::Options::addParticleGunOptions(
@@ -121,7 +120,7 @@ FW::Options::readOutcomeRecordingConfig(
   cfg.phi = phiMean;
   cfg.theta = theta;
   cfg.lockAngle = true;
-  cfg.momentum = momentum;
+  cfg.momentum = momentum.norm();
   cfg.pdg          = vm["pg-pdg"].template as<int>();
 
   return cfg;

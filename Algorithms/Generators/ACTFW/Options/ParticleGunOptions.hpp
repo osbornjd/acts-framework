@@ -11,6 +11,7 @@
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Generators/EventGenerator.hpp"
+#include "ACTFW/MaterialMapping/OutcomeRecording.hpp"
 
 namespace FW {
 namespace Options {
@@ -22,6 +23,9 @@ namespace Options {
   /// Create the event generator config from particle-gun options.
   EventGenerator::Config
   readParticleGunOptions(const boost::program_options::variables_map& vm);
+
+	OutcomeRecording::Config
+	readOutcomeRecordingConfig(const boost::program_options::variables_map& vm);
 
 }  // namespace Options
 }  // namespace FW
