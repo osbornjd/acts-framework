@@ -7,6 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "Acts/Plugins/DD4hep/ActsExtension.hpp"
+#include "Acts/Plugins/DD4hep/ConvertDD4hepMaterial.hpp"
 #include "DD4hep/DetFactoryHelper.h"
 
 using namespace std;
@@ -19,6 +20,9 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
   xml_det_t x_det   = xml;
   string    detName = x_det.nameStr();
 
+  // Make Volume
+  xml_comp_t x_det_tubs = x_det.child(_U(tubs));
+
   // Make DetElement
   DetElement cylinderElement(detName, x_det.id());
 
@@ -27,19 +31,19 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
   bool                 isBeamPipe  = x_det.hasChild(_U(beampipe));
   pcExtension->addType("passive cylinder", "layer");
   if (isBeamPipe) { pcExtension->addType("beampipe", "layer"); }
+  Acts::xml2CylinderProtoMaterial(x_det_tubs, *pcExtension);
   cylinderElement.addExtension<Acts::ActsExtension>(pcExtension);
 
-  // Make Volume
-  xml_comp_t x_det_tubs = x_det.child(_U(tubs));
-  string     shapeName  = x_det_tubs.nameStr();
-  Tube       tubeShape(
+  string shapeName = x_det_tubs.nameStr();
+  Tube   tubeShape(
       shapeName, x_det_tubs.rmin(), x_det_tubs.rmax(), x_det_tubs.dz());
-  Volume tube_vol(detName, tubeShape, oddd.material(x_det_tubs.materialStr()));
-  tube_vol.setVisAttributes(oddd, x_det.visStr());
+  Volume tubeVolume(
+      detName, tubeShape, oddd.material(x_det_tubs.materialStr()));
+  tubeVolume.setVisAttributes(oddd, x_det.visStr());
 
   // Place it in the mother
-  Volume       mother_vol = oddd.pickMotherVolume(cylinderElement);
-  PlacedVolume placedTube = mother_vol.placeVolume(tube_vol);
+  Volume       motherVolume = oddd.pickMotherVolume(cylinderElement);
+  PlacedVolume placedTube   = motherVolume.placeVolume(tubeVolume);
   placedTube.addPhysVolID(detName, cylinderElement.id());
   cylinderElement.setPlacement(placedTube);
 

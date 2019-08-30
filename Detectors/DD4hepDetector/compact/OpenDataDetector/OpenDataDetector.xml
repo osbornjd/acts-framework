@@ -109,7 +109,9 @@
     <detectors>
       <detector id="0" name="BeamPipe" type="ODDCylinder" vis="Beryllium">
             <beampipe/>
-            <tubs name="BeamPipeCylinder" rmin="bp_rmin" rmax="bp_rmax" dz="bp_length" material="Beryllium"/>
+            <tubs name="BeamPipeCylinder" rmin="bp_rmin" rmax="bp_rmax" dz="bp_length" material="Beryllium">
+              <layer_material inner="false" representing="true" outer="false" binPhi="1" binZ="10"/>
+            </tubs>
       </detector>
       <detector id="1" name="Pixels" type="DD4hep_SubdetectorAssembly" vis="invisible">
           <shape name="PixelVolume" type="Tube" rmin="pix_env_rmin" rmax="pix_env_rmax" dz="pix_env_dz" material="Air"/>
