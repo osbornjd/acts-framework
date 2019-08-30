@@ -71,7 +71,6 @@ namespace Json {
     {
       // Clear the material if registered to do so
       if (m_clearSurfaceMaterial) { surface.assignSurfaceMaterial(nullptr); }
-
       // Try to find the surface in the map
       auto sMaterial = m_surfaceMaterialMap.find(surface.geoID());
       if (sMaterial != m_surfaceMaterialMap.end()) {

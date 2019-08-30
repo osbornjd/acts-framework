@@ -12,9 +12,9 @@
 #include <memory>
 
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Utilities/BinningType.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <Acts/Material/IMaterialDecorator.hpp>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <TGeoNode.h>
