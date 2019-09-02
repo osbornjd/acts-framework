@@ -126,11 +126,11 @@ fatrasSequencerBuild(boost::program_options::variables_map& vm, DD4hepDetector& 
 
   // (B) SIMULATION
   // Setup the simulation
-  setupSimulation(vm, fatrasSequencer, tGeometry, barcodeSvc, randomNumberSvc);
+  //~ setupSimulation(vm, fatrasSequencer, tGeometry, barcodeSvc, randomNumberSvc);
 
   // (C) DIGITIZATION
   // Setup the digitization
-  setupDigitization(vm, fatrasSequencer, barcodeSvc, randomNumberSvc);
+  //~ setupDigitization(vm, fatrasSequencer, barcodeSvc, randomNumberSvc);
   
   // (D) TRUTH TRACKING
 
@@ -158,7 +158,7 @@ g4SequencerBuild(boost::program_options::variables_map& vm)
       dd4HepDetectorConfig);
   std::shared_ptr<const Acts::TrackingGeometry> tGeometry
       = geometrySvc->trackingGeometry(geoContext);
-      
+
   // DD4Hep to Geant4 conversion
   //
   FW::DD4hepG4::DD4hepToG4Svc::Config dgConfig("DD4hepToG4",
@@ -173,7 +173,7 @@ g4SequencerBuild(boost::program_options::variables_map& vm)
   // ---------------------------------------------------------------------------------
 
   // set up the algorithm writing out the material map
-  FW::OutcomeRecording::Config g4rConfig = FW::Options::readOutcomeRecordingConfig(vm);
+  FW::OutcomeRecording::Config g4rConfig = FW::Options::readOutcomeRecordingConfig(vm); // TODO: add this to the fatras sequencer
   g4rConfig.geant4Service  = dd4hepToG4Svc;
   g4rConfig.seed1          = randomSeed1;
   g4rConfig.seed2          = randomSeed2;
@@ -203,7 +203,7 @@ int
 main(int argc, char* argv[])
 {
 	using po::value;
-	
+
   DD4hepDetector detector;
 
   // Declare the supported program options.
@@ -211,20 +211,17 @@ main(int argc, char* argv[])
   auto desc = FW::Options::makeDefaultOptions();
   FW::Options::addSequencerOptions(desc);
   FW::Options::addOutputOptions(desc);
-  FW::Options::addDD4hepOptions(desc);
   FW::Options::addGeometryOptions(desc);
   FW::Options::addParticleGunOptions(desc); // TODO: Replace whatever is given here and in outcomerecoptions
   FW::Options::addBFieldOptions(desc);
   FW::Options::addFatrasOptions(desc);
   FW::Options::addRandomNumbersOptions(desc);
   FW::Options::addMaterialOptions(desc);
-  FW::Options::addPythia8Options(desc);
-  FW::Options::addRandomNumbersOptions(desc);
   FW::Options::addDigitizationOptions(desc);
   desc.add_options()("evg-input-type",
-                     value<std::string>()->default_value("pythia8"),
+                     value<std::string>()->default_value("gun"),
                      "Type of evgen input 'gun', 'pythia8'");
-
+                     
   // Add specific options for this geometry
   detector.addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
@@ -232,9 +229,12 @@ main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+std::cout << "Building fatras sequencer" << std::endl;
   FW::Sequencer fatrasSequencer = fatrasSequencerBuild(vm, detector);
+std::cout << "Building g4 sequencer" << std::endl;
   FW::Sequencer g4Sequencer = g4SequencerBuild(vm);
-  
+std::cout << "Done" << std::endl;
+
   fatrasSequencer.run();
   g4Sequencer.run();
 }
