@@ -56,9 +56,9 @@ if (USE_GEANT4 AND USE_DD4HEP)
   target_include_directories(ACTFWParticleRecordingExample PRIVATE 
     ${Boost_INCLUDE_DIRS} ${DD4hep_INCLUDE_DIRS})
   target_link_libraries(ACTFWParticleRecordingExample PRIVATE 
-   ACTFWExamplesCommon ACTFWMaterialMapping ACTFWDD4hepG4Plugin)
+   ${_common_libraries} ACTFWExamplesCommon ACTFWMaterialMapping ACTFWDD4hepG4Plugin)
   target_link_libraries(ACTFWParticleRecordingExample PRIVATE 
-   ${_common_libraries} ACTFWDD4hepDetector ${DD4hep_LIBRARIES} ${Geant4_LIBRARIES} ${Boost_LIBRARIES})
+   ACTFWDD4hepDetector ${DD4hep_LIBRARIES} ${Geant4_LIBRARIES} ${Boost_LIBRARIES})
    
   install(TARGETS ACTFWParticleRecordingExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()

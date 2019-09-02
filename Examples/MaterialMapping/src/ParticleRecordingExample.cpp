@@ -136,8 +136,67 @@ fatrasSequencerBuild(boost::program_options::variables_map& vm, DD4hepDetector& 
 
   // (E) PATTERN RECOGNITION
   
-  
   return fatrasSequencer;
+}
+
+FW::Sequencer
+g4SequencerBuild(boost::program_options::variables_map& vm)
+{
+  FW::Sequencer g4Sequencer(FW::Options::readSequencerConfig(vm));
+  int    randomSeed1 = 536235167;
+  int    randomSeed2 = 729237523;
+  
+  Acts::GeometryContext geoContext;
+
+  // DETECTOR:
+  // --------------------------------------------------------------------------------
+  // DD4Hep detector definition
+  // read the detector config & dd4hep detector
+  auto dd4HepDetectorConfig
+      = FW::Options::readDD4hepConfig<po::variables_map>(vm);
+  auto geometrySvc = std::make_shared<FW::DD4hep::DD4hepGeometryService>(
+      dd4HepDetectorConfig);
+  std::shared_ptr<const Acts::TrackingGeometry> tGeometry
+      = geometrySvc->trackingGeometry(geoContext);
+      
+  // DD4Hep to Geant4 conversion
+  //
+  FW::DD4hepG4::DD4hepToG4Svc::Config dgConfig("DD4hepToG4",
+                                               Acts::Logging::INFO);
+  dgConfig.dd4hepService = geometrySvc;
+  auto dd4hepToG4Svc = std::make_shared<FW::DD4hepG4::DD4hepToG4Svc>(dgConfig);
+
+  // --------------------------------------------------------------------------------
+  // Geant4 JOB:
+  // --------------------------------------------------------------------------------
+  // set up the writer for
+  // ---------------------------------------------------------------------------------
+
+  // set up the algorithm writing out the material map
+  FW::OutcomeRecording::Config g4rConfig = FW::Options::readOutcomeRecordingConfig(vm);
+  g4rConfig.geant4Service  = dd4hepToG4Svc;
+  g4rConfig.seed1          = randomSeed1;
+  g4rConfig.seed2          = randomSeed2;
+  g4rConfig.particleCollection = "geant-outcome-tracks";
+  
+  // create the geant4 algorithm
+  auto g4rAlgorithm
+      = std::make_shared<FW::OutcomeRecording>(g4rConfig, Acts::Logging::INFO);
+
+  // Output directory
+  std::string particleCollection = g4rConfig.particleCollection;
+
+  // Write the propagation steps as ROOT TTree
+  FW::ParticleRecordWriting::Config config;
+  config.collection  = particleCollection;
+  auto writer
+	= std::make_shared<FW::ParticleRecordWriting>(
+		config);
+  g4Sequencer.addWriter(writer);
+
+  // Append the algorithm and run
+  g4Sequencer.addAlgorithm(g4rAlgorithm);
+  return g4Sequencer;
 }
 
 int
@@ -173,61 +232,9 @@ main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  FW::Sequencer g4Sequencer(FW::Options::readSequencerConfig(vm));
-  int    randomSeed1 = 536235167;
-  int    randomSeed2 = 729237523;
-
   FW::Sequencer fatrasSequencer = fatrasSequencerBuild(vm, detector);
-
-  Acts::GeometryContext geoContext;
-
-  // DETECTOR:
-  // --------------------------------------------------------------------------------
-  // DD4Hep detector definition
-  // read the detector config & dd4hep detector
-  auto dd4HepDetectorConfig
-      = FW::Options::readDD4hepConfig<po::variables_map>(vm);
-  auto geometrySvc = std::make_shared<FW::DD4hep::DD4hepGeometryService>(
-      dd4HepDetectorConfig);
-  std::shared_ptr<const Acts::TrackingGeometry> tGeometry
-      = geometrySvc->trackingGeometry(geoContext);
-
-  // DD4Hep to Geant4 conversion
-  //
-  FW::DD4hepG4::DD4hepToG4Svc::Config dgConfig("DD4hepToG4",
-                                               Acts::Logging::INFO);
-  dgConfig.dd4hepService = geometrySvc;
-  auto dd4hepToG4Svc = std::make_shared<FW::DD4hepG4::DD4hepToG4Svc>(dgConfig);
-
-  // --------------------------------------------------------------------------------
-  // Geant4 JOB:
-  // --------------------------------------------------------------------------------
-  // set up the writer for
-  // ---------------------------------------------------------------------------------
-
-  // set up the algorithm writing out the material map
-  FW::OutcomeRecording::Config g4rConfig = FW::Options::readOutcomeRecordingConfig(vm);
-  g4rConfig.geant4Service  = dd4hepToG4Svc;
-  g4rConfig.seed1          = randomSeed1;
-  g4rConfig.seed2          = randomSeed2;
-  g4rConfig.particleCollection = "geant-outcome-tracks";
+  FW::Sequencer g4Sequencer = g4SequencerBuild(vm);
   
-  // create the geant4 algorithm
-  auto g4rAlgorithm
-      = std::make_shared<FW::OutcomeRecording>(g4rConfig, Acts::Logging::INFO);
-
-  // Output directory
-  std::string particleCollection = g4rConfig.particleCollection;
-
-    // Write the propagation steps as ROOT TTree
-    FW::ParticleRecordWriting::Config config;
-    config.collection  = particleCollection;
-    auto writer
-        = std::make_shared<FW::ParticleRecordWriting>(
-            config);
-    g4Sequencer.addWriter(writer);
-
-  // Append the algorithm and run
-  g4Sequencer.addAlgorithm(g4rAlgorithm);
+  fatrasSequencer.run();
   g4Sequencer.run();
 }
