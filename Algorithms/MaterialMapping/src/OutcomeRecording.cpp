@@ -44,7 +44,7 @@ FW::OutcomeRecording::OutcomeRecording(
   /// Now set up the Geant4 simulation
   m_runManager->SetUserInitialization(new FTFP_BERT);
   m_runManager->SetUserAction(new FW::Geant4::ORPrimaryGeneratorAction(
-      cnf.pdg, cnf.momentum, cnf.lockAngle, cnf.phi, cnf.theta, cnf.lockPosition, {cnf.pos.x(), cnf.pos.y(), cnf.pos.z()}, m_cfg.seed1, m_cfg.seed2));
+      cnf.pdg, cnf.momentum * 1000., cnf.lockAngle, cnf.phi, cnf.theta, cnf.lockPosition, {cnf.pos.x(), cnf.pos.y(), cnf.pos.z()}, m_cfg.seed1, m_cfg.seed2)); // TODO: test if momentum is correct
   FW::Geant4::MMRunAction* runaction = new FW::Geant4::MMRunAction();
   m_runManager->SetUserAction(runaction);
   FW::Geant4::OREventAction* evtAct = new FW::Geant4::OREventAction();

@@ -126,11 +126,11 @@ fatrasSequencerBuild(boost::program_options::variables_map& vm, DD4hepDetector& 
 
   // (B) SIMULATION
   // Setup the simulation
-  //~ setupSimulation(vm, fatrasSequencer, tGeometry, barcodeSvc, randomNumberSvc);
+  setupSimulation(vm, fatrasSequencer, tGeometry, barcodeSvc, randomNumberSvc);
 
   // (C) DIGITIZATION
   // Setup the digitization
-  //~ setupDigitization(vm, fatrasSequencer, barcodeSvc, randomNumberSvc);
+  setupDigitization(vm, fatrasSequencer, barcodeSvc, randomNumberSvc);
   
   // (D) TRUTH TRACKING
 
