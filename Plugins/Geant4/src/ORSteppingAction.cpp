@@ -53,7 +53,11 @@ FW::Geant4::ORSteppingAction::UserSteppingAction(const G4Step* step)
 	p.momentum[0] = step->GetPostStepPoint()->GetMomentum().x();
 	p.momentum[1] = step->GetPostStepPoint()->GetMomentum().y();
 	p.momentum[2] = step->GetPostStepPoint()->GetMomentum().z();
+	p.globalTime = step->GetPostStepPoint()->GetGlobalTime();
 	p.pdg = step->GetTrack()->GetDynamicParticle()->GetPDGcode();
+	p.vertex[0] = step->GetTrack()->GetVertexPosition().x();
+	p.vertex[1] = step->GetTrack()->GetVertexPosition().y();
+	p.vertex[2] = step->GetTrack()->GetVertexPosition().z();
 	p.energy = step->GetPostStepPoint()->GetTotalEnergy();
 	p.mass = step->GetPostStepPoint()->GetMass();
 	p.charge = step->GetPostStepPoint()->GetCharge();

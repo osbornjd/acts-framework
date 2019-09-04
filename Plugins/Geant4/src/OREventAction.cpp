@@ -50,7 +50,6 @@ FW::Geant4::OREventAction::EndOfEventAction(const G4Event*)
 	std::vector<ParticleRecord> outgoing;
 	for(std::map<int, std::vector<ParticleRecord>>::iterator it = m_particles.begin(); it != m_particles.end(); it++)
 		for(const ParticleRecord& pr : it->second)
-			//~ outgoing.push_back(it->second.back());
 			outgoing.push_back(pr);
 	m_events.push_back(outgoing);
 }

@@ -18,6 +18,7 @@
 #include "Acts/Propagator/MaterialInteractor.hpp"
 #include "G4UserEventAction.hh"
 #include "globals.hh"
+#include "ACTFW/EventData/SimVertex.hpp"
 
 /// @namespace FW::Geant4:: Namespace for geant4 material mapping
 namespace FW {
@@ -28,9 +29,9 @@ namespace Geant4 {
 	// TODO: maybe replace this by an Acts particle
 	struct ParticleRecord
 	{
-		std::array<double, 3> position, momentum;
+		std::array<double, 3> position, momentum, vertex;
 		int pdg;
-		double energy, mass;
+		double energy, mass, globalTime;
 		int charge, trackid, parentid;
 		std::string volume, process;
 	};
@@ -68,13 +69,36 @@ namespace Geant4 {
 
     void AddParticle(ParticleRecord& p)
     {
+		Acts::Vector3D pos(p.position[0], p.position[1], p.position[2]);
+		Acts::Vector3D mom(p.momentum[0], p.momentum[1], p.momentum[2]);
+		Data::SimParticle particle(pos, mom, p.mass, p.charge, p.pdg);
+			
+		if(m_vertex.find(p.globalTime) == m_vertex.end())
+		{
+			Acts::Vector3D vertex(p.vertex[0], p.vertex[1], p.vertex[2]);
+			Data::SimVertex vtx(vertex, {}, {particle});
+			m_vertex[p.globalTime] = vtx;
+		}
+		else
+			if(m_particles.find(p.trackid) == m_particles.end())
+			{
+				m_vertex[p.globalTime].out.push_back(particle);
+			}
+			else
+			{
+				m_vertex[p.globalTime].in.push_back(particle);
+			}
+			
 		m_particles[p.trackid].push_back(p);
 	}
 	
-	std::vector<std::vector<ParticleRecord>>
+	std::vector<Data::SimVertex<Data::SimParticle>>
 	outcomingParticles() const
 	{
-		return m_events;
+		std::vector<Data::SimVertex<Data::SimParticle>> out;
+		for(const auto& vtx : m_vertex)
+			out.push_back(vtx.second);
+		return out;
 	}
 	
     /// Interface method
@@ -89,6 +113,7 @@ namespace Geant4 {
 
 	std::map<int, std::vector<ParticleRecord>> m_particles;
 	std::vector<std::vector<ParticleRecord>> m_events;
+	std::map<double, Data::SimVertex<Data::SimParticle>> m_vertex;
   };  
 
 
