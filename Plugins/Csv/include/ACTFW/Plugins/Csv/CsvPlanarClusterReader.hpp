@@ -10,7 +10,7 @@
 
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/IReader.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 
 namespace FW {
