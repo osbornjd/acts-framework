@@ -1,6 +1,9 @@
 add_library(ACTFWCsvPlugin SHARED
+  src/CsvParticleReader.cpp
   src/CsvParticleWriter.cpp
+  src/CsvPlanarClusterReader.cpp
   src/CsvPlanarClusterWriter.cpp
+  src/CsvReader.cpp
   src/CsvTrackingGeometryWriter.cpp
   src/CsvWriterOptions.cpp)
 target_include_directories(ACTFWCsvPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
