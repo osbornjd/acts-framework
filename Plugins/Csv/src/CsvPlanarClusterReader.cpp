@@ -10,7 +10,7 @@
 #include <ios>
 #include <stdexcept>
 
-#include "ACTFW/Barcode/Barcode.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
