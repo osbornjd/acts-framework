@@ -17,5 +17,7 @@ target_include_directories(
 target_link_libraries(
   ACTFramework
   PUBLIC ActsCore ${ROOT_LIBRARIES}
-  PRIVATE ${TBB_LIBRARIES} dfelibs)
+  PRIVATE ${TBB_LIBRARIES} Boost::filesystem dfelibs)
+target_compile_definitions(ACTFramework
+  PRIVATE BOOST_FILESYSTEM_NO_DEPRECATED)
 install(TARGETS ACTFramework LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

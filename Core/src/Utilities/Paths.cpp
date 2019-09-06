@@ -8,9 +8,13 @@
 
 #include "ACTFW/Utilities/Paths.hpp"
 
+#include <charconv>
 #include <cstdio>
-#include <iostream>
+#include <regex>
 #include <sstream>
+
+#include <Acts/Utilities/Logger.hpp>
+#include <boost/filesystem.hpp>
 
 std::string
 FW::joinPaths(const std::string& dir, const std::string& name)
@@ -36,6 +40,61 @@ FW::perEventFilepath(const std::string& dir,
   } else {
     return dir + '/' + prefix + name;
   }
+}
+
+std::pair<size_t, size_t>
+FW::determineEventFilesRange(const std::string& dir, const std::string& name)
+{
+  using Acts::Logger;
+  using namespace boost::filesystem;
+
+  ACTS_LOCAL_LOGGER(
+      Acts::getDefaultLogger("EventFilesRange", Acts::Logging::VERBOSE));
+
+  // ensure directory path is valid
+  auto dir_path = dir.empty() ? current_path() : path(dir);
+  if (not exists(dir_path)) {
+    throw std::runtime_error("'" + dir_path.native() + "' does not exists");
+  }
+  if (not is_directory(dir_path)) {
+    throw std::runtime_error("'" + dir_path.native() + "' is not a directory");
+  }
+
+  // invalid default range that allows simple restriction later on
+  size_t eventMin = SIZE_MAX;
+  size_t eventMax = 0;
+
+  // filter matching event files from the directory listing
+  std::string filename;
+  std::regex  re("^event([0-9]+)-" + name + "$");
+  std::cmatch match;
+
+  for (const auto& f : directory_iterator(dir_path)) {
+    if ((not exists(f.status())) or (not is_regular_file(f.status()))) {
+      continue;
+    }
+    // keep a copy so the match can refer to the underlying const char*
+    filename = f.path().filename().native();
+    if (std::regex_match(filename.c_str(), match, re)) {
+      ACTS_VERBOSE("Matching file " << filename);
+
+      // first sub_match is the whole string, second should be the event number
+      size_t event = 0;
+      auto   ret   = std::from_chars(match[1].first, match[1].second, event);
+      if (ret.ptr == match[1].first) {
+        throw std::runtime_error(
+            "Could not extract event number from filename");
+      }
+      // enlarge available event range
+      eventMin = std::min(eventMin, event);
+      eventMax = std::max(eventMax, event);
+    }
+  }
+  ACTS_VERBOSE("Detected event range [" << eventMin << "," << eventMax << "]");
+
+  // should only occur if no files matched and the initial values persisted.
+  if (eventMax < eventMin) { return std::make_pair(0u, 0u); }
+  return std::make_pair(eventMin, eventMax + 1);
 }
 
 std::vector<std::string>
