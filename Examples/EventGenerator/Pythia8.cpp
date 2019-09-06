@@ -67,9 +67,9 @@ main(int argc, char* argv[])
 
   if (vm["output-csv"].as<bool>()) {
     Csv::CsvParticleWriter::Config csvWriterCfg;
-    csvWriterCfg.collection     = selectorCfg.output;
+    csvWriterCfg.input          = selectorCfg.output;
     csvWriterCfg.outputDir      = outputDir;
-    csvWriterCfg.outputFileName = "particles.csv";
+    csvWriterCfg.outputFilename = "particles.csv";
     sequencer.addWriter(
         std::make_shared<Csv::CsvParticleWriter>(csvWriterCfg, logLevel));
   }

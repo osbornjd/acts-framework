@@ -13,12 +13,11 @@
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 namespace Csv {
 
-  /// Write out a the particles in the TrackML comma-separated-value format.
+  /// Write out particles in the TrackML comma-separated-value format.
   ///
   /// This writer is restricted to outgoing particles, it is designed for
   /// generated particle information.
@@ -27,8 +26,8 @@ namespace Csv {
   /// default it writes to the current working directory. Files are named
   /// using the following schema
   ///
-  ///     event000000001-<outputFileName>
-  ///     event000000002-<outputFileName>
+  ///     event000000001-<outputFilename>
+  ///     event000000002-<outputFilename>
   ///     ...
   ///
   /// and each line in the file corresponds to one particle.
@@ -40,14 +39,14 @@ namespace Csv {
 
     struct Config
     {
-      /// Which particle collection to write.
-      std::string collection;
+      /// Input particle collection to write.
+      std::string input;
       /// Input collection to map particle ids to number of hits (optional).
-      std::string hitsPerParticleCollection;
+      std::string inputHitsPerParticle;
       /// Where to place output files.
       std::string outputDir;
       /// Output file name suffix
-      std::string outputFileName = "particles.csv";
+      std::string outputFilename = "particles.csv";
       /// Number of decimal digits for floating point precision in output.
       std::size_t outputPrecision = 6;
     };

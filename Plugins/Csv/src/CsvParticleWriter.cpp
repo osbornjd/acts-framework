@@ -21,12 +21,12 @@
 FW::Csv::CsvParticleWriter::CsvParticleWriter(
     const FW::Csv::CsvParticleWriter::Config& cfg,
     Acts::Logging::Level                      level)
-  : Base(cfg.collection, "CsvParticleWriter", level), m_cfg(cfg)
+  : Base(cfg.input, "CsvParticleWriter", level), m_cfg(cfg)
 {
-  if (m_cfg.collection.empty()) {
+  if (m_cfg.input.empty()) {
     throw std::invalid_argument("Missing input collection");
   }
-  if (m_cfg.outputFileName.empty()) {
+  if (m_cfg.outputFilename.empty()) {
     throw std::invalid_argument("Missing ouput file suffix");
   }
 }
@@ -38,13 +38,13 @@ FW::Csv::CsvParticleWriter::writeT(
 {
   // use pointer instead of reference since it is optional
   const std::map<barcode_type, size_t>* hitsPerParticle = nullptr;
-  if (not m_cfg.hitsPerParticleCollection.empty()) {
+  if (not m_cfg.inputHitsPerParticle.empty()) {
     hitsPerParticle = &context.eventStore.get<std::map<barcode_type, size_t>>(
-        m_cfg.hitsPerParticleCollection);
+        m_cfg.inputHitsPerParticle);
   }
 
   std::string pathParticles = perEventFilepath(
-      m_cfg.outputDir, m_cfg.outputFileName, context.eventNumber);
+      m_cfg.outputDir, m_cfg.outputFilename, context.eventNumber);
   dfe::CsvNamedTupleWriter<ParticleData> writer(pathParticles,
                                                 m_cfg.outputPrecision);
 
