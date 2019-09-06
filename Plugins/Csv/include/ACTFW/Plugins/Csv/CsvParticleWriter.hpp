@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include "ACTFW/EventData/SimParticle.hpp"
@@ -48,7 +49,7 @@ namespace Csv {
       /// Output file name suffix
       std::string outputFilename = "particles.csv";
       /// Number of decimal digits for floating point precision in output.
-      std::size_t outputPrecision = 6;
+      size_t outputPrecision = 6;
     };
 
     /// constructor
