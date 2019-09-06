@@ -1,4 +1,5 @@
 add_library(ACTFWCsvPlugin SHARED
+  src/CsvOptionsReader.cpp
   src/CsvParticleReader.cpp
   src/CsvParticleWriter.cpp
   src/CsvPlanarClusterReader.cpp
