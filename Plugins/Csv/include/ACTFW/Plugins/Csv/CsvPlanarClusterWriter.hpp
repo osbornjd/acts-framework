@@ -8,9 +8,11 @@
 
 #pragma once
 
-#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
+#include <string>
+
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 
 namespace FW {
 namespace Csv {
@@ -44,7 +46,7 @@ namespace Csv {
       /// Where to place output files
       std::string outputDir;
       /// Number of decimal digits for floating point precision in output.
-      std::size_t outputPrecision = 6;
+      size_t outputPrecision = 6;
     };
 
     /// Constructor with
