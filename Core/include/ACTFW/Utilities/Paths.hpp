@@ -37,11 +37,4 @@ perEventFilepath(const std::string& dir, const std::string& name, size_t event);
 std::pair<size_t, size_t>
 determineEventFilesRange(const std::string& dir, const std::string& name);
 
-/// Brief split a file list into a vector of file names to add
-///
-/// @param files The joint file list
-/// @param tag The splitting tag
-std::vector<std::string>
-splitByDelimiter(const std::string& files, char delim);
-
 }  // namespace FW

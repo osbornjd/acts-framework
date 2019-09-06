@@ -96,14 +96,3 @@ FW::determineEventFilesRange(const std::string& dir, const std::string& name)
   if (eventMax < eventMin) { return std::make_pair(0u, 0u); }
   return std::make_pair(eventMin, eventMax + 1);
 }
-
-std::vector<std::string>
-FW::splitByDelimiter(const std::string& files, char delim)
-{
-  std::vector<std::string> fileList;
-
-  std::stringstream ss(files);
-  std::string       token;
-  while (getline(ss, token, delim)) { fileList.push_back(token); }
-  return fileList;
-}
