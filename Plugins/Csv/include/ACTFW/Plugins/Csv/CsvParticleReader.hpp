@@ -8,7 +8,8 @@
 
 #pragma once
 
-#include <vector>
+#include <memory>
+#include <string>
 
 #include "ACTFW/Framework/IReader.hpp"
 #include "Acts/Utilities/Logger.hpp"
