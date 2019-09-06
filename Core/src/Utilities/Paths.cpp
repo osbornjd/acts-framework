@@ -27,7 +27,7 @@ FW::perEventFilepath(const std::string& dir,
                      const std::string& name,
                      size_t             event)
 {
-  char prefix[1024];
+  char prefix[64];
 
   snprintf(prefix, sizeof(prefix), "event%09zu-", event);
 

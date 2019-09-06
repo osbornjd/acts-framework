@@ -17,9 +17,9 @@ namespace FW {
 std::string
 joinPaths(const std::string& dir, const std::string& name);
 
-/// Construct a file path of the form `[<dir>/]event<XXXXX>-<name>`.
+/// Construct a file path of the form `[<dir>/]event<XXXXXXXXX>-<name>`.
 ///
-/// @params dir output directory, unused if empty
+/// @params dir output directory, current directory if empty
 /// @params name basic filename
 /// @params event event number
 std::string
