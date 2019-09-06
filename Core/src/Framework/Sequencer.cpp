@@ -1,3 +1,4 @@
+
 // This file is part of the Acts project.
 //
 // Copyright (C) 2017-2019 CERN for the benefit of the Acts project
@@ -109,10 +110,14 @@ FW::Sequencer::listAlgorithmNames() const
 std::size_t
 FW::Sequencer::determineEndEvent() const
 {
-  // beware of possible overflow due to events == SIZE_MAX
-  // use saturated add from http://locklessinc.com/articles/sat_arithmetic/
-  std::size_t endRequested = m_cfg.skip + m_cfg.events;
-  endRequested |= -(endRequested < m_cfg.events);
+  // Note on skipping events:
+  //
+  // Previously, skipping events was only allowed when readers where available,
+  // since only readers had a `.skip()` functionality. The `.skip()` interface
+  // has been removed in favour of telling the readers the event they are
+  // requested to read via the algorithm context.
+  // Skipping can now also be used when no readers are configured, e.g. for
+  // generating only a few specific events in a simulation setup.
 
   // determine maximum events available from readers
   std::size_t endOnFile      = SIZE_MAX;
@@ -124,16 +129,21 @@ FW::Sequencer::determineEndEvent() const
     endOnFile = (*shortestReader)->numEvents();
   }
 
-  // without readers, skipping has no meaning
-  if (m_readers.empty() and (0 < m_cfg.skip)) {
-    ACTS_ERROR("Can not skip events without configured readers");
+  // configured readers without events makes no sense
+  if (endOnFile == 0) {
+    ACTS_ERROR("No available events");
     return SIZE_MAX;
   }
   // trying to skip too many events must be an error
   if (endOnFile <= m_cfg.skip) {
-    ACTS_ERROR("Less events available than requested to skip");
+    ACTS_ERROR("Less available events than requested to skip");
     return SIZE_MAX;
   }
+
+  // beware of possible overflow due to events == SIZE_MAX
+  // use saturated add from http://locklessinc.com/articles/sat_arithmetic/
+  std::size_t endRequested = m_cfg.skip + m_cfg.events;
+  endRequested |= -(endRequested < m_cfg.events);
   std::size_t endEvent = std::min(endRequested, endOnFile);
 
   if (endEvent == SIZE_MAX) {
