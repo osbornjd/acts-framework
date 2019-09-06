@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "ACTFW/EventData/Barcode.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Plugins/Csv/CsvReader.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
@@ -22,18 +23,36 @@
 FW::Csv::CsvParticleReader::CsvParticleReader(
     const FW::Csv::CsvParticleReader::Config& cfg,
     Acts::Logging::Level                      level)
-  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("CsvParticleReader", level))
+  : m_cfg(cfg)
+  , m_numEvents(
+        determineEventFilesRange(cfg.inputDir, cfg.inputFilename).second)
+  , m_logger(Acts::getDefaultLogger("CsvParticleReader", level))
 {
-  if (m_cfg.outputParticleCollection.empty()) {
+  if (m_cfg.output.empty()) {
     throw std::invalid_argument("Missing output collection");
   }
+  if (m_cfg.inputFilename.empty()) {
+    throw std::invalid_argument("Missing input file suffix");
+  }
+}
+
+std::string
+FW::Csv::CsvParticleReader::CsvParticleReader::name() const
+{
+  return "CsvParticleReader";
+}
+
+size_t
+FW::Csv::CsvParticleReader::CsvParticleReader::numEvents() const
+{
+  return m_numEvents;
 }
 
 FW::ProcessCode
 FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 {
   std::string pathIs
-      = perEventFilepath(m_cfg.inputDir, m_cfg.inputFileName, ctx.eventNumber);
+      = perEventFilepath(m_cfg.inputDir, m_cfg.inputFilename, ctx.eventNumber);
 
   FW::CsvReader            pCsvReader(pathIs);
   std::vector<std::string> particleVal;
@@ -71,7 +90,7 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
   }
 
   // write the truth particles to the EventStore
-  ctx.eventStore.add(m_cfg.outputParticleCollection, std::move(particles));
+  ctx.eventStore.add(m_cfg.output, std::move(particles));
 
   return ProcessCode::SUCCESS;
 }
