@@ -8,21 +8,21 @@
 
 #include "ACTFW/Plugins/Csv/CsvWriterOptions.hpp"
 
+#include <boost/program_options.hpp>
+
 void
-FW::Options::addCsvWriterOptions(
-    boost::program_options::options_description& opt)
+FW::Options::addCsvWriterOptions(FW::Options::Description& desc)
 {
   using namespace boost::program_options;
 
-  opt.add_options()("csv-output-precision",
-                    value<size_t>()->default_value(6),
-                    "Floating number output precision.")(
+  desc.add_options()("csv-output-precision",
+                     value<size_t>()->default_value(6),
+                     "Floating number output precision.")(
       "csv-tg-perevent", bool_switch(), "Write tracking geometry per event.");
 }
 
 FW::Csv::CsvParticleWriter::Config
-FW::Options::readCsvParticleWriter(
-    const boost::program_options::variables_map& vm)
+FW::Options::readCsvParticleWriter(const FW::Options::Variables& vm)
 {
   FW::Csv::CsvParticleWriter::Config cfg;
   if (not vm["output-dir"].empty()) {
@@ -33,8 +33,7 @@ FW::Options::readCsvParticleWriter(
 }
 
 FW::Csv::CsvPlanarClusterWriter::Config
-FW::Options::readCsvPlanarClusterWriterConfig(
-    const boost::program_options::variables_map& vm)
+FW::Options::readCsvPlanarClusterWriterConfig(const FW::Options::Variables& vm)
 {
   FW::Csv::CsvPlanarClusterWriter::Config cfg;
   if (not vm["output-dir"].empty()) {
@@ -46,7 +45,7 @@ FW::Options::readCsvPlanarClusterWriterConfig(
 
 FW::Csv::CsvTrackingGeometryWriter::Config
 FW::Options::readCsvTrackingGeometryWriterConfig(
-    const boost::program_options::variables_map& vm)
+    const FW::Options::Variables& vm)
 {
   FW::Csv::CsvTrackingGeometryWriter::Config cfg;
   if (not vm["output-dir"].empty()) {

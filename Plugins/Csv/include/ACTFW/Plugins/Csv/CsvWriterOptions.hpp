@@ -8,32 +8,29 @@
 
 #pragma once
 
-#include <boost/program_options.hpp>
-
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
+#include "ACTFW/Utilities/OptionsFwd.hpp"
 
 namespace FW {
 namespace Options {
 
   // Add common CSV writer options.
   void
-  addCsvWriterOptions(boost::program_options::options_description& opt);
+  addCsvWriterOptions(Description& desc);
 
   /// Read the CSV particle writer options.
   FW::Csv::CsvParticleWriter::Config
-  readCsvParticleWriter(const boost::program_options::variables_map& vm);
+  readCsvParticleWriter(const Variables& vm);
 
   /// Read the CSV planar cluster writer options.
   FW::Csv::CsvPlanarClusterWriter::Config
-  readCsvPlanarClusterWriterConfig(
-      const boost::program_options::variables_map& vm);
+  readCsvPlanarClusterWriterConfig(const Variables& vm);
 
   /// Read the CSV tracking geometry writer config.
   FW::Csv::CsvTrackingGeometryWriter::Config
-  readCsvTrackingGeometryWriterConfig(
-      const boost::program_options::variables_map& vm);
+  readCsvTrackingGeometryWriterConfig(const Variables& vm);
 
 }  // namespace Options
 }  // namespace FW
