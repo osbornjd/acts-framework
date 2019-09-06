@@ -6,6 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
+
 #include <fstream>
 #include <ios>
 #include <stdexcept>
@@ -15,7 +17,6 @@
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Plugins/Csv/CsvReader.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
@@ -25,48 +26,54 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
     const FW::Csv::CsvPlanarClusterReader::Config& cfg,
     Acts::Logging::Level                           level)
   : m_cfg(cfg)
+  // TODO check that all files (hits,cells,truth) exists
+  , m_numEvents(determineEventFilesRange(cfg.inputDir, "hits.csv").second)
   , m_logger(Acts::getDefaultLogger("CsvPlanarClusterReader", level))
 {
-  if (m_cfg.inputHitsFileName.empty()) {
-    throw std::invalid_argument("Missing input hits file");
+  if (not m_cfg.trackingGeometry) {
+    throw std::invalid_argument("Missing tracking geometry");
   }
-  if (m_cfg.inputDetailsFileName.empty()) {
-    throw std::invalid_argument("Missing input hit details file");
+  if (m_cfg.output.empty()) {
+    throw std::invalid_argument("Missing output collection");
   }
-  if (m_cfg.inputTruthFileName.empty()) {
-    throw std::invalid_argument("Missing input truth file");
-  }
-  if (m_cfg.outputClusterCollection.empty()) {
-    throw std::invalid_argument("Missing output clusters collection");
-  }
+}
+
+std::string
+FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader::name() const
+{
+  return "CsvPlanarClusterReader";
+}
+
+size_t
+FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader::numEvents() const
+{
+  return m_numEvents;
 }
 
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 {
-
   // Prepare the output data: Clusters
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
 
   // open per-event hits .csv file with ',' as delimeter
-  std::string pathHits = perEventFilepath(
-      m_cfg.inputDir, m_cfg.inputHitsFileName, ctx.eventNumber);
+  std::string pathHits
+      = perEventFilepath(m_cfg.inputDir, "hits.csv", ctx.eventNumber);
   FW::CsvReader hitCsvReader(pathHits);
 
   // open per-event hit details .csv file with ',' as delimeter
-  std::string pathDetails = perEventFilepath(
-      m_cfg.inputDir, m_cfg.inputDetailsFileName, ctx.eventNumber);
+  std::string pathDetails
+      = perEventFilepath(m_cfg.inputDir, "cells.csv", ctx.eventNumber);
   FW::CsvReader detailCsvReader(pathDetails);
 
   // open per-event truth .csv file with ',' as delimeter
-  std::string pathTruth = perEventFilepath(
-      m_cfg.inputDir, m_cfg.inputTruthFileName, ctx.eventNumber);
+  std::string pathTruth
+      = perEventFilepath(m_cfg.inputDir, "truth.csv", ctx.eventNumber);
   FW::CsvReader truthCsvReader(pathTruth);
 
   if (hitCsvReader.numPars() < 7) {
     ACTS_ERROR("Number of csv parameters in file '"
-               << pathHits
-               << "' needs to be at least 7 in the order: "
+               << pathHits << "' needs to be at least 7 in the order: "
                << "'hit_id,x,y,z,volume_id,layer_id,module_id'"
                << ". Aborting. ");
     return FW::ProcessCode::ABORT;
@@ -74,8 +81,7 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 
   if (detailCsvReader.numPars() < 4) {
     ACTS_ERROR("Number of csv parameters in file '"
-               << pathDetails
-               << "' needs to be at least 4 in the order: "
+               << pathDetails << "' needs to be at least 4 in the order: "
                << "'hit_id,ch0,ch1,value'"
                << ". Aborting. ");
     return FW::ProcessCode::ABORT;
@@ -83,8 +89,7 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 
   if (truthCsvReader.numPars() < 8) {
     ACTS_ERROR("Number of csv parameters in file '"
-               << pathTruth
-               << "' needs to be at least 8 in the order: "
+               << pathTruth << "' needs to be at least 8 in the order: "
                << "'hit_id,particle_id,tx,ty,tz,tpx,tpy,tpz'"
                << ". Aborting. ");
     return FW::ProcessCode::ABORT;
@@ -108,15 +113,13 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 
     // retrieve the surface via geoID
     const Acts::Surface* hitSurface = nullptr;
-    m_cfg.tGeometry->visitSurfaces(
+    m_cfg.trackingGeometry->visitSurfaces(
         [&hitSurface, &geoID](const Acts::Surface* srf) {
           if (srf->geoID().value() == geoID.value()) hitSurface = srf;
         });
     if (!hitSurface) {
       ACTS_ERROR("Could not retrieve the surface with geoID = "
-                 << geoID.value()
-                 << ". Skipping hit with hit_id = "
-                 << hit_id);
+                 << geoID.value() << ". Skipping hit with hit_id = " << hit_id);
       continue;
     }
 
@@ -164,13 +167,9 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
         double   mass = 0.;
         pdg_type pdg  = 0;
 
-        ACTS_VERBOSE("particle barcode = " << barcode << " : position = ("
-                                           << sPosition[0]
-                                           << ", "
-                                           << sPosition[1]
-                                           << ", "
-                                           << sPosition[2]
-                                           << ")");
+        ACTS_VERBOSE("particle barcode = "
+                     << barcode << " : position = (" << sPosition[0] << ", "
+                     << sPosition[1] << ", " << sPosition[2] << ")");
 
         // creat a truth particle
         FW::Data::SimParticle* sParticle = new FW::Data::SimParticle(
@@ -179,23 +178,12 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
       }
     }
 
-    ACTS_VERBOSE("hit_id = " << hit_id << " : geoID = " << geoID
-                             << " : globalPos = ("
-                             << pos[0]
-                             << ", "
-                             << pos[1]
-                             << ", "
-                             << pos[2]
-                             << ")"
-                             << " : localPos = ("
-                             << local[0]
-                             << ", "
-                             << local[1]
-                             << ")"
-                             << " : nCells = "
-                             << dCells.size()
-                             << " : nTruthParticles = "
-                             << hitParticles.size());
+    ACTS_VERBOSE("hit_id = "
+                 << hit_id << " : geoID = " << geoID << " : globalPos = ("
+                 << pos[0] << ", " << pos[1] << ", " << pos[2] << ")"
+                 << " : localPos = (" << local[0] << ", " << local[1] << ")"
+                 << " : nCells = " << dCells.size()
+                 << " : nTruthParticles = " << hitParticles.size());
 
     // create the planar cluster
     Acts::PlanarModuleCluster pCluster(
@@ -212,7 +200,7 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
   }
 
   // write the clusters to the EventStore
-  ctx.eventStore.add(m_cfg.outputClusterCollection, std::move(planarClusters));
+  ctx.eventStore.add(m_cfg.output, std::move(planarClusters));
 
   return FW::ProcessCode::SUCCESS;
 }

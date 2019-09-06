@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2018 Acts project team
+// Copyright (C) 2017-2019 Acts project team
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,69 +8,61 @@
 
 #pragma once
 
-#include "ACTFW/EventData/DataContainers.hpp"
+#include <memory>
+#include <string>
+
 #include "ACTFW/Framework/IReader.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 namespace Csv {
 
-  /// Read a planar cluster collection in comma-separated-value format.
+  /// Read in a planar cluster collection in comma-separated-value format.
   ///
   /// This reads three files per event file in the configured input
   /// directory. By default it reads file in the current working directory.
   /// Files are assumed to be named using the following schema
   ///
+  ///     event000000001-cells.csv
   ///     event000000001-hits.csv
-  ///     event000000002-hits.csv
-  ///     event000000001-details.csv
-  ///     event000000002-details.csv
   ///     event000000001-truth.csv
+  ///     event000000002-cells.csv
+  ///     event000000002-hits.csv
   ///     event000000002-truth.csv
   ///
   /// and each line in the file corresponds to one hit/cluster.
-  /// The file name, e.g. 'hits', 'details' and 'truth' could be configured.
   class CsvPlanarClusterReader : public IReader
   {
   public:
     struct Config
     {
-      std::string inputDir;           ///< where to find input files
-      std::string inputHitsFileName;  ///< name of input hits file, e.g. 'hits'
-      std::string inputDetailsFileName;  ///< name of input hit details file,
-                                         /// e.g. 'details'
-      std::string
-          inputTruthFileName;  ///< name of input truth file, e.g. 'truth'
-      std::string
-                                                    outputClusterCollection;  ///< name of output cluster collection
-      std::shared_ptr<const Acts::TrackingGeometry> tGeometry
-          = nullptr;   ///< trackingGeometry to navigate to a surface
-      size_t nEvents;  ///< the number of events to be read in (needd for reader
-                       /// interface)
+      /// Tracking geometry required to access global-to-local transforms.
+      std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
+      /// Which cluster collection to read into.
+      std::string output;
+      /// Where to read input files from.
+      std::string inputDir;
     };
 
-    /// Constructor with
-    /// @param cfg configuration struct
-    /// @param output logging level
     CsvPlanarClusterReader(const Config&        cfg,
                            Acts::Logging::Level level = Acts::Logging::INFO);
 
-    /// Framework name() method
     std::string
     name() const final override;
 
-    /// Read out data from the input stream
+    /// Return the number of events.
+    size_t
+    numEvents() const final override;
+
+    /// Read out data from the input stream.
     ProcessCode
     read(const FW::AlgorithmContext& ctx) final override;
 
-    /// Return the number of events
-    virtual size_t
-    numEvents() const final override;
-
   private:
-    Config                              m_cfg;  ///< nested configuration struct
-    std::unique_ptr<const Acts::Logger> m_logger;  ///< the logger instance
+    Config                              m_cfg;
+    size_t                              m_numEvents;
+    std::unique_ptr<const Acts::Logger> m_logger;
 
     const Acts::Logger&
     logger() const
@@ -78,19 +70,6 @@ namespace Csv {
       return *m_logger;
     }
   };
-
-  inline std::string
-  CsvPlanarClusterReader::name() const
-  {
-    return "CsvPlanarClusterReader";
-  }
-
-  /// Return of the number events
-  inline size_t
-  CsvPlanarClusterReader::numEvents() const
-  {
-    return m_cfg.nEvents;
-  }
 
 }  // namespace Csv
 }  // namespace FW
