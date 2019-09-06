@@ -22,7 +22,7 @@ namespace Options {
 
   /// Read the CSV particle writer options.
   FW::Csv::CsvParticleWriter::Config
-  readCsvParticleWriter(const Variables& vm);
+  readCsvParticleWriterConfig(const Variables& vm);
 
   /// Read the CSV planar cluster writer options.
   FW::Csv::CsvPlanarClusterWriter::Config

@@ -22,7 +22,7 @@ FW::Options::addCsvWriterOptions(FW::Options::Description& desc)
 }
 
 FW::Csv::CsvParticleWriter::Config
-FW::Options::readCsvParticleWriter(const FW::Options::Variables& vm)
+FW::Options::readCsvParticleWriterConfig(const FW::Options::Variables& vm)
 {
   FW::Csv::CsvParticleWriter::Config cfg;
   if (not vm["output-dir"].empty()) {
