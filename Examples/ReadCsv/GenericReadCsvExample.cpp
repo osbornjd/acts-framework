@@ -8,31 +8,29 @@
 
 #include <memory>
 
-#include <boost/program_options.hpp>
-
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/GenericDetector/GenericDetector.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
+#include "ACTFW/Plugins/Csv/CsvOptionsReader.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleReader.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
-#include "ACTFW/Plugins/Csv/CsvReaderOptions.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 
 int
 main(int argc, char* argv[])
 {
+  GenericDetector detector;
+
   // setup and parse options
   auto desc = FW::Options::makeDefaultOptions();
   FW::Options::addSequencerOptions(desc);
   FW::Options::addGeometryOptions(desc);
-  FW::Options::addCsvReaderOptions(desc);
-  FW::Options::addOutputOptions(desc);
-
-  GenericDetector detector;
+  FW::Options::addMaterialOptions(desc);
+  FW::Options::addInputOptions(desc);
   detector.addOptions(desc);
 
   auto vm = FW::Options::parse(desc, argc, argv);
@@ -40,53 +38,28 @@ main(int argc, char* argv[])
 
   FW::Sequencer sequencer(FW::Options::readSequencerConfig(vm));
 
-  // Now read the standard options
+  // Read some standard options
   auto logLevel = FW::Options::readLogLevel(vm);
-  auto nEvents  = FW::Options::readSequencerConfig(vm).events;
+  auto inputDir = vm["input-dir"].as<std::string>();
 
-  // setup detector geometry
+  // Setup detector geometry
   auto geometry         = FW::Geometry::build(vm, detector);
   auto trackingGeometry = geometry.first;
   // Add context decorators
   for (auto cdr : geometry.second) { sequencer.addContextDecorator(cdr); }
 
-  // Input directory
-  std::string inputDir = vm["input-dir"].as<std::string>();
+  // Read particles from CSV files
+  auto particleReaderCfg   = FW::Options::readCsvParticleReaderConfig(vm);
+  particleReaderCfg.output = "particles";
+  sequencer.addReader(std::make_shared<FW::Csv::CsvParticleReader>(
+      particleReaderCfg, logLevel));
 
-  // Input filenames
-  std::string inputParticlesFile = vm["input-particle-file"].as<std::string>();
-  std::string inputHitsFileName  = vm["input-hit-file"].as<std::string>();
-  std::string inputDetailsFileName = vm["input-detail-file"].as<std::string>();
-  std::string inputTruthFileName   = vm["input-truth-file"].as<std::string>();
-
-  // Output collection name
-  std::string outputParticleCollection
-      = vm["output-particle-collection"].as<std::string>();
-  std::string outputClusterCollection
-      = vm["output-plCluster-collection"].as<std::string>();
-
-  // Read particles as CSV files
-  if (vm["read-particle-csv"].as<bool>()) {
-    FW::Csv::CsvParticleReader::Config particleCsvReaderConfig;
-    particleCsvReaderConfig.inputDir      = inputDir;
-    particleCsvReaderConfig.inputFileName = inputParticlesFile + ".csv";
-    particleCsvReaderConfig.outputParticleCollection = outputParticleCollection;
-    sequencer.addReader(std::make_shared<FW::Csv::CsvParticleReader>(
-        particleCsvReaderConfig, logLevel));
-  }
-
-  // Read clusters as CSV files
-  if (vm["read-plCluster-csv"].as<bool>()) {
-    FW::Csv::CsvPlanarClusterReader::Config plCsvReaderConfig;
-    plCsvReaderConfig.tGeometry               = trackingGeometry;
-    plCsvReaderConfig.inputDir                = inputDir;
-    plCsvReaderConfig.inputHitsFileName       = inputHitsFileName + ".csv";
-    plCsvReaderConfig.inputDetailsFileName    = inputDetailsFileName + ".csv";
-    plCsvReaderConfig.inputTruthFileName      = inputTruthFileName + ".csv";
-    plCsvReaderConfig.outputClusterCollection = outputClusterCollection;
-    sequencer.addReader(std::make_shared<FW::Csv::CsvPlanarClusterReader>(
-        plCsvReaderConfig, logLevel));
-  }
+  // Read clusters from CSV files
+  auto clusterReaderCfg = FW::Options::readCsvPlanarClusterReaderConfig(vm);
+  clusterReaderCfg.trackingGeometry = trackingGeometry;
+  clusterReaderCfg.output           = "clusters";
+  sequencer.addReader(std::make_shared<FW::Csv::CsvPlanarClusterReader>(
+      clusterReaderCfg, logLevel));
 
   return sequencer.run();
 }
