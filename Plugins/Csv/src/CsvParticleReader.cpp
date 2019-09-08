@@ -19,6 +19,7 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Plugins/Csv/CsvReader.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
+#include "TrackMlData.hpp"
 
 FW::Csv::CsvParticleReader::CsvParticleReader(
     const FW::Csv::CsvParticleReader::Config& cfg,
@@ -51,42 +52,25 @@ FW::Csv::CsvParticleReader::CsvParticleReader::numEvents() const
 FW::ProcessCode
 FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 {
-  std::string pathIs
-      = perEventFilepath(m_cfg.inputDir, m_cfg.inputFilename, ctx.eventNumber);
-
-  FW::CsvReader            pCsvReader(pathIs);
-  std::vector<std::string> particleVal;
-
-  ACTS_DEBUG("Assumed particle info in following order: "
-             << "'particle_id,vx,vy,vz,px,py,pz,q' in file '" << pathIs
-             << "'.");
-
-  if (pCsvReader.numPars() < 8) {
-    ACTS_ERROR("Number of csv parameters in file '"
-               << pathIs << "' needs to be at least 8. Aborting.");
-    return FW::ProcessCode::ABORT;
-  }
-
-  // Create the truth particles
   std::vector<Data::SimParticle> particles;
-  while (pCsvReader.readLine(particleVal)) {
-    barcode_type   barcode  = std::stoul(particleVal[0]);
-    Acts::Vector3D vertex   = Acts::Vector3D(std::stof(particleVal[1]),
-                                           std::stof(particleVal[2]),
-                                           std::stof(particleVal[3]));
-    Acts::Vector3D momentum = Acts::Vector3D(std::stof(particleVal[4]),
-                                             std::stof(particleVal[5]),
-                                             std::stof(particleVal[6]));
-    double         q        = std::stof(particleVal[7]);
 
+  dfe::CsvNamedTupleReader<ParticleData> reader(
+      perEventFilepath(m_cfg.inputDir, m_cfg.inputFilename, ctx.eventNumber));
+  ParticleData data;
+
+  while (reader.read(data)) {
+    Acts::Vector3D vertex   = Acts::Vector3D(data.x, data.y, data.z);
+    Acts::Vector3D momentum = Acts::Vector3D(data.px, data.py, data.pz);
     //@TODO: get mass and pdg from config?
     double   mass = 0.;
-    pdg_type pdg  = 0;
 
-    ACTS_VERBOSE("particle barcode = " << barcode << " : vertex = ("
-                                       << vertex.x() << ", " << vertex.y()
-                                       << ", " << vertex.z() << ")");
-    particles.emplace_back(vertex, momentum, mass, q, pdg, barcode);
+    particles.emplace_back(vertex,
+                           momentum,
+                           mass,
+                           data.q,
+                           data.particle_type,
+                           data.particle_id, // this is the pdg id
+                           data.t);
   }
 
   // write the truth particles to the EventStore
