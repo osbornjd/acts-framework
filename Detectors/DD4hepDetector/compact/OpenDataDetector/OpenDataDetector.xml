@@ -24,6 +24,7 @@
         <constant name="bp_rmin" value="23.6*mm"/>
         <constant name="bp_rmax" value="24.4*mm"/>
         <constant name="bp_length" value="4.0*m"/>
+        <constant name="bp_material_binsZ" value="10"/>     
         <!--Dimensions of the Pixel volume & sub volumes -->
         <constant name="pix_env_rmin" value="30.*mm"/>
         <constant name="pix_env_rmax" value="200.*mm"/>
@@ -110,7 +111,7 @@
       <detector id="0" name="BeamPipe" type="ODDCylinder" vis="Beryllium">
             <beampipe/>
             <tubs name="BeamPipeCylinder" rmin="bp_rmin" rmax="bp_rmax" dz="bp_length" material="Beryllium">
-              <layer_material inner="false" representing="true" outer="false" binPhi="1" binZ="10"/>
+              <layer_material inner="false" representing="true" outer="false" binPhi="1" binZ="bp_material_binsZ"/>
             </tubs>
       </detector>
       <detector id="1" name="Pixels" type="DD4hep_SubdetectorAssembly" vis="invisible">

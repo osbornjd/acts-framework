@@ -28,6 +28,22 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
   // Add Extension to DetElement for the RecoGeometry
   Acts::ActsExtension* barrelExtension = new Acts::ActsExtension();
   barrelExtension->addType("barrel", "detector");
+  // Add the volume material if configured
+  if (x_det.hasChild(_Unicode(boundary_material))) {
+    xml_comp_t x_boundary_material = x_det.child(_Unicode(boundary_material));
+    // Inner / outer are cylinders
+    xml2ProtoMaterial(x_boundary_material,
+                      *barrelExtension,
+                      "boundary_material",
+                      {"inner", "outer"},
+                      {"binPhi", "binZ"});
+    // Negative / positive are discs
+    xml2ProtoMaterial(x_boundary_material,
+                      *barrelExtension,
+                      "boundary_material",
+                      {"negative", "positive"},
+                      {"binPhi", "binR"});
+  }
   barrelDetector.addExtension<Acts::ActsExtension>(barrelExtension);
 
   // Make Volume

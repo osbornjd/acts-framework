@@ -65,6 +65,7 @@
     <!--Barrel-->
     <detector id="200" name="ShortStripBarrel" type="ODDStripBarrel" readout="ShortStripBarrelReadout" vis="invisible">
         <dimensions name="ShortStripBarrelShape" rmin="ss_env_rmin" rmax="ss_env_rmax" dz="ss_b_dz" z="0.*mm"/>
+        <boundary_material inner="false" outer="true" negative="true" positive="true" binPhi="1" binZ="100" binR="25"/>
         <module name="ShortStripBarrelModule" vis="invisible">
           <module_component name="Foam" alpha="0." dx="45.*mm" dy="108*mm" dz="4*mm" x_offset="0." y_offset="0." z_offset="-2.8*mm" material="CarbonFoam" vis="CarbonFoam" sensitive="false">
             <subtraction name="CoolingLine" rmin="0.*mm" rmax="1.8*mm" x_offset="0.*mm" y_offset="0.*mm" z_offset="0.*mm"/> 

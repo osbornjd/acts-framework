@@ -52,6 +52,7 @@
     <!--Barrel-->
     <detector id="100" name="PixelBarrel" type="ODDPixelBarrel" readout="PixelBarrelReadout" vis="invisible">
         <dimensions name="PixelBarrelShape" rmin="pix_env_rmin" rmax="pix_env_rmax" dz="pix_b_dz" z="0.*mm"/>
+        <boundary_material inner="false" outer="true" negative="true" positive="true" binPhi="1" binZ="100" binR="25"/>
         <module name="PixelBarrelModule" vis="invisible">
           <module_component name="Sensor" alpha="0." dx="16.8*mm" dy="72.*mm" dz="0.125*mm" x_offset="0." y_offset="0." z_offset="-1.8*mm" material="Silicon" vis="Silicon" sensitive="true"/>
           <module_component name="Board" alpha="0." dx="16*mm" dy="70*mm" dz="0.25*mm" x_offset="0." y_offset="0." z_offset="-1.6*mm" material="Kapton" vis="Kapton" sensitive="false"/>

@@ -61,6 +61,7 @@
     <!--Barrel-->
     <detector id="300" name="LongStripBarrel" type="ODDStripBarrel" readout="LongStripBarrelReadout" vis="invisible">
         <dimensions name="LongStripBarrelShape" rmin="ls_env_rmin" rmax="ls_env_rmax" dz="ls_b_dz" z="0.*mm"/>
+        <boundary_material inner="false" outer="true" negative="true" positive="true" binPhi="1" binZ="100" binR="25"/>
         <module name="LongStripBarrelModule" vis="invisible">
           <module_component name="SensorS" alpha="0.04" dx="96.*mm" dy="108.*mm" dz="0.25*mm" x_offset="0." y_offset="0." z_offset="-3.2*mm" material="Silicon" vis="Silicon" sensitive="true"/>
           <module_component name="BoardS" alpha="0.04" dx="96.*mm" dy="108*mm" dz="0.25*mm" x_offset="0." y_offset="0." z_offset="-3.*mm" material="Kapton" vis="Kapton" sensitive="false"/>

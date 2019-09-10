@@ -205,7 +205,8 @@ FW::Json::JsonGeometryConverter::detectorRepToJson(const DetectorRep& detRep)
   for (auto& [key, value] : detRep.volumes) {
     json volj;
     ACTS_VERBOSE("a2j: -> Writing Volume: " << key);
-    volj[m_cfg.namekey] = value.volumeName;
+    volj[m_cfg.namekey]  = value.volumeName;
+    volj[m_cfg.geoidkey] = value.volumeID.toString();
     // Write the layers
     if (not value.layers.empty()) {
       ACTS_VERBOSE("a2j: ---> Found " << value.layers.size() << " layer(s) ");
@@ -213,6 +214,7 @@ FW::Json::JsonGeometryConverter::detectorRepToJson(const DetectorRep& detRep)
       for (auto& [lkey, lvalue] : value.layers) {
         ACTS_VERBOSE("a2j: ----> Convert layer " << lkey);
         json layj;
+        layj[m_cfg.geoidkey] = lvalue.layerID.toString();
         // First check for approaches
         if (not lvalue.approaches.empty() and m_cfg.processApproaches) {
           ACTS_VERBOSE("a2j: -----> Found " << lvalue.approaches.size()
@@ -245,6 +247,17 @@ FW::Json::JsonGeometryConverter::detectorRepToJson(const DetectorRep& detRep)
         layersj[std::to_string(lkey)] = layj;
       }
       volj[m_cfg.laykey] = layersj;
+    }
+    // Write the boundary surfaces
+    if (not value.boundaries.empty()) {
+      ACTS_VERBOSE("a2j: ---> Found " << value.boundaries.size()
+                                      << " boundary/ies ");
+      json boundariesj;
+      for (auto& [bkey, bvalue] : value.boundaries) {
+        ACTS_VERBOSE("a2j: ----> Convert boundary " << bkey);
+        boundariesj[std::to_string(bkey)] = surfaceMaterialToJson(*bvalue);
+      }
+      volj[m_cfg.boukey] = boundariesj;
     }
 
     volumesj[std::to_string(key)] = volj;
@@ -306,6 +319,7 @@ FW::Json::JsonGeometryConverter::convertToRep(
 {
   // The writer reader volume representation
   VolumeRep volRep;
+  volRep.volumeName = tVolume.volumeName();
   // there are confined volumes
   if (tVolume.confinedVolumes()) {
     // get through the volumes
@@ -316,7 +330,11 @@ FW::Json::JsonGeometryConverter::convertToRep(
       convertToRep(detRep, *vol);
     }
   }
-  // write the material if there's one
+  // Get the volume Id
+  Acts::GeometryID volumeID = tVolume.geoID();
+  geo_id_value     vid      = volumeID.value(Acts::GeometryID::volume_mask);
+
+  // Write the material if there's one
   if (tVolume.volumeMaterial() != nullptr) {
     volRep.material = tVolume.volumeMaterial();
   }
@@ -342,7 +360,10 @@ FW::Json::JsonGeometryConverter::convertToRep(
     if (bssfRep.surfaceMaterial()) {
       Acts::GeometryID boundaryID = bssfRep.geoID();
       geo_id_value     bid = boundaryID.value(Acts::GeometryID::boundary_mask);
+      // Ignore if the volumeID is not correct (i.e. shared boundary)
+      // if (boundaryID.value(Acts::GeometryID::volume_mask) == vid){
       volRep.boundaries[bid] = bssfRep.surfaceMaterial();
+      //}
     }
   }
   // Write if it's good
@@ -350,7 +371,6 @@ FW::Json::JsonGeometryConverter::convertToRep(
     Acts::GeometryID volumeID = tVolume.geoID();
     volRep.volumeName         = tVolume.volumeName();
     volRep.volumeID           = volumeID;
-    geo_id_value vid          = volumeID.value(Acts::GeometryID::volume_mask);
     detRep.volumes.insert({vid, std::move(volRep)});
   }
   return;
@@ -415,7 +435,7 @@ FW::Json::JsonGeometryConverter::surfaceMaterialToJson(
     return {};
   };
 
-  // A bin tilitymight need to be written
+  // A bin utility needs to be written
   const Acts::BinUtility* bUtility = nullptr;
   // Check if we have a proto material
   auto psMaterial = dynamic_cast<const Acts::ProtoSurfaceMaterial*>(&sMaterial);
