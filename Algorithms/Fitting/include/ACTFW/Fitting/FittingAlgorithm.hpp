@@ -14,15 +14,15 @@
 #include <random>
 #include <stdexcept>
 
-#include "ACTFW/Barcode/Barcode.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Random/RandomNumbersSvc.hpp"
 #include "Acts/EventData/Measurement.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/EventData/TrackState.hpp"
@@ -59,7 +59,7 @@ public:
     /// kalmanFitter instance
     kalman_Fitter_t kFitter;
     /// FW random number service
-    std::shared_ptr<RandomNumbersSvc> randomNumberSvc = nullptr;
+    std::shared_ptr<RandomNumbers> randomNumberSvc = nullptr;
     /// Gaussian sigma used to smear the truth track parameter
     std::vector<double> parameterSigma = {10, 10, 0.02, 0.02, 1};
     /// Gaussian sigma used to smear the truth hit

@@ -9,7 +9,7 @@
 #pragma once
 
 #include <mutex>
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"

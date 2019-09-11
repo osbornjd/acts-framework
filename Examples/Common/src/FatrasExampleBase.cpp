@@ -27,6 +27,7 @@
 #include "detail/FatrasDigitizationBase.hpp"
 #include "detail/FatrasEvgenBase.hpp"
 #include "detail/FatrasSimulationBase.hpp"
+#include "detail/FittingBase.hpp"
 
 int
 fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)

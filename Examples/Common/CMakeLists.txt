@@ -11,7 +11,7 @@ target_include_directories(ACTFWExamplesCommon PUBLIC $<BUILD_INTERFACE:${CMAKE_
 target_link_libraries(ACTFWExamplesCommon PUBLIC ActsCore FatrasCore ACTFramework)
 target_link_libraries(ACTFWExamplesCommon PUBLIC ACTFWObjPlugin 
         ACTFWCsvPlugin ACTFWJsonPlugin ACTFWRootPlugin ACTFWDetectorsCommon
-        ACTFWBFieldPlugin ACTFWDigitization ACTFWFatras ActsFrameworkGenerators ACTFWMaterialMapping)
+        ACTFWBFieldPlugin ACTFWDigitization ACTFWFatras ActsFrameworkGenerators ACTFWMaterialMapping ACTFWFitting)
 
 if(USE_PYTHIA8)
   target_link_libraries(ACTFWExamplesCommon PUBLIC ActsFrameworkPythia8)

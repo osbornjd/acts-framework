@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "ACTFW/Barcode/BarcodeSvc.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Fitting/FittingAlgorithm.hpp"
 #include "ACTFW/Fitting/FittingOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -47,7 +47,7 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
                       po::variables_map&                            vm,
                       std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
                       std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
-                      std::shared_ptr<FW::RandomNumbersSvc> randomNumberSvc)
+                      std::shared_ptr<FW::RandomNumbers> randomNumberSvc)
 {
 
   // Read the log level
@@ -136,10 +136,10 @@ setupFitting(vmap_t&                                       vm,
              FW::Sequencer&                                sequencer,
              std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
              std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
-             std::shared_ptr<FW::RandomNumbersSvc>         randomNumberSvc)
+             std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
   // create BField service
-  auto bField  = FW::Options::readBField<po::variables_map>(vm);
+  auto bField  = FW::Options::readBField(vm);
   auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
   auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
 

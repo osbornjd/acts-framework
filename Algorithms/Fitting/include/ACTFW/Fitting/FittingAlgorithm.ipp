@@ -41,20 +41,17 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
   }
 
   ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
-                                 << simulatedEvent->size()
-                                 << " vertices");
+                                 << simulatedEvent->size() << " vertices");
 
   // Read truth hits from input collection
   const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>* simHits
       = nullptr;
-  simHits = &context.eventStore
-                 .get<FW::DetectorData<geo_id_value,
-                                       Data::SimHit<Data::SimParticle>>>(
-                     m_cfg.simulatedHitCollection);
+  simHits = &context.eventStore.get<
+      FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>(
+      m_cfg.simulatedHitCollection);
   if (!simHits) {
     throw std::ios_base::failure("Retrieve truth hit collection "
-                                 + m_cfg.simulatedHitCollection
-                                 + " failure!");
+                                 + m_cfg.simulatedHitCollection + " failure!");
   }
 
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
@@ -125,15 +122,14 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
 
   // Start to perform fit to the prepared tracks
   int itrack = 0;
-  for (auto & [ barcode, sourceLinks ] : sourceLinkMap) {
+  for (auto& [barcode, sourceLinks] : sourceLinkMap) {
     if (barcode) continue;
     itrack++;
     auto particle = particles.find(barcode)->second;
 
-    ACTS_DEBUG("Start processing itrack = " << itrack << " with nStates = "
-                                            << sourceLinks.size()
-                                            << " and truth particle id = "
-                                            << barcode);
+    ACTS_DEBUG("Start processing itrack = "
+               << itrack << " with nStates = " << sourceLinks.size()
+               << " and truth particle id = " << barcode);
 
     // get the truth particle info
     Acts::Vector3D pos = particle.position();
@@ -165,7 +161,6 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
     cov.setZero();
     cov.diagonal() << pow(loc0Res, 2), pow(loc1Res, 2), pow(phiRes, 2),
         pow(thetaRes, 2), pow(qOpRes, 2), 0;
-    auto covPtr = std::make_unique<const Acts::BoundSymMatrix>(cov);
 
     // prepare the initial momentum
     double         rPhi   = fphi + phiRes * gauss(generator);
@@ -188,7 +183,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
 
     // then create the start parameters using the prepared momentum and position
     Acts::SingleCurvilinearTrackParameters<Acts::ChargedPolicy> rStart(
-        std::move(covPtr), rPos, rMom, q, 0);
+        cov, rPos, rMom, q, 0);
 
     // set the target surface
     const Acts::Surface* rSurface = &rStart.referenceSurface();
@@ -210,12 +205,10 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
       auto fittedPos        = fittedParameters.position();
       auto fittedMom        = fittedParameters.momentum();
       ACTS_DEBUG("Fitted Position at target = " << fittedPos[0] << " : "
-                                                << fittedPos[1]
-                                                << " : "
+                                                << fittedPos[1] << " : "
                                                 << fittedPos[2]);
       ACTS_DEBUG("fitted Momentum at target = " << fittedMom[0] << " : "
-                                                << fittedMom[1]
-                                                << " : "
+                                                << fittedMom[1] << " : "
                                                 << fittedMom[2]);
     } else
       ACTS_WARNING("No fittedParameter!");
