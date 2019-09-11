@@ -10,7 +10,7 @@
 
 #include <map>
 #include <string>
-#include "ACTFW/Barcode/Barcode.hpp"
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimSourceLink.hpp"

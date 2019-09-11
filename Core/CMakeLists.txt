@@ -4,8 +4,6 @@ set(_sources
   src/Framework/RandomNumbers.cpp
   src/Framework/Sequencer.cpp
   src/Utilities/Paths.cpp
-  src/Random/RandomNumbersSvc.cpp
-  src/Utilities/Paths.cpp
   src/Utilities/Helpers.cpp
   src/Validation/EffPlotTool.cpp
   src/Validation/ResPlotTool.cpp)
