@@ -14,9 +14,9 @@
 #include "Acts/Utilities/Helpers.hpp"
 
 using Acts::VectorHelpers::eta;
-using Acts::VectorHelpers::theta;
-using Acts::VectorHelpers::phi;
 using Acts::VectorHelpers::perp;
+using Acts::VectorHelpers::phi;
+using Acts::VectorHelpers::theta;
 
 FW::Root::RootTrackWriter::RootTrackWriter(
     const FW::Root::RootTrackWriter::Config& cfg,
@@ -190,9 +190,7 @@ FW::Root::RootTrackWriter::RootTrackWriter(
 
 FW::Root::RootTrackWriter::~RootTrackWriter()
 {
-  if (m_outputFile) {
-    m_outputFile->Close();
-  }
+  if (m_outputFile) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
@@ -202,8 +200,7 @@ FW::Root::RootTrackWriter::endRun()
     m_outputFile->cd();
     m_outputTree->Write();
     ACTS_INFO("Wrote tracks to tree '" << m_cfg.treeName << "' in '"
-                                       << m_cfg.filePath
-                                       << "'");
+                                       << m_cfg.filePath << "'");
   }
   return ProcessCode::SUCCESS;
 }
@@ -226,20 +223,17 @@ FW::Root::RootTrackWriter::writeT(const AlgorithmContext& ctx,
   }
 
   ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
-                                 << simulatedEvent->size()
-                                 << " vertices");
+                                 << simulatedEvent->size() << " vertices");
 
   // Read truth hits from input collection
   const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>* simHits
       = nullptr;
-  simHits
-      = &ctx.eventStore.get<FW::DetectorData<geo_id_value,
-                                             Data::SimHit<Data::SimParticle>>>(
-          m_cfg.simulatedHitCollection);
+  simHits = &ctx.eventStore.get<
+      FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>(
+      m_cfg.simulatedHitCollection);
   if (!simHits) {
     throw std::ios_base::failure("Retrieve truth hit collection "
-                                 + m_cfg.simulatedHitCollection
-                                 + " failure!");
+                                 + m_cfg.simulatedHitCollection + " failure!");
   }
 
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
@@ -350,8 +344,9 @@ FW::Root::RootTrackWriter::writeT(const AlgorithmContext& ctx,
       // lambda to find the truth hit belonging to a given truth track
       barcode_type                    t_barcode = track.first;
       Data::SimHit<Data::SimParticle> truthHit;
-      auto                            findTruthHit = [&t_barcode, &truthHit](
-          std::vector<Data::SimHit<Data::SimParticle>> hits) -> bool {
+      auto                            findTruthHit
+          = [&t_barcode, &truthHit](
+                std::vector<Data::SimHit<Data::SimParticle>> hits) -> bool {
         for (auto& hit : hits) {
           if (hit.particle.barcode() == t_barcode) {
             truthHit = hit;
@@ -365,13 +360,11 @@ FW::Root::RootTrackWriter::writeT(const AlgorithmContext& ctx,
       float truthLOC0 = 0, truthLOC1 = 0, truthPHI = 0, truthTHETA = 0,
             truthQOP = 0;
       if (findTruthHit(hitsOnThisModule)) {
-        ACTS_DEBUG("Find the truth hit for trackState on"
-                   << " : volume = "
-                   << geoID.value(Acts::GeometryID::volume_mask)
-                   << " : layer = "
-                   << geoID.value(Acts::GeometryID::layer_mask)
-                   << " : module = "
-                   << geoID.value(Acts::GeometryID::sensitive_mask));
+        ACTS_DEBUG(
+            "Find the truth hit for trackState on"
+            << " : volume = " << geoID.value(Acts::GeometryID::volume_mask)
+            << " : layer = " << geoID.value(Acts::GeometryID::layer_mask)
+            << " : module = " << geoID.value(Acts::GeometryID::sensitive_mask));
         // get local truth position
         Acts::Vector2D hitlocal;
         meas.referenceSurface().globalToLocal(
@@ -390,14 +383,12 @@ FW::Root::RootTrackWriter::writeT(const AlgorithmContext& ctx,
         truthTHETA = theta(truthHit.particle.momentum());
         truthQOP   = m_t_charge / truthHit.particle.momentum().norm();
       } else {
-        ACTS_WARNING("Truth hit for trackState on"
-                     << " : volume = "
-                     << geoID.value(Acts::GeometryID::volume_mask)
-                     << " : layer = "
-                     << geoID.value(Acts::GeometryID::layer_mask)
-                     << " : module = "
-                     << geoID.value(Acts::GeometryID::sensitive_mask)
-                     << " not found!");
+        ACTS_WARNING(
+            "Truth hit for trackState on"
+            << " : volume = " << geoID.value(Acts::GeometryID::volume_mask)
+            << " : layer = " << geoID.value(Acts::GeometryID::layer_mask)
+            << " : module = " << geoID.value(Acts::GeometryID::sensitive_mask)
+            << " not found!");
         // push default values if truth hit not found
         m_t_x.push_back(0.);
         m_t_y.push_back(0.);

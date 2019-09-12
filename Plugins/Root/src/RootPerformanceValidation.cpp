@@ -58,9 +58,7 @@ FW::Root::RootPerformanceValidation::~RootPerformanceValidation()
   m_effPlotTool->clear(m_effPlotCache);
   delete m_resPlotTool;
   delete m_effPlotTool;
-  if (m_outputFile) {
-    m_outputFile->Close();
-  }
+  if (m_outputFile) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
@@ -101,20 +99,17 @@ FW::Root::RootPerformanceValidation::writeT(const AlgorithmContext& ctx,
   }
 
   ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
-                                 << simulatedEvent->size()
-                                 << " vertices");
+                                 << simulatedEvent->size() << " vertices");
 
   // Read truth hits from input collection
   const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>* simHits
       = nullptr;
-  simHits
-      = &ctx.eventStore.get<FW::DetectorData<geo_id_value,
-                                             Data::SimHit<Data::SimParticle>>>(
-          m_cfg.simulatedHitCollection);
+  simHits = &ctx.eventStore.get<
+      FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>(
+      m_cfg.simulatedHitCollection);
   if (!simHits) {
     throw std::ios_base::failure("Retrieve truth hit collection "
-                                 + m_cfg.simulatedHitCollection
-                                 + " failure!");
+                                 + m_cfg.simulatedHitCollection + " failure!");
   }
 
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
@@ -171,8 +166,9 @@ FW::Root::RootPerformanceValidation::writeT(const AlgorithmContext& ctx,
       // lambda to find the truth hit belonging to a given truth track
       barcode_type                    t_barcode = track.first;
       Data::SimHit<Data::SimParticle> truthHit;
-      auto                            findTruthHit = [&t_barcode, &truthHit](
-          std::vector<Data::SimHit<Data::SimParticle>> hits) -> bool {
+      auto                            findTruthHit
+          = [&t_barcode, &truthHit](
+                std::vector<Data::SimHit<Data::SimParticle>> hits) -> bool {
         for (auto& hit : hits) {
           if (hit.particle.barcode() == t_barcode) {
             truthHit = hit;
@@ -184,23 +180,19 @@ FW::Root::RootPerformanceValidation::writeT(const AlgorithmContext& ctx,
 
       // get the truth hit corresponding to this trackState
       if (findTruthHit(hitsOnThisModule)) {
-        ACTS_DEBUG("Find the truth hit for trackState on"
-                   << " : volume = "
-                   << geoID.value(Acts::GeometryID::volume_mask)
-                   << " : layer = "
-                   << geoID.value(Acts::GeometryID::layer_mask)
-                   << " : module = "
-                   << geoID.value(Acts::GeometryID::sensitive_mask));
+        ACTS_DEBUG(
+            "Find the truth hit for trackState on"
+            << " : volume = " << geoID.value(Acts::GeometryID::volume_mask)
+            << " : layer = " << geoID.value(Acts::GeometryID::layer_mask)
+            << " : module = " << geoID.value(Acts::GeometryID::sensitive_mask));
         truthTrack.push_back(truthHit);
       } else {
-        ACTS_WARNING("Truth hit for trackState on"
-                     << " : volume = "
-                     << geoID.value(Acts::GeometryID::volume_mask)
-                     << " : layer = "
-                     << geoID.value(Acts::GeometryID::layer_mask)
-                     << " : module = "
-                     << geoID.value(Acts::GeometryID::sensitive_mask)
-                     << " not found!");
+        ACTS_WARNING(
+            "Truth hit for trackState on"
+            << " : volume = " << geoID.value(Acts::GeometryID::volume_mask)
+            << " : layer = " << geoID.value(Acts::GeometryID::layer_mask)
+            << " : module = " << geoID.value(Acts::GeometryID::sensitive_mask)
+            << " not found!");
       }
     }  // all states
 
