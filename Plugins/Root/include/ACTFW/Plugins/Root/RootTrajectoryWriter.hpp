@@ -34,7 +34,7 @@ namespace Root {
   using TrackState = Acts::TrackState<Identifier, Acts::BoundParameters>;
   using TrackMap   = std::map<barcode_type, std::vector<TrackState>>;
 
-  /// @class RootTrackWriter
+  /// @class RootTrajectoryWriter
   ///
   /// Write out a track (i.e. a map of truth particle barcode and a vector of
   /// trackState at the moment) into a TTree
@@ -48,7 +48,7 @@ namespace Root {
   /// this is done by setting the Config::rootFile pointer to an existing file
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
-  class RootTrackWriter final : public WriterT<TrackMap>
+  class RootTrajectoryWriter final : public WriterT<TrackMap>
   {
   public:
     using Base = WriterT<TrackMap>;
@@ -68,11 +68,11 @@ namespace Root {
     ///
     /// @param cfg Configuration struct
     /// @param level Message level declaration
-    RootTrackWriter(const Config&        cfg,
-                    Acts::Logging::Level level = Acts::Logging::INFO);
+    RootTrajectoryWriter(const Config&        cfg,
+                         Acts::Logging::Level level = Acts::Logging::INFO);
 
     /// Virtual destructor
-    ~RootTrackWriter() override;
+    ~RootTrajectoryWriter() override;
 
     /// End-of-run hook
     ProcessCode
