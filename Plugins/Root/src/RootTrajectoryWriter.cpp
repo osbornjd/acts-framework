@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootTrackWriter.hpp"
+#include "ACTFW/Plugins/Root/RootTrajectoryWriter.hpp"
 #include <TFile.h>
 #include <TTree.h>
 #include <ios>
@@ -18,10 +18,10 @@ using Acts::VectorHelpers::perp;
 using Acts::VectorHelpers::phi;
 using Acts::VectorHelpers::theta;
 
-FW::Root::RootTrackWriter::RootTrackWriter(
-    const FW::Root::RootTrackWriter::Config& cfg,
-    Acts::Logging::Level                     level)
-  : Base(cfg.trackCollection, "RootTrackWriter", level)
+FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
+    const FW::Root::RootTrajectoryWriter::Config& cfg,
+    Acts::Logging::Level                          level)
+  : Base(cfg.trackCollection, "RootTrajectoryWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
@@ -188,13 +188,13 @@ FW::Root::RootTrackWriter::RootTrackWriter(
   }
 }
 
-FW::Root::RootTrackWriter::~RootTrackWriter()
+FW::Root::RootTrajectoryWriter::~RootTrajectoryWriter()
 {
   if (m_outputFile) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
-FW::Root::RootTrackWriter::endRun()
+FW::Root::RootTrajectoryWriter::endRun()
 {
   if (m_outputFile) {
     m_outputFile->cd();
@@ -206,8 +206,8 @@ FW::Root::RootTrackWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootTrackWriter::writeT(const AlgorithmContext& ctx,
-                                  const TrackMap&         tracks)
+FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
+                                       const TrackMap&         tracks)
 {
 
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;

@@ -14,7 +14,7 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Root/RootPerformanceValidation.hpp"
-#include "ACTFW/Plugins/Root/RootTrackWriter.hpp"
+#include "ACTFW/Plugins/Root/RootTrajectoryWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Fitter/GainMatrixSmoother.hpp"
 #include "Acts/Fitter/GainMatrixUpdater.hpp"
@@ -93,7 +93,7 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
 
   // Write fitted tracks as ROOT files
   if (vm["output-root"].template as<bool>()) {
-    FW::Root::RootTrackWriter::Config tWriterRootConfig;
+    FW::Root::RootTrajectoryWriter::Config tWriterRootConfig;
     tWriterRootConfig.trackCollection          = trackCollection;
     tWriterRootConfig.simulatedEventCollection = simulatedEventCollection;
     tWriterRootConfig.simulatedHitCollection   = simulatedHitCollection;
@@ -101,7 +101,7 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
         = FW::joinPaths(outputDir, trackCollection + ".root");
     tWriterRootConfig.treeName = trackCollection;
     sequencer.addWriter(
-        std::make_shared<FW::Root::RootTrackWriter>(tWriterRootConfig));
+        std::make_shared<FW::Root::RootTrajectoryWriter>(tWriterRootConfig));
   }
 
   // Write performance plots as ROOT files
