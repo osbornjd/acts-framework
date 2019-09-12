@@ -9,9 +9,9 @@
 #include "ACTFW/Validation/EffPlotTool.hpp"
 
 using Acts::VectorHelpers::eta;
-using Acts::VectorHelpers::theta;
-using Acts::VectorHelpers::phi;
 using Acts::VectorHelpers::perp;
+using Acts::VectorHelpers::phi;
+using Acts::VectorHelpers::theta;
 
 FW::EffPlotTool::EffPlotTool(const FW::EffPlotTool::Config& cfg,
                              Acts::Logging::Level           level)
@@ -66,8 +66,7 @@ FW::EffPlotTool::fill(EffPlotTool::EffPlotCache& effPlotCache,
     if (state.parameter.smoothed) nSmoothed++;
   }
   ACTS_DEBUG("There are " << trackStates.size() << " states in total and "
-                          << nSmoothed
-                          << " of them are processed.");
+                          << nSmoothed << " of them are processed.");
 
   Acts::Vector3D truthMom = truthParticle.momentum();
 
