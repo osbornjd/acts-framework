@@ -8,10 +8,6 @@
 
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
 
-#include <fstream>
-#include <ios>
-#include <stdexcept>
-
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
@@ -21,6 +17,7 @@
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 #include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
+#include "TrackMlData.hpp"
 
 FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
     const FW::Csv::CsvPlanarClusterReader::Config& cfg,
@@ -50,153 +47,136 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader::numEvents() const
   return m_numEvents;
 }
 
+namespace {
+struct HitIdComparator
+{
+  template <typename T>
+  bool
+  operator()(const T& left, const T& right)
+  {
+    return left.hit_id < right.hit_id;
+  }
+  template <typename T>
+  bool
+  operator()(uint64_t left_id, const T& right)
+  {
+    return left_id < right.hit_id;
+  }
+  template <typename T>
+  bool
+  operator()(const T& left, uint64_t right_id)
+  {
+    return left.hit_id < right_id;
+  }
+};
+}  // namespace
+
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 {
   // Prepare the output data: Clusters
   FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
 
-  // open per-event hits .csv file with ',' as delimeter
-  std::string pathHits
-      = perEventFilepath(m_cfg.inputDir, "hits.csv", ctx.eventNumber);
-  FW::CsvReader hitCsvReader(pathHits);
-
-  // open per-event hit details .csv file with ',' as delimeter
-  std::string pathDetails
-      = perEventFilepath(m_cfg.inputDir, "cells.csv", ctx.eventNumber);
-  FW::CsvReader detailCsvReader(pathDetails);
-
-  // open per-event truth .csv file with ',' as delimeter
+  // per-event file paths
   std::string pathTruth
       = perEventFilepath(m_cfg.inputDir, "truth.csv", ctx.eventNumber);
-  FW::CsvReader truthCsvReader(pathTruth);
+  std::string pathCells
+      = perEventFilepath(m_cfg.inputDir, "cells.csv", ctx.eventNumber);
+  std::string pathHits
+      = perEventFilepath(m_cfg.inputDir, "hits.csv", ctx.eventNumber);
+  // open readers
+  dfe::CsvNamedTupleReader<TruthData> truthReader(pathTruth);
+  dfe::CsvNamedTupleReader<CellData>  cellReader(pathCells);
+  dfe::CsvNamedTupleReader<HitData>   hitReader(pathHits);
 
-  if (hitCsvReader.numPars() < 7) {
-    ACTS_ERROR("Number of csv parameters in file '"
-               << pathHits << "' needs to be at least 7 in the order: "
-               << "'hit_id,x,y,z,volume_id,layer_id,module_id'"
-               << ". Aborting. ");
-    return FW::ProcessCode::ABORT;
+  // since a hit
+  // read all hits first
+  std::vector<TruthData> truths;
+  {
+    TruthData truth;
+    while (truthReader.read(truth)) { truths.push_back(truth); }
+    std::sort(truths.begin(), truths.end(), HitIdComparator{});
+  }
+  std::vector<CellData> cells;
+  {
+    CellData cell;
+    while (cellReader.read(cell)) { cells.push_back(cell); }
+    std::sort(cells.begin(), cells.end(), HitIdComparator{});
   }
 
-  if (detailCsvReader.numPars() < 4) {
-    ACTS_ERROR("Number of csv parameters in file '"
-               << pathDetails << "' needs to be at least 4 in the order: "
-               << "'hit_id,ch0,ch1,value'"
-               << ". Aborting. ");
-    return FW::ProcessCode::ABORT;
-  }
+  // read the actual hit information
+  HitData hit;
+  while (hitReader.read(hit)) {
 
-  if (truthCsvReader.numPars() < 8) {
-    ACTS_ERROR("Number of csv parameters in file '"
-               << pathTruth << "' needs to be at least 8 in the order: "
-               << "'hit_id,particle_id,tx,ty,tz,tpx,tpy,tpz'"
-               << ". Aborting. ");
-    return FW::ProcessCode::ABORT;
-  }
+    // identify corresponding surface
+    const Acts::Surface* surface = nullptr;
+    Acts::GeometryID     geoID;
 
-  std::vector<std::string> hitVal;
-  std::vector<std::string> detailVal;
-  std::vector<std::string> truthVal;
-
-  while (hitCsvReader.readLine(hitVal)) {
-    auto hit_id    = std::stoul(hitVal[0]);
-    auto volumeKey = std::stoul(hitVal[4]);
-    auto layerKey  = std::stoul(hitVal[5]);
-    auto moduleKey = std::stoul(hitVal[6]);
-
-    // create the GeometryID
-    Acts::GeometryID geoID(0);
-    geoID.add(volumeKey, Acts::GeometryID::volume_mask);
-    geoID.add(layerKey, Acts::GeometryID::layer_mask);
-    geoID.add(moduleKey, Acts::GeometryID::sensitive_mask);
-
-    // retrieve the surface via geoID
-    const Acts::Surface* hitSurface = nullptr;
+    geoID.add(hit.volume_id, Acts::GeometryID::volume_mask);
+    geoID.add(hit.layer_id, Acts::GeometryID::layer_mask);
+    geoID.add(hit.module_id, Acts::GeometryID::sensitive_mask);
     m_cfg.trackingGeometry->visitSurfaces(
-        [&hitSurface, &geoID](const Acts::Surface* srf) {
-          if (srf->geoID().value() == geoID.value()) hitSurface = srf;
+        [&geoID, &surface](const Acts::Surface* other) {
+          if (other->geoID().value() == geoID.value()) { surface = other; }
         });
-    if (!hitSurface) {
-      ACTS_ERROR("Could not retrieve the surface with geoID = "
-                 << geoID.value() << ". Skipping hit with hit_id = " << hit_id);
+    if (!surface) {
+      ACTS_ERROR("Could not retrieve the surface for hit " << hit);
       continue;
     }
 
-    // transform global into local position
-    Acts::Vector3D pos(
-        std::stof(hitVal[1]), std::stof(hitVal[2]), std::stof(hitVal[3]));
+    // find matching truth particle information
+    // TODO who owns these particles?
+    std::vector<const FW::Data::SimParticle*> particles;
+    {
+      auto range = std::equal_range(
+          truths.begin(), truths.end(), hit.hit_id, HitIdComparator{});
+      for (auto t = range.first; t != range.second; ++t) {
+        Acts::Vector3D particlePos(t->tx, t->ty, t->tz);
+        Acts::Vector3D particleMom(t->tpx, t->tpy, t->tpz);
+        // The following values are global to the particle and are not
+        // duplicated in the per-hit file. They can be retrieved from
+        // the particles file.
+        double   charge = 0;
+        double   mass   = 0;
+        pdg_type pdgId  = 0;
+        // TODO ownership
+        particles.emplace_back(new FW::Data::SimParticle(
+            particlePos, particleMom, mass, charge, pdgId, t->particle_id));
+      }
+    }
+
+    // find matching pixel cell information
+    std::vector<Acts::DigitizationCell> digitizationCells;
+    {
+      auto range = std::equal_range(
+          cells.begin(), cells.end(), hit.hit_id, HitIdComparator{});
+      for (auto c = range.first; c != range.second; ++c) {
+        digitizationCells.emplace_back(c->ch0, c->ch1, c->value);
+      }
+    }
+
+    // transform into local coordinates on the surface
+    Acts::Vector3D pos(hit.x, hit.y, hit.z);
+    Acts::Vector3D mom(1, 1, 1);  // fake momentum
     Acts::Vector2D local(0, 0);
-    Acts::Vector3D mom(1, 1, 1);
-    hitSurface->globalToLocal(ctx.geoContext, pos, mom, local);
+    surface->globalToLocal(ctx.geoContext, pos, mom, local);
 
-    Acts::ActsSymMatrixD<2> cov;
-    cov << 0., 0., 0., 0.;
-
-    // get digitization cells association
-    std::vector<Acts::DigitizationCell> dCells;
-    // retrieve the hit detail with the same hit_id
-    while (detailCsvReader.peekLine().size() != 0
-           && std::stoul(detailCsvReader.peekLine()[0])
-               == std::stoul(hitVal[0])) {
-      if (detailCsvReader.readLine(detailVal)) {
-        dCells.push_back(Acts::DigitizationCell(std::stoul(detailVal[1]),
-                                                std::stoul(detailVal[2]),
-                                                std::stof(detailVal[3])));
-      }
-    }
-
-    // get hit-particle truth association
-    std::vector<const FW::Data::SimParticle*> hitParticles;
-    // retrieve the hit detail with the same hit_id
-    while (truthCsvReader.peekLine().size() != 0
-           && std::stoul(truthCsvReader.peekLine()[0])
-               == std::stoul(hitVal[0])) {
-      if (truthCsvReader.readLine(truthVal)) {
-        Acts::Vector3D sPosition(std::stof(truthVal[2]),
-                                 std::stof(truthVal[3]),
-                                 std::stof(truthVal[4]));
-        Acts::Vector3D sMomentum(std::stof(truthVal[5]),
-                                 std::stof(truthVal[6]),
-                                 std::stof(truthVal[7]));
-
-        barcode_type barcode = std::stoul(truthVal[1]);
-
-        //@TODO: get q, mass and pdg from config?
-        double   q    = 0;
-        double   mass = 0.;
-        pdg_type pdg  = 0;
-
-        ACTS_VERBOSE("particle barcode = "
-                     << barcode << " : position = (" << sPosition[0] << ", "
-                     << sPosition[1] << ", " << sPosition[2] << ")");
-
-        // creat a truth particle
-        FW::Data::SimParticle* sParticle = new FW::Data::SimParticle(
-            sPosition, sMomentum, mass, q, pdg, barcode);
-        hitParticles.push_back(sParticle);
-      }
-    }
-
-    ACTS_VERBOSE("hit_id = "
-                 << hit_id << " : geoID = " << geoID << " : globalPos = ("
-                 << pos[0] << ", " << pos[1] << ", " << pos[2] << ")"
-                 << " : localPos = (" << local[0] << ", " << local[1] << ")"
-                 << " : nCells = " << dCells.size()
-                 << " : nTruthParticles = " << hitParticles.size());
+    // TODO what to use as cluster uncertainty?
+    Acts::ActsSymMatrixD<2> cov = Acts::ActsSymMatrixD<2>::Identity();
 
     // create the planar cluster
-    Acts::PlanarModuleCluster pCluster(
-        hitSurface->getSharedPtr(),
-        Identifier(Identifier::identifier_type(geoID.value()), hitParticles),
+    Acts::PlanarModuleCluster cluster(
+        surface->getSharedPtr(),
+        Identifier(Identifier::identifier_type(geoID.value()), particles),
         std::move(cov),
         local[0],
         local[1],
-        std::move(dCells));
-
-    // insert the cluster into the cluster map
-    FW::Data::insert(
-        planarClusters, volumeKey, layerKey, moduleKey, std::move(pCluster));
+        std::move(digitizationCells));
+    FW::Data::insert(planarClusters,
+                     static_cast<geo_id_value>(hit.volume_id),
+                     static_cast<geo_id_value>(hit.layer_id),
+                     static_cast<geo_id_value>(hit.module_id),
+                     std::move(cluster));
   }
 
   // write the clusters to the EventStore
