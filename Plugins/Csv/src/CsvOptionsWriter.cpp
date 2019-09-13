@@ -10,6 +10,8 @@
 
 #include <boost/program_options.hpp>
 
+#include <dfe/dfe_io_dsv.hpp>
+
 void
 FW::Options::addCsvWriterOptions(FW::Options::Description& desc)
 {

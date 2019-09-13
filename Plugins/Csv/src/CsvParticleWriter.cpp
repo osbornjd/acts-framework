@@ -11,7 +11,7 @@
 #include <map>
 #include <stdexcept>
 
-#include <dfe/dfe_namedtuple.hpp>
+#include <dfe/dfe_io_dsv.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"

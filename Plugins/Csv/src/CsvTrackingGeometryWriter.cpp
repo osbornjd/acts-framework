@@ -12,7 +12,7 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <dfe/dfe_namedtuple.hpp>
+#include <dfe/dfe_io_dsv.hpp>
 
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/Plugins/Digitization/CartesianSegmentation.hpp>

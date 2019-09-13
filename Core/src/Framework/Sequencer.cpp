@@ -15,6 +15,7 @@
 #include <numeric>
 
 #include <TROOT.h>
+#include <dfe/dfe_io_dsv.hpp>
 #include <dfe/dfe_namedtuple.hpp>
 #include <tbb/tbb.h>
 

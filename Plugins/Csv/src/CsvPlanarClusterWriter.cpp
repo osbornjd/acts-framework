@@ -9,7 +9,7 @@
 #include <stdexcept>
 
 #include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
-#include <dfe/dfe_namedtuple.hpp>
+#include <dfe/dfe_io_dsv.hpp>
 
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"

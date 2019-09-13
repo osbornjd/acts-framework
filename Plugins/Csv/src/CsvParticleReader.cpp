@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+#include <dfe/dfe_io_dsv.hpp>
+
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -62,14 +64,14 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
     Acts::Vector3D vertex   = Acts::Vector3D(data.x, data.y, data.z);
     Acts::Vector3D momentum = Acts::Vector3D(data.px, data.py, data.pz);
     //@TODO: get mass and pdg from config?
-    double   mass = 0.;
+    double mass = 0.;
 
     particles.emplace_back(vertex,
                            momentum,
                            mass,
                            data.q,
                            data.particle_type,
-                           data.particle_id, // this is the pdg id
+                           data.particle_id,  // this is the pdg id
                            data.t);
   }
 

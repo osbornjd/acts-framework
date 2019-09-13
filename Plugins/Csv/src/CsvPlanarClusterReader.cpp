@@ -8,6 +8,8 @@
 
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
 
+#include <dfe/dfe_io_dsv.hpp>
+
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
