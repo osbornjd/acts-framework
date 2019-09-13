@@ -35,7 +35,7 @@ namespace Root {
   using TrackState       = Acts::TrackState<Identifier, Acts::BoundParameters>;
   using TrajectoryVector = std::vector<std::vector<TrackState>>;
 
-  /// @class RootPerformanceValidation
+  /// @class RootPerformanceWriter
   ///
   /// Write out the residual and pull of track parameters and efficiency, i.e.
   /// fraction of smoothed track
@@ -45,7 +45,7 @@ namespace Root {
   /// this is done by setting the Config::rootFile pointer to an existing file
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
-  class RootPerformanceValidation final : public WriterT<TrajectoryVector>
+  class RootPerformanceWriter final : public WriterT<TrajectoryVector>
   {
   public:
     using Base = WriterT<TrajectoryVector>;
@@ -65,11 +65,11 @@ namespace Root {
     ///
     /// @param cfg Configuration struct
     /// @param level Message level declaration
-    RootPerformanceValidation(const Config&        cfg,
-                              Acts::Logging::Level level = Acts::Logging::INFO);
+    RootPerformanceWriter(const Config&        cfg,
+                          Acts::Logging::Level level = Acts::Logging::INFO);
 
     /// Virtual destructor
-    ~RootPerformanceValidation() override;
+    ~RootPerformanceWriter() override;
 
     /// End-of-run hook
     ProcessCode

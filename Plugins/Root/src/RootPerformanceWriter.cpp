@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootPerformanceValidation.hpp"
+#include "ACTFW/Plugins/Root/RootPerformanceWriter.hpp"
 #include <TFile.h>
 #include <TTree.h>
 #include <ios>
@@ -15,10 +15,10 @@
 
 using Acts::VectorHelpers::eta;
 
-FW::Root::RootPerformanceValidation::RootPerformanceValidation(
-    const FW::Root::RootPerformanceValidation::Config& cfg,
-    Acts::Logging::Level                               level)
-  : Base(cfg.trackCollection, "RootPerformanceValidation", level)
+FW::Root::RootPerformanceWriter::RootPerformanceWriter(
+    const FW::Root::RootPerformanceWriter::Config& cfg,
+    Acts::Logging::Level                           level)
+  : Base(cfg.trackCollection, "RootPerformanceWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
@@ -50,7 +50,7 @@ FW::Root::RootPerformanceValidation::RootPerformanceValidation(
   m_effPlotTool->book(m_effPlotCache);
 }
 
-FW::Root::RootPerformanceValidation::~RootPerformanceValidation()
+FW::Root::RootPerformanceWriter::~RootPerformanceWriter()
 {
   m_resPlotTool->clear(m_resPlotCache);
   m_effPlotTool->clear(m_effPlotCache);
@@ -60,7 +60,7 @@ FW::Root::RootPerformanceValidation::~RootPerformanceValidation()
 }
 
 FW::ProcessCode
-FW::Root::RootPerformanceValidation::endRun()
+FW::Root::RootPerformanceWriter::endRun()
 {
   // fill residual and pull details into additional hists
   m_resPlotTool->refinement(m_resPlotCache);
@@ -75,9 +75,8 @@ FW::Root::RootPerformanceValidation::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootPerformanceValidation::writeT(
-    const AlgorithmContext& ctx,
-    const TrajectoryVector& trajectories)
+FW::Root::RootPerformanceWriter::writeT(const AlgorithmContext& ctx,
+                                        const TrajectoryVector& trajectories)
 {
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
 
