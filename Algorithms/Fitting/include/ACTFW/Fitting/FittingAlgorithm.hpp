@@ -40,10 +40,8 @@ class FittingAlgorithm : public BareAlgorithm
 {
 public:
   // A few initialisations and definitionas
-  using Identifier  = Data::SimSourceLink;
-  using TrackState  = Acts::TrackState<Identifier, Acts::BoundParameters>;
-  using TrackMap    = std::map<barcode_type, std::vector<TrackState>>;
-  using ParticleMap = std::map<barcode_type, Data::SimParticle>;
+  using Identifier = Data::SimSourceLink;
+  using TrackState = Acts::TrackState<Identifier, Acts::BoundParameters>;
 
   /// Nested configuration struct
   struct Config

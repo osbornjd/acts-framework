@@ -201,55 +201,30 @@ FW::ResPlotTool::write(const ResPlotTool::ResPlotCache& resPlotCache) const
 void
 FW::ResPlotTool::fill(ResPlotTool::ResPlotCache&   resPlotCache,
                       const Acts::GeometryContext& gctx,
-                      const TrackStateVector&      trackStates,
-                      const SimParticleVector&     truthParticles) const
+                      const Trajectory&            trajectory) const
 {
-
-  // Get the map of truth hits with geoID
-  ACTS_DEBUG("Get the truth hits.");
-  std::map<Acts::GeometryID, Data::SimHit<Data::SimParticle>> simHits;
-  for (auto& hit : truthParticles) {
-    auto geoID = hit.surface->geoID();
-    simHits.insert(std::make_pair(geoID, hit));
-  }
-
   // get the distribution of residual/pull
-  for (auto& state : trackStates) {
+  for (auto& state : trajectory) {
     ParVector_t truthParameter;
     float       truthEta, truthR, truthZ;
     auto        geoID = state.referenceSurface().geoID();
-    // get truth parameter at a trackState
-    if (simHits.find(geoID) != simHits.end()) {
-      Data::SimHit<Data::SimParticle> truthHit = simHits.find(geoID)->second;
-      Acts::Vector2D                  hitlocal;
-      state.referenceSurface().globalToLocal(
-          gctx, truthHit.position, truthHit.direction, hitlocal);
-      truthParameter[Acts::ParDef::eLOC_0] = hitlocal.x();
-      truthParameter[Acts::ParDef::eLOC_1] = hitlocal.y();
-      truthParameter[Acts::ParDef::ePHI]   = phi(truthHit.particle.momentum());
-      truthParameter[Acts::ParDef::eTHETA]
-          = theta(truthHit.particle.momentum());
-      truthParameter[Acts::ParDef::eQOP]
-          = truthHit.particle.q() / truthHit.particle.momentum().norm();
-      truthEta = eta(truthHit.position);
-      truthR   = perp(truthHit.position);
-      truthZ   = truthHit.position.z();
-    } else {
-      ACTS_WARNING(
-          "Truth hit for state on "
-          << " : volume = " << geoID.value(Acts::GeometryID::volume_mask)
-          << " : layer = " << geoID.value(Acts::GeometryID::layer_mask)
-          << " : module = " << geoID.value(Acts::GeometryID::sensitive_mask)
-          << " not found!");
-      truthParameter[Acts::ParDef::eLOC_0] = -99;
-      truthParameter[Acts::ParDef::eLOC_1] = -99;
-      truthParameter[Acts::ParDef::ePHI]   = -99;
-      truthParameter[Acts::ParDef::eTHETA] = -99;
-      truthParameter[Acts::ParDef::eQOP]   = -99;
-      truthEta                             = -99;
-      truthR                               = -99;
-      truthZ                               = -99;
-    }
+
+    auto truthHit = (*state.measurement.uncalibrated).truthHit();
+    // get local truth position
+    Acts::Vector2D truthlocal;
+    (truthHit.surface)
+        ->globalToLocal(
+            gctx, truthHit.position, truthHit.direction, truthlocal);
+
+    truthParameter[Acts::ParDef::eLOC_0] = truthlocal.x();
+    truthParameter[Acts::ParDef::eLOC_1] = truthlocal.y();
+    truthParameter[Acts::ParDef::ePHI]   = phi(truthHit.particle.momentum());
+    truthParameter[Acts::ParDef::eTHETA] = theta(truthHit.particle.momentum());
+    truthParameter[Acts::ParDef::eQOP]
+        = truthHit.particle.q() / truthHit.particle.momentum().norm();
+    truthEta = eta(truthHit.position);
+    truthR   = perp(truthHit.position);
+    truthZ   = truthHit.position.z();
 
     // get the track paramter and error of track parameter at a trackState
     if (state.parameter.smoothed) {

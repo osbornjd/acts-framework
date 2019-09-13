@@ -82,7 +82,6 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
 
   std::string trackCollection          = fittingConfig.trackCollection;
   std::string simulatedEventCollection = fittingConfig.simulatedEventCollection;
-  std::string simulatedHitCollection   = fittingConfig.simulatedHitCollection;
 
   // Finally the fitting algorithm
   sequencer.addAlgorithm(
@@ -96,7 +95,6 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
     FW::Root::RootTrajectoryWriter::Config tWriterRootConfig;
     tWriterRootConfig.trackCollection          = trackCollection;
     tWriterRootConfig.simulatedEventCollection = simulatedEventCollection;
-    tWriterRootConfig.simulatedHitCollection   = simulatedHitCollection;
     tWriterRootConfig.filePath
         = FW::joinPaths(outputDir, trackCollection + ".root");
     tWriterRootConfig.treeName = trackCollection;
@@ -111,7 +109,6 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
     perfValidationConfig.resPlotToolConfig        = resPlotToolConfig;
     perfValidationConfig.trackCollection          = trackCollection;
     perfValidationConfig.simulatedEventCollection = simulatedEventCollection;
-    perfValidationConfig.simulatedHitCollection   = simulatedHitCollection;
     perfValidationConfig.filePath
         = FW::joinPaths(outputDir, trackCollection + "_performance.root");
     sequencer.addWriter(std::make_shared<FW::Root::RootPerformanceValidation>(

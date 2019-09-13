@@ -33,7 +33,7 @@ class EffPlotTool
   using Identifier  = Data::SimSourceLink;
   using Measurement = Acts::
       Measurement<Identifier, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>;
-  using TrackStateVector
+  using Trajectory
       = std::vector<Acts::TrackState<Identifier, Acts::BoundParameters>>;
 
 public:
@@ -69,11 +69,11 @@ public:
 
   /// @brief fill efficiency plots
   /// @param effPlotCache cache object for efficiency plots
-  /// @param track a vector of trackStates
-  /// @param truthParticle a vector of truth hits
+  /// @param trajectory a vector of trackStates
+  /// @param truthParticle the truth Particle
   void
   fill(EffPlotCache&            effPlotCache,
-       const TrackStateVector&  trackStates,
+       const Trajectory&        trajectory,
        const Data::SimParticle& truthParticle) const;
 
   /// @brief write the efficiency plots to file

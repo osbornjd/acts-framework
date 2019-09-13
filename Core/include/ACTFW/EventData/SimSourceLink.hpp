@@ -42,6 +42,12 @@ namespace Data {
       return m_truthHit == rhs.m_truthHit;
     }
 
+    const SimHit<SimParticle>&
+    truthHit() const
+    {
+      return *m_truthHit;
+    }
+
     const Acts::Surface&
     referenceSurface() const
     {

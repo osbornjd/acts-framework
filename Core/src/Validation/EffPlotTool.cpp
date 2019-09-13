@@ -58,14 +58,14 @@ FW::EffPlotTool::write(const EffPlotTool::EffPlotCache& effPlotCache) const
 
 void
 FW::EffPlotTool::fill(EffPlotTool::EffPlotCache& effPlotCache,
-                      const TrackStateVector&    trackStates,
+                      const Trajectory&          trajectory,
                       const Data::SimParticle&   truthParticle) const
 {
   int nSmoothed = 0;
-  for (auto& state : trackStates) {
+  for (auto& state : trajectory) {
     if (state.parameter.smoothed) nSmoothed++;
   }
-  ACTS_DEBUG("There are " << trackStates.size() << " states in total and "
+  ACTS_DEBUG("There are " << trajectory.size() << " states in total and "
                           << nSmoothed << " of them are processed.");
 
   Acts::Vector3D truthMom = truthParticle.momentum();
