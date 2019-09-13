@@ -123,7 +123,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
   // Start to perform fit to the prepared tracks
   int itrack = 0;
   for (auto& [barcode, sourceLinks] : sourceLinkMap) {
-    if (barcode) continue;
+    if (!barcode) continue;
     itrack++;
     auto particle = particles.find(barcode)->second;
 
