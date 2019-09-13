@@ -11,7 +11,6 @@
 #include <mutex>
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
@@ -33,9 +32,8 @@ namespace Root {
   using Identifier  = Data::SimSourceLink;
   using Measurement = Acts::
       Measurement<Identifier, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>;
-  using TrackState        = Acts::TrackState<Identifier, Acts::BoundParameters>;
-  using TrackMap          = std::map<barcode_type, std::vector<TrackState>>;
-  using SimParticleVector = std::vector<Data::SimHit<Data::SimParticle>>;
+  using TrackState       = Acts::TrackState<Identifier, Acts::BoundParameters>;
+  using TrajectoryVector = std::vector<std::vector<TrackState>>;
 
   /// @class RootPerformanceValidation
   ///
@@ -47,19 +45,18 @@ namespace Root {
   /// this is done by setting the Config::rootFile pointer to an existing file
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
-  class RootPerformanceValidation final : public WriterT<TrackMap>
+  class RootPerformanceValidation final : public WriterT<TrajectoryVector>
   {
   public:
-    using Base = WriterT<TrackMap>;
+    using Base = WriterT<TrajectoryVector>;
     /// @brief The nested configuration struct
     struct Config
     {
-      std::string trackCollection;            ///< track collection to write
-      std::string simulatedEventCollection;   ///< truth particle collection
-      std::string simulatedHitCollection;     ///< truth hit collection
-      std::string filePath;                   ///< path of the output file
-      std::string fileMode = "RECREATE";      ///< file access mode
-      TFile*      rootFile = nullptr;         ///< common root file
+      std::string trackCollection;           ///< trajectory collection to write
+      std::string simulatedEventCollection;  ///< truth particle collection
+      std::string filePath;                  ///< path of the output file
+      std::string fileMode = "RECREATE";     ///< file access mode
+      TFile*      rootFile = nullptr;        ///< common root file
       ResPlotTool::Config resPlotToolConfig;  ///< ResPlotTool config
       EffPlotTool::Config effPlotToolConfig;  ///< EffPlotTool config
     };
@@ -81,9 +78,10 @@ namespace Root {
   protected:
     /// @brief Write method called by the base class
     /// @param [in] ctx is the algorithm context for event information
-    /// @param [in] tracks are what to be written out
+    /// @param [in] trajectories are what to be written out
     ProcessCode
-    writeT(const AlgorithmContext& ctx, const TrackMap& tracks) final override;
+    writeT(const AlgorithmContext& ctx,
+           const TrajectoryVector& trajectories) final override;
 
   private:
     Config     m_cfg;         ///< The config class

@@ -11,7 +11,6 @@
 #include <mutex>
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
@@ -31,37 +30,36 @@ namespace Root {
   using Identifier  = Data::SimSourceLink;
   using Measurement = Acts::
       Measurement<Identifier, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>;
-  using TrackState = Acts::TrackState<Identifier, Acts::BoundParameters>;
-  using TrackMap   = std::map<barcode_type, std::vector<TrackState>>;
+  using TrackState       = Acts::TrackState<Identifier, Acts::BoundParameters>;
+  using TrajectoryVector = std::vector<std::vector<TrackState>>;
 
   /// @class RootTrajectoryWriter
   ///
-  /// Write out a track (i.e. a map of truth particle barcode and a vector of
+  /// Write out a trajectory (i.e. a vector of
   /// trackState at the moment) into a TTree
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
   ///
-  /// Each entry in the TTree corresponds to one track for optimum writing
+  /// Each entry in the TTree corresponds to one trajectory for optimum writing
   /// speed. The event number is part of the written data.
   ///
   /// A common file can be provided for to the writer to attach his TTree,
   /// this is done by setting the Config::rootFile pointer to an existing file
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
-  class RootTrajectoryWriter final : public WriterT<TrackMap>
+  class RootTrajectoryWriter final : public WriterT<TrajectoryVector>
   {
   public:
-    using Base = WriterT<TrackMap>;
+    using Base = WriterT<TrajectoryVector>;
     /// @brief The nested configuration struct
     struct Config
     {
-      std::string trackCollection;           ///< track collection to write
+      std::string trackCollection;           ///< trajectory collection to write
       std::string simulatedEventCollection;  ///< truth particle collection
-      std::string simulatedHitCollection;    ///< truth hit collection
       std::string filePath;                  ///< path of the output file
       std::string fileMode = "RECREATE";     ///< file access mode
-      std::string treeName = "tracks";       ///< name of the output tree
-      TFile*      rootFile = nullptr;        ///< common root file
+      std::string treeName = "trajectories";  ///< name of the output tree
+      TFile*      rootFile = nullptr;         ///< common root file
     };
 
     /// Constructor
@@ -81,9 +79,10 @@ namespace Root {
   protected:
     /// @brief Write method called by the base class
     /// @param [in] ctx is the algorithm context for event information
-    /// @param [in] tracks are what to be written out
+    /// @param [in] trajectories are what to be written out
     ProcessCode
-    writeT(const AlgorithmContext& ctx, const TrackMap& tracks) final override;
+    writeT(const AlgorithmContext& ctx,
+           const TrajectoryVector& trajectories) final override;
 
   private:
     Config     m_cfg;         ///< The config class
@@ -91,7 +90,7 @@ namespace Root {
     TFile*     m_outputFile{nullptr};  ///< The output file
     TTree*     m_outputTree{nullptr};  ///< The output tree
     int        m_eventNr{0};           ///< the event number
-    int        m_trackNr{0};           ///< the track number
+    int        m_trajNr{0};            ///< the trajectory number
 
     unsigned long m_t_barcode{0};  ///< Truth particle barcode
     int           m_t_charge{0};   ///< Truth particle charge

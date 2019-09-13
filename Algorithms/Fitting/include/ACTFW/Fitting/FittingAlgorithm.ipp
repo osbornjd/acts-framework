@@ -58,7 +58,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
                                     << "' from event store.");
 
   // Prepare the output data
-  TrackMap fittedTracks;
+  std::vector<std::vector<TrackState>> fittedTracks;
 
   // Prepare the measurements for KalmanFitter
   ACTS_DEBUG("Prepare the measurements and then tracks");
@@ -102,7 +102,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
 
           Data::SimSourceLink sourceLink{&hit, 2, loc, cov};
 
-          // find the truth particle this hit belongs to via the barcode
+          // push the truth hits for this particle
           sourceLinkMap[barcode].push_back(sourceLink);
         }  // hit loop
       }    // module loop
@@ -113,7 +113,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
 
   // Get the truth particle
   ACTS_DEBUG("Get truth particle.");
-  ParticleMap particles;
+  std::map<barcode_type, Data::SimParticle> particles;
   for (auto& vertex : *simulatedEvent) {
     for (auto& particle : vertex.outgoing()) {
       particles.insert(std::make_pair(particle.barcode(), particle));
@@ -216,7 +216,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
     // get the fitted states
     if (!fittedResult.fittedStates.empty()) {
       ACTS_DEBUG("Get the fitted states.");
-      fittedTracks.insert(std::make_pair(barcode, fittedResult.fittedStates));
+      fittedTracks.push_back(fittedResult.fittedStates);
     }
 
     // Make sure the fitting is deterministic

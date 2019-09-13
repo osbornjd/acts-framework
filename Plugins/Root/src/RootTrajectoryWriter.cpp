@@ -27,11 +27,9 @@ FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
 {
   // An input collection name and tree name must be specified
   if (m_cfg.trackCollection.empty()) {
-    throw std::invalid_argument("Missing input track collection");
+    throw std::invalid_argument("Missing input trajectory collection");
   } else if (m_cfg.simulatedEventCollection.empty()) {
     throw std::invalid_argument("Missing input particle collection");
-  } else if (m_cfg.simulatedHitCollection.empty()) {
-    throw std::invalid_argument("Missing input hit collection");
   } else if (m_cfg.treeName.empty()) {
     throw std::invalid_argument("Missing tree name");
   }
@@ -50,7 +48,7 @@ FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
   else {
     // I/O parameters
     m_outputTree->Branch("event_nr", &m_eventNr);
-    m_outputTree->Branch("track_nr", &m_trackNr);
+    m_outputTree->Branch("traj_nr", &m_trajNr);
     m_outputTree->Branch("t_barcode", &m_t_barcode, "t_barcode/l");
     m_outputTree->Branch("t_charge", &m_t_charge);
     m_outputTree->Branch("t_vx", &m_t_vx);
@@ -199,15 +197,15 @@ FW::Root::RootTrajectoryWriter::endRun()
   if (m_outputFile) {
     m_outputFile->cd();
     m_outputTree->Write();
-    ACTS_INFO("Wrote tracks to tree '" << m_cfg.treeName << "' in '"
-                                       << m_cfg.filePath << "'");
+    ACTS_INFO("Write trajectories to tree '" << m_cfg.treeName << "' in '"
+                                             << m_cfg.filePath << "'");
   }
   return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
 FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
-                                       const TrackMap&         tracks)
+                                       const TrajectoryVector& trajectories)
 {
 
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
@@ -225,20 +223,6 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
   ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
                                  << simulatedEvent->size() << " vertices");
 
-  // Read truth hits from input collection
-  const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>* simHits
-      = nullptr;
-  simHits = &ctx.eventStore.get<
-      FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>(
-      m_cfg.simulatedHitCollection);
-  if (!simHits) {
-    throw std::ios_base::failure("Retrieve truth hit collection "
-                                 + m_cfg.simulatedHitCollection + " failure!");
-  }
-
-  ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
-                                    << "' from event store.");
-
   // Get the map of truth particle
   ACTS_DEBUG("Get the truth particles.");
   std::map<barcode_type, Data::SimParticle> particles;
@@ -248,43 +232,25 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
     }
   }
 
-  // Get the map of truth hits on a module
-  ACTS_DEBUG("Get the truth hits.");
-  std::map<Acts::GeometryID, std::vector<Data::SimHit<Data::SimParticle>>>
-      hitsOnModule;
-  for (auto& vData : (*simHits)) {
-    for (auto& lData : vData.second) {
-      for (auto& sData : lData.second) {
-        for (auto& hit : sData.second) {
-          auto geoID = hit.surface->geoID();
-          auto hits  = hitsOnModule.find(geoID);
-          if (hits == hitsOnModule.end()) {
-            hitsOnModule[geoID]
-                = std::vector<Data::SimHit<Data::SimParticle>>();
-            hits = hitsOnModule.find(geoID);
-          }
-          (hits->second).push_back(hit);
-        }
-      }
-    }
-  }
-
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // Get the event number
   m_eventNr = ctx.eventNumber;
 
-  // Loop over the tracks
-  int iTrack = 0;
-  for (auto& track : tracks) {
+  // Loop over the trajectories
+  int iTraj = 0;
+  for (auto& traj : trajectories) {
     /// collect the information
-    m_trackNr = iTrack;
-    // get the truth particle info
-    m_t_barcode = track.first;
+    m_trajNr = iTraj;
+    // retrieve the truth particle barcode for this track state
+    auto truthHitAtFirstState = (*traj[0].measurement.uncalibrated).truthHit();
+    m_t_barcode               = truthHitAtFirstState.particle.barcode();
+    // find the truth particle via the barcode
     if (particles.find(m_t_barcode) != particles.end()) {
       ACTS_DEBUG("Find the truth particle with barcode = " << m_t_barcode);
-      auto           particle = particles.find(m_t_barcode)->second;
+      auto particle = particles.find(m_t_barcode)->second;
+      // get the truth particle info at vertex
       Acts::Vector3D truthPos = particle.position();
       Acts::Vector3D truthMom = particle.momentum();
       m_t_charge              = particle.q();
@@ -304,11 +270,11 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
     }
 
     // get the trackState info
-    m_nStates    = track.second.size();
+    m_nStates    = traj.size();
     m_nPredicted = 0;
     m_nFiltered  = 0;
     m_nSmoothed  = 0;
-    for (auto& state : track.second) {
+    for (auto& state : traj) {
 
       // get the geometry ID
       auto geoID = state.referenceSurface().geoID();
@@ -338,67 +304,35 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       m_y_hit.push_back(global.y());
       m_z_hit.push_back(global.z());
 
-      // get all truth hits on this module
-      auto hitsOnThisModule = hitsOnModule.find(geoID)->second;
-
-      // lambda to find the truth hit belonging to a given truth track
-      barcode_type                    t_barcode = track.first;
-      Data::SimHit<Data::SimParticle> truthHit;
-      auto                            findTruthHit
-          = [&t_barcode, &truthHit](
-                std::vector<Data::SimHit<Data::SimParticle>> hits) -> bool {
-        for (auto& hit : hits) {
-          if (hit.particle.barcode() == t_barcode) {
-            truthHit = hit;
-            return true;
-          }
-        }
-        return false;
-      };
-
       // get the truth hit corresponding to this trackState
+      auto truthHit = (*state.measurement.uncalibrated).truthHit();
+      // get local truth position
+      Acts::Vector2D truthlocal;
+      (truthHit.surface)
+          ->globalToLocal(ctx.geoContext,
+                          truthHit.position,
+                          truthHit.direction,
+                          truthlocal);
+
+      // push the truth hit info
+      m_t_x.push_back(truthHit.position.x());
+      m_t_y.push_back(truthHit.position.y());
+      m_t_z.push_back(truthHit.position.z());
+      m_t_r.push_back(perp(truthHit.position));
+      m_t_dx.push_back(truthHit.direction.x());
+      m_t_dy.push_back(truthHit.direction.y());
+      m_t_dz.push_back(truthHit.direction.z());
+
+      // get the truth track parameter at this track State
       float truthLOC0 = 0, truthLOC1 = 0, truthPHI = 0, truthTHETA = 0,
             truthQOP = 0;
-      if (findTruthHit(hitsOnThisModule)) {
-        ACTS_DEBUG(
-            "Find the truth hit for trackState on"
-            << " : volume = " << geoID.value(Acts::GeometryID::volume_mask)
-            << " : layer = " << geoID.value(Acts::GeometryID::layer_mask)
-            << " : module = " << geoID.value(Acts::GeometryID::sensitive_mask));
-        // get local truth position
-        Acts::Vector2D hitlocal;
-        meas.referenceSurface().globalToLocal(
-            ctx.geoContext, truthHit.position, truthHit.direction, hitlocal);
-        // push the truth hit info
-        m_t_x.push_back(truthHit.position.x());
-        m_t_y.push_back(truthHit.position.y());
-        m_t_z.push_back(truthHit.position.z());
-        m_t_r.push_back(perp(truthHit.position));
-        m_t_dx.push_back(truthHit.direction.x());
-        m_t_dy.push_back(truthHit.direction.y());
-        m_t_dz.push_back(truthHit.direction.z());
-        truthLOC0  = hitlocal.x();
-        truthLOC1  = hitlocal.y();
-        truthPHI   = phi(truthHit.particle.momentum());
-        truthTHETA = theta(truthHit.particle.momentum());
-        truthQOP   = m_t_charge / truthHit.particle.momentum().norm();
-      } else {
-        ACTS_WARNING(
-            "Truth hit for trackState on"
-            << " : volume = " << geoID.value(Acts::GeometryID::volume_mask)
-            << " : layer = " << geoID.value(Acts::GeometryID::layer_mask)
-            << " : module = " << geoID.value(Acts::GeometryID::sensitive_mask)
-            << " not found!");
-        // push default values if truth hit not found
-        m_t_x.push_back(0.);
-        m_t_y.push_back(0.);
-        m_t_z.push_back(0.);
-        m_t_r.push_back(0.);
-        m_t_dx.push_back(0.);
-        m_t_dy.push_back(0.);
-        m_t_dz.push_back(0.);
-      }
-      // push the truth parameter at this track State
+      truthLOC0      = truthlocal.x();
+      truthLOC1      = truthlocal.y();
+      truthPHI       = phi(truthHit.particle.momentum());
+      truthTHETA     = theta(truthHit.particle.momentum());
+      truthQOP       = m_t_charge / truthHit.particle.momentum().norm();
+
+      // push the truth track parameter at this track State
       m_t_eLOC0.push_back(truthLOC0);
       m_t_eLOC1.push_back(truthLOC1);
       m_t_ePHI.push_back(truthPHI);
@@ -813,8 +747,8 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
     m_eta_smt.clear();
     m_pT_smt.clear();
 
-    iTrack++;
-  }  // all tracks
+    iTraj++;
+  }  // all trajectories
 
   return ProcessCode::SUCCESS;
 }

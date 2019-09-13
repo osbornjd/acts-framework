@@ -24,11 +24,9 @@ FW::Root::RootPerformanceValidation::RootPerformanceValidation(
 {
   // Input track and truth collection name
   if (m_cfg.trackCollection.empty()) {
-    throw std::invalid_argument("Missing input track collection");
+    throw std::invalid_argument("Missing input trajectory collection");
   } else if (m_cfg.simulatedEventCollection.empty()) {
     throw std::invalid_argument("Missing input particle collection");
-  } else if (m_cfg.simulatedHitCollection.empty()) {
-    throw std::invalid_argument("Missing input hit collection");
   }
 
   // Setup ROOT I/O
@@ -77,8 +75,9 @@ FW::Root::RootPerformanceValidation::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootPerformanceValidation::writeT(const AlgorithmContext& ctx,
-                                            const TrackMap&         tracks)
+FW::Root::RootPerformanceValidation::writeT(
+    const AlgorithmContext& ctx,
+    const TrajectoryVector& trajectories)
 {
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
 
@@ -101,19 +100,6 @@ FW::Root::RootPerformanceValidation::writeT(const AlgorithmContext& ctx,
   ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
                                  << simulatedEvent->size() << " vertices");
 
-  // Read truth hits from input collection
-  const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>* simHits
-      = nullptr;
-  simHits = &ctx.eventStore.get<
-      FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>(
-      m_cfg.simulatedHitCollection);
-  if (!simHits) {
-    throw std::ios_base::failure("Retrieve truth hit collection "
-                                 + m_cfg.simulatedHitCollection + " failure!");
-  }
-
-  ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
-                                    << "' from event store.");
   // Get the map of truth particle
   ACTS_DEBUG("Get the truth particles.");
   std::map<barcode_type, Data::SimParticle> particles;
@@ -123,85 +109,25 @@ FW::Root::RootPerformanceValidation::writeT(const AlgorithmContext& ctx,
     }
   }
 
-  // Get the map of truth hits on a module
-  ACTS_DEBUG("Get the truth hits.");
-  std::map<Acts::GeometryID, std::vector<Data::SimHit<Data::SimParticle>>>
-      hitsOnModule;
-  for (auto& vData : (*simHits)) {
-    for (auto& lData : vData.second) {
-      for (auto& sData : lData.second) {
-        for (auto& hit : sData.second) {
-          auto geoID = hit.surface->geoID();
-          auto hits  = hitsOnModule.find(geoID);
-          if (hits == hitsOnModule.end()) {
-            hitsOnModule[geoID]
-                = std::vector<Data::SimHit<Data::SimParticle>>();
-            hits = hitsOnModule.find(geoID);
-          }
-          (hits->second).push_back(hit);
-        }
-      }
-    }
-  }
-
-  // Loop over the tracks
-  for (auto& track : tracks) {
-    // find the truth Particle for this track
+  // Loop over the trajectories
+  for (auto& traj : trajectories) {
+    // retrieve the truth particle barcode for this track state
+    auto truthHitAtFirstState = (*traj[0].measurement.uncalibrated).truthHit();
+    auto barcode              = truthHitAtFirstState.particle.barcode();
+    // find the truth Particle for this trajectory
     Data::SimParticle truthParticle;
-    if (particles.find(track.first) != particles.end()) {
-      ACTS_DEBUG("Find the truth particle with barcode = " << track.first);
-      truthParticle = particles.find(track.first)->second;
+    if (particles.find(barcode) != particles.end()) {
+      ACTS_DEBUG("Find the truth particle with barcode = " << barcode);
+      truthParticle = particles.find(barcode)->second;
     } else {
-      ACTS_WARNING("Truth particle with barcode = " << track.first
-                                                    << "not found.");
+      ACTS_WARNING("Truth particle with barcode = " << barcode << "not found.");
     }
-
-    // find the truth hits for this track
-    SimParticleVector truthTrack;
-    for (auto& state : track.second) {
-      // get the geometry ID
-      auto geoID = state.referenceSurface().geoID();
-      // get all truth hits on this module
-      auto hitsOnThisModule = hitsOnModule.find(geoID)->second;
-      // lambda to find the truth hit belonging to a given truth track
-      barcode_type                    t_barcode = track.first;
-      Data::SimHit<Data::SimParticle> truthHit;
-      auto                            findTruthHit
-          = [&t_barcode, &truthHit](
-                std::vector<Data::SimHit<Data::SimParticle>> hits) -> bool {
-        for (auto& hit : hits) {
-          if (hit.particle.barcode() == t_barcode) {
-            truthHit = hit;
-            return true;
-          }
-        }
-        return false;
-      };
-
-      // get the truth hit corresponding to this trackState
-      if (findTruthHit(hitsOnThisModule)) {
-        ACTS_DEBUG(
-            "Find the truth hit for trackState on"
-            << " : volume = " << geoID.value(Acts::GeometryID::volume_mask)
-            << " : layer = " << geoID.value(Acts::GeometryID::layer_mask)
-            << " : module = " << geoID.value(Acts::GeometryID::sensitive_mask));
-        truthTrack.push_back(truthHit);
-      } else {
-        ACTS_WARNING(
-            "Truth hit for trackState on"
-            << " : volume = " << geoID.value(Acts::GeometryID::volume_mask)
-            << " : layer = " << geoID.value(Acts::GeometryID::layer_mask)
-            << " : module = " << geoID.value(Acts::GeometryID::sensitive_mask)
-            << " not found!");
-      }
-    }  // all states
 
     // fill the plots
-    m_resPlotTool->fill(
-        m_resPlotCache, ctx.geoContext, track.second, truthTrack);
-    m_effPlotTool->fill(m_effPlotCache, track.second, truthParticle);
+    m_resPlotTool->fill(m_resPlotCache, ctx.geoContext, traj);
+    m_effPlotTool->fill(m_effPlotCache, traj, truthParticle);
 
-  }  // all tracks
+  }  // all trajectories
 
   return ProcessCode::SUCCESS;
 }

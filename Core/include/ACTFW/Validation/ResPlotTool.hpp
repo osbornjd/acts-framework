@@ -35,10 +35,9 @@ class ResPlotTool
   using Identifier  = Data::SimSourceLink;
   using Measurement = Acts::
       Measurement<Identifier, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>;
-  using TrackStateVector
+  using Trajectory
       = std::vector<Acts::TrackState<Identifier, Acts::BoundParameters>>;
-  using SimParticleVector = std::vector<Data::SimHit<Data::SimParticle>>;
-  using ParVector_t       = typename Acts::BoundParameters::ParVector_t;
+  using ParVector_t = typename Acts::BoundParameters::ParVector_t;
 
 public:
   /// @brief Nested configuration struct
@@ -122,8 +121,7 @@ public:
   void
   fill(ResPlotCache&                resPlotCache,
        const Acts::GeometryContext& gctx,
-       const TrackStateVector&      trackStates,
-       const SimParticleVector&     truthParticles) const;
+       const Trajectory&            trajectory) const;
 
   /// @brief extract the details of the residual/pull plots and fill details
   /// into separate histograms
