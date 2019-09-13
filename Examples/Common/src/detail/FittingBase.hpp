@@ -13,7 +13,7 @@
 #include "ACTFW/Fitting/FittingOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/Root/RootPerformanceValidation.hpp"
+#include "ACTFW/Plugins/Root/RootPerformanceWriter.hpp"
 #include "ACTFW/Plugins/Root/RootTrajectoryWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Fitter/GainMatrixSmoother.hpp"
@@ -104,14 +104,14 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
 
   // Write performance plots as ROOT files
   if (vm["output-root"].template as<bool>()) {
-    FW::ResPlotTool::Config                     resPlotToolConfig;
-    FW::Root::RootPerformanceValidation::Config perfValidationConfig;
+    FW::ResPlotTool::Config                 resPlotToolConfig;
+    FW::Root::RootPerformanceWriter::Config perfValidationConfig;
     perfValidationConfig.resPlotToolConfig        = resPlotToolConfig;
     perfValidationConfig.trackCollection          = trackCollection;
     perfValidationConfig.simulatedEventCollection = simulatedEventCollection;
     perfValidationConfig.filePath
         = FW::joinPaths(outputDir, trackCollection + "_performance.root");
-    sequencer.addWriter(std::make_shared<FW::Root::RootPerformanceValidation>(
+    sequencer.addWriter(std::make_shared<FW::Root::RootPerformanceWriter>(
         perfValidationConfig));
   }
 }
