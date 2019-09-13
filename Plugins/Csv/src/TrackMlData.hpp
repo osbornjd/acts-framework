@@ -17,6 +17,8 @@
 
 namespace FW {
 
+// TODO readd time to tuple once the readers support optional fields.
+
 struct ParticleData
 {
   uint64_t particle_id;
@@ -34,7 +36,6 @@ struct ParticleData
                  x,
                  y,
                  z,
-                 t,
                  px,
                  py,
                  pz,
@@ -50,7 +51,7 @@ struct HitData
   float    t = 0.0f;
   uint32_t volume_id, layer_id, module_id;
 
-  DFE_NAMEDTUPLE(HitData, hit_id, x, y, z, t, volume_id, layer_id, module_id);
+  DFE_NAMEDTUPLE(HitData, hit_id, x, y, z, volume_id, layer_id, module_id);
 };
 
 struct CellData
@@ -63,7 +64,7 @@ struct CellData
   int32_t timestamp = 0;
   int32_t value;
 
-  DFE_NAMEDTUPLE(CellData, hit_id, ch0, ch1, timestamp, value);
+  DFE_NAMEDTUPLE(CellData, hit_id, ch0, ch1, value);
 };
 
 struct TruthData
@@ -75,7 +76,7 @@ struct TruthData
   float tt = 0.0f;
   float tpx, tpy, tpz;
 
-  DFE_NAMEDTUPLE(TruthData, hit_id, particle_id, tx, ty, tz, tt, tpx, tpy, tpz);
+  DFE_NAMEDTUPLE(TruthData, hit_id, particle_id, tx, ty, tz, tpx, tpy, tpz);
 };
 
 struct SurfaceData
