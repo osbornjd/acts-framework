@@ -54,7 +54,7 @@ FW::Csv::CsvParticleReader::CsvParticleReader::numEvents() const
 FW::ProcessCode
 FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 {
-  std::vector<Data::SimParticle> particles;
+  Data::SimParticles particles;
 
   dfe::CsvNamedTupleReader<ParticleData> reader(
       perEventFilepath(m_cfg.inputDir, m_cfg.inputFilename, ctx.eventNumber));
@@ -65,8 +65,9 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
     Acts::Vector3D momentum = Acts::Vector3D(data.px, data.py, data.pz);
     //@TODO: get mass and pdg from config?
     double mass = 0.;
-
-    particles.emplace_back(vertex,
+    // the file is usually ordered by particle id already
+    particles.emplace_hint(particles.end(),
+                           vertex,
                            momentum,
                            mass,
                            data.q,
