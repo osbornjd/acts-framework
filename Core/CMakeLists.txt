@@ -12,7 +12,7 @@ add_library(ACTFramework SHARED ${_sources})
 
 target_include_directories(
   ACTFramework
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${ROOT_INCLUDE_DIRS}
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${BOOST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
   PRIVATE ${TBB_INCLUDE_DIRS})
 target_link_libraries(
   ACTFramework
