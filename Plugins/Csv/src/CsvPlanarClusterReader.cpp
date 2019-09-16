@@ -35,6 +35,10 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
   if (m_cfg.output.empty()) {
     throw std::invalid_argument("Missing output collection");
   }
+  // fill the geo id to surface map once to speed up lookups later on
+  m_cfg.trackingGeometry->visitSurfaces([this](const Acts::Surface* surface) {
+    this->m_surfaces[surface->geoID()] = surface;
+  });
 }
 
 std::string
@@ -110,21 +114,18 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
   HitData hit;
   while (hitReader.read(hit)) {
 
-    // identify corresponding surface
-    const Acts::Surface* surface = nullptr;
-    Acts::GeometryID     geoID;
-
+    Acts::GeometryID geoID;
     geoID.add(hit.volume_id, Acts::GeometryID::volume_mask);
     geoID.add(hit.layer_id, Acts::GeometryID::layer_mask);
     geoID.add(hit.module_id, Acts::GeometryID::sensitive_mask);
-    m_cfg.trackingGeometry->visitSurfaces(
-        [&geoID, &surface](const Acts::Surface* other) {
-          if (other->geoID().value() == geoID.value()) { surface = other; }
-        });
-    if (!surface) {
+
+    // identify corresponding surface
+    auto it = m_surfaces.find(geoID);
+    if (it == m_surfaces.end() or not it->second) {
       ACTS_ERROR("Could not retrieve the surface for hit " << hit);
       continue;
     }
+    const Acts::Surface& surface = *(it->second);
 
     // find matching truth particle information
     // TODO who owns these particles?
@@ -161,14 +162,14 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
     Acts::Vector3D pos(hit.x, hit.y, hit.z);
     Acts::Vector3D mom(1, 1, 1);  // fake momentum
     Acts::Vector2D local(0, 0);
-    surface->globalToLocal(ctx.geoContext, pos, mom, local);
+    surface.globalToLocal(ctx.geoContext, pos, mom, local);
 
     // TODO what to use as cluster uncertainty?
     Acts::ActsSymMatrixD<2> cov = Acts::ActsSymMatrixD<2>::Identity();
 
     // create the planar cluster
     Acts::PlanarModuleCluster cluster(
-        surface->getSharedPtr(),
+        surface.getSharedPtr(),
         Identifier(Identifier::identifier_type(geoID.value()), particles),
         std::move(cov),
         local[0],

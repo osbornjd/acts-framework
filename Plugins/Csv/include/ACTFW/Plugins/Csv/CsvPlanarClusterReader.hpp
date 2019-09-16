@@ -8,13 +8,18 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 
 #include "ACTFW/Framework/IReader.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
+namespace Acts {
+class Surface;
+}
 namespace FW {
 namespace Csv {
 
@@ -60,9 +65,10 @@ namespace Csv {
     read(const FW::AlgorithmContext& ctx) final override;
 
   private:
-    Config                              m_cfg;
-    size_t                              m_numEvents;
-    std::unique_ptr<const Acts::Logger> m_logger;
+    Config                                           m_cfg;
+    std::map<Acts::GeometryID, const Acts::Surface*> m_surfaces;
+    size_t                                           m_numEvents;
+    std::unique_ptr<const Acts::Logger>              m_logger;
 
     const Acts::Logger&
     logger() const
