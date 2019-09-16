@@ -9,7 +9,8 @@ set(sources src/RootMaterialDecorator.cpp
             src/RootTrackParameterWriter.cpp
             src/RootVertexAndTracksWriter.cpp
             src/RootVertexAndTracksReader.cpp
-          )
+            src/RootTrajectoryWriter.cpp
+            src/RootPerformanceWriter.cpp)
 
 add_library(ACTFWRootPlugin SHARED ${sources})
 target_include_directories(
