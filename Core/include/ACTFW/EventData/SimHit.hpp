@@ -13,9 +13,7 @@
 namespace Acts {
 class Surface;
 }
-
 namespace FW {
-
 namespace Data {
 
   /// @brief Information to be writtern out per hit surface
