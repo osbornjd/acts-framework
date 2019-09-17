@@ -12,6 +12,7 @@
 #include "ACTFW/Fitting/FittingAlgorithm.hpp"
 #include "ACTFW/Fitting/FittingOptions.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Generators/MultiplicityGenerators.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Root/RootPerformanceWriter.hpp"
 #include "ACTFW/Plugins/Root/RootTrajectoryWriter.hpp"
@@ -75,10 +76,17 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
 
   using FittingAlgorithm = FW::FittingAlgorithm<KalmanFitter>;
 
+  // Config the trajectory emulation tool
+  FW::TrajectoryEmulationTool::Config trajEmulationToolConfig
+      = FW::Options::readTrajectoryEmulationConfig(vm);
+  trajEmulationToolConfig.randomNumbers = randomNumberSvc;
+
+  // Config the fitting algorithm
   typename FittingAlgorithm::Config fittingConfig
       = FW::Options::readFittingConfig<po::variables_map, KalmanFitter>(
           vm, std::move(kFitter));
-  fittingConfig.randomNumberSvc = randomNumberSvc;
+  fittingConfig.randomNumberSvc               = randomNumberSvc;
+  fittingConfig.trajectoryEmulationToolConfig = trajEmulationToolConfig;
 
   std::string trackCollection          = fittingConfig.trackCollection;
   std::string simulatedEventCollection = fittingConfig.simulatedEventCollection;
@@ -98,8 +106,8 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
     tWriterRootConfig.filePath
         = FW::joinPaths(outputDir, trackCollection + ".root");
     tWriterRootConfig.treeName = trackCollection;
-    sequencer.addWriter(
-        std::make_shared<FW::Root::RootTrajectoryWriter>(tWriterRootConfig));
+    sequencer.addWriter(std::make_shared<FW::Root::RootTrajectoryWriter>(
+        tWriterRootConfig, logLevel));
   }
 
   // Write performance plots as ROOT files
@@ -112,7 +120,7 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
     perfValidationConfig.filePath
         = FW::joinPaths(outputDir, trackCollection + "_performance.root");
     sequencer.addWriter(std::make_shared<FW::Root::RootPerformanceWriter>(
-        perfValidationConfig));
+        perfValidationConfig, logLevel));
   }
 }
 

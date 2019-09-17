@@ -6,7 +6,8 @@ add_library(ACTFramework SHARED
   src/Utilities/Paths.cpp
   src/Utilities/Helpers.cpp
   src/Validation/EffPlotTool.cpp
-  src/Validation/ResPlotTool.cpp)
+  src/Validation/ResPlotTool.cpp
+  src/Validation/TrajectoryEmulationTool.cpp)
 target_include_directories(
   ACTFramework
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

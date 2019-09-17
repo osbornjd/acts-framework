@@ -43,7 +43,7 @@ public:
     std::map<std::string, PlotHelpers::Binning> varBinning
         = {{"Eta", PlotHelpers::Binning("#eta", 50, -4, 4)},
            {"Phi", PlotHelpers::Binning("#phi", 100, -3.15, 3.15)},
-           {"Pt", PlotHelpers::Binning("pT [GeV/c]", 100, 0, 1000)}};
+           {"Pt", PlotHelpers::Binning("pT [GeV/c]", 50, 0, 1000)}};
   };
 
   /// @brief Nested Cache struct

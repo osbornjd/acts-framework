@@ -92,7 +92,7 @@ FW::Root::RootPerformanceWriter::writeT(const AlgorithmContext& ctx,
   ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
                                  << simulatedEvent.size() << " vertices");
 
-  // Get the map of truth particle
+  // Get the map of all truth particles
   ACTS_DEBUG("Get the truth particles.");
   std::map<barcode_type, Data::SimParticle> particles;
   for (auto& vertex : simulatedEvent) {
@@ -102,24 +102,42 @@ FW::Root::RootPerformanceWriter::writeT(const AlgorithmContext& ctx,
   }
 
   // Loop over the trajectories
+  std::map<barcode_type, std::vector<TrackState>> trajectoryMap;
   for (auto& traj : trajectories) {
-    // retrieve the truth particle barcode for this track state
-    auto truthHitAtFirstState = (*traj[0].measurement.uncalibrated).truthHit();
-    auto barcode              = truthHitAtFirstState.particle.barcode();
-    // find the truth Particle for this trajectory
-    Data::SimParticle truthParticle;
-    if (particles.find(barcode) != particles.end()) {
-      ACTS_DEBUG("Find the truth particle with barcode = " << barcode);
-      truthParticle = particles.find(barcode)->second;
-    } else {
-      ACTS_WARNING("Truth particle with barcode = " << barcode << "not found.");
+    barcode_type barcode = -1;
+    // retrieve the truth particle barcode for this trajectory
+    for (auto& state : traj) {
+      if (state.isType(Acts::TrackStateFlag::MeasurementFlag)) {
+        auto truthHitAtFirstState
+            = (*state.measurement.uncalibrated).truthHit();
+        barcode = truthHitAtFirstState.particle.barcode();
+        break;
+      }
+    }
+    // skip this track if no measurements at all
+    if (barcode == -1) {
+      ACTS_WARNING(
+          "No measurements on this track! Skipped for performance writing!");
+      continue;
     }
 
-    // fill the plots
-    m_resPlotTool->fill(m_resPlotCache, ctx.geoContext, traj);
-    m_effPlotTool->fill(m_effPlotCache, traj, truthParticle);
+    // get the map of reconstructed trajectory with the truth particle
+    trajectoryMap.insert(std::make_pair(barcode, traj));
 
+    // fill the residual plots
+    m_resPlotTool->fill(m_resPlotCache, ctx.geoContext, traj);
   }  // all trajectories
+
+  // Loop over all the truth particles
+  for (auto& [barcode, truthParticle] : particles) {
+    // find the reconstructed trajectory corresponding to this particle
+    std::vector<TrackState> traj = std::vector<TrackState>();
+    if (trajectoryMap.find(barcode) != trajectoryMap.end()) {
+      traj = trajectoryMap.find(barcode)->second;
+    }
+    // fill the efficiency plots
+    m_effPlotTool->fill(m_effPlotCache, traj, truthParticle);
+  }  // all truth particles
 
   return ProcessCode::SUCCESS;
 }

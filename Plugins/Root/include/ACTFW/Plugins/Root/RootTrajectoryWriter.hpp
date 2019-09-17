@@ -120,10 +120,14 @@ namespace Root {
     std::vector<float> m_t_eTHETA;  ///< truth parameter eTHETA
     std::vector<float> m_t_eQOP;    ///< truth parameter eQOP
 
-    int                m_nStates{0};  ///< number of states
-    std::vector<int>   m_volumeID;    ///< volume identifier
-    std::vector<int>   m_layerID;     ///< layer identifier
-    std::vector<int>   m_moduleID;    ///< surface identifier
+    int                m_nStates{0};        ///< total number of states
+    int                m_nHoles{0};         ///< number of holes
+    int                m_nOutliers{0};      ///< number of outliers
+    int                m_nMeasurements{0};  ///< number of measurements
+    float              m_chi2{-1};          ///< chi2
+    std::vector<int>   m_volumeID;          ///< volume identifier
+    std::vector<int>   m_layerID;           ///< layer identifier
+    std::vector<int>   m_moduleID;          ///< surface identifier
     std::vector<float> m_lx_hit;      ///< uncalibrated measurement local x
     std::vector<float> m_ly_hit;      ///< uncalibrated measurement local y
     std::vector<float> m_x_hit;       ///< uncalibrated measurement global x

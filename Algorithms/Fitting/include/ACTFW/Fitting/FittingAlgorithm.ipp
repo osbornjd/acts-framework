@@ -19,6 +19,10 @@ FW::FittingAlgorithm<kalman_Fitter_t>::FittingAlgorithm(
   } else if (m_cfg.trackCollection.empty()) {
     throw std::invalid_argument("Missing output track collection");
   }
+  if (m_cfg.emulateTrajectory) {
+    m_trajectoryEmulationTool = std::make_unique<FW::TrajectoryEmulationTool>(
+        m_cfg.trajectoryEmulationToolConfig, level);
+  }
 }
 
 template <typename kalman_Fitter_t>
@@ -45,6 +49,11 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
 
   // Prepare the output data
   std::vector<std::vector<TrackState>> fittedTracks;
+
+  Acts::DetectorOutlierCriteria                 detOLCriteria;
+  std::map<Acts::OutlierRejectionStage, double> volumeOLCriteria
+      = {{Acts::OutlierRejectionStage::Filtering, 10},
+         {Acts::OutlierRejectionStage::Smoothing, 5}};
 
   // Prepare the measurements for KalmanFitter
   ACTS_DEBUG("Prepare the measurements and then tracks");
@@ -168,7 +177,8 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
     Acts::KalmanFitterOptions kfOptions(context.geoContext,
                                         context.magFieldContext,
                                         context.calibContext,
-                                        rSurface);
+                                        rSurface,
+                                        detOLCriteria);
 
     // perform the fit with KalmanFitter
     auto fittedResult = m_cfg.kFitter.fit(sourceLinks, rStart, kfOptions);
@@ -183,16 +193,21 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
       ACTS_DEBUG("Fitted Position at target = " << fittedPos[0] << " : "
                                                 << fittedPos[1] << " : "
                                                 << fittedPos[2]);
-      ACTS_DEBUG("fitted Momentum at target = " << fittedMom[0] << " : "
+      ACTS_DEBUG("Fitted Momentum at target = " << fittedMom[0] << " : "
                                                 << fittedMom[1] << " : "
                                                 << fittedMom[2]);
-    } else
+    } else {
       ACTS_WARNING("No fittedParameter!");
+    }
 
     // get the fitted states
     if (!fittedResult.fittedStates.empty()) {
       ACTS_DEBUG("Get the fitted states.");
-      fittedTracks.push_back(fittedResult.fittedStates);
+      if (m_cfg.writeTruthTrajectory) {
+        fittedTracks.push_back(fittedResult.fittedStates);
+      }
+    } else {
+      ACTS_WARNING("No fittedStates!");
     }
 
     // Make sure the fitting is deterministic
@@ -201,8 +216,28 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
     // ACTS_DEBUG("Finish fitting again");
     // auto fittedAgainParameters = fittedAgainTrack.fittedParameters.get();
 
+    // Emulate trajectories with holes/outliers and refit
+    if (m_trajectoryEmulationTool) {
+      ACTS_DEBUG("Emulate trajectory with holes and outliers based on truth "
+                 "trajectory.");
+      auto emulatedTrajectories
+          = m_trajectoryEmulationTool->emulate(context, sourceLinks);
+      for (const auto& elTraj : emulatedTrajectories) {
+        // perform the fit with KalmanFitter
+        auto elFittedResult = m_cfg.kFitter.fit(elTraj, rStart, kfOptions);
+        if (!elFittedResult.fittedStates.empty()) {
+          if (m_cfg.writeEmulateTrajectory) {
+            fittedTracks.push_back(elFittedResult.fittedStates);
+          }
+        }
+      }
+    }
+
     ACTS_DEBUG("Finish processing the track with particle id = " << barcode);
   }
+
+  ACTS_DEBUG("There are " << fittedTracks.size()
+                          << " tracks written to event store.");
 
   // Write the fitted tracks to the EventStore
   context.eventStore.add(m_cfg.trackCollection, std::move(fittedTracks));

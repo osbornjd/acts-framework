@@ -76,6 +76,10 @@ FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
     m_outputTree->Branch("t_eQOP", &m_t_eQOP);
 
     m_outputTree->Branch("nStates", &m_nStates);
+    m_outputTree->Branch("nMeasurements", &m_nMeasurements);
+    m_outputTree->Branch("nHoles", &m_nHoles);
+    m_outputTree->Branch("nOutliers", &m_nOutliers);
+    m_outputTree->Branch("chi2", &m_chi2);
     m_outputTree->Branch("volume_id", &m_volumeID);
     m_outputTree->Branch("layer_id", &m_layerID);
     m_outputTree->Branch("module_id", &m_moduleID);
@@ -207,7 +211,6 @@ FW::ProcessCode
 FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
                                        const TrajectoryVector& trajectories)
 {
-
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
 
   // Read truth particles from input collection
@@ -236,9 +239,25 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
   for (auto& traj : trajectories) {
     /// collect the information
     m_trajNr = iTraj;
+
+    m_t_barcode = -1;
     // retrieve the truth particle barcode for this track state
-    auto truthHitAtFirstState = (*traj[0].measurement.uncalibrated).truthHit();
-    m_t_barcode               = truthHitAtFirstState.particle.barcode();
+    for (auto& state : traj) {
+      if (state.isType(Acts::TrackStateFlag::MeasurementFlag)) {
+        auto truthHitAtFirstState
+            = (*state.measurement.uncalibrated).truthHit();
+        m_t_barcode = truthHitAtFirstState.particle.barcode();
+        break;
+      }
+    }
+
+    // skip this track if no measurements at all
+    if (m_t_barcode == -1) {
+      ACTS_WARNING(
+          "No measurements on this track! Skipped for trajectory writing!");
+      continue;
+    }
+
     // find the truth particle via the barcode
     if (particles.find(m_t_barcode) != particles.end()) {
       ACTS_DEBUG("Find the truth particle with barcode = " << m_t_barcode);
@@ -263,11 +282,26 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
     }
 
     // get the trackState info
-    m_nStates    = traj.size();
-    m_nPredicted = 0;
-    m_nFiltered  = 0;
-    m_nSmoothed  = 0;
+    m_nStates       = traj.size();
+    m_nPredicted    = 0;
+    m_nFiltered     = 0;
+    m_nSmoothed     = 0;
+    m_nHoles        = 0;
+    m_nOutliers     = 0;
+    m_nMeasurements = 0;
     for (auto& state : traj) {
+      // count the holes
+      if (state.isType(Acts::TrackStateFlag::HoleFlag)) { m_nHoles++; }
+      // count the outliers
+      if (state.isType(Acts::TrackStateFlag::OutlierFlag)) { m_nOutliers++; }
+
+      // count the measurements
+      if (state.isType(Acts::TrackStateFlag::MeasurementFlag)) {
+        m_nMeasurements++;
+      } else {
+        // skip writing if there is no measurement
+        continue;
+      }
 
       // get the geometry ID
       auto geoID = state.referenceSurface().geoID();
@@ -275,7 +309,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       m_layerID.push_back(geoID.value(Acts::GeometryID::layer_mask));
       m_moduleID.push_back(geoID.value(Acts::GeometryID::sensitive_mask));
 
-      auto meas = std::get<Measurement>(**state.measurement.uncalibrated);
+      auto meas = std::get<Measurement>(*state.measurement.calibrated);
 
       // get local position
       Acts::Vector2D local(meas.parameters()[Acts::ParDef::eLOC_0],
@@ -329,7 +363,11 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       m_t_eTHETA.push_back(truthTHETA);
       m_t_eQOP.push_back(truthQOP);
 
+      // get the chi2
+      m_chi2 = state.parameter.chi2;
+
       // get the predicted parameter
+      ACTS_DEBUG("Get the predicted parameter.");
       bool predicted = false;
       if (state.parameter.predicted) {
         predicted = true;
@@ -435,6 +473,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       }
 
       // get the filtered parameter
+      ACTS_DEBUG("Get the filtered parameter.");
       bool filtered = false;
       if (state.parameter.filtered) {
         filtered = true;
@@ -522,6 +561,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       }
 
       // get the smoothed parameter
+      ACTS_DEBUG("Get the smoothed parameter.");
       bool smoothed = false;
       if (state.parameter.smoothed) {
         smoothed = true;

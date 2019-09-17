@@ -34,8 +34,12 @@
 #include "Acts/Propagator/detail/DebugOutputActor.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Fatras/Kernel/Interactor.hpp"
+#include "Fatras/Kernel/Process.hpp"
 #include "Fatras/Kernel/SelectorList.hpp"
 #include "Fatras/Kernel/Simulator.hpp"
+#include "Fatras/Physics/EnergyLoss/BetheBloch.hpp"
+#include "Fatras/Physics/Scattering/Highland.hpp"
+#include "Fatras/Physics/Scattering/Scattering.hpp"
 #include "Fatras/Selectors/ChargeSelectors.hpp"
 #include "Fatras/Selectors/KinematicCasts.hpp"
 #include "Fatras/Selectors/SelectorHelpers.hpp"
@@ -160,7 +164,16 @@ setupSimulationAlgorithm(
   typedef Fatras::Min<Fatras::casts::E>                         NMinE;
   typedef Fatras::SelectorListAND<NSelector, NMinE, NMaxEtaAbs> NeutralSelector;
 
-  typedef Fatras::PhysicsList<> PhysicsList;
+  // Accept everything
+  typedef Selector All;
+  // Define the processes with selectors
+  typedef Fatras::Process<Fatras::BetheBloch, All, All, All> BetheBlochProcess;
+  // typedef Process<BetheHeitler, All, All, All> BetheHeitlerProcess;
+  typedef Fatras::Process<Fatras::Scattering<Fatras::Highland>, All, All, All>
+      HighlandProcess;
+
+  typedef Fatras::PhysicsList<BetheBlochProcess, HighlandProcess> PhysicsList;
+  // typedef Fatras::PhysicsList<> PhysicsList;
 
   typedef Fatras::Interactor<FW::RandomEngine,
                              FW::Data::SimParticle,

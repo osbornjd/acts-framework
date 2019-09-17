@@ -23,6 +23,7 @@
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Validation/TrajectoryEmulationTool.hpp"
 #include "Acts/EventData/Measurement.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/EventData/TrackState.hpp"
@@ -40,8 +41,10 @@ class FittingAlgorithm : public BareAlgorithm
 {
 public:
   // A few initialisations and definitionas
-  using Identifier = Data::SimSourceLink;
-  using TrackState = Acts::TrackState<Identifier, Acts::BoundParameters>;
+  using Identifier       = Data::SimSourceLink;
+  using TrackState       = Acts::TrackState<Identifier, Acts::BoundParameters>;
+  using Trajectory       = std::vector<Identifier>;
+  using TrajectoryVector = std::vector<std::pair<size_t, Trajectory>>;
 
   /// Nested configuration struct
   struct Config
@@ -61,6 +64,14 @@ public:
     std::vector<double> parameterSigma = {10, 10, 0.02, 0.02, 1};
     /// Gaussian sigma used to smear the truth hit
     std::vector<double> measurementSigma = {30, 30};
+    /// indicator for hole and outlier emulation;
+    bool emulateTrajectory = false;
+    /// indicator for writing truth trajectory to track collection or not
+    bool writeTruthTrajectory = true;
+    /// indicator for writing emulated trajectory to track collection or not
+    bool writeEmulateTrajectory = true;
+    /// TrajectoryEmulationTool config;
+    TrajectoryEmulationTool::Config trajectoryEmulationToolConfig;
   };
 
   /// Constructor of the fitting algorithm
@@ -78,7 +89,9 @@ public:
   execute(const FW::AlgorithmContext& ctx) const final override;
 
 private:
-  Config m_cfg;  /// config struct
+  Config                                   m_cfg;  /// config struct
+  std::unique_ptr<TrajectoryEmulationTool> m_trajectoryEmulationTool
+      = nullptr;  /// trajectory emulation tool
 };
 
 }  // namespace FW

@@ -47,7 +47,10 @@ namespace Options {
         "Loc1 [um], phi, theta, q/p [-q/(p*p)*GeV]")(
         "measurement-sigma",
         po::value<read_range>()->multitoken()->default_value({30., 30.}),
-        "Gaussian sigma used to smear the truth hit Loc0 [um], Loc1 [um]");
+        "Gaussian sigma used to smear the truth hit Loc0 [um], Loc1 [um]")(
+        "emulate-track", po::value<bool>()->default_value(false))(
+        "write-truth-track", po::value<bool>()->default_value(true))(
+        "write-emulate-track", po::value<bool>()->default_value(true));
   }
 
   /// @brief read the fitter specific options and return a Config file
@@ -74,6 +77,12 @@ namespace Options {
         = vm["initial-parameter-sigma"].template as<read_range>();
     fittingConfig.measurementSigma
         = vm["measurement-sigma"].template as<read_range>();
+
+    fittingConfig.emulateTrajectory = vm["emulate-track"].template as<bool>();
+    fittingConfig.writeTruthTrajectory
+        = vm["write-truth-track"].template as<bool>();
+    fittingConfig.writeEmulateTrajectory
+        = vm["write-emulate-track"].template as<bool>();
 
     // and return the config
     return fittingConfig;

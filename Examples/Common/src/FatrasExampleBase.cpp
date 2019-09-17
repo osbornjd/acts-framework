@@ -22,6 +22,7 @@
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Validation/TrajectoryEmulationOptions.hpp"
 
 #include "ACTFW/Detector/IBaseDetector.hpp"
 #include "detail/FatrasDigitizationBase.hpp"
@@ -46,6 +47,7 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   FW::Options::addFatrasOptions(desc);
   FW::Options::addDigitizationOptions(desc);
   FW::Options::addFittingOptions(desc);
+  FW::Options::addTrajectoryEmulationOptions(desc);
   FW::Options::addOutputOptions(desc);
   desc.add_options()("evg-input-type",
                      value<std::string>()->default_value("pythia8"),

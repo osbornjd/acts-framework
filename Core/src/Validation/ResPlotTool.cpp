@@ -209,6 +209,12 @@ FW::ResPlotTool::fill(ResPlotTool::ResPlotCache&   resPlotCache,
     float       truthEta, truthR, truthZ;
     auto        geoID = state.referenceSurface().geoID();
 
+    // the state must have a measurement and parameter in order to calcuate
+    // residual
+    if (!state.isType(Acts::TrackStateFlag::MeasurementFlag)
+        || !state.isType(Acts::TrackStateFlag::ParameterFlag))
+      continue;
+
     auto truthHit = (*state.measurement.uncalibrated).truthHit();
     // get local truth position
     Acts::Vector2D truthlocal;
