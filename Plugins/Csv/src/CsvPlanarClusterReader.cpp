@@ -17,6 +17,7 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Plugins/Csv/CsvReader.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
+#include "ACTFW/Utilities/Range.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 #include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
 #include "TrackMlData.hpp"
@@ -131,11 +132,11 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
     // TODO who owns these particles?
     std::vector<const FW::Data::SimParticle*> particles;
     {
-      auto range = std::equal_range(
-          truths.begin(), truths.end(), hit.hit_id, HitIdComparator{});
-      for (auto t = range.first; t != range.second; ++t) {
-        Acts::Vector3D particlePos(t->tx, t->ty, t->tz);
-        Acts::Vector3D particleMom(t->tpx, t->tpy, t->tpz);
+      auto range = makeRange(std::equal_range(
+          truths.begin(), truths.end(), hit.hit_id, HitIdComparator{}));
+      for (const auto& t : range) {
+        Acts::Vector3D particlePos(t.tx, t.ty, t.tz);
+        Acts::Vector3D particleMom(t.tpx, t.tpy, t.tpz);
         // The following values are global to the particle and are not
         // duplicated in the per-hit file. They can be retrieved from
         // the particles file.
@@ -144,17 +145,17 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
         pdg_type pdgId  = 0;
         // TODO ownership
         particles.emplace_back(new FW::Data::SimParticle(
-            particlePos, particleMom, mass, charge, pdgId, t->particle_id));
+            particlePos, particleMom, mass, charge, pdgId, t.particle_id));
       }
     }
 
     // find matching pixel cell information
     std::vector<Acts::DigitizationCell> digitizationCells;
     {
-      auto range = std::equal_range(
-          cells.begin(), cells.end(), hit.hit_id, HitIdComparator{});
-      for (auto c = range.first; c != range.second; ++c) {
-        digitizationCells.emplace_back(c->ch0, c->ch1, c->value);
+      auto range = makeRange(std::equal_range(
+          cells.begin(), cells.end(), hit.hit_id, HitIdComparator{}));
+      for (const auto& c : range) {
+        digitizationCells.emplace_back(c.ch0, c.ch1, c.value);
       }
     }
 
