@@ -5,7 +5,6 @@ add_library(ACTFWCsvPlugin SHARED
   src/CsvParticleWriter.cpp
   src/CsvPlanarClusterReader.cpp
   src/CsvPlanarClusterWriter.cpp
-  src/CsvReader.cpp
   src/CsvTrackingGeometryWriter.cpp)
 target_include_directories(ACTFWCsvPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
 target_link_libraries(ACTFWCsvPlugin PRIVATE ACTFramework ActsCore ActsDigitizationPlugin IdentificationPlugin)

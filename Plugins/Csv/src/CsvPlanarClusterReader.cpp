@@ -16,7 +16,6 @@
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Plugins/Csv/CsvReader.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "ACTFW/Utilities/Range.hpp"
 #include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"

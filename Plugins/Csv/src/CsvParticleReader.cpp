@@ -19,7 +19,6 @@
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Plugins/Csv/CsvReader.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "TrackMlData.hpp"
 
