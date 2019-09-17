@@ -12,6 +12,7 @@
 
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/HitContainers.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -35,6 +36,9 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
   }
   if (m_cfg.outputClusters.empty()) {
     throw std::invalid_argument("Missing cluster output collection");
+  }
+  if (m_cfg.outputHitParticleMap.empty()) {
+    throw std::invalid_argument("Missing hit-particle map output collection");
   }
   // fill the geo id to surface map once to speed up lookups later on
   m_cfg.trackingGeometry->visitSurfaces([this](const Acts::Surface* surface) {
@@ -81,8 +85,9 @@ struct HitIdComparator
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 {
-  // Prepare the output data: Clusters
-  FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
+  // Prepare the output data
+  DetectorData<geo_id_value, Acts::PlanarModuleCluster> clusters;
+  HitParticleMap                                        hitParticleMap;
 
   // per-event file paths
   std::string pathTruth
@@ -101,7 +106,12 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
   std::vector<TruthData> truths;
   {
     TruthData truth;
-    while (truthReader.read(truth)) { truths.push_back(truth); }
+    while (truthReader.read(truth)) {
+      truths.push_back(truth);
+      // hit ids should be increasing monotonically
+      hitParticleMap.emplace_hint(
+          hitParticleMap.end(), truth.hit_id, truth.particle_id);
+    }
     std::sort(truths.begin(), truths.end(), HitIdComparator{});
   }
   std::vector<CellData> cells;
@@ -176,15 +186,16 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
         local[0],
         local[1],
         std::move(digitizationCells));
-    FW::Data::insert(planarClusters,
+    FW::Data::insert(clusters,
                      static_cast<geo_id_value>(hit.volume_id),
                      static_cast<geo_id_value>(hit.layer_id),
                      static_cast<geo_id_value>(hit.module_id),
                      std::move(cluster));
   }
 
-  // write the clusters to the EventStore
-  ctx.eventStore.add(m_cfg.output, std::move(planarClusters));
+  // write the data to the EventStore
+  ctx.eventStore.add(m_cfg.outputClusters, std::move(clusters));
+  ctx.eventStore.add(m_cfg.outputHitParticleMap, std::move(hitParticleMap));
 
   return FW::ProcessCode::SUCCESS;
 }

@@ -56,8 +56,9 @@ main(int argc, char* argv[])
 
   // Read clusters from CSV files
   auto clusterReaderCfg = FW::Options::readCsvPlanarClusterReaderConfig(vm);
-  clusterReaderCfg.trackingGeometry = trackingGeometry;
-  clusterReaderCfg.outputClusters   = "clusters";
+  clusterReaderCfg.trackingGeometry     = trackingGeometry;
+  clusterReaderCfg.outputClusters       = "clusters";
+  clusterReaderCfg.outputHitParticleMap = "hit_particle_map";
   sequencer.addReader(std::make_shared<FW::Csv::CsvPlanarClusterReader>(
       clusterReaderCfg, logLevel));
 
