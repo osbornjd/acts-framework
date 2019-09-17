@@ -337,7 +337,7 @@ namespace Data {
     };
   }  // namespace detail
 
-  /// A container of particle that can be indexed by particle id/ barcode.
+  /// A container of particles that can be accessed by particle id/ barcode.
   using SimParticles
       = boost::container::flat_set<SimParticle,
                                    detail::SimParticleBarcodeCompare>;
