@@ -32,8 +32,8 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
   if (not m_cfg.trackingGeometry) {
     throw std::invalid_argument("Missing tracking geometry");
   }
-  if (m_cfg.output.empty()) {
-    throw std::invalid_argument("Missing output collection");
+  if (m_cfg.outputClusters.empty()) {
+    throw std::invalid_argument("Missing cluster output collection");
   }
   // fill the geo id to surface map once to speed up lookups later on
   m_cfg.trackingGeometry->visitSurfaces([this](const Acts::Surface* surface) {

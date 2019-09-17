@@ -31,7 +31,7 @@ FW::Csv::CsvParticleReader::CsvParticleReader(
         determineEventFilesRange(cfg.inputDir, cfg.inputFilename).second)
   , m_logger(Acts::getDefaultLogger("CsvParticleReader", level))
 {
-  if (m_cfg.output.empty()) {
+  if (m_cfg.outputParticles.empty()) {
     throw std::invalid_argument("Missing output collection");
   }
   if (m_cfg.inputFilename.empty()) {
@@ -77,7 +77,7 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
   }
 
   // write the truth particles to the EventStore
-  ctx.eventStore.add(m_cfg.output, std::move(particles));
+  ctx.eventStore.add(m_cfg.outputParticles, std::move(particles));
 
   return ProcessCode::SUCCESS;
 }

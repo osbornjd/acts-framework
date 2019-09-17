@@ -49,15 +49,15 @@ main(int argc, char* argv[])
   for (auto cdr : geometry.second) { sequencer.addContextDecorator(cdr); }
 
   // Read particles from CSV files
-  auto particleReaderCfg   = FW::Options::readCsvParticleReaderConfig(vm);
-  particleReaderCfg.output = "particles";
+  auto particleReaderCfg = FW::Options::readCsvParticleReaderConfig(vm);
+  particleReaderCfg.outputParticles = "particles";
   sequencer.addReader(std::make_shared<FW::Csv::CsvParticleReader>(
       particleReaderCfg, logLevel));
 
   // Read clusters from CSV files
   auto clusterReaderCfg = FW::Options::readCsvPlanarClusterReaderConfig(vm);
   clusterReaderCfg.trackingGeometry = trackingGeometry;
-  clusterReaderCfg.output           = "clusters";
+  clusterReaderCfg.outputClusters   = "clusters";
   sequencer.addReader(std::make_shared<FW::Csv::CsvPlanarClusterReader>(
       clusterReaderCfg, logLevel));
 

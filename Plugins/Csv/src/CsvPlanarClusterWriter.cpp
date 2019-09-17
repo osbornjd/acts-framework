@@ -23,11 +23,8 @@
 FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     const FW::Csv::CsvPlanarClusterWriter::Config& cfg,
     Acts::Logging::Level                           level)
-  : Base(cfg.collection, "CsvPlanarClusterWriter", level), m_cfg(cfg)
+  : Base(cfg.inputClusters, "CsvPlanarClusterWriter", level), m_cfg(cfg)
 {
-  if (m_cfg.collection.empty()) {
-    throw std::invalid_argument("Missing input collection");
-  }
 }
 
 FW::ProcessCode

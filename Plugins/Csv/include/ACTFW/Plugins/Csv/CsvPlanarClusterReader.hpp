@@ -44,8 +44,8 @@ namespace Csv {
     {
       /// Tracking geometry required to access global-to-local transforms.
       std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
-      /// Which cluster collection to read into.
-      std::string output;
+      /// Where to write the cluster collection.
+      std::string outputClusters;
       /// Where to read input files from.
       std::string inputDir;
     };

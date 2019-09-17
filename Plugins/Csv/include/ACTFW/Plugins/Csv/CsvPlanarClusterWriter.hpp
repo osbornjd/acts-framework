@@ -42,7 +42,7 @@ namespace Csv {
     struct Config
     {
       /// Which cluster collection to write.
-      std::string collection;
+      std::string inputClusters;
       /// Where to place output files
       std::string outputDir;
       /// Number of decimal digits for floating point precision in output.

@@ -33,7 +33,7 @@ namespace Csv {
     struct Config
     {
       /// Which particle collection to read into.
-      std::string output;
+      std::string outputParticles;
       /// Where to read input files from.
       std::string inputDir;
       /// Input file name.
