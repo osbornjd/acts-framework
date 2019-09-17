@@ -26,4 +26,4 @@ using HitId = uint64_t;
 /// hit easily using `.equal_range`.
 using HitParticleMap = boost::container::flat_multimap<HitId, barcode_type>;
 
-}
+}  // namespace FW

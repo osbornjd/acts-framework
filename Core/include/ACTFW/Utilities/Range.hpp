@@ -23,18 +23,35 @@ namespace FW {
 ///     }
 ///
 template <typename Iterator>
-class Range {
+class Range
+{
 public:
   Range(Iterator b, Iterator e) : m_begin(b), m_end(e) {}
-  Range(Range&&) = default;
+  Range(Range&&)      = default;
   Range(const Range&) = default;
-  ~Range() = default;
-  Range& operator=(Range&&) = default;
-  Range& operator=(const Range&) = default;
+  ~Range()            = default;
+  Range&
+  operator=(Range&&)
+      = default;
+  Range&
+  operator=(const Range&)
+      = default;
 
-  Iterator begin() const { return m_begin; }
-  Iterator end() const { return m_end; }
-  bool empty() const { return m_begin == m_end; }
+  Iterator
+  begin() const
+  {
+    return m_begin;
+  }
+  Iterator
+  end() const
+  {
+    return m_end;
+  }
+  bool
+  empty() const
+  {
+    return m_begin == m_end;
+  }
 
 private:
   Iterator m_begin;
@@ -42,8 +59,16 @@ private:
 };
 
 template <typename Iterator>
-Range<Iterator> makeRange(Iterator begin, Iterator end) { return Range<Iterator>(begin, end); }
-template <typename Iterator>
-Range<Iterator> makeRange(std::pair<Iterator, Iterator> range) { return Range<Iterator>(range.first, range.second); }
-
+Range<Iterator>
+makeRange(Iterator begin, Iterator end)
+{
+  return Range<Iterator>(begin, end);
 }
+template <typename Iterator>
+Range<Iterator>
+makeRange(std::pair<Iterator, Iterator> range)
+{
+  return Range<Iterator>(range.first, range.second);
+}
+
+}  // namespace FW
