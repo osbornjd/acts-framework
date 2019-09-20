@@ -23,8 +23,8 @@
 
 namespace FW {
 
-/// Typedef the pdg code
-typedef int pdg_type;
+/// A type that stores PDG particle type ids.
+using pdg_type = int;
 
 namespace Data {
 
