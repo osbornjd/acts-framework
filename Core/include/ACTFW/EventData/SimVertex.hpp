@@ -22,76 +22,63 @@ using process_code = unsigned int;
 
 namespace Data {
 
-  /// Vertex information for physics process samplers.
-  ///
-  /// All quatities are calculated at first construction as they may  be used by
-  /// downstream samplers
-  ///
-  /// @note If a sampler changes one of the parameters, consistency
-  ///       can be broken, so it should update the rest (no checking done)
+  /// A simultated vertex e.g. from a physics process.
   struct SimVertex
   {
+    /// TODO replace by combined 4d position
     /// The vertex position
     Acts::Vector3D position = Acts::Vector3D(0., 0., 0.);
     /// An optional time stamp
-    double timeStamp = 0.;
+    double time = 0.;
+    /// The incoming particles into the vertex
+    std::vector<SimParticle> incoming = {};
+    /// The outgoing particles from the vertex
+    std::vector<SimParticle> outgoing = {};
     /// An optional process code
     process_code processCode = 9;
-    /// The ingoing particles in the vertex
-    std::vector<SimParticle> in = {};
-    /// The outgoing particles from the vertex
-    std::vector<SimParticle> out = {};
 
-    /// Default
     SimVertex() = default;
-    /// @brief Construct a particle consistently
-    ///
-    /// @param ertex The vertex position
-    /// @param in The ingoing particles - copy
-    /// @param out The outgoing particles (copy - can we do a move ?)
-    /// @param vprocess The process code
-    /// @param time The time stamp of this vertex
-    SimVertex(const Acts::Vector3D&           vertex,
-              const std::vector<SimParticle>& ingoing  = {},
-              std::vector<SimParticle>        outgoing = {},
-              process_code                    process  = 0,
-              double                          time     = 0.)
-      : position(vertex)
-      , in(ingoing)
-      , out(outgoing)
+    /// @param position_ The vertex position
+    /// @param incoming_ The ingoing particles
+    /// @param outgoing_ The outgoing particles
+    /// @param process   The process code
+    /// @param time      The vertex time
+    SimVertex(const Acts::Vector3D&    position_,
+              std::vector<SimParticle> incoming_ = {},
+              std::vector<SimParticle> outgoing_ = {},
+              process_code             process   = 0,
+              double                   time      = 0.)
+      : position(position_)
+      , time(time)
+      , incoming(std::move(incoming_))
+      , outgoing(std::move(outgoing_))
       , processCode(process)
-      , timeStamp(time)
     {
     }
+
+    // @todo let fatras use the member variables directly and remove the
+    //       duplicated accessors below.
 
     /// Forward the particle access to the outgoing particles: begin
     auto
     outgoing_begin()
     {
-      return out.begin();
+      return outgoing.begin();
     }
-
     /// Forward the particle access to the outgoing particles: end
     auto
     outgoing_end()
     {
-      return out.end();
+      return outgoing.end();
     }
-
-    // Outgoing particles
-    const std::vector<SimParticle>&
-    outgoing() const
-    {
-      return out;
-    }
-
     /// Forward the particle access to the outgoing particles: insert
     ///
     /// @param inparticles are the particles to be inserted
     auto
     outgoing_insert(const std::vector<SimParticle>& inparticles)
     {
-      return out.insert(out.end(), inparticles.begin(), inparticles.end());
+      return outgoing.insert(
+          outgoing.end(), inparticles.begin(), inparticles.end());
     }
   };
 }  // end of namespace Data
