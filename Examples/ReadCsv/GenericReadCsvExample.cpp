@@ -19,6 +19,7 @@
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Utilities/Options.hpp"
+#include "PrintHits.hpp"
 
 int
 main(int argc, char* argv[])
@@ -56,11 +57,19 @@ main(int argc, char* argv[])
 
   // Read clusters from CSV files
   auto clusterReaderCfg = FW::Options::readCsvPlanarClusterReaderConfig(vm);
-  clusterReaderCfg.trackingGeometry     = trackingGeometry;
-  clusterReaderCfg.outputClusters       = "clusters";
-  clusterReaderCfg.outputHitParticleMap = "hit_particle_map";
+  clusterReaderCfg.trackingGeometry      = trackingGeometry;
+  clusterReaderCfg.outputClusters        = "clusters";
+  clusterReaderCfg.outputHitParticlesMap = "hit_particle_map";
+  clusterReaderCfg.outputHitIds          = "hit_ids";
   sequencer.addReader(std::make_shared<FW::Csv::CsvPlanarClusterReader>(
       clusterReaderCfg, logLevel));
+
+  // Print some information as crosscheck
+  FW::PrintHits::Config printCfg;
+  printCfg.inputClusters        = clusterReaderCfg.outputClusters;
+  printCfg.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
+  printCfg.inputHitIds          = clusterReaderCfg.outputHitIds;
+  sequencer.addAlgorithm(std::make_shared<FW::PrintHits>(printCfg, logLevel));
 
   return sequencer.run();
 }
