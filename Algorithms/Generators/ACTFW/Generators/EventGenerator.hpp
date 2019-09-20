@@ -47,8 +47,7 @@ public:
   using VertexGenerator
       = std::function<Acts::ActsVector<double, 4>(RandomEngine&)>;
   using ProcessGenerator
-      = std::function<std::vector<Data::SimVertex<Data::SimParticle>>(
-          RandomEngine&)>;
+      = std::function<std::vector<Data::SimVertex>(RandomEngine&)>;
   struct Generator
   {
     MultiplicityGenerator multiplicity = nullptr;
