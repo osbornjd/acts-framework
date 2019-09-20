@@ -35,8 +35,6 @@ namespace Json {
   class JsonSpacePointWriter : public WriterT<DetectorData<geo_id_value, T>>
   {
   public:
-    using Base = WriterT<DetectorData<geo_id_value, T>>;
-
     struct Config
     {
       std::string collection;           ///< which collection to write
@@ -53,13 +51,10 @@ namespace Json {
            const DetectorData<geo_id_value, T>& spacePoints) final override;
 
   private:
+    // since class itself is templated, base class template must be fixed
+    using Base = WriterT<DetectorData<geo_id_value, T>>;
+
     Config m_cfg;
-    // required for C++ to find `logger()` with the default look-up
-    const Acts::Logger&
-    logger() const
-    {
-      return Base::logger();
-    }
   };
 
 }  // namespace Json
