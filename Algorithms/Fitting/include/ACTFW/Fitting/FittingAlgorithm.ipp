@@ -31,29 +31,16 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
   std::normal_distribution<double> gauss(0, 1);
 
   // Read truth particles from input collection
-  const std::vector<Data::SimVertex<>>* simulatedEvent = nullptr;
-  simulatedEvent = &context.eventStore.get<std::vector<Data::SimVertex<>>>(
-      m_cfg.simulatedEventCollection);
-  if (!simulatedEvent) {
-    throw std::ios_base::failure("Retrieve truth particle collection "
-                                 + m_cfg.simulatedEventCollection
-                                 + " failure!");
-  }
-
+  const auto& simulatedEvent
+      = context.eventStore.get<std::vector<Data::SimVertex>>(
+          m_cfg.simulatedEventCollection);
   ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
-                                 << simulatedEvent->size() << " vertices");
+                                 << simulatedEvent.size() << " vertices");
 
   // Read truth hits from input collection
-  const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>* simHits
-      = nullptr;
-  simHits = &context.eventStore.get<
-      FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>(
-      m_cfg.simulatedHitCollection);
-  if (!simHits) {
-    throw std::ios_base::failure("Retrieve truth hit collection "
-                                 + m_cfg.simulatedHitCollection + " failure!");
-  }
-
+  const auto& simHits
+      = context.eventStore.get<FW::DetectorData<geo_id_value, Data::SimHit>>(
+          m_cfg.simulatedHitCollection);
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
                                     << "' from event store.");
 
@@ -63,7 +50,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
   // Prepare the measurements for KalmanFitter
   ACTS_DEBUG("Prepare the measurements and then tracks");
   std::map<barcode_type, std::vector<Data::SimSourceLink>> sourceLinkMap;
-  for (auto& vData : (*simHits)) {
+  for (auto& vData : simHits) {
     for (auto& lData : vData.second) {
       for (auto& sData : lData.second) {
         // get the hit
@@ -114,8 +101,8 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
   // Get the truth particle
   ACTS_DEBUG("Get truth particle.");
   std::map<barcode_type, Data::SimParticle> particles;
-  for (auto& vertex : *simulatedEvent) {
-    for (auto& particle : vertex.outgoing()) {
+  for (auto& vertex : simulatedEvent) {
+    for (auto& particle : vertex.outgoing) {
       particles.insert(std::make_pair(particle.barcode(), particle));
     }
   }
