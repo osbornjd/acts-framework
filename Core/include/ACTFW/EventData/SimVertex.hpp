@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <cmath>
 #include <vector>
 
 #include <Acts/Utilities/Definitions.hpp>
@@ -18,39 +17,33 @@
 
 namespace FW {
 
-// Typedef the process code
-typedef unsigned int process_code;
+/// Value type to identify which process was used to generate the vertex.
+using process_code = unsigned int;
 
 namespace Data {
 
-  /// @brief Vertex information struct for physics process samplers:
-  /// - all quatities are calculated at first construction as they may
-  ///   be used by downstream samplers
+  /// Vertex information for physics process samplers.
   ///
-  /// @note if a sampler changes one of the parameters, consistency
-  /// can be broken, so it should update the rest (no checking done)
-  template <typename particle_t = SimParticle>
+  /// All quatities are calculated at first construction as they may  be used by
+  /// downstream samplers
+  ///
+  /// @note If a sampler changes one of the parameters, consistency
+  ///       can be broken, so it should update the rest (no checking done)
   struct SimVertex
   {
-
     /// The vertex position
     Acts::Vector3D position = Acts::Vector3D(0., 0., 0.);
-
-    /// The ingoing particles in the vertex
-    std::vector<particle_t> in = {};
-
-    /// The outgoing particles from the vertex
-    std::vector<particle_t> out = {};
-
-    /// An optional process code
-    process_code processCode = 9;
-
     /// An optional time stamp
     double timeStamp = 0.;
+    /// An optional process code
+    process_code processCode = 9;
+    /// The ingoing particles in the vertex
+    std::vector<SimParticle> in = {};
+    /// The outgoing particles from the vertex
+    std::vector<SimParticle> out = {};
 
     /// Default
     SimVertex() = default;
-
     /// @brief Construct a particle consistently
     ///
     /// @param ertex The vertex position
@@ -58,11 +51,11 @@ namespace Data {
     /// @param out The outgoing particles (copy - can we do a move ?)
     /// @param vprocess The process code
     /// @param time The time stamp of this vertex
-    SimVertex(const Acts::Vector3D&          vertex,
-              const std::vector<particle_t>& ingoing  = {},
-              std::vector<particle_t>        outgoing = {},
-              process_code                   process  = 0,
-              double                         time     = 0.)
+    SimVertex(const Acts::Vector3D&           vertex,
+              const std::vector<SimParticle>& ingoing  = {},
+              std::vector<SimParticle>        outgoing = {},
+              process_code                    process  = 0,
+              double                          time     = 0.)
       : position(vertex)
       , in(ingoing)
       , out(outgoing)
@@ -72,25 +65,21 @@ namespace Data {
     }
 
     /// Forward the particle access to the outgoing particles: begin
-    ///
-    /// @tparam particle_t Type of the particle
-    typename std::vector<particle_t>::iterator
+    auto
     outgoing_begin()
     {
       return out.begin();
     }
 
     /// Forward the particle access to the outgoing particles: end
-    ///
-    /// @tparam particle_t Type of the particle
-    typename std::vector<particle_t>::iterator
+    auto
     outgoing_end()
     {
       return out.end();
     }
 
     // Outgoing particles
-    const std::vector<particle_t>&
+    const std::vector<SimParticle>&
     outgoing() const
     {
       return out;
@@ -98,15 +87,12 @@ namespace Data {
 
     /// Forward the particle access to the outgoing particles: insert
     ///
-    /// @tparam particle_t Type of the particle
-    ///
     /// @param inparticles are the particles to be inserted
-    typename std::vector<particle_t>::iterator
-    outgoing_insert(const std::vector<particle_t>& inparticles)
+    auto
+    outgoing_insert(const std::vector<SimParticle>& inparticles)
     {
       return out.insert(out.end(), inparticles.begin(), inparticles.end());
     }
   };
-
 }  // end of namespace Data
 }  // end of namespace FW
