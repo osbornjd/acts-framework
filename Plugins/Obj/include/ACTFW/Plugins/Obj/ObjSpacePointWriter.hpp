@@ -26,13 +26,11 @@ namespace Obj {
   ///     event000000001-spacepoints.obj
   ///     event000000002-spacepoints.obj
   ///
-  /// One Thread per write call and hence thread safe
+  /// One write call per thread and hence thread safe.
   template <typename T>
   class ObjSpacePointWriter : public WriterT<DetectorData<geo_id_value, T>>
   {
   public:
-    using Base = WriterT<DetectorData<geo_id_value, T>>;
-
     struct Config
     {
       std::string collection;             ///< which collection to write
@@ -50,14 +48,10 @@ namespace Obj {
            const DetectorData<geo_id_value, T>& spacePoints);
 
   private:
-    Config m_cfg;
+    // since class iitself is templated, base class template must be fixed
+    using Base = WriterT<DetectorData<geo_id_value, T>>;
 
-    // required for C++ to find `logger()` with the default look-up
-    const Acts::Logger&
-    logger() const
-    {
-      return Base::logger();
-    }
+    Config m_cfg;
   };
 
 }  // namespace Obj
