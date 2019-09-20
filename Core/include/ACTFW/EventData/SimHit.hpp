@@ -17,7 +17,6 @@
 
 namespace FW {
 namespace Data {
-
   /// A particle hit on a surface.
   ///
   /// This contains the minimal, undigitized information.
@@ -53,40 +52,6 @@ namespace Data {
       return geometryId;
     }
   };
-
-  /// @brief Constructor of Sensitive Hits, provides a simple
-  /// interface to construct simulation hits from Fatras
-  struct SimHitCreator
-  {
-    /// @brief Hit creation from Fatras simulation
-    ///
-    /// @param surface is the Surface where the hit is created
-    /// @param position is the global hit position
-    /// @param direction is the momentum direction at hit position
-    /// @param value the simulated value
-    /// @param time is the timeStamp
-    /// @param particle the particle for the truth link
-    ///
-    /// @return a SimHit object that is created from input parameters
-    SimHit
-    operator()(const Acts::Surface&  surface,
-               const Acts::Vector3D& position,
-               const Acts::Vector3D& direction,
-               double                value,
-               double                time,
-               const SimParticle&    simParticle) const
-    {
-      SimHit simHit;
-      simHit.position  = position;
-      simHit.time      = time;
-      simHit.direction = direction;
-      simHit.value     = value;
-      simHit.surface   = &surface;
-      simHit.particle  = simParticle;
-      return simHit;
-    }
-  };
-
 }  // namespace Data
 
 using SimHits = GeometryIdMultiset<Data::SimHit>;

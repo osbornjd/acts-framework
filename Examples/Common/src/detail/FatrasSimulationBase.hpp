@@ -45,6 +45,34 @@ typedef std::vector<FW::Data::SimVertex> FatrasEvent;
 
 namespace po = boost::program_options;
 
+/// Construct SimHits from Fatras.
+struct SimHitCreator
+{
+  /// @param surface is the Surface where the hit is created
+  /// @param position is the global hit position
+  /// @param direction is the momentum direction at hit position
+  /// @param value the simulated value
+  /// @param time is the timeStamp
+  /// @param particle the particle for the truth link
+  FW::Data::SimHit
+  operator()(const Acts::Surface&         surface,
+             const Acts::Vector3D&        position,
+             const Acts::Vector3D&        direction,
+             double                       value,
+             double                       time,
+             const FW::Data::SimParticle& simParticle) const
+  {
+    FW::Data::SimHit simHit;
+    simHit.position  = position;
+    simHit.time      = time;
+    simHit.direction = direction;
+    simHit.value     = value;
+    simHit.surface   = &surface;
+    simHit.particle  = simParticle;
+    return simHit;
+  }
+};
+
 /// Simple struct to select sensitive surfaces
 struct SurfaceSelector
 {
@@ -138,7 +166,7 @@ setupSimulationAlgorithm(
   typedef Fatras::Interactor<FW::RandomEngine,
                              FW::Data::SimParticle,
                              FW::Data::SimHit,
-                             FW::Data::SimHitCreator,
+                             SimHitCreator,
                              SurfaceSelector,
                              PhysicsList>
       ChargedInteractor;
@@ -146,7 +174,7 @@ setupSimulationAlgorithm(
   typedef Fatras::Interactor<FW::RandomEngine,
                              FW::Data::SimParticle,
                              FW::Data::SimHit,
-                             FW::Data::SimHitCreator>
+                             SimHitCreator>
       NeutralInteractor;
 
   typedef Fatras::Simulator<ChargedPropagator,
