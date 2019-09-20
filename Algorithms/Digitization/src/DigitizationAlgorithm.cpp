@@ -50,9 +50,10 @@ FW::ProcessCode
 FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
 {
   // Read the input data collection from the event store
-  const auto& simHits = context.eventStore.get<
-      typename FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>(
-      m_cfg.simulatedHitCollection);
+  const auto& simHits
+      = context.eventStore
+            .get<typename FW::DetectorData<geo_id_value, Data::SimHit>>(
+                m_cfg.simulatedHitCollection);
 
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
                                     << "' from event store.");
