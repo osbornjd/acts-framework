@@ -77,8 +77,8 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
                            momentum,
                            mass,
                            data.q * Acts::UnitConstants::e,
-                           data.particle_type,
-                           data.particle_id,  // this is the pdg id
+                           data.particle_type,  // this is the pdg id
+                           data.particle_id,
                            data.vt * Acts::UnitConstants::ns);
   }
 
