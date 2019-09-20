@@ -46,7 +46,7 @@ namespace Csv {
       /// Where to write the cluster collection.
       std::string outputClusters;
       /// Where to write the cluster-particle mapping collection.
-      std::string outputHitParticleMap;
+      std::string outputHitParticlesMap;
       /// Where to read input files from.
       std::string inputDir;
     };

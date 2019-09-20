@@ -15,7 +15,6 @@
 
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/EventData/HitContainers.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -37,8 +36,8 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
   if (m_cfg.outputClusters.empty()) {
     throw std::invalid_argument("Missing cluster output collection");
   }
-  if (m_cfg.outputHitParticleMap.empty()) {
-    throw std::invalid_argument("Missing hit-particle map output collection");
+  if (m_cfg.outputHitParticlesMap.empty()) {
+    throw std::invalid_argument("Missing hit-particles map output collection");
   }
   // fill the geo id to surface map once to speed up lookups later on
   m_cfg.trackingGeometry->visitSurfaces([this](const Acts::Surface* surface) {
@@ -59,25 +58,49 @@ FW::Csv::CsvPlanarClusterReader::availableEvents() const
 }
 
 namespace {
-struct HitIdComparator
+struct CompareHitId
 {
+  // support transparent comparision between identifiers and full objects
+  using is_transparent = void;
   template <typename T>
-  bool
-  operator()(const T& left, const T& right)
+  constexpr bool
+  operator()(const T& left, const T& right) const
   {
     return left.hit_id < right.hit_id;
   }
   template <typename T>
-  bool
-  operator()(uint64_t left_id, const T& right)
+  constexpr bool
+  operator()(uint64_t left_id, const T& right) const
   {
     return left_id < right.hit_id;
   }
   template <typename T>
-  bool
-  operator()(const T& left, uint64_t right_id)
+  constexpr bool
+  operator()(const T& left, uint64_t right_id) const
   {
     return left.hit_id < right_id;
+  }
+};
+
+/// Convert separate volume/layer/module id into a single geometry identifier.
+inline Acts::GeometryID
+extractGeometryId(const FW::HitData& data)
+{
+  Acts::GeometryID geoId;
+  geoId.add(data.volume_id, Acts::GeometryID::volume_mask);
+  geoId.add(data.layer_id, Acts::GeometryID::layer_mask);
+  geoId.add(data.module_id, Acts::GeometryID::sensitive_mask);
+  return geoId;
+}
+
+struct CompareGeometryId
+{
+  bool
+  operator()(const FW::HitData& left, const FW::HitData& right) const
+  {
+    auto leftId  = extractGeometryId(left).value();
+    auto rightId = extractGeometryId(right).value();
+    return leftId < rightId;
   }
 };
 }  // namespace
@@ -85,10 +108,6 @@ struct HitIdComparator
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 {
-  // Prepare the output data
-  DetectorData<geo_id_value, Acts::PlanarModuleCluster> clusters;
-  HitParticleMap                                        hitParticleMap;
-
   // per-event file paths
   std::string pathTruth
       = perEventFilepath(m_cfg.inputDir, "truth.csv", ctx.eventNumber);
@@ -101,40 +120,45 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
   dfe::CsvNamedTupleReader<CellData>  cellReader(pathCells);
   dfe::CsvNamedTupleReader<HitData>   hitReader(pathHits);
 
-  // since a hit
-  // read all hits first
+  // hid_id in the files is not required to be either continous or
+  // monotonic. internally, we want continous indices within [0,#hits)
+  // to simplify data handling. to be able to perform this mapping we first
+  // read all data into memory before converting to the internal representation.
   std::vector<TruthData> truths;
   {
     TruthData truth;
-    while (truthReader.read(truth)) {
-      truths.push_back(truth);
-      // hit ids should be increasing monotonically
-      hitParticleMap.emplace_hint(
-          hitParticleMap.end(), truth.hit_id, truth.particle_id);
-    }
-    std::sort(truths.begin(), truths.end(), HitIdComparator{});
+    while (truthReader.read(truth)) { truths.push_back(truth); }
+    // sort for fast hit id look up
+    std::sort(truths.begin(), truths.end(), CompareHitId{});
   }
   std::vector<CellData> cells;
   {
     CellData cell;
     while (cellReader.read(cell)) { cells.push_back(cell); }
-    std::sort(cells.begin(), cells.end(), HitIdComparator{});
+    // sort for fast hit id look up
+    std::sort(cells.begin(), cells.end(), CompareHitId{});
+  }
+  std::vector<HitData> hits;
+  {
+    HitData hit;
+    while (hitReader.read(hit)) { hits.push_back(hit); }
+    // sort same way they will be sorted in the output container
+    std::sort(hits.begin(), hits.end(), CompareGeometryId{});
   }
 
-  // read the actual hit information
-  HitData hit;
-  while (hitReader.read(hit)) {
+  // convert into internal representations
+  GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
+  IndexMultimap<barcode_type>                   hitParticlesMap;
+  clusters.reserve(hits.size());
+  hitParticlesMap.reserve(hits.size());
+  for (const HitData& hit : hits) {
 
-    Acts::GeometryID geoID;
-    geoID.add(hit.volume_id, Acts::GeometryID::volume_mask);
-    geoID.add(hit.layer_id, Acts::GeometryID::layer_mask);
-    geoID.add(hit.module_id, Acts::GeometryID::sensitive_mask);
-
-    // identify corresponding surface
-    auto it = m_surfaces.find(geoID);
+    // identify surface
+    Acts::GeometryID geoId = extractGeometryId(hit);
+    auto             it    = m_surfaces.find(geoId);
     if (it == m_surfaces.end() or not it->second) {
-      ACTS_ERROR("Could not retrieve the surface for hit " << hit);
-      continue;
+      ACTS_FATAL("Could not retrieve the surface for hit " << hit);
+      return ProcessCode::ABORT;
     }
     const Acts::Surface& surface = *(it->second);
 
@@ -143,7 +167,7 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
     std::vector<const FW::Data::SimParticle*> particles;
     {
       auto range = makeRange(std::equal_range(
-          truths.begin(), truths.end(), hit.hit_id, HitIdComparator{}));
+          truths.begin(), truths.end(), hit.hit_id, CompareHitId{}));
       for (const auto& t : range) {
         Acts::Vector3D particlePos(t.tx * Acts::UnitConstants::mm,
                                    t.ty * Acts::UnitConstants::mm,
@@ -167,7 +191,7 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
     std::vector<Acts::DigitizationCell> digitizationCells;
     {
       auto range = makeRange(std::equal_range(
-          cells.begin(), cells.end(), hit.hit_id, HitIdComparator{}));
+          cells.begin(), cells.end(), hit.hit_id, CompareHitId{}));
       for (const auto& c : range) {
         digitizationCells.emplace_back(c.ch0, c.ch1, c.value);
       }
@@ -180,28 +204,39 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
     Acts::Vector3D mom(1, 1, 1);  // fake momentum
     Acts::Vector2D local(0, 0);
     surface.globalToLocal(ctx.geoContext, pos, mom, local);
-
     // TODO what to use as cluster uncertainty?
     Acts::ActsSymMatrixD<2> cov = Acts::ActsSymMatrixD<2>::Identity();
-
     // create the planar cluster
     Acts::PlanarModuleCluster cluster(
         surface.getSharedPtr(),
-        Identifier(Identifier::identifier_type(geoID.value()), particles),
+        Identifier(Identifier::identifier_type(geoId.value()), particles),
         std::move(cov),
         local[0],
         local[1],
         std::move(digitizationCells));
-    FW::Data::insert(clusters,
-                     static_cast<geo_id_value>(hit.volume_id),
-                     static_cast<geo_id_value>(hit.layer_id),
-                     static_cast<geo_id_value>(hit.module_id),
-                     std::move(cluster));
+
+    // due to the previous sorting of the raw hit data by geometry id, new
+    // clusters should always end up at the end of the container. previous
+    // elements were not touched; cluster indices remain stable and can
+    // be used to identify the hit.
+    auto inserted
+        = clusters.emplace_hint(clusters.end(), geoId, std::move(cluster));
+    if (std::next(inserted) != clusters.end()) {
+      ACTS_FATAL("Something went horribly wrong with the hit sorting");
+      return ProcessCode::ABORT;
+    }
+    auto hitIndex            = clusters.index_of(inserted);
+    auto generatingParticles = makeRange(std::equal_range(
+        truths.begin(), truths.end(), hit.hit_id, CompareHitId{}));
+    for (const auto& particle : generatingParticles) {
+      hitParticlesMap.emplace_hint(
+          hitParticlesMap.end(), hitIndex, particle.particle_id);
+    }
   }
 
   // write the data to the EventStore
   ctx.eventStore.add(m_cfg.outputClusters, std::move(clusters));
-  ctx.eventStore.add(m_cfg.outputHitParticleMap, std::move(hitParticleMap));
+  ctx.eventStore.add(m_cfg.outputHitParticlesMap, std::move(hitParticlesMap));
 
   return FW::ProcessCode::SUCCESS;
 }
