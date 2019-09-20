@@ -25,8 +25,7 @@ struct FrameworkRndmEngine : public Pythia8::RndmEngine
 };
 }  // namespace
 
-std::function<
-    std::vector<FW::Data::SimVertex<FW::Data::SimParticle>>(FW::RandomEngine&)>
+std::function<std::vector<FW::Data::SimVertex>(FW::RandomEngine&)>
 FW::Pythia8Generator::makeFunction(const FW::Pythia8Generator::Config& cfg)
 {
   auto gen = std::make_shared<Pythia8Generator>(cfg);
@@ -52,14 +51,14 @@ FW::Pythia8Generator::Pythia8Generator(const FW::Pythia8Generator::Config& cfg,
   m_pythia8.init();
 }
 
-std::vector<FW::Data::SimVertex<FW::Data::SimParticle>>
+std::vector<FW::Data::SimVertex>
 FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
 {
   using namespace Data;
 
   // first vertex in list is the primary one at origin with time=0
-  std::vector<SimVertex<SimParticle>> processes = {
-      SimVertex<SimParticle>({0.0, 0.0, 0.0}),
+  std::vector<SimVertex> processes = {
+      SimVertex({0.0, 0.0, 0.0}),
   };
 
   // pythia8 is not thread safe and generation needs to be protected
@@ -96,23 +95,22 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
 
     if (genParticle.hasVertex()) {
       // either add to existing vertex w/ the same position or create new one
-      // TODO can we do this w/p the manual search?
-      auto it = std::find_if(processes.begin(),
-                             processes.end(),
-                             [&](const SimVertex<SimParticle>& vertex) {
-                               return (vertex.position == particle.position());
-                             });
+      // TODO can we do this w/o the manual search?
+      auto it = std::find_if(
+          processes.begin(), processes.end(), [&](const SimVertex& vertex) {
+            return (vertex.position == particle.position());
+          });
       if (it == processes.end()) {
-        processes.push_back(SimVertex<SimParticle>(particle.position()));
-        processes.back().out.push_back(std::move(particle));
+        processes.push_back(SimVertex(particle.position()));
+        processes.back().outgoing.push_back(std::move(particle));
         ACTS_VERBOSE("created new secondary vertex "
                      << processes.back().position.transpose());
       } else {
-        it->out.push_back(std::move(particle));
+        it->outgoing.push_back(std::move(particle));
       }
     } else {
       // without a set vertex particles belong to the primary one
-      processes.front().out.push_back(std::move(particle));
+      processes.front().outgoing.push_back(std::move(particle));
     }
   }
   return processes;

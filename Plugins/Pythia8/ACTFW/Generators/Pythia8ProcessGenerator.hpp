@@ -33,8 +33,7 @@ public:
         = {{"HardQCD:all = on"}};  ///< additional pythia settings
   };
 
-  static std::function<
-      std::vector<Data::SimVertex<Data::SimParticle>>(RandomEngine&)>
+  static std::function<std::vector<Data::SimVertex>(RandomEngine&)>
   makeFunction(const Config& cfg);
 
   // try to prevent pythia breakage by forbidding copying
@@ -51,7 +50,7 @@ public:
   Pythia8Generator(const Config&        cfg,
                    Acts::Logging::Level level = Acts::Logging::INFO);
 
-  std::vector<Data::SimVertex<Data::SimParticle>>
+  std::vector<Data::SimVertex>
   operator()(RandomEngine& rng);
 
 private:
