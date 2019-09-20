@@ -21,7 +21,7 @@
 FW::Csv::CsvParticleWriter::CsvParticleWriter(
     const FW::Csv::CsvParticleWriter::Config& cfg,
     Acts::Logging::Level                      level)
-  : Base(cfg.inputEvent, "CsvParticleWriter", level), m_cfg(cfg)
+  : WriterT(cfg.inputEvent, "CsvParticleWriter", level), m_cfg(cfg)
 {
   // inputEvent is already checked by base constructor
   if (m_cfg.outputStem.empty()) {
@@ -30,9 +30,8 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
 }
 
 FW::ProcessCode
-FW::Csv::CsvParticleWriter::writeT(
-    const FW::AlgorithmContext&           context,
-    const std::vector<Data::SimVertex<>>& vertices)
+FW::Csv::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
+                                   const std::vector<Data::SimVertex>& vertices)
 {
   // use pointer instead of reference since it is optional
   const std::map<barcode_type, size_t>* hitsPerParticle = nullptr;
@@ -49,7 +48,7 @@ FW::Csv::CsvParticleWriter::writeT(
   ParticleData data;
   data.nhits = -1;  // default for every entry if information unvailable
   for (auto& vertex : vertices) {
-    for (auto& particle : vertex.outgoing()) {
+    for (auto& particle : vertex.outgoing) {
       data.particle_id   = particle.barcode();
       data.particle_type = particle.pdg();
       data.vx            = particle.position().x() / Acts::UnitConstants::mm;

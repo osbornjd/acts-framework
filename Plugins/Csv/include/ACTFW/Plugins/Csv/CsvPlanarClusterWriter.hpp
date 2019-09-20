@@ -37,8 +37,6 @@ namespace Csv {
     : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
   {
   public:
-    using Base = WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>;
-
     struct Config
     {
       /// Which cluster collection to write.
