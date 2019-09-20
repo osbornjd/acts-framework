@@ -23,7 +23,7 @@
 FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
     const FW::Root::RootPlanarClusterWriter::Config& cfg,
     Acts::Logging::Level                             level)
-  : Base(cfg.collection, "RootPlanarClusterWriter", level)
+  : WriterT(cfg.collection, "RootPlanarClusterWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {

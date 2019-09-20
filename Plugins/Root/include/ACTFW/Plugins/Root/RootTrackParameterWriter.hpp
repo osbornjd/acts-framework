@@ -26,7 +26,6 @@ namespace Root {
   class RootTrackParameterWriter final : public TrackParameterWriter
   {
   public:
-    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection;             ///< parameter collection to write

@@ -7,8 +7,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
+
 #include <ios>
 #include <stdexcept>
+
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
@@ -19,7 +21,7 @@
 FW::Root::RootSimHitWriter::RootSimHitWriter(
     const FW::Root::RootSimHitWriter::Config& cfg,
     Acts::Logging::Level                      level)
-  : Base(cfg.collection, "RootSimHitWriter", level)
+  : WriterT(cfg.collection, "RootSimHitWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {

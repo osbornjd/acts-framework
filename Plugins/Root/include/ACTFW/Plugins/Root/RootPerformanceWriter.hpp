@@ -48,8 +48,6 @@ namespace Root {
   class RootPerformanceWriter final : public WriterT<TrajectoryVector>
   {
   public:
-    using Base = WriterT<TrajectoryVector>;
-    /// @brief The nested configuration struct
     struct Config
     {
       std::string trackCollection;           ///< trajectory collection to write

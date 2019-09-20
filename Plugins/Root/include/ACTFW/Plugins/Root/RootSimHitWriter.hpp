@@ -9,16 +9,17 @@
 #pragma once
 
 #include <mutex>
+
+#include <TFile.h>
+#include <TTree.h>
+
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "TFile.h"
-#include "TTree.h"
 
 namespace FW {
-
 namespace Root {
 
   /// @class RootSimHitWriter
@@ -37,10 +38,6 @@ namespace Root {
           DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>
   {
   public:
-    using Base
-        = WriterT<DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>;
-
-    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection;             ///< cluster collection to write

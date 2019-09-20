@@ -34,9 +34,6 @@ namespace Root {
     : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
   {
   public:
-    using Base = WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>;
-
-    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection = "";          ///< particle collection to write

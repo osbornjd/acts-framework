@@ -38,7 +38,6 @@ namespace Root {
   class RootParticleWriter final : public ParticleWriter
   {
   public:
-    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection;              ///< particle collection to write

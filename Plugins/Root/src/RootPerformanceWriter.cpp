@@ -18,7 +18,7 @@ using Acts::VectorHelpers::eta;
 FW::Root::RootPerformanceWriter::RootPerformanceWriter(
     const FW::Root::RootPerformanceWriter::Config& cfg,
     Acts::Logging::Level                           level)
-  : Base(cfg.trackCollection, "RootPerformanceWriter", level)
+  : WriterT(cfg.trackCollection, "RootPerformanceWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {

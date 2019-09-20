@@ -23,7 +23,7 @@ using Acts::VectorHelpers::phi;
 FW::Root::RootParticleWriter::RootParticleWriter(
     const FW::Root::RootParticleWriter::Config& cfg,
     Acts::Logging::Level                        level)
-  : ParticleWriter(cfg.collection, "RootParticleWriter", level)
+  : WriterT(cfg.collection, "RootParticleWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {

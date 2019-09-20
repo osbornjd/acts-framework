@@ -42,9 +42,6 @@ namespace Root {
     : public WriterT<std::vector<Acts::RecordedMaterialTrack>>
   {
   public:
-    using Base = WriterT<std::vector<Acts::RecordedMaterialTrack>>;
-
-    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection

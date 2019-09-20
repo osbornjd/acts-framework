@@ -21,7 +21,7 @@ using Acts::VectorHelpers::theta;
 FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
     const FW::Root::RootTrajectoryWriter::Config& cfg,
     Acts::Logging::Level                          level)
-  : Base(cfg.trackCollection, "RootTrajectoryWriter", level)
+  : WriterT(cfg.trackCollection, "RootTrajectoryWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
