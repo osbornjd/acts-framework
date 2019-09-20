@@ -18,21 +18,22 @@ class Surface;
 namespace FW {
 namespace Data {
 
-  /// Information of a particle hit on a surface.
+  /// A particle hit on a surface.
   ///
   /// This contains the minimal, undigitized information.
   struct SimHit
   {
-    /// The surface where the hit was created
-    const Acts::Surface* surface = nullptr;
+    /// TODO replace by combined 4d position
     /// The global position of the hit
     Acts::Vector3D position = Acts::Vector3D(0., 0., 0.);
+    /// The time of the hit
+    double time = 0.;
     /// The global direction of the particle at hit position
     Acts::Vector3D direction = Acts::Vector3D(0., 0., 0.);
     /// The value representing the hit (e.g. energy deposit)
     double value = 0.;
-    /// The time stamp of the particle
-    double timeStamp = 0.;
+    /// The surface where the hit was created
+    const Acts::Surface* surface = nullptr;
     /// The particle that created the simulation hit
     SimParticle particle;
   };
@@ -41,7 +42,6 @@ namespace Data {
   /// interface to construct simulation hits from Fatras
   struct SimHitCreator
   {
-
     /// @brief Hit creation from Fatras simulation
     ///
     /// @param surface is the Surface where the hit is created
@@ -61,10 +61,11 @@ namespace Data {
                const SimParticle&    simParticle) const
     {
       SimHit simHit;
-      simHit.surface   = &surface;
       simHit.position  = position;
+      simHit.time      = time;
       simHit.direction = direction;
       simHit.value     = value;
+      simHit.surface   = &surface;
       simHit.particle  = simParticle;
       return simHit;
     }
