@@ -10,18 +10,17 @@
 
 #include <Acts/Utilities/Definitions.hpp>
 
+#include "ACTFW/EventData/SimParticle.hpp"
+
 namespace Acts {
 class Surface;
 }
 namespace FW {
 namespace Data {
 
-  /// @brief Information to be writtern out per hit surface
-  /// - this is the bare information on a surface
+  /// Information of a particle hit on a surface.
   ///
-  /// @tparam particle_t
-  /// Type of the particle that created to the simhit
-  template <typename particle_t>
+  /// This contains the minimal, undigitized information.
   struct SimHit
   {
     /// The surface where the hit was created
@@ -35,7 +34,7 @@ namespace Data {
     /// The time stamp of the particle
     double timeStamp = 0.;
     /// The particle that created the simulation hit
-    particle_t particle;
+    SimParticle particle;
   };
 
   /// @brief Constructor of Sensitive Hits, provides a simple
@@ -53,16 +52,15 @@ namespace Data {
     /// @param particle the particle for the truth link
     ///
     /// @return a SimHit object that is created from input parameters
-    template <typename particle_t>
-    SimHit<particle_t>
+    SimHit
     operator()(const Acts::Surface&  surface,
                const Acts::Vector3D& position,
                const Acts::Vector3D& direction,
                double                value,
                double                time,
-               const particle_t&     simParticle) const
+               const SimParticle&    simParticle) const
     {
-      SimHit<particle_t> simHit;
+      SimHit simHit;
       simHit.surface   = &surface;
       simHit.position  = position;
       simHit.direction = direction;
