@@ -41,7 +41,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
 {
 
   const auto& vertexCollection
-      = context.eventStore.get<std::vector<FW::Data::SimVertex<>>>(m_cfg.input);
+      = context.eventStore.get<std::vector<FW::Data::SimVertex>>(m_cfg.input);
 
   std::shared_ptr<Acts::PerigeeSurface> perigeeSurface
       = Acts::Surface::makeShared<Acts::PerigeeSurface>(m_cfg.refPosition);
@@ -79,7 +79,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
     std::vector<Acts::BoundParameters> trackCollection;
 
     // Iterate over all particle emerging from current vertex
-    for (auto const& particle : vtx.out) {
+    for (auto const& particle : vtx.outgoing) {
       const Acts::Vector3D& ptclMom = particle.momentum();
 
       // Define start track params
