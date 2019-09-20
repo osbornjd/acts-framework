@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <Acts/Geometry/GeometryID.hpp>
+#include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 
 #include "ACTFW/Utilities/Range.hpp"
@@ -135,6 +136,14 @@ selectModule(const GeometryIdMultiset<T>& container,
   geoId.add(module, Acts::GeometryID::sensitive_mask);
   return makeRange(container.equal_range(geoId));
 }
+
+/// Store elements that are identified by an index, e.g. in another container.
+///
+/// Each index can have zero or more associated elements. A typical case could
+/// be to store all generating particles for a hit where the hit is identified
+/// by its index in the hit container.
+template <typename T, typename IndexType = size_t>
+using IndexMultimap = boost::container::flat_multimap<IndexType, T>;
 
 /// Data containers designed to fit around the GeometryID structure
 ///
