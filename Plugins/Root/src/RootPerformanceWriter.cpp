@@ -87,23 +87,16 @@ FW::Root::RootPerformanceWriter::writeT(const AlgorithmContext& ctx,
   m_eventNr = ctx.eventNumber;
 
   // Read truth particles from input collection
-  const std::vector<Data::SimVertex<>>* simulatedEvent = nullptr;
-  simulatedEvent = &ctx.eventStore.get<std::vector<Data::SimVertex<>>>(
+  const auto& simulatedEvent = ctx.eventStore.get<std::vector<Data::SimVertex>>(
       m_cfg.simulatedEventCollection);
-  if (!simulatedEvent) {
-    throw std::ios_base::failure("Retrieve truth particle collection "
-                                 + m_cfg.simulatedEventCollection
-                                 + " failure!");
-  }
-
   ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
-                                 << simulatedEvent->size() << " vertices");
+                                 << simulatedEvent.size() << " vertices");
 
   // Get the map of truth particle
   ACTS_DEBUG("Get the truth particles.");
   std::map<barcode_type, Data::SimParticle> particles;
-  for (auto& vertex : *simulatedEvent) {
-    for (auto& particle : vertex.outgoing()) {
+  for (auto& vertex : simulatedEvent) {
+    for (auto& particle : vertex.outgoing) {
       particles.insert(std::make_pair(particle.barcode(), particle));
     }
   }

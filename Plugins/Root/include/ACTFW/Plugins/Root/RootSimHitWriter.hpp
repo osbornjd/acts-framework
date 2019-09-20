@@ -34,8 +34,7 @@ namespace Root {
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
   class RootSimHitWriter
-    : public WriterT<
-          DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>
+    : public WriterT<DetectorData<geo_id_value, Data::SimHit>>
   {
   public:
     struct Config
@@ -67,9 +66,9 @@ namespace Root {
     /// @param context The Algorithm context with per event information
     /// @param simhits The simulation hits collection to we written out
     ProcessCode
-    writeT(const AlgorithmContext& context,
-           const DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>&
-               simhits) final override;
+    writeT(
+        const AlgorithmContext&                         context,
+        const DetectorData<geo_id_value, Data::SimHit>& simhits) final override;
 
   private:
     Config     m_cfg;         ///< the configuration object
