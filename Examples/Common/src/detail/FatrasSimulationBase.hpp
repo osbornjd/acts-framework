@@ -40,8 +40,8 @@
 #include "Fatras/Selectors/KinematicCasts.hpp"
 #include "Fatras/Selectors/SelectorHelpers.hpp"
 
-typedef FW::Data::SimHit<FW::Data::SimParticle> FatrasHit;
-typedef std::vector<FW::Data::SimVertex<>>      FatrasEvent;
+typedef FW::Data::SimHit                 FatrasHit;
+typedef std::vector<FW::Data::SimVertex> FatrasEvent;
 
 namespace po = boost::program_options;
 
@@ -137,7 +137,7 @@ setupSimulationAlgorithm(
 
   typedef Fatras::Interactor<FW::RandomEngine,
                              FW::Data::SimParticle,
-                             FW::Data::SimHit<FW::Data::SimParticle>,
+                             FW::Data::SimHit,
                              FW::Data::SimHitCreator,
                              SurfaceSelector,
                              PhysicsList>
@@ -145,7 +145,7 @@ setupSimulationAlgorithm(
 
   typedef Fatras::Interactor<FW::RandomEngine,
                              FW::Data::SimParticle,
-                             FW::Data::SimHit<FW::Data::SimParticle>,
+                             FW::Data::SimHit,
                              FW::Data::SimHitCreator>
       NeutralInteractor;
 
