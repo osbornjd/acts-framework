@@ -34,7 +34,7 @@ namespace Csv {
   ///
   /// and each line in the file corresponds to one hit/cluster.
   class CsvPlanarClusterWriter
-    : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
+    : public WriterT<GeometryIdMultimap<Acts::PlanarModuleCluster>>
   {
   public:
     struct Config
@@ -57,9 +57,9 @@ namespace Csv {
     /// This implementation holds the actual writing method
     /// and is called by the WriterT<>::write interface
     ProcessCode
-    writeT(const AlgorithmContext& context,
-           const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
-               clusters) final override;
+    writeT(const AlgorithmContext&                              context,
+           const GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
+        final override;
 
   private:
     Config m_cfg;

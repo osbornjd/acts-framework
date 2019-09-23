@@ -54,7 +54,7 @@ FW::Csv::CsvParticleReader::availableEvents() const
 FW::ProcessCode
 FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 {
-  Data::SimParticles particles;
+  SimParticles particles;
 
   auto path = perEventFilepath(
       m_cfg.inputDir, m_cfg.inputStem + ".csv", ctx.eventNumber);
