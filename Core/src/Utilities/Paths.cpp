@@ -12,9 +12,24 @@
 #include <cstdio>
 #include <regex>
 #include <sstream>
+#include <stdexcept>
 
 #include <Acts/Utilities/Logger.hpp>
 #include <boost/filesystem.hpp>
+
+std::string
+FW::ensureWritableDirectory(const std::string& dir)
+{
+  using namespace boost::filesystem;
+
+  auto dir_path = dir.empty() ? current_path() : path(dir);
+  if (exists(dir_path) and not is_directory(dir_path)) {
+    throw std::runtime_error("'" + dir
+                             + "' already exists but is not a directory");
+  }
+  create_directories(dir_path);
+  return canonical(dir_path).native();
+}
 
 std::string
 FW::joinPaths(const std::string& dir, const std::string& name)

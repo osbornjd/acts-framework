@@ -14,6 +14,14 @@
 
 namespace FW {
 
+/// Ensure that the given directory exists and is writable.
+///
+/// @return Canonical path to the directory.
+///
+/// Will create missing directories and throw on any error.
+std::string
+ensureWritableDirectory(const std::string& dir);
+
 /// Join dir and name into one path with correct handling of empty dirs.
 std::string
 joinPaths(const std::string& dir, const std::string& name);
