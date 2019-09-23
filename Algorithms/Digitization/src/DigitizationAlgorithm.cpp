@@ -35,13 +35,14 @@ FW::DigitizationAlgorithm::DigitizationAlgorithm(
 {
   if (m_cfg.simulatedHitCollection.empty()) {
     throw std::invalid_argument("Missing input hits collection");
-  } else if (m_cfg.spacePointCollection.empty()) {
-    throw std::invalid_argument("Missing output space points collection");
-  } else if (m_cfg.clusterCollection.empty()) {
+  }
+  if (m_cfg.clusterCollection.empty()) {
     throw std::invalid_argument("Missing output clusters collection");
-  } else if (!m_cfg.randomNumberSvc) {
+  }
+  if (!m_cfg.randomNumberSvc) {
     throw std::invalid_argument("Missing random numbers service");
-  } else if (!m_cfg.planarModuleStepper) {
+  }
+  if (!m_cfg.planarModuleStepper) {
     throw std::invalid_argument("Missing planar module stepper");
   }
 }

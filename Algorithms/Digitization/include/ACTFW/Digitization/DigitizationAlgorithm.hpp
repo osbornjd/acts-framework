@@ -44,9 +44,7 @@ public:
   struct Config
   {
     /// input hit collection
-    std::string simulatedHitCollection = "";
-    /// output space point collection
-    std::string spacePointCollection   = "";
+    std::string simulatedHitCollection;
     /// output clusters collection
     std::string clusterCollection      = "";
     /// input resolution file, needed for gaussian smearing
