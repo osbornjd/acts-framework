@@ -23,6 +23,7 @@
 #include "ACTFW/Options/Pythia8Options.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 
 #include "ACTFW/Detector/IBaseDetector.hpp"
 #include "detail/FatrasDigitizationBase.hpp"
@@ -73,6 +74,9 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   auto contextDecorators = geometry.second;
   // Add the decorator to the sequencer
   for (auto cdr : contextDecorators) { sequencer.addContextDecorator(cdr); }
+
+  // make sure the output directory exists
+  FW::ensureWritableDirectory(vm["output-dir"].as<std::string>());
 
   // (A) EVGEN
   // Setup the evgen input to the simulation
