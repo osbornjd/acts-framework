@@ -38,9 +38,8 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
                                  << simulatedEvent.size() << " vertices");
 
   // Read truth hits from input collection
-  const auto& simHits
-      = context.eventStore.get<FW::DetectorData<geo_id_value, Data::SimHit>>(
-          m_cfg.simulatedHitCollection);
+  const auto& simHits = context.eventStore.get<SimHits>(
+    m_cfg.simulatedHitCollection);
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
                                     << "' from event store.");
 
@@ -50,51 +49,41 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
   // Prepare the measurements for KalmanFitter
   ACTS_DEBUG("Prepare the measurements and then tracks");
   std::map<barcode_type, std::vector<Data::SimSourceLink>> sourceLinkMap;
-  for (auto& vData : simHits) {
-    for (auto& lData : vData.second) {
-      for (auto& sData : lData.second) {
-        // get the hit
-        for (auto& hit : sData.second) {
-          // get the barcode of the particle associated to the hit
-          barcode_type barcode = hit.particle.barcode();
-          // get the surface of hit
-          auto hitSurface = hit.surface;
-          // get the geoID and transform of the surface
-          auto geoID = hitSurface->geoID();
+  for (const Data::SimHit& hit : simHits) {
+    // get the barcode of the particle associated to the hit
+    barcode_type barcode = hit.particle.barcode();
+    // get the surface of hit
+    const auto& hitSurface = *hit.surface;
 
-          // transform global into local position
-          Acts::Vector2D local(0, 0);
-          Acts::Vector3D mom(1, 1, 1);
-          hitSurface->globalToLocal(
-              context.geoContext, hit.position, mom, local);
+    // transform global into local position
+    Acts::Vector2D local(0, 0);
+    Acts::Vector3D mom(1, 1, 1);
+    hitSurface.globalToLocal(context.geoContext, hit.position, mom, local);
 
-          // smear the truth hit with a gaussian and set the covariance
-          double resX = m_cfg.measurementSigma[0] * Acts::units::_um;
-          double resY = m_cfg.measurementSigma[1] * Acts::units::_um;
-          Acts::ActsSymMatrixD<2> cov2D;
-          cov2D << resX * resX, 0., 0., resY * resY;
+    // smear the truth hit with a gaussian and set the covariance
+    double                  resX = m_cfg.measurementSigma[0] * Acts::units::_um;
+    double                  resY = m_cfg.measurementSigma[1] * Acts::units::_um;
+    Acts::ActsSymMatrixD<2> cov2D;
+    cov2D << resX * resX, 0., 0., resY * resY;
 
-          double dx = resX * gauss(generator);
-          double dy = resY * gauss(generator);
+    double dx = resX * gauss(generator);
+    double dy = resY * gauss(generator);
 
-          // move a ,LOC_0, LOC_1 measurement
-          // make source link which includes smeared hit
+    // move a ,LOC_0, LOC_1 measurement
+    // make source link which includes smeared hit
 
-          Acts::BoundMatrix cov{};
-          cov.topLeftCorner<2, 2>() = cov2D;
+    Acts::BoundMatrix cov{};
+    cov.topLeftCorner<2, 2>() = cov2D;
 
-          Acts::BoundVector loc{};
-          loc.head<2>() << local[Acts::ParDef::eLOC_0] + dx,
-              local[Acts::ParDef::eLOC_1] + dy;
+    Acts::BoundVector loc{};
+    loc.head<2>() << local[Acts::ParDef::eLOC_0] + dx,
+        local[Acts::ParDef::eLOC_1] + dy;
 
-          Data::SimSourceLink sourceLink{&hit, 2, loc, cov};
+    Data::SimSourceLink sourceLink{&hit, 2, loc, cov};
 
-          // push the truth hits for this particle
-          sourceLinkMap[barcode].push_back(sourceLink);
-        }  // hit loop
-      }    // module loop
-    }      // layer loop
-  }        // volume loop
+    // push the truth hits for this particle
+    sourceLinkMap[barcode].push_back(sourceLink);
+  }
 
   ACTS_DEBUG("There are " << sourceLinkMap.size() << " tracks for this event ");
 

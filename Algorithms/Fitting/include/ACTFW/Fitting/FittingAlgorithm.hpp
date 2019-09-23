@@ -46,14 +46,13 @@ public:
   /// Nested configuration struct
   struct Config
   {
-
     Config(kalman_Fitter_t fitter) : kFitter(std::move(fitter)) {}
     /// input hit collection
-    std::string simulatedHitCollection = "";
+    std::string simulatedHitCollection;
     /// input event collection
-    std::string simulatedEventCollection = "";
+    std::string simulatedEventCollection;
     /// output track collection
-    std::string trackCollection = "";
+    std::string trackCollection;
     /// kalmanFitter instance
     kalman_Fitter_t kFitter;
     /// FW random number service
