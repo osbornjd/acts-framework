@@ -301,11 +301,8 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       auto truthHit = (*state.measurement.uncalibrated).truthHit();
       // get local truth position
       Acts::Vector2D truthlocal;
-      (truthHit.surface)
-          ->globalToLocal(ctx.geoContext,
-                          truthHit.position,
-                          truthHit.direction,
-                          truthlocal);
+      truthHit.surface->globalToLocal(
+          ctx.geoContext, truthHit.position, truthHit.direction, truthlocal);
 
       // push the truth hit info
       m_t_x.push_back(truthHit.position.x());

@@ -15,8 +15,6 @@
 
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 
 namespace FW {
@@ -33,8 +31,7 @@ namespace Root {
   /// this is done by setting the Config::rootFile pointer to an existing file
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
-  class RootSimHitWriter
-    : public WriterT<DetectorData<geo_id_value, Data::SimHit>>
+  class RootSimHitWriter : public WriterT<SimHits>
   {
   public:
     struct Config
@@ -66,9 +63,7 @@ namespace Root {
     /// @param context The Algorithm context with per event information
     /// @param simhits The simulation hits collection to we written out
     ProcessCode
-    writeT(
-        const AlgorithmContext&                         context,
-        const DetectorData<geo_id_value, Data::SimHit>& simhits) final override;
+    writeT(const AlgorithmContext& context, const SimHits& hits) final override;
 
   private:
     Config     m_cfg;         ///< the configuration object
