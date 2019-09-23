@@ -28,7 +28,7 @@ namespace Obj {
   ///
   /// One write call per thread and hence thread safe.
   template <typename T>
-  class ObjSpacePointWriter : public WriterT<DetectorData<geo_id_value, T>>
+  class ObjSpacePointWriter : public WriterT<GeometryIdMultimap<T>>
   {
   public:
     struct Config
@@ -45,11 +45,11 @@ namespace Obj {
   protected:
     ProcessCode
     writeT(const AlgorithmContext&              context,
-           const DetectorData<geo_id_value, T>& spacePoints);
+           const GeometryIdMultimap<T>& spacePoints);
 
   private:
     // since class iitself is templated, base class template must be fixed
-    using Base = WriterT<DetectorData<geo_id_value, T>>;
+    using Base = WriterT<GeometryIdMultimap<T>>;
 
     Config m_cfg;
   };
@@ -72,7 +72,7 @@ template <typename T>
 inline FW::ProcessCode
 FW::Obj::ObjSpacePointWriter<T>::writeT(
     const FW::AlgorithmContext&              context,
-    const FW::DetectorData<geo_id_value, T>& spacePoints)
+    const FW::GeometryIdMultimap<T>& spacePoints)
 {
   // open per-event file
   std::string path = FW::perEventFilepath(
