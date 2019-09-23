@@ -6,17 +6,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-template <typename simulator_t, typename event_collection_t, typename hit_t>
-FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::FatrasAlgorithm(
+template <typename simulator_t, typename event_collection_t>
+FW::FatrasAlgorithm<simulator_t, event_collection_t>::FatrasAlgorithm(
     const Config&        cfg,
     Acts::Logging::Level loglevel)
   : FW::BareAlgorithm("FatrasAlgorithm", loglevel), m_cfg(cfg)
 {
 }
 
-template <typename simulator_t, typename event_collection_t, typename hit_t>
+template <typename simulator_t, typename event_collection_t>
 FW::ProcessCode
-FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
+FW::FatrasAlgorithm<simulator_t, event_collection_t>::execute(
     const AlgorithmContext& context) const
 {
 
@@ -35,7 +35,7 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
   event_collection_t simulatedEvent(inputEvent);
 
   // Create the hit collection
-  HitCollection<hit_t> simulatedHits;
+  SimHits simulatedHits;
 
   // The simulation call
   m_cfg.simulator(context, rng, simulatedEvent, simulatedHits);
@@ -46,7 +46,7 @@ FW::FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::execute(
                          std::move(simulatedEvent));
   // The simulated hits
   context.eventStore.add(m_cfg.simulatedHitCollection,
-                         std::move(simulatedHits.hits));
+                         std::move(simulatedHits));
 
   return FW::ProcessCode::SUCCESS;
 }

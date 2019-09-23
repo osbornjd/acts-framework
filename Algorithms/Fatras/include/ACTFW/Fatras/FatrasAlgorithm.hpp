@@ -11,39 +11,14 @@
 #include <cmath>
 #include <limits>
 #include <memory>
-#include "ACTFW/EventData/DataContainers.hpp"
+
+#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
 
 namespace FW {
-
-/// @brief Nested hit collection struct to shield fatras from FW data structures
-///
-/// @tparam hit_t Type of the hit objects
-template <typename hit_t>
-struct HitCollection
-{
-  /// The actual hit collection
-  FW::DetectorData<geo_id_value, hit_t> hits;
-
-  /// The hit inserter method
-  ///
-  /// @param [in] hit The hit object to be inserted
-  void
-  insert(hit_t hit)
-  {
-    /// Decode the geometry ID values
-    auto         geoID    = hit.surface->geoID();
-    geo_id_value volumeID = geoID.value(Acts::GeometryID::volume_mask);
-    geo_id_value layerID  = geoID.value(Acts::GeometryID::layer_mask);
-    geo_id_value moduleID = geoID.value(Acts::GeometryID::sensitive_mask);
-    /// Insert the simulate hit into the collection
-    FW::Data::insert(hits, volumeID, layerID, moduleID, std::move(hit));
-  }
-};
 
 /// @class FatrasAlgorithm
 ///
@@ -55,13 +30,12 @@ struct HitCollection
 /// @tparam simulator_t The Fatras simulation kernel type
 /// @tparam event_collection_t  The event collection type
 /// @tparam hit_t The hit Type
-template <typename simulator_t, typename event_collection_t, typename hit_t>
+template <typename simulator_t, typename event_collection_t>
 class FatrasAlgorithm : public BareAlgorithm
 {
 public:
   struct Config
   {
-
     /// @brief Config constructor with propagator type
     ///
     /// @param[in] fsimulator Propagator object for charged particles
@@ -74,13 +48,13 @@ public:
     std::shared_ptr<FW::RandomNumbers> randomNumberSvc = nullptr;
 
     /// the input event collection name
-    std::string inputEventCollection = "";
+    std::string inputEventCollection;
 
     /// the simulated particles output collection name
-    std::string simulatedEventCollection = "";
+    std::string simulatedEventCollection;
 
     /// the simulated hit output collection name
-    std::string simulatedHitCollection = "";
+    std::string simulatedHitCollection;
   };
 
   /// Constructor

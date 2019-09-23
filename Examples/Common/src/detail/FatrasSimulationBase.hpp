@@ -62,12 +62,11 @@ struct SimHitCreator
              double                       time,
              const FW::Data::SimParticle& simParticle) const
   {
-    FW::Data::SimHit simHit;
+    FW::Data::SimHit simHit(surface);
     simHit.position  = position;
     simHit.time      = time;
     simHit.direction = direction;
     simHit.value     = value;
-    simHit.surface   = &surface;
     simHit.particle  = simParticle;
     return simHit;
   }
@@ -188,14 +187,12 @@ setupSimulationAlgorithm(
   FatrasSimulator fatrasSimulator(cPropagator, nPropagator);
   fatrasSimulator.debug = vm["fatras-debug-output"].template as<bool>();
 
-  using FatrasAlgorithm
-      = FW::FatrasAlgorithm<FatrasSimulator, FatrasEvent, FatrasHit>;
+  using FatrasAlgorithm = FW::FatrasAlgorithm<FatrasSimulator, FatrasEvent>;
 
   typename FatrasAlgorithm::Config fatrasConfig
       = FW::Options::readFatrasConfig<po::variables_map,
                                       FatrasSimulator,
-                                      FatrasEvent,
-                                      FatrasHit>(vm, fatrasSimulator);
+                                      FatrasEvent>(vm, fatrasSimulator);
   fatrasConfig.randomNumberSvc      = randomNumberSvc;
   fatrasConfig.inputEventCollection = evgenCollection;
 
