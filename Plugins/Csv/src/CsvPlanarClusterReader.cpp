@@ -103,48 +103,62 @@ struct CompareGeometryId
     return leftId < rightId;
   }
 };
+
+template <typename Data>
+inline std::vector<Data>
+readEverything(const std::string& inputDir,
+               const std::string& filename,
+               size_t             event)
+{
+  std::string path = FW::perEventFilepath(inputDir, filename, event);
+  dfe::CsvNamedTupleReader<Data> reader(path);
+
+  std::vector<Data> everything;
+  Data              one;
+  while (reader.read(one)) { everything.push_back(one); }
+
+  return everything;
+}
+
+std::vector<FW::TruthData>
+readTruthByHitId(const std::string& inputDir, size_t event)
+{
+  auto truths = readEverything<FW::TruthData>(inputDir, "truth.csv", event);
+  // sort for fast hit id look up
+  std::sort(truths.begin(), truths.end(), CompareHitId{});
+  return truths;
+}
+
+std::vector<FW::CellData>
+readCellsByHitId(const std::string& inputDir, size_t event)
+{
+  auto cells = readEverything<FW::CellData>(inputDir, "cells.csv", event);
+  // sort for fast hit id look up
+  std::sort(cells.begin(), cells.end(), CompareHitId{});
+  return cells;
+}
+
+std::vector<FW::HitData>
+readHitsByGeoId(const std::string& inputDir, size_t event)
+{
+  auto hits = readEverything<FW::HitData>(inputDir, "hits.csv", event);
+  // sort same way they will be sorted in the output container
+  std::sort(hits.begin(), hits.end(), CompareGeometryId{});
+  return hits;
+}
+
 }  // namespace
 
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 {
-  // per-event file paths
-  std::string pathTruth
-      = perEventFilepath(m_cfg.inputDir, "truth.csv", ctx.eventNumber);
-  std::string pathCells
-      = perEventFilepath(m_cfg.inputDir, "cells.csv", ctx.eventNumber);
-  std::string pathHits
-      = perEventFilepath(m_cfg.inputDir, "hits.csv", ctx.eventNumber);
-  // open readers
-  dfe::CsvNamedTupleReader<TruthData> truthReader(pathTruth);
-  dfe::CsvNamedTupleReader<CellData>  cellReader(pathCells);
-  dfe::CsvNamedTupleReader<HitData>   hitReader(pathHits);
-
   // hid_id in the files is not required to be either continous or
   // monotonic. internally, we want continous indices within [0,#hits)
   // to simplify data handling. to be able to perform this mapping we first
   // read all data into memory before converting to the internal representation.
-  std::vector<TruthData> truths;
-  {
-    TruthData truth;
-    while (truthReader.read(truth)) { truths.push_back(truth); }
-    // sort for fast hit id look up
-    std::sort(truths.begin(), truths.end(), CompareHitId{});
-  }
-  std::vector<CellData> cells;
-  {
-    CellData cell;
-    while (cellReader.read(cell)) { cells.push_back(cell); }
-    // sort for fast hit id look up
-    std::sort(cells.begin(), cells.end(), CompareHitId{});
-  }
-  std::vector<HitData> hits;
-  {
-    HitData hit;
-    while (hitReader.read(hit)) { hits.push_back(hit); }
-    // sort same way they will be sorted in the output container
-    std::sort(hits.begin(), hits.end(), CompareGeometryId{});
-  }
+  auto truths = readTruthByHitId(m_cfg.inputDir, ctx.eventNumber);
+  auto cells  = readCellsByHitId(m_cfg.inputDir, ctx.eventNumber);
+  auto hits   = readHitsByGeoId(m_cfg.inputDir, ctx.eventNumber);
 
   // convert into internal representations
   GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
