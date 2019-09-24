@@ -96,7 +96,7 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
       truth.tx          = p->position().x() / Acts::UnitConstants::mm;
       truth.ty          = p->position().y() / Acts::UnitConstants::mm;
       truth.tz          = p->position().z() / Acts::UnitConstants::mm;
-      truth.tt          = 0 / Acts::UnitConstants::ns;  // TODO
+      truth.tt          = p->time() / Acts::UnitConstants::ns;
       truth.tpx         = p->momentum().x() / Acts::UnitConstants::GeV;
       truth.tpy         = p->momentum().y() / Acts::UnitConstants::GeV;
       truth.tpz         = p->momentum().z() / Acts::UnitConstants::GeV;

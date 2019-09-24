@@ -62,24 +62,24 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
   ParticleData                           data;
 
   while (reader.read(data)) {
-    Acts::Vector3D vertex = Acts::Vector3D(data.vx * Acts::UnitConstants::mm,
-                                           data.vy * Acts::UnitConstants::mm,
-                                           data.vz * Acts::UnitConstants::mm);
-    Acts::Vector3D momentum
-        = Acts::Vector3D(data.px * Acts::UnitConstants::GeV,
-                         data.py * Acts::UnitConstants::GeV,
-                         data.pz * Acts::UnitConstants::GeV);
+    Acts::Vector3D particlePos(data.vx * Acts::UnitConstants::mm,
+                               data.vy * Acts::UnitConstants::mm,
+                               data.vz * Acts::UnitConstants::mm);
+    double         particleTime = data.vt * Acts::UnitConstants::ns;
+    Acts::Vector3D particleMom(data.px * Acts::UnitConstants::GeV,
+                               data.py * Acts::UnitConstants::GeV,
+                               data.pz * Acts::UnitConstants::GeV);
     //@TODO: get mass and pdg from config?
     double mass = 0.;
     // the file is usually ordered by particle id already
     particles.emplace_hint(particles.end(),
-                           vertex,
-                           momentum,
+                           particlePos,
+                           particleMom,
                            mass,
                            data.q * Acts::UnitConstants::e,
                            data.particle_type,  // this is the pdg id
                            data.particle_id,
-                           data.vt * Acts::UnitConstants::ns);
+                           particleTime);
   }
 
   // write the truth particles to the EventStore

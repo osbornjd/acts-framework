@@ -172,6 +172,7 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
         Acts::Vector3D particlePos(t.tx * Acts::UnitConstants::mm,
                                    t.ty * Acts::UnitConstants::mm,
                                    t.tz * Acts::UnitConstants::mm);
+        double         particleTime = t.tt * Acts::UnitConstants::ns;
         Acts::Vector3D particleMom(t.tpx * Acts::UnitConstants::GeV,
                                    t.tpy * Acts::UnitConstants::GeV,
                                    t.tpz * Acts::UnitConstants::GeV);
@@ -182,8 +183,13 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
         double   mass   = 0;
         pdg_type pdgId  = 0;
         // TODO ownership
-        particles.emplace_back(new FW::Data::SimParticle(
-            particlePos, particleMom, mass, charge, pdgId, t.particle_id));
+        particles.emplace_back(new FW::Data::SimParticle(particlePos,
+                                                         particleMom,
+                                                         mass,
+                                                         charge,
+                                                         pdgId,
+                                                         t.particle_id,
+                                                         particleTime));
       }
     }
 
@@ -201,6 +207,7 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
     Acts::Vector3D pos(hit.x * Acts::UnitConstants::mm,
                        hit.y * Acts::UnitConstants::mm,
                        hit.z * Acts::UnitConstants::mm);
+    // TODO use hit time once clusters store it
     Acts::Vector3D mom(1, 1, 1);  // fake momentum
     Acts::Vector2D local(0, 0);
     surface.globalToLocal(ctx.geoContext, pos, mom, local);

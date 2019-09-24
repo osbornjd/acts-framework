@@ -54,7 +54,7 @@ FW::Csv::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
       data.vx            = particle.position().x() / Acts::UnitConstants::mm;
       data.vy            = particle.position().y() / Acts::UnitConstants::mm;
       data.vz            = particle.position().z() / Acts::UnitConstants::mm;
-      data.vt            = 0 / Acts::UnitConstants::ns;  // TODO
+      data.vt            = particle.time() / Acts::UnitConstants::ns;
       data.px            = particle.momentum().x() / Acts::UnitConstants::GeV;
       data.py            = particle.momentum().y() / Acts::UnitConstants::GeV;
       data.pz            = particle.momentum().z() / Acts::UnitConstants::GeV;
