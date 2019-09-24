@@ -8,6 +8,9 @@
 
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
 
+#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
+#include <Acts/Plugins/Identification/IdentifiedDetectorElement.hpp>
+#include <Acts/Utilities/Units.hpp>
 #include <dfe/dfe_io_dsv.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
@@ -18,8 +21,6 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "ACTFW/Utilities/Range.hpp"
-#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
-#include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
 #include "TrackMlData.hpp"
 
 FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
@@ -144,8 +145,12 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
       auto range = makeRange(std::equal_range(
           truths.begin(), truths.end(), hit.hit_id, HitIdComparator{}));
       for (const auto& t : range) {
-        Acts::Vector3D particlePos(t.tx, t.ty, t.tz);
-        Acts::Vector3D particleMom(t.tpx, t.tpy, t.tpz);
+        Acts::Vector3D particlePos(t.tx * Acts::UnitConstants::mm,
+                                   t.ty * Acts::UnitConstants::mm,
+                                   t.tz * Acts::UnitConstants::mm);
+        Acts::Vector3D particleMom(t.tpx * Acts::UnitConstants::GeV,
+                                   t.tpy * Acts::UnitConstants::GeV,
+                                   t.tpz * Acts::UnitConstants::GeV);
         // The following values are global to the particle and are not
         // duplicated in the per-hit file. They can be retrieved from
         // the particles file.
@@ -169,7 +174,9 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
     }
 
     // transform into local coordinates on the surface
-    Acts::Vector3D pos(hit.x, hit.y, hit.z);
+    Acts::Vector3D pos(hit.x * Acts::UnitConstants::mm,
+                       hit.y * Acts::UnitConstants::mm,
+                       hit.z * Acts::UnitConstants::mm);
     Acts::Vector3D mom(1, 1, 1);  // fake momentum
     Acts::Vector2D local(0, 0);
     surface.globalToLocal(ctx.geoContext, pos, mom, local);

@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include <Acts/Utilities/Units.hpp>
 #include <dfe/dfe_io_dsv.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
@@ -60,8 +61,13 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
   ParticleData data;
 
   while (reader.read(data)) {
-    Acts::Vector3D vertex   = Acts::Vector3D(data.x, data.y, data.z);
-    Acts::Vector3D momentum = Acts::Vector3D(data.px, data.py, data.pz);
+    Acts::Vector3D vertex = Acts::Vector3D(data.x * Acts::UnitConstants::mm,
+                                           data.y * Acts::UnitConstants::mm,
+                                           data.z * Acts::UnitConstants::mm);
+    Acts::Vector3D momentum
+        = Acts::Vector3D(data.px * Acts::UnitConstants::GeV,
+                         data.py * Acts::UnitConstants::GeV,
+                         data.pz * Acts::UnitConstants::GeV);
     //@TODO: get mass and pdg from config?
     double mass = 0.;
     // the file is usually ordered by particle id already
@@ -69,10 +75,10 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
                            vertex,
                            momentum,
                            mass,
-                           data.q,
+                           data.q * Acts::UnitConstants::e,
                            data.particle_type,
                            data.particle_id,  // this is the pdg id
-                           data.t);
+                           data.t * Acts::UnitConstants::ns);
   }
 
   // write the truth particles to the EventStore

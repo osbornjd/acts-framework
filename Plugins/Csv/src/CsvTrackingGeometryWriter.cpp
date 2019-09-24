@@ -12,13 +12,13 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <dfe/dfe_io_dsv.hpp>
-
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/Plugins/Digitization/CartesianSegmentation.hpp>
 #include <Acts/Plugins/Digitization/DigitizationModule.hpp>
 #include <Acts/Plugins/Identification/IdentifiedDetectorElement.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Units.hpp>
+#include <dfe/dfe_io_dsv.hpp>
 
 #include "ACTFW/Utilities/Paths.hpp"
 #include "TrackMlData.hpp"
@@ -69,10 +69,10 @@ writeSurface(SurfaceWriter&               writer,
   // coordinate transformation
   auto center    = surface.center(geoCtx);
   auto transform = surface.transform(geoCtx);
-  // TODO units
-  data.cx     = center.x();
-  data.cy     = center.y();
-  data.cz     = center.z();
+  data.cx        = center.x() / Acts::UnitConstants::mm;
+  data.cy        = center.y() / Acts::UnitConstants::mm;
+  data.cz        = center.z() / Acts::UnitConstants::mm;
+  // rotation matrix components are unit-less
   data.rot_xu = transform(0, 0);
   data.rot_xv = transform(0, 1);
   data.rot_xw = transform(0, 2);
@@ -88,7 +88,9 @@ writeSurface(SurfaceWriter&               writer,
     const auto* detElement
         = dynamic_cast<const Acts::IdentifiedDetectorElement*>(
             surface.associatedDetectorElement());
-    if (detElement) { data.module_t = detElement->thickness(); }
+    if (detElement) {
+      data.module_t = detElement->thickness() / Acts::UnitConstants::mm;
+    }
   }
 
   // bounds and pitch (if available)
@@ -98,13 +100,13 @@ writeSurface(SurfaceWriter&               writer,
     // extract limits from value store
     auto boundValues = surface.bounds().valueStore();
     if (boundValues.size() == 2) {
-      data.module_minhu = boundValues[0];
-      data.module_minhu = boundValues[0];
-      data.module_minhu = boundValues[1];
+      data.module_minhu = boundValues[0] / Acts::UnitConstants::mm;
+      data.module_minhu = boundValues[0] / Acts::UnitConstants::mm;
+      data.module_minhu = boundValues[1] / Acts::UnitConstants::mm;
     } else if (boundValues.size() == 3) {
-      data.module_minhu = boundValues[0];
-      data.module_minhu = boundValues[0];
-      data.module_minhu = boundValues[1];
+      data.module_minhu = boundValues[0] / Acts::UnitConstants::mm;
+      data.module_minhu = boundValues[0] / Acts::UnitConstants::mm;
+      data.module_minhu = boundValues[1] / Acts::UnitConstants::mm;
     }
     // get the pitch from the digitization module
     const auto* detElement
@@ -118,8 +120,8 @@ writeSurface(SurfaceWriter&               writer,
               &(dModule->segmentation()));
       if (cSegmentation) {
         auto pitch   = cSegmentation->pitch();
-        data.pitch_u = pitch.first;
-        data.pitch_u = pitch.second;
+        data.pitch_u = pitch.first / Acts::UnitConstants::mm;
+        data.pitch_u = pitch.second / Acts::UnitConstants::mm;
       }
     }
   }

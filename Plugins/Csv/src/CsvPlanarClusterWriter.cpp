@@ -9,6 +9,7 @@
 #include <stdexcept>
 
 #include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
+#include <Acts/Utilities/Units.hpp>
 #include <dfe/dfe_io_dsv.hpp>
 
 #include "ACTFW/EventData/DataContainers.hpp"
@@ -67,11 +68,10 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
               context.geoContext, localPos, globalFakeMom, globalPos);
 
           // write global hit information
-          // TODO units
-          hit.x         = globalPos.x();
-          hit.y         = globalPos.y();
-          hit.y         = globalPos.z();
-          hit.t         = 0;  // TODO
+          hit.x         = globalPos.x() / Acts::UnitConstants::mm;
+          hit.y         = globalPos.y() / Acts::UnitConstants::mm;
+          hit.y         = globalPos.z() / Acts::UnitConstants::mm;
+          hit.t         = 0 / Acts::UnitConstants::ns;  // TODO
           hit.volume_id = volumeData.first;
           hit.layer_id  = layerData.first;
           hit.module_id = moduleData.first;
@@ -92,14 +92,13 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           truth.hit_id = hit.hit_id;
           for (auto& p : cluster.sourceLink().truthParticles()) {
             truth.particle_id = p->barcode();
-            // TODO units
-            truth.tx  = p->position().x();
-            truth.ty  = p->position().y();
-            truth.tz  = p->position().z();
-            truth.tt  = 0;  // TODO
-            truth.tpx = p->momentum().x();
-            truth.tpy = p->momentum().y();
-            truth.tpz = p->momentum().z();
+            truth.tx          = p->position().x() / Acts::UnitConstants::mm;
+            truth.ty          = p->position().y() / Acts::UnitConstants::mm;
+            truth.tz          = p->position().z() / Acts::UnitConstants::mm;
+            truth.tt          = 0 / Acts::UnitConstants::ns;  // TODO
+            truth.tpx         = p->momentum().x() / Acts::UnitConstants::GeV;
+            truth.tpy         = p->momentum().y() / Acts::UnitConstants::GeV;
+            truth.tpz         = p->momentum().z() / Acts::UnitConstants::GeV;
             writerTruth.append(truth);
           }
 
