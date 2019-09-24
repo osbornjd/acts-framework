@@ -63,9 +63,9 @@ namespace Root {
     /// @param context The Algorithm context with per event information
     /// @param clusters is the data to be written out
     ProcessCode
-    writeT(const AlgorithmContext& context,
-           const GeometryIdMultimap<Acts::PlanarModuleCluster>&
-               clusters) final override;
+    writeT(const AlgorithmContext&                              context,
+           const GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
+        final override;
 
   private:
     Config             m_cfg;         ///< the configuration object

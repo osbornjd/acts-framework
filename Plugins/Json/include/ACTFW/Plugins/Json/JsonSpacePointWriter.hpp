@@ -47,7 +47,7 @@ namespace Json {
 
   protected:
     FW::ProcessCode
-    writeT(const FW::AlgorithmContext&          context,
+    writeT(const FW::AlgorithmContext&  context,
            const GeometryIdMultimap<T>& spacePoints) final override;
 
   private:
@@ -74,7 +74,7 @@ FW::Json::JsonSpacePointWriter<T>::JsonSpacePointWriter(
 template <class T>
 FW::ProcessCode
 FW::Json::JsonSpacePointWriter<T>::writeT(
-    const FW::AlgorithmContext&          context,
+    const FW::AlgorithmContext&  context,
     const GeometryIdMultimap<T>& spacePoints)
 {
   // open per-event file

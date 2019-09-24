@@ -44,7 +44,7 @@ namespace Obj {
 
   protected:
     ProcessCode
-    writeT(const AlgorithmContext&              context,
+    writeT(const AlgorithmContext&      context,
            const GeometryIdMultimap<T>& spacePoints);
 
   private:
@@ -71,7 +71,7 @@ inline FW::Obj::ObjSpacePointWriter<T>::ObjSpacePointWriter(
 template <typename T>
 inline FW::ProcessCode
 FW::Obj::ObjSpacePointWriter<T>::writeT(
-    const FW::AlgorithmContext&              context,
+    const FW::AlgorithmContext&      context,
     const FW::GeometryIdMultimap<T>& spacePoints)
 {
   // open per-event file

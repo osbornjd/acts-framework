@@ -38,8 +38,8 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
                                  << simulatedEvent.size() << " vertices");
 
   // Read truth hits from input collection
-  const auto& simHits = context.eventStore.get<SimHits>(
-    m_cfg.simulatedHitCollection);
+  const auto& simHits
+      = context.eventStore.get<SimHits>(m_cfg.simulatedHitCollection);
   ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
                                     << "' from event store.");
 
