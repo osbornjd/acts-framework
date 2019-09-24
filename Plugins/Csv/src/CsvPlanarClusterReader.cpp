@@ -39,6 +39,9 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
   if (m_cfg.outputHitParticlesMap.empty()) {
     throw std::invalid_argument("Missing hit-particles map output collection");
   }
+  if (m_cfg.outputHitIds.empty()) {
+    throw std::invalid_argument("Missing hit id output collection");
+  }
   // fill the geo id to surface map once to speed up lookups later on
   m_cfg.trackingGeometry->visitSurfaces([this](const Acts::Surface* surface) {
     this->m_surfaces[surface->geoID()] = surface;
@@ -163,8 +166,10 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
   // convert into internal representations
   GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
   IndexMultimap<barcode_type>                   hitParticlesMap;
+  std::vector<size_t>                           hitIds;
   clusters.reserve(hits.size());
   hitParticlesMap.reserve(hits.size());
+  hitIds.reserve(hits.size());
   for (const HitData& hit : hits) {
 
     // identify surface
@@ -253,11 +258,15 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
       hitParticlesMap.emplace_hint(
           hitParticlesMap.end(), hitIndex, particle.particle_id);
     }
+
+    // map internal hit/cluster index back to original, non-monotonic hit id
+    hitIds.push_back(hit.hit_id);
   }
 
   // write the data to the EventStore
   ctx.eventStore.add(m_cfg.outputClusters, std::move(clusters));
   ctx.eventStore.add(m_cfg.outputHitParticlesMap, std::move(hitParticlesMap));
+  ctx.eventStore.add(m_cfg.outputHitIds, std::move(hitIds));
 
   return FW::ProcessCode::SUCCESS;
 }
