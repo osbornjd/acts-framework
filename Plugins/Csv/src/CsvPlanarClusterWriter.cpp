@@ -70,7 +70,7 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
           // write global hit information
           hit.x         = globalPos.x() / Acts::UnitConstants::mm;
           hit.y         = globalPos.y() / Acts::UnitConstants::mm;
-          hit.y         = globalPos.z() / Acts::UnitConstants::mm;
+          hit.z         = globalPos.z() / Acts::UnitConstants::mm;
           hit.t         = 0 / Acts::UnitConstants::ns;  // TODO
           hit.volume_id = volumeData.first;
           hit.layer_id  = layerData.first;
