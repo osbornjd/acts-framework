@@ -142,7 +142,29 @@ selectModule(const GeometryIdMultiset<T>& container,
 /// Each index can have zero or more associated elements. A typical case could
 /// be to store all generating particles for a hit where the hit is identified
 /// by its index in the hit container.
-template <typename T, typename IndexType = size_t>
-using IndexMultimap = boost::container::flat_multimap<IndexType, T>;
+template <typename Value, typename Key = size_t>
+using IndexMultimap = boost::container::flat_multimap<Key, Value>;
+
+/// Invert the multimap, i.e. from a -> {b...} to b -> {a...}.
+///
+/// @note This assumes that the value in the initial multimap is itself a
+///       sortable index-like object, as would be the case when mapping e.g.
+///       hit ids to particle ids/ barcodes.
+template <typename Value, typename Key>
+inline IndexMultimap<Value, Key>
+invertIndexMultimap(const IndexMultimap<Value, Key>& multimap)
+{
+  // switch key-value without enforcing the new ordering (linear copy)
+  typename IndexMultimap<Key, Value>::sequence_type unordered;
+  unordered.reserve(multimap.size());
+  for (const auto& keyValue : multimap) {
+    // value is now the key and the key is now the value
+    unordered.emplace_back(keyValue.second, keyValue.first);
+  }
+  // adopting the unordered sequence will reestablish the correct order
+  IndexMultimap<Key, Value> inverse;
+  inverse.adopt_sequence(std::move(unordered));
+  return inverse;
+}
 
 }  // namespace FW
