@@ -23,9 +23,9 @@ struct ParticleData
 {
   uint64_t particle_id;
   int32_t  particle_type;
-  float    x, y, z;
+  float    vx, vy, vz;
   // Time is not available in the original TrackML datasets
-  float   t = 0.0f;
+  float   vt = 0.0f;
   float   px, py, pz;
   float   q;
   int32_t nhits;
@@ -33,9 +33,9 @@ struct ParticleData
   DFE_NAMEDTUPLE(ParticleData,
                  particle_id,
                  particle_type,
-                 x,
-                 y,
-                 z,
+                 vx,
+                 vy,
+                 vz,
                  px,
                  py,
                  pz,

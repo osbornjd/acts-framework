@@ -61,9 +61,9 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
   ParticleData data;
 
   while (reader.read(data)) {
-    Acts::Vector3D vertex = Acts::Vector3D(data.x * Acts::UnitConstants::mm,
-                                           data.y * Acts::UnitConstants::mm,
-                                           data.z * Acts::UnitConstants::mm);
+    Acts::Vector3D vertex = Acts::Vector3D(data.vx * Acts::UnitConstants::mm,
+                                           data.vy * Acts::UnitConstants::mm,
+                                           data.vz * Acts::UnitConstants::mm);
     Acts::Vector3D momentum
         = Acts::Vector3D(data.px * Acts::UnitConstants::GeV,
                          data.py * Acts::UnitConstants::GeV,
@@ -78,7 +78,7 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
                            data.q * Acts::UnitConstants::e,
                            data.particle_type,
                            data.particle_id,  // this is the pdg id
-                           data.t * Acts::UnitConstants::ns);
+                           data.vt * Acts::UnitConstants::ns);
   }
 
   // write the truth particles to the EventStore
