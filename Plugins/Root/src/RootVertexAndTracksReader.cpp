@@ -61,6 +61,18 @@ FW::Root::RootVertexAndTracksReader::~RootVertexAndTracksReader()
   delete m_ptrTrkCov;
 }
 
+std::string
+FW::Root::RootVertexAndTracksReader::name() const
+{
+  return m_cfg.name;
+}
+
+std::pair<size_t, size_t>
+FW::Root::RootVertexAndTracksReader::availableEvents() const
+{
+  return {0u, m_events};
+}
+
 FW::ProcessCode
 FW::Root::RootVertexAndTracksReader::read(const FW::AlgorithmContext& context)
 {

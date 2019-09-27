@@ -67,6 +67,18 @@ FW::Root::RootMaterialTrackReader::~RootMaterialTrackReader()
   delete m_step_rho;
 }
 
+std::string
+FW::Root::RootMaterialTrackReader::name() const
+{
+  return m_cfg.name;
+}
+
+std::pair<size_t, size_t>
+FW::Root::RootMaterialTrackReader::availableEvents() const
+{
+  return {0u, m_events};
+}
+
 FW::ProcessCode
 FW::Root::RootMaterialTrackReader::read(const FW::AlgorithmContext& context)
 {

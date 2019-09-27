@@ -69,15 +69,15 @@ namespace Root {
     std::string
     name() const final override;
 
+    /// Return the available events range.
+    std::pair<size_t, size_t>
+    availableEvents() const final override;
+
     /// Read out data from the input stream
     ///
     /// @param context The algorithm context
     ProcessCode
     read(const FW::AlgorithmContext& context) final override;
-
-    /// Return the number of events
-    virtual size_t
-    numEvents() const final override;
 
   private:
     /// Private access to the logging instance
@@ -124,18 +124,6 @@ namespace Root {
     std::vector<float>* m_step_rho
         = new std::vector<float>;  ///< step material rho
   };
-
-  inline std::string
-  RootMaterialTrackReader::name() const
-  {
-    return m_cfg.name;
-  }
-
-  inline size_t
-  RootMaterialTrackReader::numEvents() const
-  {
-    return m_events;
-  }
 
 }  // namespace Root
 }  // namespace FW
