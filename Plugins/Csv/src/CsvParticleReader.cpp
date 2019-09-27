@@ -27,8 +27,7 @@ FW::Csv::CsvParticleReader::CsvParticleReader(
     const FW::Csv::CsvParticleReader::Config& cfg,
     Acts::Logging::Level                      level)
   : m_cfg(cfg)
-  , m_numEvents(
-        determineEventFilesRange(cfg.inputDir, cfg.inputFilename).second)
+  , m_eventsRange(determineEventFilesRange(cfg.inputDir, cfg.inputFilename))
   , m_logger(Acts::getDefaultLogger("CsvParticleReader", level))
 {
   if (m_cfg.outputParticles.empty()) {
@@ -45,10 +44,10 @@ FW::Csv::CsvParticleReader::CsvParticleReader::name() const
   return "CsvParticleReader";
 }
 
-size_t
-FW::Csv::CsvParticleReader::CsvParticleReader::numEvents() const
+std::pair<size_t, size_t>
+FW::Csv::CsvParticleReader::availableEvents() const
 {
-  return m_numEvents;
+  return m_eventsRange;
 }
 
 FW::ProcessCode

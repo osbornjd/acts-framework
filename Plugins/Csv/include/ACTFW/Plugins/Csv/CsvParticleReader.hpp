@@ -46,9 +46,9 @@ namespace Csv {
     std::string
     name() const final override;
 
-    /// Return the number of events.
-    size_t
-    numEvents() const final override;
+    /// Return the available events range.
+    std::pair<size_t, size_t>
+    availableEvents() const final override;
 
     /// Read out data from the input stream.
     ProcessCode
@@ -56,7 +56,7 @@ namespace Csv {
 
   private:
     Config                              m_cfg;
-    size_t                              m_numEvents;
+    std::pair<size_t, size_t>           m_eventsRange;
     std::unique_ptr<const Acts::Logger> m_logger;
 
     const Acts::Logger&

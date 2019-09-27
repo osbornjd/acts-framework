@@ -28,7 +28,7 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
     Acts::Logging::Level                           level)
   : m_cfg(cfg)
   // TODO check that all files (hits,cells,truth) exists
-  , m_numEvents(determineEventFilesRange(cfg.inputDir, "hits.csv").second)
+  , m_eventsRange(determineEventFilesRange(cfg.inputDir, "hits.csv"))
   , m_logger(Acts::getDefaultLogger("CsvPlanarClusterReader", level))
 {
   if (not m_cfg.trackingGeometry) {
@@ -52,10 +52,10 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader::name() const
   return "CsvPlanarClusterReader";
 }
 
-size_t
-FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader::numEvents() const
+std::pair<size_t, size_t>
+FW::Csv::CsvPlanarClusterReader::availableEvents() const
 {
-  return m_numEvents;
+  return m_eventsRange;
 }
 
 namespace {
