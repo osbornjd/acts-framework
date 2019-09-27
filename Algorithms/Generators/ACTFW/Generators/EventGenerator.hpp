@@ -76,9 +76,9 @@ public:
   /// Name of the reader.
   std::string
   name() const override final;
-  /// Number of available events. Always SIZE_MAX since we generate them.
-  size_t
-  numEvents() const override final;
+  /// Available events range. Always return [0,SIZE_MAX) since we generate them.
+  std::pair<size_t, size_t>
+  availableEvents() const final override;
   /// Generate an event.
   ProcessCode
   read(const AlgorithmContext& context) override final;
