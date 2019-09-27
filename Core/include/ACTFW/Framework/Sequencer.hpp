@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Acts/Utilities/Logger.hpp>
@@ -106,9 +107,9 @@ private:
   /// List of all configured algorithm names.
   std::vector<std::string>
   listAlgorithmNames() const;
-  /// Determine end event, i.e. index after last valid one, SIZE_MAX for error.
-  std::size_t
-  determineEndEvent() const;
+  /// Determine range of (requested) events; [SIZE_MAX, SIZE_MAX) for error.
+  std::pair<size_t, size_t>
+  determineEventsRange() const;
 
   Config                                          m_cfg;
   std::vector<std::shared_ptr<IService>>          m_services;

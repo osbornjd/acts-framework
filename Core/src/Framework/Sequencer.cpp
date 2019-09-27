@@ -107,9 +107,24 @@ FW::Sequencer::listAlgorithmNames() const
   return names;
 }
 
-std::size_t
-FW::Sequencer::determineEndEvent() const
+namespace {
+// Saturated addition that does not overflow and exceed SIZE_MAX.
+//
+// From http://locklessinc.com/articles/sat_arithmetic/
+size_t
+saturatedAdd(size_t a, size_t b)
 {
+  size_t res = a + b;
+  res |= -(res < a);
+  return res;
+}
+}  // namespace
+
+std::pair<std::size_t, std::size_t>
+FW::Sequencer::determineEventsRange() const
+{
+  constexpr auto kInvalidEventsRange = std::make_pair(SIZE_MAX, SIZE_MAX);
+
   // Note on skipping events:
   //
   // Previously, skipping events was only allowed when readers where available,
@@ -119,47 +134,50 @@ FW::Sequencer::determineEndEvent() const
   // Skipping can now also be used when no readers are configured, e.g. for
   // generating only a few specific events in a simulation setup.
 
-  // determine maximum events available from readers
-  std::size_t endOnFile      = SIZE_MAX;
-  auto        shortestReader = std::min_element(
-      m_readers.begin(), m_readers.end(), [](const auto& a, const auto& b) {
-        return (a->numEvents() < b->numEvents());
-      });
-  if (shortestReader != m_readers.end()) {
-    endOnFile = (*shortestReader)->numEvents();
+  // determine intersection of event ranges available from readers
+  size_t beg = 0u;
+  size_t end = SIZE_MAX;
+  for (const auto& reader : m_readers) {
+    auto available = reader->availableEvents();
+    beg            = std::max(beg, available.first);
+    end            = std::min(end, available.second);
   }
 
-  // configured readers without events makes no sense
-  if (endOnFile == 0) {
-    ACTS_ERROR("No available events");
-    return SIZE_MAX;
+  // since we use event ranges (and not just num events) they might not overlap
+  if (end < beg) {
+    ACTS_ERROR("Available events ranges from readers do not overlap");
+    return kInvalidEventsRange;
+  }
+  // configured readers without available events makes no sense
+  // TODO could there be a use-case for zero events? run only setup functions?
+  if (beg == end) {
+    ACTS_ERROR("No events available");
+    return kInvalidEventsRange;
   }
   // trying to skip too many events must be an error
-  if (endOnFile <= m_cfg.skip) {
-    ACTS_ERROR("Less available events than requested to skip");
-    return SIZE_MAX;
+  if (end <= saturatedAdd(beg, m_cfg.skip)) {
+    ACTS_ERROR("Less events available than requested to skip");
+    return kInvalidEventsRange;
   }
-
-  // beware of possible overflow due to events == SIZE_MAX
-  // use saturated add from http://locklessinc.com/articles/sat_arithmetic/
-  std::size_t endRequested = m_cfg.skip + m_cfg.events;
-  endRequested |= -(endRequested < m_cfg.events);
-  std::size_t endEvent = std::min(endRequested, endOnFile);
-
-  if (endEvent == SIZE_MAX) {
+  // events range was not defined by either the readers or user command line.
+  if ((beg == 0u) and (end == SIZE_MAX) and (m_cfg.events == SIZE_MAX)) {
     ACTS_ERROR("Could not determine number of events");
-    return SIZE_MAX;
-  }
-  if (endOnFile < endRequested) {
-    ACTS_INFO("Restrict number of events to available events");
+    return kInvalidEventsRange;
   }
 
-  return endEvent;
+  // take user selection into account
+  auto begSelected  = saturatedAdd(beg, m_cfg.skip);
+  auto endRequested = saturatedAdd(begSelected, m_cfg.events);
+  auto endSelected  = std::min(end, endRequested);
+  if (end < endRequested) {
+    ACTS_INFO("Restrict requested number of events to available ones");
+  }
+
+  return {begSelected, endSelected};
 }
 
 // helpers for per-algorithm timing information
 namespace {
-
 using Clock       = std::chrono::high_resolution_clock;
 using Duration    = Clock::duration;
 using Timepoint   = Clock::time_point;
@@ -210,6 +228,7 @@ struct TimingInfo
 
   DFE_NAMEDTUPLE(TimingInfo, identifier, time_total_s, time_perevent_s);
 };
+
 void
 storeTiming(const std::vector<std::string>& identifiers,
             const std::vector<Duration>&    durations,
@@ -226,7 +245,6 @@ storeTiming(const std::vector<std::string>& identifiers,
     writer.append(info);
   }
 }
-
 }  // namespace
 
 int
@@ -234,22 +252,26 @@ FW::Sequencer::run()
 {
   // measure overall wall clock
   Timepoint clockWallStart = Clock::now();
+  // per-algorithm time measures
+  std::vector<std::string> names = listAlgorithmNames();
+  std::vector<Duration>    clocksAlgorithms(names.size(), Duration::zero());
+  tbb::queuing_mutex       clocksAlgorithmsMutex;
 
   // processing only works w/ a well-known number of events
   // error message is already handled by the helper function
-  std::size_t endEvent = determineEndEvent();
-  if (endEvent == SIZE_MAX) { return EXIT_FAILURE; }
+  std::pair<size_t, size_t> eventsRange = determineEventsRange();
+  if ((eventsRange.first == SIZE_MAX) and (eventsRange.second == SIZE_MAX)) {
+    return EXIT_FAILURE;
+  }
 
+  ACTS_INFO("Processing events [" << eventsRange.first << ", "
+                                  << eventsRange.second << ")");
   ACTS_INFO("Starting event loop with " << m_cfg.numThreads << " threads");
   ACTS_INFO("  " << m_services.size() << " services");
   ACTS_INFO("  " << m_decorators.size() << " context decorators");
   ACTS_INFO("  " << m_readers.size() << " readers");
   ACTS_INFO("  " << m_algorithms.size() << " algorithms");
   ACTS_INFO("  " << m_writers.size() << " writers");
-
-  std::vector<std::string> names = listAlgorithmNames();
-  std::vector<Duration>    clocksAlgorithms(names.size(), Duration::zero());
-  tbb::queuing_mutex       clocksAlgorithmsMutex;
 
   // run start-of-run hooks
   for (auto& service : m_services) {
@@ -262,7 +284,7 @@ FW::Sequencer::run()
   // execute the parallel event loop
   tbb::task_scheduler_init init(m_cfg.numThreads);
   tbb::parallel_for(
-      tbb::blocked_range<size_t>(m_cfg.skip, endEvent),
+      tbb::blocked_range<size_t>(eventsRange.first, eventsRange.second),
       [&](const tbb::blocked_range<size_t>& r) {
         std::vector<Duration> localClocksAlgorithms(names.size(),
                                                     Duration::zero());
@@ -315,7 +337,7 @@ FW::Sequencer::run()
         // add timing info to global information
         {
           tbb::queuing_mutex::scoped_lock lock(clocksAlgorithmsMutex);
-          for (std::size_t i = 0; i < clocksAlgorithms.size(); ++i) {
+          for (size_t i = 0; i < clocksAlgorithms.size(); ++i) {
             clocksAlgorithms[i] += localClocksAlgorithms[i];
           }
         }
@@ -333,7 +355,7 @@ FW::Sequencer::run()
   Duration totalWall = Clock::now() - clockWallStart;
   Duration totalReal = std::accumulate(
       clocksAlgorithms.begin(), clocksAlgorithms.end(), Duration::zero());
-  std::size_t numEvents = endEvent - m_cfg.skip;
+  size_t numEvents = eventsRange.second - eventsRange.first;
   ACTS_INFO("Processed " << numEvents << " events in " << asString(totalWall)
                          << " (wall clock)");
   ACTS_INFO("Average time per event: " << perEvent(totalReal, numEvents));
