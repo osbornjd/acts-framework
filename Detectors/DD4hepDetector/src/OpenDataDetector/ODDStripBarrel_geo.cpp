@@ -28,21 +28,14 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
   // Add Extension to DetElement for the RecoGeometry
   Acts::ActsExtension* barrelExtension = new Acts::ActsExtension();
   barrelExtension->addType("barrel", "detector");
-  // Add the volume material if configured
-  if (x_det.hasChild(_Unicode(boundary_material))) {
-    xml_comp_t x_boundary_material = x_det.child(_Unicode(boundary_material));
-    // Inner / outer are cylinders
-    xml2ProtoMaterial(x_boundary_material,
+  // Add the volume boundary material if configured
+  for (xml_coll_t bmat(x_det, _Unicode(boundary_material)); bmat; ++bmat){
+    xml_comp_t x_boundary_material = bmat;
+    xmlToProtoMaterial(x_boundary_material,
                       *barrelExtension,
                       "boundary_material",
-                      {"inner", "outer"},
-                      {"binPhi", "binZ"});
-    // Negative / positive are discs
-    xml2ProtoMaterial(x_boundary_material,
-                      *barrelExtension,
-                      "boundary_material",
-                      {"negative", "positive"},
-                      {"binPhi", "binR"});
+                      { "negative", "positive", "inner", "outer" },
+                      { "binPhi", "*" });
   }
   barrelDetector.addExtension<Acts::ActsExtension>(barrelExtension);
 
@@ -176,7 +169,7 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
     Acts::ActsExtension* layerExtension = new Acts::ActsExtension();
     layerExtension->addType("sensitive cylinder", "layer");
     layerElement.addExtension<Acts::ActsExtension>(layerExtension);
-    Acts::xml2CylinderProtoMaterial(x_layer, *layerExtension);
+    Acts::xmlToCylinderProtoMaterial(x_layer, *layerExtension);
     PlacedVolume placedLayer = barrelVolume.placeVolume(layerVolume);
     placedLayer.addPhysVolID("layer", layerNum);
 

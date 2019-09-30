@@ -95,10 +95,14 @@ materialMappingExample(int argc, char* argv[], FW::IBaseDetector& detector)
 
   /// The material mapper
   Acts::SurfaceMaterialMapper::Config smmConfig;
+  /// Correct for empty bins
+  smmConfig.emptyBinCorrection = vm["mat-mapping-emptybins"].template as<bool>();    
+
   auto smm = std::make_shared<Acts::SurfaceMaterialMapper>(
       smmConfig,
       std::move(propagator),
       Acts::getDefaultLogger("SurfaceMaterialMapper", logLevel));
+
 
   /// The material mapping algorithm
   FW::MaterialMapping::Config mmAlgConfig(geoContext, mfContext);

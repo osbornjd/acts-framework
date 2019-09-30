@@ -69,7 +69,7 @@ namespace Options {
         po::value<read_range>()->multitoken()->default_value({-M_PI, M_PI}),
         "Azimutal angle phi range for proprapolated tracks.")(
         "prop-eta-range",
-        po::value<read_range>()->multitoken()->default_value({-4., 4.}),
+        po::value<read_range>()->multitoken()->default_value({-6., 6.}),
         "Pseudorapidity range for proprapolated tracks.")(
         "prop-pt-range",
         po::value<read_range>()->multitoken()->default_value(

@@ -202,7 +202,7 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     // Configure the ACTS extension
     Acts::ActsExtension* layerExtension = new Acts::ActsExtension();
     layerExtension->addType("barrel", "layer");
-    Acts::xml2CylinderProtoMaterial(x_layer, *layerExtension);
+    Acts::xmlToCylinderProtoMaterial(x_layer, *layerExtension);
     layerElement.addExtension<Acts::ActsExtension>(layerExtension);
 
     // Place layer volume
