@@ -212,9 +212,8 @@ FW::ResPlotTool::fill(ResPlotTool::ResPlotCache&   resPlotCache,
     auto truthHit = (*state.measurement.uncalibrated).truthHit();
     // get local truth position
     Acts::Vector2D truthlocal;
-    (truthHit.surface)
-        ->globalToLocal(
-            gctx, truthHit.position, truthHit.direction, truthlocal);
+    truthHit.surface->globalToLocal(
+        gctx, truthHit.position, truthHit.direction, truthlocal);
 
     truthParameter[Acts::ParDef::eLOC_0] = truthlocal.x();
     truthParameter[Acts::ParDef::eLOC_1] = truthlocal.y();
