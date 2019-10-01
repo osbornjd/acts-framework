@@ -8,13 +8,13 @@
 
 #pragma once
 
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Definitions.hpp>
 
+#include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 
-namespace Acts {
-class Surface;
-}
 namespace FW {
 namespace Data {
 
@@ -32,10 +32,26 @@ namespace Data {
     Acts::Vector3D direction = Acts::Vector3D(0., 0., 0.);
     /// The value representing the hit (e.g. energy deposit)
     double value = 0.;
-    /// The surface where the hit was created
-    const Acts::Surface* surface = nullptr;
-    /// The particle that created the simulation hit
+    /// Store a geometry id copy to avoid indirection through the surface.
+    Acts::GeometryID geometryId;
+    /// The surface where the hit was created. Using a pointer enables default
+    /// copying and assignment constructors/operators.
+    /// TODO the geometry id should be sufficient to identify the surface
+    const Acts::Surface* surface;
+    /// The particle that created the simulation hit.
+    /// TODO can this be replaced by just the barcode?
     SimParticle particle;
+
+    /// A hit must be constructed with a valid surface.
+    SimHit(const Acts::Surface& s) : geometryId(s.geoID()), surface(&s) {}
+    SimHit() = delete;
+
+    /// Geometry id accessor for compatibility with `GeometryIdMultiset`.
+    Acts::GeometryID
+    geoId() const
+    {
+      return geometryId;
+    }
   };
 
   /// @brief Constructor of Sensitive Hits, provides a simple
@@ -72,4 +88,7 @@ namespace Data {
   };
 
 }  // namespace Data
+
+using SimHits = GeometryIdMultiset<Data::SimHit>;
+
 }  // end of namespace FW
