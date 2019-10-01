@@ -11,9 +11,8 @@
 #include <cfloat>
 #include <cmath>
 
-#include <boost/container/flat_set.hpp>
-
 #include <Acts/Utilities/Definitions.hpp>
+#include <boost/container/flat_set.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
 
@@ -241,32 +240,34 @@ namespace Data {
     double         m_limitInL0 = DBL_MAX;  //!< path limit in X0
   };
 
-  namespace detail {
-    struct CompareSimParticleBarcode
-    {
-      using is_transparent = void;
-      bool
-      operator()(const SimParticle& left, const SimParticle& right) const
-      {
-        return left.barcode() < right.barcode();
-      }
-      bool
-      operator()(barcode_type left, const SimParticle& right) const
-      {
-        return left < right.barcode();
-      }
-      bool
-      operator()(const SimParticle& left, barcode_type right) const
-      {
-        return left.barcode() < right;
-      }
-    };
-  }  // namespace detail
-
-  /// A container of particles that can be accessed by particle id/ barcode.
-  using SimParticles
-      = boost::container::flat_set<SimParticle,
-                                   detail::CompareSimParticleBarcode>;
-
 }  // namespace Data
+
+namespace detail {
+  struct CompareSimParticleBarcode
+  {
+    using is_transparent = void;
+    bool
+    operator()(const Data::SimParticle& left,
+               const Data::SimParticle& right) const
+    {
+      return left.barcode() < right.barcode();
+    }
+    bool
+    operator()(barcode_type left, const Data::SimParticle& right) const
+    {
+      return left < right.barcode();
+    }
+    bool
+    operator()(const Data::SimParticle& left, barcode_type right) const
+    {
+      return left.barcode() < right;
+    }
+  };
+}  // namespace detail
+
+/// A container of particles that can be accessed by particle id/ barcode.
+using SimParticles
+    = boost::container::flat_set<Data::SimParticle,
+                                 detail::CompareSimParticleBarcode>;
+
 }  // end of namespace FW
