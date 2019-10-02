@@ -166,7 +166,7 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
   // convert into internal representations
   GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
   IndexMultimap<barcode_type>                   hitParticlesMap;
-  std::vector<size_t>                           hitIds;
+  std::vector<uint64_t>                         hitIds;
   clusters.reserve(hits.size());
   hitParticlesMap.reserve(hits.size());
   hitIds.reserve(hits.size());
