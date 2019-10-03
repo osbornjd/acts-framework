@@ -39,11 +39,11 @@ public:
 
   /// Default noop implementation for the start-of-run hook.
   void
-  startRun();
+  startRun() override;
 
   /// Default noop implementation for the per-event prepare hook.
   void
-  prepare(AlgorithmContext& ctx);
+  prepare(AlgorithmContext& ctx) override;
 
 protected:
   const Acts::Logger&

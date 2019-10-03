@@ -8,12 +8,11 @@
 
 #pragma once
 
+#include "ACTFW/EventData/SimHit.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "Acts/EventData/Measurement.hpp"
 #include "Acts/EventData/MeasurementHelpers.hpp"
 #include "Acts/EventData/SourceLinkConcept.hpp"
-
-#include "ACTFW/EventData/SimHit.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
 
 #include <optional>
 #include <vector>
@@ -22,10 +21,18 @@ namespace FW {
 
 namespace Data {
 
+  /// Sourcle link class for simulation in the acts-framework
   class SimSourceLink
   {
 
   public:
+    /// Default constructor
+    SimSourceLink() : m_truthHit(nullptr), m_dim(-1) {}
+
+    /// Constructor with arguments
+    /// @param truthHit the pointer to the simulated hit
+    /// @param dim the dimension of the simulated hit
+    /// @param values result of the simulation intersection
     SimSourceLink(const SimHit<SimParticle>* truthHit,
                   size_t                     dim,
                   Acts::BoundVector          values,

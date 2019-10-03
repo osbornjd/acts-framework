@@ -45,24 +45,24 @@ FW::Json::JsonGeometryConverter::jsonToMaterialMaps(const json& materialmaps)
   ACTS_VERBOSE("j2a: Reading material maps from json file.");
   ACTS_VERBOSE("j2a: Found entries for " << j.count(m_cfg.volkey)
                                          << " volume(s).");
-  // structured binding
+  // Structured binding
   for (auto& [key, value] : j.items()) {
-    // check if this the volume key
+    // Check if this the volume key
     if (key == m_cfg.volkey) {
-      // get the volume json
+      // Get the volume json
       auto volj = value;
       for (auto& [vkey, vvalue] : volj.items()) {
-        // create the volume id
+        // Create the volume id
         int              vid = std::stoi(vkey);
         Acts::GeometryID volumeID(vid, Acts::GeometryID::volume_mask);
         ACTS_VERBOSE("j2a: -> Found Volume " << vid);
-        // loop through the information in the volume
+        // Loop through the information in the volume
         for (auto& [vckey, vcvalue] : vvalue.items()) {
           if (vckey == m_cfg.boukey and m_cfg.processBoundaries
               and not vcvalue.empty()) {
             ACTS_VERBOSE("j2a: --> BoundarySurface(s) to be parsed");
             for (auto& [bkey, bvalue] : vcvalue.items()) {
-              // create the boundary id
+              // Create the boundary id
               int              bid = std::stoi(bkey);
               Acts::GeometryID boundaryID(volumeID);
               boundaryID.add(bid, Acts::GeometryID::boundary_mask);
@@ -73,15 +73,15 @@ FW::Json::JsonGeometryConverter::jsonToMaterialMaps(const json& materialmaps)
             }
           } else if (vckey == m_cfg.laykey) {
             ACTS_VERBOSE("j2a: --> Layer(s) to be parsed");
-            // now loop over layers
+            // Loop over layers and repeat
             auto layj = vcvalue;
             for (auto& [lkey, lvalue] : layj.items()) {
-              // create the layer id
+              // Create the layer id
               int              lid = std::stoi(lkey);
               Acts::GeometryID layerID(volumeID);
               layerID.add(lid, Acts::GeometryID::layer_mask);
               ACTS_VERBOSE("j2a: ---> Found Layer " << lid);
-              // finally loop over layer components
+              // Finally loop over layer components
               for (auto& [lckey, lcvalue] : lvalue.items()) {
                 if (lckey == m_cfg.repkey and m_cfg.processRepresenting
                     and not lcvalue.empty()) {
@@ -92,9 +92,9 @@ FW::Json::JsonGeometryConverter::jsonToMaterialMaps(const json& materialmaps)
                 } else if (lckey == m_cfg.appkey and m_cfg.processApproaches
                            and not lcvalue.empty()) {
                   ACTS_VERBOSE("j2a: ----> Found approach surface(s)");
-                  // loop over approach surfaces
+                  // Loop over approach surfaces
                   for (auto& [askey, asvalue] : lcvalue.items()) {
-                    // create the layer id, todo set to max value
+                    // Create the layer id, todo set to max value
                     int aid = (askey == "*") ? 0 : std::stoi(askey);
                     Acts::GeometryID approachID(layerID);
                     approachID.add(aid, Acts::GeometryID::approach_mask);
@@ -106,9 +106,9 @@ FW::Json::JsonGeometryConverter::jsonToMaterialMaps(const json& materialmaps)
                 } else if (lckey == m_cfg.senkey and m_cfg.processSensitives
                            and not lcvalue.empty()) {
                   ACTS_VERBOSE("j2a: ----> Found sensitive surface(s)");
-                  // loop over sensitive surfaces
+                  // Loop over sensitive surfaces
                   for (auto& [sskey, ssvalue] : lcvalue.items()) {
-                    // create the layer id, todo set to max value
+                    // Create the layer id, todo set to max value
                     int sid = (sskey == "*") ? 0 : std::stoi(sskey);
                     Acts::GeometryID senisitiveID(layerID);
                     senisitiveID.add(sid, Acts::GeometryID::sensitive_mask);
@@ -205,15 +205,17 @@ FW::Json::JsonGeometryConverter::detectorRepToJson(const DetectorRep& detRep)
   for (auto& [key, value] : detRep.volumes) {
     json volj;
     ACTS_VERBOSE("a2j: -> Writing Volume: " << key);
-    volj[m_cfg.namekey] = value.volumeName;
-    // write the layers
+    volj[m_cfg.namekey]  = value.volumeName;
+    volj[m_cfg.geoidkey] = value.volumeID.toString();
+    // Write the layers
     if (not value.layers.empty()) {
       ACTS_VERBOSE("a2j: ---> Found " << value.layers.size() << " layer(s) ");
       json layersj;
       for (auto& [lkey, lvalue] : value.layers) {
         ACTS_VERBOSE("a2j: ----> Convert layer " << lkey);
         json layj;
-        // first check for approaches
+        layj[m_cfg.geoidkey] = lvalue.layerID.toString();
+        // First check for approaches
         if (not lvalue.approaches.empty() and m_cfg.processApproaches) {
           ACTS_VERBOSE("a2j: -----> Found " << lvalue.approaches.size()
                                             << " approach surface(s)");
@@ -222,10 +224,10 @@ FW::Json::JsonGeometryConverter::detectorRepToJson(const DetectorRep& detRep)
             ACTS_VERBOSE("a2j: ------> Convert approach surface " << akey);
             approachesj[std::to_string(akey)] = surfaceMaterialToJson(*avalue);
           }
-          // add to the layer json
+          // Add to the layer json
           layj[m_cfg.appkey] = approachesj;
         }
-        // then check for sensitive
+        // Then check for sensitive
         if (not lvalue.sensitives.empty() and m_cfg.processSensitives) {
           ACTS_VERBOSE("a2j: -----> Found " << lvalue.sensitives.size()
                                             << " sensitive surface(s)");
@@ -234,10 +236,10 @@ FW::Json::JsonGeometryConverter::detectorRepToJson(const DetectorRep& detRep)
             ACTS_VERBOSE("a2j: ------> Convert sensitive surface " << skey);
             sensitivesj[std::to_string(skey)] = surfaceMaterialToJson(*svalue);
           }
-          // add to the layer json
+          // Add to the layer json
           layj[m_cfg.senkey] = sensitivesj;
         }
-        // finally check for representing
+        // Finally check for representing
         if (lvalue.representing != nullptr and m_cfg.processRepresenting) {
           ACTS_VERBOSE("a2j: ------> Convert representing surface ");
           layj[m_cfg.repkey] = surfaceMaterialToJson(*lvalue.representing);
@@ -246,10 +248,21 @@ FW::Json::JsonGeometryConverter::detectorRepToJson(const DetectorRep& detRep)
       }
       volj[m_cfg.laykey] = layersj;
     }
+    // Write the boundary surfaces
+    if (not value.boundaries.empty()) {
+      ACTS_VERBOSE("a2j: ---> Found " << value.boundaries.size()
+                                      << " boundary/ies ");
+      json boundariesj;
+      for (auto& [bkey, bvalue] : value.boundaries) {
+        ACTS_VERBOSE("a2j: ----> Convert boundary " << bkey);
+        boundariesj[std::to_string(bkey)] = surfaceMaterialToJson(*bvalue);
+      }
+      volj[m_cfg.boukey] = boundariesj;
+    }
 
     volumesj[std::to_string(key)] = volj;
   }
-
+  // Assign the volume json to the detector json
   detectorj[m_cfg.volkey] = volumesj;
 
   return detectorj;
@@ -306,6 +319,7 @@ FW::Json::JsonGeometryConverter::convertToRep(
 {
   // The writer reader volume representation
   VolumeRep volRep;
+  volRep.volumeName = tVolume.volumeName();
   // there are confined volumes
   if (tVolume.confinedVolumes()) {
     // get through the volumes
@@ -316,7 +330,11 @@ FW::Json::JsonGeometryConverter::convertToRep(
       convertToRep(detRep, *vol);
     }
   }
-  // write the material if there's one
+  // Get the volume Id
+  Acts::GeometryID volumeID = tVolume.geoID();
+  geo_id_value     vid      = volumeID.value(Acts::GeometryID::volume_mask);
+
+  // Write the material if there's one
   if (tVolume.volumeMaterial() != nullptr) {
     volRep.material = tVolume.volumeMaterial();
   }
@@ -342,7 +360,10 @@ FW::Json::JsonGeometryConverter::convertToRep(
     if (bssfRep.surfaceMaterial()) {
       Acts::GeometryID boundaryID = bssfRep.geoID();
       geo_id_value     bid = boundaryID.value(Acts::GeometryID::boundary_mask);
+      // Ignore if the volumeID is not correct (i.e. shared boundary)
+      // if (boundaryID.value(Acts::GeometryID::volume_mask) == vid){
       volRep.boundaries[bid] = bssfRep.surfaceMaterial();
+      //}
     }
   }
   // Write if it's good
@@ -350,7 +371,6 @@ FW::Json::JsonGeometryConverter::convertToRep(
     Acts::GeometryID volumeID = tVolume.geoID();
     volRep.volumeName         = tVolume.volumeName();
     volRep.volumeID           = volumeID;
-    geo_id_value vid          = volumeID.value(Acts::GeometryID::volume_mask);
     detRep.volumes.insert({vid, std::move(volRep)});
   }
   return;
@@ -415,16 +435,16 @@ FW::Json::JsonGeometryConverter::surfaceMaterialToJson(
     return {};
   };
 
-  // if a bin utility is to be written
+  // A bin utility needs to be written
   const Acts::BinUtility* bUtility = nullptr;
-  // check if we have a proto material
+  // Check if we have a proto material
   auto psMaterial = dynamic_cast<const Acts::ProtoSurfaceMaterial*>(&sMaterial);
   if (psMaterial != nullptr) {
-    // type is proto
+    // Type is proto material
     smj[m_cfg.typekey] = "proto";
     bUtility           = &(psMaterial->binUtility());
   } else {
-    // now check if we have a homogeneous material
+    // Now check if we have a homogeneous material
     auto hsMaterial
         = dynamic_cast<const Acts::HomogeneousSurfaceMaterial*>(&sMaterial);
     if (hsMaterial != nullptr) {
@@ -438,8 +458,7 @@ FW::Json::JsonGeometryConverter::surfaceMaterialToJson(
         smj[m_cfg.datakey] = mmat;
       }
     } else {
-      // only option remaining: BinnedSurface material
-      // now check if we have a homogeneous material
+      // Only option remaining: BinnedSurface material
       auto bsMaterial
           = dynamic_cast<const Acts::BinnedSurfaceMaterial*>(&sMaterial);
       if (bsMaterial != nullptr) {
@@ -481,6 +500,11 @@ FW::Json::JsonGeometryConverter::surfaceMaterialToJson(
         binj.push_back("open");
       }
       binj.push_back(cbData.bins());
+      // If it's not a proto map, write min / max
+      if (smj[m_cfg.typekey] != "proto") {
+        std::pair<double, double> minMax = {cbData.min, cbData.max};
+        binj.push_back(minMax);
+      }
       smj[binkeys[ibin]] = binj;
     }
   }

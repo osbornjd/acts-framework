@@ -33,27 +33,12 @@ namespace Options {
     opt.add_options()(
         "mat-mapping-collection",
         po::value<std::string>()->default_value("material-tracks"),
-        "Collection name of the material tracks for reading.");
+        "Collection name of the material tracks for reading.")(
+        "mat-mapping-emptybins",
+        po::value<bool>()->default_value(true),
+        "Empty bin correction (recommended). Corrects for vaccuum/emtpy "
+        "assigments.");
   }
 
-  ///@brief  Read the digitization options and return a Config object
-  ///
-  ///@tparam omap_t Type of the options map
-  ///@param vm the options map to be read out
-  // template <typename omap_t>
-  // DigitizationAlgorithm::Config
-  // readDigitizationConfig(const omap_t& vm)
-  //{
-  //  // create a config
-  //  DigitizationAlgorithm::Config digiConfig;
-  //  digiConfig.spacePointCollection
-  //      = vm["digi-spacepoints"].template as<std::string>();
-  //  digiConfig.clusterCollection
-  //      = vm["digi-clusters"].template as<std::string>();
-  //  digiConfig.resolutionFile
-  //      = vm["digi-resolution-file"].template as<std::string>();
-  //  // and return the config
-  //  return digiConfig;
-  //}
 }  // namespace Options
 }  // namespace FW

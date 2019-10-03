@@ -12,6 +12,7 @@
 #include <memory>
 
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Utilities/BinningType.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <DD4hep/DetElement.h>
@@ -58,13 +59,14 @@ namespace DD4hep {
       /// The tolerance added to the geometrical extension in z
       /// of the layers contained to build the volume envelope around
       /// @note this parameter only needs to be set if the volumes containing
-      /// the
-      /// layers (e.g. barrel, endcap volumes) have no specific shape
+      /// the layers (e.g. barrel, endcap volumes) have no specific shape
       /// (assemblies)
       double envelopeZ;
       double defaultLayerThickness;
       std::function<void(std::vector<dd4hep::DetElement>& detectors)>
           sortDetectors;
+      /// Material decorator
+      std::shared_ptr<const Acts::IMaterialDecorator> matDecorator = nullptr;
     };
 
     DD4hepGeometryService(const Config& cfg);
