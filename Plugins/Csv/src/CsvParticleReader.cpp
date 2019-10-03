@@ -27,14 +27,15 @@ FW::Csv::CsvParticleReader::CsvParticleReader(
     const FW::Csv::CsvParticleReader::Config& cfg,
     Acts::Logging::Level                      level)
   : m_cfg(cfg)
-  , m_eventsRange(determineEventFilesRange(cfg.inputDir, cfg.inputFilename))
+  , m_eventsRange(
+        determineEventFilesRange(cfg.inputDir, cfg.inputStem + ".csv"))
   , m_logger(Acts::getDefaultLogger("CsvParticleReader", level))
 {
   if (m_cfg.outputParticles.empty()) {
     throw std::invalid_argument("Missing output collection");
   }
-  if (m_cfg.inputFilename.empty()) {
-    throw std::invalid_argument("Missing input file suffix");
+  if (m_cfg.inputStem.empty()) {
+    throw std::invalid_argument("Missing input filename stem");
   }
 }
 
@@ -55,9 +56,10 @@ FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 {
   Data::SimParticles particles;
 
-  dfe::CsvNamedTupleReader<ParticleData> reader(
-      perEventFilepath(m_cfg.inputDir, m_cfg.inputFilename, ctx.eventNumber));
-  ParticleData data;
+  auto path = perEventFilepath(
+      m_cfg.inputDir, m_cfg.inputStem + ".csv", ctx.eventNumber);
+  dfe::CsvNamedTupleReader<ParticleData> reader(path);
+  ParticleData                           data;
 
   while (reader.read(data)) {
     Acts::Vector3D vertex = Acts::Vector3D(data.vx * Acts::UnitConstants::mm,

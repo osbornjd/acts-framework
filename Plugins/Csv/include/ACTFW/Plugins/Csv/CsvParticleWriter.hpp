@@ -27,8 +27,8 @@ namespace Csv {
   /// default it writes to the current working directory. Files are named
   /// using the following schema
   ///
-  ///     event000000001-<outputFilename>
-  ///     event000000002-<outputFilename>
+  ///     event000000001-<stem>.csv
+  ///     event000000002-<stem>.csv
   ///     ...
   ///
   /// and each line in the file corresponds to one particle.
@@ -46,8 +46,8 @@ namespace Csv {
       std::string inputHitsPerParticle;
       /// Where to place output files.
       std::string outputDir;
-      /// Output file name suffix
-      std::string outputFilename = "particles.csv";
+      /// Output filename stem.
+      std::string outputStem = "particles";
       /// Number of decimal digits for floating point precision in output.
       size_t outputPrecision = 6;
     };

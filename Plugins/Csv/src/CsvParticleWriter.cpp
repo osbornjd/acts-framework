@@ -26,8 +26,8 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
   if (m_cfg.input.empty()) {
     throw std::invalid_argument("Missing input collection");
   }
-  if (m_cfg.outputFilename.empty()) {
-    throw std::invalid_argument("Missing ouput file suffix");
+  if (m_cfg.outputStem.empty()) {
+    throw std::invalid_argument("Missing ouput filename stem");
   }
 }
 
@@ -43,8 +43,8 @@ FW::Csv::CsvParticleWriter::writeT(
         m_cfg.inputHitsPerParticle);
   }
 
-  std::string pathParticles = perEventFilepath(
-      m_cfg.outputDir, m_cfg.outputFilename, context.eventNumber);
+  auto pathParticles = perEventFilepath(
+      m_cfg.outputDir, m_cfg.outputStem + ".csv", context.eventNumber);
   dfe::CsvNamedTupleWriter<ParticleData> writer(pathParticles,
                                                 m_cfg.outputPrecision);
 

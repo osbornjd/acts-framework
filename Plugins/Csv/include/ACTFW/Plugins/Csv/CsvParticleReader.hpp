@@ -22,8 +22,8 @@ namespace Csv {
   /// This reads one file per event in the configured input directory
   /// and filename. Files are assumed to be named using the following schema
   ///
-  ///     event000000001-<inputFilename>
-  ///     event000000002-<inputFilename>
+  ///     event000000001-<stem>.csv
+  ///     event000000002-<stem>.csv
   ///
   /// and each line in the file corresponds to one particle. The
   /// input filename can be configured and defaults to `particles.csv`.
@@ -36,8 +36,8 @@ namespace Csv {
       std::string outputParticles;
       /// Where to read input files from.
       std::string inputDir;
-      /// Input file name.
-      std::string inputFilename = "particles.csv";
+      /// Input filename stem.
+      std::string inputStem = "particles";
     };
 
     CsvParticleReader(const Config&        cfg,
