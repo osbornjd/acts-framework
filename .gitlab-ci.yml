@@ -1,19 +1,14 @@
 stages:
-    - build
-    - test
+  - build
+  - test
 
 variables:
-    BUILD_TYPE: Release
-    GIT_SUBMODULE_STRATEGY: recursive
-    EVENTS: 10
+  BUILD_TYPE: Release
+  GIT_SUBMODULE_STRATEGY: recursive
+  EVENTS: 10
 
 # image: gitlab-registry.cern.ch/acts/machines/slc6:latest
 image: gitlab-registry.cern.ch/acts/machines/cc7:latest
-
-before_script:
-    # CI executor uses fail on error by default
-    # setup scripts do not like that
-    - set +e && source CI/lcg_setup.sh; set -e
 
 # check jobs
 # these are technically pre-built checks and were previously in a separate
@@ -36,9 +31,9 @@ format:
 
 license:
   stage: build
-  image: python:alpine3.6
   variables:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
+  image: python:alpine3.6
   before_script:
     - apk --no-cache add git
     - git submodule deinit -f external/*
@@ -51,15 +46,22 @@ versions:
     GIT_SUBMODULE_STRATEGY: none # we don't need to check core submodule
   tags:
     - cvmfs
+  before_script:
+    - set +e && source CI/lcg_setup.sh; set -e
   script:
     - ./CI/show_versions.sh
 
 # build jobs
 
-build-minimal:
+.build:
   stage: build
   tags:
     - cvmfs
+  before_script:
+    - set +e && source CI/lcg_setup.sh; set -e
+
+build-minimal:
+  extends: .build
   script:
     - mkdir build
     - cd build
@@ -67,28 +69,28 @@ build-minimal:
     - cmake --build .
 
 build-full:
-  stage: build
-  tags:
-    - cvmfs
+  extends: .build
   script:
     - mkdir build
     - cd build
-    - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DUSE_DD4HEP=on -DUSE_GEANT4=on -DUSE_TGEO=on -DUSE_PYTHIA8=on ..
-    - cmake --build .
+    - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=../install -DUSE_DD4HEP=on -DUSE_GEANT4=on -DUSE_TGEO=on -DUSE_PYTHIA8=on ..
+    - cmake --build . -- install
   artifacts:
     paths:
-      - build
+      - install
     expire_in: 6 hours
 
 # test jobs
 
 .run:
   stage: test
+  dependencies:
+    - build-full
   tags:
     - cvmfs
   before_script:
     - set +e && source CI/lcg_setup.sh; set -e
-    - export PATH=$PWD/build/bin:$PATH
+    - source install/bin/setup.sh
 
 hello_world:
   extends: .run
