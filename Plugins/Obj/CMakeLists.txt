@@ -1,9 +1,14 @@
-file(GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
-
-add_library(ACTFWObjPlugin SHARED ${src_files})
-target_include_directories(ACTFWObjPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
-target_link_libraries(ACTFWObjPlugin PUBLIC ActsCore ACTFramework)
-target_link_libraries(ACTFWObjPlugin PUBLIC Threads::Threads)
+add_library(
+  ACTFWObjPlugin SHARED
+  src/ObjHelper.cpp
+  src/ObjSurfaceWriter.cpp
+  src/ObjTrackingGeometryWriter.cpp)
+target_include_directories(
+  ACTFWObjPlugin
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
+target_link_libraries(
+  ACTFWObjPlugin
+  PUBLIC ActsCore ACTFramework Threads::Threads)
 
 install(
   TARGETS ACTFWObjPlugin

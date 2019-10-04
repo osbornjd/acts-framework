@@ -1,18 +1,23 @@
-#file(GLOB_RECURSE src_files "src")
-set(src_files src/CommonGeometry.cpp src/CommonOptions.cpp src/GeometryExampleBase.cpp src/MaterialMappingBase.cpp src/MaterialValidationBase.cpp src/PropagationExampleBase.cpp)
+add_library(
+  ACTFWExamplesCommon SHARED
+  src/CommonGeometry.cpp
+  src/CommonOptions.cpp
+  src/GeometryExampleBase.cpp
+  src/MaterialMappingBase.cpp
+  src/MaterialValidationBase.cpp
+  src/PropagationExampleBase.cpp)
+target_include_directories(
+  ACTFWExamplesCommon
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
+target_link_libraries(
+  ACTFWExamplesCommon
+  PUBLIC ActsCore FatrasCore ACTFramework ACTFWObjPlugin ACTFWCsvPlugin
+    ACTFWJsonPlugin ACTFWRootPlugin ACTFWDetectorsCommon ACTFWBFieldPlugin
+    ACTFWDigitization ACTFWFatras ActsFrameworkGenerators ACTFWMaterialMapping
+    ACTFWFitting)
 
-# append Fatras example is Pythia8 is avaialbe
 if(USE_PYTHIA8)
-  list(APPEND src_files src/FatrasExampleBase.cpp)
-endif()
-
-add_library(ACTFWExamplesCommon SHARED ${src_files})
-target_include_directories(ACTFWExamplesCommon PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
-target_link_libraries(ACTFWExamplesCommon PUBLIC ActsCore FatrasCore ACTFramework)
-target_link_libraries(ACTFWExamplesCommon PUBLIC ACTFWObjPlugin
-        ACTFWCsvPlugin ACTFWJsonPlugin ACTFWRootPlugin ACTFWDetectorsCommon
-        ACTFWBFieldPlugin ACTFWDigitization ACTFWFatras ActsFrameworkGenerators ACTFWMaterialMapping ACTFWFitting)
-if(USE_PYTHIA8)
+  target_sources(ACTFWExamplesCommon PRIVATE src/FatrasExampleBase.cpp)
   target_link_libraries(ACTFWExamplesCommon PUBLIC ActsFrameworkPythia8)
 endif()
 

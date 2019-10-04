@@ -1,14 +1,19 @@
 include(${Geant4_USE_FILE})
 
-file(GLOB_RECURSE src_files "src/*.cpp" "include/*.*pp")
-
-add_library(ACTFWGeant4Plugin SHARED ${src_files})
-target_include_directories(ACTFWGeant4Plugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
-target_include_directories(ACTFWGeant4Plugin PUBLIC ${Geant4_INCLUDE_DIRS})
-target_include_directories(ACTFWGeant4Plugin PUBLIC ${ROOT_INCLUDE_DIRS})
-target_link_libraries(ACTFWGeant4Plugin PUBLIC ActsCore ACTFramework)
-target_link_libraries(ACTFWGeant4Plugin PUBLIC ${Geant4_LIBRARIES})
-target_link_libraries(ACTFWGeant4Plugin PUBLIC ${ROOT_LIBRARIES})
+add_library(
+  ACTFWGeant4Plugin SHARED
+  src/MMDetectorConstruction.cpp
+  src/MMEventAction.cpp
+  src/MMPrimaryGeneratorAction.cpp
+  src/MMRunAction.cpp
+  src/MMSteppingAction.cpp)
+target_include_directories(
+  ACTFWGeant4Plugin
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+    ${Geant4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS})
+target_link_libraries(
+  ACTFWGeant4Plugin
+  PUBLIC ActsCore ACTFramework ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 install(
   TARGETS ACTFWGeant4Plugin

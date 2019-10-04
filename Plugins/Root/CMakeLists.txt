@@ -18,8 +18,9 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${ROOT_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWRootPlugin
-  PRIVATE ActsCore ActsDigitizationPlugin IdentificationPlugin
-         ACTFramework ACTFWPropagation ActsFrameworkTruthTracking ${ROOT_LIBRARIES} Threads::Threads)
+  PUBLIC ActsCore ActsDigitizationPlugin IdentificationPlugin ACTFramework
+    ACTFWPropagation ActsFrameworkTruthTracking ${ROOT_LIBRARIES}
+    Threads::Threads)
 
 install(
   TARGETS ACTFWRootPlugin

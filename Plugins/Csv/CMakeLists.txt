@@ -1,4 +1,5 @@
-add_library(ACTFWCsvPlugin SHARED
+add_library(
+  ACTFWCsvPlugin SHARED
   src/CsvOptionsReader.cpp
   src/CsvOptionsWriter.cpp
   src/CsvParticleReader.cpp
@@ -6,11 +7,13 @@ add_library(ACTFWCsvPlugin SHARED
   src/CsvPlanarClusterReader.cpp
   src/CsvPlanarClusterWriter.cpp
   src/CsvTrackingGeometryWriter.cpp)
-target_include_directories(ACTFWCsvPlugin PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
-target_link_libraries(ACTFWCsvPlugin PRIVATE ACTFramework ActsCore ActsDigitizationPlugin IdentificationPlugin)
-target_link_libraries(ACTFWCsvPlugin PRIVATE Threads::Threads)
-target_link_libraries(ACTFWCsvPlugin PRIVATE Boost::program_options dfelibs)
-target_link_libraries(ACTFWCsvPlugin PUBLIC ActsDigitizationPlugin)
+target_include_directories(
+  ACTFWCsvPlugin
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
+target_link_libraries(
+  ACTFWCsvPlugin
+  PRIVATE ACTFramework ActsCore ActsDigitizationPlugin IdentificationPlugin
+    Threads::Threads dfelibs)
 
 install(
   TARGETS ACTFWCsvPlugin
