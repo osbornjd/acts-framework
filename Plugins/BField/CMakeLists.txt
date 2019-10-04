@@ -5,10 +5,10 @@ add_library(
   src/BFieldUtils.cpp)
 target_include_directories(
   ACTFWBFieldPlugin
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> ${ROOT_INCLUDE_DIRS})
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
 target_link_libraries(
   ACTFWBFieldPlugin
-  PUBLIC ActsCore ACTFramework ${ROOT_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+  PUBLIC ActsCore ACTFramework Boost::program_options ROOT::Core ROOT::Tree)
 
 install(
   TARGETS ACTFWBFieldPlugin

@@ -9,7 +9,7 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 target_link_libraries(
   ActsFrameworkGenerators
-  PUBLIC ActsCore ACTFramework ${Boost_PROGRAM_OPTIONS_LIBRARY})
+  PUBLIC ActsCore ACTFramework Boost::program_options)
 
 install(
   TARGETS ActsFrameworkGenerators

@@ -4,10 +4,10 @@ add_library(
   ACTFW/Options/Pythia8Options.cpp)
 target_include_directories(
   ActsFrameworkPythia8
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> ${Boost_INCLUDE_DIRS})
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 target_link_libraries(
   ActsFrameworkPythia8
-  PUBLIC ActsCore ActsFrameworkGenerators ACTFramework Pythia8 ${Boost_LIBRARIES})
+  PUBLIC ActsCore ActsFrameworkGenerators ACTFramework Pythia8 Boost::program_options)
 
 install(
   TARGETS ActsFrameworkPythia8

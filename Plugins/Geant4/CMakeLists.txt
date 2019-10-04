@@ -10,10 +10,11 @@ add_library(
 target_include_directories(
   ACTFWGeant4Plugin
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
-    ${Geant4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS})
+    ${Geant4_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWGeant4Plugin
-  PUBLIC ActsCore ACTFramework ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+  PUBLIC ActsCore ACTFramework ${Geant4_LIBRARIES}
+  PRIVATE ROOT::Geom)
 
 install(
   TARGETS ACTFWGeant4Plugin

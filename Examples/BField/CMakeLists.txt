@@ -1,20 +1,14 @@
 add_executable(ACTFWBFieldExample src/BFieldExample.cpp)
-target_include_directories(
-  ACTFWBFieldExample
-  PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWBFieldExample
   PRIVATE ActsCore ACTFramework ACTFWExamplesCommon ACTFWBFieldPlugin
-    ACTFWRootPlugin ${Boost_LIBRARIES})
+    ACTFWRootPlugin Boost::program_options)
 
 add_executable(ACTFWBFieldAccessExample src/BFieldAccessExample.cpp)
-target_include_directories(
-  ACTFWBFieldAccessExample
-  PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWBFieldAccessExample
   PRIVATE ActsCore ACTFramework ACTFWExamplesCommon ACTFWBFieldPlugin
-    ACTFWRootPlugin ${Boost_LIBRARIES})
+    ACTFWRootPlugin Boost::program_options)
 
 install(
   TARGETS ACTFWBFieldExample ACTFWBFieldAccessExample

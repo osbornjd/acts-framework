@@ -9,11 +9,11 @@ add_library(ACTFramework SHARED
   src/Validation/ResPlotTool.cpp)
 target_include_directories(
   ACTFramework
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${ROOT_INCLUDE_DIRS}
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE ${TBB_INCLUDE_DIRS})
 target_link_libraries(
   ACTFramework
-  PUBLIC ActsCore Boost::boost ${ROOT_LIBRARIES}
+  PUBLIC ActsCore Boost::boost ROOT::Core ROOT::Hist
   PRIVATE ${TBB_LIBRARIES} Boost::filesystem dfelibs)
 target_compile_definitions(
   ACTFramework

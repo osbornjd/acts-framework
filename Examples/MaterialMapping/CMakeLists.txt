@@ -2,33 +2,23 @@ set(_common_libraries
   ActsCore
   ACTFramework
   ACTFWExamplesCommon
-  ${Boost_LIBRARIES})
+  Boost::program_options)
 set(_plugin_libraries
   ACTFWRootPlugin
   ACTFWJsonPlugin
   ACTFWBFieldPlugin)
 
 add_executable(ACTFWGenericMaterialValidationExample src/GenericMaterialValidation.cpp)
-target_include_directories(
-  ACTFWGenericMaterialValidationExample
-  PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWGenericMaterialValidationExample
-  PRIVATE ${_common_libraries} ${_plugin_libraries})
-target_link_libraries(
-  ACTFWGenericMaterialValidationExample
-  PRIVATE ACTFWPropagation ACTFWGenericDetector)
+  PRIVATE ${_common_libraries} ${_plugin_libraries}
+    ACTFWPropagation ACTFWGenericDetector)
 
 add_executable(ACTFWGenericMaterialMappingExample src/GenericMaterialMapping.cpp)
-target_include_directories(
-  ACTFWGenericMaterialMappingExample
-  PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWGenericMaterialMappingExample
-  PRIVATE ${_common_libraries} ${_plugin_libraries})
-target_link_libraries(
-  ACTFWGenericMaterialMappingExample
-  PRIVATE ACTFWMaterialMapping ACTFWGenericDetector)
+  PRIVATE ${_common_libraries} ${_plugin_libraries}
+    ACTFWMaterialMapping ACTFWGenericDetector)
 
 install(
   TARGETS
@@ -42,12 +32,11 @@ if (USE_GEANT4 AND USE_DD4HEP)
   add_executable(ACTFWGeantinoRecordingExample src/GeantinoRecordingExample.cpp)
   target_include_directories(
     ACTFWGeantinoRecordingExample
-    PRIVATE ${Boost_INCLUDE_DIRS} ${DD4hep_INCLUDE_DIRS})
+    PRIVATE ${DD4hep_INCLUDE_DIRS})
   target_link_libraries(
     ACTFWGeantinoRecordingExample
-    PRIVATE ACTFWExamplesCommon ACTFWMaterialMapping ACTFWDD4hepG4Plugin
-      ACTFWRootPlugin ACTFWDD4hepDetector ${DD4hep_LIBRARIES}
-      ${Geant4_LIBRARIES} ${Boost_LIBRARIES})
+    PRIVATE ${_common_libraries} ACTFWMaterialMapping ACTFWDD4hepG4Plugin
+      ACTFWRootPlugin ACTFWDD4hepDetector ${DD4hep_LIBRARIES} ${Geant4_LIBRARIES})
 
   install(
     TARGETS ACTFWGeantinoRecordingExample

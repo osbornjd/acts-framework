@@ -1,5 +1,5 @@
 add_library(ACTFWFatras INTERFACE)
 target_include_directories(ACTFWFatras INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
-target_include_directories(ACTFWFatras INTERFACE ActsCore ACTFramework)
+target_link_libraries(ACTFWFatras INTERFACE ActsCore ACTFramework)
 
 # interface libraries do not exist in the filesystem; no installation needed

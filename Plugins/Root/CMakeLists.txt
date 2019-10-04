@@ -15,12 +15,12 @@ add_library(
   src/RootPerformanceWriter.cpp)
 target_include_directories(
   ACTFWRootPlugin
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${ROOT_INCLUDE_DIRS})
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(
   ACTFWRootPlugin
   PUBLIC ActsCore ActsDigitizationPlugin IdentificationPlugin ACTFramework
-    ACTFWPropagation ActsFrameworkTruthTracking ${ROOT_LIBRARIES}
-    Threads::Threads)
+    ACTFWPropagation ActsFrameworkTruthTracking Threads::Threads
+  PRIVATE ROOT::Core ROOT::Hist ROOT::Tree)
 
 install(
   TARGETS ACTFWRootPlugin

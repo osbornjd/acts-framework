@@ -7,11 +7,11 @@ add_library(
 target_include_directories(
   ACTFWDD4hepG4Plugin
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
-    ${DD4hep_INCLUDE_DIRS}) ${ROOT_INCLUDE_DIRS})
+    ${DD4hep_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWDD4hepG4Plugin
-  PUBLIC ACTFramework ACTFWDD4hepDetector) ${DD4hep_LIBRARIES}
-    ${DD4hep_DDG4_LIBRARY}) ${Geant4_LIBRARIES}) ${ROOT_LIBRARIES})
+  PUBLIC ACTFramework ACTFWDD4hepDetector ${DD4hep_LIBRARIES}
+    ${DD4hep_DDG4_LIBRARY} ${Geant4_LIBRARIES})
 
 install(
   TARGETS ACTFWDD4hepG4Plugin

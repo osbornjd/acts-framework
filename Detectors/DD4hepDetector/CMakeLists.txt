@@ -24,12 +24,11 @@ add_library(
   src/DetUtils.cpp)
 target_include_directories(
   ACTFWDD4hepDetector
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
-    ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS})
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> ${DD4hep_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWDD4hepDetector
   PUBLIC ACTFramework ActsCore ActsDigitizationPlugin ActsDD4hepPlugin
-    ACTFWDetectorsCommon ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES})
+    ACTFWDetectorsCommon ROOT::Geom ${DD4hep_LIBRARIES})
 
 # not sure why this needs to be set, but dd4hep fails to compile otherwise
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})

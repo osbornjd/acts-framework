@@ -5,12 +5,9 @@ add_executable(
   HelloRandomAlgorithm.cpp
   HelloService.cpp
   HelloWhiteBoardAlgorithm.cpp)
-target_include_directories(
-  ACTFWHelloWorldExample
-  PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWHelloWorldExample
-  PRIVATE ACTFramework ACTFWExamplesCommon ActsCore ${Boost_LIBRARIES})
+  PRIVATE ACTFramework ACTFWExamplesCommon ActsCore Boost::program_options)
 
 install(
   TARGETS ACTFWHelloWorldExample
