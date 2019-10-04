@@ -32,6 +32,8 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
   pcExtension->addType("passive cylinder", "layer");
   if (isBeamPipe) { pcExtension->addType("beampipe", "layer"); }
   Acts::xmlToCylinderProtoMaterial(x_det_tubs, *pcExtension);
+  std::cout << pcExtension->toString() << std::endl;
+
   cylinderElement.addExtension<Acts::ActsExtension>(pcExtension);
 
   string shapeName = x_det_tubs.nameStr();
