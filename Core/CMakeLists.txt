@@ -18,6 +18,8 @@ target_link_libraries(
 target_compile_definitions(
   ACTFramework
   PRIVATE BOOST_FILESYSTEM_NO_DEPRECATED)
+# set per-target c++17 requirement that will be propagated to linked targets
+target_compile_features(ACTFramework PUBLIC cxx_std_17)
 
 install(
   TARGETS ACTFramework
