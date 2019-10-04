@@ -13,7 +13,7 @@ image: gitlab-registry.cern.ch/acts/machines/cc7:latest
 before_script:
     # CI executor uses fail on error by default
     # setup scripts do not like that
-    - set +e && source CI/setup_lcg95.sh; set -e
+    - set +e && source CI/lcg_setup.sh; set -e
 
 # check jobs
 # these are technically pre-built checks and were previously in a separate
@@ -87,7 +87,7 @@ build-full:
   tags:
     - cvmfs
   before_script:
-    - set +e && source CI/setup_lcg95.sh; set -e
+    - set +e && source CI/lcg_setup.sh; set -e
     - export PATH=$PWD/build/bin:$PATH
 
 hello_world:
