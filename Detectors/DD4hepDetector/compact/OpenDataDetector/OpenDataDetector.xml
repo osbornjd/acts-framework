@@ -60,6 +60,7 @@
         <constant name="sol_hlength" value="2.85*m"/>  
         <!-- Material binning section -->
         <!-- beam pipe section -->
+        <constant name="mat_bp_bPhi" value="1"/>
         <constant name="mat_bp_bZ" value="10"/>
         <!-- pixel section -->
         <constant name="mat_pix_barrel_bPhi" value="1"/>
@@ -139,7 +140,7 @@
       <detector id="0" name="BeamPipe" type="ODDCylinder" vis="Beryllium">
             <beampipe/>
             <tubs name="BeamPipeCylinder" rmin="bp_rmin" rmax="bp_rmax" dz="bp_length" material="Beryllium">
-              <layer_material inner="false" representing="true" outer="false" binPhi="1" binZ="mat_bp_bZ"/>
+              <layer_material inner="false" representing="true" outer="false" binPhi="mat_bp_bPhi" binZ="mat_bp_bZ"/>
             </tubs>
       </detector>
       <detector id="1" name="Pixels" type="DD4hep_SubdetectorAssembly" vis="invisible">
