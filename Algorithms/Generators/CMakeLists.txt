@@ -6,9 +6,10 @@ set(Generators_SOURCES
 
 add_library(ActsFrameworkGenerators SHARED ${Generators_SOURCES})
 target_include_directories(ActsFrameworkGenerators
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 target_link_libraries(ActsFrameworkGenerators
   PRIVATE ActsCore ACTFramework Boost::program_options)
 
-install(TARGETS ActsFrameworkGenerators LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
+install(
+  TARGETS ActsFrameworkGenerators
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

@@ -24,26 +24,24 @@ add_executable(ACTFWGenericGeometryExample src/GenericGeometryExample.cpp)
 target_link_libraries(ACTFWGenericGeometryExample PRIVATE
   ${_common_libraries}
   ACTFWGenericDetector)
-install(
-  TARGETS ACTFWGenericGeometryExample
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Generic detector with IOV based alignment
 add_executable(ACTFWAlignedGeometryExample src/AlignedGeometryExample.cpp)
 target_link_libraries(ACTFWAlignedGeometryExample PRIVATE
   ${_common_libraries}
   ACTFWContextualDetector)
-install(
-  TARGETS ACTFWAlignedGeometryExample
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Generic detector with Payload based alignment
 add_executable(ACTFWPayloadGeometryExample src/PayloadGeometryExample.cpp)
 target_link_libraries(ACTFWPayloadGeometryExample PRIVATE
   ${_common_libraries}
   ACTFWContextualDetector)
+
 install(
-  TARGETS ACTFWPayloadGeometryExample
+  TARGETS
+    ACTFWGenericGeometryExample
+    ACTFWAlignedGeometryExample
+    ACTFWPayloadGeometryExample
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # TGEO based detector

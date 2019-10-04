@@ -1,6 +1,5 @@
 add_library(
-  ACTFWPluginHepMC3
-  SHARED
+  ACTFWPluginHepMC3 SHARED
   src/HepMC3Event.cpp
   src/HepMC3Particle.cpp
   src/HepMC3Reader.cpp
@@ -8,11 +7,11 @@ add_library(
   src/HepMC3Writer.cpp)
 target_include_directories(
   ACTFWPluginHepMC3
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-         $<INSTALL_INTERFACE:include>
-         ${HEPMC_INCLUDE_DIR})
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${HEPMC_INCLUDE_DIR})
 target_link_libraries(
   ACTFWPluginHepMC3
   PRIVATE ActsCore ACTFramework ${HEPMC_LIBRARIES} HepPID)
 
-install(TARGETS ACTFWPluginHepMC3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(
+  TARGETS ACTFWPluginHepMC3
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

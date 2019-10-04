@@ -16,29 +16,30 @@ set(_common_libraries
 
 # Generic detector
 add_executable(ACTFWGenericFatrasExample src/GenericFatrasExample.cpp)
-target_link_libraries(ACTFWGenericFatrasExample PRIVATE
-  ${_common_libraries}
-  ACTFWGenericDetector)
-install(
-  TARGETS ACTFWGenericFatrasExample
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+target_include_directories(ACTFWGenericFatrasExample
+  PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWGenericFatrasExample
+  PRIVATE ${_common_libraries} ACTFWGenericDetector)
 
 # Generic detector with IOV based alignment
 add_executable(ACTFWAlignedFatrasExample src/AlignedFatrasExample.cpp)
-target_link_libraries(ACTFWAlignedFatrasExample PRIVATE
-  ${_common_libraries}
-  ACTFWContextualDetector)
-install(
-  TARGETS ACTFWAlignedFatrasExample
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+target_include_directories(ACTFWAlignedFatrasExample
+  PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWAlignedFatrasExample
+  PRIVATE ${_common_libraries} ACTFWContextualDetector)
 
 # Generic detector with Payload based alignment
 add_executable(ACTFWPayloadFatrasExample src/PayloadFatrasExample.cpp)
-target_link_libraries(ACTFWPayloadFatrasExample PRIVATE
-  ${_common_libraries}
-  ACTFWContextualDetector)
+target_include_directories(ACTFWPayloadFatrasExample
+  PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWPayloadFatrasExample
+  PRIVATE ${_common_libraries} ACTFWContextualDetector)
+
 install(
-  TARGETS ACTFWPayloadFatrasExample
+  TARGETS
+    ACTFWGenericFatrasExample
+    ACTFWAlignedFatrasExample
+    ACTFWPayloadFatrasExample
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # TGEO based detector

@@ -4,4 +4,6 @@ target_link_libraries(ACTFWGenericReadCsvExample PRIVATE ACTFramework ACTFWExamp
 target_link_libraries(ACTFWGenericReadCsvExample PRIVATE ACTFWCsvPlugin ACTFWGenericDetector)
 target_link_libraries(ACTFWGenericReadCsvExample PRIVATE Boost::program_options)
 
-install(TARGETS ACTFWGenericReadCsvExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(
+  TARGETS ACTFWGenericReadCsvExample
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -1,13 +1,13 @@
-set(Simulation_SOURCES
-  ACTFW/TruthTracking/TruthVerticesToTracks.cpp
+add_library(
+  ActsFrameworkTruthTracking SHARED
   ACTFW/TruthTracking/TrackSelector.cpp
-  )
-
-add_library(ActsFrameworkTruthTracking SHARED ${Simulation_SOURCES})
+  ACTFW/TruthTracking/TruthTrackFinder.cpp
+  ACTFW/TruthTracking/TruthVerticesToTracks.cpp)
 target_include_directories(ActsFrameworkTruthTracking
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 target_link_libraries(ActsFrameworkTruthTracking
   PRIVATE ActsCore ACTFramework Boost::program_options)
 
-install(TARGETS ActsFrameworkTruthTracking LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
+install(
+  TARGETS ActsFrameworkTruthTracking
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
