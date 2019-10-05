@@ -11,7 +11,8 @@
 #include "ACTFW/Plugins/HepMC3/HepMC3Vertex.hpp"
 
 std::unique_ptr<FW::Data::SimParticle>
-FW::HepMC3Particle::particle(const std::shared_ptr<HepMC3::GenParticle> particle)
+FW::HepMC3Particle::particle(
+    const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   return std::move(std::make_unique<Data::SimParticle>(
       Data::SimParticle({0., 0., 0.},
@@ -65,7 +66,8 @@ FW::HepMC3Particle::pdgID(const std::shared_ptr<HepMC3::GenParticle> particle)
 }
 
 Acts::Vector3D
-FW::HepMC3Particle::momentum(const std::shared_ptr<HepMC3::GenParticle> particle)
+FW::HepMC3Particle::momentum(
+    const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   Acts::Vector3D mom;
   mom(0) = particle->momentum().x();
@@ -94,14 +96,14 @@ FW::HepMC3Particle::charge(const std::shared_ptr<HepMC3::GenParticle> particle)
 
 void
 FW::HepMC3Particle::pdgID(std::shared_ptr<HepMC3::GenParticle> particle,
-                          const int                           pid)
+                          const int                            pid)
 {
   particle->set_pid(pid);
 }
 
 void
 FW::HepMC3Particle::momentum(std::shared_ptr<HepMC3::GenParticle> particle,
-                             const Acts::Vector3D&               mom)
+                             const Acts::Vector3D&                mom)
 {
   HepMC3::FourVector fVec(mom(0), mom(1), mom(2), particle->momentum().e());
   particle->set_momentum(fVec);
@@ -109,18 +111,18 @@ FW::HepMC3Particle::momentum(std::shared_ptr<HepMC3::GenParticle> particle,
 
 void
 FW::HepMC3Particle::energy(std::shared_ptr<HepMC3::GenParticle> particle,
-                           const double                        energy)
+                           const double                         energy)
 {
   HepMC3::FourVector fVec(particle->momentum().x(),
-                         particle->momentum().y(),
-                         particle->momentum().z(),
-                         energy);
+                          particle->momentum().y(),
+                          particle->momentum().z(),
+                          energy);
   particle->set_momentum(fVec);
 }
 
 void
 FW::HepMC3Particle::mass(std::shared_ptr<HepMC3::GenParticle> particle,
-                         const double                        mass)
+                         const double                         mass)
 {
   particle->set_generated_mass(mass);
 }

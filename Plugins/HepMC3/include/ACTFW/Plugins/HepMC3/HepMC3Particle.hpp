@@ -87,7 +87,7 @@ public:
   /// @param mom momentum that will be set
   void
   momentum(std::shared_ptr<HepMC3::GenParticle> particle,
-           const Acts::Vector3D&               mom);
+           const Acts::Vector3D&                mom);
 
   /// @brief Sets the energy of a particle translated from Acts
   /// @param particle HepMC3::GenParticle particle

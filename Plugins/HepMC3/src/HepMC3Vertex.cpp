@@ -93,14 +93,14 @@ FW::HepMC3Vertex::actsParticleToGen(
 }
 
 void
-FW::HepMC3Vertex::addParticleIn(std::shared_ptr<HepMC3::GenVertex>  vertex,
+FW::HepMC3Vertex::addParticleIn(std::shared_ptr<HepMC3::GenVertex> vertex,
                                 std::shared_ptr<Data::SimParticle> particle)
 {
   vertex->add_particle_in(actsParticleToGen(particle));
 }
 
 void
-FW::HepMC3Vertex::addParticleOut(std::shared_ptr<HepMC3::GenVertex>  vertex,
+FW::HepMC3Vertex::addParticleOut(std::shared_ptr<HepMC3::GenVertex> vertex,
                                  std::shared_ptr<Data::SimParticle> particle)
 {
   vertex->add_particle_out(actsParticleToGen(particle));
@@ -109,7 +109,7 @@ FW::HepMC3Vertex::addParticleOut(std::shared_ptr<HepMC3::GenVertex>  vertex,
 HepMC3::GenParticlePtr
 FW::HepMC3Vertex::matchParticles(
     const std::vector<HepMC3::GenParticlePtr>& genParticles,
-    std::shared_ptr<Data::SimParticle>        actsParticle)
+    std::shared_ptr<Data::SimParticle>         actsParticle)
 {
   const barcode_type id = actsParticle->barcode();
   // Search HepMC3::GenParticle with the same id as the Acts particle
@@ -121,7 +121,7 @@ FW::HepMC3Vertex::matchParticles(
 }
 
 void
-FW::HepMC3Vertex::removeParticleIn(std::shared_ptr<HepMC3::GenVertex>  vertex,
+FW::HepMC3Vertex::removeParticleIn(std::shared_ptr<HepMC3::GenVertex> vertex,
                                    std::shared_ptr<Data::SimParticle> particle)
 {
   // Remove particle if it exists
@@ -131,7 +131,7 @@ FW::HepMC3Vertex::removeParticleIn(std::shared_ptr<HepMC3::GenVertex>  vertex,
 }
 
 void
-FW::HepMC3Vertex::removeParticleOut(std::shared_ptr<HepMC3::GenVertex>  vertex,
+FW::HepMC3Vertex::removeParticleOut(std::shared_ptr<HepMC3::GenVertex> vertex,
                                     std::shared_ptr<Data::SimParticle> particle)
 {
   // Remove particle if it exists
@@ -142,7 +142,7 @@ FW::HepMC3Vertex::removeParticleOut(std::shared_ptr<HepMC3::GenVertex>  vertex,
 
 void
 FW::HepMC3Vertex::position(const std::shared_ptr<HepMC3::GenVertex> vertex,
-                           Acts::Vector3D                          pos)
+                           Acts::Vector3D                           pos)
 {
   HepMC3::FourVector fVec(pos(0), pos(1), pos(2), vertex->position().t());
   vertex->set_position(fVec);
@@ -150,11 +150,11 @@ FW::HepMC3Vertex::position(const std::shared_ptr<HepMC3::GenVertex> vertex,
 
 void
 FW::HepMC3Vertex::time(const std::shared_ptr<HepMC3::GenVertex> vertex,
-                       double                                  time)
+                       double                                   time)
 {
   HepMC3::FourVector fVec(vertex->position().x(),
-                         vertex->position().y(),
-                         vertex->position().z(),
-                         time);
+                          vertex->position().y(),
+                          vertex->position().z(),
+                          time);
   vertex->set_position(fVec);
 }

@@ -17,7 +17,7 @@
 
 void
 FW::HepMC3Event::momentumUnit(std::shared_ptr<HepMC3::GenEvent> event,
-                              const double                     momentumUnit)
+                              const double                      momentumUnit)
 {
   // Check, if the momentum unit fits Acts::units::_MeV or _GeV
   HepMC3::Units::MomentumUnit mom;
@@ -37,7 +37,7 @@ FW::HepMC3Event::momentumUnit(std::shared_ptr<HepMC3::GenEvent> event,
 
 void
 FW::HepMC3Event::lengthUnit(std::shared_ptr<HepMC3::GenEvent> event,
-                            const double                     lengthUnit)
+                            const double                      lengthUnit)
 {
   // Check, if the length unit fits Acts::units::_mm or _cm
   HepMC3::Units::LengthUnit len;
@@ -58,18 +58,19 @@ FW::HepMC3Event::lengthUnit(std::shared_ptr<HepMC3::GenEvent> event,
 
 void
 FW::HepMC3Event::shiftPositionBy(std::shared_ptr<HepMC3::GenEvent> event,
-                                 const Acts::Vector3D&            deltaPos,
-                                 const double                     deltaTime)
+                                 const Acts::Vector3D&             deltaPos,
+                                 const double                      deltaTime)
 {
   // Create HepMC3::FourVector from position and time for shift
-  const HepMC3::FourVector vec(deltaPos(0), deltaPos(1), deltaPos(2), deltaTime);
+  const HepMC3::FourVector vec(
+      deltaPos(0), deltaPos(1), deltaPos(2), deltaTime);
   event->shift_position_by(vec);
 }
 
 void
 FW::HepMC3Event::shiftPositionTo(std::shared_ptr<HepMC3::GenEvent> event,
-                                 const Acts::Vector3D&            pos,
-                                 const double                     time)
+                                 const Acts::Vector3D&             pos,
+                                 const double                      time)
 {
   // Create HepMC3::FourVector from position and time for the new position
   const HepMC3::FourVector vec(pos(0), pos(1), pos(2), time);
@@ -78,7 +79,7 @@ FW::HepMC3Event::shiftPositionTo(std::shared_ptr<HepMC3::GenEvent> event,
 
 void
 FW::HepMC3Event::shiftPositionTo(std::shared_ptr<HepMC3::GenEvent> event,
-                                 const Acts::Vector3D&            pos)
+                                 const Acts::Vector3D&             pos)
 {
   // Create HepMC3::FourVector from position and time for the new position
   const HepMC3::FourVector vec(pos(0), pos(1), pos(2), event->event_pos().t());
@@ -87,13 +88,13 @@ FW::HepMC3Event::shiftPositionTo(std::shared_ptr<HepMC3::GenEvent> event,
 
 void
 FW::HepMC3Event::shiftPositionTo(std::shared_ptr<HepMC3::GenEvent> event,
-                                 const double                     time)
+                                 const double                      time)
 {
   // Create HepMC3::FourVector from position and time for the new position
   const HepMC3::FourVector vec(event->event_pos().x(),
-                              event->event_pos().y(),
-                              event->event_pos().z(),
-                              time);
+                               event->event_pos().y(),
+                               event->event_pos().z(),
+                               time);
   event->shift_position_to(vec);
 }
 
@@ -106,8 +107,8 @@ FW::HepMC3Event::actsParticleToGen(
     std::shared_ptr<Data::SimParticle> actsParticle)
 {
   // Extract momentum and energy from Acts particle for HepMC3::FourVector
-  Acts::Vector3D mom = actsParticle->momentum();
-  double         energy = actsParticle->E();
+  Acts::Vector3D           mom    = actsParticle->momentum();
+  double                   energy = actsParticle->E();
   const HepMC3::FourVector vec(mom(0), mom(1), mom(2), energy);
   // Create HepMC3::GenParticle
   HepMC3::GenParticle genParticle(vec, actsParticle->pdg());
@@ -117,7 +118,7 @@ FW::HepMC3Event::actsParticleToGen(
 }
 
 void
-FW::HepMC3Event::addParticle(std::shared_ptr<HepMC3::GenEvent>   event,
+FW::HepMC3Event::addParticle(std::shared_ptr<HepMC3::GenEvent>  event,
                              std::shared_ptr<Data::SimParticle> particle)
 {
   // Add new particle
@@ -129,7 +130,7 @@ FW::HepMC3Event::createGenVertex(
     const std::shared_ptr<Data::SimVertex>& actsVertex)
 {
   // Build HepMC3::FourVector
-  Acts::Vector3D          pos = actsVertex->position;
+  Acts::Vector3D           pos = actsVertex->position;
   const HepMC3::FourVector vec(pos(0), pos(1), pos(2), actsVertex->time);
 
   // Create vertex
@@ -151,7 +152,7 @@ FW::HepMC3Event::createGenVertex(
 }
 
 void
-FW::HepMC3Event::addVertex(std::shared_ptr<HepMC3::GenEvent>         event,
+FW::HepMC3Event::addVertex(std::shared_ptr<HepMC3::GenEvent>      event,
                            const std::shared_ptr<Data::SimVertex> vertex)
 {
   // Add new vertex
@@ -164,11 +165,11 @@ FW::HepMC3Event::addVertex(std::shared_ptr<HepMC3::GenEvent>         event,
 
 void
 FW::HepMC3Event::removeParticle(
-    std::shared_ptr<HepMC3::GenEvent>          event,
+    std::shared_ptr<HepMC3::GenEvent>         event,
     const std::shared_ptr<Data::SimParticle>& particle)
 {
   const std::vector<HepMC3::GenParticlePtr> genParticles = event->particles();
-  const barcode_type                       id           = particle->barcode();
+  const barcode_type                        id           = particle->barcode();
   // Search HepMC3::GenParticle with the same id as the Acts particle
   for (auto& genParticle : genParticles)
     if (genParticle->id() == id) {
@@ -181,7 +182,7 @@ FW::HepMC3Event::removeParticle(
 bool
 FW::HepMC3Event::compareVertices(
     const std::shared_ptr<Data::SimVertex>& actsVertex,
-    const HepMC3::GenVertexPtr&                genVertex)
+    const HepMC3::GenVertexPtr&             genVertex)
 {
   // Compare position, time, number of incoming and outgoing particles between
   // both vertices. Return false if one criterium does not match, else true.
@@ -190,13 +191,15 @@ FW::HepMC3Event::compareVertices(
   if (actsVertex->position.y() != genVec.y()) return false;
   if (actsVertex->position.z() != genVec.z()) return false;
   if (actsVertex->time != genVec.t()) return false;
-  if (actsVertex->incoming.size() != genVertex->particles_in().size()) return false;
-  if (actsVertex->outgoing.size() != genVertex->particles_out().size()) return false;
+  if (actsVertex->incoming.size() != genVertex->particles_in().size())
+    return false;
+  if (actsVertex->outgoing.size() != genVertex->particles_out().size())
+    return false;
   return true;
 }
 
 void
-FW::HepMC3Event::removeVertex(std::shared_ptr<HepMC3::GenEvent>          event,
+FW::HepMC3Event::removeVertex(std::shared_ptr<HepMC3::GenEvent>       event,
                               const std::shared_ptr<Data::SimVertex>& vertex)
 {
 
@@ -270,14 +273,14 @@ std::vector<std::unique_ptr<FW::Data::SimVertex>>
 FW::HepMC3Event::vertices(const std::shared_ptr<HepMC3::GenEvent> event)
 {
   std::vector<std::unique_ptr<Data::SimVertex>> actsVertices;
-  const std::vector<HepMC3::GenVertexPtr> genVertices = event->vertices();
+  const std::vector<HepMC3::GenVertexPtr>       genVertices = event->vertices();
 
   HepMC3Vertex simVert;
 
   // Translate all vertices
   for (auto& genVertex : genVertices) {
-    actsVertices.push_back(std::move(
-        simVert.processVertex(std::make_shared<HepMC3::GenVertex>(*genVertex))));
+    actsVertices.push_back(std::move(simVert.processVertex(
+        std::make_shared<HepMC3::GenVertex>(*genVertex))));
   }
   return std::move(actsVertices);
 }
@@ -286,7 +289,7 @@ std::vector<std::unique_ptr<FW::Data::SimParticle>>
 FW::HepMC3Event::beams(const std::shared_ptr<HepMC3::GenEvent> event)
 {
   std::vector<std::unique_ptr<Data::SimParticle>> actsBeams;
-  const std::vector<HepMC3::GenParticlePtr>        genBeams = event->beams();
+  const std::vector<HepMC3::GenParticlePtr>       genBeams = event->beams();
 
   HepMC3Particle simPart;
 

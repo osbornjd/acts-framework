@@ -68,28 +68,28 @@ public:
   /// @param vertex vertex in HepMC data type
   /// @param particle incoming particle that will be added
   void
-  addParticleIn(std::shared_ptr<HepMC3::GenVertex>  vertex,
+  addParticleIn(std::shared_ptr<HepMC3::GenVertex> vertex,
                 std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Adds an outgoing particle to a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle outgoing particle that will be added
   void
-  addParticleOut(std::shared_ptr<HepMC3::GenVertex>  vertex,
+  addParticleOut(std::shared_ptr<HepMC3::GenVertex> vertex,
                  std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Removes an incoming particle from a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle incoming particle that will be removed
   void
-  removeParticleIn(std::shared_ptr<HepMC3::GenVertex>  vertex,
+  removeParticleIn(std::shared_ptr<HepMC3::GenVertex> vertex,
                    std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Removes an outgoing particle from a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle outgoing particle that will be removed
   void
-  removeParticleOut(std::shared_ptr<HepMC3::GenVertex>  vertex,
+  removeParticleOut(std::shared_ptr<HepMC3::GenVertex> vertex,
                     std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Sets the position of a vertex translated into Acts
@@ -126,6 +126,6 @@ private:
   /// no match was found
   HepMC3::GenParticlePtr
   matchParticles(const std::vector<HepMC3::GenParticlePtr>& genParticles,
-                 std::shared_ptr<Data::SimParticle>        actsParticle);
+                 std::shared_ptr<Data::SimParticle>         actsParticle);
 };
 }  // namespace FW

@@ -34,7 +34,7 @@ public:
   /// @param momentumUnit new unit of momentum
   void
   momentumUnit(std::shared_ptr<HepMC3::GenEvent> event,
-               const double                     momentumUnit);
+               const double                      momentumUnit);
 
   /// @brief Sets new units for lengths
   /// @note The allowed units are mm and cm
@@ -49,8 +49,8 @@ public:
   /// @param deltaTime relative time shift that will be applied
   void
   shiftPositionBy(std::shared_ptr<HepMC3::GenEvent> event,
-                  const Acts::Vector3D&            deltaPos,
-                  const double                     deltaTime);
+                  const Acts::Vector3D&             deltaPos,
+                  const double                      deltaTime);
 
   /// @brief Shifts the positioning of an event to a paint in space and time
   /// @param event event in HepMC data type
@@ -58,15 +58,15 @@ public:
   /// @param time new time of the event
   void
   shiftPositionTo(std::shared_ptr<HepMC3::GenEvent> event,
-                  const Acts::Vector3D&            pos,
-                  const double                     time);
+                  const Acts::Vector3D&             pos,
+                  const double                      time);
 
   /// @brief Shifts the positioning of an event to a paint in space
   /// @param event event in HepMC data type
   /// @param pos new position of the event
   void
   shiftPositionTo(std::shared_ptr<HepMC3::GenEvent> event,
-                  const Acts::Vector3D&            pos);
+                  const Acts::Vector3D&             pos);
 
   /// @brief Shifts the positioning of an event to a paint in time
   /// @param event event in HepMC data type
@@ -82,7 +82,7 @@ public:
   /// @param event event in HepMC data type
   /// @param particle new particle that will be added
   void
-  addParticle(std::shared_ptr<HepMC3::GenEvent>   event,
+  addParticle(std::shared_ptr<HepMC3::GenEvent>  event,
               std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Adds a new vertex
@@ -90,7 +90,7 @@ public:
   /// @param vertex new vertex that will be added
   /// @note The statuses are not represented in Acts and therefore set to 0
   void
-  addVertex(std::shared_ptr<HepMC3::GenEvent>         event,
+  addVertex(std::shared_ptr<HepMC3::GenEvent>      event,
             const std::shared_ptr<Data::SimVertex> vertex);
   ///
   /// Remover
@@ -100,7 +100,7 @@ public:
   /// @param event event in HepMC data type
   /// @param particle particle that will be removed
   void
-  removeParticle(std::shared_ptr<HepMC3::GenEvent>          event,
+  removeParticle(std::shared_ptr<HepMC3::GenEvent>         event,
                  const std::shared_ptr<Data::SimParticle>& particle);
 
   /// @brief Removes a vertex from the record
@@ -109,7 +109,7 @@ public:
   /// @param event event in HepMC data type
   /// @param vertex vertex that will be removed
   void
-  removeVertex(std::shared_ptr<HepMC3::GenEvent>          event,
+  removeVertex(std::shared_ptr<HepMC3::GenEvent>       event,
                const std::shared_ptr<Data::SimVertex>& vertex);
 
   ///
@@ -191,6 +191,6 @@ private:
   /// @return boolean result if both vertices are identical
   bool
   compareVertices(const std::shared_ptr<Data::SimVertex>& actsVertex,
-                  const HepMC3::GenVertexPtr&                genVertex);
+                  const HepMC3::GenVertexPtr&             genVertex);
 };
 }  // namespace FW
