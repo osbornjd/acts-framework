@@ -7,10 +7,10 @@ add_library(
   src/HepMC3Writer.cpp)
 target_include_directories(
   ACTFWPluginHepMC3
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${HEPMC_INCLUDE_DIR})
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${HEPMC3_INCLUDE_DIR})
 target_link_libraries(
   ACTFWPluginHepMC3
-  PRIVATE ActsCore ACTFramework ${HEPMC_LIBRARIES} HepPID)
+  PUBLIC ActsCore ACTFramework ${HEPMC3_LIBRARIES} HepPID)
 
 install(
   TARGETS ACTFWPluginHepMC3

@@ -72,10 +72,21 @@ if(USE_GEANT4)
   find_package(Geant4 REQUIRED gdml)
 endif()
 if(USE_HEPMC3)
-  # only works w/ 3.0.x; later versions change name, include prefix, and
-  # namespace to HepMC3 instead of just HepMC.
-  find_package(HepMC REQUIRED)
+  # must be version 3.1+. version 3.0 uses HepMC w/o number as module name.
+  # version 3.1.0 misses the version variable so we can not check for it
+  find_package(HepMC3 REQUIRED)
   find_package(HepPID REQUIRED)
+  # workaround to fix broken cmake config for version 3.1.0.
+  # it searches for the HepMC libray instead of the correct HepMC3 one
+  # and sets HEPMC_LIBRARIES instead of the expected HEPMC3_LIBRARIES. 
+  if(NOT HEPMC3_LIBRARIES)
+    message(STATUS "Workaround for HepMC3. Search in $ENV{HepMC3_DIR}")
+    find_library(
+      HEPMC3_LIB Names HepMC3
+      PATHS $ENV{HepMC3_DIR}/lib $ENV{HepMC3_DIR}/lib64 NO_DEFAULT_PATH)
+    set(HEPMC3_INCLUDE_DIR ${HEPMC_INCLUDE_DIR})
+    set(HEPMC3_LIBRARIES ${HEPMC3_LIB})
+  endif()
 endif()
 if(USE_PYTHIA8)
   find_package(Pythia8 REQUIRED)
