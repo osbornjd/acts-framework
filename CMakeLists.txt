@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(ActsFramework LANGUAGES CXX)
 
-option(BUILD_ACTS "Build acts-core as submodule" ON)
+option(USE_STANDALONE_ACTS "Use a separate, standalone acts-core installation" OFF)
 option(USE_DD4HEP "Build DD4hep-based geometry code" OFF)
 option(USE_GEANT4 "Build Geant4-based code" OFF)
 option(USE_HEPMC3 "Build HepMC3-based code" OFF)
@@ -43,27 +43,10 @@ find_package(TBB REQUIRED)
 
 # optional packages
 
-if(USE_DD4HEP)
-  set(DD4HEP_DEBUG_CMAKE on)
-  # DD4hep issues w/ C++17 are handled by setting C++17 only as a per-target
-  # requirement and not globally. no workaround required anymore.
-  find_package(DD4hep REQUIRED COMPONENTS ${DD4hep_COMPONENTS})
-endif()
-if(USE_GEANT4)
-  set(Geant4_CONFIG_DEBUG on)
-  find_package(Geant4 REQUIRED gdml)
-endif()
-if(USE_PYTHIA8)
-  find_package(Pythia8 REQUIRED)
-endif()
-if(USE_HEPMC3)
-  # only works w/ 3.0.x; later versions change name, include prefix, and
-  # namespace to HepMC3 instead of just HepMC.
-  find_package(HepMC REQUIRED)
-  find_package(HepPID REQUIRED)
-endif()
-
-if(BUILD_ACTS)
+if(USE_STANDALONE_ACTS)
+  message(STATUS "Using external Acts installation")
+  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin IdentificationPlugin TGeoPlugin DD4hepPlugin DigitizationPlugin)
+else()
   message(STATUS "Building Acts from source")
   # acts-core and acts-fatras are build as subprojects with fixed options
   set(ACTS_BUILD_DOC OFF CACHE BOOL "Build Acts documentation")
@@ -77,10 +60,31 @@ if(BUILD_ACTS)
   set(ACTS_BUILD_TGEO_PLUGIN ${USE_TGEO} CACHE BOOL "Build Acts TGeo plugin")
   set(ACTS_BUILD_IDENTIFICATION_PLUGIN ON CACHE BOOL "Build Acts Identification plugin")
   add_subdirectory(external/acts-core)
-else()
-  message(STATUS "Using external Acts installation")
-  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin IdentificationPlugin TGeoPlugin DD4hepPlugin DigitizationPlugin)
 endif()
+if(USE_DD4HEP)
+  set(DD4HEP_DEBUG_CMAKE on)
+  # DD4hep issues w/ C++17 are handled by setting C++17 only as a per-target
+  # requirement and not globally. no workaround required anymore.
+  find_package(DD4hep REQUIRED COMPONENTS ${DD4hep_COMPONENTS})
+endif()
+if(USE_GEANT4)
+  set(Geant4_CONFIG_DEBUG on)
+  find_package(Geant4 REQUIRED gdml)
+endif()
+if(USE_HEPMC3)
+  # only works w/ 3.0.x; later versions change name, include prefix, and
+  # namespace to HepMC3 instead of just HepMC.
+  find_package(HepMC REQUIRED)
+  find_package(HepPID REQUIRED)
+endif()
+if(USE_PYTHIA8)
+  find_package(Pythia8 REQUIRED)
+endif()
+
+# packages not available as external packages that are alway build from source
+
+add_subdirectory(external/acts-fatras)
+add_subdirectory(external/dfelibs)
 
 # simplify handling of optional components
 # all arguments after the path are evaluated in the if(...) context
@@ -93,9 +97,6 @@ function(add_subdirectory_if path)
     message(STATUS "Disable component '${_name}'")
   endif()
 endfunction()
-
-add_subdirectory(external/acts-fatras)
-add_subdirectory(external/dfelibs)
 
 add_subdirectory(Core)
 add_subdirectory(Detectors)
