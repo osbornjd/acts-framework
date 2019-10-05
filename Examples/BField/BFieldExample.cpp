@@ -13,7 +13,7 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "detail/BFieldWritingBase.hpp"
+#include "BFieldWritingBase.hpp"
 
 namespace po = boost::program_options;
 

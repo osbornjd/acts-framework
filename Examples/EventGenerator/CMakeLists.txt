@@ -8,14 +8,4 @@ install(
   TARGETS ActsParticleGun
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-if(USE_PYTHIA8)
-  add_executable(ActsPythia8 Pythia8.cpp)
-  target_link_libraries(
-    ActsPythia8
-    PRIVATE ActsFrameworkGenerators ActsFrameworkPythia8 ACTFWExamplesCommon
-      ACTFWRootPlugin ACTFWCsvPlugin  Boost::program_options)
-
-  install(
-    TARGETS ActsPythia8
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif()
+add_subdirectory_if(Pythia8 USE_PYTHIA8)

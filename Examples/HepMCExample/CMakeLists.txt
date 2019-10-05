@@ -1,4 +1,4 @@
-add_executable(ACTFWHepMC3Example src/HepMC3Example.cpp)
+add_executable(ACTFWHepMC3Example HepMC3Example.cpp)
 target_link_libraries(
   ACTFWHepMC3Example
   PRIVATE ActsCore ACTFramework ACTFWPluginHepMC3 Boost::program_options)
