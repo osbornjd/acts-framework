@@ -89,7 +89,7 @@ FW::HepMC3Vertex::actsParticleToGen(
   HepMC3::GenParticle genParticle(vec, actsParticle->pdg());
   genParticle.set_generated_mass(actsParticle->m());
 
-  return HepMC3::SmartPointer<HepMC3::GenParticle>(&genParticle);
+  return std::shared_ptr<HepMC3::GenParticle>(&genParticle);
 }
 
 void

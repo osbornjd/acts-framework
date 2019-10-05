@@ -113,7 +113,7 @@ FW::HepMC3Event::actsParticleToGen(
   HepMC3::GenParticle genParticle(vec, actsParticle->pdg());
   genParticle.set_generated_mass(actsParticle->m());
 
-  return HepMC3::SmartPointer<HepMC3::GenParticle>(&genParticle);
+  return std::shared_ptr<HepMC3::GenParticle>(&genParticle);
 }
 
 void
@@ -147,7 +147,7 @@ FW::HepMC3Event::createGenVertex(
         = actsParticleToGen(std::make_shared<Data::SimParticle>(particle));
     genVertex.add_particle_out(genParticle);
   }
-  return HepMC3::SmartPointer<HepMC3::GenVertex>(&genVertex);
+  return std::shared_ptr<HepMC3::GenVertex>(&genVertex);
 }
 
 void
@@ -186,10 +186,10 @@ FW::HepMC3Event::compareVertices(
   // Compare position, time, number of incoming and outgoing particles between
   // both vertices. Return false if one criterium does not match, else true.
   HepMC3::FourVector genVec = genVertex->position();
-  if (actsVertex.position.x() != genVec.x()) return false;
-  if (actsVertex.position.y() != genVec.y()) return false;
-  if (actsVertex.position.z() != genVec.z()) return false;
-  if (actsVertex.time != genVec.t()) return false;
+  if (actsVertex->position.x() != genVec.x()) return false;
+  if (actsVertex->position.y() != genVec.y()) return false;
+  if (actsVertex->position.z() != genVec.z()) return false;
+  if (actsVertex->time != genVec.t()) return false;
   if (actsVertex->incoming.size() != genVertex->particles_in().size()) return false;
   if (actsVertex->outgoing.size() != genVertex->particles_out().size()) return false;
   return true;
