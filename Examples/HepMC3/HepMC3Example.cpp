@@ -23,14 +23,14 @@ main(int argc, char* argv[])
   FW::HepMC3ReaderAscii simReader;
 
   std::cout << "Preparing reader " << std::flush;
-  HepMC::ReaderAscii reader("test.hepmc3");
+  HepMC3::ReaderAscii reader("test.hepmc3");
   if (simReader.status(reader)) {
     std::cout << "succesful" << std::endl;
   } else {
     std::cout << "failed" << std::endl;
   }
 
-  std::shared_ptr<HepMC::GenEvent> genevt(new HepMC::GenEvent());
+  std::shared_ptr<HepMC3::GenEvent> genevt(new HepMC3::GenEvent());
 
   std::cout << "Reading event " << std::flush;
   if (simReader.readEvent(reader, genevt)) {
@@ -69,23 +69,21 @@ main(int argc, char* argv[])
   }
 
   std::cout << std::endl << "Vertices: ";
-  std::vector<std::unique_ptr<FW::Data::SimVertex<FW::Data::SimParticle>>>
-      vertices = simEvent.vertices(genevt);
+  std::vector<std::unique_ptr<FW::Data::SimVertex>> vertices
+      = simEvent.vertices(genevt);
   if (vertices.empty())
     std::cout << "none" << std::endl;
   else {
     std::cout << std::endl;
     for (auto& vertex : vertices) {
-      std::vector<FW::Data::SimParticle> particlesIn = vertex->in;
-      for (auto& particle : particlesIn)
+      for (auto& particle : vertex->incoming)
         std::cout << HepPID::particleName(particle.pdg()) << " ";
       std::cout << "-> ";
-      std::vector<FW::Data::SimParticle> particlesOut = vertex->out;
-      for (auto& particle : particlesOut)
+      for (auto& particle : vertex->outgoing)
         std::cout << HepPID::particleName(particle.pdg()) << " ";
-      std::cout << "\t@(" << vertex->timeStamp << ", " << vertex->position(0)
-                << ", " << vertex->position(1) << ", " << vertex->position(2)
-                << ")" << std::endl;
+      std::cout << "\t@(" << vertex->time << ", " << vertex->position(0) << ", "
+                << vertex->position(1) << ", " << vertex->position(2) << ")"
+                << std::endl;
     }
     std::cout << std::endl;
   }
