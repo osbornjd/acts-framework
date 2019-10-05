@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/WriterAscii.h>
+#include <HepMC3/GenEvent.h>
+#include <HepMC3/WriterAscii.h>
 
 namespace FW {
 
@@ -24,13 +24,13 @@ public:
   /// @note HepMC3 does not state a success or failure. The returned argument is
   /// always true.
   bool
-  writeEvent(HepMC::WriterAscii&              writer,
-             std::shared_ptr<HepMC::GenEvent> event);
+  writeEvent(HepMC3::WriterAscii&              writer,
+             std::shared_ptr<HepMC3::GenEvent> event);
 
   /// @brief Reports the status of the writer
   /// @param writer writer of run files
   /// @return boolean status indicator
   bool
-  status(HepMC::WriterAscii& writer);
+  status(HepMC3::WriterAscii& writer);
 };
 }  // namespace FW

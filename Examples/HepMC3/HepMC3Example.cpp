@@ -9,9 +9,9 @@
 #include <fstream>
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
-#include "ACTFW/Plugins/HepMC/HepMC3Event.hpp"
-#include "ACTFW/Plugins/HepMC/HepMC3Reader.hpp"
-#include "HepMC/ReaderAscii.h"
+#include "ACTFW/Plugins/HepMC3/HepMC3Event.hpp"
+#include "ACTFW/Plugins/HepMC3/HepMC3Reader.hpp"
+#include "HepMC3/ReaderAscii.h"
 #include "HepPID/ParticleName.hh"
 
 ///

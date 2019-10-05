@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include <HepMC/FourVector.h>
-#include <HepMC/GenParticle.h>
-#include <HepMC/GenVertex.h>
+#include <HepMC3/FourVector.h>
+#include <HepMC3/GenParticle.h>
+#include <HepMC3/GenVertex.h>
 #include <HepPID/ParticleIDMethods.hh>
 
 #include "ACTFW/EventData/SimParticle.hpp"
@@ -23,83 +23,83 @@ struct HepMC3Particle
 {
 public:
   /// @brief Returns the particle translated into Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @return corresponding Acts particle
   std::unique_ptr<Data::SimParticle>
-  particle(const std::shared_ptr<HepMC::GenParticle> particle);
+  particle(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Returns the id of the particle translated into Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @return id of the particle
   int
-  id(const std::shared_ptr<HepMC::GenParticle> particle);
+  id(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Returns the production vertex of the particle translated into Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @return production vertex of the particle
   std::unique_ptr<Data::SimVertex<>>
-  productionVertex(const std::shared_ptr<HepMC::GenParticle> particle);
+  productionVertex(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Returns the end vertex of the particle translated into Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @return end vertex of the particle
   std::unique_ptr<Data::SimVertex<>>
-  endVertex(const std::shared_ptr<HepMC::GenParticle> particle);
+  endVertex(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Returns the PDG code of a particle translated into Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @return PDG code of the particle
   int
-  pdgID(const std::shared_ptr<HepMC::GenParticle> particle);
+  pdgID(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Returns the momentum of a particle translated into Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @return momentum of the particle
   Acts::Vector3D
-  momentum(const std::shared_ptr<HepMC::GenParticle> particle);
+  momentum(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Returns the energy of a particle translated into Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @return energy of the particle
   double
-  energy(const std::shared_ptr<HepMC::GenParticle> particle);
+  energy(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Returns the mass of a particle translated into Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @return mass of the particle
   double
-  mass(const std::shared_ptr<HepMC::GenParticle> particle);
+  mass(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Returns the charge of a particle translated into Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @return charge of the particle
   double
-  charge(const std::shared_ptr<HepMC::GenParticle> particle);
+  charge(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Sets the PDG code of a particle translated from Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @param pid PDG code that will be set
   void
-  pdgID(std::shared_ptr<HepMC::GenParticle> particle, const int pid);
+  pdgID(std::shared_ptr<HepMC3::GenParticle> particle, const int pid);
 
   /// @brief Sets the momentum of a particle translated from Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @param mom momentum that will be set
   void
-  momentum(std::shared_ptr<HepMC::GenParticle> particle,
+  momentum(std::shared_ptr<HepMC3::GenParticle> particle,
            const Acts::Vector3D&               mom);
 
   /// @brief Sets the energy of a particle translated from Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @param energy energy that will be set
   void
-  energy(std::shared_ptr<HepMC::GenParticle> particle, const double energy);
+  energy(std::shared_ptr<HepMC3::GenParticle> particle, const double energy);
 
   /// @brief Sets the mass of a particle translated from Acts
-  /// @param particle HepMC::GenParticle particle
+  /// @param particle HepMC3::GenParticle particle
   /// @param mass mass that will be set
   void
-  mass(std::shared_ptr<HepMC::GenParticle> particle, const double mass);
+  mass(std::shared_ptr<HepMC3::GenParticle> particle, const double mass);
 };
 
 }  // namespace FW

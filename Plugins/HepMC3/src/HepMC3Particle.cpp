@@ -6,12 +6,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/HepMC/HepMC3Particle.hpp"
+#include "ACTFW/Plugins/HepMC3/HepMC3Particle.hpp"
 
-#include "ACTFW/Plugins/HepMC/HepMC3Vertex.hpp"
+#include "ACTFW/Plugins/HepMC3/HepMC3Vertex.hpp"
 
 std::unique_ptr<FW::Data::SimParticle>
-FW::HepMC3Particle::particle(const std::shared_ptr<HepMC::GenParticle> particle)
+FW::HepMC3Particle::particle(const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   return std::move(std::make_unique<Data::SimParticle>(
       Data::SimParticle({0., 0., 0.},
@@ -25,47 +25,47 @@ FW::HepMC3Particle::particle(const std::shared_ptr<HepMC::GenParticle> particle)
 }
 
 int
-FW::HepMC3Particle::id(const std::shared_ptr<HepMC::GenParticle> particle)
+FW::HepMC3Particle::id(const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   return particle->id();
 }
 
 std::unique_ptr<FW::Data::SimVertex<>>
 FW::HepMC3Particle::productionVertex(
-    const std::shared_ptr<HepMC::GenParticle> particle)
+    const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   HepMC3Vertex simVert;
 
   // Return the vertex if it exists
   if (particle->production_vertex())
     return std::move(simVert.processVertex(
-        std::make_shared<HepMC::GenVertex>(*particle->production_vertex())));
+        std::make_shared<HepMC3::GenVertex>(*particle->production_vertex())));
   else
     return nullptr;
 }
 
 std::unique_ptr<FW::Data::SimVertex<>>
 FW::HepMC3Particle::endVertex(
-    const std::shared_ptr<HepMC::GenParticle> particle)
+    const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   HepMC3Vertex simVert;
 
   // Return the vertex if it exists
   if (particle->end_vertex())
     return std::move(simVert.processVertex(
-        std::make_shared<HepMC::GenVertex>(*(particle->end_vertex()))));
+        std::make_shared<HepMC3::GenVertex>(*(particle->end_vertex()))));
   else
     return nullptr;
 }
 
 int
-FW::HepMC3Particle::pdgID(const std::shared_ptr<HepMC::GenParticle> particle)
+FW::HepMC3Particle::pdgID(const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   return particle->pid();
 }
 
 Acts::Vector3D
-FW::HepMC3Particle::momentum(const std::shared_ptr<HepMC::GenParticle> particle)
+FW::HepMC3Particle::momentum(const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   Acts::Vector3D mom;
   mom(0) = particle->momentum().x();
@@ -75,43 +75,43 @@ FW::HepMC3Particle::momentum(const std::shared_ptr<HepMC::GenParticle> particle)
 }
 
 double
-FW::HepMC3Particle::energy(const std::shared_ptr<HepMC::GenParticle> particle)
+FW::HepMC3Particle::energy(const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   return particle->momentum().e();
 }
 
 double
-FW::HepMC3Particle::mass(const std::shared_ptr<HepMC::GenParticle> particle)
+FW::HepMC3Particle::mass(const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   return particle->generated_mass();
 }
 
 double
-FW::HepMC3Particle::charge(const std::shared_ptr<HepMC::GenParticle> particle)
+FW::HepMC3Particle::charge(const std::shared_ptr<HepMC3::GenParticle> particle)
 {
   return HepPID::charge(particle->pid());
 }
 
 void
-FW::HepMC3Particle::pdgID(std::shared_ptr<HepMC::GenParticle> particle,
+FW::HepMC3Particle::pdgID(std::shared_ptr<HepMC3::GenParticle> particle,
                           const int                           pid)
 {
   particle->set_pid(pid);
 }
 
 void
-FW::HepMC3Particle::momentum(std::shared_ptr<HepMC::GenParticle> particle,
+FW::HepMC3Particle::momentum(std::shared_ptr<HepMC3::GenParticle> particle,
                              const Acts::Vector3D&               mom)
 {
-  HepMC::FourVector fVec(mom(0), mom(1), mom(2), particle->momentum().e());
+  HepMC3::FourVector fVec(mom(0), mom(1), mom(2), particle->momentum().e());
   particle->set_momentum(fVec);
 }
 
 void
-FW::HepMC3Particle::energy(std::shared_ptr<HepMC::GenParticle> particle,
+FW::HepMC3Particle::energy(std::shared_ptr<HepMC3::GenParticle> particle,
                            const double                        energy)
 {
-  HepMC::FourVector fVec(particle->momentum().x(),
+  HepMC3::FourVector fVec(particle->momentum().x(),
                          particle->momentum().y(),
                          particle->momentum().z(),
                          energy);
@@ -119,7 +119,7 @@ FW::HepMC3Particle::energy(std::shared_ptr<HepMC::GenParticle> particle,
 }
 
 void
-FW::HepMC3Particle::mass(std::shared_ptr<HepMC::GenParticle> particle,
+FW::HepMC3Particle::mass(std::shared_ptr<HepMC3::GenParticle> particle,
                          const double                        mass)
 {
   particle->set_generated_mass(mass);

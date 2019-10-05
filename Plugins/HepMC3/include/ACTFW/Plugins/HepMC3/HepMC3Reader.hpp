@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/ReaderAscii.h>
+#include <HepMC3/GenEvent.h>
+#include <HepMC3/ReaderAscii.h>
 
 namespace FW {
 
@@ -22,12 +22,12 @@ public:
   /// @param event storage of the read event
   /// @return boolean indicator if the reading was successful
   bool
-  readEvent(HepMC::ReaderAscii& reader, std::shared_ptr<HepMC::GenEvent> event);
+  readEvent(HepMC3::ReaderAscii& reader, std::shared_ptr<HepMC3::GenEvent> event);
 
   /// @brief Reports the status of the reader
   /// @param reader reader of run files
   /// @return boolean status indicator
   bool
-  status(HepMC::ReaderAscii& reader);
+  status(HepMC3::ReaderAscii& reader);
 };
 }  // namespace FW

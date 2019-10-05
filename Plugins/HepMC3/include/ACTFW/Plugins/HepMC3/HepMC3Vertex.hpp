@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include <HepMC/FourVector.h>
-#include <HepMC/GenParticle.h>
-#include <HepMC/GenVertex.h>
+#include <HepMC3/FourVector.h>
+#include <HepMC3/GenParticle.h>
+#include <HepMC3/GenVertex.h>
 
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
@@ -25,107 +25,107 @@ public:
   /// @param vertex vertex in HepMC data type
   /// @return corresponding Acts vertex
   std::unique_ptr<Data::SimVertex<>>
-  processVertex(const std::shared_ptr<HepMC::GenVertex> vertex);
+  processVertex(const std::shared_ptr<HepMC3::GenVertex> vertex);
 
   /// @brief Returns a boolean expression if a vertex is in an event translated
   /// into Acts
   /// @param vertex vertex in HepMC data type
   /// @return boolean expression if the vertex is in an event
   bool
-  inEvent(const std::shared_ptr<HepMC::GenVertex> vertex);
+  inEvent(const std::shared_ptr<HepMC3::GenVertex> vertex);
 
   /// @brief Returns a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return id of the vertex
   int
-  id(const std::shared_ptr<HepMC::GenVertex> vertex);
+  id(const std::shared_ptr<HepMC3::GenVertex> vertex);
 
   /// @brief Returns the incoming particles of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return incoming particles of the vertex
   std::vector<Data::SimParticle>
-  particlesIn(const std::shared_ptr<HepMC::GenVertex> vertex);
+  particlesIn(const std::shared_ptr<HepMC3::GenVertex> vertex);
 
   /// @brief Returns the outgoing particles of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return outgoing particles of the vertex
   std::vector<Data::SimParticle>
-  particlesOut(const std::shared_ptr<HepMC::GenVertex> vertex);
+  particlesOut(const std::shared_ptr<HepMC3::GenVertex> vertex);
 
   /// @brief Returns the position of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return position of the vertex
   Acts::Vector3D
-  position(const std::shared_ptr<HepMC::GenVertex> vertex);
+  position(const std::shared_ptr<HepMC3::GenVertex> vertex);
 
   /// @brief Returns the time of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return time of the vertex
   double
-  time(const std::shared_ptr<HepMC::GenVertex> vertex);
+  time(const std::shared_ptr<HepMC3::GenVertex> vertex);
 
   /// @brief Adds an incoming particle to a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle incoming particle that will be added
   void
-  addParticleIn(std::shared_ptr<HepMC::GenVertex>  vertex,
+  addParticleIn(std::shared_ptr<HepMC3::GenVertex>  vertex,
                 std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Adds an outgoing particle to a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle outgoing particle that will be added
   void
-  addParticleOut(std::shared_ptr<HepMC::GenVertex>  vertex,
+  addParticleOut(std::shared_ptr<HepMC3::GenVertex>  vertex,
                  std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Removes an incoming particle from a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle incoming particle that will be removed
   void
-  removeParticleIn(std::shared_ptr<HepMC::GenVertex>  vertex,
+  removeParticleIn(std::shared_ptr<HepMC3::GenVertex>  vertex,
                    std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Removes an outgoing particle from a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param particle outgoing particle that will be removed
   void
-  removeParticleOut(std::shared_ptr<HepMC::GenVertex>  vertex,
+  removeParticleOut(std::shared_ptr<HepMC3::GenVertex>  vertex,
                     std::shared_ptr<Data::SimParticle> particle);
 
   /// @brief Sets the position of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param pos new position of the vertex
   void
-  position(const std::shared_ptr<HepMC::GenVertex> vertex, Acts::Vector3D pos);
+  position(const std::shared_ptr<HepMC3::GenVertex> vertex, Acts::Vector3D pos);
 
   /// @brief Sets the time of a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @param time new time of the vertex
   void
-  time(const std::shared_ptr<HepMC::GenVertex> vertex, double time);
+  time(const std::shared_ptr<HepMC3::GenVertex> vertex, double time);
 
 private:
-  /// @brief Converts HepMC::GenParticle objects into Acts
-  /// @param genParticles list of HepMC::GenParticle objects
+  /// @brief Converts HepMC3::GenParticle objects into Acts
+  /// @param genParticles list of HepMC3::GenParticle objects
   /// @return converted list
   std::vector<Data::SimParticle>
-  genParticlesToActs(const std::vector<HepMC::GenParticlePtr>& genParticles);
+  genParticlesToActs(const std::vector<HepMC3::GenParticlePtr>& genParticles);
 
-  /// @brief Converts an Data::SimParticle into HepMC::GenParticle
+  /// @brief Converts an Data::SimParticle into HepMC3::GenParticle
   /// @note The conversion ignores HepMC status codes
   /// @param actsParticle Acts particle that will be converted
   /// @return converted particle
-  HepMC::GenParticlePtr
+  HepMC3::GenParticlePtr
   actsParticleToGen(std::shared_ptr<Data::SimParticle> actsParticle);
 
-  /// @brief Finds a HepMC::GenParticle from a list that matches an
+  /// @brief Finds a HepMC3::GenParticle from a list that matches an
   /// Data::SimParticle object
   /// @param genParticles list of HepMC particles
   /// @param actsParticle Acts particle
   /// @return HepMC particle that matched with the Acts particle or nullptr if
   /// no match was found
-  HepMC::GenParticlePtr
-  matchParticles(const std::vector<HepMC::GenParticlePtr>& genParticles,
+  HepMC3::GenParticlePtr
+  matchParticles(const std::vector<HepMC3::GenParticlePtr>& genParticles,
                  std::shared_ptr<Data::SimParticle>        actsParticle);
 };
 }  // namespace FW

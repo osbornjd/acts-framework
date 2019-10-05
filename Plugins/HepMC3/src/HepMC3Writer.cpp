@@ -6,11 +6,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/HepMC/HepMC3Writer.hpp"
+#include "ACTFW/Plugins/HepMC3/HepMC3Writer.hpp"
 
 bool
-FW::HepMC3WriterAscii::writeEvent(HepMC::WriterAscii&              writer,
-                                  std::shared_ptr<HepMC::GenEvent> event)
+FW::HepMC3WriterAscii::writeEvent(HepMC3::WriterAscii&              writer,
+                                  std::shared_ptr<HepMC3::GenEvent> event)
 {
   // Write event from storage
   writer.write_event(*event);
@@ -18,7 +18,7 @@ FW::HepMC3WriterAscii::writeEvent(HepMC::WriterAscii&              writer,
 }
 
 bool
-FW::HepMC3WriterAscii::status(HepMC::WriterAscii& writer)
+FW::HepMC3WriterAscii::status(HepMC3::WriterAscii& writer)
 {
   return writer.failed();
 }
