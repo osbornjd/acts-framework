@@ -73,7 +73,7 @@ build-full:
   script:
     - mkdir build
     - cd build
-    - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=../install -DUSE_DD4HEP=on -DUSE_GEANT4=on -DUSE_TGEO=on -DUSE_PYTHIA8=on ..
+    - cmake -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=../install -DUSE_DD4HEP=on -DUSE_GEANT4=on -DUSE_HEPMC3=on -DUSE_PYTHIA8=on -DUSE_TGEO=on ..
     - cmake --build . -- install
   artifacts:
     paths:
