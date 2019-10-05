@@ -30,6 +30,10 @@ target_link_libraries(
   ACTFWDD4hepDetector
   PUBLIC ACTFramework ActsCore ActsDigitizationPlugin ActsDD4hepPlugin
     ACTFWDetectorsCommon ${ROOT_LIBRARIES} ${DD4hep_LIBRARIES})
+
+# not sure why this needs to be set, but dd4hep fails to compile otherwise
+set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
+set_target_properties(ACTFWDD4hepDetector PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 dd4hep_set_version(ACTFWDD4hepDetector MAJOR 1 MINOR 0 PATCH 0)
 dd4hep_generate_rootmap(ACTFWDD4hepDetector)
 
