@@ -24,7 +24,7 @@ public:
   /// @brief Returns a vertex translated into Acts
   /// @param vertex vertex in HepMC data type
   /// @return corresponding Acts vertex
-  std::unique_ptr<Data::SimVertex<>>
+  std::unique_ptr<Data::SimVertex>
   processVertex(const std::shared_ptr<HepMC3::GenVertex> vertex);
 
   /// @brief Returns a boolean expression if a vertex is in an event translated

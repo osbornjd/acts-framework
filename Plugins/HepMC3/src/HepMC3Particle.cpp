@@ -30,7 +30,7 @@ FW::HepMC3Particle::id(const std::shared_ptr<HepMC3::GenParticle> particle)
   return particle->id();
 }
 
-std::unique_ptr<FW::Data::SimVertex<>>
+std::unique_ptr<FW::Data::SimVertex>
 FW::HepMC3Particle::productionVertex(
     const std::shared_ptr<HepMC3::GenParticle> particle)
 {
@@ -44,7 +44,7 @@ FW::HepMC3Particle::productionVertex(
     return nullptr;
 }
 
-std::unique_ptr<FW::Data::SimVertex<>>
+std::unique_ptr<FW::Data::SimVertex>
 FW::HepMC3Particle::endVertex(
     const std::shared_ptr<HepMC3::GenParticle> particle)
 {

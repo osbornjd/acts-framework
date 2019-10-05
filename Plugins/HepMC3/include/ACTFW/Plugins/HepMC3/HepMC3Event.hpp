@@ -91,7 +91,7 @@ public:
   /// @note The statuses are not represented in Acts and therefore set to 0
   void
   addVertex(std::shared_ptr<HepMC3::GenEvent>         event,
-            const std::shared_ptr<Data::SimVertex<>> vertex);
+            const std::shared_ptr<Data::SimVertex> vertex);
   ///
   /// Remover
   ///
@@ -110,7 +110,7 @@ public:
   /// @param vertex vertex that will be removed
   void
   removeVertex(std::shared_ptr<HepMC3::GenEvent>          event,
-               const std::shared_ptr<Data::SimVertex<>>& vertex);
+               const std::shared_ptr<Data::SimVertex>& vertex);
 
   ///
   /// Getter
@@ -149,7 +149,7 @@ public:
   /// @brief Get list of vertices
   /// @param event event in HepMC data type
   /// @return List of vertices
-  std::vector<std::unique_ptr<Data::SimVertex<>>>
+  std::vector<std::unique_ptr<Data::SimVertex>>
   vertices(const std::shared_ptr<HepMC3::GenEvent> event);
 
   /// @brief Get beam particles
@@ -177,7 +177,7 @@ private:
   /// @param actsVertex Acts vertex that will be converted
   /// @return Converted Acts vertex to HepMC3::GenVertexPtr
   HepMC3::GenVertexPtr
-  createGenVertex(const std::shared_ptr<Data::SimVertex<>>& actsVertex);
+  createGenVertex(const std::shared_ptr<Data::SimVertex>& actsVertex);
 
   /// @brief Compares an Acts vertex with a HepMC3::GenVertex
   /// @note An Acts vertex does not store a barcode. Therefore the content of
@@ -190,7 +190,7 @@ private:
   /// @param genVertex HepMC3::GenVertex
   /// @return boolean result if both vertices are identical
   bool
-  compareVertices(const std::shared_ptr<Data::SimVertex<>>& actsVertex,
+  compareVertices(const std::shared_ptr<Data::SimVertex>& actsVertex,
                   const HepMC3::GenVertexPtr&                genVertex);
 };
 }  // namespace FW

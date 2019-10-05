@@ -23,11 +23,11 @@ FW::HepMC3Vertex::genParticlesToActs(
   return actsParticles;
 }
 
-std::unique_ptr<FW::Data::SimVertex<>>
+std::unique_ptr<FW::Data::SimVertex>
 FW::HepMC3Vertex::processVertex(const std::shared_ptr<HepMC3::GenVertex> vertex)
 {
   // Create Acts vertex
-  return std::move(std::make_unique<Data::SimVertex<>>(Data::SimVertex<>(
+  return std::move(std::make_unique<Data::SimVertex>(Data::SimVertex(
       {vertex->position().x(), vertex->position().y(), vertex->position().z()},
       genParticlesToActs(vertex->particles_in()),
       genParticlesToActs(vertex->particles_out()),

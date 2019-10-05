@@ -37,13 +37,13 @@ public:
   /// @brief Returns the production vertex of the particle translated into Acts
   /// @param particle HepMC3::GenParticle particle
   /// @return production vertex of the particle
-  std::unique_ptr<Data::SimVertex<>>
+  std::unique_ptr<Data::SimVertex>
   productionVertex(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Returns the end vertex of the particle translated into Acts
   /// @param particle HepMC3::GenParticle particle
   /// @return end vertex of the particle
-  std::unique_ptr<Data::SimVertex<>>
+  std::unique_ptr<Data::SimVertex>
   endVertex(const std::shared_ptr<HepMC3::GenParticle> particle);
 
   /// @brief Returns the PDG code of a particle translated into Acts
