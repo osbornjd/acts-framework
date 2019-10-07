@@ -7,12 +7,13 @@ variables:
     GIT_SUBMODULE_STRATEGY: recursive
     EVENTS: 10
 
-image: gitlab-registry.cern.ch/acts/machines/slc6:latest
+# image: gitlab-registry.cern.ch/acts/machines/slc6:latest
+image: gitlab-registry.cern.ch/acts/machines/cc7:latest
 
 before_script:
     # CI executor uses fail on error by default
     # setup scripts do not like that
-    - set +e && source CI/setup_lcg94.sh; set -e
+    - set +e && source CI/setup_lcg95.sh; set -e
 
 # check jobs
 # these are technically pre-built checks and were previously in a separate
