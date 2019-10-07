@@ -97,7 +97,8 @@ public:
 };
 }
 
-FW::Sequencer
+//~ FW::Sequencer
+void
 fatrasSequencerBuild(boost::program_options::variables_map& vm, DD4hepDetector& detector)
 {
 	FW::Sequencer fatrasSequencer(FW::Options::readSequencerConfig(vm));
@@ -136,10 +137,12 @@ fatrasSequencerBuild(boost::program_options::variables_map& vm, DD4hepDetector& 
 
   // (E) PATTERN RECOGNITION
   
-  return fatrasSequencer;
+  //~ return fatrasSequencer;
+  //~ fatrasSequencer.run();
 }
 
-FW::Sequencer
+//~ FW::Sequencer
+void
 g4SequencerBuild(boost::program_options::variables_map& vm)
 {
   FW::Sequencer g4Sequencer(FW::Options::readSequencerConfig(vm));
@@ -196,7 +199,8 @@ g4SequencerBuild(boost::program_options::variables_map& vm)
 
   // Append the algorithm and run
   g4Sequencer.addAlgorithm(g4rAlgorithm);
-  return g4Sequencer;
+  //~ return g4Sequencer;
+  //~ g4Sequencer.run();
 }
 
 int
@@ -230,11 +234,13 @@ main(int argc, char* argv[])
   }
 
 std::cout << "Building fatras sequencer" << std::endl;
-  FW::Sequencer fatrasSequencer = fatrasSequencerBuild(vm, detector);
+  //~ FW::Sequencer fatrasSequencer = fatrasSequencerBuild(vm, detector);
+  fatrasSequencerBuild(vm, detector);
 std::cout << "Building g4 sequencer" << std::endl;
-  FW::Sequencer g4Sequencer = g4SequencerBuild(vm);
+  //~ FW::Sequencer g4Sequencer = g4SequencerBuild(vm);
+  g4SequencerBuild(vm);
 std::cout << "Done" << std::endl;
 
-  fatrasSequencer.run();
-  g4Sequencer.run();
+  //~ fatrasSequencer.run();
+  //~ g4Sequencer.run();
 }
