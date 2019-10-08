@@ -31,16 +31,8 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
   // Add the volume boundary material if configured
   for (xml_coll_t bmat(x_det, _Unicode(boundary_material)); bmat; ++bmat) {
     xml_comp_t x_boundary_material = bmat;
-    // Inner / outer are cylinders, others are disks
-    std::string boundary_type = x_boundary_material.attr<std::string>("stype");
-    std::string second_bin
-        = (boundary_type == "inner" || boundary_type == "outer") ? "binZ"
-                                                                 : "binR";
-    xmlToProtoMaterial(x_boundary_material,
-                       *endcapExtension,
-                       "boundary_material",
-                       {boundary_type},
-                       {"binPhi", second_bin});
+    xmlToProtoSurfaceMaterial(
+        x_boundary_material, *endcapExtension, "boundary_material");
   }
   endcapDetector.addExtension<Acts::ActsExtension>(endcapExtension);
   // Make Volume
@@ -171,8 +163,12 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
     Acts::ActsExtension* layerExtension = new Acts::ActsExtension();
     layerExtension->addType("sensitive disk", "layer");
     layerElement.addExtension<Acts::ActsExtension>(layerExtension);
-    Acts::xmlToDiscProtoMaterial(x_layer, *layerExtension);
-    // Finish up the DetElement tree
+    // Add the proto layer material
+    for (xml_coll_t lmat(x_layer, _Unicode(layer_material)); lmat; ++lmat) {
+      xml_comp_t x_layer_material = lmat;
+      xmlToProtoSurfaceMaterial(
+          x_layer_material, *layerExtension, "layer_material");
+    }  // Finish up the DetElement tree
     layerElement.setPlacement(placedLayer);
     endcapDetector.add(layerElement);
   }
@@ -201,8 +197,12 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
     Acts::ActsExtension* endplateExtension = new Acts::ActsExtension();
     endplateExtension->addType("passive disk", "layer");
     endplateElement.addExtension<Acts::ActsExtension>(endplateExtension);
-    Acts::xmlToDiscProtoMaterial(x_endplate, *endplateExtension);
-
+    // Add the proto layer material
+    for (xml_coll_t lmat(x_endplate, _Unicode(layer_material)); lmat; ++lmat) {
+      xml_comp_t x_layer_material = lmat;
+      xmlToProtoSurfaceMaterial(
+          x_layer_material, *endplateExtension, "layer_material");
+    }
     // Finish up the DetElement tree
     endplateElement.setPlacement(placedEndplate);
     endcapDetector.add(endplateElement);

@@ -185,6 +185,11 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
         for (auto& sensComp : sensComponents) {
           DetElement componentElement(moduleElement, "component", ccomp++);
           componentElement.setPlacement(sensComp);
+          // Add the sensor extension
+          Acts::ActsExtension* sensorExtension = new Acts::ActsExtension();
+          sensorExtension->addType("sensor", "detector");
+          // Set the extension
+          componentElement.addExtension<Acts::ActsExtension>(sensorExtension);
         }
 
         // Place Module Box Volumes in layer
@@ -202,7 +207,12 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     // Configure the ACTS extension
     Acts::ActsExtension* layerExtension = new Acts::ActsExtension();
     layerExtension->addType("barrel", "layer");
-    Acts::xmlToCylinderProtoMaterial(x_layer, *layerExtension);
+    // Add the proto layer material
+    for (xml_coll_t lmat(x_layer, _Unicode(layer_material)); lmat; ++lmat) {
+      xml_comp_t x_layer_material = lmat;
+      xmlToProtoSurfaceMaterial(
+          x_layer_material, *layerExtension, "layer_material");
+    }
     layerElement.addExtension<Acts::ActsExtension>(layerExtension);
 
     // Place layer volume

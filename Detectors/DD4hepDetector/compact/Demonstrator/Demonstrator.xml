@@ -24,7 +24,7 @@
         <constant name="bp_rmin" value="34.5*mm"/>
         <constant name="bp_rmax" value="35.5*mm"/>
         <constant name="bp_length" value="200.*mm"/>   
-        <constant name="bp_material_binsZ" value="10/>"     
+        <constant name="bp_material_binsZ" value="10"/>     
         <!--Dimension of the volume  -->
         <constant name="bv_rmin" value="40.*mm"/>
         <constant name="bv_rmax" value="80.*mm"/>

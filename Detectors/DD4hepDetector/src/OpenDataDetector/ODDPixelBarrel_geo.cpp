@@ -108,11 +108,8 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
   // Add the volume boundary material if configured
   for (xml_coll_t bmat(x_det, _Unicode(boundary_material)); bmat; ++bmat) {
     xml_comp_t x_boundary_material = bmat;
-    xmlToProtoMaterial(x_boundary_material,
-                       *barrelExtension,
-                       "boundary_material",
-                       {"negative", "positive", "inner", "outer"},
-                       {"binPhi", "*"});
+    xmlToProtoSurfaceMaterial(
+        x_boundary_material, *barrelExtension, "boundary_material");
   }
   barrelDetector.addExtension<Acts::ActsExtension>(barrelExtension);
 
@@ -222,8 +219,12 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
     // Place the layer with appropriate Acts::Extension
     // Configure the ACTS extension
     Acts::ActsExtension* layerExtension = new Acts::ActsExtension();
-    layerExtension->addType("active cylinder", "layer");
-    Acts::xmlToCylinderProtoMaterial(x_layer, *layerExtension);
+    // Add the proto layer material
+    for (xml_coll_t lmat(x_layer, _Unicode(layer_material)); lmat; ++lmat) {
+      xml_comp_t x_layer_material = lmat;
+      xmlToProtoSurfaceMaterial(
+          x_layer_material, *layerExtension, "layer_material");
+    }
     layerElement.addExtension<Acts::ActsExtension>(layerExtension);
 
     PlacedVolume placedLayer = barrelVolume.placeVolume(layerVolume);

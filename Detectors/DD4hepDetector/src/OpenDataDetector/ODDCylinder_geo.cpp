@@ -31,7 +31,11 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
   bool                 isBeamPipe  = x_det.hasChild(_U(beampipe));
   pcExtension->addType("passive cylinder", "layer");
   if (isBeamPipe) { pcExtension->addType("beampipe", "layer"); }
-  Acts::xmlToCylinderProtoMaterial(x_det_tubs, *pcExtension);
+  // Add the proto layer material
+  for (xml_coll_t lmat(x_det_tubs, _Unicode(layer_material)); lmat; ++lmat) {
+    xml_comp_t x_layer_material = lmat;
+    xmlToProtoSurfaceMaterial(x_layer_material, *pcExtension, "layer_material");
+  }
   cylinderElement.addExtension<Acts::ActsExtension>(pcExtension);
 
   string shapeName = x_det_tubs.nameStr();
