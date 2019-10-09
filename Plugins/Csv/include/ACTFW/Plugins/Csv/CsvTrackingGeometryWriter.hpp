@@ -37,7 +37,7 @@ namespace Csv {
     struct Config
     {
       /// The tracking geometry that should be written.
-      const Acts::TrackingGeometry* trackingGeometry = nullptr;
+      std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
       /// Where to place output files.
       std::string outputDir;
       /// Number of decimal digits for floating point precision in output.
