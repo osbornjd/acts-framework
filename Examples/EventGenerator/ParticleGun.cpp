@@ -55,7 +55,7 @@ main(int argc, char* argv[])
   std::string outputDir = vm["output-dir"].as<std::string>();
   if (vm["output-csv"].as<bool>()) {
     Csv::CsvParticleWriter::Config csvWriterCfg;
-    csvWriterCfg.input      = evgenCfg.output;
+    csvWriterCfg.inputEvent = evgenCfg.output;
     csvWriterCfg.outputDir  = outputDir;
     csvWriterCfg.outputStem = "particles";
     sequencer.addWriter(

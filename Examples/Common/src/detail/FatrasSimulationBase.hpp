@@ -182,7 +182,7 @@ setupSimulationAlgorithm(
   std::shared_ptr<FW::Csv::CsvParticleWriter> pWriterCsv = nullptr;
   if (vm["output-csv"].template as<bool>()) {
     FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
-    pWriterCsvConfig.input      = fatrasConfig.simulatedEventCollection;
+    pWriterCsvConfig.inputEvent = fatrasConfig.simulatedEventCollection;
     pWriterCsvConfig.outputDir  = outputDir;
     pWriterCsvConfig.outputStem = fatrasConfig.simulatedEventCollection;
     sequencer.addWriter(

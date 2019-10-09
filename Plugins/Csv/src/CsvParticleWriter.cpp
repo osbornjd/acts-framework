@@ -21,11 +21,9 @@
 FW::Csv::CsvParticleWriter::CsvParticleWriter(
     const FW::Csv::CsvParticleWriter::Config& cfg,
     Acts::Logging::Level                      level)
-  : Base(cfg.input, "CsvParticleWriter", level), m_cfg(cfg)
+  : Base(cfg.inputEvent, "CsvParticleWriter", level), m_cfg(cfg)
 {
-  if (m_cfg.input.empty()) {
-    throw std::invalid_argument("Missing input collection");
-  }
+  // inputEvent is already checked by base constructor
   if (m_cfg.outputStem.empty()) {
     throw std::invalid_argument("Missing ouput filename stem");
   }

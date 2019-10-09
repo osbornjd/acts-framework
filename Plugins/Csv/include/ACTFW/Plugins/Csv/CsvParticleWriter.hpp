@@ -40,8 +40,8 @@ namespace Csv {
 
     struct Config
     {
-      /// Input particle collection to write.
-      std::string input;
+      /// Input event (vector of simulation vertices) collection to write.
+      std::string inputEvent;
       /// Input collection to map particle ids to number of hits (optional).
       std::string inputHitsPerParticle;
       /// Where to place output files.
