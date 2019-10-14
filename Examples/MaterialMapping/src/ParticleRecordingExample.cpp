@@ -7,6 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <string>
+#include <fstream>
 #include <boost/program_options.hpp>
 #include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
 #include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
@@ -33,7 +34,9 @@
 
 namespace po = boost::program_options;
 
-using PartRec = std::vector<std::vector<FW::Geant4::ParticleRecord>>;
+using PartRec = FW::Geant4::Collection;
+//~ using PartRec = std::map<int, std::vector<FW::Geant4::ParticleRecord>>;
+//~ using PartRec = 	std::map<int, std::vector<FW::Data::SimVertex<FW::Data::SimParticle>>;
 using WriteIt = FW::WriterT<PartRec>;
 
 namespace FW
@@ -54,10 +57,16 @@ public:
     /// @param cfg Configuration struct
     /// @param level Message level declaration
     ParticleRecordWriting(const Config&        cfg,
-                       Acts::Logging::Level level = Acts::Logging::INFO) : WriteIt(cfg.collection, "ParticleRecordWriter", level), m_cfg(cfg) {}
+                       Acts::Logging::Level level = Acts::Logging::INFO) : WriteIt(cfg.collection, "ParticleRecordWriter", level), m_cfg(cfg) 
+    {
+		ofs.open("geantOut.txt");		
+	}
 
     /// Virtual destructor
-    ~ParticleRecordWriting() override {}
+    ~ParticleRecordWriting() override 
+    {
+		ofs.close();
+	}
 
     /// End-of-run hook
     ProcessCode
@@ -73,31 +82,75 @@ public:
     /// particles to be attached
     ProcessCode
     writeT(const AlgorithmContext&       context,
-           const PartRec& vertices) final override
+           const PartRec& collection) final override
 	{
 		int eventNr = context.eventNumber;
 		
-		std::cout << "evtNr: " << eventNr << std::endl;
-		for(const auto& evt : vertices)
+		std::cout << "Writing event " << eventNr << std::endl;
+		ofs << eventNr << " " << collection.pdg << " " << collection.momentum << " " << collection.phi << " " << -log(tan(collection.theta * 0.5)) << "\n";
+		
+		std::set<std::string> procsElse;
+		for(const auto& part : collection.particles)
 		{
-			std::cout << "New Track: " << std::endl;
-			for(const auto& p : evt)
-			{
-				//~ if(p.volume == "No volume")
-					std::cout << "TID: " << p.trackid << ",Parent: " << p.parentid << ", PID: " << p.pdg <<
-						", Position: (" << p.position[0] << ", " << p.position[1] << ", " << p.position[2] << 
-						"), Momentum: (" << p.momentum[0] << ", " << p.momentum[1] << ", " << p.momentum[2] << "), Volume: " << p.volume << ", Process: " << p.process << std::endl;				
+			//~ check the number of charged particles in the event, the type of particles, their energy spectrum, the angular distribution			
+			if(part.second.back().volume == "No volume")
+			{			
+				writeToFile(part.second.back());
+				
+				std::set<std::string> procs;
+				for(const auto& p : part.second)
+				{
+					procs.insert(p.process);
+				}
+				for(auto it = procs.cbegin(); it != procs.cend(); it++)
+					ofs << " " << *it;
+				ofs << "\n";
 			}
+			else
+			{
+				for(const auto& p : part.second)
+				{
+					procsElse.insert(p.process);
+				}
+			}
+			//~ std::cout << "TID: " << part.second.back().trackid << ",Parent: " << part.second.back().parentid << ", PID: " << part.second.back().pdg <<
+				//~ ", Position: (" << part.second.back().position[0] << ", " << part.second.back().position[1] << ", " << part.second.back().position[2] << 
+				//~ "), Momentum: (" << part.second.back().momentum[0] << ", " << part.second.back().momentum[1] << ", " << part.second.back().momentum[2] << "), Volume: " << part.second.back().volume << ", Process: " << part.second.back().process << std::endl;
 		}
+		if(procsElse.empty())
+			ofs << "#\n";
+		else
+		{
+			ofs << "999 ";
+			for(auto it = procsElse.cbegin(); it != procsElse.cend(); it++)
+				ofs << *it << " ";
+			ofs << "\n#\n";
+		}
+		
 		return ProcessCode::SUCCESS;
 	}
 
   private:
     Config     m_cfg;         ///< The config class
+    std::ofstream ofs;
+    
+    void
+    writeToFile(const FW::Geant4::ParticleRecord& p)
+    {
+		const double r = sqrt(p.momentum[0] * p.momentum[0] + p.momentum[1] * p.momentum[1] + p.momentum[2] * p.momentum[2]);
+		Acts::Vector3D dir;
+		dir << p.momentum[0] / r, p.momentum[1] / r, p.momentum[2] / r;
+		
+		const double theta = acos(dir.z());
+		const double eta = -log(tan(theta * 0.5));
+		
+		const double phi = atan2(dir.y(), dir.x());
+		
+		ofs << p.pdg << " " << p.charge << " " << r << " " << phi << " " << eta;
+	}
 };
 }
 
-//~ FW::Sequencer
 void
 fatrasSequencerBuild(boost::program_options::variables_map& vm, DD4hepDetector& detector)
 {
@@ -137,11 +190,9 @@ fatrasSequencerBuild(boost::program_options::variables_map& vm, DD4hepDetector& 
 
   // (E) PATTERN RECOGNITION
   
-  //~ return fatrasSequencer;
-  //~ fatrasSequencer.run();
+  fatrasSequencer.run();
 }
 
-//~ FW::Sequencer
 void
 g4SequencerBuild(boost::program_options::variables_map& vm)
 {
@@ -199,8 +250,7 @@ g4SequencerBuild(boost::program_options::variables_map& vm)
 
   // Append the algorithm and run
   g4Sequencer.addAlgorithm(g4rAlgorithm);
-  //~ return g4Sequencer;
-  //~ g4Sequencer.run();
+  g4Sequencer.run();
 }
 
 int
@@ -234,13 +284,8 @@ main(int argc, char* argv[])
   }
 
 std::cout << "Building fatras sequencer" << std::endl;
-  //~ FW::Sequencer fatrasSequencer = fatrasSequencerBuild(vm, detector);
   fatrasSequencerBuild(vm, detector);
 std::cout << "Building g4 sequencer" << std::endl;
-  //~ FW::Sequencer g4Sequencer = g4SequencerBuild(vm);
-  g4SequencerBuild(vm);
+  //~ g4SequencerBuild(vm);
 std::cout << "Done" << std::endl;
-
-  //~ fatrasSequencer.run();
-  //~ g4Sequencer.run();
 }

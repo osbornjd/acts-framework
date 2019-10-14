@@ -36,6 +36,13 @@ namespace Geant4 {
 		std::string volume, process;
 	};
 	
+	struct Collection
+	{
+		std::map<int, std::vector<ParticleRecord>> particles;
+		int pdg;
+		double momentum, phi, theta;
+	};
+	
   class ORSteppingAction;
 
   /// @class OREventAction
@@ -69,36 +76,19 @@ namespace Geant4 {
 
     void AddParticle(ParticleRecord& p)
     {
-		Acts::Vector3D pos(p.position[0], p.position[1], p.position[2]);
-		Acts::Vector3D mom(p.momentum[0], p.momentum[1], p.momentum[2]);
-		Data::SimParticle particle(pos, mom, p.mass, p.charge, p.pdg);
-			
-		if(m_vertex.find(p.globalTime) == m_vertex.end())
-		{
-			Acts::Vector3D vertex(p.vertex[0], p.vertex[1], p.vertex[2]);
-			Data::SimVertex vtx(vertex, {}, {particle});
-			m_vertex[p.globalTime] = vtx;
-		}
-		else
-			if(m_particles.find(p.trackid) == m_particles.end())
-			{
-				m_vertex[p.globalTime].out.push_back(particle);
-			}
-			else
-			{
-				m_vertex[p.globalTime].in.push_back(particle);
-			}
-			
 		m_particles[p.trackid].push_back(p);
 	}
 	
-	std::vector<Data::SimVertex<Data::SimParticle>>
-	outcomingParticles() const
+	Collection	
+	outcomingParticles(const int pdg, const double momentum, const double phi, const double theta) const
 	{
-		std::vector<Data::SimVertex<Data::SimParticle>> out;
-		for(const auto& vtx : m_vertex)
-			out.push_back(vtx.second);
-		return out;
+		Collection c;
+		c.particles = m_particles;
+		c.pdg = pdg;
+		c.momentum = momentum;
+		c.phi = phi;
+		c.theta = theta;
+		return c;
 	}
 	
     /// Interface method
@@ -106,16 +96,11 @@ namespace Geant4 {
     void
     Reset();
 
-
   private:
     /// Instance of the EventAction
     static OREventAction* fgInstance;
 
 	std::map<int, std::vector<ParticleRecord>> m_particles;
-	std::vector<std::vector<ParticleRecord>> m_events;
-	std::map<double, Data::SimVertex<Data::SimParticle>> m_vertex;
-  };  
-
-
+  };
 }  // namespace Geant4
 }  // namespace FW

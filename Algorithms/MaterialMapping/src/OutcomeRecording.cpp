@@ -60,8 +60,8 @@ FW::OutcomeRecording::execute(const FW::AlgorithmContext& context) const
   m_runManager->BeamOn(m_cfg.tracksPerEvent);
   // Retrieve the track material tracks from Geant4
   auto recordedParticles
-      = FW::Geant4::OREventAction::Instance()->outcomingParticles();
-  ACTS_INFO("Received " << recordedParticles.size()
+      = FW::Geant4::OREventAction::Instance()->outcomingParticles(m_cfg.pdg, m_cfg.momentum, m_cfg.phi, m_cfg.theta); // Keeping momentum in Acts units
+  ACTS_INFO("Received " << recordedParticles.particles.size()
                         << " particles. Writing them now onto file...");
 
   // Write the recorded material to the event store

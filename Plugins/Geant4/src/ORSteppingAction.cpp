@@ -12,6 +12,7 @@
 #include "Acts/Utilities/Units.hpp"
 #include "G4Step.hh"
 #include "G4VProcess.hh"
+//~ #include "SystemOfUnits.h"
 
 FW::Geant4::ORSteppingAction* FW::Geant4::ORSteppingAction::fgInstance
     = nullptr;
@@ -47,18 +48,18 @@ void
 FW::Geant4::ORSteppingAction::UserSteppingAction(const G4Step* step)
 {	
 	ParticleRecord p;
-	p.position[0] = step->GetPostStepPoint()->GetPosition().x();
-	p.position[1] = step->GetPostStepPoint()->GetPosition().y();
-	p.position[2] = step->GetPostStepPoint()->GetPosition().z();
-	p.momentum[0] = step->GetPostStepPoint()->GetMomentum().x();
-	p.momentum[1] = step->GetPostStepPoint()->GetMomentum().y();
-	p.momentum[2] = step->GetPostStepPoint()->GetMomentum().z();
+	p.position[0] = step->GetPostStepPoint()->GetPosition().x() / CLHEP::mm;
+	p.position[1] = step->GetPostStepPoint()->GetPosition().y() / CLHEP::mm;
+	p.position[2] = step->GetPostStepPoint()->GetPosition().z() / CLHEP::mm;
+	p.momentum[0] = step->GetPostStepPoint()->GetMomentum().x() / CLHEP::GeV;
+	p.momentum[1] = step->GetPostStepPoint()->GetMomentum().y() / CLHEP::GeV;
+	p.momentum[2] = step->GetPostStepPoint()->GetMomentum().z() / CLHEP::GeV;
 	p.globalTime = step->GetPostStepPoint()->GetGlobalTime();
 	p.pdg = step->GetTrack()->GetDynamicParticle()->GetPDGcode();
 	p.vertex[0] = step->GetTrack()->GetVertexPosition().x();
 	p.vertex[1] = step->GetTrack()->GetVertexPosition().y();
 	p.vertex[2] = step->GetTrack()->GetVertexPosition().z();
-	p.energy = step->GetPostStepPoint()->GetTotalEnergy();
+	p.energy = step->GetPostStepPoint()->GetTotalEnergy() / CLHEP::GeV;
 	p.mass = step->GetPostStepPoint()->GetMass();
 	p.charge = step->GetPostStepPoint()->GetCharge();
 	p.trackid = step->GetTrack()->GetTrackID();
