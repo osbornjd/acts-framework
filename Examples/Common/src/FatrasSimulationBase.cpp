@@ -214,52 +214,19 @@ setupSimulation(boost::program_options::variables_map&        vm,
                 std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
   // Create BField service
-  auto bField  = FW::Options::readBField(vm);
-  auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
-  auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
+  auto bFieldVar = FW::Options::readBField(vm);
 
-  if (field2D) {
-    // Define the interpolated b-field
-    using BField = Acts::SharedBField<InterpolatedBFieldMap2D>;
-    BField fieldMap(field2D);
-    // now setup of the simulation and append it to the sequencer
-    setupSimulationAlgorithm(std::move(fieldMap),
-                             sequencer,
-                             vm,
-                             tGeometry,
-                             barcodeSvc,
-                             randomNumberSvc);
-  } else if (field3D) {
-    // Define the interpolated b-field
-    using BField = Acts::SharedBField<InterpolatedBFieldMap3D>;
-    BField fieldMap(field3D);
-    // now setup of the simulation and append it to the sequencer
-    setupSimulationAlgorithm(std::move(fieldMap),
-                             sequencer,
-                             vm,
-                             tGeometry,
-                             barcodeSvc,
-                             randomNumberSvc);
-  } else if (vm["bf-context-scalable"].template as<bool>()) {
-    using SField = FW::BField::ScalableBField;
-    SField fieldMap(*std::get<std::shared_ptr<SField>>(bField));
-    // now setup of the simulation and append it to the sequencer
-    setupSimulationAlgorithm(std::move(fieldMap),
-                             sequencer,
-                             vm,
-                             tGeometry,
-                             barcodeSvc,
-                             randomNumberSvc);
-  } else {
-    // Create the constant  field
-    using CField = Acts::ConstantBField;
-    CField fieldMap(*std::get<std::shared_ptr<CField>>(bField));
-    // now setup of the simulation and append it to the sequencer
-    setupSimulationAlgorithm(std::move(fieldMap),
-                             sequencer,
-                             vm,
-                             tGeometry,
-                             barcodeSvc,
-                             randomNumberSvc);
-  }
+  std::visit(
+      [&](auto& bField) {
+        using field_type =
+            typename std::decay_t<decltype(bField)>::element_type;
+        Acts::SharedBField<field_type> fieldMap(bField);
+        setupSimulationAlgorithm(std::move(fieldMap),
+                                 sequencer,
+                                 vm,
+                                 tGeometry,
+                                 barcodeSvc,
+                                 randomNumberSvc);
+      },
+      bFieldVar);
 }

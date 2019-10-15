@@ -1,6 +1,7 @@
-add_library(ACTFWFatras INTERFACE)
-target_include_directories(ACTFWFatras INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
-target_include_directories(ACTFWFatras INTERFACE ActsCore ACTFramework)
+add_library(ACTFWFatras SHARED src/FatrasOptions.cpp)
+
+target_include_directories(ACTFWFatras PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
+target_link_libraries(ACTFWFatras PUBLIC ActsCore FatrasCore ACTFramework )
 
 install(TARGETS ACTFWFatras LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

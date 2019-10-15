@@ -16,6 +16,7 @@
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
 
 #include <random>
@@ -161,15 +162,8 @@ main(int argc, char* argv[])
   // Why does this need number-of-events? If it really does emulate
   // per-event access patterns this should be switched to a proper
   // Sequencer-based tool. Otherwise it should be removed.
-  auto nEvents = FW::Options::readSequencerConfig(vm).events;
-  auto bField  = FW::Options::readBField(vm);
-  auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
-  auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
-
-  if (!field2D && !field3D) {
-    std::cout << "Bfield map could not be read. Exiting." << std::endl;
-    return EXIT_FAILURE;
-  }
+  auto nEvents   = FW::Options::readSequencerConfig(vm).events;
+  auto bFieldVar = FW::Options::readBField(vm);
 
   // Get the phi and eta range
   auto phir   = vm["bf-phi-range"].as<read_range>();
@@ -189,48 +183,37 @@ main(int argc, char* argv[])
   double theta_step  = theta_span / theta_steps;
   double access_step = track_length / access_steps;
 
-  // write it out
-  if (field2D) {
-    // the 2-dimensional field case
-    // Step-wise access pattern
-    accessStepWise<InterpolatedBFieldMap2D>(*field2D,
-                                            magFieldContext,
-                                            nEvents,
-                                            theta_steps,
-                                            thetar[0],
-                                            theta_step,
-                                            phi_steps,
-                                            phir[0],
-                                            phi_step,
-                                            access_steps,
-                                            access_step);
-    // Random access pattern
-    accessRandom<InterpolatedBFieldMap2D>(*field2D,
-                                          magFieldContext,
-                                          nEvents * theta_steps * phi_steps
-                                              * access_steps,
-                                          track_length);
-  } else {
-    // the 3-dimensional field case
-    // Step-wise access pattern
-    accessStepWise<InterpolatedBFieldMap3D>(*field3D,
-                                            magFieldContext,
-                                            nEvents,
-                                            theta_steps,
-                                            thetar[0],
-                                            theta_step,
-                                            phi_steps,
-                                            phir[0],
-                                            phi_step,
-                                            access_steps,
-                                            access_step);
-    // Random access pattern
-    accessRandom<InterpolatedBFieldMap3D>(*field3D,
-                                          magFieldContext,
-                                          nEvents * theta_steps * phi_steps
-                                              * access_steps,
-                                          track_length);
-  }
+  return std::visit(
+      [&](auto& bField) -> int {
+        using field_type =
+            typename std::decay_t<decltype(bField)>::element_type;
+        if constexpr (
+            !std::is_same_v<
+                field_type,
+                InterpolatedBFieldMap2D> && !std::is_same_v<field_type, InterpolatedBFieldMap3D>) {
+          std::cout << "Bfield map could not be read. Exiting." << std::endl;
+          return EXIT_FAILURE;
+        } else {
 
-  return EXIT_SUCCESS;
+          // Step-wise access pattern
+          accessStepWise(*bField,
+                         magFieldContext,
+                         nEvents,
+                         theta_steps,
+                         thetar[0],
+                         theta_step,
+                         phi_steps,
+                         phir[0],
+                         phi_step,
+                         access_steps,
+                         access_step);
+          // Random access pattern
+          accessRandom(*bField,
+                       magFieldContext,
+                       nEvents * theta_steps * phi_steps * access_steps,
+                       track_length);
+          return EXIT_SUCCESS;
+        }
+      },
+      bFieldVar);
 }
