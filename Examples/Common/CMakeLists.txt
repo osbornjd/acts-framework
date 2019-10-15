@@ -1,5 +1,15 @@
 #file(GLOB_RECURSE src_files "src")
-set(src_files src/CommonGeometry.cpp src/CommonOptions.cpp src/GeometryExampleBase.cpp src/MaterialMappingBase.cpp src/MaterialValidationBase.cpp src/PropagationExampleBase.cpp)
+set(src_files 
+        src/CommonGeometry.cpp 
+        src/CommonOptions.cpp 
+        src/GeometryExampleBase.cpp 
+        src/MaterialMappingBase.cpp 
+        src/MaterialValidationBase.cpp 
+        src/PropagationExampleBase.cpp 
+        src/FatrasDigitizationBase.cpp
+        src/FatrasSimulationBase.cpp
+        src/FatrasEvgenBase.cpp
+        src/FittingBase.cpp)
 
 # append Fatras example is Pythia8 is avaialbe
 if(USE_PYTHIA8)
