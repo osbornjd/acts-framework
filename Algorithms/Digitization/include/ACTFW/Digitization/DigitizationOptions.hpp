@@ -13,6 +13,8 @@
 #include "Acts/Utilities/Units.hpp"
 #include "DigitizationAlgorithm.hpp"
 
+#include <boost/program_options.hpp>
+
 namespace po = boost::program_options;
 
 namespace FW {

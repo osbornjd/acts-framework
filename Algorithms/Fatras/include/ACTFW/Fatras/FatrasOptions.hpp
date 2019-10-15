@@ -8,13 +8,15 @@
 
 #pragma once
 
-#include <iostream>
 #include "ACTFW/Utilities/Options.hpp"
 #include "Fatras/Kernel/SelectorList.hpp"
 #include "Fatras/Selectors/ChargeSelectors.hpp"
 #include "Fatras/Selectors/KinematicCasts.hpp"
 #include "Fatras/Selectors/SelectorHelpers.hpp"
 #include "FatrasAlgorithm.hpp"
+
+#include <boost/program_options.hpp>
+#include <iostream>
 
 namespace po = boost::program_options;
 

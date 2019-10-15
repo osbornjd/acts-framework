@@ -8,7 +8,6 @@
 
 #include <boost/program_options.hpp>
 
-#include <boost/program_options.hpp>
 #include <memory>
 #include "ACTFW/Detector/IBaseDetector.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
