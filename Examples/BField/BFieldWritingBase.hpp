@@ -11,12 +11,15 @@
 #include "ACTFW/Plugins/Root/RootBFieldWriter.hpp"
 #include "ACTFW/Utilities/Options.hpp"
 
+#include <boost/program_options.hpp>
+
 namespace FW {
 namespace BField {
 
-  template <typename vmap_t, typename bfield_t>
+  template <typename bfield_t>
   void
-  writeField(vmap_t vm, std::shared_ptr<const bfield_t> bField)
+  writeField(boost::program_options::variables_map vm,
+             std::shared_ptr<const bfield_t>       bField)
   {
     // Write the interpolated magnetic field
     typename FW::Root::RootBFieldWriter<bfield_t>::Config writerConfig;

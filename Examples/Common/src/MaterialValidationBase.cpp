@@ -15,6 +15,7 @@
 #include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
@@ -33,7 +34,6 @@ namespace po = boost::program_options;
 namespace {
 /// @brief Propagation setup
 ///
-/// @tparam sequencer_t Type of the sequencer of the framework
 /// @tparam bfield_t Type of the magnetic field
 ///
 /// @param sequencer The framework sequencer, Propagation algorithm to be added
@@ -43,9 +43,9 @@ namespace {
 /// @param tGeometry The TrackingGeometry object
 ///
 /// @return a process code
-template <typename sequencer_t, typename bfield_t>
+template <typename bfield_t>
 FW::ProcessCode
-setupPropagation(sequencer_t&                                  sequencer,
+setupPropagation(FW::Sequencer&                                sequencer,
                  bfield_t                                      bfield,
                  po::variables_map&                            vm,
                  std::shared_ptr<FW::RandomNumbers>            randomNumberSvc,
@@ -77,18 +77,15 @@ setupPropagation(sequencer_t&                                  sequencer,
 
 /// @brief Straight Line Propagation setup
 ///
-/// @tparam sequencer_t Type of the sequencer of the framework
-///
 /// @param sequencer The framework sequencer, Propagation algorithm to be added
 /// @param vm The program options for the log file
 /// @param randomNumberSvc The framework random number engine
 /// @param tGeometry The TrackingGeometry object
 ///
 /// @return a process code
-template <typename sequencer_t>
 FW::ProcessCode
 setupStraightLinePropagation(
-    sequencer_t&                                  sequencer,
+    FW::Sequencer&                                sequencer,
     po::variables_map&                            vm,
     std::shared_ptr<FW::RandomNumbers>            randomNumberSvc,
     std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
@@ -155,30 +152,20 @@ materialValidationExample(int argc, char* argv[], FW::IBaseDetector& detector)
       = std::make_shared<FW::RandomNumbers>(randomNumberSvcCfg);
 
   // Create BField service
-  auto bField  = FW::Options::readBField(vm);
-  auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
-  auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
-  auto fieldC  = std::get<std::shared_ptr<Acts::ConstantBField>>(bField);
+  auto bFieldVar = FW::Options::readBField(vm);
 
   if (vm["prop-stepper"].template as<int>() == 0) {
     // Straight line stepper was chosen
     setupStraightLinePropagation(sequencer, vm, randomNumberSvc, tGeometry);
-  } else if (field2D) {
-    // Define the interpolated b-field: 2D
-    using BField = Acts::SharedBField<InterpolatedBFieldMap2D>;
-    BField fieldMap(field2D);
-    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
-  } else if (field3D) {
-    // Define the interpolated b-field: 3D
-    using BField = Acts::SharedBField<InterpolatedBFieldMap3D>;
-    BField fieldMap(field3D);
-    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
   } else {
-    // Create the constant  field
-    using CField = Acts::ConstantBField;
-    CField fieldMap(*std::get<std::shared_ptr<CField>>(bField));
-    // Create the constant  field
-    setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+    std::visit(
+        [&](auto& bField) {
+          using field_type =
+              typename std::decay_t<decltype(bField)>::element_type;
+          Acts::SharedBField<field_type> fieldMap(bField);
+          setupPropagation(sequencer, fieldMap, vm, randomNumberSvc, tGeometry);
+        },
+        bFieldVar);
   }
 
   // ---------------------------------------------------------------------------------

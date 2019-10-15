@@ -9,12 +9,11 @@
 #pragma once
 
 #include "ACTFW/Fitting/FittingAlgorithm.hpp"
+
 #include "ACTFW/Utilities/Options.hpp"
 
 #include <boost/program_options.hpp>
 #include <iostream>
-
-namespace po = boost::program_options;
 
 namespace FW {
 
@@ -24,41 +23,18 @@ namespace Options {
   ///
   /// Adding Fitting specific options to the Options package
   ///
-  /// @tparam aopt_t Type of the options object (API bound to boost)
-  ///
   /// @param [in] opt_t The options object where the specific digitization
   /// options are attached to
-  template <typename aopt_t>
   void
-  addFittingOptions(aopt_t& opt)
-  {
-    opt.add_options()(
-        "fatras-sim-particles",
-        po::value<std::string>()->default_value("fatras-particles"),
-        "The collection of simulated particles.")(
-        "fatras-sim-hits",
-        po::value<std::string>()->default_value("fatras-hits"),
-        "The collection of simulated hits")(
-        "fitted-tracks",
-        po::value<std::string>()->default_value("fitted-tracks"),
-        "The collection of output tracks")(
-        "initial-parameter-sigma",
-        po::value<read_range>()->multitoken()->default_value(
-            {10., 10., 0.02, 0.02, 1}),
-        "Gaussian sigma used to smear the truth track parameter Loc0 [um], "
-        "Loc1 [um], phi, theta, q/p [-q/(p*p)*GeV]")(
-        "measurement-sigma",
-        po::value<read_range>()->multitoken()->default_value({30., 30.}),
-        "Gaussian sigma used to smear the truth hit Loc0 [um], Loc1 [um]");
-  }
+  addFittingOptions(boost::program_options::options_description& opt);
 
   /// @brief read the fitter specific options and return a Config file
   ///
-  ///@tparam omap_t Type of the options map
   ///@param vm the options map to be read out
-  template <typename AMAP, typename kalman_Fitter_t>
+  template <typename kalman_Fitter_t>
   typename FittingAlgorithm<kalman_Fitter_t>::Config
-  readFittingConfig(const AMAP& vm, kalman_Fitter_t fitter)
+  readFittingConfig(const boost::program_options::variables_map& vm,
+                    kalman_Fitter_t                              fitter)
   {
     // Create a config
     typename FittingAlgorithm<kalman_Fitter_t>::Config fittingConfig(

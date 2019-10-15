@@ -1,10 +1,11 @@
 add_library(
-  ACTFWFitting INTERFACE)
+  ACTFWFitting SHARED src/FittingOptions.cpp)
 target_include_directories(
-  ACTFWFitting
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  ACTFWFitting 
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> 
+  $<INSTALL_INTERFACE:include>)
 target_link_libraries(
-  ACTFWFitting
-  INTERFACE ActsCore ACTFramework)
+  ACTFWFitting 
+  PUBLIC ActsCore ACTFramework)
 
 # interface libraries do not exist in the filesystem; no installation needed

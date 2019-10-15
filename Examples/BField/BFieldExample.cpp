@@ -13,9 +13,15 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 #include "BFieldWritingBase.hpp"
 
 namespace po = boost::program_options;
+
+template <class T>
+struct always_false : std::false_type
+{
+};
 
 /// The main executable
 ///
@@ -71,25 +77,22 @@ main(int argc, char* argv[])
   auto vm = FW::Options::parse(desc, argc, argv);
   if (vm.empty()) { return EXIT_FAILURE; }
 
-  auto bField  = FW::Options::readBField(vm);
-  auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
-  auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
+  auto bFieldVar = FW::Options::readBField(vm);
 
-  if (!field2D && !field3D) {
-    std::cout << "Bfield map could not be read. Exiting." << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  // write it out
-  if (field2D) {
-    // the 2-dimensional field case
-    FW::BField::writeField<po::variables_map, InterpolatedBFieldMap2D>(vm,
-                                                                       field2D);
-  } else {
-    // the 3-dimensional field case
-    FW::BField::writeField<po::variables_map, InterpolatedBFieldMap3D>(vm,
-                                                                       field3D);
-  }
-
-  return EXIT_SUCCESS;
+  return std::visit(
+      [&](auto& bField) -> int {
+        using field_type =
+            typename std::decay_t<decltype(bField)>::element_type;
+        if constexpr (
+            !std::is_same_v<
+                field_type,
+                InterpolatedBFieldMap2D> && !std::is_same_v<field_type, InterpolatedBFieldMap3D>) {
+          std::cout << "Bfield map could not be read. Exiting." << std::endl;
+          return EXIT_FAILURE;
+        } else {
+          FW::BField::writeField<field_type>(vm, bField);
+          return EXIT_SUCCESS;
+        }
+      },
+      bFieldVar);
 }

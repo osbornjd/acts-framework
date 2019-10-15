@@ -95,10 +95,7 @@ namespace Options {
   }
 
   // create the bfield maps
-  std::tuple<std::shared_ptr<InterpolatedBFieldMap2D>,
-             std::shared_ptr<InterpolatedBFieldMap3D>,
-             std::shared_ptr<Acts::ConstantBField>,
-             std::shared_ptr<FW::BField::ScalableBField>>
+  BFieldVariant
   readBField(const boost::program_options::variables_map& vm)
   {
     std::string bfieldmap = "constfield";
@@ -125,14 +122,7 @@ namespace Options {
       } else {
         std::cout << "- magnetic field format could not be detected";
         std::cout << " use '.root', '.txt', or '.csv'." << std::endl;
-        return std::make_tuple<std::shared_ptr<InterpolatedBFieldMap2D>,
-                               std::shared_ptr<InterpolatedBFieldMap3D>,
-                               std::shared_ptr<Acts::ConstantBField>,
-                               std::shared_ptr<FW::BField::ScalableBField>>(
-            std::move(map2D),
-            std::move(map3D),
-            std::move(mapConst),
-            std::move(mapScale));
+        throw std::runtime_error("Invalid BField options");
       }
     }
     if (bfieldmaptype == text && vm.count("bf-gridpoints")) {
@@ -183,7 +173,7 @@ namespace Options {
         InterpolatedBFieldMap2D::Config config2D(std::move(mapper2D));
         config2D.scale = bscalor;
         // create BField service
-        map2D = std::make_shared<InterpolatedBFieldMap2D>(std::move(config2D));
+        return std::make_shared<InterpolatedBFieldMap2D>(std::move(config2D));
 
       } else {
         auto mapper3D = FW::BField::root::fieldMapperXYZ(
@@ -201,7 +191,7 @@ namespace Options {
         InterpolatedBFieldMap3D::Config config3D(std::move(mapper3D));
         config3D.scale = bscalor;
         // create BField service
-        map3D = std::make_shared<InterpolatedBFieldMap3D>(std::move(config3D));
+        return std::make_shared<InterpolatedBFieldMap3D>(std::move(config3D));
       }
     } else if (bfieldmaptype == text) {
       if (vm["bf-rz"].template as<bool>()) {
@@ -219,7 +209,7 @@ namespace Options {
         InterpolatedBFieldMap2D::Config config2D(std::move(mapper2D));
         config2D.scale = bscalor;
         // create BField service
-        map2D = std::make_shared<InterpolatedBFieldMap2D>(std::move(config2D));
+        return std::make_shared<InterpolatedBFieldMap2D>(std::move(config2D));
 
       } else {
         auto mapper3D = FW::BField::txt::fieldMapperXYZ(
@@ -237,41 +227,33 @@ namespace Options {
         InterpolatedBFieldMap3D::Config config3D(std::move(mapper3D));
         config3D.scale = bscalor;
         // create BField service
-        map3D = std::make_shared<InterpolatedBFieldMap3D>(std::move(config3D));
+        return std::make_shared<InterpolatedBFieldMap3D>(std::move(config3D));
+      }
+    } else {  // constant
+      // No bfield map is handed over
+      // get the constant bField values
+      auto bFieldValues = vm["bf-values"].template as<read_range>();
+      if (bFieldValues.size() != 3) {
+        throw std::invalid_argument(
+            "- The values handed over for the constant magnetic field "
+            "have wrong dimension. Needs to have 3 dimension. Please "
+            "hand over the coordinates in cartesian coordinates: "
+            "{Bx,By,Bz} in Tesla.");
+      }
+      if (vm["bf-context-scalable"].template as<bool>()) {
+        // Create the scalable magnetic field
+        return std::make_shared<FW::BField::ScalableBField>(
+            bFieldValues.at(0) * Acts::units::_T,
+            bFieldValues.at(1) * Acts::units::_T,
+            bFieldValues.at(2) * Acts::units::_T);
+      } else {
+        // Create the constant magnetic field
+        return std::make_shared<Acts::ConstantBField>(
+            bFieldValues.at(0) * Acts::units::_T,
+            bFieldValues.at(1) * Acts::units::_T,
+            bFieldValues.at(2) * Acts::units::_T);
       }
     }
-
-    // No bfield map is handed over
-    // get the constant bField values
-    auto bFieldValues = vm["bf-values"].template as<read_range>();
-    if (bFieldValues.size() != 3) {
-      throw std::invalid_argument(
-          "- The values handed over for the constant magnetic field "
-          "have wrong dimension. Needs to have 3 dimension. Please "
-          "hand over the coordinates in cartesian coordinates: "
-          "{Bx,By,Bz} in Tesla.");
-    }
-
-    // Create the constant magnetic field
-    mapConst = std::make_shared<Acts::ConstantBField>(
-        bFieldValues.at(0) * Acts::units::_T,
-        bFieldValues.at(1) * Acts::units::_T,
-        bFieldValues.at(2) * Acts::units::_T);
-
-    // Create the scalable magnetic field
-    mapScale = std::make_shared<FW::BField::ScalableBField>(
-        bFieldValues.at(0) * Acts::units::_T,
-        bFieldValues.at(1) * Acts::units::_T,
-        bFieldValues.at(2) * Acts::units::_T);
-
-    return std::make_tuple<std::shared_ptr<InterpolatedBFieldMap2D>,
-                           std::shared_ptr<InterpolatedBFieldMap3D>,
-                           std::shared_ptr<Acts::ConstantBField>,
-                           std::shared_ptr<FW::BField::ScalableBField>>(
-        std::move(map2D),
-        std::move(map3D),
-        std::move(mapConst),
-        std::move(mapScale));
   }
 }  // namespace Options
 }  // namespace FW

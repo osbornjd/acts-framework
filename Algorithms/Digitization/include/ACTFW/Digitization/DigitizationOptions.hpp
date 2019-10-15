@@ -8,14 +8,9 @@
 
 #pragma once
 
-#include <iostream>
-#include "ACTFW/Utilities/Options.hpp"
-#include "Acts/Utilities/Units.hpp"
-#include "DigitizationAlgorithm.hpp"
+#include "ACTFW/Utilities/OptionsFwd.hpp"
 
-#include <boost/program_options.hpp>
-
-namespace po = boost::program_options;
+#include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
 
 namespace FW {
 
@@ -24,41 +19,15 @@ namespace Options {
   /// @brief Digitization options
   /// Adds specific digitization options to the boost::program_options
   ///
-  /// @tparam aopt_t Type of the options object (API bound to boost)
-  ///
   /// @param [in] opt_t The options object where the specific digitization
   /// options are attached to
-  template <typename aopt_t>
   void
-  addDigitizationOptions(aopt_t& opt)
-  {
-    opt.add_options()("digi-spacepoints",
-                      po::value<std::string>()->default_value("space-points"),
-                      "Collection name of the produced space points.")(
-        "digi-clusters",
-        po::value<std::string>()->default_value("clusters"),
-        "Collection name of the produced clustes.")(
-        "digi-resolution-file",
-        po::value<std::string>()->default_value(""),
-        "Name of the resolution file (root format).");
-  }
+  addDigitizationOptions(boost::program_options::options_description& opt);
 
   ///@brief  Read the digitization options and return a Config object
   ///
   ///@tparam omap_t Type of the options map
   ///@param vm the options map to be read out
-  template <typename omap_t>
-  DigitizationAlgorithm::Config
-  readDigitizationConfig(const omap_t& vm)
-  {
-    // create a config
-    DigitizationAlgorithm::Config digiConfig;
-    digiConfig.clusterCollection
-        = vm["digi-clusters"].template as<std::string>();
-    digiConfig.resolutionFile
-        = vm["digi-resolution-file"].template as<std::string>();
-    // and return the config
-    return digiConfig;
-  }
+  readDigitizationConfig(const boost::program_options::variables_map& vm);
 }  // namespace Options
 }  // namespace FW
