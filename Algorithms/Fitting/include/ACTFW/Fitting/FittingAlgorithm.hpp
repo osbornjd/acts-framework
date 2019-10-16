@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
