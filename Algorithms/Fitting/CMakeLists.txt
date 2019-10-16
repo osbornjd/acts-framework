@@ -1,5 +1,7 @@
 add_library(
-  ACTFWFitting SHARED src/FittingOptions.cpp)
+  ACTFWFitting SHARED 
+  src/FittingOptions.cpp 
+  src/FittingAlgorithm.cpp)
 target_include_directories(
   ACTFWFitting 
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> 

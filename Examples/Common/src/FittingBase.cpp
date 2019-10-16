@@ -34,6 +34,23 @@ setupFitting(boost::program_options::variables_map&        vm,
              std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
              std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
+
+  using Updater  = Acts::GainMatrixUpdater<Acts::BoundParameters>;
+  using Smoother = Acts::GainMatrixSmoother<Acts::BoundParameters>;
+
+  // Read the log level
+  Acts::Logging::Level logLevel = FW::Options::readLogLevel(vm);
+
+  // Create a navigator for this tracking geometry
+  Acts::Navigator cNavigator(tGeometry);
+  cNavigator.resolvePassive   = false;
+  cNavigator.resolveMaterial  = true;
+  cNavigator.resolveSensitive = true;
+
+  FW::FittingAlgorithm::Config fittingConfig;
+  FW::Options::readFittingConfig(vm, fittingConfig);
+  fittingConfig.randomNumberSvc = randomNumberSvc;
+
   // create BField service
   auto bFieldVar = FW::Options::readBField(vm);
   std::visit(
@@ -41,15 +58,6 @@ setupFitting(boost::program_options::variables_map&        vm,
         using field_type =
             typename std::decay_t<decltype(bField)>::element_type;
         Acts::SharedBField<field_type> fieldMap(bField);
-
-        // Read the log level
-        Acts::Logging::Level logLevel = FW::Options::readLogLevel(vm);
-
-        // Create a navigator for this tracking geometry
-        Acts::Navigator cNavigator(tGeometry);
-        cNavigator.resolvePassive   = false;
-        cNavigator.resolveMaterial  = true;
-        cNavigator.resolveSensitive = true;
 
         using ChargedStepper = Acts::EigenStepper<decltype(fieldMap)>;
         using ChargedPropagator
@@ -59,60 +67,55 @@ setupFitting(boost::program_options::variables_map&        vm,
         ChargedPropagator cPropagator(std::move(cStepper),
                                       std::move(cNavigator));
 
-        using Updater  = Acts::GainMatrixUpdater<Acts::BoundParameters>;
-        using Smoother = Acts::GainMatrixSmoother<Acts::BoundParameters>;
-
         using KalmanFitter
             = Acts::KalmanFitter<ChargedPropagator, Updater, Smoother>;
 
-        KalmanFitter kFitter(cPropagator,
-                             Acts::getDefaultLogger("KalmanFilter", logLevel));
+        auto kFitter = std::make_shared<KalmanFitter>(
+            cPropagator, Acts::getDefaultLogger("KalmanFilter", logLevel));
 
-        // using FittingAlgorithm = FW::FittingAlgorithm<KalmanFitter>;
-
-        // typename FittingAlgorithm::Config fittingConfig
-        //= FW::Options::readFittingConfig<KalmanFitter>(vm,
-        // std::move(kFitter));
-        // fittingConfig.randomNumberSvc = randomNumberSvc;
-
-        std::string trackCollection          = "hurz";
-        std::string simulatedEventCollection = "blurz";
-        // std::string trackCollection = fittingConfig.trackCollection;
-        // std::string simulatedEventCollection
-        //= fittingConfig.simulatedEventCollection;
-
-        //// Finally the fitting algorithm
-        // sequencer.addAlgorithm(std::make_shared<FittingAlgorithm>(
-        // std::move(fittingConfig), logLevel));
-
-        // Output directory
-        std::string outputDir = vm["output-dir"].template as<std::string>();
-
-        // Write fitted tracks as ROOT files
-        if (vm["output-root"].template as<bool>()) {
-          FW::Root::RootTrajectoryWriter::Config tWriterRootConfig;
-          tWriterRootConfig.trackCollection          = trackCollection;
-          tWriterRootConfig.simulatedEventCollection = simulatedEventCollection;
-          tWriterRootConfig.filePath
-              = FW::joinPaths(outputDir, trackCollection + ".root");
-          tWriterRootConfig.treeName = trackCollection;
-          sequencer.addWriter(std::make_shared<FW::Root::RootTrajectoryWriter>(
-              tWriterRootConfig));
-        }
-
-        // Write performance plots as ROOT files
-        if (vm["output-root"].template as<bool>()) {
-          FW::ResPlotTool::Config                 resPlotToolConfig;
-          FW::Root::RootPerformanceWriter::Config perfValidationConfig;
-          perfValidationConfig.resPlotToolConfig = resPlotToolConfig;
-          perfValidationConfig.trackCollection   = trackCollection;
-          perfValidationConfig.simulatedEventCollection
-              = simulatedEventCollection;
-          perfValidationConfig.filePath
-              = FW::joinPaths(outputDir, trackCollection + "_performance.root");
-          sequencer.addWriter(std::make_shared<FW::Root::RootPerformanceWriter>(
-              perfValidationConfig));
-        }
+        fittingConfig.fitFunction
+            = [kFitter](
+                  std::vector<FW::FittingAlgorithm::Identifier>& sourceLinks,
+                  const FW::FittingAlgorithm::StartParameters&   sParameters,
+                  const Acts::KalmanFitterOptions&               kfOptions)
+            -> FW::FittingAlgorithm::ResultType {
+          return kFitter->fit(sourceLinks, sParameters, kfOptions);
+        };
       },
       bFieldVar);
+
+  std::string trackCollection          = fittingConfig.trackCollection;
+  std::string simulatedEventCollection = fittingConfig.simulatedEventCollection;
+
+  // Finally the fitting algorithm
+  sequencer.addAlgorithm(std::make_shared<FW::FittingAlgorithm>(
+      std::move(fittingConfig), logLevel));
+
+  // Output directory
+  std::string outputDir = vm["output-dir"].template as<std::string>();
+
+  // Write fitted tracks as ROOT files
+  if (vm["output-root"].template as<bool>()) {
+    FW::Root::RootTrajectoryWriter::Config tWriterRootConfig;
+    tWriterRootConfig.trackCollection          = trackCollection;
+    tWriterRootConfig.simulatedEventCollection = simulatedEventCollection;
+    tWriterRootConfig.filePath
+        = FW::joinPaths(outputDir, trackCollection + ".root");
+    tWriterRootConfig.treeName = trackCollection;
+    sequencer.addWriter(
+        std::make_shared<FW::Root::RootTrajectoryWriter>(tWriterRootConfig));
+  }
+
+  // Write performance plots as ROOT files
+  if (vm["output-root"].template as<bool>()) {
+    FW::ResPlotTool::Config                 resPlotToolConfig;
+    FW::Root::RootPerformanceWriter::Config perfValidationConfig;
+    perfValidationConfig.resPlotToolConfig        = resPlotToolConfig;
+    perfValidationConfig.trackCollection          = trackCollection;
+    perfValidationConfig.simulatedEventCollection = simulatedEventCollection;
+    perfValidationConfig.filePath
+        = FW::joinPaths(outputDir, trackCollection + "_performance.root");
+    sequencer.addWriter(std::make_shared<FW::Root::RootPerformanceWriter>(
+        perfValidationConfig));
+  }
 }

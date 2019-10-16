@@ -10,9 +10,8 @@
 
 #include "ACTFW/Fitting/FittingAlgorithm.hpp"
 
-#include "ACTFW/Utilities/Options.hpp"
+#include "ACTFW/Utilities/OptionsFwd.hpp"
 
-#include <boost/program_options.hpp>
 #include <iostream>
 
 namespace FW {
@@ -31,31 +30,9 @@ namespace Options {
   /// @brief read the fitter specific options and return a Config file
   ///
   ///@param vm the options map to be read out
-  template <typename kalman_Fitter_t>
-  typename FittingAlgorithm<kalman_Fitter_t>::Config
+  void
   readFittingConfig(const boost::program_options::variables_map& vm,
-                    kalman_Fitter_t                              fitter)
-  {
-    // Create a config
-    typename FittingAlgorithm<kalman_Fitter_t>::Config fittingConfig(
-        std::move(fitter));
-
-    // set the collections
-    fittingConfig.simulatedHitCollection
-        = vm["fatras-sim-hits"].template as<std::string>();
-    fittingConfig.simulatedEventCollection
-        = vm["fatras-sim-particles"].template as<std::string>();
-    fittingConfig.trackCollection
-        = vm["fitted-tracks"].template as<std::string>();
-
-    fittingConfig.parameterSigma
-        = vm["initial-parameter-sigma"].template as<read_range>();
-    fittingConfig.measurementSigma
-        = vm["measurement-sigma"].template as<read_range>();
-
-    // and return the config
-    return fittingConfig;
-  }
+                    FittingAlgorithm::Config&                    fittingConfig);
 
 }  // namespace Options
 }  // namespace FW
