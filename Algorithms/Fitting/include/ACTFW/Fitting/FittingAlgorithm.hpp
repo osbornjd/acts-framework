@@ -30,10 +30,9 @@ class FittingAlgorithm : public BareAlgorithm
 {
 public:
   // A few initialisations and definitionas
-  using Identifier = Data::SimSourceLink;
-  using TrackState = Acts::TrackState<Identifier, Acts::BoundParameters>;
-  using ResultType
-      = Acts::KalmanFitterResult<Identifier, Acts::BoundParameters>;
+  using Identifier      = Data::SimSourceLink;
+  using TrackState      = Acts::TrackState<Identifier, Acts::BoundParameters>;
+  using ResultType      = Acts::KalmanFitterResult<Identifier>;
   using StartParameters = Acts::CurvilinearParameters;
 
   /// Nested configuration struct
