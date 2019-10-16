@@ -31,5 +31,23 @@ namespace Options {
         po::value<read_range>()->multitoken()->default_value({30., 30.}),
         "Gaussian sigma used to smear the truth hit Loc0 [um], Loc1 [um]");
   }
+
+  void
+  readFittingConfig(const boost::program_options::variables_map& vm,
+                    FittingAlgorithm::Config&                    fittingConfig)
+  {
+    // set the collections
+    fittingConfig.simulatedHitCollection
+        = vm["fatras-sim-hits"].template as<std::string>();
+    fittingConfig.simulatedEventCollection
+        = vm["fatras-sim-particles"].template as<std::string>();
+    fittingConfig.trackCollection
+        = vm["fitted-tracks"].template as<std::string>();
+
+    fittingConfig.parameterSigma
+        = vm["initial-parameter-sigma"].template as<read_range>();
+    fittingConfig.measurementSigma
+        = vm["measurement-sigma"].template as<read_range>();
+  }
 }  // namespace Options
 }  // namespace FW

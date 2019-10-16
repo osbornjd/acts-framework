@@ -8,55 +8,49 @@
 
 #pragma once
 
-#include <iostream>
-#include <map>
+#include <functional>
 #include <memory>
-#include <random>
-#include <stdexcept>
+#include <string>
+#include <vector>
 
-#include "ACTFW/EventData/Barcode.hpp"
-#include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/EventData/SimHit.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimSourceLink.hpp"
-#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Framework/RandomNumbers.hpp"
-#include "ACTFW/Framework/WhiteBoard.hpp"
-#include "Acts/EventData/Measurement.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/EventData/TrackState.hpp"
 #include "Acts/Fitter/KalmanFitter.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "Acts/Utilities/ParameterDefinitions.hpp"
 
 namespace FW {
 
-template <typename kalman_Fitter_t>
+class RandomNumbers;
+
 class FittingAlgorithm : public BareAlgorithm
 {
 public:
   // A few initialisations and definitionas
-  using Identifier = Data::SimSourceLink;
-  using TrackState = Acts::TrackState<Identifier, Acts::BoundParameters>;
+  using Identifier      = Data::SimSourceLink;
+  using TrackState      = Acts::TrackState<Identifier, Acts::BoundParameters>;
+  using ResultType      = Acts::KalmanFitterResult<Identifier>;
+  using StartParameters = Acts::CurvilinearParameters;
 
   /// Nested configuration struct
   struct Config
   {
 
-    Config(kalman_Fitter_t fitter) : kFitter(std::move(fitter)) {}
     /// input hit collection
     std::string simulatedHitCollection = "";
     /// input event collection
     std::string simulatedEventCollection = "";
     /// output track collection
     std::string trackCollection = "";
-    /// kalmanFitter instance
-    kalman_Fitter_t kFitter;
+
+    /// Type erased fit function
+    std::function<ResultType(std::vector<Identifier>&,
+                             const StartParameters&,
+                             const Acts::KalmanFitterOptions&)>
+        fitFunction;
+
     /// FW random number service
     std::shared_ptr<RandomNumbers> randomNumberSvc = nullptr;
     /// Gaussian sigma used to smear the truth track parameter
@@ -84,5 +78,3 @@ private:
 };
 
 }  // namespace FW
-
-#include "FittingAlgorithm.ipp"

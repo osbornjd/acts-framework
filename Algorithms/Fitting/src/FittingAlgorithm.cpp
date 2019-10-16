@@ -6,10 +6,25 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-template <typename kalman_Fitter_t>
-FW::FittingAlgorithm<kalman_Fitter_t>::FittingAlgorithm(
-    Config               cfg,
-    Acts::Logging::Level level)
+#include "ACTFW/Fitting/FittingAlgorithm.hpp"
+
+#include "ACTFW/EventData/SimHit.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
+#include "ACTFW/Framework/RandomNumbers.hpp"
+#include "ACTFW/Framework/WhiteBoard.hpp"
+#include "Acts/EventData/Measurement.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Utilities/ParameterDefinitions.hpp"
+
+#include <iostream>
+#include <map>
+#include <random>
+#include <stdexcept>
+
+FW::FittingAlgorithm::FittingAlgorithm(Config cfg, Acts::Logging::Level level)
   : FW::BareAlgorithm("FittingAlgorithm", level), m_cfg(std::move(cfg))
 {
   if (m_cfg.simulatedHitCollection.empty()) {
@@ -21,10 +36,8 @@ FW::FittingAlgorithm<kalman_Fitter_t>::FittingAlgorithm(
   }
 }
 
-template <typename kalman_Fitter_t>
 FW::ProcessCode
-FW::FittingAlgorithm<kalman_Fitter_t>::execute(
-    const FW::AlgorithmContext& context) const
+FW::FittingAlgorithm::execute(const FW::AlgorithmContext& context) const
 {
   // Create a random number generator
   FW::RandomEngine generator = m_cfg.randomNumberSvc->spawnGenerator(context);
@@ -182,8 +195,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
     Acts::Vector3D rPos = pos + displaced;
 
     // then create the start parameters using the prepared momentum and position
-    Acts::SingleCurvilinearTrackParameters<Acts::ChargedPolicy> rStart(
-        cov, rPos, rMom, q, 0);
+    StartParameters rStart(cov, rPos, rMom, q, 0);
 
     // set the target surface
     const Acts::Surface* rSurface = &rStart.referenceSurface();
@@ -195,7 +207,9 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
                                         rSurface);
 
     // perform the fit with KalmanFitter
-    auto fittedResult = m_cfg.kFitter.fit(sourceLinks, rStart, kfOptions);
+    // auto fittedResult = m_cfg.kFitter.fit(sourceLinks, rStart, kfOptions);
+    ACTS_DEBUG("Invoke fitter");
+    auto fittedResult = m_cfg.fitFunction(sourceLinks, rStart, kfOptions);
     ACTS_DEBUG("Finish the fitting.");
 
     // get the fitted parameters
