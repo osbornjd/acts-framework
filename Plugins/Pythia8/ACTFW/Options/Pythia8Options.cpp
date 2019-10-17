@@ -60,7 +60,7 @@ FW::Options::readPythia8Options(const boost::program_options::variables_map& vm)
 
   auto vtxStdXY = vm["evg-vertex-xy-std"].template as<double>();
   auto vtxStdZ  = vm["evg-vertex-z-std"].template as<double>();
-  auto vtxStdT	= vm["evg-vertex-t-std"].template as<double>();
+  auto vtxStdT  = vm["evg-vertex-t-std"].template as<double>();
 
   EventGenerator::Config cfg;
   cfg.generators = {
@@ -69,7 +69,8 @@ FW::Options::readPythia8Options(const boost::program_options::variables_map& vm)
        Pythia8Generator::makeFunction(hardCfg)},
       {PoissonMultiplicityGenerator{
            static_cast<size_t>(vm["evg-pileup"].template as<int>())},
-       GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ, vtxStdT * Acts::UnitConstants::ns},
+       GaussianVertexGenerator{
+           vtxStdXY, vtxStdXY, vtxStdZ, vtxStdT * Acts::UnitConstants::ns},
        Pythia8Generator::makeFunction(pileupCfg)},
   };
   cfg.shuffle = vm["evg-shuffle"].template as<bool>();

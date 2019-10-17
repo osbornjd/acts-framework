@@ -127,9 +127,8 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
 
               // the covariance is currently set to 0.
               Acts::ActsSymMatrixD<3> cov;
-              cov << 0.05, 0., 0.,
-					 0., 0.05, 0.,
-					 0., 0., 900. * Acts::UnitConstants::ps * Acts::UnitConstants::ps;
+              cov << 0.05, 0., 0., 0., 0.05, 0., 0., 0.,
+                  900. * Acts::UnitConstants::ps * Acts::UnitConstants::ps;
 
 		  // create the planar cluster
 		  Acts::PlanarModuleCluster pCluster(

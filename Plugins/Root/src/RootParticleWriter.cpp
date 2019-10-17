@@ -108,7 +108,7 @@ FW::Root::RootParticleWriter::writeT(
       m_vx      = particle.position().x();
       m_vy      = particle.position().y();
       m_vz      = particle.position().z();
-      m_vt		= particle.time() / Acts::UnitConstants::ns;
+      m_vt      = particle.time() / Acts::UnitConstants::ns;
       m_eta     = eta(particle.momentum());
       m_phi     = phi(particle.momentum());
       m_px      = particle.momentum().x();
