@@ -8,6 +8,17 @@ set(_common_libraries
   ACTFWRootPlugin
   Boost::program_options)
 
+# Empty detector
+add_executable(ACTFWEmptyGeometryExample src/EmptyGeometryExample.cpp)
+target_include_directories(ACTFWEmptyGeometryExample PRIVATE
+  ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWEmptyGeometryExample PRIVATE
+  ${_common_libraries}
+  ACTFWEmptyDetector)
+install(
+  TARGETS ACTFWEmptyGeometryExample
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 # Generic detector
 add_executable(ACTFWGenericGeometryExample src/GenericGeometryExample.cpp)
 target_link_libraries(ACTFWGenericGeometryExample PRIVATE
