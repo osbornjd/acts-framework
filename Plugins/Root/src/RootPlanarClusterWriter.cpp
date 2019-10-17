@@ -54,6 +54,7 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
   m_outputTree->Branch("g_x", &m_x);
   m_outputTree->Branch("g_y", &m_y);
   m_outputTree->Branch("g_z", &m_z);
+  m_outputTree->Branch("g_t", &m_t);
   m_outputTree->Branch("l_x", &m_lx);
   m_outputTree->Branch("l_y", &m_ly);
   m_outputTree->Branch("cov_l_x", &m_cov_lx);
@@ -121,6 +122,7 @@ FW::Root::RootPlanarClusterWriter::writeT(
     m_x         = pos.x();
     m_y         = pos.y();
     m_z         = pos.z();
+    m_t		  = parameters[2] / Acts::UnitConstants::ns;
     m_lx        = local.x();
     m_ly        = local.y();
     m_cov_lx    = 0.;  // @todo fill in

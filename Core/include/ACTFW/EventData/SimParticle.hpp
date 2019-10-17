@@ -112,7 +112,7 @@ namespace Data {
            double                deltaTime   = 0.)
     {
       m_position = position;
-      m_time += deltaTime;
+      m_time = deltaTime;
       m_momentum = momentum;
       m_pathInX0 += deltaPathX0;
       m_pathInL0 += deltaPathL0;
@@ -217,8 +217,9 @@ namespace Data {
     {
       return m_limitInL0;
     }
+
     /// Whether the particle is alive, i.e. non-zero momentum and within limits.
-    operator bool()
+    operator bool() const
     {
       return (0 < p()) and (m_time < m_limitTime) and (m_pathInX0 < m_limitInX0)
           and (m_pathInL0 < m_limitInL0);

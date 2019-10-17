@@ -79,6 +79,7 @@ namespace Root {
     float              m_x;           ///< global x
     float              m_y;           ///< global y
     float              m_z;           ///< global z
+    float			   m_t;			  ///< global t
     float              m_lx;          ///< local lx
     float              m_ly;          ///< local ly
     float              m_cov_lx;      ///< local covariance lx

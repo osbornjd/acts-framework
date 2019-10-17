@@ -125,19 +125,22 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
         size_t bin1          = binUtility.bin(localPosition, 1);
         size_t binSerialized = binUtility.serialize({{bin0, bin1, 0}});
 
-        // TODO covariance contains only dummy values
-        Acts::ActsSymMatrixD<2> cov;
-        cov << 0.05, 0., 0.05, 0.;
+              // the covariance is currently set to 0.
+              Acts::ActsSymMatrixD<3> cov;
+              cov << 0.05, 0., 0.,
+					 0., 0.05, 0.,
+					 0., 0., 30. * Acts::UnitConstants::ps;
 
-        // build the cluster
-        Acts::PlanarModuleCluster cluster(
-            hitSurface.getSharedPtr(),
-            Identifier(Identifier::identifier_type(hit.geoId().value()),
-                       hitParticles),
-            std::move(cov),
-            localX,
-            localY,
-            std::move(usedCells));
+		  // create the planar cluster
+		  Acts::PlanarModuleCluster pCluster(
+			  hitSurface.getSharedPtr(),
+			  Identifier(Identifier::identifier_type(geoID.value()),
+						 hitParticles),
+			  std::move(cov),
+			  localX,
+			  localY,
+			  hit.timeStamp,
+			  std::move(usedCells));
 
         // insert into the cluster container. since the input data is already
         // sorted by geoId, we should always be able to add at the end.

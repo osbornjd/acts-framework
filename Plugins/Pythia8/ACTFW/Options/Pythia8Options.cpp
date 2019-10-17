@@ -38,6 +38,9 @@ FW::Options::addPythia8Options(boost::program_options::options_description& opt)
       "evg-vertex-z-std",
       value<double>()->default_value(55.5),
       "Longitudinal vertex standard deviation in [mm].")(
+      "evg-vertex-t-std",
+      value<double>()->default_value(0.08),
+      "Timestamp vertex standard deviation in [ns].")(
       "evg-shuffle", bool_switch(), "Randomnly shuffle the vertex order.");
 }
 
@@ -57,15 +60,16 @@ FW::Options::readPythia8Options(const boost::program_options::variables_map& vm)
 
   auto vtxStdXY = vm["evg-vertex-xy-std"].template as<double>();
   auto vtxStdZ  = vm["evg-vertex-z-std"].template as<double>();
+  auto vtxStdT	= vm["evg-vertex-t-std"].template as<double>();
 
   EventGenerator::Config cfg;
   cfg.generators = {
       {FixedMultiplicityGenerator{1},
-       GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ},
+       GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ, 0.},
        Pythia8Generator::makeFunction(hardCfg)},
       {PoissonMultiplicityGenerator{
            static_cast<size_t>(vm["evg-pileup"].template as<int>())},
-       GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ},
+       GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ, vtxStdT * Acts::UnitConstants::ns},
        Pythia8Generator::makeFunction(pileupCfg)},
   };
   cfg.shuffle = vm["evg-shuffle"].template as<bool>();
