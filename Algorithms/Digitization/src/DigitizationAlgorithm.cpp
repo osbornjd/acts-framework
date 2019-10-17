@@ -129,7 +129,7 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
               Acts::ActsSymMatrixD<3> cov;
               cov << 0.05, 0., 0.,
 					 0., 0.05, 0.,
-					 0., 0., 30. * Acts::UnitConstants::ps;
+					 0., 0., 900. * Acts::UnitConstants::ps * Acts::UnitConstants::ps;
 
 		  // create the planar cluster
 		  Acts::PlanarModuleCluster pCluster(

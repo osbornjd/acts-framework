@@ -67,6 +67,7 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
   m_outputTree->Branch("truth_g_x", &m_t_gx);
   m_outputTree->Branch("truth_g_y", &m_t_gy);
   m_outputTree->Branch("truth_g_z", &m_t_gz);
+  m_outputTree->Branch("truth_g_t", &m_t_gt);
   m_outputTree->Branch("truth_l_x", &m_t_lx);
   m_outputTree->Branch("truth_l_y", &m_t_ly);
   m_outputTree->Branch("truth_barcode", &m_t_barcode, "truth_barcode/l");
@@ -164,6 +165,7 @@ FW::Root::RootPlanarClusterWriter::writeT(
       m_t_gx.push_back(sPosition.x());
       m_t_gy.push_back(sPosition.y());
       m_t_gz.push_back(sPosition.z());
+                  m_t_gt.push_back(sParticle->time());
       m_t_lx.push_back(lPosition.x());
       m_t_ly.push_back(lPosition.y());
       m_t_barcode.push_back(sParticle->barcode());
@@ -179,6 +181,7 @@ FW::Root::RootPlanarClusterWriter::writeT(
     m_t_gx.clear();
     m_t_gy.clear();
     m_t_gz.clear();
+              m_t_gt.clear();
     m_t_lx.clear();
     m_t_ly.clear();
     m_t_barcode.clear();

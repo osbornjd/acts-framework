@@ -94,6 +94,7 @@ namespace Root {
     std::vector<float> m_t_gx;  ///< truth position global x
     std::vector<float> m_t_gy;  ///< truth position global y
     std::vector<float> m_t_gz;  ///< truth position global z
+    std::vector<float> m_t_gt;  ///< truth time t
     std::vector<float> m_t_lx;  ///< truth position local x
     std::vector<float> m_t_ly;  ///< truth position local y
     std::vector<unsigned long>
