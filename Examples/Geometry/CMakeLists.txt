@@ -9,14 +9,14 @@ set(_common_libraries
   Boost::program_options)
 
 # Empty detector
-add_executable(ACTFWEmptyGeometryExample src/EmptyGeometryExample.cpp)
-target_include_directories(ACTFWEmptyGeometryExample PRIVATE
+add_executable(ACTFWEmptyDetectorGeometryExample src/EmptyDetectorGeometryExample.cpp)
+target_include_directories(ACTFWEmptyDetectorGeometryExample PRIVATE
   ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWEmptyGeometryExample PRIVATE
+target_link_libraries(ACTFWEmptyDetectorGeometryExample PRIVATE
   ${_common_libraries}
   ACTFWEmptyDetector)
 install(
-  TARGETS ACTFWEmptyGeometryExample
+  TARGETS ACTFWEmptyDetectorGeometryExample
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Generic detector
