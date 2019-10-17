@@ -21,13 +21,13 @@ namespace FW {
 
 namespace Data {
 
-  /// Sourcle link class for simulation in the acts-framework
+  /// Source link class for simulation in the acts-framework
   class SimSourceLink
   {
 
   public:
     /// Default constructor
-    SimSourceLink() : m_truthHit(nullptr), m_dim(-1) {}
+    SimSourceLink() : m_truthHit(nullptr), m_dim(0) {}
 
     /// Constructor with arguments
     /// @param truthHit the pointer to the simulated hit

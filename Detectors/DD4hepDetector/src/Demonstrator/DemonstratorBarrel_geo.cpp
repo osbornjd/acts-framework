@@ -6,11 +6,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <string>
+#include <vector>
 #include "Acts/Plugins/DD4hep/ActsExtension.hpp"
 #include "Acts/Plugins/DD4hep/ConvertDD4hepMaterial.hpp"
 #include "DD4hep/DetFactoryHelper.h"
 
-using namespace std;
 using namespace dd4hep;
 
 /**
@@ -19,12 +20,12 @@ using namespace dd4hep;
  */
 
 static Ref_t
-create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
+create_element(Detector& lcdd, xml_h xml, dd4hep::SensitiveDetector sens)
 {
-  xml_det_t x_det      = xml;
-  string    barrelName = x_det.nameStr();
-  // Make DetElement
-  DetElement barrelDetector(barrelName, x_det.id());
+  xml_det_t   x_det      = xml;
+  std::string barrelName = x_det.nameStr();
+  // Make dd4hep::DetElement
+  dd4hep::DetElement barrelDetector(barrelName, x_det.id());
   // add Extension to Detlement for the RecoGeometry
   Acts::ActsExtension* barrelExtension = new Acts::ActsExtension();
   barrelExtension->addType("barrel", "detector");
@@ -32,8 +33,8 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
 
   // Make Volume
   dd4hep::xml::Dimension x_det_dim(x_det.dimensions());
-  Tube   barrelShape(x_det_dim.rmin(), x_det_dim.rmax(), x_det_dim.dz());
-  Volume barrelVolume(
+  dd4hep::Tube barrelShape(x_det_dim.rmin(), x_det_dim.rmax(), x_det_dim.dz());
+  dd4hep::Volume barrelVolume(
       barrelName, barrelShape, lcdd.air());  // air at the moment change later
   barrelVolume.setVisAttributes(lcdd, x_det.visStr());
 
@@ -46,11 +47,11 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     double       rmax     = x_layer.rmax();
     unsigned int layerNum = x_layer.id();
     // Create Volume for Layer
-    string     layerName = barrelName + _toString((int)layerNum, "layer%d");
-    Volume     layerVolume(layerName,
-                       Tube(rmin, rmax, x_layer.dz()),
-                       lcdd.material(x_layer.materialStr()));
-    DetElement layerElement(barrelDetector, layerName, layerNum);
+    std::string    layerName = barrelName + _toString((int)layerNum, "layer%d");
+    dd4hep::Volume layerVolume(layerName,
+                               Tube(rmin, rmax, x_layer.dz()),
+                               lcdd.material(x_layer.materialStr()));
+    dd4hep::DetElement layerElement(barrelDetector, layerName, layerNum);
     // Visualization
     layerVolume.setVisAttributes(lcdd, x_layer.visStr());
 
@@ -60,13 +61,14 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
       xml_comp_t x_support = x_layer.child(_U(support));
 
       // Create the volume of the support structure
-      Volume supportVolume(
+      dd4hep::Volume supportVolume(
           "SupportStructure",
           Tube(x_support.rmin(), x_support.rmax(), x_support.dz()),
           lcdd.material(x_support.materialStr()));
       supportVolume.setVisAttributes(lcdd, x_support.visStr());
       // Place the support structure
-      PlacedVolume placedSupport = layerVolume.placeVolume(supportVolume);
+      dd4hep::PlacedVolume placedSupport
+          = layerVolume.placeVolume(supportVolume);
       placedSupport.addPhysVolID("support", supportNum++);
     }
 
@@ -75,7 +77,7 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
 
       xml_comp_t x_module = x_layer.child(_U(module));
       // create the module volume and its corresponing component volumes first
-      Assembly moduleAssembly("module");
+      dd4hep::Assembly moduleAssembly("module");
       // Visualization
       moduleAssembly.setVisAttributes(lcdd, x_module.visStr());
       if (x_module.isSensitive()) { moduleAssembly.setSensitiveDetector(sens); }
@@ -96,8 +98,8 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
            ++comp, ++compNum) {
         xml_comp_t x_comp = comp;
         // Component volume
-        string componentName = _toString((int)compNum, "component%d");
-        Volume componentVolume(
+        std::string    componentName = _toString((int)compNum, "component%d");
+        dd4hep::Volume componentVolume(
             componentName,
             Box(0.5 * x_comp.dx(), 0.5 * x_comp.dy(), 0.5 * x_comp.dz()),
             lcdd.material(x_comp.materialStr()));
@@ -108,7 +110,7 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
         // Visualization
         componentVolume.setVisAttributes(lcdd, x_comp.visStr());
         // Place Module Box Volumes in layer
-        PlacedVolume placedComponent = moduleAssembly.placeVolume(
+        dd4hep::PlacedVolume placedComponent = moduleAssembly.placeVolume(
             componentVolume,
             Position(x_comp.x_offset(), x_comp.y_offset(), x_comp.z_offset()));
         placedComponent.addPhysVolID("component", compNum);
@@ -118,13 +120,14 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
 
       // Add cooling pipe
       if (x_module.hasChild(_U(tubs))) {
-        xml_comp_t x_tubs = x_module.child(_U(tubs));
-        Volume     pipeVolume("CoolingPipe",
-                          Tube(x_tubs.rmin(), x_tubs.rmax(), x_tubs.length()),
-                          lcdd.material(x_tubs.materialStr()));
+        xml_comp_t     x_tubs = x_module.child(_U(tubs));
+        dd4hep::Volume pipeVolume(
+            "CoolingPipe",
+            Tube(x_tubs.rmin(), x_tubs.rmax(), x_tubs.length()),
+            lcdd.material(x_tubs.materialStr()));
         pipeVolume.setVisAttributes(lcdd, x_tubs.visStr());
         // Place the cooling pipe into the module
-        PlacedVolume placedPipe = moduleAssembly.placeVolume(
+        dd4hep::PlacedVolume placedPipe = moduleAssembly.placeVolume(
             pipeVolume,
             Transform3D(RotationX(0.5 * M_PI) * RotationY(0.5 * M_PI),
                         Position(x_tubs.x_offset(),
@@ -137,14 +140,14 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
       if (x_module.hasChild(_U(anchor))) {
         xml_comp_t x_trd = x_module.child(_U(anchor));
         // create the two shapes first
-        Trapezoid mountShape(
+        dd4hep::Trapezoid mountShape(
             x_trd.x1(), x_trd.x2(), x_trd.length(), x_trd.length(), x_trd.dz());
 
-        Volume mountVolume(
+        dd4hep::Volume mountVolume(
             "ModuleMount", mountShape, lcdd.material(x_trd.materialStr()));
 
         // Place the mount onto the module
-        PlacedVolume placedMount = moduleAssembly.placeVolume(
+        dd4hep::PlacedVolume placedMount = moduleAssembly.placeVolume(
             mountVolume,
             Transform3D(RotationZ(0.5 * M_PI),
                         Position(x_trd.x_offset(),
@@ -155,15 +158,15 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
 
       // Add cable
       if (x_module.hasChild(_U(box))) {
-        xml_comp_t x_cab = x_module.child(_U(box));
-        Volume     cableVolume(
+        xml_comp_t     x_cab = x_module.child(_U(box));
+        dd4hep::Volume cableVolume(
             "Cable",
             Box(0.5 * x_cab.dx(), 0.5 * x_cab.dy(), 0.5 * x_cab.dz()),
             lcdd.material(x_cab.materialStr()));
         // Visualization
         cableVolume.setVisAttributes(lcdd, x_cab.visStr());
         // Place Module Box Volumes in layer
-        PlacedVolume placedCable = moduleAssembly.placeVolume(
+        dd4hep::PlacedVolume placedCable = moduleAssembly.placeVolume(
             cableVolume,
             Transform3D(RotationX(x_cab.alpha()),
                         Position(x_cab.x_offset(),
@@ -175,15 +178,16 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
       // Place the modules
       for (int iphi = 0; iphi < nphi; ++iphi) {
 
-        double   phi        = phi0 + iphi * deltaPhi;
-        string   moduleName = layerName + _toString((int)iphi, "module%d");
-        Position trans(r * cos(phi), r * sin(phi), 0.);
+        double      phi        = phi0 + iphi * deltaPhi;
+        std::string moduleName = layerName + _toString((int)iphi, "module%d");
+        Position    trans(r * cos(phi), r * sin(phi), 0.);
         // Create detector element
-        DetElement moduleElement(layerElement, moduleName, iphi);
+        dd4hep::DetElement moduleElement(layerElement, moduleName, iphi);
         // Place the sensitive inside here
         unsigned int ccomp = 1;
         for (auto& sensComp : sensComponents) {
-          DetElement componentElement(moduleElement, "component", ccomp++);
+          dd4hep::DetElement componentElement(
+              moduleElement, "component", ccomp++);
           componentElement.setPlacement(sensComp);
           // Add the sensor extension
           Acts::ActsExtension* sensorExtension = new Acts::ActsExtension();
@@ -193,13 +197,13 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
         }
 
         // Place Module Box Volumes in layer
-        PlacedVolume placedModule = layerVolume.placeVolume(
+        dd4hep::PlacedVolume placedModule = layerVolume.placeVolume(
             moduleAssembly,
             Transform3D(RotationY(0.5 * M_PI) * RotationX(-phi - phiTilt),
                         trans));
         placedModule.addPhysVolID("module", iphi + 1);
 
-        // Assign module DetElement to the placed module volume
+        // Assign module dd4hep::DetElement to the placed module volume
         moduleElement.setPlacement(placedModule);
       }
     }
@@ -216,15 +220,15 @@ create_element(Detector& lcdd, xml_h xml, SensitiveDetector sens)
     layerElement.addExtension<Acts::ActsExtension>(layerExtension);
 
     // Place layer volume
-    PlacedVolume placedLayer = barrelVolume.placeVolume(layerVolume);
+    dd4hep::PlacedVolume placedLayer = barrelVolume.placeVolume(layerVolume);
     placedLayer.addPhysVolID("layer", layerNum);
-    // Assign layer DetElement to layer volume
+    // Assign layer dd4hep::DetElement to layer volume
     layerElement.setPlacement(placedLayer);
   }
 
   // Place Volume
-  Volume       motherVolume = lcdd.pickMotherVolume(barrelDetector);
-  PlacedVolume placedBarrel = motherVolume.placeVolume(barrelVolume);
+  dd4hep::Volume       motherVolume = lcdd.pickMotherVolume(barrelDetector);
+  dd4hep::PlacedVolume placedBarrel = motherVolume.placeVolume(barrelVolume);
   // "system" is hard coded in the DD4Hep::VolumeManager
   placedBarrel.addPhysVolID("system", barrelDetector.id());
   barrelDetector.setPlacement(placedBarrel);
