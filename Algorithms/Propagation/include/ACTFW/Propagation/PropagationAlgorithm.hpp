@@ -36,18 +36,9 @@ using namespace Acts::UnitLiterals;
 
 namespace FW {
 
-/// Using some short hands for Recorded Material
-using RecordedMaterial = Acts::MaterialInteractor::result_type;
-
-/// And recorded material track
-/// - this is start:  position, start momentum
-///   and the Recorded material
-using RecordedMaterialTrack
-    = std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
-
-/// Finally the output of the propagation test
+/// The output of the propagation test
 using PropagationOutput
-    = std::pair<std::vector<Acts::detail::Step>, RecordedMaterial>;
+    = std::pair<std::vector<Acts::detail::Step>, Acts::RecordedMaterial>;
 
 /// @brief this test algorithm performs test propagation
 /// within the Acts::Propagator

@@ -18,17 +18,6 @@
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
 
-namespace Acts {
-// Using some short hands for Recorded Material
-using RecordedMaterial = MaterialInteractor::result_type;
-
-// And recorded material track
-// - this is start:  position, start momentum
-//   and the Recorded material
-using RecordedMaterialTrack
-    = std::pair<std::pair<Acts::Vector3D, Acts::Vector3D>, RecordedMaterial>;
-}  // namespace Acts
-
 namespace FW {
 
 /// @class GeantinoRecording

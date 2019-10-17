@@ -66,7 +66,7 @@ PropagationAlgorithm<propagator_t>::executeTest(
   if (m_cfg.mode == 0) {
 
     // The step length logger for testing & end of world aborter
-    using MaterialInteractor = Acts::MaterialInteractor;
+    using MaterialInteractor = Acts::MaterialInteractor<Acts::fullUpdate>;
     using SteppingLogger     = Acts::detail::SteppingLogger;
     using DebugOutput        = Acts::detail::DebugOutputActor;
     using EndOfWorld         = Acts::detail::EndOfWorldReached;
@@ -147,7 +147,7 @@ PropagationAlgorithm<propagator_t>::execute(
   propagationSteps.reserve(m_cfg.ntests);
 
   // Output (optional): the recorded material
-  std::vector<RecordedMaterialTrack> recordedMaterial;
+  std::vector<Acts::RecordedMaterialTrack> recordedMaterial;
   if (m_cfg.recordMaterialInteractions) {
     recordedMaterial.reserve(m_cfg.ntests);
   }
@@ -199,7 +199,7 @@ PropagationAlgorithm<propagator_t>::execute(
     if (m_cfg.recordMaterialInteractions
         && pOutput.second.materialInteractions.size()) {
       // Create a recorded material track
-      RecordedMaterialTrack rmTrack;
+      Acts::RecordedMaterialTrack rmTrack;
       // Start position
       rmTrack.first.first = std::move(sPosition);
       // Start momentum
