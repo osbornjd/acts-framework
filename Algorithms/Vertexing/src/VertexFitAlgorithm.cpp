@@ -20,8 +20,8 @@
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
+#include "Acts/Vertexing/HelicalTrackLinearizer.hpp"
 #include "Acts/Vertexing/LinearizedTrack.hpp"
-#include "Acts/Vertexing/LinearizedTrackFactory.hpp"
 #include "Acts/Vertexing/Vertex.hpp"
 
 FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
@@ -36,9 +36,11 @@ FW::ProcessCode
 FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
 {
   using Propagator = Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>;
-  using VertexFitter = Acts::FullBilloirVertexFitter<Acts::ConstantBField,
-                                                     Acts::BoundParameters,
-                                                     Propagator>;
+  using Linearizer_t
+      = Acts::HelicalTrackLinearizer<Acts::ConstantBField, Propagator>;
+
+  using VertexFitter
+      = Acts::FullBilloirVertexFitter<Acts::BoundParameters, Linearizer_t>;
 
   const auto& input = context.eventStore.get<std::vector<FW::VertexAndTracks>>(
       m_cfg.trackCollection);
@@ -48,12 +50,20 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
 
   // Set up Eigenstepper
   Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
-  // Set up propagator with void navigator
-  Propagator propagator(stepper);
 
-  // Set up Billoir Vertex Fitter
-  VertexFitter::Config vertexFitterCfg(bField, propagator);
-  VertexFitter         vertexFitter(vertexFitterCfg);
+  // Set up propagator with void navigator
+  auto propagator = std::make_shared<Propagator>(stepper);
+
+  Acts::PropagatorOptions<Acts::ActionList<>, Acts::AbortList<>> pOptions
+      = Linearizer_t::getDefaultPropagatorOptions(context.geoContext,
+                                                  context.magFieldContext);
+
+  Linearizer_t::Config ltConfig(bField, propagator, pOptions);
+  Linearizer_t         linearizer(ltConfig);
+
+  VertexFitter::Config vertexFitterCfg;
+
+  VertexFitter vertexFitter(vertexFitterCfg);
 
   for (auto& vertexAndTracks : input) {
 
@@ -66,7 +76,8 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
       Acts::VertexFitterOptions<Acts::BoundParameters> vfOptions(
           context.geoContext, context.magFieldContext);
 
-      auto fitRes = vertexFitter.fit(inputTrackCollection, vfOptions);
+      auto fitRes
+          = vertexFitter.fit(inputTrackCollection, linearizer, vfOptions);
       if (fitRes.ok()) {
         fittedVertex = *fitRes;
       } else {
@@ -83,7 +94,8 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
       Acts::VertexFitterOptions<Acts::BoundParameters> vfOptionsConstr(
           context.geoContext, context.magFieldContext, theConstraint);
 
-      auto fitRes = vertexFitter.fit(inputTrackCollection, vfOptionsConstr);
+      auto fitRes
+          = vertexFitter.fit(inputTrackCollection, linearizer, vfOptionsConstr);
       if (fitRes.ok()) {
         fittedVertex = *fitRes;
       } else {
