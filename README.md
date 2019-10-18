@@ -1,6 +1,6 @@
 # ACTS test framework
 
-A test framework for ACTS development: **absolutely not** intended
+A test framework for ACTS development. **Absolutely not** intended
 for production usage.
 
 ## Build requirements
@@ -52,32 +52,33 @@ that executes a set of services, readers, processing algorithms, and writers for
 each event. The available algorithms differ in their purpose and consequently
 in the interface they provide:
 
-*   A service uses the `IService` interface and must implement the `startRun`
-    and the `prepare` methods. A service is intended to provide slowly changing
-    of constant information, e.g. geometry and alignment, for each event.
+*   A service is intended to provide slowly changing of constant information,
+    e.g. geometry and alignment, for each event. A service implements the
+    `IService` interface  with the `startRun` and `prepare` methods.
     Computationally expensive initialization should be executed in the
     `startRun` method. A service can have an internal state and each
     implementation has to ensure that concurrent calls are valid. Services are
     called before all other algorithms.
-*   A reader uses the `IReader` interface and must implement the `numEvents`
-    and `read` methods. A reader should be used to read per-event data from
-    disk and provide it to other algorithms via the event store. A reader
+*   A reader should be used to read per-event data from disk and provide it
+    to other algorithms via the event store. A reader implements the `IReader`
+    interface and with the `availableEvents` and `read` methods. A reader
     can have an internal state and each implementation has to ensure that
-    concurrent calls are valid. Readers are called after the services.
-*   A processing algorithm uses the `IAlgorithm` interface and must implement
-    the `execute` method. Anything that processes event data e.g. simulations
-    or reconstruction algorithms should use this interface. A processing
-    algorithm **must not** have an internal state in order to be callable
+    concurrent calls are valid. Readers are always called after all services.
+*   An algorithm is anything that processes event data e.g. simulations
+    or reconstruction algorithms should use this interface. An algorithm
+    implements the `IAlgorithm` interface with the `execute` method.
+    An algorithm **must not** have an internal state in order to be callable
     concurrently without additional precautions. Processing algorithms are
     called after the readers. Most algorithms should try to use the
     `BareAlgorithm` helper class to simplify the implementation.
-*   A writer uses the `IWriter` interface and must implement the `write` and
-    `endRun` methods. The writer takes existing data from the event store
-    and writes it to disk. A writer can not modify the event store but can
+*   A writer takes existing data from the event store and writes it to disk.
+    A writer implements the `IWriter` interface and with the `write` and
+    `endRun` methods. A writer can not modify the event store but can
     have an internal state. Each implementation has to ensure that
     concurrent calls are valid. Writers are called after all other algorithms.
 
-All algorithms also have to implement the `name` method to identify them.
+All algorithms also have to implement the `name` method to be able
+to identify them.
 
 To simplify interactions between different algorithms please adhere to
 the following guidelines:
