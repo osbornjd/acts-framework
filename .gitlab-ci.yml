@@ -84,6 +84,8 @@ build-full:
 
 .run:
   stage: test
+  needs:
+    - build-full
   dependencies:
     - build-full
   tags:
