@@ -32,6 +32,7 @@ DD4hepDetector::finalize(
   // read the detector config & dd4hep detector
   auto dd4HepDetectorConfig
       = FW::Options::readDD4hepConfig<po::variables_map>(vm);
+  dd4HepDetectorConfig.matDecorator = mdecorator;
   auto geometrySvc = std::make_shared<FW::DD4hep::DD4hepGeometryService>(
       dd4HepDetectorConfig);
   TrackingGeometryPtr dd4tGeometry

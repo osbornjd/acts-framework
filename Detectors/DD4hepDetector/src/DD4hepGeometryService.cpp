@@ -65,7 +65,7 @@ FW::ProcessCode
 FW::DD4hep::DD4hepGeometryService::buildTrackingGeometry(
     const Acts::GeometryContext& gctx)
 {
-  // set the tracking geometry
+  // Set the tracking geometry
   m_trackingGeometry
       = std::move(Acts::convertDD4hepDetector(dd4hepGeometry(),
                                               m_cfg.logLevel,
@@ -76,7 +76,8 @@ FW::DD4hep::DD4hepGeometryService::buildTrackingGeometry(
                                               m_cfg.envelopeZ,
                                               m_cfg.defaultLayerThickness,
                                               m_cfg.sortDetectors,
-                                              gctx));
+                                              gctx,
+                                              m_cfg.matDecorator));
   return FW::ProcessCode::SUCCESS;
 }
 

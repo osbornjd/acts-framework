@@ -62,10 +62,10 @@ namespace Json {
   /// @brief Volume representation for Json writing
   struct VolumeRep
   {
-    // the geometry id
+    // The geometry id
     Acts::GeometryID volumeID;
 
-    /// the namne
+    /// The namne
     std::string volumeName;
 
     std::map<geo_id_value, LayerRep> layers;
@@ -127,6 +127,8 @@ namespace Json {
       std::string typekey = "type";
       /// The data key
       std::string datakey = "data";
+      /// The geoid key
+      std::string geoidkey = "geoid";
       /// The default logger
       std::shared_ptr<const Acts::Logger> logger;
       /// The name of the writer
