@@ -7,6 +7,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Vertexing/VertexFindingAlgorithm.hpp"
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/TruthTracking/VertexAndTracks.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
@@ -18,14 +20,13 @@
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
+#include "Acts/Vertexing/HelicalTrackLinearizer.hpp"
 #include "Acts/Vertexing/IterativeVertexFinder.hpp"
-
 #include "Acts/Vertexing/LinearizedTrack.hpp"
-#include "Acts/Vertexing/LinearizedTrackFactory.hpp"
+#include "Acts/Vertexing/TrackToVertexIPEstimator.hpp"
 #include "Acts/Vertexing/Vertex.hpp"
-
-#include <Acts/Geometry/GeometryContext.hpp>
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include "Acts/Vertexing/VertexFinderConcept.hpp"
+#include "Acts/Vertexing/ZScanVertexFinder.hpp"
 
 #include <iostream>
 
@@ -42,13 +43,11 @@ FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& context) const
 {
 
   using Propagator = Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>;
-  using VertexFitter = Acts::FullBilloirVertexFitter<Acts::ConstantBField,
-                                                     Acts::BoundParameters,
-                                                     Propagator>;
-  using VertexFinder = Acts::IterativeVertexFinder<Acts::ConstantBField,
-                                                   Acts::BoundParameters,
-                                                   Propagator,
-                                                   VertexFitter>;
+  using Linearizer_t
+      = Acts::HelicalTrackLinearizer<Acts::ConstantBField, Propagator>;
+
+  using VertexFitter
+      = Acts::FullBilloirVertexFitter<Acts::BoundParameters, Linearizer_t>;
 
   const auto& input = context.eventStore.get<std::vector<FW::VertexAndTracks>>(
       m_cfg.trackCollection);
@@ -58,25 +57,55 @@ FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& context) const
 
   // Set up Eigenstepper
   Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
-  // Set up propagator with void navigator
-  Propagator propagator(stepper);
 
-  // Set up Billoir Vertex Fitter
-  VertexFitter::Config vertexFitterCfg(bField, propagator);
+  // Set up propagator with void navigator
+  auto propagator = std::make_shared<Propagator>(stepper);
+
+  // Set up track linearizer
+  Acts::PropagatorOptions<Acts::ActionList<>, Acts::AbortList<>> pOptions
+      = Linearizer_t::getDefaultPropagatorOptions(context.geoContext,
+                                                  context.magFieldContext);
+
+  Linearizer_t::Config ltConfig(bField, propagator, pOptions);
+  Linearizer_t         linearizer(ltConfig);
+
+  // Set up vertex fitter
+  VertexFitter::Config vertexFitterCfg;
   VertexFitter         vertexFitter(vertexFitterCfg);
 
-  // Set up Iterative Vertex Finder
-  VertexFinder::Config finderCfg(bField, std::move(vertexFitter), propagator);
-  VertexFinder         vertexFinder(finderCfg);
+  // Set up all seed finder related things
+  Acts::TrackToVertexIPEstimator<Acts::BoundParameters, Propagator>::Config
+                                                                    ipEstCfg(propagator, pOptions);
+  Acts::TrackToVertexIPEstimator<Acts::BoundParameters, Propagator> ipEst(
+      ipEstCfg);
 
-  // The geometry context
-  Acts::GeometryContext geoContext;
-  // The magnetic Field context
-  Acts::MagneticFieldContext magFieldContext;
+  using ZScanSeedFinder = Acts::ZScanVertexFinder<VertexFitter>;
+
+  static_assert(Acts::VertexFinderConcept<ZScanSeedFinder>,
+                "Vertex finder does not fulfill vertex finder concept.");
+
+  ZScanSeedFinder::Config sFcfg(std::move(ipEst));
+
+  ZScanSeedFinder sFinder(std::move(sFcfg));
+
+  // Vertex Finder
+  using VertexFinder
+      = Acts::IterativeVertexFinder<VertexFitter, ZScanSeedFinder>;
+
+  static_assert(Acts::VertexFinderConcept<VertexFinder>,
+                "Vertex finder does not fulfill vertex finder concept.");
+
+  VertexFinder::Config cfg(
+      std::move(vertexFitter), std::move(linearizer), std::move(sFinder));
+
+  cfg.maxVertices                 = 200;
+  cfg.reassignTracksAfterFirstFit = true;
+
+  VertexFinder vertexFinder(cfg);
 
   // Vertex finder options
   Acts::VertexFinderOptions<Acts::BoundParameters> vFinderOptions(
-      geoContext, magFieldContext);
+      context.geoContext, context.magFieldContext);
 
   std::vector<Acts::BoundParameters> inputTrackCollection;
 
