@@ -8,16 +8,10 @@
 
 #pragma once
 
-#include <fstream>
-#include <iostream>
-#include <mutex>
-
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Plugins/Csv/CsvSurfaceWriter.hpp"
+#include "ACTFW/Framework/IWriter.hpp"
 
 namespace Acts {
 class TrackingVolume;
@@ -26,71 +20,57 @@ class TrackingVolume;
 namespace FW {
 namespace Csv {
 
-  /// @class CsvTrackingGeometryWriter
+  /// Write out the geometry for all sensitive detector surfaces.
   ///
-  /// An Csv writer for the geometry
-  /// It delegates the writing of surfaces to the surface writers
-  class CsvTrackingGeometryWriter
+  /// This writes a `detectors.csv` file at the end of the run using the
+  /// default context to determine the geometry. If configured, it also writes
+  /// an additional file for each event using the following schema
+  ///
+  ///     event000000001-detectors.csv
+  ///     event000000002-detectors.csv
+  ///     ...
+  ///
+  /// that uses the per-event context to determine the geometry.
+  class CsvTrackingGeometryWriter : public IWriter
   {
   public:
-    // @class Config
-    //
-    // The nested config class
-    class Config
+    struct Config
     {
-    public:
-      /// the default logger
-      std::shared_ptr<const Acts::Logger> logger;
-      /// the name of the writer
-      std::string name = "";
-      /// surfaceWriters
-      std::shared_ptr<CsvSurfaceWriter> surfaceWriter = nullptr;
-      std::string                       filePrefix    = "";
-      std::string                       layerPrefix   = "";
-
-      /// Constructor for the nested config class
-      /// @param lname is the name of the writer
-      /// @lvl is the screen output logging level
-      Config(const std::string&   lname = "CsvTrackingGeometryWriter",
-             Acts::Logging::Level lvl   = Acts::Logging::INFO)
-        : logger(Acts::getDefaultLogger(lname, lvl))
-        , name(lname)
-        , surfaceWriter()
-      {
-      }
+      /// The tracking geometry that should be written.
+      std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
+      /// Where to place output files.
+      std::string outputDir;
+      /// Number of decimal digits for floating point precision in output.
+      std::size_t outputPrecision = 6;
+      /// Whether to write the per-event file.
+      bool writePerEvent = false;
     };
 
     /// Constructor
     /// @param cfg is the configuration class
-    CsvTrackingGeometryWriter(const Config& cfg);
+    CsvTrackingGeometryWriter(const Config&        cfg,
+                              Acts::Logging::Level lvl = Acts::Logging::INFO);
 
-    /// Framework name() method
-    /// @return the name of the tool
     std::string
-    name() const;
+    name() const final override;
 
-    /// The write interface
-    /// @param context The algorithm/event context under which this is called
-    /// @param tGeometry is the geometry to be written out
-    /// @return ProcessCode to indicate success/failure
-    FW::ProcessCode
-    write(const AlgorithmContext&       context,
-          const Acts::TrackingGeometry& tGeometry);
+    /// Write geometry using the per-event context (optional).
+    ProcessCode
+    write(const AlgorithmContext& context) final override;
+
+    /// Write geometry using the default context.
+    ProcessCode
+    endRun() final override;
 
   private:
-    Config m_cfg;  ///< the config class
+    Config                              m_cfg;
+    const Acts::TrackingVolume*         m_world;
+    std::unique_ptr<const Acts::Logger> m_logger;
 
-    /// process this volume
-    /// @param context The algorithm/event context under which this is called
-    /// @param tVolume the volume to be processed
-    void
-    write(const AlgorithmContext& context, const Acts::TrackingVolume& tVolume);
-
-    /// Private access to the logging instance
     const Acts::Logger&
     logger() const
     {
-      return *m_cfg.logger;
+      return *m_logger;
     }
   };
 

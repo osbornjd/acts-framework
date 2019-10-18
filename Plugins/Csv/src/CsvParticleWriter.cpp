@@ -1,29 +1,31 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017 CERN for the benefit of the Acts project
+// Copyright (C) 2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 
-#include <fstream>
-#include <ios>
 #include <map>
 #include <stdexcept>
+
+#include <Acts/Utilities/Units.hpp>
+#include <dfe/dfe_io_dsv.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
+#include "TrackMlData.hpp"
 
 FW::Csv::CsvParticleWriter::CsvParticleWriter(
     const FW::Csv::CsvParticleWriter::Config& cfg,
     Acts::Logging::Level                      level)
-  : ParticleWriter(cfg.collection, "CsvParticleWriter", level), m_cfg(cfg)
+  : Base(cfg.inputEvent, "CsvParticleWriter", level), m_cfg(cfg)
 {
-  if (m_cfg.collection.empty()) {
-    throw std::invalid_argument("Missing input collection");
+  // inputEvent is already checked by base constructor
+  if (m_cfg.outputStem.empty()) {
+    throw std::invalid_argument("Missing ouput filename stem");
   }
 }
 
@@ -32,52 +34,42 @@ FW::Csv::CsvParticleWriter::writeT(
     const FW::AlgorithmContext&           context,
     const std::vector<Data::SimVertex<>>& vertices)
 {
-  std::string pathOs = perEventFilepath(
-      m_cfg.outputDir, m_cfg.outputFileName, context.eventNumber);
-  std::ofstream os(pathOs, std::ofstream::out | std::ofstream::trunc);
-  if (!os) {
-    throw std::ios_base::failure("Could not open '" + pathOs + "' to write");
-  }
-
-  // do we have the hits per particle written out ?
-  bool hppPresent = !m_cfg.hitsPerParticleCollection.empty();
   // use pointer instead of reference since it is optional
   const std::map<barcode_type, size_t>* hitsPerParticle = nullptr;
-  if (hppPresent) {
+  if (not m_cfg.inputHitsPerParticle.empty()) {
     hitsPerParticle = &context.eventStore.get<std::map<barcode_type, size_t>>(
-        m_cfg.hitsPerParticleCollection);
+        m_cfg.inputHitsPerParticle);
   }
 
-  // write csv header
-  os << "particle_id,";
-  os << "vx,vy,vz,";
-  os << "px,py,pz,";
-  os << "q";
-  if (hppPresent) os << ",nhits";
-  os << '\n';
+  auto pathParticles = perEventFilepath(
+      m_cfg.outputDir, m_cfg.outputStem + ".csv", context.eventNumber);
+  dfe::CsvNamedTupleWriter<ParticleData> writer(pathParticles,
+                                                m_cfg.outputPrecision);
 
-  // write one line per particle
-  os << std::setprecision(m_cfg.outputPrecision);
+  ParticleData data;
+  data.nhits = -1;  // default for every entry if information unvailable
   for (auto& vertex : vertices) {
     for (auto& particle : vertex.outgoing()) {
-      os << particle.barcode() << ",";
-      os << particle.position().x() << ",";
-      os << particle.position().y() << ",";
-      os << particle.position().z() << ",";
-      os << particle.momentum().x() << ",";
-      os << particle.momentum().y() << ",";
-      os << particle.momentum().z() << ",";
-      os << particle.q();
+      data.particle_id   = particle.barcode();
+      data.particle_type = particle.pdg();
+      data.vx            = particle.position().x() / Acts::UnitConstants::mm;
+      data.vy            = particle.position().y() / Acts::UnitConstants::mm;
+      data.vz            = particle.position().z() / Acts::UnitConstants::mm;
+      data.vt            = 0 / Acts::UnitConstants::ns;  // TODO
+      data.px            = particle.momentum().x() / Acts::UnitConstants::GeV;
+      data.py            = particle.momentum().y() / Acts::UnitConstants::GeV;
+      data.pz            = particle.momentum().z() / Acts::UnitConstants::GeV;
+      data.q             = particle.q() / Acts::UnitConstants::e;
       // add the hits per particle
       if (hitsPerParticle) {
         auto hppEntry = hitsPerParticle->find(particle.barcode());
-        int  nhits    = 0;
         if (hppEntry != hitsPerParticle->end()) {
-          nhits = hppEntry->second;
-          os << "," << nhits;
+          data.nhits = hppEntry->second;
+        } else {
+          data.nhits = -1;
         }
       }
-      os << '\n';
+      writer.append(data);
     }
   }
 

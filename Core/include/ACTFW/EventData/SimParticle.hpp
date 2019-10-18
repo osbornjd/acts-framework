@@ -11,6 +11,8 @@
 #include <cmath>
 #include <vector>
 
+#include <boost/container/flat_set.hpp>
+
 #include <Acts/Geometry/GeometryID.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Definitions.hpp>
@@ -312,6 +314,33 @@ namespace Data {
 
     bool m_alive = true;  //!< the particle is alive
   };
+
+  namespace detail {
+    struct SimParticleBarcodeCompare
+    {
+      using is_transparent = void;
+      bool
+      operator()(const SimParticle& left, const SimParticle& right) const
+      {
+        return left.barcode() < right.barcode();
+      }
+      bool
+      operator()(barcode_type left, const SimParticle& right) const
+      {
+        return left < right.barcode();
+      }
+      bool
+      operator()(const SimParticle& left, barcode_type right) const
+      {
+        return left.barcode() < right;
+      }
+    };
+  }  // namespace detail
+
+  /// A container of particles that can be accessed by particle id/ barcode.
+  using SimParticles
+      = boost::container::flat_set<SimParticle,
+                                   detail::SimParticleBarcodeCompare>;
 
 }  // end of namespace Data
 }  // end of namespace FW

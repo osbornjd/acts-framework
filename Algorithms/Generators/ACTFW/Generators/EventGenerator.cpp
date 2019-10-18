@@ -39,10 +39,10 @@ FW::EventGenerator::name() const
   return "EventGenerator";
 }
 
-size_t
-FW::EventGenerator::numEvents() const
+std::pair<size_t, size_t>
+FW::EventGenerator::availableEvents() const
 {
-  return SIZE_MAX;
+  return {0u, SIZE_MAX};
 }
 
 FW::ProcessCode

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9)
 
 project(ActsFramework LANGUAGES CXX)
 
@@ -46,7 +46,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
-find_package(Boost 1.64 REQUIRED COMPONENTS program_options)
+find_package(Boost 1.64 REQUIRED COMPONENTS filesystem program_options)
 find_package(ROOT 6.10 REQUIRED COMPONENTS ${ROOT_COMPONENTS})
 include(${ROOT_USE_FILE})
 find_package(TBB REQUIRED)

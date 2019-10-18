@@ -67,8 +67,8 @@ setupDigitization(vmap_t&                            vm,
   if (vm["output-csv"].template as<bool>()) {
     // clusters as root
     FW::Csv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
-    clusterWriterCsvConfig.collection = digiConfig.clusterCollection;
-    clusterWriterCsvConfig.outputDir  = outputDir;
+    clusterWriterCsvConfig.inputClusters = digiConfig.clusterCollection;
+    clusterWriterCsvConfig.outputDir     = outputDir;
     auto clusteWriterCsv = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(
         clusterWriterCsvConfig);
     // Add to the sequencer

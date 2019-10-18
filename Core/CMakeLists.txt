@@ -1,4 +1,4 @@
-set(_sources
+add_library(ACTFramework SHARED
   src/Framework/BareAlgorithm.cpp
   src/Framework/BareService.cpp
   src/Framework/RandomNumbers.cpp
@@ -7,15 +7,12 @@ set(_sources
   src/Utilities/Helpers.cpp
   src/Validation/EffPlotTool.cpp
   src/Validation/ResPlotTool.cpp)
-
-add_library(ACTFramework SHARED ${_sources})
-
-target_include_directories(
-  ACTFramework
+target_include_directories(ACTFramework
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${ROOT_INCLUDE_DIRS}
   PRIVATE ${TBB_INCLUDE_DIRS})
-target_link_libraries(
-  ACTFramework
+target_link_libraries(ACTFramework
   PUBLIC ActsCore ${ROOT_LIBRARIES}
-  PRIVATE ${TBB_LIBRARIES} dfelibs)
+  PRIVATE ${TBB_LIBRARIES} Boost::filesystem dfelibs)
+target_compile_definitions(ACTFramework
+  PRIVATE BOOST_FILESYSTEM_NO_DEPRECATED)
 install(TARGETS ACTFramework LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

@@ -9,27 +9,32 @@
 #pragma once
 
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace FW {
 
-/// Join dir and name into one paths with correct handling of empty dirs.
+/// Join dir and name into one path with correct handling of empty dirs.
 std::string
 joinPaths(const std::string& dir, const std::string& name);
 
-/// Construct a file path of the form `[<dir>/]event<XXXXX>-<name>`.
+/// Construct a file path of the form `[<dir>/]event<XXXXXXXXX>-<name>`.
 ///
-/// @params dir output directory, unused if empty
+/// @params dir output directory, current directory if empty
 /// @params name basic filename
 /// @params event event number
 std::string
 perEventFilepath(const std::string& dir, const std::string& name, size_t event);
 
-/// Brief split a file list into a vector of file names to add
+/// Determine the range of available events in a directory of per-event files.
 ///
-/// @param files The joint file list
-/// @param tag The splitting tag
-std::vector<std::string>
-splitByDelimiter(const std::string& files, char delim);
+/// @params dir input directory, current directory if empty
+/// @params name base filename
+/// @return first and last+1 event number
+/// @returns {0, 0} when no matching files could be found
+///
+/// Event files must be named `[<dir>/]event<XXXXXXXXX>-<name>` to be considered
+std::pair<size_t, size_t>
+determineEventFilesRange(const std::string& dir, const std::string& name);
 
 }  // namespace FW

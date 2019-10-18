@@ -55,9 +55,9 @@ setupEvgenInput(vmap_t&                            vm,
   // Write particles as CSV files
   if (vm["output-csv"].template as<bool>()) {
     FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
-    pWriterCsvConfig.collection     = "particles";
-    pWriterCsvConfig.outputDir      = outputDir;
-    pWriterCsvConfig.outputFileName = "particles.csv";
+    pWriterCsvConfig.inputEvent = "particles";
+    pWriterCsvConfig.outputDir  = outputDir;
+    pWriterCsvConfig.outputStem = "particles";
     sequencer.addWriter(
         std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig));
   }

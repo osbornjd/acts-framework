@@ -6,11 +6,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <fstream>
-#include <ios>
 #include <stdexcept>
 
 #include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
+#include <Acts/Utilities/Units.hpp>
+#include <dfe/dfe_io_dsv.hpp>
+
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
@@ -18,15 +19,14 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
+#include "TrackMlData.hpp"
 
 FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     const FW::Csv::CsvPlanarClusterWriter::Config& cfg,
     Acts::Logging::Level                           level)
-  : Base(cfg.collection, "CsvPlanarClusterWriter", level), m_cfg(cfg)
+  : Base(cfg.inputClusters, "CsvPlanarClusterWriter", level), m_cfg(cfg)
 {
-  if (m_cfg.collection.empty()) {
-    throw std::invalid_argument("Missing input collection");
-  }
+  // inputClusters is already checked by base constructor
 }
 
 FW::ProcessCode
@@ -34,99 +34,81 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
     const AlgorithmContext&                                          context,
     const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& clusters)
 {
-  // open per-event hits file
+  // open per-event file for all components
   std::string pathHits
       = perEventFilepath(m_cfg.outputDir, "hits.csv", context.eventNumber);
-  std::ofstream osHits(pathHits, std::ofstream::out | std::ofstream::trunc);
-  if (!osHits) {
-    throw std::ios_base::failure("Could not open '" + pathHits + "' to write");
-  }
-
-  // open per-event details file for the hit details
-  std::string pathDetails
-      = perEventFilepath(m_cfg.outputDir, "details.csv", context.eventNumber);
-  std::ofstream osDetails(pathDetails,
-                          std::ofstream::out | std::ofstream::trunc);
-  if (!osDetails) {
-    throw std::ios_base::failure("Could not open '" + pathHits + "' to write");
-  }
-
-  // open per-event truth file
+  std::string pathCells
+      = perEventFilepath(m_cfg.outputDir, "cells.csv", context.eventNumber);
   std::string pathTruth
       = perEventFilepath(m_cfg.outputDir, "truth.csv", context.eventNumber);
-  std::ofstream osTruth(pathTruth, std::ofstream::out | std::ofstream::trunc);
-  if (!osTruth) {
-    throw std::ios_base::failure("Could not open '" + pathTruth + "' to write");
-  }
 
-  size_t skipped_hits = 0;
+  dfe::CsvNamedTupleWriter<HitData> writerHits(pathHits, m_cfg.outputPrecision);
+  dfe::CsvNamedTupleWriter<CellData>  writerCells(pathCells,
+                                                 m_cfg.outputPrecision);
+  dfe::CsvNamedTupleWriter<TruthData> writerTruth(pathTruth,
+                                                  m_cfg.outputPrecision);
 
-  // write csv hits header
-  osHits << "hit_id,";
-  osHits << "x,y,z,";
-  osHits << "volume_id,layer_id,module_id" << '\n';
-  osHits << std::setprecision(m_cfg.outputPrecision);
+  HitData   hit;
+  CellData  cell;
+  TruthData truth;
+  // will be reused as hit counter
+  hit.hit_id = 0;
 
-  // write csv hit detials header
-  osDetails << "hit_id,ch0,ch1,value" << '\n';
-  osDetails << std::setprecision(m_cfg.outputPrecision);
-
-  // write csv truth headers
-  osTruth << "hit_id,";
-  osTruth << "particle_id,";
-  osTruth << "tx,ty,tz,";
-  osTruth << "tpx,tpy,tpz\n";
-
-  size_t hitId = 0;
   for (auto& volumeData : clusters) {
     for (auto& layerData : volumeData.second) {
       for (auto& moduleData : layerData.second) {
         for (auto& cluster : moduleData.second) {
-          hitId += 1;
           // local cluster information
-          auto           parameters = cluster.parameters();
-          Acts::Vector2D local(parameters[Acts::ParDef::eLOC_0],
-                               parameters[Acts::ParDef::eLOC_1]);
-          Acts::Vector3D pos(0, 0, 0);
-          Acts::Vector3D mom(1, 1, 1);
+          const auto&    parameters = cluster.parameters();
+          Acts::Vector2D localPos(parameters[Acts::ParDef::eLOC_0],
+                                  parameters[Acts::ParDef::eLOC_1]);
+          Acts::Vector3D globalFakeMom(1, 1, 1);
+          Acts::Vector3D globalPos(0, 0, 0);
           // transform local into global position information
           cluster.referenceSurface().localToGlobal(
-              context.geoContext, local, mom, pos);
+              context.geoContext, localPos, globalFakeMom, globalPos);
 
-          // write hit information
-          osHits << hitId << ",";
-          osHits << pos.x() << "," << pos.y() << "," << pos.z() << ",";
-          osHits << volumeData.first << ",";
-          osHits << layerData.first << ",";
-          osHits << moduleData.first << '\n';
+          // write global hit information
+          hit.x         = globalPos.x() / Acts::UnitConstants::mm;
+          hit.y         = globalPos.y() / Acts::UnitConstants::mm;
+          hit.z         = globalPos.z() / Acts::UnitConstants::mm;
+          hit.t         = 0 / Acts::UnitConstants::ns;  // TODO
+          hit.volume_id = volumeData.first;
+          hit.layer_id  = layerData.first;
+          hit.module_id = moduleData.first;
+          writerHits.append(hit);
 
-          // Append cell information
-          auto cells = cluster.digitizationCells();
-          for (auto& cell : cells) {
-            osDetails << hitId << "," << cell.channel0 << "," << cell.channel1
-                      << "," << cell.data << '\n';
+          // write local cell information
+          cell.hit_id = hit.hit_id;
+          for (auto& c : cluster.digitizationCells()) {
+            cell.ch0       = c.channel0;
+            cell.ch1       = c.channel1;
+            cell.timestamp = 0;  // TODO
+            cell.value     = c.data;
+            writerCells.append(cell);
           }
-          /// Hit identifier - via the source link
-          auto hitIdentifier = cluster.sourceLink();
+
           // write hit-particle truth association
           // each hit can have multiple particles, e.g. in a dense environment
-          for (auto& sPartilce : hitIdentifier.truthParticles()) {
-            // positon
-            const Acts::Vector3D& sPosition = sPartilce->position();
-            const Acts::Vector3D& sMomentum = sPartilce->position();
-            osTruth << hitId << "," << sPartilce->barcode() << ",";
-            osTruth << sPosition.x() << "," << sPosition.y() << ","
-                    << sPosition.z() << ',';
-            osTruth << sMomentum.x() << "," << sMomentum.y() << ","
-                    << sMomentum.z() << '\n';
+          truth.hit_id = hit.hit_id;
+          for (auto& p : cluster.sourceLink().truthParticles()) {
+            truth.particle_id = p->barcode();
+            truth.tx          = p->position().x() / Acts::UnitConstants::mm;
+            truth.ty          = p->position().y() / Acts::UnitConstants::mm;
+            truth.tz          = p->position().z() / Acts::UnitConstants::mm;
+            truth.tt          = 0 / Acts::UnitConstants::ns;  // TODO
+            truth.tpx         = p->momentum().x() / Acts::UnitConstants::GeV;
+            truth.tpy         = p->momentum().y() / Acts::UnitConstants::GeV;
+            truth.tpz         = p->momentum().z() / Acts::UnitConstants::GeV;
+            writerTruth.append(truth);
           }
+
+          // increase hit id for next iteration
+          hit.hit_id += 1;
         }
       }
     }
   }
-
-  ACTS_VERBOSE(
-      "Number of skipped hits from being written out : " << skipped_hits);
 
   return FW::ProcessCode::SUCCESS;
 }
