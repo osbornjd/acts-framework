@@ -55,8 +55,8 @@ public:
   /// @param truthSourceLinks is the truth trajectory
   /// @return a vector of emulated trajectory
   SourceLinksVector
-  emulate(const AlgorithmContext& ctx,
-          const SourceLinks&      truthSourceLinks) const;
+  operator()(const AlgorithmContext& ctx,
+             const SourceLinks&      truthSourceLinks) const;
 
 private:
   Config                              m_cfg;     ///< The Config class

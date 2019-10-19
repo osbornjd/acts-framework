@@ -28,6 +28,7 @@
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/EventData/TrackState.hpp"
 #include "Acts/Fitter/KalmanFitter.hpp"
+#include "Acts/Fitter/detail/MinimalOutlierFinder.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Helpers.hpp"
@@ -41,10 +42,8 @@ class FittingAlgorithm : public BareAlgorithm
 {
 public:
   // A few initialisations and definitionas
-  using Identifier       = Data::SimSourceLink;
-  using TrackState       = Acts::TrackState<Identifier, Acts::BoundParameters>;
-  using Trajectory       = std::vector<Identifier>;
-  using TrajectoryVector = std::vector<std::pair<size_t, Trajectory>>;
+  using Identifier = Data::SimSourceLink;
+  using TrackState = Acts::TrackState<Identifier, Acts::BoundParameters>;
 
   /// Nested configuration struct
   struct Config
@@ -64,14 +63,16 @@ public:
     std::vector<double> parameterSigma = {10, 10, 0.02, 0.02, 1};
     /// Gaussian sigma used to smear the truth hit
     std::vector<double> measurementSigma = {30, 30};
+    /// Outlier chi2 cut during filtering and smoothing stage;
+    std::vector<double> outlierChi2Cut = {10, 5};
+    /// TrajectoryEmulationTool config;
+    TrajectoryEmulationTool::Config trajectoryEmulationToolConfig;
     /// indicator for hole and outlier emulation;
     bool emulateTrajectory = false;
     /// indicator for writing truth trajectory to track collection or not
     bool writeTruthTrajectory = true;
     /// indicator for writing emulated trajectory to track collection or not
     bool writeEmulateTrajectory = true;
-    /// TrajectoryEmulationTool config;
-    TrajectoryEmulationTool::Config trajectoryEmulationToolConfig;
   };
 
   /// Constructor of the fitting algorithm
@@ -89,7 +90,8 @@ public:
   execute(const FW::AlgorithmContext& ctx) const final override;
 
 private:
-  Config                                   m_cfg;  /// config struct
+  Config              m_cfg;                      /// config struct
+  Acts::OutlierFinder m_outlierFinder = nullptr;  /// outlier finder
   std::unique_ptr<TrajectoryEmulationTool> m_trajectoryEmulationTool
       = nullptr;  /// trajectory emulation tool
 };

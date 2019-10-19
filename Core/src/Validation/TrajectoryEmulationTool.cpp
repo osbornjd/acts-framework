@@ -32,7 +32,7 @@ FW::TrajectoryEmulationTool::TrajectoryEmulationTool(
 }
 
 FW::TrajectoryEmulationTool::SourceLinksVector
-FW::TrajectoryEmulationTool::emulate(
+FW::TrajectoryEmulationTool::operator()(
     const AlgorithmContext&                         ctx,
     const FW::TrajectoryEmulationTool::SourceLinks& truthSourceLinks) const
 {

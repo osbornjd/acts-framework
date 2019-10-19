@@ -19,10 +19,16 @@ FW::FittingAlgorithm<kalman_Fitter_t>::FittingAlgorithm(
   } else if (m_cfg.trackCollection.empty()) {
     throw std::invalid_argument("Missing output track collection");
   }
+
   if (m_cfg.emulateTrajectory) {
     m_trajectoryEmulationTool = std::make_unique<FW::TrajectoryEmulationTool>(
         m_cfg.trajectoryEmulationToolConfig, level);
   }
+
+  std::map<Acts::OutlierSearchStage, double> olCriteria
+      = {{Acts::OutlierSearchStage::Filtering, m_cfg.outlierChi2Cut[0]},
+         {Acts::OutlierSearchStage::Smoothing, m_cfg.outlierChi2Cut[1]}};
+  m_outlierFinder = Acts::MinimalOutlierFinder{std::move(olCriteria)};
 }
 
 template <typename kalman_Fitter_t>
@@ -49,11 +55,6 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
 
   // Prepare the output data
   std::vector<std::vector<TrackState>> fittedTracks;
-
-  Acts::DetectorOutlierCriteria                 detOLCriteria;
-  std::map<Acts::OutlierRejectionStage, double> volumeOLCriteria
-      = {{Acts::OutlierRejectionStage::Filtering, 10},
-         {Acts::OutlierRejectionStage::Smoothing, 5}};
 
   // Prepare the measurements for KalmanFitter
   ACTS_DEBUG("Prepare the measurements and then tracks");
@@ -178,7 +179,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
                                         context.magFieldContext,
                                         context.calibContext,
                                         rSurface,
-                                        detOLCriteria);
+                                        m_outlierFinder);
 
     // perform the fit with KalmanFitter
     auto fittedResult = m_cfg.kFitter.fit(sourceLinks, rStart, kfOptions);
@@ -221,7 +222,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
       ACTS_DEBUG("Emulate trajectory with holes and outliers based on truth "
                  "trajectory.");
       auto emulatedTrajectories
-          = m_trajectoryEmulationTool->emulate(context, sourceLinks);
+          = (*m_trajectoryEmulationTool)(context, sourceLinks);
       for (const auto& elTraj : emulatedTrajectories) {
         // perform the fit with KalmanFitter
         auto elFittedResult = m_cfg.kFitter.fit(elTraj, rStart, kfOptions);
