@@ -89,9 +89,11 @@ namespace Root {
     ResPlotTool::ResPlotCache
         m_resPlotCache;  ///< The cache object for residual/pull plots
     EffPlotTool::EffPlotCache
-                 m_effPlotCache;  ///< The cache object for efficiency plots
-    ResPlotTool* m_resPlotTool{nullptr};  ///< The plot tool for residual&pull
-    EffPlotTool* m_effPlotTool{nullptr};  ///< The plot tool for efficiency
+                                 m_effPlotCache;  ///< The cache object for efficiency plots
+    std::unique_ptr<ResPlotTool> m_resPlotTool
+        = nullptr;  ///< The plot tool for residual&pull
+    std::unique_ptr<EffPlotTool> m_effPlotTool
+        = nullptr;  ///< The plot tool for efficiency
   };
 
 }  // namespace Root

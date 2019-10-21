@@ -38,8 +38,10 @@ FW::Root::RootPerformanceWriter::RootPerformanceWriter(
   }
 
   // Initialize the residual and efficiency plots tool
-  m_resPlotTool = new FW::ResPlotTool(m_cfg.resPlotToolConfig, level);
-  m_effPlotTool = new FW::EffPlotTool(m_cfg.effPlotToolConfig, level);
+  m_resPlotTool
+      = std::make_unique<FW::ResPlotTool>(m_cfg.resPlotToolConfig, level);
+  m_effPlotTool
+      = std::make_unique<FW::EffPlotTool>(m_cfg.effPlotToolConfig, level);
   if (m_resPlotTool == nullptr) {
     throw std::bad_alloc();
   } else if (m_effPlotTool == nullptr) {
@@ -54,8 +56,6 @@ FW::Root::RootPerformanceWriter::~RootPerformanceWriter()
 {
   m_resPlotTool->clear(m_resPlotCache);
   m_effPlotTool->clear(m_effPlotCache);
-  delete m_resPlotTool;
-  delete m_effPlotTool;
   if (m_outputFile) { m_outputFile->Close(); }
 }
 
