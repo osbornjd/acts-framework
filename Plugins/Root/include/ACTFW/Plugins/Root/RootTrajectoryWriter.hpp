@@ -125,6 +125,7 @@ namespace Root {
     int                m_nOutliers{0};      ///< number of outliers
     int                m_nMeasurements{0};  ///< number of measurements
     float              m_chi2{-1};          ///< chi2
+    std::vector<bool>  m_isOutlier;         ///< outlier flag
     std::vector<int>   m_volumeID;          ///< volume identifier
     std::vector<int>   m_layerID;           ///< layer identifier
     std::vector<int>   m_moduleID;          ///< surface identifier

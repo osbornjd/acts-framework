@@ -79,6 +79,7 @@ FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
     m_outputTree->Branch("nMeasurements", &m_nMeasurements);
     m_outputTree->Branch("nHoles", &m_nHoles);
     m_outputTree->Branch("nOutliers", &m_nOutliers);
+    m_outputTree->Branch("isOutlier", &m_isOutlier);
     m_outputTree->Branch("chi2", &m_chi2);
     m_outputTree->Branch("volume_id", &m_volumeID);
     m_outputTree->Branch("layer_id", &m_layerID);
@@ -292,8 +293,6 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
     for (auto& state : traj) {
       // count the holes
       if (state.isType(Acts::TrackStateFlag::HoleFlag)) { m_nHoles++; }
-      // count the outliers
-      if (state.isType(Acts::TrackStateFlag::OutlierFlag)) { m_nOutliers++; }
 
       // count the measurements
       if (state.isType(Acts::TrackStateFlag::MeasurementFlag)) {
@@ -301,6 +300,14 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       } else {
         // skip writing if there is no measurement
         continue;
+      }
+
+      // count the outliers
+      if (state.isType(Acts::TrackStateFlag::OutlierFlag)) {
+        m_isOutlier.push_back(true);
+        m_nOutliers++;
+      } else {
+        m_isOutlier.push_back(false);
       }
 
       // get the geometry ID
@@ -672,6 +679,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
     m_t_eTHETA.clear();
     m_t_eQOP.clear();
 
+    m_isOutlier.clear();
     m_volumeID.clear();
     m_layerID.clear();
     m_moduleID.clear();
