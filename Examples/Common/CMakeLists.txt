@@ -8,10 +8,10 @@ endif()
 
 add_library(ACTFWExamplesCommon SHARED ${src_files})
 target_include_directories(ACTFWExamplesCommon PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
-target_link_libraries(ACTFWExamplesCommon PUBLIC ActsCore FatrasCore ACTFramework)
-target_link_libraries(ACTFWExamplesCommon PUBLIC ACTFWObjPlugin 
+target_link_libraries(ACTFWExamplesCommon PRIVATE ActsCore FatrasCore ACTFramework)
+target_link_libraries(ACTFWExamplesCommon PRIVATE ACTFWObjPlugin 
         ACTFWCsvPlugin ACTFWJsonPlugin ACTFWRootPlugin ACTFWDetectorsCommon
-        ACTFWBFieldPlugin ACTFWDigitization ACTFWFatras ActsFrameworkGenerators ACTFWMaterialMapping ACTFWFitting)
+        ACTFWBFieldPlugin ACTFWDigitization ACTFWPropagation ACTFWFatras ActsFrameworkGenerators ACTFWMaterialMapping ACTFWFitting)
 
 if(USE_PYTHIA8)
   target_link_libraries(ACTFWExamplesCommon PUBLIC ActsFrameworkPythia8)
