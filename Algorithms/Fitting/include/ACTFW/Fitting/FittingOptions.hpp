@@ -48,9 +48,10 @@ namespace Options {
         "measurement-sigma",
         po::value<read_range>()->multitoken()->default_value({30., 30.}),
         "Gaussian sigma used to smear the truth hit Loc0 [um], Loc1 [um]")(
-        "outlier-chi2-cut",
-        po::value<read_range>()->multitoken()->default_value({10., 5.}),
-        "Chisq cut to determine if measurement is outlier during filtering and "
+        "meas-sig-cut",
+        po::value<read_range>()->multitoken()->default_value({0.01, 0.05}),
+        "p-Value cut to determine if measurement is outlier during filtering "
+        "and "
         "smoothing")("emulate-track", po::value<bool>()->default_value(false))(
         "write-truth-track", po::value<bool>()->default_value(true))(
         "write-emulate-track", po::value<bool>()->default_value(true));
@@ -81,8 +82,8 @@ namespace Options {
     fittingConfig.measurementSigma
         = vm["measurement-sigma"].template as<read_range>();
 
-    fittingConfig.outlierChi2Cut
-        = vm["outlier-chi2-cut"].template as<read_range>();
+    fittingConfig.measurementSignificanceCut
+        = vm["meas-sig-cut"].template as<read_range>();
 
     fittingConfig.emulateTrajectory = vm["emulate-track"].template as<bool>();
     fittingConfig.writeTruthTrajectory

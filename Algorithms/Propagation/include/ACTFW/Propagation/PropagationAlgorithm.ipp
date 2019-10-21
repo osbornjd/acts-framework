@@ -66,7 +66,7 @@ PropagationAlgorithm<propagator_t>::executeTest(
   if (m_cfg.mode == 0) {
 
     // The step length logger for testing & end of world aborter
-    using MaterialInteractor = Acts::MaterialInteractor<Acts::fullUpdate>;
+    using MaterialInteractor = Acts::MaterialInteractor<>;
     using SteppingLogger     = Acts::detail::SteppingLogger;
     using DebugOutput        = Acts::detail::DebugOutputActor;
     using EndOfWorld         = Acts::detail::EndOfWorldReached;
@@ -184,15 +184,15 @@ PropagationAlgorithm<propagator_t>::execute(
           context.geoContext, std::move(cov), std::move(pars), surface);
       sPosition = startParameters.position();
       sMomentum = startParameters.momentum();
-      pOutput   = executeTest<Acts::TrackParameters>(context, startParameters);
+      pOutput   = executeTest<Acts::BoundParameters>(context, startParameters);
     } else {
       // execute the test for neeutral particles
       Acts::NeutralBoundParameters neutralParameters(
           context.geoContext, std::move(cov), std::move(pars), surface);
       sPosition = neutralParameters.position();
       sMomentum = neutralParameters.momentum();
-      pOutput
-          = executeTest<Acts::NeutralParameters>(context, neutralParameters);
+      pOutput   = executeTest<Acts::NeutralBoundParameters>(context,
+                                                          neutralParameters);
     }
     // Record the propagator steps
     propagationSteps.push_back(std::move(pOutput.first));

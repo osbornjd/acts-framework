@@ -79,7 +79,6 @@ setupFittingAlgorithm(bfield_t                                      fieldMap,
   // Config the trajectory emulation tool
   FW::TrajectoryEmulationTool::Config trajEmulationToolConfig
       = FW::Options::readTrajectoryEmulationConfig(vm);
-  trajEmulationToolConfig.randomNumbers = randomNumberSvc;
 
   // Config the fitting algorithm
   typename FittingAlgorithm::Config fittingConfig

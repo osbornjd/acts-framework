@@ -105,7 +105,7 @@ FW::Root::RootVertexAndTracksReader::read(const FW::AlgorithmContext& context)
           // Take only tracks that belong to current vertex
           if ((*m_ptrVtxID)[trkId] == idx) {
             // Get track parameter
-            Acts::TrackParametersBase::ParVector_t newTrackParams;
+            Acts::BoundParameters::ParVector_t newTrackParams;
             newTrackParams << (*m_ptrD0)[trkId], (*m_ptrZ0)[trkId],
                 (*m_ptrPhi)[trkId], (*m_ptrTheta)[trkId], (*m_ptrQP)[trkId],
                 (*m_ptrTime)[trkId];

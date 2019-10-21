@@ -12,6 +12,7 @@
 #include <map>
 #include <string>
 
+#include <Acts/Utilities/Units.hpp>
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
@@ -25,12 +26,12 @@ namespace FW {
 // Tools to emulate outliers and holes on truth trajectory
 class TrajectoryEmulationTool
 {
+public:
   using Identifier            = Data::SimSourceLink;
   using SourceLinks           = std::vector<Data::SimSourceLink>;
   using SourceLinksVector     = std::vector<std::vector<Data::SimSourceLink>>;
   using MultiplicityGenerator = std::function<size_t(RandomEngine&)>;
 
-public:
   /// @brief The nested configuration struct
   struct Config
   {
@@ -40,8 +41,6 @@ public:
         = nullptr;  ///< generator for number of outliers on emulated track
     MultiplicityGenerator holeMultiplicity
         = nullptr;  ///< generator for number of holes on emulated track
-    std::shared_ptr<RandomNumbers> randomNumbers
-        = nullptr;  ///< random number service
   };
 
   /// Constructor
@@ -52,10 +51,12 @@ public:
                           Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// @brief emulate trajectories with outliers given a truth trajectory
+  /// @param rng is the RandomEngine from the algorithm where this tool is used
   /// @param truthSourceLinks is the truth trajectory
   /// @return a vector of emulated trajectory
   SourceLinksVector
   operator()(const AlgorithmContext& ctx,
+             RandomEngine&           rng,
              const SourceLinks&      truthSourceLinks) const;
 
 private:

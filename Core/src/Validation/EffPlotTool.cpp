@@ -65,8 +65,8 @@ FW::EffPlotTool::fill(EffPlotTool::EffPlotCache& effPlotCache,
   for (auto& state : trajectory) {
     if (state.parameter.smoothed) nSmoothed++;
   }
-  ACTS_DEBUG("There are " << trajectory.size() << " states in total and "
-                          << nSmoothed << " of them are processed.");
+  ACTS_VERBOSE("There are " << trajectory.size() << " states in total and "
+                            << nSmoothed << " of them are processed.");
 
   Acts::Vector3D truthMom = truthParticle.momentum();
 

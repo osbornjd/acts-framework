@@ -63,8 +63,9 @@ public:
     std::vector<double> parameterSigma = {10, 10, 0.02, 0.02, 1};
     /// Gaussian sigma used to smear the truth hit
     std::vector<double> measurementSigma = {30, 30};
-    /// Outlier chi2 cut during filtering and smoothing stage;
-    std::vector<double> outlierChi2Cut = {10, 5};
+    /// Measurement significance cut for outlier rejection during filtering and
+    /// smoothing stage;
+    std::vector<double> measurementSignificanceCut = {0.01, 0.05};
     /// TrajectoryEmulationTool config;
     TrajectoryEmulationTool::Config trajectoryEmulationToolConfig;
     /// indicator for hole and outlier emulation;

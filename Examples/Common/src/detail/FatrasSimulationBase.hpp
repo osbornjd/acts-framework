@@ -110,6 +110,18 @@ struct SurfaceSelector
   }
 };
 
+/// The selector
+struct Selector
+{
+  /// call operator
+  template <typename detector_t, typename particle_t>
+  bool
+  operator()(const detector_t, const particle_t&) const
+  {
+    return true;
+  }
+};
+
 /// @brief Simulation setup for the FatrasAlgorithm
 ///
 /// @tparam bfield_t Type of the bfield for the simulation to be set up

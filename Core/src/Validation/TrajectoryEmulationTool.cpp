@@ -26,20 +26,18 @@ FW::TrajectoryEmulationTool::TrajectoryEmulationTool(
     throw std::invalid_argument(
         "No generator for emulated hole multiplicity is configured!");
   }
-  if (!m_cfg.randomNumbers) {
-    throw std::invalid_argument("Missing random numbers service");
-  }
 }
 
 FW::TrajectoryEmulationTool::SourceLinksVector
 FW::TrajectoryEmulationTool::operator()(
     const AlgorithmContext&                         ctx,
+    FW::RandomEngine&                               rng,
     const FW::TrajectoryEmulationTool::SourceLinks& truthSourceLinks) const
 {
-  // Create a random number generator
-  FW::RandomEngine rng = m_cfg.randomNumbers->spawnGenerator(ctx);
+  // Create an equal 'true' and 'false' distribution
+  std::bernoulli_distribution bnlDist(0.5);
 
-  // lambda to create outliers on a trajectory
+  // Lambda to create outliers on a trajectory
   auto createOutlier =
       [&](const FW::TrajectoryEmulationTool::SourceLinks& sLinks,
           const std::vector<int>                          outlierIndexs) {
@@ -72,8 +70,8 @@ FW::TrajectoryEmulationTool::operator()(
             cov2D << resX * resX, 0., 0., resY * resY;
 
             // smear is based on 10*resolution
-            double dx = resX * 10;
-            double dy = resY * 10;
+            double dx = resX * 10 * (bnlDist(rng) ? 1 : -1);
+            double dy = resY * 10 * (bnlDist(rng) ? 1 : -1);
 
             // move a ,LOC_0, LOC_1 measurement
             // make source link with smeared hit
@@ -95,7 +93,7 @@ FW::TrajectoryEmulationTool::operator()(
         return emulatedTraj;
       };
 
-  // lambda to create holes on a trajectory
+  // Lambda to create holes on a trajectory
   auto createHole = [](const FW::TrajectoryEmulationTool::SourceLinks& sLinks,
                        const std::vector<int> holeIndexs) {
     FW::TrajectoryEmulationTool::SourceLinks emulatedTraj = {};
@@ -117,8 +115,10 @@ FW::TrajectoryEmulationTool::operator()(
                                                   truthSourceLinks.size() - 1);
 
   FW::TrajectoryEmulationTool::SourceLinksVector emulatedTrajectories = {};
-  // create trajectories with outliers and holes
-  for (size_t iTraj = m_cfg.trajectoryMultiplicity(rng); 0 < iTraj; --iTraj) {
+  // Create trajectories with outliers and holes
+  size_t numTraj = m_cfg.trajectoryMultiplicity(rng);
+  ACTS_VERBOSE("Attempt to emulate " << numTraj << " trajectories.");
+  for (size_t iTraj = numTraj; 0 < iTraj; --iTraj) {
     // 1) determine number of outliers and holes
     size_t attemptedNumOutliers = m_cfg.outlierMultiplicity(rng);
     size_t numOutliers          = attemptedNumOutliers < truthSourceLinks.size()
@@ -129,6 +129,9 @@ FW::TrajectoryEmulationTool::operator()(
     size_t numHoles
         = attemptedNumHoles < truthSourceLinks.size() ? attemptedNumHoles : 0;
     if (numHoles == 0) continue;
+    ACTS_VERBOSE("Attempt to create " << numOutliers << " outliers and "
+                                      << numHoles
+                                      << " holes on trajectory: " << iTraj);
 
     // 2) determine the locations of the outliers and holes
     // vector to store the index of outliers and holes
@@ -147,5 +150,9 @@ FW::TrajectoryEmulationTool::operator()(
     // 4) push the trajectory
     emulatedTrajectories.push_back(traj);
   }
+  ACTS_VERBOSE(
+      emulatedTrajectories.size()
+      << " trajectories with holes/outliers are emulated successfully.");
+
   return emulatedTrajectories;
 }

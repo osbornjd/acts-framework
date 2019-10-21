@@ -80,7 +80,7 @@ namespace Options {
     }
 
     // and return the config
-    return trajEmulationToolConfig;
+    return std::move(trajEmulationToolConfig);
   }
 
 }  // namespace Options

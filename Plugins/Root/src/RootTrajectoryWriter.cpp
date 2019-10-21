@@ -261,7 +261,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
 
     // find the truth particle via the barcode
     if (particles.find(m_t_barcode) != particles.end()) {
-      ACTS_DEBUG("Find the truth particle with barcode = " << m_t_barcode);
+      ACTS_VERBOSE("Find the truth particle with barcode = " << m_t_barcode);
       auto particle = particles.find(m_t_barcode)->second;
       // get the truth particle info at vertex
       Acts::Vector3D truthPos = particle.position();
@@ -374,7 +374,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       m_chi2 = state.parameter.chi2;
 
       // get the predicted parameter
-      ACTS_DEBUG("Get the predicted parameter.");
+      ACTS_VERBOSE("Get the predicted parameter.");
       bool predicted = false;
       if (state.parameter.predicted) {
         predicted = true;
@@ -480,7 +480,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       }
 
       // get the filtered parameter
-      ACTS_DEBUG("Get the filtered parameter.");
+      ACTS_VERBOSE("Get the filtered parameter.");
       bool filtered = false;
       if (state.parameter.filtered) {
         filtered = true;
@@ -568,7 +568,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       }
 
       // get the smoothed parameter
-      ACTS_DEBUG("Get the smoothed parameter.");
+      ACTS_VERBOSE("Get the smoothed parameter.");
       bool smoothed = false;
       if (state.parameter.smoothed) {
         smoothed = true;

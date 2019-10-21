@@ -25,10 +25,12 @@ FW::FittingAlgorithm<kalman_Fitter_t>::FittingAlgorithm(
         m_cfg.trajectoryEmulationToolConfig, level);
   }
 
-  std::map<Acts::OutlierSearchStage, double> olCriteria
-      = {{Acts::OutlierSearchStage::Filtering, m_cfg.outlierChi2Cut[0]},
-         {Acts::OutlierSearchStage::Smoothing, m_cfg.outlierChi2Cut[1]}};
-  m_outlierFinder = Acts::MinimalOutlierFinder{std::move(olCriteria)};
+  std::map<Acts::OutlierSearchStage, double> measSigCut
+      = {{Acts::OutlierSearchStage::Filtering,
+          m_cfg.measurementSignificanceCut[0]},
+         {Acts::OutlierSearchStage::Smoothing,
+          m_cfg.measurementSignificanceCut[1]}};
+  m_outlierFinder = Acts::MinimalOutlierFinder{std::move(measSigCut)};
 }
 
 template <typename kalman_Fitter_t>
@@ -57,7 +59,7 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
   std::vector<std::vector<TrackState>> fittedTracks;
 
   // Prepare the measurements for KalmanFitter
-  ACTS_DEBUG("Prepare the measurements and then tracks");
+  ACTS_VERBOSE("Prepare the measurements and then tracks");
   std::map<barcode_type, std::vector<Data::SimSourceLink>> sourceLinkMap;
   for (const Data::SimHit& hit : simHits) {
     // get the barcode of the particle associated to the hit
@@ -95,10 +97,11 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
     sourceLinkMap[barcode].push_back(sourceLink);
   }
 
-  ACTS_DEBUG("There are " << sourceLinkMap.size() << " tracks for this event ");
+  ACTS_VERBOSE("There are " << sourceLinkMap.size()
+                            << " tracks for this event ");
 
   // Get the truth particle
-  ACTS_DEBUG("Get truth particle.");
+  ACTS_VERBOSE("Get truth particle.");
   std::map<barcode_type, Data::SimParticle> particles;
   for (auto& vertex : simulatedEvent) {
     for (auto& particle : vertex.outgoing) {
@@ -113,18 +116,18 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
     itrack++;
     auto particle = particles.find(barcode)->second;
 
-    ACTS_DEBUG("Start processing itrack = "
-               << itrack << " with nStates = " << sourceLinks.size()
-               << " and truth particle id = " << barcode);
+    ACTS_VERBOSE("Start processing itrack = "
+                 << itrack << " with nStates = " << sourceLinks.size()
+                 << " and truth particle id = " << barcode);
 
     // get the truth particle info
     Acts::Vector3D pos = particle.position();
     Acts::Vector3D mom = particle.momentum();
     double         q   = particle.q();
-    ACTS_DEBUG("truth position = " << pos[0] << " : " << pos[1] << " : "
-                                   << pos[2]);
-    ACTS_DEBUG("truth momentum = " << mom[0] << " : " << mom[1] << " : "
-                                   << mom[2]);
+    ACTS_VERBOSE("truth position = " << pos[0] << " : " << pos[1] << " : "
+                                     << pos[2]);
+    ACTS_VERBOSE("truth momentum = " << mom[0] << " : " << mom[1] << " : "
+                                     << mom[2]);
 
     // smear the truth particle momentum and position
     Acts::Vector3D dir = mom.normalized();
@@ -183,58 +186,63 @@ FW::FittingAlgorithm<kalman_Fitter_t>::execute(
 
     // perform the fit with KalmanFitter
     auto fittedResult = m_cfg.kFitter.fit(sourceLinks, rStart, kfOptions);
-    ACTS_DEBUG("Finish the fitting.");
+    ACTS_VERBOSE("Finish the fitting.");
 
-    // get the fitted parameters
-    if (fittedResult.fittedParameters) {
-      ACTS_DEBUG("Get the fitted parameters.");
-      auto fittedParameters = fittedResult.fittedParameters.get();
-      auto fittedPos        = fittedParameters.position();
-      auto fittedMom        = fittedParameters.momentum();
-      ACTS_DEBUG("Fitted Position at target = " << fittedPos[0] << " : "
-                                                << fittedPos[1] << " : "
-                                                << fittedPos[2]);
-      ACTS_DEBUG("Fitted Momentum at target = " << fittedMom[0] << " : "
-                                                << fittedMom[1] << " : "
-                                                << fittedMom[2]);
-    } else {
-      ACTS_WARNING("No fittedParameter!");
-    }
-
-    // get the fitted states
-    if (!fittedResult.fittedStates.empty()) {
-      ACTS_DEBUG("Get the fitted states.");
-      if (m_cfg.writeTruthTrajectory) {
-        fittedTracks.push_back(fittedResult.fittedStates);
+    if (fittedResult.ok()) {
+      auto resultValue = fittedResult.value();
+      // get the fitted parameters
+      if (resultValue.fittedParameters) {
+        ACTS_VERBOSE("Get the fitted parameters.");
+        auto fittedParameters = (*fittedResult).fittedParameters.get();
+        auto fittedPos        = fittedParameters.position();
+        auto fittedMom        = fittedParameters.momentum();
+        ACTS_VERBOSE("Fitted Position at target = " << fittedPos[0] << " : "
+                                                    << fittedPos[1] << " : "
+                                                    << fittedPos[2]);
+        ACTS_VERBOSE("Fitted Momentum at target = " << fittedMom[0] << " : "
+                                                    << fittedMom[1] << " : "
+                                                    << fittedMom[2]);
+      } else {
+        ACTS_VERBOSE("No fittedParameter!");
       }
-    } else {
-      ACTS_WARNING("No fittedStates!");
-    }
 
-    // Make sure the fitting is deterministic
-    // auto fittedAgainTrack      = m_cfg.kFitter.fit(measurements, rStart,
-    // rSurface);
-    // ACTS_DEBUG("Finish fitting again");
-    // auto fittedAgainParameters = fittedAgainTrack.fittedParameters.get();
+      // get the fitted states
+      if (!resultValue.fittedStates.empty()) {
+        ACTS_VERBOSE("Get the fitted states.");
+        if (m_cfg.writeTruthTrajectory) {
+          fittedTracks.push_back((*fittedResult).fittedStates);
+        }
+      } else {
+        ACTS_VERBOSE("No fittedStates!");
+      }
+
+    } else {
+      ACTS_VERBOSE("Fitting failed!");
+    }
 
     // Emulate trajectories with holes/outliers and refit
     if (m_trajectoryEmulationTool) {
-      ACTS_DEBUG("Emulate trajectory with holes and outliers based on truth "
-                 "trajectory.");
+      ACTS_VERBOSE(
+          "Emulate trajectories with holes and outliers based on the truth "
+          "trajectory.");
       auto emulatedTrajectories
-          = (*m_trajectoryEmulationTool)(context, sourceLinks);
+          = (*m_trajectoryEmulationTool)(context, generator, sourceLinks);
       for (const auto& elTraj : emulatedTrajectories) {
         // perform the fit with KalmanFitter
         auto elFittedResult = m_cfg.kFitter.fit(elTraj, rStart, kfOptions);
-        if (!elFittedResult.fittedStates.empty()) {
-          if (m_cfg.writeEmulateTrajectory) {
-            fittedTracks.push_back(elFittedResult.fittedStates);
+        if (elFittedResult.ok()) {
+          auto elResultValue = elFittedResult.value();
+          if (!elResultValue.fittedStates.empty()) {
+            if (m_cfg.writeEmulateTrajectory) {
+              fittedTracks.push_back((*elFittedResult).fittedStates);
+            }
           }
         }
       }
+      ACTS_VERBOSE("Finish fitting for the emulated trajectories");
     }
 
-    ACTS_DEBUG("Finish processing the track with particle id = " << barcode);
+    ACTS_VERBOSE("Finish processing the track with particle id = " << barcode);
   }
 
   ACTS_DEBUG("There are " << fittedTracks.size()
