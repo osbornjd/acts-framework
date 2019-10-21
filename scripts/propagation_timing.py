@@ -78,6 +78,6 @@ ax.set_ylabel('time/steps [a.u.]')
 ax.set_xlim((-10,150))
 
 
-plt.suptitle("Stepper comparison: Realstic Field")
+plt.suptitle("Stepper comparison: Constant Field")
 
 plt.show()

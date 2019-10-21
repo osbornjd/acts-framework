@@ -11,14 +11,14 @@ set(_common_libraries
 
 
 # Generic detector
-add_executable(ACTFWEmptyDetectorPropagationExample src/EmptyDetectorPropagationExample.cpp)
-target_include_directories(ACTFWEmptyDetectorPropagationExample PRIVATE
+add_executable(ACTFWEmptyPropagationExample src/EmptyDetectorPropagationExample.cpp)
+target_include_directories(ACTFWEmptyPropagationExample PRIVATE
   ${Boost_INCLUDE_DIRS})
-target_link_libraries(ACTFWEmptyDetectorPropagationExample PRIVATE
+target_link_libraries(ACTFWEmptyPropagationExample PRIVATE
   ${_common_libraries}
   ACTFWEmptyDetector)
 install(
-  TARGETS ACTFWEmptyDetectorPropagationExample
+  TARGETS ACTFWEmptyPropagationExample
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Generic detector
