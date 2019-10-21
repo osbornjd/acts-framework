@@ -182,7 +182,7 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
     surface.globalToLocal(ctx.geoContext, pos, mom, local);
 
     // TODO what to use as cluster uncertainty?
-    Acts::ActsSymMatrixD<2> cov = Acts::ActsSymMatrixD<2>::Identity();
+    Acts::ActsSymMatrixD<3> cov = Acts::ActsSymMatrixD<3>::Identity();
 
     // create the planar cluster
     Acts::PlanarModuleCluster cluster(
@@ -191,6 +191,7 @@ FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
         std::move(cov),
         local[0],
         local[1],
+        0,  // time
         std::move(digitizationCells));
     FW::Data::insert(clusters,
                      static_cast<geo_id_value>(hit.volume_id),

@@ -152,8 +152,8 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
               size_t binSerialized = binUtility.serialize({{bin0, bin1, 0}});
 
               // the covariance is currently set to 0.
-              Acts::ActsSymMatrixD<2> cov;
-              cov << 0.05, 0., 0.05, 0.;
+              Acts::ActsSymMatrixD<3> cov;
+              cov.diagonal() << 0.05, 0.05, 0.;
 
               // create the geometry based Idnetifier
               Acts::GeometryID geoID(0);
@@ -169,6 +169,7 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
                   std::move(cov),
                   localX,
                   localY,
+                  0,
                   std::move(usedCells));
 
               // insert into the cluster map
