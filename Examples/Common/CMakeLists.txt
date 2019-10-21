@@ -4,15 +4,16 @@ set(src_files
         src/GeometryExampleBase.cpp 
         src/MaterialMappingBase.cpp 
         src/MaterialValidationBase.cpp 
-        src/PropagationExampleBase.cpp 
+        src/PropagationExampleBase.cpp )
+
+# append Fatras example is Pythia8 is avaialbe
+if(USE_PYTHIA8)
+  list(APPEND src_files 
+        src/FatrasExampleBase.cpp
         src/FatrasDigitizationBase.cpp
         src/FatrasSimulationBase.cpp
         src/FatrasEvgenBase.cpp
         src/FittingBase.cpp)
-
-# append Fatras example is Pythia8 is avaialbe
-if(USE_PYTHIA8)
-  list(APPEND src_files src/FatrasExampleBase.cpp)
 endif()
 
 add_library(ACTFWExamplesCommon SHARED ${src_files})
