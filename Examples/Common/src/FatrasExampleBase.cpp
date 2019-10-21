@@ -86,7 +86,8 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   setupDigitization(vm, sequencer, barcodeSvc, randomNumberSvc);
 
   // (D) TRUTH TRACKING
-  setupFitting(vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
+  setupFitting<po::variables_map>(
+      vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
 
   // (E) PATTERN RECOGNITION
 
