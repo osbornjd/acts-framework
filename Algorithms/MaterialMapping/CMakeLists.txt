@@ -6,10 +6,10 @@ endif()
 
 add_library(ACTFWMaterialMapping SHARED ${src_files})
 target_include_directories(ACTFWMaterialMapping PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> $<INSTALL_INTERFACE:include>)
-target_link_libraries(ACTFWMaterialMapping PUBLIC ActsCore)
-target_link_libraries(ACTFWMaterialMapping PUBLIC ACTFramework)
+target_link_libraries(ACTFWMaterialMapping PRIVATE ActsCore)
+target_link_libraries(ACTFWMaterialMapping PRIVATE ACTFramework)
 if(USE_DD4HEP AND USE_GEANT4)
-  target_link_libraries(ACTFWMaterialMapping PUBLIC ACTFWGeant4Plugin ACTFWDD4hepG4Plugin)
+  target_link_libraries(ACTFWMaterialMapping PRIVATE ACTFWGeant4Plugin ACTFWDD4hepG4Plugin)
 endif()
 
 install(TARGETS ACTFWMaterialMapping LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

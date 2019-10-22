@@ -13,6 +13,6 @@ target_include_directories(
          ${HEPMC_INCLUDE_DIR})
 target_link_libraries(
   ACTFWPluginHepMC3
-  PUBLIC ActsCore ACTFramework ${HEPMC_LIBRARIES} HepPID)
+  PRIVATE ActsCore ACTFramework ${HEPMC_LIBRARIES} HepPID)
 
 install(TARGETS ACTFWPluginHepMC3 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
