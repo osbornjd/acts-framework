@@ -50,19 +50,6 @@ setupDigitization(vmap_t&                            vm,
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
 
-  // Write digitsation output as OBJ files
-  //  if (vm["output-obj"].template as<bool>()) {
-  //    // space points as obj
-  //    FW::Obj::ObjSpacePointWriter<Acts::Vector3D>::Config spWriterObjConfig;
-  //    spWriterObjConfig.collection = digiConfig.spacePointCollection;
-  //    spWriterObjConfig.outputDir  = outputDir;
-  //    auto spWriterObj
-  //        = std::make_shared<FW::Obj::ObjSpacePointWriter<Acts::Vector3D>>(
-  //            spWriterObjConfig);
-  //    // Add to the sequencer
-  //    sequencer.addWriter(spWriterObj);
-  //  }
-
   // Write digitsation output as Csv files
   if (vm["output-csv"].template as<bool>()) {
     // clusters as root
@@ -75,7 +62,7 @@ setupDigitization(vmap_t&                            vm,
     sequencer.addWriter(clusteWriterCsv);
   }
 
-  // Write digitsation output as OBJ files
+  // Write digitsation output as ROOT files
   if (vm["output-root"].template as<bool>()) {
     // clusters as root
     FW::Root::RootPlanarClusterWriter::Config clusterWriterRootConfig;
