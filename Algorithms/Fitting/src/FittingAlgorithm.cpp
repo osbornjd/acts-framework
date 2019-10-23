@@ -135,7 +135,8 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& context) const
   }
 
   // Start to perform fit to the prepared tracks
-  int itrack = 0;
+  int                               itrack = 0;
+  Acts::MultiTrajectory<Identifier> mj;
   for (auto& [barcode, sourceLinks] : sourceLinkMap) {
     if (!barcode) continue;
     itrack++;
@@ -210,7 +211,8 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& context) const
     // perform the fit with KalmanFitter
     // auto fittedResult = m_cfg.kFitter.fit(sourceLinks, rStart, kfOptions);
     ACTS_DEBUG("Invoke fitter");
-    auto fittedResult = m_cfg.fitFunction(sourceLinks, rStart, kfOptions);
+    mj.reset();
+    auto fittedResult = m_cfg.fitFunction(sourceLinks, rStart, kfOptions, mj);
     ACTS_DEBUG("Finish the fitting.");
 
     // get the fitted parameters
@@ -232,7 +234,7 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& context) const
     if (fittedResult.processedStates != 0) {
       ACTS_DEBUG("Get the fitted states.");
       fittedTracks.push_back(
-          std::make_pair(fittedResult.trackTip, fittedResult.fittedStates));
+          std::make_pair(fittedResult.trackTip, *fittedResult.fittedStates));
     }
 
     // Make sure the fitting is deterministic

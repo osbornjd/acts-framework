@@ -85,9 +85,10 @@ setupFitting(boost::program_options::variables_map&        vm,
             = [kFitter](
                   std::vector<FW::FittingAlgorithm::Identifier>& sourceLinks,
                   const FW::FittingAlgorithm::StartParameters&   sParameters,
-                  const Acts::KalmanFitterOptions&               kfOptions)
+                  const Acts::KalmanFitterOptions&               kfOptions,
+                  Acts::MultiTrajectory<FW::FittingAlgorithm::Identifier>& mj)
             -> FW::FittingAlgorithm::ResultType {
-          return kFitter->fit(sourceLinks, sParameters, kfOptions);
+          return kFitter->fit(sourceLinks, sParameters, kfOptions, mj);
         };
       },
       bFieldVar);

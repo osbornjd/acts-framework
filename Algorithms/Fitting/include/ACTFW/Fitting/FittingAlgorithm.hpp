@@ -49,7 +49,8 @@ public:
     /// Type erased fit function
     std::function<ResultType(std::vector<Identifier>&,
                              const StartParameters&,
-                             const Acts::KalmanFitterOptions&)>
+                             const Acts::KalmanFitterOptions&,
+                             Acts::MultiTrajectory<Identifier>&)>
         fitFunction;
 
     /// FW random number service
