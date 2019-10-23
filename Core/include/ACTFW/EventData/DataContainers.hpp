@@ -108,6 +108,12 @@ selectVolume(const GeometryIdMultiset<T>& container, geo_id_value volumne)
       detail::getLastId(first, Acts::GeometryID::volume_mask));
   return makeRange(container.lower_bound(first), container.upper_bound(last));
 }
+template <typename T>
+inline auto
+selectVolume(const GeometryIdMultiset<T>& container, Acts::GeometryID id)
+{
+  return selectVolume(container, id.value(Acts::GeometryID::volume_mask));
+}
 
 /// Select all elements within the given layer.
 template <typename T>
@@ -120,6 +126,14 @@ selectLayer(const GeometryIdMultiset<T>& container,
   first.add(layer, Acts::GeometryID::layer_mask);
   Acts::GeometryID last(detail::getLastId(first, Acts::GeometryID::layer_mask));
   return makeRange(container.lower_bound(first), container.upper_bound(last));
+}
+template <typename T>
+inline auto
+selectLayer(const GeometryIdMultiset<T>& container, Acts::GeometryID id)
+{
+  return selectLayer(container,
+                     id.value(Acts::GeometryID::volume_mask),
+                     id.value(Acts::GeometryID::layer_mask));
 }
 
 /// Select all elements for the given module / sensitive surface.
@@ -135,6 +149,15 @@ selectModule(const GeometryIdMultiset<T>& container,
   geoId.add(layer, Acts::GeometryID::layer_mask);
   geoId.add(module, Acts::GeometryID::sensitive_mask);
   return makeRange(container.equal_range(geoId));
+}
+template <typename T>
+inline auto
+selectModule(const GeometryIdMultiset<T>& container, Acts::GeometryID id)
+{
+  return selectModule(container,
+                      id.value(Acts::GeometryID::volume_mask),
+                      id.value(Acts::GeometryID::layer_mask),
+                      id.value(Acts::GeometryID::sensitive_mask));
 }
 
 /// Store elements that are identified by an index, e.g. in another container.
