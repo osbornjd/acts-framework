@@ -31,9 +31,7 @@ FW::Root::RootMaterialWriter::RootMaterialWriter(
   }
 }
 
-FW::Root::RootMaterialWriter::~RootMaterialWriter()
-{
-}
+FW::Root::RootMaterialWriter::~RootMaterialWriter() {}
 
 void
 FW::Root::RootMaterialWriter::write(
@@ -44,10 +42,10 @@ FW::Root::RootMaterialWriter::write(
   if (!m_outputFile) {
     throw std::ios_base::failure("Could not open '" + m_cfg.fileName);
   }
-  
+
   // Change to the output file
   m_outputFile->cd();
-  
+
   auto& surfaceMaps = detMaterial.first;
   for (auto& [key, value] : surfaceMaps) {
 
@@ -211,7 +209,7 @@ FW::Root::RootMaterialWriter::write(
     Z->Write();
     rho->Write();
   }
-  
+
   m_outputFile->Close();
 }
 
