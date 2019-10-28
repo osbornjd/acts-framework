@@ -29,27 +29,25 @@ FW::Root::RootMaterialWriter::RootMaterialWriter(
   } else if (m_cfg.name.empty()) {
     throw std::invalid_argument("Missing service name");
   }
-
-  // Setup ROOT I/O
-  m_outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
-  if (!m_outputFile) {
-    throw std::ios_base::failure("Could not open '" + m_cfg.fileName);
-  }
 }
 
 FW::Root::RootMaterialWriter::~RootMaterialWriter()
 {
-  m_outputFile->Close();
 }
 
 void
 FW::Root::RootMaterialWriter::write(
     const Acts::DetectorMaterialMaps& detMaterial)
 {
-
+  // Setup ROOT I/O
+  m_outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
+  if (!m_outputFile) {
+    throw std::ios_base::failure("Could not open '" + m_cfg.fileName);
+  }
+  
   // Change to the output file
   m_outputFile->cd();
-
+  
   auto& surfaceMaps = detMaterial.first;
   for (auto& [key, value] : surfaceMaps) {
 
@@ -213,6 +211,8 @@ FW::Root::RootMaterialWriter::write(
     Z->Write();
     rho->Write();
   }
+  
+  m_outputFile->Close();
 }
 
 void
@@ -231,7 +231,6 @@ FW::Root::RootMaterialWriter::collectMaterial(
     const Acts::TrackingVolume& tVolume,
     Acts::DetectorMaterialMaps& detMatMap)
 {
-
   // If the volume has volume material, write that
   if (tVolume.volumeMaterialSharedPtr() != nullptr and m_cfg.processVolumes) {
     detMatMap.second[tVolume.geoID()] = tVolume.volumeMaterialSharedPtr();
