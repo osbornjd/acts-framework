@@ -213,9 +213,6 @@ FW::Root::RootVertexAndTracksWriter::writeT(
 
       // Save track covariance
       Acts::BoundSymMatrix cov = *track.covariance();
-      // std::vector<double>  vec(36);
-      // Eigen::Map<Acts::BoundSymMatrix>(vec.data(), cov.rows(), cov.cols())
-      //    = cov;
 
       m_cov11.push_back(cov(0, 0));
       m_cov12.push_back(cov(0, 1));
