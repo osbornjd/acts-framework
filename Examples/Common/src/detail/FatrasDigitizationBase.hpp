@@ -50,7 +50,7 @@ setupDigitization(vmap_t&                            vm,
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
 
-  // Write digitsation output as Csv files
+  // Write digitisation output as Csv files
   if (vm["output-csv"].template as<bool>()) {
     // clusters as root
     FW::Csv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
