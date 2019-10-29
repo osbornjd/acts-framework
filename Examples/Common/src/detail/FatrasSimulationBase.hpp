@@ -51,7 +51,7 @@ struct SimHitCreator
   /// @param surface is the Surface where the hit is created
   /// @param position is the global hit position
   /// @param direction is the momentum direction at hit position
-  /// @param value the simulated value
+  /// @param value is the simulated value
   /// @param time is the timeStamp
   /// @param particle is the particle for the truth link
   FW::Data::SimHit
