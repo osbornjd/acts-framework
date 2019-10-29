@@ -53,7 +53,7 @@ struct SimHitCreator
   /// @param direction is the momentum direction at hit position
   /// @param value the simulated value
   /// @param time is the timeStamp
-  /// @param particle the particle for the truth link
+  /// @param particle is the particle for the truth link
   FW::Data::SimHit
   operator()(const Acts::Surface&         surface,
              const Acts::Vector3D&        position,
