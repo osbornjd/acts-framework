@@ -52,7 +52,7 @@ that executes a set of services, readers, processing algorithms, and writers for
 each event. The available algorithms differ in their purpose and consequently
 in the interface they provide:
 
-*   A service is intended to provide slowly changing of constant information,
+*   A service is intended to provide slowly changing or constant information,
     e.g. geometry and alignment, for each event. A service implements the
     `IService` interface  with the `startRun` and `prepare` methods.
     Computationally expensive initialization should be executed in the
