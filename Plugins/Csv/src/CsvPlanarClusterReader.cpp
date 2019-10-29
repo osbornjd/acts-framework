@@ -155,7 +155,7 @@ readHitsByGeoId(const std::string& inputDir, size_t event)
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 {
-  // hid_id in the files is not required to be either continous or
+  // hit_id in the files is not required to be neither continuous nor
   // monotonic. internally, we want continous indices within [0,#hits)
   // to simplify data handling. to be able to perform this mapping we first
   // read all data into memory before converting to the internal representation.
