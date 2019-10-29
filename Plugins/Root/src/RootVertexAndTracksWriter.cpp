@@ -56,7 +56,48 @@ FW::Root::RootVertexAndTracksWriter::RootVertexAndTracksWriter(
     m_outputTree->Branch("qp", &m_ptrQP);
     m_outputTree->Branch("time", &m_ptrTime);
     m_outputTree->Branch("vtxID", &m_ptrVtxID);
-    m_outputTree->Branch("trkCov", &m_ptrTrkCov);
+
+    m_outputTree->Branch("trkCov11", &m_ptrCov11);
+    m_outputTree->Branch("trkCov12", &m_ptrCov12);
+    m_outputTree->Branch("trkCov13", &m_ptrCov13);
+    m_outputTree->Branch("trkCov14", &m_ptrCov14);
+    m_outputTree->Branch("trkCov15", &m_ptrCov15);
+    m_outputTree->Branch("trkCov16", &m_ptrCov16);
+
+    m_outputTree->Branch("trkCov21", &m_ptrCov21);
+    m_outputTree->Branch("trkCov22", &m_ptrCov22);
+    m_outputTree->Branch("trkCov23", &m_ptrCov23);
+    m_outputTree->Branch("trkCov24", &m_ptrCov24);
+    m_outputTree->Branch("trkCov25", &m_ptrCov25);
+    m_outputTree->Branch("trkCov26", &m_ptrCov26);
+
+    m_outputTree->Branch("trkCov31", &m_ptrCov31);
+    m_outputTree->Branch("trkCov32", &m_ptrCov32);
+    m_outputTree->Branch("trkCov33", &m_ptrCov33);
+    m_outputTree->Branch("trkCov34", &m_ptrCov34);
+    m_outputTree->Branch("trkCov35", &m_ptrCov35);
+    m_outputTree->Branch("trkCov36", &m_ptrCov36);
+
+    m_outputTree->Branch("trkCov41", &m_ptrCov41);
+    m_outputTree->Branch("trkCov42", &m_ptrCov42);
+    m_outputTree->Branch("trkCov43", &m_ptrCov43);
+    m_outputTree->Branch("trkCov44", &m_ptrCov44);
+    m_outputTree->Branch("trkCov45", &m_ptrCov45);
+    m_outputTree->Branch("trkCov46", &m_ptrCov46);
+
+    m_outputTree->Branch("trkCov51", &m_ptrCov51);
+    m_outputTree->Branch("trkCov52", &m_ptrCov52);
+    m_outputTree->Branch("trkCov53", &m_ptrCov53);
+    m_outputTree->Branch("trkCov54", &m_ptrCov54);
+    m_outputTree->Branch("trkCov55", &m_ptrCov55);
+    m_outputTree->Branch("trkCov56", &m_ptrCov56);
+
+    m_outputTree->Branch("trkCov61", &m_ptrCov61);
+    m_outputTree->Branch("trkCov62", &m_ptrCov62);
+    m_outputTree->Branch("trkCov63", &m_ptrCov63);
+    m_outputTree->Branch("trkCov64", &m_ptrCov64);
+    m_outputTree->Branch("trkCov65", &m_ptrCov65);
+    m_outputTree->Branch("trkCov66", &m_ptrCov66);
   }
 }
 
@@ -90,7 +131,48 @@ FW::Root::RootVertexAndTracksWriter::ClearAll()
   m_qp.clear();
   m_time.clear();
   m_vtxID.clear();
-  m_trkCov.clear();
+
+  m_cov11.clear();
+  m_cov12.clear();
+  m_cov13.clear();
+  m_cov14.clear();
+  m_cov15.clear();
+  m_cov16.clear();
+
+  m_cov21.clear();
+  m_cov22.clear();
+  m_cov23.clear();
+  m_cov24.clear();
+  m_cov25.clear();
+  m_cov26.clear();
+
+  m_cov31.clear();
+  m_cov32.clear();
+  m_cov33.clear();
+  m_cov34.clear();
+  m_cov35.clear();
+  m_cov36.clear();
+
+  m_cov41.clear();
+  m_cov42.clear();
+  m_cov43.clear();
+  m_cov44.clear();
+  m_cov45.clear();
+  m_cov46.clear();
+
+  m_cov51.clear();
+  m_cov52.clear();
+  m_cov53.clear();
+  m_cov54.clear();
+  m_cov55.clear();
+  m_cov56.clear();
+
+  m_cov61.clear();
+  m_cov62.clear();
+  m_cov63.clear();
+  m_cov64.clear();
+  m_cov65.clear();
+  m_cov66.clear();
 }
 
 FW::ProcessCode
@@ -131,11 +213,51 @@ FW::Root::RootVertexAndTracksWriter::writeT(
 
       // Save track covariance
       Acts::BoundSymMatrix cov = *track.covariance();
-      std::vector<double>  vec(36);
-      Eigen::Map<Acts::BoundSymMatrix>(vec.data(), cov.rows(), cov.cols())
-          = cov;
+      // std::vector<double>  vec(36);
+      // Eigen::Map<Acts::BoundSymMatrix>(vec.data(), cov.rows(), cov.cols())
+      //    = cov;
 
-      m_trkCov.push_back(vec);
+      m_cov11.push_back(cov(0, 0));
+      m_cov12.push_back(cov(0, 1));
+      m_cov13.push_back(cov(0, 2));
+      m_cov14.push_back(cov(0, 3));
+      m_cov15.push_back(cov(0, 4));
+      m_cov16.push_back(cov(0, 5));
+
+      m_cov21.push_back(cov(1, 0));
+      m_cov22.push_back(cov(1, 1));
+      m_cov23.push_back(cov(1, 2));
+      m_cov24.push_back(cov(1, 3));
+      m_cov25.push_back(cov(1, 4));
+      m_cov26.push_back(cov(1, 5));
+
+      m_cov31.push_back(cov(2, 0));
+      m_cov32.push_back(cov(2, 1));
+      m_cov33.push_back(cov(2, 2));
+      m_cov34.push_back(cov(2, 3));
+      m_cov35.push_back(cov(2, 4));
+      m_cov36.push_back(cov(2, 5));
+
+      m_cov41.push_back(cov(3, 0));
+      m_cov42.push_back(cov(3, 1));
+      m_cov43.push_back(cov(3, 2));
+      m_cov44.push_back(cov(3, 3));
+      m_cov45.push_back(cov(3, 4));
+      m_cov46.push_back(cov(3, 5));
+
+      m_cov51.push_back(cov(4, 0));
+      m_cov52.push_back(cov(4, 1));
+      m_cov53.push_back(cov(4, 2));
+      m_cov54.push_back(cov(4, 3));
+      m_cov55.push_back(cov(4, 4));
+      m_cov56.push_back(cov(4, 5));
+
+      m_cov61.push_back(cov(5, 0));
+      m_cov62.push_back(cov(5, 1));
+      m_cov63.push_back(cov(5, 2));
+      m_cov64.push_back(cov(5, 3));
+      m_cov65.push_back(cov(5, 4));
+      m_cov66.push_back(cov(5, 5));
     }
   }
 
