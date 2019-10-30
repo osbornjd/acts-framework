@@ -17,7 +17,7 @@
 
 FW::Root::RootMaterialWriter::RootMaterialWriter(
     const FW::Root::RootMaterialWriter::Config& cfg)
-  : m_cfg(cfg), m_outputFile(nullptr)
+  : m_cfg(cfg)
 {
   // Validate the configuration
   if (m_cfg.folderNameBase.empty()) {
@@ -31,20 +31,18 @@ FW::Root::RootMaterialWriter::RootMaterialWriter(
   }
 }
 
-FW::Root::RootMaterialWriter::~RootMaterialWriter() {}
-
 void
 FW::Root::RootMaterialWriter::write(
     const Acts::DetectorMaterialMaps& detMaterial)
 {
   // Setup ROOT I/O
-  m_outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
-  if (!m_outputFile) {
+  TFile* outputFile = TFile::Open(m_cfg.fileName.c_str(), "recreate");
+  if (!outputFile) {
     throw std::ios_base::failure("Could not open '" + m_cfg.fileName);
   }
 
   // Change to the output file
-  m_outputFile->cd();
+  outputFile->cd();
 
   auto& surfaceMaps = detMaterial.first;
   for (auto& [key, value] : surfaceMaps) {
@@ -66,8 +64,8 @@ FW::Root::RootMaterialWriter::write(
     tdName += m_cfg.apptag + std::to_string(gappID);
     tdName += m_cfg.sentag + std::to_string(gsenID);
     // create a new directory
-    m_outputFile->mkdir(tdName.c_str());
-    m_outputFile->cd(tdName.c_str());
+    outputFile->mkdir(tdName.c_str());
+    outputFile->cd(tdName.c_str());
 
     ACTS_VERBOSE("Writing out map at " << tdName);
 
@@ -210,7 +208,7 @@ FW::Root::RootMaterialWriter::write(
     rho->Write();
   }
 
-  m_outputFile->Close();
+  outputFile->Close();
 }
 
 void
