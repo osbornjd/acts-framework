@@ -26,13 +26,11 @@ namespace Obj {
   ///     event000000001-spacepoints.obj
   ///     event000000002-spacepoints.obj
   ///
-  /// One Thread per write call and hence thread safe
+  /// One write call per thread and hence thread safe.
   template <typename T>
-  class ObjSpacePointWriter : public WriterT<DetectorData<geo_id_value, T>>
+  class ObjSpacePointWriter : public WriterT<GeometryIdMultimap<T>>
   {
   public:
-    using Base = WriterT<DetectorData<geo_id_value, T>>;
-
     struct Config
     {
       std::string collection;             ///< which collection to write
@@ -46,18 +44,14 @@ namespace Obj {
 
   protected:
     ProcessCode
-    writeT(const AlgorithmContext&              context,
-           const DetectorData<geo_id_value, T>& spacePoints);
+    writeT(const AlgorithmContext&      context,
+           const GeometryIdMultimap<T>& spacePoints);
 
   private:
-    Config m_cfg;
+    // since class iitself is templated, base class template must be fixed
+    using Base = WriterT<GeometryIdMultimap<T>>;
 
-    // required for C++ to find `logger()` with the default look-up
-    const Acts::Logger&
-    logger() const
-    {
-      return Base::logger();
-    }
+    Config m_cfg;
   };
 
 }  // namespace Obj
@@ -77,8 +71,8 @@ inline FW::Obj::ObjSpacePointWriter<T>::ObjSpacePointWriter(
 template <typename T>
 inline FW::ProcessCode
 FW::Obj::ObjSpacePointWriter<T>::writeT(
-    const FW::AlgorithmContext&              context,
-    const FW::DetectorData<geo_id_value, T>& spacePoints)
+    const FW::AlgorithmContext&      context,
+    const FW::GeometryIdMultimap<T>& spacePoints)
 {
   // open per-event file
   std::string path = FW::perEventFilepath(

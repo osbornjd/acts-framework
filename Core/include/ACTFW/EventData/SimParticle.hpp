@@ -8,143 +8,102 @@
 
 #pragma once
 
+#include <cfloat>
 #include <cmath>
-#include <vector>
 
-#include <boost/container/flat_set.hpp>
-
-#include <Acts/Geometry/GeometryID.hpp>
-#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Definitions.hpp>
-#include <Acts/Utilities/Helpers.hpp>
-#include <Acts/Utilities/Units.hpp>
+#include <boost/container/flat_set.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
 
 namespace FW {
 
-/// Typedef the pdg code
-typedef int pdg_type;
+/// A type that stores PDG particle type ids.
+using pdg_type = int;
 
 namespace Data {
 
-  /// @brief Particle information struct for physics process samplers:
-  /// - all quatities are calculated at first construction as they may
-  ///   be used by downstream samplers
-  ///
-  /// @note if a sampler changes one of the parameters, consistency
-  /// can be broken, so it should update the rest (no checking done)
+  /// Particle state information for simulations.
   class SimParticle
   {
-
   public:
-    /// @brief Default Constructor
-    SimParticle() = default;
-
-    /// @brief Construct a particle consistently
-    ///
+    SimParticle()                   = default;
+    SimParticle(const SimParticle&) = default;
     /// @param position The particle position at construction
     /// @param momentum The particle momentum at construction
-    /// @param m The particle mass
-    /// @param q The partilce charge
-    /// @param barcode The particle barcode
-    /// @param tStamp is the current time stamp
+    /// @param mass     The particle mass
+    /// @param charge   The particle charge
+    /// @param pdg      The particle type/ PDG id
+    /// @param barcode  The particle barcode/ identifier
+    /// @param time     The particle time
     SimParticle(const Acts::Vector3D& position,
                 const Acts::Vector3D& momentum,
-                double                m,
-                double                q,
+                double                mass,
+                double                charge,
                 pdg_type              pdg     = 0,
                 barcode_type          barcode = 0,
-                double                tStamp  = 0.)
+                double                time    = 0.)
       : m_position(position)
+      , m_time(time)
       , m_momentum(momentum)
-      , m_m(m)
-      , m_q(q)
-      , m_p(momentum.norm())
-      , m_pT(Acts::VectorHelpers::perp(momentum))
+      , m_mass(mass)
+      , m_charge(charge)
       , m_pdg(pdg)
       , m_barcode(barcode)
-      , m_timeStamp(tStamp)
     {
-      m_E     = std::sqrt(m_p * m_p + m_m * m_m);
-      m_beta  = (m_p / m_E);
-      m_gamma = (m_E / m_m);
     }
 
-    /// Default
-    SimParticle(const SimParticle& sp) = default;
-
-    /// @brief Set the limits
+    /// Set limits for livelihood checks.
     ///
-    /// @param x0Limit the limit in X0 to be passed
-    /// @param l0Limit the limit in L0 to be passed
-    /// @param timeLimit the readout time limit to be passed
+    /// @param x0Limit   The limit in X0 to be passed
+    /// @param l0Limit   The limit in L0 to be passed
+    /// @param timeLimit The readout time limit to be passed
     void
-    setLimits(double x0Limit,
-              double l0Limit,
-              double timeLimit = std::numeric_limits<double>::max())
+    setLimits(double x0Limit, double l0Limit, double timeLimit = DBL_MAX)
     {
       m_limitInX0 = x0Limit;
       m_limitInL0 = l0Limit;
-      m_timeLimit = timeLimit;
+      m_limitTime = timeLimit;
     }
 
-    /// @brief Place the particle int he detector and set barcode
-    ///
-    /// @param deltaE is the energy loss to be applied
+    /// Place the particle at the given position and reset its identifier.
     void
-    place(Acts::Vector3D position, barcode_type barcode, double timeStamp = 0.)
+    place(Acts::Vector3D position, barcode_type barcode, double time = 0.)
     {
-      m_position  = std::move(position);
-      m_barcode   = barcode;
-      m_timeStamp = timeStamp;
+      m_position = position;
+      m_time     = time;
+      m_barcode  = barcode;
     }
-
-    /// @brief Update the particle with applying energy loss
-    ///
-    /// @param deltaE is the energy loss to be applied
+    /// Update the particle momentum to the given value.
     void
-    scatter(Acts::Vector3D nmomentum)
+    scatter(Acts::Vector3D momentum)
     {
-      m_momentum = std::move(nmomentum);
-      m_pT       = Acts::VectorHelpers::perp(m_momentum);
+      m_momentum = momentum;
     }
-
-    /// @brief Update the particle with applying energy loss
-    ///
-    /// @param deltaE is the energy loss to be applied
+    /// Reduce the particle energy by the given amount.
     void
     energyLoss(double deltaE)
     {
-      // particle falls to rest
-      if (m_E - deltaE < m_m) {
-        m_E        = m_m;
-        m_p        = 0.;
-        m_pT       = 0.;
-        m_beta     = 0.;
-        m_gamma    = 1.;
+      auto reducedE = E() - deltaE;
+      if (m_mass < reducedE) {
+        // particle is not at rest after update
+        // E² = p² + m² -> p² = E² - m² -> p = sqrt(E² - m²)
+        auto reducedP = std::sqrt(reducedE * reducedE - m_mass * m_mass);
+        m_momentum.normalize();
+        m_momentum *= reducedP;
+      } else {
+        // particle falls to rest
         m_momentum = Acts::Vector3D(0., 0., 0.);
-        m_alive    = false;
       }
-      // updatet the parameters
-      m_E -= deltaE;
-      m_p        = std::sqrt(m_E * m_E - m_m * m_m);
-      m_momentum = m_p * m_momentum.normalized();
-      m_pT       = Acts::VectorHelpers::perp(m_momentum);
-      m_beta     = (m_p / m_E);
-      m_gamma    = (m_E / m_m);
     }
-
-    /// @brief Update the particle with a new position and momentum,
-    /// this corresponds to a step update
+    /// Update the particle to a new position and momentum.
     ///
-    /// @param position New position after update
-    /// @param momentum New momentum after update
-    /// @param deltaPathX0 passed since last step
-    /// @param deltaPathL0 passed since last step
-    /// @param deltaTime The time elapsed
-    ///
-    /// @return break condition
+    /// @param position    New position after update
+    /// @param momentum    New momentum after update
+    /// @param deltaPathX0 Passed since last step
+    /// @param deltaPathL0 Passed since last step
+    /// @param deltaTime   The time elapsed
+    /// @returns true if the particle is not alive anymore after the update
     bool
     update(const Acts::Vector3D& position,
            const Acts::Vector3D& momentum,
@@ -153,194 +112,162 @@ namespace Data {
            double                deltaTime   = 0.)
     {
       m_position = position;
+      m_time += deltaTime;
       m_momentum = momentum;
-      m_p        = momentum.norm();
-      if (m_p) {
-        m_pT = Acts::VectorHelpers::perp(momentum);
-        m_E  = std::sqrt(m_p * m_p + m_m * m_m);
-        m_timeStamp += deltaTime;
-        m_beta  = (m_p / m_E);
-        m_gamma = (m_E / m_m);
-
-        // set parameters and check limits
-        m_pathInX0 += deltaPathX0;
-        m_pathInL0 += deltaPathL0;
-        m_timeStamp += deltaTime;
-        if (m_pathInX0 >= m_limitInX0 || m_pathInL0 >= m_limitInL0
-            || m_timeStamp > m_timeLimit) {
-          m_alive = false;
-        }
-      }
-      return !m_alive;
+      m_pathInX0 += deltaPathX0;
+      m_pathInL0 += deltaPathL0;
+      return !(*this);
     }
 
-    /// @bref boost the particle
-    // void boost(){
-    //
-    // }
-
-    /// @brief Access methods: position
     const Acts::Vector3D&
     position() const
     {
       return m_position;
     }
+    double
+    time() const
+    {
+      return m_time;
+    }
 
-    /// @brief Access methods: momentum
+    /// Particle momentum vector.
     const Acts::Vector3D&
     momentum() const
     {
       return m_momentum;
     }
-
-    /// @brief Access methods: p
-    const double
+    /// Absolute particle momentum.
+    double
     p() const
     {
-      return m_p;
+      return m_momentum.norm();
     }
-
-    /// @brief Access methods: pT
-    const double
+    /// Absolute transverse particle momentum.
+    double
     pT() const
     {
-      return m_pT;
+      return std::hypot(m_momentum[Acts::eX], m_momentum[Acts::eY]);
     }
-
-    /// @brief Access methods: E
-    const double
+    /// Particle energy.
+    double
     E() const
     {
-      return m_E;
+      return std::hypot(p(), m_mass);
     }
-
-    /// @brief Access methods: m
-    const double
+    /// Particle mass.
+    double
     m() const
     {
-      return m_m;
+      return m_mass;
     }
-
-    /// @brief Access methods: beta
-    const double
+    /// Particle relativistic velocity.
+    double
     beta() const
     {
-      return m_beta;
+      return 1.0 / std::hypot(1.0, m_mass / p());
     }
-
-    /// @brief Access methods: gamma
-    const double
+    /// Particle gamma factor.
+    double
     gamma() const
     {
-      return m_gamma;
+      return std::hypot(1.0, p() / m_mass);
     }
 
-    /// @brief Access methods: charge
-    const double
+    /// Particle charge.
+    double
     q() const
     {
-      return m_q;
+      return m_charge;
     }
 
-    /// @brief Access methods: pdg code
-    const pdg_type
+    /// Particle type/ PDG id.
+    pdg_type
     pdg() const
     {
       return m_pdg;
     }
-
-    /// @brief Access methods: barcode
-    const barcode_type
+    /// Particle identifier/ barcode.
+    barcode_type
     barcode() const
     {
       return m_barcode;
     }
 
-    /// @brief Access methods: path/X0
-    const double
+    /// How many radiation lengths of material has this particle passed.
+    double
     pathInX0() const
     {
       return m_pathInX0;
     }
-
-    /// @brief Access methods: limit/X0
-    const double
-    limitInX0() const
-    {
-      return m_limitInX0;
-    }
-
-    /// @brief Access methods: pdg code
-    const double
+    /// How much propagated path length has this particle accumulated.
+    double
     pathInL0() const
     {
       return m_limitInX0;
     }
-
-    /// @brief Access methods: barcode
+    /// Limit on passed radiation lengths to consider particle alive.
+    double
+    limitInX0() const
+    {
+      return m_limitInX0;
+    }
+    /// Limit on propagated path length to consider particle alive.
     const double
     limitInL0() const
     {
       return m_limitInL0;
     }
-
-    /// @brief boolean operator indicating the particle to be alive
-    operator bool() { return m_alive; }
+    /// Whether the particle is alive, i.e. non-zero momentum and within limits.
+    operator bool()
+    {
+      return (0 < p()) and (m_time < m_limitTime) and (m_pathInX0 < m_limitInX0)
+          and (m_pathInL0 < m_limitInL0);
+    }
 
   private:
+    /// TODO replace by combined 4d position
     Acts::Vector3D m_position = Acts::Vector3D(0., 0., 0.);  //!< kinematic info
+    double         m_time     = 0.;  //!< passed time elapsed
     Acts::Vector3D m_momentum = Acts::Vector3D(0., 0., 0.);  //!< kinematic info
-
-    double       m_m       = 0.;  //!< particle mass
-    double       m_E       = 0.;  //!< total energy
-    double       m_q       = 0.;  //!< the charge
-    double       m_beta    = 0.;  //!< relativistic beta factor
-    double       m_gamma   = 1.;  //!< relativistic gamma factor
-    double       m_p       = 0.;  //!< momentum magnitude
-    double       m_pT      = 0.;  //!< transverse momentum magnitude
-    pdg_type     m_pdg     = 0;   //!< pdg code of the particle
-    barcode_type m_barcode = 0;   //!< barcode of the particle
-
-    double m_pathInX0 = 0.;  //!< passed path in X0
-    double m_limitInX0
-        = std::numeric_limits<double>::max();  //!< path limit in X0
-
-    double m_pathInL0 = 0.;  //!< passed path in L0
-    double m_limitInL0
-        = std::numeric_limits<double>::max();  //!< path limit in X0
-
-    double m_timeStamp = 0.;  //!< passed time elapsed
-    double m_timeLimit = std::numeric_limits<double>::max();  // time limit
-
-    bool m_alive = true;  //!< the particle is alive
+    double         m_mass     = 0.;                          //!< particle mass
+    double         m_charge   = 0.;                          //!< the charge
+    pdg_type       m_pdg      = 0;         //!< pdg code of the particle
+    barcode_type   m_barcode  = 0;         //!< barcode of the particle
+    double         m_pathInX0 = 0.;        //!< passed path in X0
+    double         m_pathInL0 = 0.;        //!< passed path in L0
+    double         m_limitTime = DBL_MAX;  //!< time limit
+    double         m_limitInX0 = DBL_MAX;  //!< path limit in X0
+    double         m_limitInL0 = DBL_MAX;  //!< path limit in X0
   };
 
-  namespace detail {
-    struct SimParticleBarcodeCompare
+}  // namespace Data
+
+namespace detail {
+  struct CompareSimParticleBarcode
+  {
+    using is_transparent = void;
+    bool
+    operator()(const Data::SimParticle& left,
+               const Data::SimParticle& right) const
     {
-      using is_transparent = void;
-      bool
-      operator()(const SimParticle& left, const SimParticle& right) const
-      {
-        return left.barcode() < right.barcode();
-      }
-      bool
-      operator()(barcode_type left, const SimParticle& right) const
-      {
-        return left < right.barcode();
-      }
-      bool
-      operator()(const SimParticle& left, barcode_type right) const
-      {
-        return left.barcode() < right;
-      }
-    };
-  }  // namespace detail
+      return left.barcode() < right.barcode();
+    }
+    bool
+    operator()(barcode_type left, const Data::SimParticle& right) const
+    {
+      return left < right.barcode();
+    }
+    bool
+    operator()(const Data::SimParticle& left, barcode_type right) const
+    {
+      return left.barcode() < right;
+    }
+  };
+}  // namespace detail
 
-  /// A container of particles that can be accessed by particle id/ barcode.
-  using SimParticles
-      = boost::container::flat_set<SimParticle,
-                                   detail::SimParticleBarcodeCompare>;
+/// A container of particles that can be accessed by particle id/ barcode.
+using SimParticles
+    = boost::container::flat_set<Data::SimParticle,
+                                 detail::CompareSimParticleBarcode>;
 
-}  // end of namespace Data
 }  // end of namespace FW

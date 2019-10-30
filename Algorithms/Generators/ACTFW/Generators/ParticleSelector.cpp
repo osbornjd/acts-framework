@@ -30,12 +30,11 @@ FW::ParticleSelector::ParticleSelector(const Config&        cfg,
 FW::ProcessCode
 FW::ParticleSelector::execute(const FW::AlgorithmContext& ctx) const
 {
-  std::vector<Data::SimVertex<Data::SimParticle>> selected;
+  std::vector<Data::SimVertex> selected;
 
   // get input particles
   const auto& input
-      = ctx.eventStore.get<std::vector<Data::SimVertex<Data::SimParticle>>>(
-          m_cfg.input);
+      = ctx.eventStore.get<std::vector<Data::SimVertex>>(m_cfg.input);
 
   auto within = [](double x, double min, double max) {
     return (min <= x) and (x < max);
@@ -60,29 +59,28 @@ FW::ParticleSelector::execute(const FW::AlgorithmContext& ctx) const
 
   for (const auto& vertex : input) {
 
-    allParticles += vertex.in.size();
-    allParticles += vertex.out.size();
+    allParticles += vertex.incoming.size();
+    allParticles += vertex.outgoing.size();
 
-    Data::SimVertex<Data::SimParticle> sel;
+    Data::SimVertex sel;
     sel.position    = vertex.position;
-    sel.timeStamp   = vertex.timeStamp;
+    sel.time        = vertex.time;
     sel.processCode = vertex.processCode;
 
     // copy selected particles over
-    std::copy_if(vertex.in.begin(),
-                 vertex.in.end(),
-                 std::back_inserter(sel.in),
+    std::copy_if(vertex.incoming.begin(),
+                 vertex.incoming.end(),
+                 std::back_inserter(sel.incoming),
                  isValidParticle);
-    std::copy_if(vertex.out.begin(),
-                 vertex.out.end(),
-                 std::back_inserter(sel.out),
+    std::copy_if(vertex.outgoing.begin(),
+                 vertex.outgoing.end(),
+                 std::back_inserter(sel.outgoing),
                  isValidParticle);
 
     // only retain vertex if it still contains particles
-    if (not sel.in.empty() or not sel.out.empty()) {
-      selParticles += sel.in.size();
-      selParticles += sel.out.size();
-
+    if (not sel.incoming.empty() or not sel.outgoing.empty()) {
+      selParticles += sel.incoming.size();
+      selParticles += sel.outgoing.size();
       selected.push_back(std::move(sel));
     }
   }

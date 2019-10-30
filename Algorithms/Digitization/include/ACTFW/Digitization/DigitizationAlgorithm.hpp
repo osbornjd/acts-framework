@@ -44,13 +44,11 @@ public:
   struct Config
   {
     /// input hit collection
-    std::string simulatedHitCollection = "";
-    /// output space point collection
-    std::string spacePointCollection   = "";
+    std::string simulatedHitCollection;
     /// output clusters collection
-    std::string clusterCollection      = "";
+    std::string clusterCollection;
     /// input resolution file, needed for gaussian smearing
-    std::string resolutionFile         = "";
+    std::string resolutionFile;
     /// FW random number service
     std::shared_ptr<RandomNumbers> randomNumberSvc = nullptr;
     /// module stepper from ACTS core for geometric clustering

@@ -19,7 +19,7 @@
 FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
     const FW::Root::RootPropagationStepsWriter::Config& cfg,
     Acts::Logging::Level                                level)
-  : Base(cfg.collection, "RootPropagationStepsWriter", level)
+  : WriterT(cfg.collection, "RootPropagationStepsWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {

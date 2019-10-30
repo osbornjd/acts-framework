@@ -23,7 +23,7 @@ using Acts::VectorHelpers::phi;
 FW::Root::RootParticleWriter::RootParticleWriter(
     const FW::Root::RootParticleWriter::Config& cfg,
     Acts::Logging::Level                        level)
-  : ParticleWriter(cfg.collection, "RootParticleWriter", level)
+  : WriterT(cfg.collection, "RootParticleWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
@@ -88,8 +88,8 @@ FW::Root::RootParticleWriter::endRun()
 
 FW::ProcessCode
 FW::Root::RootParticleWriter::writeT(
-    const AlgorithmContext&               context,
-    const std::vector<Data::SimVertex<>>& vertices)
+    const AlgorithmContext&             context,
+    const std::vector<Data::SimVertex>& vertices)
 {
 
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
@@ -102,7 +102,7 @@ FW::Root::RootParticleWriter::writeT(
 
   // loop over the process vertices
   for (auto& vertex : vertices) {
-    for (auto& particle : vertex.outgoing()) {
+    for (auto& particle : vertex.outgoing) {
       /// collect the information
       m_vx      = particle.position().x();
       m_vy      = particle.position().y();

@@ -50,7 +50,6 @@ namespace Root {
   class RootTrajectoryWriter final : public WriterT<TrajectoryVector>
   {
   public:
-    using Base = WriterT<TrajectoryVector>;
     /// @brief The nested configuration struct
     struct Config
     {

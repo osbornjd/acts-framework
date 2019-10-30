@@ -43,12 +43,14 @@ namespace Csv {
     {
       /// Tracking geometry required to access global-to-local transforms.
       std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
-      /// Where to write the cluster collection.
-      std::string outputClusters;
-      /// Where to write the cluster-particle mapping collection.
-      std::string outputHitParticleMap;
       /// Where to read input files from.
       std::string inputDir;
+      /// Output cluster collection.
+      std::string outputClusters;
+      /// Output hit-particles mapping collection.
+      std::string outputHitParticlesMap;
+      /// For each cluster/ hit index the original hit id stored on file.
+      std::string outputHitIds;
     };
 
     CsvPlanarClusterReader(const Config&        cfg,

@@ -35,9 +35,6 @@ namespace Root {
     : public WriterT<std::vector<PropagationSteps>>
   {
   public:
-    using Base = WriterT<std::vector<PropagationSteps>>;
-
-    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection

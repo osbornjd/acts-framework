@@ -48,7 +48,7 @@ FW::EventGenerator::availableEvents() const
 FW::ProcessCode
 FW::EventGenerator::read(const AlgorithmContext& ctx)
 {
-  std::vector<Data::SimVertex<Data::SimParticle>> event;
+  std::vector<Data::SimVertex> event;
 
   auto   rng             = m_cfg.randomNumbers->spawnGenerator(ctx);
   size_t iGenerator      = 0;
@@ -71,7 +71,7 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
         Acts::Vector3D vertexPosition = vertex.head<3>();
         double         vertexTime     = vertex[3];
         secondaryVertex.position += vertexPosition;
-        secondaryVertex.timeStamp += vertexTime;
+        secondaryVertex.time += vertexTime;
 
         auto updateParticleInPlace = [&](Data::SimParticle& particle) {
           // generate new barcode and retain some existing information
@@ -80,18 +80,17 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
           auto processCode = m_cfg.barcodeSvc->process(particle.barcode());
           auto barcode     = m_cfg.barcodeSvc->generate(
               iPrimary, iParticle, generation, iSecondary, processCode);
-
-          Acts::Vector3D position = particle.position() + vertexPosition;
-
-          // TODO particle does not export timestamp?
-          particle.place(position, barcode, vertexTime);
+          // extend particle position with vertex information
+          Acts::Vector3D particlePos  = vertexPosition + particle.position();
+          double         particleTime = vertexTime + particle.time();
+          particle.place(particlePos, barcode, particleTime);
         };
 
-        for (auto& particle : secondaryVertex.in) {
+        for (auto& particle : secondaryVertex.incoming) {
           updateParticleInPlace(particle);
           iParticle += 1;
         }
-        for (auto& particle : secondaryVertex.out) {
+        for (auto& particle : secondaryVertex.outgoing) {
           updateParticleInPlace(particle);
           iParticle += 1;
         }

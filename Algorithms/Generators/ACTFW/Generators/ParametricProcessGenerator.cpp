@@ -16,7 +16,7 @@ FW::ParametricProcessGenerator::ParametricProcessGenerator(
 {
 }
 
-std::vector<FW::Data::SimVertex<FW::Data::SimParticle>>
+std::vector<FW::Data::SimVertex>
 FW::ParametricProcessGenerator::operator()(FW::RandomEngine& rng) const
 {
   using Uniform = std::uniform_real_distribution<double>;
@@ -31,7 +31,7 @@ FW::ParametricProcessGenerator::operator()(FW::RandomEngine& rng) const
   };
 
   // create empty process vertex
-  Data::SimVertex<Data::SimParticle> process({0.0, 0.0, 0.0});
+  Data::SimVertex process({0.0, 0.0, 0.0});
 
   for (size_t ip = 0; ip < m_cfg.numParticles; ip++) {
     auto d0    = d0Dist(rng);
@@ -44,11 +44,11 @@ FW::ParametricProcessGenerator::operator()(FW::RandomEngine& rng) const
     Acts::Vector3D position(d0 * std::sin(phi), d0 * -std::cos(phi), z0);
     Acts::Vector3D momentum(
         pt * std::cos(phi), pt * std::sin(phi), pt * std::sinh(eta));
-    process.out.emplace_back(position,
-                             momentum,
-                             m_cfg.mass,
-                             qsign * m_cfg.charge,
-                             qsign * m_cfg.pdg);
+    process.outgoing.emplace_back(position,
+                                  momentum,
+                                  m_cfg.mass,
+                                  qsign * m_cfg.charge,
+                                  qsign * m_cfg.pdg);
   }
   return {process};
 }

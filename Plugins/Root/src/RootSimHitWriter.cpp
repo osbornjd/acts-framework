@@ -7,8 +7,11 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
+
 #include <ios>
 #include <stdexcept>
+
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
@@ -19,7 +22,7 @@
 FW::Root::RootSimHitWriter::RootSimHitWriter(
     const FW::Root::RootSimHitWriter::Config& cfg,
     Acts::Logging::Level                      level)
-  : Base(cfg.collection, "RootSimHitWriter", level)
+  : WriterT(cfg.collection, "RootSimHitWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
@@ -74,10 +77,8 @@ FW::Root::RootSimHitWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootSimHitWriter::writeT(
-    const AlgorithmContext& context,
-    const FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>&
-        fhits)
+FW::Root::RootSimHitWriter::writeT(const AlgorithmContext& context,
+                                   const FW::SimHits&      hits)
 {
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
@@ -86,26 +87,20 @@ FW::Root::RootSimHitWriter::writeT(
   m_eventNr = context.eventNumber;
 
   // Loop over the planar fatras hits in this event
-  for (auto& volumeData : fhits) {
-    for (auto& layerData : volumeData.second) {
-      for (auto& moduleData : layerData.second) {
-        for (auto& hit : moduleData.second) {
-          // Volume / layer and surface identification
-          m_volumeID  = volumeData.first;
-          m_layerID   = layerData.first;
-          m_surfaceID = moduleData.first;
-          m_x         = hit.position.x();
-          m_y         = hit.position.y();
-          m_z         = hit.position.z();
-          m_dx        = hit.direction.x();
-          m_dy        = hit.direction.y();
-          m_dz        = hit.direction.z();
-          m_value     = hit.value;
-          // Fill the tree
-          m_outputTree->Fill();
-        }
-      }
-    }
+  for (const auto& hit : hits) {
+    // extract geometry identification
+    m_volumeID  = hit.geoId().value(Acts::GeometryID::volume_mask);
+    m_layerID   = hit.geoId().value(Acts::GeometryID::layer_mask);
+    m_surfaceID = hit.geoId().value(Acts::GeometryID::sensitive_mask);
+    m_x         = hit.position.x();
+    m_y         = hit.position.y();
+    m_z         = hit.position.z();
+    m_dx        = hit.direction.x();
+    m_dy        = hit.direction.y();
+    m_dz        = hit.direction.z();
+    m_value     = hit.value;
+    // Fill the tree
+    m_outputTree->Fill();
   }
   return FW::ProcessCode::SUCCESS;
 }

@@ -23,7 +23,7 @@ using Acts::VectorHelpers::phi;
 FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
     const FW::Root::RootMaterialTrackWriter::Config& cfg,
     Acts::Logging::Level                             level)
-  : Base(cfg.collection, "RootMaterialTrackWriter", level)
+  : WriterT(cfg.collection, "RootMaterialTrackWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {

@@ -51,8 +51,6 @@ namespace Options {
   {
     // create a config
     DigitizationAlgorithm::Config digiConfig;
-    digiConfig.spacePointCollection
-        = vm["digi-spacepoints"].template as<std::string>();
     digiConfig.clusterCollection
         = vm["digi-clusters"].template as<std::string>();
     digiConfig.resolutionFile

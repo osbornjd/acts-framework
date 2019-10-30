@@ -20,10 +20,6 @@ class TTree;
 
 namespace FW {
 namespace Root {
-
-  using SimVertex      = Data::SimVertex<Data::SimParticle>;
-  using ParticleWriter = WriterT<std::vector<Data::SimVertex<>>>;
-
   /// Write out a particles associated to process vertices into a TTree
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
@@ -35,10 +31,9 @@ namespace Root {
   /// this is done by setting the Config::rootFile pointer to an existing file
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
-  class RootParticleWriter final : public ParticleWriter
+  class RootParticleWriter final : public WriterT<std::vector<Data::SimVertex>>
   {
   public:
-    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection;              ///< particle collection to write
@@ -70,8 +65,8 @@ namespace Root {
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
-    writeT(const AlgorithmContext&       context,
-           const std::vector<SimVertex>& vertices) final override;
+    writeT(const AlgorithmContext&             context,
+           const std::vector<Data::SimVertex>& vertices) final override;
 
   private:
     Config     m_cfg;         ///< The config class

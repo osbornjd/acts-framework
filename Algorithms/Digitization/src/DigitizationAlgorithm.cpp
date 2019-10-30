@@ -35,13 +35,14 @@ FW::DigitizationAlgorithm::DigitizationAlgorithm(
 {
   if (m_cfg.simulatedHitCollection.empty()) {
     throw std::invalid_argument("Missing input hits collection");
-  } else if (m_cfg.spacePointCollection.empty()) {
-    throw std::invalid_argument("Missing output space points collection");
-  } else if (m_cfg.clusterCollection.empty()) {
+  }
+  if (m_cfg.clusterCollection.empty()) {
     throw std::invalid_argument("Missing output clusters collection");
-  } else if (!m_cfg.randomNumberSvc) {
+  }
+  if (!m_cfg.randomNumberSvc) {
     throw std::invalid_argument("Missing random numbers service");
-  } else if (!m_cfg.planarModuleStepper) {
+  }
+  if (!m_cfg.planarModuleStepper) {
     throw std::invalid_argument("Missing planar module stepper");
   }
 }
@@ -50,145 +51,101 @@ FW::ProcessCode
 FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
 {
   // Read the input data collection from the event store
-  const auto& simHits = context.eventStore.get<
-      typename FW::DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>(
-      m_cfg.simulatedHitCollection);
-
-  ACTS_DEBUG("Retrieved hit data '" << m_cfg.simulatedHitCollection
-                                    << "' from event store.");
+  const auto& simHits
+      = context.eventStore.get<SimHits>(m_cfg.simulatedHitCollection);
 
   // Prepare the output data: Clusters
-  FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster> planarClusters;
-
-  // Prepare the second output data : Truth SpacePoints (for debugging)
-  FW::DetectorData<geo_id_value, Acts::Vector3D> spacePoints;
+  FW::GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
 
   // now digitise
-  for (auto& vData : simHits) {
-    auto volumeKey = vData.first;
-    ACTS_VERBOSE("- Processing Volume Data collection for volume with ID "
-                 << volumeKey);
-    for (auto& lData : vData.second) {
-      auto layerKey = lData.first;
-      ACTS_VERBOSE("-- Processing Layer Data collection for layer with ID "
-                   << layerKey);
-      for (auto& sData : lData.second) {
-        auto moduleKey = sData.first;
-        ACTS_VERBOSE("-- Processing Module Data collection for module with ID "
-                     << moduleKey);
-        ACTS_VERBOSE("-- Recieved " << sData.second.size()
-                                    << " input data objects.");
-        // get the hit parameters
-        for (auto& hit : sData.second) {
-          // get the surface
-          const Acts::Surface& hitSurface = (*hit.surface);
-          // get the associated particle from the hit
-          const Data::SimParticle*              hitParticle = &hit.particle;
-          std::vector<const Data::SimParticle*> hitParticles{hitParticle};
-          // get the DetectorElement
-          auto hitDetElement
-              = dynamic_cast<const Acts::IdentifiedDetectorElement*>(
-                  hitSurface.associatedDetectorElement());
-          if (hitDetElement) {
-            // get the digitization module
-            auto hitDigitizationModule = hitDetElement->digitizationModule();
-            if (hitDigitizationModule) {
-              // get the lorentz angle
-              double lorentzAngle = hitDigitizationModule->lorentzAngle();
-              double thickness    = hitDetElement->thickness();
-              double lorentzShift = thickness * tan(lorentzAngle);
-              lorentzShift *= -(hitDigitizationModule->readoutDirection());
-              // parameters
-              auto invTransfrom
-                  = hitSurface.transform(context.geoContext).inverse();
-              // local intersection / direction
-              Acts::Vector3D localIntersect3D(invTransfrom * hit.position);
-              Acts::Vector2D localIntersection(localIntersect3D.x(),
-                                               localIntersect3D.y());
-              Acts::Vector3D localDirection(invTransfrom.linear()
-                                            * hit.direction.normalized());
-              // now calculate the steps through the silicon
-              std::vector<Acts::DigitizationStep> dSteps
-                  = m_cfg.planarModuleStepper->cellSteps(context.geoContext,
-                                                         *hitDigitizationModule,
-                                                         localIntersection,
-                                                         localDirection);
-              // everything under threshold or edge effects
-              if (!dSteps.size()) {
-                ACTS_VERBOSE("No steps returned from stepper.");
-                continue;
-              }
-              /// let' create a cluster - centroid method
-              double localX    = 0.;
-              double localY    = 0.;
-              double totalPath = 0.;
-              // the cells to be used
-              std::vector<Acts::DigitizationCell> usedCells;
-              usedCells.reserve(dSteps.size());
-              // loop over the steps
-              for (auto dStep : dSteps) {
-                // @todo implement smearing
-                localX += dStep.stepLength * dStep.stepCellCenter.x();
-                localY += dStep.stepLength * dStep.stepCellCenter.y();
-                totalPath += dStep.stepLength;
-                usedCells.push_back(
-                    Acts::DigitizationCell(dStep.stepCell.channel0,
-                                           dStep.stepCell.channel1,
-                                           dStep.stepLength));
-              }
-              // divide by the total path
-              localX /= totalPath;
-              localX += lorentzShift;
-              localY /= totalPath;
+  for (const auto& hit : simHits) {
+    const Acts::Surface&                  hitSurface  = *hit.surface;
+    const Data::SimParticle*              hitParticle = &hit.particle;
+    std::vector<const Data::SimParticle*> hitParticles{hitParticle};
+    // get the DetectorElement
+    auto hitDetElement = dynamic_cast<const Acts::IdentifiedDetectorElement*>(
+        hitSurface.associatedDetectorElement());
+    if (hitDetElement) {
+      // get the digitization module
+      auto hitDigitizationModule = hitDetElement->digitizationModule();
+      if (hitDigitizationModule) {
+        // get the lorentz angle
+        double lorentzAngle = hitDigitizationModule->lorentzAngle();
+        double thickness    = hitDetElement->thickness();
+        double lorentzShift = thickness * tan(lorentzAngle);
+        lorentzShift *= -(hitDigitizationModule->readoutDirection());
+        // parameters
+        auto invTransfrom = hitSurface.transform(context.geoContext).inverse();
+        // local intersection / direction
+        Acts::Vector3D localIntersect3D(invTransfrom * hit.position);
+        Acts::Vector2D localIntersection(localIntersect3D.x(),
+                                         localIntersect3D.y());
+        Acts::Vector3D localDirection(invTransfrom.linear()
+                                      * hit.direction.normalized());
+        // now calculate the steps through the silicon
+        std::vector<Acts::DigitizationStep> dSteps
+            = m_cfg.planarModuleStepper->cellSteps(context.geoContext,
+                                                   *hitDigitizationModule,
+                                                   localIntersection,
+                                                   localDirection);
+        // everything under threshold or edge effects
+        if (!dSteps.size()) {
+          ACTS_VERBOSE("No steps returned from stepper.");
+          continue;
+        }
+        /// let' create a cluster - centroid method
+        double localX    = 0.;
+        double localY    = 0.;
+        double totalPath = 0.;
+        // the cells to be used
+        std::vector<Acts::DigitizationCell> usedCells;
+        usedCells.reserve(dSteps.size());
+        // loop over the steps
+        for (auto dStep : dSteps) {
+          // @todo implement smearing
+          localX += dStep.stepLength * dStep.stepCellCenter.x();
+          localY += dStep.stepLength * dStep.stepCellCenter.y();
+          totalPath += dStep.stepLength;
+          usedCells.push_back(Acts::DigitizationCell(dStep.stepCell.channel0,
+                                                     dStep.stepCell.channel1,
+                                                     dStep.stepLength));
+        }
+        // divide by the total path
+        localX /= totalPath;
+        localX += lorentzShift;
+        localY /= totalPath;
 
-              // get the segmentation & find the corresponding cell id
-              const Acts::Segmentation& segmentation
-                  = hitDigitizationModule->segmentation();
-              auto           binUtility = segmentation.binUtility();
-              Acts::Vector2D localPosition(localX, localY);
-              // @todo remove unneccesary conversion
-              size_t bin0          = binUtility.bin(localPosition, 0);
-              size_t bin1          = binUtility.bin(localPosition, 1);
-              size_t binSerialized = binUtility.serialize({{bin0, bin1, 0}});
+        // get the segmentation & find the corresponding cell id
+        const Acts::Segmentation& segmentation
+            = hitDigitizationModule->segmentation();
+        auto           binUtility = segmentation.binUtility();
+        Acts::Vector2D localPosition(localX, localY);
+        // @todo remove unneccesary conversion
+        size_t bin0          = binUtility.bin(localPosition, 0);
+        size_t bin1          = binUtility.bin(localPosition, 1);
+        size_t binSerialized = binUtility.serialize({{bin0, bin1, 0}});
 
-              // the covariance is currently set to 0.
-              Acts::ActsSymMatrixD<2> cov;
-              cov << 0.05, 0., 0.05, 0.;
+        // TODO covariance contains only dummy values
+        Acts::ActsSymMatrixD<2> cov;
+        cov << 0.05, 0., 0.05, 0.;
 
-              // create the geometry based Idnetifier
-              Acts::GeometryID geoID(0);
-              geoID.add(volumeKey, Acts::GeometryID::volume_mask);
-              geoID.add(layerKey, Acts::GeometryID::layer_mask);
-              geoID.add(moduleKey, Acts::GeometryID::sensitive_mask);
+        // build the cluster
+        Acts::PlanarModuleCluster cluster(
+            hitSurface.getSharedPtr(),
+            Identifier(Identifier::identifier_type(hit.geoId().value()),
+                       hitParticles),
+            std::move(cov),
+            localX,
+            localY,
+            std::move(usedCells));
 
-              // create the planar cluster
-              Acts::PlanarModuleCluster pCluster(
-                  hitSurface.getSharedPtr(),
-                  Identifier(Identifier::identifier_type(geoID.value()),
-                             hitParticles),
-                  std::move(cov),
-                  localX,
-                  localY,
-                  std::move(usedCells));
-
-              // insert into the cluster map
-              FW::Data::insert(planarClusters,
-                               volumeKey,
-                               layerKey,
-                               moduleKey,
-                               std::move(pCluster));
-
-            }  // hit moulde proection
-          }    // hit element protection
-        }      // hit loop
-      }        // moudle loop
-    }          // layer loop
-  }            // volume loop
-
-  // write the SpacePoints to the EventStore
-  context.eventStore.add(m_cfg.spacePointCollection, std::move(spacePoints));
+        // insert into the cluster container. since the input data is already
+        // sorted by geoId, we should always be able to add at the end.
+        clusters.emplace_hint(clusters.end(), hit.geoId(), std::move(cluster));
+      }
+    }
+  }
   // write the clusters to the EventStore
-  context.eventStore.add(m_cfg.clusterCollection, std::move(planarClusters));
-
+  context.eventStore.add(m_cfg.clusterCollection, std::move(clusters));
   return FW::ProcessCode::SUCCESS;
 }

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <iterator>
 #include <utility>
 
 namespace FW {
@@ -51,6 +52,11 @@ public:
   empty() const
   {
     return m_begin == m_end;
+  }
+  std::size_t
+  size() const
+  {
+    return std::distance(m_begin, m_end);
   }
 
 private:

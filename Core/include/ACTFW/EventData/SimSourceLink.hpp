@@ -8,40 +8,40 @@
 
 #pragma once
 
+#include <stdexcept>
+#include <string>
+
+#include <Acts/EventData/Measurement.hpp>
+#include <Acts/EventData/MeasurementHelpers.hpp>
+#include <Acts/EventData/SourceLinkConcept.hpp>
+
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
-#include "Acts/EventData/Measurement.hpp"
-#include "Acts/EventData/MeasurementHelpers.hpp"
-#include "Acts/EventData/SourceLinkConcept.hpp"
-
-#include <optional>
-#include <vector>
 
 namespace FW {
-
 namespace Data {
 
   /// Source link class for simulation in the acts-framework
   class SimSourceLink
   {
-
   public:
-    /// Default constructor
-    SimSourceLink() : m_truthHit(nullptr), m_dim(0) {}
-
-    /// Constructor with arguments
-    /// @param truthHit the pointer to the simulated hit
-    /// @param dim the dimension of the simulated hit
-    /// @param values result of the simulation intersection
-    SimSourceLink(const SimHit<SimParticle>* truthHit,
-                  size_t                     dim,
-                  Acts::BoundVector          values,
-                  Acts::BoundMatrix          cov)
+    // must be default_constructible to satisfy SourceLinkConcept
+    SimSourceLink() = default;
+    SimSourceLink(const SimHit*     truthHit,
+                  size_t            dim,
+                  Acts::BoundVector values,
+                  Acts::BoundMatrix cov)
       : m_truthHit(truthHit), m_dim(dim), m_values(values), m_cov(cov)
     {
     }
-
-    SimSourceLink(const SimSourceLink& other) = default;
+    SimSourceLink(SimSourceLink&&)      = default;
+    SimSourceLink(const SimSourceLink&) = default;
+    SimSourceLink&
+    operator=(SimSourceLink&&)
+        = default;
+    SimSourceLink&
+    operator=(const SimSourceLink&)
+        = default;
 
     bool
     operator==(const SimSourceLink& rhs) const
@@ -49,7 +49,7 @@ namespace Data {
       return m_truthHit == rhs.m_truthHit;
     }
 
-    const SimHit<SimParticle>&
+    const SimHit&
     truthHit() const
     {
       return *m_truthHit;
@@ -63,12 +63,9 @@ namespace Data {
 
     Acts::FittableMeasurement<SimSourceLink> operator*() const
     {
-
       if (m_dim == 0) {
         throw std::runtime_error("Cannot create dim 0 measurement");
-      }
-
-      if (m_dim == 1) {
+      } else if (m_dim == 1) {
         return Acts::Measurement<SimSourceLink, Acts::ParDef::eLOC_0>{
             m_truthHit->surface->getSharedPtr(),
             *this,
@@ -90,10 +87,10 @@ namespace Data {
     }
 
   private:
-    const SimHit<SimParticle>* m_truthHit{nullptr};
-    size_t                     m_dim{0};
-    Acts::BoundVector          m_values{};
-    Acts::BoundMatrix          m_cov{};
+    const SimHit*     m_truthHit = nullptr;
+    size_t            m_dim      = 0u;
+    Acts::BoundVector m_values;
+    Acts::BoundMatrix m_cov;
   };
 
   static_assert(Acts::SourceLinkConcept<SimSourceLink>,

@@ -21,7 +21,7 @@ using Acts::VectorHelpers::theta;
 FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
     const FW::Root::RootTrajectoryWriter::Config& cfg,
     Acts::Logging::Level                          level)
-  : Base(cfg.trackCollection, "RootTrajectoryWriter", level)
+  : WriterT(cfg.trackCollection, "RootTrajectoryWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
@@ -211,23 +211,16 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
 
   // Read truth particles from input collection
-  const std::vector<Data::SimVertex<>>* simulatedEvent = nullptr;
-  simulatedEvent = &ctx.eventStore.get<std::vector<Data::SimVertex<>>>(
+  const auto& simulatedEvent = ctx.eventStore.get<std::vector<Data::SimVertex>>(
       m_cfg.simulatedEventCollection);
-  if (!simulatedEvent) {
-    throw std::ios_base::failure("Retrieve truth particle collection "
-                                 + m_cfg.simulatedEventCollection
-                                 + " failure!");
-  }
-
   ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
-                                 << simulatedEvent->size() << " vertices");
+                                 << simulatedEvent.size() << " vertices");
 
   // Get the map of truth particle
   ACTS_DEBUG("Get the truth particles.");
   std::map<barcode_type, Data::SimParticle> particles;
-  for (auto& vertex : *simulatedEvent) {
-    for (auto& particle : vertex.outgoing()) {
+  for (auto& vertex : simulatedEvent) {
+    for (auto& particle : vertex.outgoing) {
       particles.insert(std::make_pair(particle.barcode(), particle));
     }
   }
@@ -308,11 +301,8 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
       auto truthHit = (*state.measurement.uncalibrated).truthHit();
       // get local truth position
       Acts::Vector2D truthlocal;
-      (truthHit.surface)
-          ->globalToLocal(ctx.geoContext,
-                          truthHit.position,
-                          truthHit.direction,
-                          truthlocal);
+      truthHit.surface->globalToLocal(
+          ctx.geoContext, truthHit.position, truthHit.direction, truthlocal);
 
       // push the truth hit info
       m_t_x.push_back(truthHit.position.x());

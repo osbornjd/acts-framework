@@ -64,15 +64,12 @@ namespace Options {
   ///
   ///@tparam omap_t Type of the options map
   ///@param vm the options map to be read out
-  template <typename AMAP,
-            typename simulator_t,
-            typename event_collection_t,
-            typename hit_t>
-  typename FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::Config
+  template <typename AMAP, typename simulator_t, typename event_collection_t>
+  typename FatrasAlgorithm<simulator_t, event_collection_t>::Config
   readFatrasConfig(const AMAP& vm, simulator_t& simulator)
   {
     // Create a config
-    typename FatrasAlgorithm<simulator_t, event_collection_t, hit_t>::Config
+    typename FatrasAlgorithm<simulator_t, event_collection_t>::Config
         fatrasConfig(std::move(simulator));
 
     // set the collections

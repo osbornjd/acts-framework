@@ -32,11 +32,9 @@ namespace Json {
   ///     event000000002-spacepoints.json
   ///
   template <class T>
-  class JsonSpacePointWriter : public WriterT<DetectorData<geo_id_value, T>>
+  class JsonSpacePointWriter : public WriterT<GeometryIdMultimap<T>>
   {
   public:
-    using Base = WriterT<DetectorData<geo_id_value, T>>;
-
     struct Config
     {
       std::string collection;           ///< which collection to write
@@ -49,17 +47,14 @@ namespace Json {
 
   protected:
     FW::ProcessCode
-    writeT(const FW::AlgorithmContext&          context,
-           const DetectorData<geo_id_value, T>& spacePoints) final override;
+    writeT(const FW::AlgorithmContext&  context,
+           const GeometryIdMultimap<T>& spacePoints) final override;
 
   private:
+    // since class itself is templated, base class template must be fixed
+    using Base = WriterT<GeometryIdMultimap<T>>;
+
     Config m_cfg;
-    // required for C++ to find `logger()` with the default look-up
-    const Acts::Logger&
-    logger() const
-    {
-      return Base::logger();
-    }
   };
 
 }  // namespace Json
@@ -79,8 +74,8 @@ FW::Json::JsonSpacePointWriter<T>::JsonSpacePointWriter(
 template <class T>
 FW::ProcessCode
 FW::Json::JsonSpacePointWriter<T>::writeT(
-    const FW::AlgorithmContext&          context,
-    const DetectorData<geo_id_value, T>& spacePoints)
+    const FW::AlgorithmContext&  context,
+    const GeometryIdMultimap<T>& spacePoints)
 {
   // open per-event file
   std::string path = perEventFilepath(

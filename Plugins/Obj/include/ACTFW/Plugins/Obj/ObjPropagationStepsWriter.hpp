@@ -31,8 +31,6 @@ namespace Obj {
     : public WriterT<std::vector<std::vector<step_t>>>
   {
   public:
-    using Base = WriterT<std::vector<std::vector<step_t>>>;
-
     struct Config
     {
       std::string collection;             ///< which collection to write
@@ -47,7 +45,10 @@ namespace Obj {
     /// @param level Output logging level
     ObjPropagationStepsWriter(const Config&        cfg,
                               Acts::Logging::Level level = Acts::Logging::INFO)
-      : Base(cfg.collection, "ObjSpacePointWriter", level), m_cfg(cfg)
+      : WriterT<std::vector<std::vector<step_t>>>(cfg.collection,
+                                                  "ObjSpacePointWriter",
+                                                  level)
+      , m_cfg(cfg)
     {
       if (m_cfg.collection.empty()) {
         throw std::invalid_argument("Missing input collection");

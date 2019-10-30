@@ -9,16 +9,15 @@
 #pragma once
 
 #include <mutex>
+
+#include <TFile.h>
+#include <TTree.h>
+
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "TFile.h"
-#include "TTree.h"
 
 namespace FW {
-
 namespace Root {
 
   /// @class RootSimHitWriter
@@ -32,15 +31,9 @@ namespace Root {
   /// this is done by setting the Config::rootFile pointer to an existing file
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
-  class RootSimHitWriter
-    : public WriterT<
-          DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>
+  class RootSimHitWriter : public WriterT<SimHits>
   {
   public:
-    using Base
-        = WriterT<DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>>;
-
-    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection;             ///< cluster collection to write
@@ -70,9 +63,7 @@ namespace Root {
     /// @param context The Algorithm context with per event information
     /// @param simhits The simulation hits collection to we written out
     ProcessCode
-    writeT(const AlgorithmContext& context,
-           const DetectorData<geo_id_value, Data::SimHit<Data::SimParticle>>&
-               simhits) final override;
+    writeT(const AlgorithmContext& context, const SimHits& hits) final override;
 
   private:
     Config     m_cfg;         ///< the configuration object

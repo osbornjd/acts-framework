@@ -40,10 +40,37 @@
 #include "Fatras/Selectors/KinematicCasts.hpp"
 #include "Fatras/Selectors/SelectorHelpers.hpp"
 
-typedef FW::Data::SimHit<FW::Data::SimParticle> FatrasHit;
-typedef std::vector<FW::Data::SimVertex<>>      FatrasEvent;
+typedef FW::Data::SimHit                 FatrasHit;
+typedef std::vector<FW::Data::SimVertex> FatrasEvent;
 
 namespace po = boost::program_options;
+
+/// Construct SimHits from Fatras.
+struct SimHitCreator
+{
+  /// @param surface is the Surface where the hit is created
+  /// @param position is the global hit position
+  /// @param direction is the momentum direction at hit position
+  /// @param value is the simulated value
+  /// @param time is the timeStamp
+  /// @param particle is the particle for the truth link
+  FW::Data::SimHit
+  operator()(const Acts::Surface&         surface,
+             const Acts::Vector3D&        position,
+             const Acts::Vector3D&        direction,
+             double                       value,
+             double                       time,
+             const FW::Data::SimParticle& simParticle) const
+  {
+    FW::Data::SimHit simHit(surface);
+    simHit.position  = position;
+    simHit.time      = time;
+    simHit.direction = direction;
+    simHit.value     = value;
+    simHit.particle  = simParticle;
+    return simHit;
+  }
+};
 
 /// Simple struct to select sensitive surfaces
 struct SurfaceSelector
@@ -137,16 +164,16 @@ setupSimulationAlgorithm(
 
   typedef Fatras::Interactor<FW::RandomEngine,
                              FW::Data::SimParticle,
-                             FW::Data::SimHit<FW::Data::SimParticle>,
-                             FW::Data::SimHitCreator,
+                             FW::Data::SimHit,
+                             SimHitCreator,
                              SurfaceSelector,
                              PhysicsList>
       ChargedInteractor;
 
   typedef Fatras::Interactor<FW::RandomEngine,
                              FW::Data::SimParticle,
-                             FW::Data::SimHit<FW::Data::SimParticle>,
-                             FW::Data::SimHitCreator>
+                             FW::Data::SimHit,
+                             SimHitCreator>
       NeutralInteractor;
 
   typedef Fatras::Simulator<ChargedPropagator,
@@ -160,14 +187,12 @@ setupSimulationAlgorithm(
   FatrasSimulator fatrasSimulator(cPropagator, nPropagator);
   fatrasSimulator.debug = vm["fatras-debug-output"].template as<bool>();
 
-  using FatrasAlgorithm
-      = FW::FatrasAlgorithm<FatrasSimulator, FatrasEvent, FatrasHit>;
+  using FatrasAlgorithm = FW::FatrasAlgorithm<FatrasSimulator, FatrasEvent>;
 
   typename FatrasAlgorithm::Config fatrasConfig
       = FW::Options::readFatrasConfig<po::variables_map,
                                       FatrasSimulator,
-                                      FatrasEvent,
-                                      FatrasHit>(vm, fatrasSimulator);
+                                      FatrasEvent>(vm, fatrasSimulator);
   fatrasConfig.randomNumberSvc      = randomNumberSvc;
   fatrasConfig.inputEventCollection = evgenCollection;
 

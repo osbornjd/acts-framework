@@ -1,4 +1,4 @@
-add_executable(ACTFWGenericReadCsvExample GenericReadCsvExample.cpp)
+add_executable(ACTFWGenericReadCsvExample GenericReadCsvExample.cpp PrintHits.cpp)
 target_link_libraries(ACTFWGenericReadCsvExample PRIVATE ActsCore)
 target_link_libraries(ACTFWGenericReadCsvExample PRIVATE ACTFramework ACTFWExamplesCommon)
 target_link_libraries(ACTFWGenericReadCsvExample PRIVATE ACTFWCsvPlugin ACTFWGenericDetector)

@@ -31,12 +31,9 @@ namespace Root {
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
   class RootPlanarClusterWriter
-    : public WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>
+    : public WriterT<GeometryIdMultimap<Acts::PlanarModuleCluster>>
   {
   public:
-    using Base = WriterT<DetectorData<geo_id_value, Acts::PlanarModuleCluster>>;
-
-    /// @brief The nested configuration struct
     struct Config
     {
       std::string collection = "";          ///< particle collection to write
@@ -66,9 +63,9 @@ namespace Root {
     /// @param context The Algorithm context with per event information
     /// @param clusters is the data to be written out
     ProcessCode
-    writeT(const AlgorithmContext& context,
-           const DetectorData<geo_id_value, Acts::PlanarModuleCluster>&
-               clusters) final override;
+    writeT(const AlgorithmContext&                              context,
+           const GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
+        final override;
 
   private:
     Config             m_cfg;         ///< the configuration object

@@ -32,12 +32,9 @@ namespace Csv {
   ///     ...
   ///
   /// and each line in the file corresponds to one particle.
-  class CsvParticleWriter
-    : public WriterT<std::vector<Data::SimVertex<Data::SimParticle>>>
+  class CsvParticleWriter : public WriterT<std::vector<Data::SimVertex>>
   {
   public:
-    using Base = WriterT<std::vector<Data::SimVertex<Data::SimParticle>>>;
-
     struct Config
     {
       /// Input event (vector of simulation vertices) collection to write.
@@ -64,8 +61,8 @@ namespace Csv {
     /// @param [in] vertices is the process vertex collection for the
     /// particles to be attached
     ProcessCode
-    writeT(const FW::AlgorithmContext&           context,
-           const std::vector<Data::SimVertex<>>& vertices) final override;
+    writeT(const FW::AlgorithmContext&         context,
+           const std::vector<Data::SimVertex>& vertices) final override;
 
   private:
     Config m_cfg;  //!< Nested configuration struct

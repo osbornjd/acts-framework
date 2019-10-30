@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <cmath>
 #include <vector>
 
 #include <Acts/Utilities/Definitions.hpp>
@@ -18,95 +17,69 @@
 
 namespace FW {
 
-// Typedef the process code
-typedef unsigned int process_code;
+/// Value type to identify which process was used to generate the vertex.
+using process_code = unsigned int;
 
 namespace Data {
 
-  /// @brief Vertex information struct for physics process samplers:
-  /// - all quatities are calculated at first construction as they may
-  ///   be used by downstream samplers
-  ///
-  /// @note if a sampler changes one of the parameters, consistency
-  /// can be broken, so it should update the rest (no checking done)
-  template <typename particle_t = SimParticle>
+  /// A simultated vertex e.g. from a physics process.
   struct SimVertex
   {
-
+    /// TODO replace by combined 4d position
     /// The vertex position
     Acts::Vector3D position = Acts::Vector3D(0., 0., 0.);
-
-    /// The ingoing particles in the vertex
-    std::vector<particle_t> in = {};
-
+    /// An optional time stamp
+    double time = 0.;
+    /// The incoming particles into the vertex
+    std::vector<SimParticle> incoming = {};
     /// The outgoing particles from the vertex
-    std::vector<particle_t> out = {};
-
+    std::vector<SimParticle> outgoing = {};
     /// An optional process code
     process_code processCode = 9;
 
-    /// An optional time stamp
-    double timeStamp = 0.;
-
-    /// Default
     SimVertex() = default;
-
-    /// @brief Construct a particle consistently
-    ///
-    /// @param ertex The vertex position
-    /// @param in The ingoing particles - copy
-    /// @param out The outgoing particles (copy - can we do a move ?)
-    /// @param vprocess The process code
-    /// @param time The time stamp of this vertex
-    SimVertex(const Acts::Vector3D&          vertex,
-              const std::vector<particle_t>& ingoing  = {},
-              std::vector<particle_t>        outgoing = {},
-              process_code                   process  = 0,
-              double                         time     = 0.)
-      : position(vertex)
-      , in(ingoing)
-      , out(outgoing)
+    /// @param position_ The vertex position
+    /// @param incoming_ The ingoing particles
+    /// @param outgoing_ The outgoing particles
+    /// @param process   The process code
+    /// @param time      The vertex time
+    SimVertex(const Acts::Vector3D&    position_,
+              std::vector<SimParticle> incoming_ = {},
+              std::vector<SimParticle> outgoing_ = {},
+              process_code             process   = 0,
+              double                   time      = 0.)
+      : position(position_)
+      , time(time)
+      , incoming(std::move(incoming_))
+      , outgoing(std::move(outgoing_))
       , processCode(process)
-      , timeStamp(time)
     {
     }
+
+    // @todo let fatras use the member variables directly and remove the
+    //       duplicated accessors below.
 
     /// Forward the particle access to the outgoing particles: begin
-    ///
-    /// @tparam particle_t Type of the particle
-    typename std::vector<particle_t>::iterator
+    auto
     outgoing_begin()
     {
-      return out.begin();
+      return outgoing.begin();
     }
-
     /// Forward the particle access to the outgoing particles: end
-    ///
-    /// @tparam particle_t Type of the particle
-    typename std::vector<particle_t>::iterator
+    auto
     outgoing_end()
     {
-      return out.end();
+      return outgoing.end();
     }
-
-    // Outgoing particles
-    const std::vector<particle_t>&
-    outgoing() const
-    {
-      return out;
-    }
-
     /// Forward the particle access to the outgoing particles: insert
     ///
-    /// @tparam particle_t Type of the particle
-    ///
     /// @param inparticles are the particles to be inserted
-    typename std::vector<particle_t>::iterator
-    outgoing_insert(const std::vector<particle_t>& inparticles)
+    auto
+    outgoing_insert(const std::vector<SimParticle>& inparticles)
     {
-      return out.insert(out.end(), inparticles.begin(), inparticles.end());
+      return outgoing.insert(
+          outgoing.end(), inparticles.begin(), inparticles.end());
     }
   };
-
 }  // end of namespace Data
 }  // end of namespace FW

@@ -24,15 +24,15 @@
 FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     const FW::Csv::CsvPlanarClusterWriter::Config& cfg,
     Acts::Logging::Level                           level)
-  : Base(cfg.inputClusters, "CsvPlanarClusterWriter", level), m_cfg(cfg)
+  : WriterT(cfg.inputClusters, "CsvPlanarClusterWriter", level), m_cfg(cfg)
 {
   // inputClusters is already checked by base constructor
 }
 
 FW::ProcessCode
 FW::Csv::CsvPlanarClusterWriter::writeT(
-    const AlgorithmContext&                                          context,
-    const FW::DetectorData<geo_id_value, Acts::PlanarModuleCluster>& clusters)
+    const AlgorithmContext&                                  context,
+    const FW::GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
 {
   // open per-event file for all components
   std::string pathHits
@@ -54,60 +54,57 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
   // will be reused as hit counter
   hit.hit_id = 0;
 
-  for (auto& volumeData : clusters) {
-    for (auto& layerData : volumeData.second) {
-      for (auto& moduleData : layerData.second) {
-        for (auto& cluster : moduleData.second) {
-          // local cluster information
-          const auto&    parameters = cluster.parameters();
-          Acts::Vector2D localPos(parameters[Acts::ParDef::eLOC_0],
-                                  parameters[Acts::ParDef::eLOC_1]);
-          Acts::Vector3D globalFakeMom(1, 1, 1);
-          Acts::Vector3D globalPos(0, 0, 0);
-          // transform local into global position information
-          cluster.referenceSurface().localToGlobal(
-              context.geoContext, localPos, globalFakeMom, globalPos);
+  for (const auto& entry : clusters) {
+    Acts::GeometryID                 geoId   = entry.first;
+    const Acts::PlanarModuleCluster& cluster = entry.second;
+    // local cluster information
+    const auto&    parameters = cluster.parameters();
+    Acts::Vector2D localPos(parameters[Acts::ParDef::eLOC_0],
+                            parameters[Acts::ParDef::eLOC_1]);
+    Acts::Vector3D globalFakeMom(1, 1, 1);
+    Acts::Vector3D globalPos(0, 0, 0);
+    // transform local into global position information
+    cluster.referenceSurface().localToGlobal(
+        context.geoContext, localPos, globalFakeMom, globalPos);
 
-          // write global hit information
-          hit.x         = globalPos.x() / Acts::UnitConstants::mm;
-          hit.y         = globalPos.y() / Acts::UnitConstants::mm;
-          hit.z         = globalPos.z() / Acts::UnitConstants::mm;
-          hit.t         = 0 / Acts::UnitConstants::ns;  // TODO
-          hit.volume_id = volumeData.first;
-          hit.layer_id  = layerData.first;
-          hit.module_id = moduleData.first;
-          writerHits.append(hit);
+    // write global hit information
+    hit.x = globalPos.x() / Acts::UnitConstants::mm;
+    hit.y = globalPos.y() / Acts::UnitConstants::mm;
+    hit.z = globalPos.z() / Acts::UnitConstants::mm;
+    // TODO add time once it is stored in clusters
+    hit.t         = 0 / Acts::UnitConstants::ns;
+    hit.volume_id = geoId.value(Acts::GeometryID::volume_mask);
+    hit.layer_id  = geoId.value(Acts::GeometryID::layer_mask);
+    hit.module_id = geoId.value(Acts::GeometryID::sensitive_mask);
+    writerHits.append(hit);
 
-          // write local cell information
-          cell.hit_id = hit.hit_id;
-          for (auto& c : cluster.digitizationCells()) {
-            cell.ch0       = c.channel0;
-            cell.ch1       = c.channel1;
-            cell.timestamp = 0;  // TODO
-            cell.value     = c.data;
-            writerCells.append(cell);
-          }
-
-          // write hit-particle truth association
-          // each hit can have multiple particles, e.g. in a dense environment
-          truth.hit_id = hit.hit_id;
-          for (auto& p : cluster.sourceLink().truthParticles()) {
-            truth.particle_id = p->barcode();
-            truth.tx          = p->position().x() / Acts::UnitConstants::mm;
-            truth.ty          = p->position().y() / Acts::UnitConstants::mm;
-            truth.tz          = p->position().z() / Acts::UnitConstants::mm;
-            truth.tt          = 0 / Acts::UnitConstants::ns;  // TODO
-            truth.tpx         = p->momentum().x() / Acts::UnitConstants::GeV;
-            truth.tpy         = p->momentum().y() / Acts::UnitConstants::GeV;
-            truth.tpz         = p->momentum().z() / Acts::UnitConstants::GeV;
-            writerTruth.append(truth);
-          }
-
-          // increase hit id for next iteration
-          hit.hit_id += 1;
-        }
-      }
+    // write local cell information
+    cell.hit_id = hit.hit_id;
+    for (auto& c : cluster.digitizationCells()) {
+      cell.ch0       = c.channel0;
+      cell.ch1       = c.channel1;
+      cell.timestamp = 0;  // TODO
+      cell.value     = c.data;
+      writerCells.append(cell);
     }
+
+    // write hit-particle truth association
+    // each hit can have multiple particles, e.g. in a dense environment
+    truth.hit_id = hit.hit_id;
+    for (auto& p : cluster.sourceLink().truthParticles()) {
+      truth.particle_id = p->barcode();
+      truth.tx          = p->position().x() / Acts::UnitConstants::mm;
+      truth.ty          = p->position().y() / Acts::UnitConstants::mm;
+      truth.tz          = p->position().z() / Acts::UnitConstants::mm;
+      truth.tt          = p->time() / Acts::UnitConstants::ns;
+      truth.tpx         = p->momentum().x() / Acts::UnitConstants::GeV;
+      truth.tpy         = p->momentum().y() / Acts::UnitConstants::GeV;
+      truth.tpz         = p->momentum().z() / Acts::UnitConstants::GeV;
+      writerTruth.append(truth);
+    }
+
+    // increase hit id for next iteration
+    hit.hit_id += 1;
   }
 
   return FW::ProcessCode::SUCCESS;
