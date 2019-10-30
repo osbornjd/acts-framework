@@ -79,7 +79,7 @@ namespace Root {
     std::vector<double> m_vy;
     std::vector<double> m_vz;
 
-    /// The track information
+    /// The track parameter
     std::vector<double> m_d0;
     std::vector<double> m_z0;
     std::vector<double> m_phi;
@@ -88,7 +88,48 @@ namespace Root {
     std::vector<double> m_time;
     std::vector<int>    m_vtxID;
 
-    std::vector<std::vector<double>> m_trkCov;
+    /// The track covariance matrix
+    std::vector<double> m_cov11;
+    std::vector<double> m_cov12;
+    std::vector<double> m_cov13;
+    std::vector<double> m_cov14;
+    std::vector<double> m_cov15;
+    std::vector<double> m_cov16;
+
+    std::vector<double> m_cov21;
+    std::vector<double> m_cov22;
+    std::vector<double> m_cov23;
+    std::vector<double> m_cov24;
+    std::vector<double> m_cov25;
+    std::vector<double> m_cov26;
+
+    std::vector<double> m_cov31;
+    std::vector<double> m_cov32;
+    std::vector<double> m_cov33;
+    std::vector<double> m_cov34;
+    std::vector<double> m_cov35;
+    std::vector<double> m_cov36;
+
+    std::vector<double> m_cov41;
+    std::vector<double> m_cov42;
+    std::vector<double> m_cov43;
+    std::vector<double> m_cov44;
+    std::vector<double> m_cov45;
+    std::vector<double> m_cov46;
+
+    std::vector<double> m_cov51;
+    std::vector<double> m_cov52;
+    std::vector<double> m_cov53;
+    std::vector<double> m_cov54;
+    std::vector<double> m_cov55;
+    std::vector<double> m_cov56;
+
+    std::vector<double> m_cov61;
+    std::vector<double> m_cov62;
+    std::vector<double> m_cov63;
+    std::vector<double> m_cov64;
+    std::vector<double> m_cov65;
+    std::vector<double> m_cov66;
 
     /// Pointers to the vectors
     std::vector<double>* m_ptrVx    = &m_vx;
@@ -102,7 +143,47 @@ namespace Root {
     std::vector<double>* m_ptrTime  = &m_time;
     std::vector<int>*    m_ptrVtxID = &m_vtxID;
 
-    std::vector<std::vector<double>>* m_ptrTrkCov = &m_trkCov;
+    std::vector<double>* m_ptrCov11 = &m_cov11;
+    std::vector<double>* m_ptrCov12 = &m_cov12;
+    std::vector<double>* m_ptrCov13 = &m_cov13;
+    std::vector<double>* m_ptrCov14 = &m_cov14;
+    std::vector<double>* m_ptrCov15 = &m_cov15;
+    std::vector<double>* m_ptrCov16 = &m_cov16;
+
+    std::vector<double>* m_ptrCov21 = &m_cov21;
+    std::vector<double>* m_ptrCov22 = &m_cov22;
+    std::vector<double>* m_ptrCov23 = &m_cov23;
+    std::vector<double>* m_ptrCov24 = &m_cov24;
+    std::vector<double>* m_ptrCov25 = &m_cov25;
+    std::vector<double>* m_ptrCov26 = &m_cov26;
+
+    std::vector<double>* m_ptrCov31 = &m_cov31;
+    std::vector<double>* m_ptrCov32 = &m_cov32;
+    std::vector<double>* m_ptrCov33 = &m_cov33;
+    std::vector<double>* m_ptrCov34 = &m_cov34;
+    std::vector<double>* m_ptrCov35 = &m_cov35;
+    std::vector<double>* m_ptrCov36 = &m_cov36;
+
+    std::vector<double>* m_ptrCov41 = &m_cov41;
+    std::vector<double>* m_ptrCov42 = &m_cov42;
+    std::vector<double>* m_ptrCov43 = &m_cov43;
+    std::vector<double>* m_ptrCov44 = &m_cov44;
+    std::vector<double>* m_ptrCov45 = &m_cov45;
+    std::vector<double>* m_ptrCov46 = &m_cov46;
+
+    std::vector<double>* m_ptrCov51 = &m_cov51;
+    std::vector<double>* m_ptrCov52 = &m_cov52;
+    std::vector<double>* m_ptrCov53 = &m_cov53;
+    std::vector<double>* m_ptrCov54 = &m_cov54;
+    std::vector<double>* m_ptrCov55 = &m_cov55;
+    std::vector<double>* m_ptrCov56 = &m_cov56;
+
+    std::vector<double>* m_ptrCov61 = &m_cov61;
+    std::vector<double>* m_ptrCov62 = &m_cov62;
+    std::vector<double>* m_ptrCov63 = &m_cov63;
+    std::vector<double>* m_ptrCov64 = &m_cov64;
+    std::vector<double>* m_ptrCov65 = &m_cov65;
+    std::vector<double>* m_ptrCov66 = &m_cov66;
 
     /// @brief Clears all vectors
     void
