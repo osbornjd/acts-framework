@@ -16,10 +16,10 @@ PropagationAlgorithm<propagator_t>::generateCovariance(
     FW::RandomEngine&                 rnd,
     std::normal_distribution<double>& gauss) const
 {
-  if (m_cfg.covarianceTransport && m_cfg.randomNumbers) {
-    // we start from the correlation matrix
+  if (m_cfg.covarianceTransport) {
+    // We start from the correlation matrix
     Acts::ActsSymMatrixD<Acts::BoundParsDim> newCov(m_cfg.correlations);
-    // then we draw errors according to the error values
+    // Then we draw errors according to the error values
     Acts::ActsVectorD<Acts::BoundParsDim> covs_smeared = m_cfg.covariances;
     for (size_t k = 0; k < size_t(Acts::BoundParsDim); ++k) {
       covs_smeared[k] *= gauss(rnd);
@@ -126,9 +126,10 @@ PropagationAlgorithm<propagator_t>::execute(
   // Create a random number generator
   FW::RandomEngine rng = m_cfg.randomNumberSvc->spawnGenerator(context);
 
+  // Standard gaussian distribution for covarianmces
+  std::normal_distribution<double> gauss(0., 1.);
+
   // Setup random number distributions for some quantities
-  std::normal_distribution<double>       d0Dist(0., m_cfg.d0Sigma);
-  std::normal_distribution<double>       z0Dist(0., m_cfg.z0Sigma);
   std::uniform_real_distribution<double> phiDist(m_cfg.phiRange.first,
                                                  m_cfg.phiRange.second);
   std::uniform_real_distribution<double> etaDist(m_cfg.etaRange.first,
@@ -154,8 +155,8 @@ PropagationAlgorithm<propagator_t>::execute(
   // loop over number of particles
   for (size_t it = 0; it < m_cfg.ntests; ++it) {
     /// get the d0 and z0
-    double d0     = d0Dist(rng);
-    double z0     = z0Dist(rng);
+    double d0     = m_cfg.d0Sigma * gauss(rng);
+    double z0     = m_cfg.z0Sigma * gauss(rng);
     double phi    = phiDist(rng);
     double eta    = etaDist(rng);
     double theta  = 2 * atan(exp(-eta));
@@ -163,7 +164,7 @@ PropagationAlgorithm<propagator_t>::execute(
     double p      = pt / sin(theta);
     double charge = qDist(rng) > 0.5 ? 1. : -1.;
     double qop    = charge / p;
-    double t      = 0;
+    double t      = m_cfg.tSigma * gauss(rng);
     // parameters
     Acts::BoundVector pars;
     pars << d0, z0, phi, theta, qop, t;
@@ -172,19 +173,22 @@ PropagationAlgorithm<propagator_t>::execute(
     Acts::Vector3D sPosition(0., 0., 0.);
     Acts::Vector3D sMomentum(0., 0., 0.);
 
+    // The covariance generation
+    auto cov = generateCovariance(rng, gauss);
+
     // execute the test for charged particles
     PropagationOutput pOutput;
     if (charge) {
       // charged extrapolation - with hit recording
       Acts::BoundParameters startParameters(
-          context.geoContext, std::nullopt, std::move(pars), surface);
+          context.geoContext, std::move(cov), std::move(pars), surface);
       sPosition = startParameters.position();
       sMomentum = startParameters.momentum();
       pOutput   = executeTest<Acts::TrackParameters>(context, startParameters);
     } else {
       // execute the test for neeutral particles
       Acts::NeutralBoundParameters neutralParameters(
-          context.geoContext, std::nullopt, std::move(pars), surface);
+          context.geoContext, std::move(cov), std::move(pars), surface);
       sPosition = neutralParameters.position();
       sMomentum = neutralParameters.momentum();
       pOutput

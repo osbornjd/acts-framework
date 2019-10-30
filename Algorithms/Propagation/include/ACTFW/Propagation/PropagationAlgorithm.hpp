@@ -86,6 +86,14 @@ public:
     double d0Sigma = 15. * Acts::units::_um;
     /// z0 gaussian sigma
     double z0Sigma = 55. * Acts::units::_mm;
+    /// phi gaussian sigma (used for covariance transport)
+    double phiSigma = 0.0001;
+    /// theta gaussian sigma (used for covariance transport)
+    double thetaSigma = 0.0001;
+    /// qp gaussian sigma (used for covariance transport)
+    double qpSigma = 0.000001;
+    /// t gaussian sigma (used for covariance transport)
+    double tSigma = 0.;
     /// phi range
     std::pair<double, double> phiRange = {-M_PI, M_PI};
     /// eta range
@@ -106,7 +114,7 @@ public:
     std::string propagationMaterialCollection = "RecordedMaterialTracks";
 
     /// covariance transport
-    bool covarianceTransport = true;
+    bool covarianceTransport = false;
 
     /// The covariance values
     Acts::ActsVectorD<Acts::BoundParsDim> covariances

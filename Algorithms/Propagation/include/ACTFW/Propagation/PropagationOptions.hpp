@@ -41,9 +41,9 @@ namespace Options {
         "prop-mode",
         po::value<int>()->default_value(0),
         "Propgation modes: 0 (inside-out), 1 (surface to surface).")(
-        "prop-ext",
+        "prop-cov",
         po::value<bool>()->default_value(false),
-        "Run in extrapolation mode, i.e. with Navigator.")(
+        "Propagate (random) test covariances.")(
         "prop-energyloss",
         po::value<bool>()->default_value(true),
         "Apply energy loss correction - in extrapolation mode only.")(
@@ -65,6 +65,22 @@ namespace Options {
         "prop-z0-sigma",
         po::value<double>()->default_value(55. * au::_mm),
         "Sigma of the longitudinal impact parameter [in mm].")(
+        "prop-phi-sigma",
+        po::value<double>()->default_value(0.001),
+        "Sigma of the azimuthal angle [in rad].")(
+        "prop-theta-sigma",
+        po::value<double>()->default_value(0.001),
+        "Sigma of the polar angle [in rad].")(
+        "prop-qp-sigma",
+        po::value<double>()->default_value(0.0001),
+        "Sigma of the signed inverse momentum [in GeV^{-1}].")(
+        "prop-t-sigma",
+        po::value<double>()->default_value(0.000001),
+        "Sigma of the time parameter [in s].")(
+        "prop-corr-offd",
+        po::value<read_range>()->multitoken()->default_value({}),
+        "The 15 off-diagonal correlation rho(d0,z0), rho(d0,phi), [...], "
+        "rho(qop,t)")(
         "prop-phi-range",
         po::value<read_range>()->multitoken()->default_value({-M_PI, M_PI}),
         "Azimutal angle phi range for proprapolated tracks.")(
@@ -115,8 +131,13 @@ namespace Options {
     pAlgConfig.debugOutput = vm["prop-debug"].template as<bool>();
     pAlgConfig.ntests      = vm["prop-ntests"].template as<size_t>();
     pAlgConfig.mode        = vm["prop-mode"].template as<int>();
-    pAlgConfig.d0Sigma  = vm["prop-d0-sigma"].template as<double>() * au::_mm;
-    pAlgConfig.z0Sigma  = vm["prop-z0-sigma"].template as<double>() * au::_mm;
+    pAlgConfig.d0Sigma    = vm["prop-d0-sigma"].template as<double>() * au::_mm;
+    pAlgConfig.z0Sigma    = vm["prop-z0-sigma"].template as<double>() * au::_mm;
+    pAlgConfig.phiSigma   = vm["prop-phi-sigma"].template as<double>();
+    pAlgConfig.thetaSigma = vm["prop-theta-sigma"].template as<double>();
+    pAlgConfig.qpSigma    = vm["prop-qp-sigma"].template as<double>();
+    pAlgConfig.tSigma     = vm["prop-t-sigma"].template as<double>();
+
     pAlgConfig.phiRange = {iphir[0], iphir[1]};
     pAlgConfig.etaRange = {ietar[0], ietar[1]};
     pAlgConfig.ptRange  = {iptr[0] * au::_GeV, iptr[1] * au::_GeV};
@@ -129,6 +150,70 @@ namespace Options {
         = vm["prop-step-collection"].template as<std::string>();
     pAlgConfig.propagationMaterialCollection
         = vm["prop-material-collection"].template as<std::string>();
+
+    /// The covariance transport
+    if (vm["prop-cov"].template as<bool>()) {
+      /// Set the covariance transport to true
+      pAlgConfig.covarianceTransport = true;
+      /// Set the covariance matrix
+      pAlgConfig.covariances(Acts::ParDef::eLOC_D0, Acts::ParDef::eLOC_D0)
+          = pAlgConfig.d0Sigma * pAlgConfig.d0Sigma;
+      pAlgConfig.covariances(Acts::ParDef::eLOC_Z0, Acts::ParDef::eLOC_Z0)
+          = pAlgConfig.z0Sigma * pAlgConfig.z0Sigma;
+      pAlgConfig.covariances(Acts::ParDef::ePHI, Acts::ParDef::ePHI)
+          = pAlgConfig.phiSigma * pAlgConfig.phiSigma;
+      pAlgConfig.covariances(Acts::ParDef::eTHETA, Acts::ParDef::eTHETA)
+          = pAlgConfig.thetaSigma * pAlgConfig.thetaSigma;
+      pAlgConfig.covariances(Acts::ParDef::eQOP, Acts::ParDef::eQOP)
+          = pAlgConfig.qpSigma * pAlgConfig.qpSigma;
+      pAlgConfig.covariances(Acts::ParDef::eT, Acts::ParDef::eT)
+          = pAlgConfig.tSigma * pAlgConfig.tSigma;
+
+      // Read if the offdiagonal parameters have been read
+      auto readOffd = vm["prop-corr-offd"].template as<read_range>();
+      // Only if they are properly defined, assign
+      if (readOffd.size() == 15) {
+        pAlgConfig.correlations(Acts::ParDef::eLOC_D0, Acts::ParDef::eLOC_Z0)
+            = readOffd[0];
+        pAlgConfig.correlations(Acts::ParDef::eLOC_D0, Acts::ParDef::ePHI)
+            = readOffd[1];
+        pAlgConfig.correlations(Acts::ParDef::eLOC_D0, Acts::ParDef::eTHETA)
+            = readOffd[2];
+        pAlgConfig.correlations(Acts::ParDef::eLOC_D0, Acts::ParDef::eQOP)
+            = readOffd[3];
+        pAlgConfig.correlations(Acts::ParDef::eLOC_D0, Acts::ParDef::eT)
+            = readOffd[4];
+        pAlgConfig.correlations(Acts::ParDef::eLOC_Z0, Acts::ParDef::ePHI)
+            = readOffd[5];
+        pAlgConfig.correlations(Acts::ParDef::eLOC_Z0, Acts::ParDef::eTHETA)
+            = readOffd[6];
+        pAlgConfig.correlations(Acts::ParDef::eLOC_Z0, Acts::ParDef::eQOP)
+            = readOffd[7];
+        pAlgConfig.correlations(Acts::ParDef::eLOC_Z0, Acts::ParDef::eT)
+            = readOffd[8];
+        pAlgConfig.correlations(Acts::ParDef::ePHI, Acts::ParDef::eTHETA)
+            = readOffd[9];
+        pAlgConfig.correlations(Acts::ParDef::ePHI, Acts::ParDef::eQOP)
+            = readOffd[10];
+        pAlgConfig.correlations(Acts::ParDef::ePHI, Acts::ParDef::eT)
+            = readOffd[11];
+        pAlgConfig.correlations(Acts::ParDef::eTHETA, Acts::ParDef::eQOP)
+            = readOffd[12];
+        pAlgConfig.correlations(Acts::ParDef::eTHETA, Acts::ParDef::eT)
+            = readOffd[13];
+        pAlgConfig.correlations(Acts::ParDef::eQOP, Acts::ParDef::eT)
+            = readOffd[14];
+      } else {
+        /// Some pre-defined values (non-trivial helical correlations)
+        pAlgConfig.correlations(Acts::ParDef::eLOC_D0, Acts::ParDef::ePHI)
+            = -0.8;
+        pAlgConfig.correlations(Acts::ParDef::eLOC_D0, Acts::ParDef::eQOP)
+            = -0.3;
+        pAlgConfig.correlations(Acts::ParDef::eLOC_Z0, Acts::ParDef::eTHETA)
+            = -0.8;
+        pAlgConfig.correlations(Acts::ParDef::ePHI, Acts::ParDef::eQOP) = 0.4;
+      }
+    }
 
     return pAlgConfig;
   }
