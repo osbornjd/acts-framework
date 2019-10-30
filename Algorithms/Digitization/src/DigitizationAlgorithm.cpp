@@ -125,7 +125,7 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
         size_t bin1          = binUtility.bin(localPosition, 1);
         size_t binSerialized = binUtility.serialize({{bin0, bin1, 0}});
 
-        // the covariance is currently set to 0.
+        // TODO covariance contains only dummy values
         Acts::ActsSymMatrixD<2> cov;
         cov << 0.05, 0., 0.05, 0.;
 
