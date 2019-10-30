@@ -69,6 +69,13 @@ main(int argc, char* argv[])
   printCfg.inputClusters        = clusterReaderCfg.outputClusters;
   printCfg.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
   printCfg.inputHitIds          = clusterReaderCfg.outputHitIds;
+  // the following print selections work for the original author.
+  // you probably need to adapt them to your data.
+  printCfg.hitIdStart  = 10224;
+  printCfg.hitIdLength = 8;
+  printCfg.volumeId    = 13;
+  printCfg.layerId     = 4;
+  printCfg.moduleId    = 116;
   sequencer.addAlgorithm(std::make_shared<FW::PrintHits>(printCfg, logLevel));
 
   return sequencer.run();

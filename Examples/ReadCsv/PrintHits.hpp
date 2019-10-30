@@ -27,13 +27,14 @@ public:
     std::string inputHitParticlesMap;
     /// Input hit id collection
     std::string inputHitIds;
-    /// Hit id range which should be logged.
-    size_t hitIdStart  = 10224;
-    size_t hitIdLength = 8;
-    /// Detector selection for which input will be logged.
-    size_t volumeId = 13;
-    size_t layerId  = 4;
-    size_t moduleId = 116;
+    // the following values are (invalid) defaults; should be set by user
+    /// Hit id range which should be printed.
+    size_t hitIdStart  = 0u;
+    size_t hitIdLength = 0u;
+    /// Detector selection for which input will be printed.
+    size_t volumeId = 0u;
+    size_t layerId  = 0u;
+    size_t moduleId = 0u;
   };
 
   PrintHits(const Config&        cfg,
