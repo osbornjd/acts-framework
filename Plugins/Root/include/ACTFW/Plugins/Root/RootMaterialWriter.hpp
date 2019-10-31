@@ -126,7 +126,7 @@ namespace Root {
     RootMaterialWriter(const Config& cfg);
 
     /// Virtual destructor
-    ~RootMaterialWriter() {std::cout << "DESTRUCTOR" << std::endl;}
+    ~RootMaterialWriter() = default;
 
     /// Write out the material map
     ///
