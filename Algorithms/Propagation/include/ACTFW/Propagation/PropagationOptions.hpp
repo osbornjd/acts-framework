@@ -15,7 +15,7 @@
 #include "PropagationAlgorithm.hpp"
 
 namespace po = boost::program_options;
-namespace au = Acts::units;
+using namespace Acts::UnitLiterals;
 
 namespace FW {
 
@@ -60,10 +60,10 @@ namespace Options {
         po::value<size_t>()->default_value(1000),
         "Number of tests performed.")(
         "prop-d0-sigma",
-        po::value<double>()->default_value(15. * au::_um),
+        po::value<double>()->default_value(15_um),
         "Sigma of the transverse impact parameter [in mm].")(
         "prop-z0-sigma",
-        po::value<double>()->default_value(55. * au::_mm),
+        po::value<double>()->default_value(55_mm),
         "Sigma of the longitudinal impact parameter [in mm].")(
         "prop-phi-sigma",
         po::value<double>()->default_value(0.001),
@@ -72,15 +72,15 @@ namespace Options {
         po::value<double>()->default_value(0.001),
         "Sigma of the polar angle [in rad].")(
         "prop-qp-sigma",
-        po::value<double>()->default_value(0.0001),
+        po::value<double>()->default_value(0.0001 / 1_GeV),
         "Sigma of the signed inverse momentum [in GeV^{-1}].")(
         "prop-t-sigma",
-        po::value<double>()->default_value(0.000001),
-        "Sigma of the time parameter [in s].")(
+        po::value<double>()->default_value(1_ns),
+        "Sigma of the time parameter [in ns].")(
         "prop-corr-offd",
         po::value<read_range>()->multitoken()->default_value({}),
         "The 15 off-diagonal correlation rho(d0,z0), rho(d0,phi), [...], "
-        "rho(qop,t)")(
+        "rho(z0,phi), rho(z0, theta), [...], rho(qop,t). Row-wise.")(
         "prop-phi-range",
         po::value<read_range>()->multitoken()->default_value({-M_PI, M_PI}),
         "Azimutal angle phi range for proprapolated tracks.")(
@@ -89,13 +89,13 @@ namespace Options {
         "Pseudorapidity range for proprapolated tracks.")(
         "prop-pt-range",
         po::value<read_range>()->multitoken()->default_value(
-            {100. * au::_MeV, 100. * au::_GeV}),
+            {100_MeV, 100_GeV}),
         "Transverse momentum range for proprapolated tracks [in GeV].")(
         "prop-max-stepsize",
-        po::value<double>()->default_value(10 * au::_m),
+        po::value<double>()->default_value(1_m),
         "Maximum step size for the propagation [in mm].")(
         "prop-pt-loopers",
-        po::value<double>()->default_value(0.3 * au::_GeV),
+        po::value<double>()->default_value(300_MeV),
         "Transverse momentum below which loops are being detected [in GeV].");
   }
 
@@ -131,20 +131,19 @@ namespace Options {
     pAlgConfig.debugOutput = vm["prop-debug"].template as<bool>();
     pAlgConfig.ntests      = vm["prop-ntests"].template as<size_t>();
     pAlgConfig.mode        = vm["prop-mode"].template as<int>();
-    pAlgConfig.d0Sigma    = vm["prop-d0-sigma"].template as<double>() * au::_mm;
-    pAlgConfig.z0Sigma    = vm["prop-z0-sigma"].template as<double>() * au::_mm;
-    pAlgConfig.phiSigma   = vm["prop-phi-sigma"].template as<double>();
-    pAlgConfig.thetaSigma = vm["prop-theta-sigma"].template as<double>();
-    pAlgConfig.qpSigma    = vm["prop-qp-sigma"].template as<double>();
-    pAlgConfig.tSigma     = vm["prop-t-sigma"].template as<double>();
+    pAlgConfig.d0Sigma     = vm["prop-d0-sigma"].template as<double>() * 1_mm;
+    pAlgConfig.z0Sigma     = vm["prop-z0-sigma"].template as<double>() * 1_mm;
+    pAlgConfig.phiSigma    = vm["prop-phi-sigma"].template as<double>();
+    pAlgConfig.thetaSigma  = vm["prop-theta-sigma"].template as<double>();
+    pAlgConfig.qpSigma     = vm["prop-qp-sigma"].template as<double>() / 1_GeV;
+    pAlgConfig.tSigma      = vm["prop-t-sigma"].template as<double>() * 1_ns;
 
-    pAlgConfig.phiRange = {iphir[0], iphir[1]};
-    pAlgConfig.etaRange = {ietar[0], ietar[1]};
-    pAlgConfig.ptRange  = {iptr[0] * au::_GeV, iptr[1] * au::_GeV};
-    pAlgConfig.ptLoopers
-        = vm["prop-pt-loopers"].template as<double>() * au::_GeV;
+    pAlgConfig.phiRange  = {iphir[0], iphir[1]};
+    pAlgConfig.etaRange  = {ietar[0], ietar[1]};
+    pAlgConfig.ptRange   = {iptr[0] * 1_GeV, iptr[1] * 1_GeV};
+    pAlgConfig.ptLoopers = vm["prop-pt-loopers"].template as<double>() * 1_GeV;
     pAlgConfig.maxStepSize
-        = vm["prop-max-stepsize"].template as<double>() * au::_mm;
+        = vm["prop-max-stepsize"].template as<double>() * 1_mm;
 
     pAlgConfig.propagationStepCollection
         = vm["prop-step-collection"].template as<std::string>();

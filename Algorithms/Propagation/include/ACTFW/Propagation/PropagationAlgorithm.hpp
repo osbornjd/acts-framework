@@ -32,6 +32,8 @@
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Units.hpp"
 
+using namespace Acts::UnitLiterals;
+
 namespace FW {
 
 /// Using some short hands for Recorded Material
@@ -83,29 +85,28 @@ public:
     /// number of particles
     size_t ntests = 100;
     /// d0 gaussian sigma
-    double d0Sigma = 15. * Acts::units::_um;
+    double d0Sigma = 15_um;
     /// z0 gaussian sigma
-    double z0Sigma = 55. * Acts::units::_mm;
+    double z0Sigma = 55_mm;
     /// phi gaussian sigma (used for covariance transport)
     double phiSigma = 0.0001;
     /// theta gaussian sigma (used for covariance transport)
     double thetaSigma = 0.0001;
     /// qp gaussian sigma (used for covariance transport)
-    double qpSigma = 0.000001;
+    double qpSigma = 0.00001 / 1_GeV;
     /// t gaussian sigma (used for covariance transport)
-    double tSigma = 0.;
+    double tSigma = 1_ns;
     /// phi range
     std::pair<double, double> phiRange = {-M_PI, M_PI};
     /// eta range
     std::pair<double, double> etaRange = {-4., 4.};
     /// pt range
-    std::pair<double, double> ptRange
-        = {100. * Acts::units::_MeV, 100. * Acts::units::_GeV};
+    std::pair<double, double> ptRange = {100_MeV, 100_GeV};
     /// looper protection
-    double ptLoopers = 300. * Acts::units::_MeV;
+    double ptLoopers = 300_MeV;
 
     /// Max step size steering
-    double maxStepSize = 1. * Acts::units::_mm;
+    double maxStepSize = 1_m;
 
     /// The step collection to be stored
     std::string propagationStepCollection = "PropagationSteps";
