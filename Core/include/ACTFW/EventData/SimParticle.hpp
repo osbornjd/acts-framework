@@ -109,13 +109,13 @@ namespace Data {
            const Acts::Vector3D& momentum,
            double                deltaPathX0 = 0.,
            double                deltaPathL0 = 0.,
-           double                time   = 0.)
+           double                time        = 0.)
     {
       m_position = position;
       m_momentum = momentum;
       m_pathInX0 += deltaPathX0;
       m_pathInL0 += deltaPathL0;
-      m_time     = time;
+      m_time = time;
       return !(*this);
     }
 

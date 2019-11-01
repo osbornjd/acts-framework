@@ -58,9 +58,12 @@ FW::Options::readPythia8Options(const boost::program_options::variables_map& vm)
   pileupCfg.cmsEnergy = vm["evg-cmsEnergy"].template as<double>();
   pileupCfg.settings  = {vm["evg-puProcess"].template as<std::string>()};
 
-  auto vtxStdXY = vm["evg-vertex-xy-std"].template as<double>() * Acts::UnitConstants::mm;
-  auto vtxStdZ  = vm["evg-vertex-z-std"].template as<double>() * Acts::UnitConstants::mm;
-  auto vtxStdT  = vm["evg-vertex-t-std"].template as<double>() * Acts::UnitConstants::ns;
+  auto vtxStdXY
+      = vm["evg-vertex-xy-std"].template as<double>() * Acts::UnitConstants::mm;
+  auto vtxStdZ
+      = vm["evg-vertex-z-std"].template as<double>() * Acts::UnitConstants::mm;
+  auto vtxStdT
+      = vm["evg-vertex-t-std"].template as<double>() * Acts::UnitConstants::ns;
 
   EventGenerator::Config cfg;
   cfg.generators = {
