@@ -112,7 +112,7 @@ namespace Data {
            double                deltaTime   = 0.)
     {
       m_position = position;
-      m_time = deltaTime;
+      m_time     = deltaTime;
       m_momentum = momentum;
       m_pathInX0 += deltaPathX0;
       m_pathInL0 += deltaPathL0;
