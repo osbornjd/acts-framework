@@ -27,6 +27,7 @@
 #include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 FW::DigitizationAlgorithm::DigitizationAlgorithm(
     const FW::DigitizationAlgorithm::Config& cfg,
@@ -133,17 +134,17 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
 		  // create the planar cluster
 		  Acts::PlanarModuleCluster pCluster(
 			  hitSurface.getSharedPtr(),
-			  Identifier(Identifier::identifier_type(geoID.value()),
+              Identifier(Identifier::identifier_type(hit.geoId().value()),
 						 hitParticles),
 			  std::move(cov),
 			  localX,
 			  localY,
-			  hit.timeStamp,
+			  hit.time,
 			  std::move(usedCells));
 
         // insert into the cluster container. since the input data is already
         // sorted by geoId, we should always be able to add at the end.
-        clusters.emplace_hint(clusters.end(), hit.geoId(), std::move(cluster));
+        clusters.emplace_hint(clusters.end(), hit.geoId(), std::move(pCluster));
       }
     }
   }

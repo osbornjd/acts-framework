@@ -15,6 +15,7 @@
 #include <TTree.h>
 
 #include <Acts/Utilities/Helpers.hpp>
+#include "Acts/Utilities/Units.hpp"
 
 using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;
