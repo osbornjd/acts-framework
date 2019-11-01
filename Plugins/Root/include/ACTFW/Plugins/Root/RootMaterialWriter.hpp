@@ -126,7 +126,7 @@ namespace Root {
     RootMaterialWriter(const Config& cfg);
 
     /// Virtual destructor
-    ~RootMaterialWriter();
+    ~RootMaterialWriter() = default;
 
     /// Write out the material map
     ///
@@ -159,9 +159,6 @@ namespace Root {
 
     /// The config class
     Config m_cfg;
-
-    /// The output file name
-    TFile* m_outputFile;
 
     /// Private access to the logging instance
     const Acts::Logger&
