@@ -19,6 +19,7 @@
 #include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 #include "Acts/Plugins/Digitization/Segmentation.hpp"
 #include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
     const FW::Root::RootPlanarClusterWriter::Config& cfg,
