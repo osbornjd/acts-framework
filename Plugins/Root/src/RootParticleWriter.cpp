@@ -15,6 +15,7 @@
 #include <TTree.h>
 
 #include <Acts/Utilities/Helpers.hpp>
+#include <Acts/Utilities/Units.hpp>
 
 using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;
@@ -53,6 +54,7 @@ FW::Root::RootParticleWriter::RootParticleWriter(
     m_outputTree->Branch("vx", &m_vx);
     m_outputTree->Branch("vy", &m_vy);
     m_outputTree->Branch("vz", &m_vz);
+    m_outputTree->Branch("vt", &m_vt);
     m_outputTree->Branch("px", &m_px);
     m_outputTree->Branch("py", &m_py);
     m_outputTree->Branch("pz", &m_pz);
@@ -107,6 +109,7 @@ FW::Root::RootParticleWriter::writeT(
       m_vx      = particle.position().x();
       m_vy      = particle.position().y();
       m_vz      = particle.position().z();
+      m_vt      = particle.time() / Acts::UnitConstants::ns;
       m_eta     = eta(particle.momentum());
       m_phi     = phi(particle.momentum());
       m_px      = particle.momentum().x();

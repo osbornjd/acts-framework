@@ -102,20 +102,20 @@ namespace Data {
     /// @param momentum    New momentum after update
     /// @param deltaPathX0 Passed since last step
     /// @param deltaPathL0 Passed since last step
-    /// @param deltaTime   The time elapsed
+    /// @param time   The time elapsed
     /// @returns true if the particle is not alive anymore after the update
     bool
     update(const Acts::Vector3D& position,
            const Acts::Vector3D& momentum,
            double                deltaPathX0 = 0.,
            double                deltaPathL0 = 0.,
-           double                deltaTime   = 0.)
+           double                time        = 0.)
     {
       m_position = position;
-      m_time += deltaTime;
       m_momentum = momentum;
       m_pathInX0 += deltaPathX0;
       m_pathInL0 += deltaPathL0;
+      m_time = time;
       return !(*this);
     }
 
@@ -217,8 +217,9 @@ namespace Data {
     {
       return m_limitInL0;
     }
+
     /// Whether the particle is alive, i.e. non-zero momentum and within limits.
-    operator bool()
+    operator bool() const
     {
       return (0 < p()) and (m_time < m_limitTime) and (m_pathInX0 < m_limitInX0)
           and (m_pathInL0 < m_limitInL0);

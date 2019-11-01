@@ -21,6 +21,7 @@
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Vertexing/FullBilloirVertexFitter.hpp"
 #include "Acts/Vertexing/HelicalTrackLinearizer.hpp"
+#include "Acts/Vertexing/ImpactPoint3dEstimator.hpp"
 #include "Acts/Vertexing/IterativeVertexFinder.hpp"
 #include "Acts/Vertexing/LinearizedTrack.hpp"
 #include "Acts/Vertexing/TrackToVertexIPEstimator.hpp"
@@ -88,6 +89,15 @@ FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& context) const
 
   ZScanSeedFinder sFinder(std::move(sFcfg));
 
+  // IP 3D Estimator
+  using ImpactPointEstimator
+      = Acts::ImpactPoint3dEstimator<Acts::ConstantBField,
+                                     Acts::BoundParameters,
+                                     Propagator>;
+
+  ImpactPointEstimator::Config ip3dEstCfg(bField, propagator);
+  ImpactPointEstimator         ip3dEst(ip3dEstCfg);
+
   // Vertex Finder
   using VertexFinder
       = Acts::IterativeVertexFinder<VertexFitter, ZScanSeedFinder>;
@@ -95,8 +105,10 @@ FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& context) const
   static_assert(Acts::VertexFinderConcept<VertexFinder>,
                 "Vertex finder does not fulfill vertex finder concept.");
 
-  VertexFinder::Config cfg(
-      std::move(vertexFitter), std::move(linearizer), std::move(sFinder));
+  VertexFinder::Config cfg(std::move(vertexFitter),
+                           std::move(linearizer),
+                           std::move(sFinder),
+                           std::move(ip3dEst));
 
   cfg.maxVertices                 = 200;
   cfg.reassignTracksAfterFirstFit = true;

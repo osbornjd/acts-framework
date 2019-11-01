@@ -77,6 +77,7 @@ namespace Root {
     float      m_vx{0.};               ///< Vertex position x
     float      m_vy{0.};               ///< Vertex position y
     float      m_vz{0.};               ///< Vertex position z
+    float      m_vt{0.};               ///< Vertex time t
     float      m_px{0.};               ///< Momentum position x
     float      m_py{0.};               ///< Momentum position y
     float      m_pz{0.};               ///< Momentum position z
