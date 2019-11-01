@@ -9,7 +9,7 @@ add_library(
   src/MMSteppingAction.cpp)
 target_include_directories(
   ACTFWGeant4Plugin
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     ${Geant4_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWGeant4Plugin

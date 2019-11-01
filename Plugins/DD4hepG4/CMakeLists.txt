@@ -6,7 +6,7 @@ add_library(
   src/GeoConstruction.cpp)
 target_include_directories(
   ACTFWDD4hepG4Plugin
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     ${DD4hep_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWDD4hepG4Plugin

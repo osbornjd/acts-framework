@@ -9,7 +9,7 @@ add_library(
   src/CsvTrackingGeometryWriter.cpp)
 target_include_directories(
   ACTFWCsvPlugin
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(
   ACTFWCsvPlugin
   PRIVATE ACTFramework ActsCore ActsDigitizationPlugin IdentificationPlugin

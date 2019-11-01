@@ -6,7 +6,7 @@ add_library(
   src/PayloadDetector.cpp)
 target_include_directories(
   ACTFWContextualDetector
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(
   ACTFWContextualDetector
   PUBLIC ActsCore IdentificationPlugin ActsDigitizationPlugin ACTFramework

@@ -24,7 +24,7 @@ add_library(
   src/DetUtils.cpp)
 target_include_directories(
   ACTFWDD4hepDetector
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> ${DD4hep_INCLUDE_DIRS})
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> ${DD4hep_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWDD4hepDetector
   PUBLIC ACTFramework ActsCore ActsDigitizationPlugin ActsDD4hepPlugin

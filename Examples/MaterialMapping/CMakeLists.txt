@@ -8,13 +8,17 @@ set(_plugin_libraries
   ACTFWJsonPlugin
   ACTFWBFieldPlugin)
 
-add_executable(ACTFWGenericMaterialValidationExample GenericMaterialValidation.cpp)
+add_executable(
+  ACTFWGenericMaterialValidationExample
+  GenericMaterialValidation.cpp)
 target_link_libraries(
   ACTFWGenericMaterialValidationExample
   PRIVATE ${_common_libraries} ${_plugin_libraries}
     ACTFWPropagation ACTFWGenericDetector)
 
-add_executable(ACTFWGenericMaterialMappingExample GenericMaterialMapping.cpp)
+add_executable(
+  ACTFWGenericMaterialMappingExample
+  GenericMaterialMapping.cpp)
 target_link_libraries(
   ACTFWGenericMaterialMappingExample
   PRIVATE ${_common_libraries} ${_plugin_libraries}

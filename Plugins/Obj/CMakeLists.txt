@@ -5,7 +5,7 @@ add_library(
   src/ObjTrackingGeometryWriter.cpp)
 target_include_directories(
   ACTFWObjPlugin
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(
   ACTFWObjPlugin
   PUBLIC ActsCore ACTFramework Threads::Threads)

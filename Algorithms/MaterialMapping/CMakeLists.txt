@@ -1,4 +1,6 @@
-add_library(ACTFWMaterialMapping SHARED src/MaterialMapping.cpp)
+add_library(
+  ACTFWMaterialMapping SHARED
+  src/MaterialMapping.cpp)
 target_include_directories(
   ACTFWMaterialMapping
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)

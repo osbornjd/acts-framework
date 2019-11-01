@@ -8,7 +8,7 @@ add_library(
   src/PropagationExampleBase.cpp)
 target_include_directories(
   ACTFWExamplesCommon
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(
   ACTFWExamplesCommon
   PUBLIC ActsCore FatrasCore ACTFramework ACTFWObjPlugin ACTFWCsvPlugin

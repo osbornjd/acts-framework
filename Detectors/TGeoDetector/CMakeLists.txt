@@ -1,7 +1,9 @@
-add_library(ACTFWTGeoDetector SHARED src/TGeoDetector.cpp)
+add_library(
+  ACTFWTGeoDetector SHARED
+  src/TGeoDetector.cpp)
 target_include_directories(
   ACTFWTGeoDetector
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(
   ACTFWTGeoDetector
   PUBLIC ActsCore IdentificationPlugin ActsDigitizationPlugin ACTFramework

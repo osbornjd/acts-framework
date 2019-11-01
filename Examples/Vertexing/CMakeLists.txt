@@ -23,7 +23,9 @@ add_executable(ACTFWVertexWriterExample VertexAndTracksWriterExample.cpp)
 target_link_libraries(ACTFWVertexWriterExample PRIVATE ${_common_libraries})
 
 # Reader example
-add_executable(ACTFWVertexReaderExample VertexAndTracksReaderAndFinderExample.cpp)
+add_executable(
+  ACTFWVertexReaderExample
+  VertexAndTracksReaderAndFinderExample.cpp)
 target_link_libraries(ACTFWVertexReaderExample PRIVATE ${_common_libraries})
 
 install(
