@@ -38,7 +38,6 @@ find_package(Threads REQUIRED)
 # heterogeneous lookup in set-like containers requires 1.68
 find_package(Boost 1.68 REQUIRED COMPONENTS filesystem program_options)
 find_package(ROOT 6.10 REQUIRED COMPONENTS ${ROOT_COMPONENTS})
-include(${ROOT_USE_FILE})
 find_package(TBB REQUIRED)
 
 # optional packages
@@ -78,7 +77,7 @@ if(USE_HEPMC3)
   find_package(HepPID REQUIRED)
   # workaround to fix broken cmake config for version 3.1.0.
   # it searches for the HepMC libray instead of the correct HepMC3 one
-  # and sets HEPMC_LIBRARIES instead of the expected HEPMC3_LIBRARIES. 
+  # and sets HEPMC_LIBRARIES instead of the expected HEPMC3_LIBRARIES.
   if(NOT HEPMC3_LIBRARIES)
     message(STATUS "Workaround for HepMC3. Search in $ENV{HepMC3_DIR}")
     find_library(
