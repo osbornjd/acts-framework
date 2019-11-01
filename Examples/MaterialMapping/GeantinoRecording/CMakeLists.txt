@@ -1,6 +1,8 @@
 include(${Geant4_USE_FILE})
 
-add_executable(ACTFWGeantinoRecordingExample GeantinoRecordingExample.cpp)
+add_executable(
+  ACTFWGeantinoRecordingExample
+  GeantinoRecordingExample.cpp)
 target_include_directories(
   ACTFWGeantinoRecordingExample
   PRIVATE ${DD4hep_INCLUDE_DIRS})
