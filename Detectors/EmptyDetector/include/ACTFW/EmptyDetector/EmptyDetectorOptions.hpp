@@ -10,15 +10,14 @@
 
 #include <boost/program_options.hpp>
 #include <utility>
-#include "ACTFW/Utilities/Options.hpp"
 #include "Acts/Utilities/Units.hpp"
-
-namespace po = boost::program_options;
-using namespace Acts::UnitLiterals;
 
 namespace FW {
 
 namespace Options {
+
+  using namespace Acts::UnitLiterals;
+  namespace po = boost::program_options;
 
   /// The empty geometry options, the are prefixes with geo-generic
   ///
@@ -31,10 +30,10 @@ namespace Options {
   {
     opt.add_options()("geo-empty-radius",
                       po::value<double>()->default_value(2_m),
-                      "Radius of the empty cylinder.")(
+                      "Radius of the empty cylinder [in m]. ")(
         "geo-empty-halfLength",
         po::value<double>()->default_value(10_m),
-        "Half length of the empty cylinder.");
+        "Half length of the empty cylinder [in m].");
   }
 }  // namespace Options
 }  // namespace FW

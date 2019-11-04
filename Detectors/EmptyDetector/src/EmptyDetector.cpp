@@ -14,6 +14,7 @@
 #include "Acts/Geometry/CylinderVolumeBounds.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Geometry/TrackingVolume.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 void
 EmptyDetector::addOptions(
@@ -24,14 +25,16 @@ EmptyDetector::addOptions(
 
 auto
 EmptyDetector::finalize(
-    const boost::program_options::variables_map&    vm,
-    std::shared_ptr<const Acts::IMaterialDecorator> mdecorator)
+    const boost::program_options::variables_map& vm,
+    std::shared_ptr<const Acts::IMaterialDecorator> /*unused*/)
     -> std::pair<TrackingGeometryPtr, ContextDecorators>
 {
 
+  using namespace Acts::UnitLiterals;
+
   // Create an empty cylinder with the chosen radius / halflength
-  double r  = vm["geo-empty-radius"].as<double>();
-  double hz = vm["geo-empty-halfLength"].as<double>();
+  double r  = vm["geo-empty-radius"].as<double>() * 1_m;
+  double hz = vm["geo-empty-halfLength"].as<double>() * 1_m;
 
   // The cylinder volume bounds
   auto cvBounds = std::make_shared<Acts::CylinderVolumeBounds>(r, hz);

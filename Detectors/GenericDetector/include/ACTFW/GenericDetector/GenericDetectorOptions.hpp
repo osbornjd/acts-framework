@@ -13,11 +13,11 @@
 #include "ACTFW/Utilities/Options.hpp"
 #include "Acts/Utilities/Units.hpp"
 
-namespace po = boost::program_options;
-
 namespace FW {
 
 namespace Options {
+
+  namespace po = boost::program_options;
 
   /// The generic geometry options, the are prefixes with geo-generic
   ///

@@ -20,6 +20,6 @@ struct EmptyDetector : public FW::IBaseDetector
   addOptions(boost::program_options::options_description& opt) const override;
 
   std::pair<FW::IBaseDetector::TrackingGeometryPtr, ContextDecorators>
-  finalize(const boost::program_options::variables_map&    vm,
-           std::shared_ptr<const Acts::IMaterialDecorator> mdecorator) override;
+  finalize(const boost::program_options::variables_map& vm,
+           std::shared_ptr<const Acts::IMaterialDecorator> /*unused*/) override;
 };
