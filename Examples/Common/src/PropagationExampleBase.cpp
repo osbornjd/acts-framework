@@ -25,6 +25,7 @@
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
 #include "Acts/MagneticField/SharedBField.hpp"
+#include "Acts/Propagator/AtlasStepper.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/Propagator.hpp"
@@ -60,57 +61,55 @@ setupPropagation(sequencer_t&                                  sequencer,
   // Get a Navigator
   Acts::Navigator navigator(tGeometry);
 
-  // Resolve the bfield map template and create the propgator
-  using Stepper    = Acts::EigenStepper<bfield_t>;
-  using Propagator = Acts::Propagator<Stepper, Acts::Navigator>;
-  Stepper    stepper(std::move(bfield));
-  Propagator propagator(std::move(stepper), std::move(navigator));
+  // StraightLine Stepper setup
+  if (vm["prop-stepper"].template as<int>() == 0) {
 
-  // Read the propagation config and create the algorithms
-  auto pAlgConfig = FW::Options::readPropagationConfig(vm, propagator);
-  pAlgConfig.randomNumberSvc = randomNumberSvc;
-  sequencer.addAlgorithm(std::make_shared<FW::PropagationAlgorithm<Propagator>>(
-      pAlgConfig, logLevel));
+    // Straight line stepper
+    using SlStepper  = Acts::StraightLineStepper;
+    using Propagator = Acts::Propagator<SlStepper, Acts::Navigator>;
+    // Make stepper and propagator
+    SlStepper  stepper;
+    Propagator propagator(std::move(stepper), std::move(navigator));
 
-  return FW::ProcessCode::SUCCESS;
-}
+    // Read the propagation config and create the algorithms
+    auto pAlgConfig = FW::Options::readPropagationConfig(vm, propagator);
+    pAlgConfig.randomNumberSvc = randomNumberSvc;
+    sequencer.addAlgorithm(
+        std::make_shared<FW::PropagationAlgorithm<Propagator>>(pAlgConfig,
+                                                               logLevel));
 
-/// @brief Straight Line Propgation setup
-///
-/// @tparam sequencer_t Type of the sequencer of the framework
-///
-/// @param sequencer The framework sequencer, Propgation algorithm to be added
-/// @param vm The program options for the log file
-/// @param randomNumberSvc The framework random number engine
-/// @param tGeometry The TrackingGeometry object
-///
-/// @return a process code
-template <typename sequencer_t>
-FW::ProcessCode
-setupStraightLinePropgation(
-    sequencer_t&                                  sequencer,
-    boost::program_options::variables_map&        vm,
-    std::shared_ptr<FW::RandomNumbers>            randomNumberSvc,
-    std::shared_ptr<const Acts::TrackingGeometry> tGeometry)
-{
-  // Get the log level
-  auto logLevel = FW::Options::readLogLevel(vm);
+  } else if (vm["prop-stepper"].template as<int>() == 1) {
+    // Eigen Stepper setup
 
-  // Get a Navigator
-  Acts::Navigator navigator(tGeometry);
+    // Resolve the bfield map template and create the propgator
+    using Stepper    = Acts::EigenStepper<bfield_t>;
+    using Propagator = Acts::Propagator<Stepper, Acts::Navigator>;
+    Stepper    stepper(std::move(bfield));
+    Propagator propagator(std::move(stepper), std::move(navigator));
 
-  // Straight line stepper
-  using SlStepper  = Acts::StraightLineStepper;
-  using Propagator = Acts::Propagator<SlStepper, Acts::Navigator>;
-  // Make stepper and propagator
-  SlStepper  stepper;
-  Propagator propagator(std::move(stepper), std::move(navigator));
+    // Read the propagation config and create the algorithms
+    auto pAlgConfig = FW::Options::readPropagationConfig(vm, propagator);
+    pAlgConfig.randomNumberSvc = randomNumberSvc;
+    sequencer.addAlgorithm(
+        std::make_shared<FW::PropagationAlgorithm<Propagator>>(pAlgConfig,
+                                                               logLevel));
 
-  // Read the propagation config and create the algorithms
-  auto pAlgConfig = FW::Options::readPropagationConfig(vm, propagator);
-  pAlgConfig.randomNumberSvc = randomNumberSvc;
-  sequencer.addAlgorithm(std::make_shared<FW::PropagationAlgorithm<Propagator>>(
-      pAlgConfig, logLevel));
+  } else if (vm["prop-stepper"].template as<int>() == 2) {
+    // ATLAS Stepper setup
+
+    // Resolve the bfield map template and create the propgator
+    using Stepper    = Acts::AtlasStepper<bfield_t>;
+    using Propagator = Acts::Propagator<Stepper, Acts::Navigator>;
+    Stepper    stepper(std::move(bfield));
+    Propagator propagator(std::move(stepper), std::move(navigator));
+
+    // Read the propagation config and create the algorithms
+    auto pAlgConfig = FW::Options::readPropagationConfig(vm, propagator);
+    pAlgConfig.randomNumberSvc = randomNumberSvc;
+    sequencer.addAlgorithm(
+        std::make_shared<FW::PropagationAlgorithm<Propagator>>(pAlgConfig,
+                                                               logLevel));
+  }
 
   return FW::ProcessCode::SUCCESS;
 }
@@ -155,10 +154,7 @@ propagationExample(int argc, char* argv[], FW::IBaseDetector& detector)
   auto field2D = std::get<std::shared_ptr<InterpolatedBFieldMap2D>>(bField);
   auto field3D = std::get<std::shared_ptr<InterpolatedBFieldMap3D>>(bField);
 
-  if (vm["prop-stepper"].template as<int>() == 0) {
-    // Straight line stepper was chosen
-    setupStraightLinePropgation(sequencer, vm, randomNumberSvc, tGeometry);
-  } else if (field2D) {
+  if (field2D) {
     // Define the interpolated b-field
     using BField = Acts::SharedBField<InterpolatedBFieldMap2D>;
     BField fieldMap(field2D);

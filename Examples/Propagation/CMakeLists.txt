@@ -9,6 +9,18 @@ set(_common_libraries
   ACTFWRootPlugin
   Boost::program_options)
 
+
+# Generic detector
+add_executable(ACTFWEmptyPropagationExample src/EmptyDetectorPropagationExample.cpp)
+target_include_directories(ACTFWEmptyPropagationExample PRIVATE
+  ${Boost_INCLUDE_DIRS})
+target_link_libraries(ACTFWEmptyPropagationExample PRIVATE
+  ${_common_libraries}
+  ACTFWEmptyDetector)
+install(
+  TARGETS ACTFWEmptyPropagationExample
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 # Generic detector
 add_executable(ACTFWGenericPropagationExample src/GenericPropagationExample.cpp)
 target_link_libraries(ACTFWGenericPropagationExample PRIVATE
