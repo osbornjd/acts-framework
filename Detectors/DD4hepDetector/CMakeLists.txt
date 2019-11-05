@@ -28,7 +28,7 @@ target_include_directories(
 target_link_libraries(
   ACTFWDD4hepDetector
   PUBLIC ACTFramework ActsCore ActsDigitizationPlugin ActsDD4hepPlugin
-    ACTFWDetectorsCommon ROOT::Geom ${DD4hep_LIBRARIES})
+    ACTFWDetectorsCommon ROOT::Geom ROOT::GenVector ${DD4hep_LIBRARIES})
 
 # not sure why this needs to be set, but dd4hep fails to compile otherwise
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
