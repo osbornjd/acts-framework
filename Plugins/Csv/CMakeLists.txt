@@ -13,7 +13,7 @@ target_include_directories(
 target_link_libraries(
   ACTFWCsvPlugin
   PRIVATE ACTFramework ActsCore ActsDigitizationPlugin IdentificationPlugin
-    Threads::Threads dfelibs)
+    Threads::Threads Boost::program_options dfelibs)
 
 install(
   TARGETS ACTFWCsvPlugin
