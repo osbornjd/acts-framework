@@ -1,15 +1,15 @@
-add_executable(ACTFWBFieldExample src/BFieldExample.cpp)
-target_link_libraries(ACTFWBFieldExample PRIVATE ActsCore)
-target_link_libraries(ACTFWBFieldExample PRIVATE ACTFramework ACTFWExamplesCommon)
-target_link_libraries(ACTFWBFieldExample PRIVATE ACTFWBFieldPlugin ACTFWRootPlugin)
-target_link_libraries(ACTFWBFieldExample PRIVATE Boost::program_options)
+add_executable(ACTFWBFieldExample BFieldExample.cpp)
+target_link_libraries(
+  ACTFWBFieldExample
+  PRIVATE ActsCore ACTFramework ACTFWExamplesCommon ACTFWBFieldPlugin
+    ACTFWRootPlugin Boost::program_options)
 
-install(TARGETS ACTFWBFieldExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+add_executable(ACTFWBFieldAccessExample BFieldAccessExample.cpp)
+target_link_libraries(
+  ACTFWBFieldAccessExample
+  PRIVATE ActsCore ACTFramework ACTFWExamplesCommon ACTFWBFieldPlugin
+    ACTFWRootPlugin Boost::program_options)
 
-add_executable(ACTFWBFieldAccessExample src/BFieldAccessExample.cpp)
-target_link_libraries(ACTFWBFieldAccessExample PRIVATE ActsCore)
-target_link_libraries(ACTFWBFieldAccessExample PRIVATE ACTFramework ACTFWExamplesCommon)
-target_link_libraries(ACTFWBFieldAccessExample PRIVATE ACTFWBFieldPlugin ACTFWRootPlugin)
-target_link_libraries(ACTFWBFieldAccessExample PRIVATE Boost::program_options)
-
-install(TARGETS ACTFWBFieldAccessExample RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(
+  TARGETS ACTFWBFieldExample ACTFWBFieldAccessExample
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

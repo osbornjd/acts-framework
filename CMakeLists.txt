@@ -2,14 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(ActsFramework LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard version to use for the build")
-if(${CMAKE_CXX_STANDARD} LESS 17)
-  message(FATAL_ERROR "Acts cannot be build with a standard version\
-  below C++17, C++${CMAKE_CXX_STANDARD} was requested")
-endif()
-message(STATUS "Building with standard version: C++${CMAKE_CXX_STANDARD}")
-
-option(BUILD_ACTS "Build acts-core as submodule" ON)
+option(USE_STANDALONE_ACTS "Use a separate, standalone acts-core installation" OFF)
 option(USE_DD4HEP "Build DD4hep-based geometry code" OFF)
 option(USE_GEANT4 "Build Geant4-based code" OFF)
 option(USE_HEPMC3 "Build HepMC3-based code" OFF)
@@ -24,17 +17,13 @@ set(DD4hep_COMPONENTS DDCore)
 if(USE_GEANT4)
   list(APPEND DD4hep_COMPONENTS DDG4)
 endif()
-set(ROOT_COMPONENTS Core GenVector Hist Tree TreePlayer)
+set(ROOT_COMPONENTS Core Hist Tree TreePlayer)
 if(USE_DD4HEP)
   list(APPEND ROOT_COMPONENTS Geom GenVector)
 endif()
 
 # use install paths consistent w/ ACTS
 include(GNUInstallDirs)
-# require plain C++17 globally
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
-set(CMAKE_CXX_EXTENSIONS off)
 # place build products in `<build_dir>/bin` and `<build_dir>/lib` for simple use
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
@@ -49,33 +38,14 @@ find_package(Threads REQUIRED)
 # heterogeneous lookup in set-like containers requires 1.68
 find_package(Boost 1.68 REQUIRED COMPONENTS filesystem program_options)
 find_package(ROOT 6.10 REQUIRED COMPONENTS ${ROOT_COMPONENTS})
-include(${ROOT_USE_FILE})
 find_package(TBB REQUIRED)
 
 # optional packages
 
-if(USE_DD4HEP)
-  set(DD4HEP_DEBUG_CMAKE on)
-  # Work around DD4hep forcing CMAKE_CXX_STANDARD to 14
-  set(_cmake_cxx_standard ${CMAKE_CXX_STANDARD})
-  find_package(DD4hep REQUIRED COMPONENTS ${DD4hep_COMPONENTS})
-  set(CMAKE_CXX_STANDARD ${_cmake_cxx_standard})
-endif()
-if(USE_GEANT4)
-  set(Geant4_CONFIG_DEBUG on)
-  find_package(Geant4 REQUIRED gdml)
-endif()
-if(USE_PYTHIA8)
-  find_package(Pythia8 REQUIRED)
-endif()
-if(USE_HEPMC3)
-  # only works w/ 3.0.x; later versions change name, include prefix, and
-  # namespace to HepMC3 instead of just HepMC.
-  find_package(HepMC REQUIRED)
-  find_package(HepPID REQUIRED)
-endif()
-
-if(BUILD_ACTS)
+if(USE_STANDALONE_ACTS)
+  message(STATUS "Using external Acts installation")
+  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin IdentificationPlugin TGeoPlugin DD4hepPlugin DigitizationPlugin)
+else()
   message(STATUS "Building Acts from source")
   # acts-core and acts-fatras are build as subprojects with fixed options
   set(ACTS_BUILD_DOC OFF CACHE BOOL "Build Acts documentation")
@@ -89,10 +59,42 @@ if(BUILD_ACTS)
   set(ACTS_BUILD_TGEO_PLUGIN ${USE_TGEO} CACHE BOOL "Build Acts TGeo plugin")
   set(ACTS_BUILD_IDENTIFICATION_PLUGIN ON CACHE BOOL "Build Acts Identification plugin")
   add_subdirectory(external/acts-core)
-else()
-  message(STATUS "Using external Acts installation")
-  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin IdentificationPlugin TGeoPlugin DD4hepPlugin DigitizationPlugin)
 endif()
+if(USE_DD4HEP)
+  set(DD4HEP_DEBUG_CMAKE on)
+  # DD4hep issues w/ C++17 are handled by setting C++17 only as a per-target
+  # requirement and not globally. no workaround required anymore.
+  find_package(DD4hep REQUIRED COMPONENTS ${DD4hep_COMPONENTS})
+endif()
+if(USE_GEANT4)
+  set(Geant4_CONFIG_DEBUG on)
+  find_package(Geant4 REQUIRED gdml)
+endif()
+if(USE_HEPMC3)
+  # must be version 3.1+. version 3.0 uses HepMC w/o number as module name.
+  # version 3.1.0 misses the version variable so we can not check for it
+  find_package(HepMC3 REQUIRED)
+  find_package(HepPID REQUIRED)
+  # workaround to fix broken cmake config for version 3.1.0.
+  # it searches for the HepMC libray instead of the correct HepMC3 one
+  # and sets HEPMC_LIBRARIES instead of the expected HEPMC3_LIBRARIES.
+  if(NOT HEPMC3_LIBRARIES)
+    message(STATUS "Workaround for HepMC3. Search in $ENV{HepMC3_DIR}")
+    find_library(
+      HEPMC3_LIB Names HepMC3
+      PATHS $ENV{HepMC3_DIR}/lib $ENV{HepMC3_DIR}/lib64 NO_DEFAULT_PATH)
+    set(HEPMC3_INCLUDE_DIR ${HEPMC_INCLUDE_DIR})
+    set(HEPMC3_LIBRARIES ${HEPMC3_LIB})
+  endif()
+endif()
+if(USE_PYTHIA8)
+  find_package(Pythia8 REQUIRED)
+endif()
+
+# packages not available as external packages that are alway build from source
+
+add_subdirectory(external/acts-fatras)
+add_subdirectory(external/dfelibs)
 
 # simplify handling of optional components
 # all arguments after the path are evaluated in the if(...) context
@@ -105,9 +107,6 @@ function(add_subdirectory_if path)
     message(STATUS "Disable component '${_name}'")
   endif()
 endfunction()
-
-add_subdirectory(external/acts-fatras)
-add_subdirectory(external/dfelibs)
 
 add_subdirectory(Core)
 add_subdirectory(Detectors)
