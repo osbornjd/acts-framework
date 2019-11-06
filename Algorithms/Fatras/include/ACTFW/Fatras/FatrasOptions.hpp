@@ -47,9 +47,9 @@ namespace Options {
     Config cfg(std::forward<simulator_t>(simulator));
 
     // set particle cuts
-    cfg.simulator.chargedSelector.template get<PtMin>().valMin     = 100._MeV;
+    cfg.simulator.chargedSelector.template get<PtMin>().valMin     = 100_MeV;
     cfg.simulator.chargedSelector.template get<AbsEtaMax>().valMax = 5.;
-    cfg.simulator.neutralSelector.template get<EMin>().valMin      = 100._MeV;
+    cfg.simulator.neutralSelector.template get<EMin>().valMin      = 100_MeV;
     cfg.simulator.neutralSelector.template get<AbsEtaMax>().valMax = 5.;
 
     // set the input collections
