@@ -1,7 +1,8 @@
 add_library(
   ACTFWDigitization SHARED
+  src/DigitizationAlgorithm.cpp
   src/DigitizationOptions.cpp
-  src/DigitizationAlgorithm.cpp)
+  src/HitSmearing.cpp)
 target_include_directories(
   ACTFWDigitization
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
