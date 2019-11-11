@@ -1,5 +1,6 @@
 add_library(
   ActsFrameworkTruthTracking SHARED
+  ACTFW/TruthTracking/ParticleSmearing.cpp
   ACTFW/TruthTracking/TrackSelector.cpp
   ACTFW/TruthTracking/TruthVerticesToTracks.cpp)
 target_include_directories(
