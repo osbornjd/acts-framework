@@ -225,6 +225,7 @@ create_element(Detector& oddd, xml_h xml, SensitiveDetector sens)
       xmlToProtoSurfaceMaterial(
           x_layer_material, *layerExtension, "layer_material");
     }
+    layerExtension->addType("sensitive cylinder", "layer");
     layerElement.addExtension<Acts::ActsExtension>(layerExtension);
 
     PlacedVolume placedLayer = barrelVolume.placeVolume(layerVolume);
