@@ -1,6 +1,7 @@
 add_library(
   ActsFrameworkGenerators SHARED
   ACTFW/Generators/EventGenerator.cpp
+  ACTFW/Generators/FlattenEvent.cpp
   ACTFW/Generators/ParametricProcessGenerator.cpp
   ACTFW/Generators/ParticleSelector.cpp
   ACTFW/Options/ParticleGunOptions.cpp)
