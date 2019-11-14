@@ -92,7 +92,7 @@ namespace Options {
             {100_MeV, 100_GeV}),
         "Transverse momentum range for proprapolated tracks [in GeV].")(
         "prop-max-stepsize",
-        po::value<double>()->default_value(1_m),
+        po::value<double>()->default_value(3_m),
         "Maximum step size for the propagation [in mm].")(
         "prop-pt-loopers",
         po::value<double>()->default_value(300_MeV),
