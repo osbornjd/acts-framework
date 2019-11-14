@@ -106,7 +106,7 @@ public:
     double ptLoopers = 300_MeV;
 
     /// Max step size steering
-    double maxStepSize = 1_m;
+    double maxStepSize = 3_m;
 
     /// The step collection to be stored
     std::string propagationStepCollection = "PropagationSteps";
