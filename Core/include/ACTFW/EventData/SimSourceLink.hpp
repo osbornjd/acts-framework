@@ -15,6 +15,7 @@
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/SourceLinkConcept.hpp>
 
+#include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 
@@ -25,15 +26,19 @@ namespace Data {
   class SimSourceLink
   {
   public:
-    // must be default_constructible to satisfy SourceLinkConcept
-    SimSourceLink() = default;
     SimSourceLink(const SimHit*     truthHit,
                   size_t            dim,
                   Acts::BoundVector values,
                   Acts::BoundMatrix cov)
-      : m_truthHit(truthHit), m_dim(dim), m_values(values), m_cov(cov)
+      : m_values(values)
+      , m_cov(cov)
+      , m_dim(dim)
+      , m_geoId(truthHit->geoId())
+      , m_truthHit(truthHit)
     {
     }
+    /// Must be default_constructible to satisfy SourceLinkConcept.
+    SimSourceLink()                     = default;
     SimSourceLink(SimSourceLink&&)      = default;
     SimSourceLink(const SimSourceLink&) = default;
     SimSourceLink&
@@ -43,19 +48,17 @@ namespace Data {
     operator=(const SimSourceLink&)
         = default;
 
-    bool
-    operator==(const SimSourceLink& rhs) const
+    constexpr Acts::GeometryID
+    geoId() const
     {
-      return m_truthHit == rhs.m_truthHit;
+      return m_geoId;
     }
-
-    const SimHit&
+    constexpr const SimHit&
     truthHit() const
     {
       return *m_truthHit;
     }
-
-    const Acts::Surface&
+    constexpr const Acts::Surface&
     referenceSurface() const
     {
       return *m_truthHit->surface;
@@ -87,14 +90,25 @@ namespace Data {
     }
 
   private:
-    const SimHit*     m_truthHit = nullptr;
-    size_t            m_dim      = 0u;
     Acts::BoundVector m_values;
     Acts::BoundMatrix m_cov;
+    size_t            m_dim = 0u;
+    // store geo id copy to avoid indirection via truth hit.
+    Acts::GeometryID m_geoId;
+    const SimHit*    m_truthHit = nullptr;
+
+    friend constexpr bool
+    operator==(const SimSourceLink& lhs, const SimSourceLink& rhs)
+    {
+      return lhs.m_truthHit == rhs.m_truthHit;
+    }
   };
 
   static_assert(Acts::SourceLinkConcept<SimSourceLink>,
                 "SimSourceLink does not fulfill SourceLinkConcept.");
 
 }  // namespace Data
+
+using SimSourceLinkContainer = GeometryIdMultiset<Data::SimSourceLink>;
+
 }  // end of namespace FW
