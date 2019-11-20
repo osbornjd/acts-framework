@@ -9,63 +9,47 @@
 #pragma once
 
 #include <functional>
-#include <memory>
-#include <string>
 #include <vector>
 
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/ProtoTrack.hpp"
 #include "ACTFW/EventData/SimSourceLink.hpp"
+#include "ACTFW/EventData/Track.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/EventData/TrackState.hpp"
-#include "Acts/Fitter/KalmanFitter.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 
-class RandomNumbers;
-
-class FittingAlgorithm : public BareAlgorithm
+class FittingAlgorithm final : public BareAlgorithm
 {
 public:
-  // A few initialisations and definitionas
-  using Identifier = Data::SimSourceLink;
-  using TrackState = Acts::TrackState<Identifier, Acts::BoundParameters>;
-  using ResultType
-      = Acts::KalmanFitterResult<Identifier, Acts::BoundParameters>;
-  using StartParameters = Acts::CurvilinearParameters;
+  using SourceLink = Data::SimSourceLink;
+  using FitterResultType
+      = Acts::KalmanFitterResult<SourceLink, Acts::BoundParameters>;
+  /// Fit function that takes input measurements, initial trackstate and fitter
+  /// options and returns some fit-specific result.
+  using FitterFunction
+      = std::function<FitterResult(const std::vector<Data::SimSourceLink>&,
+                                   const TrackParameters&,
+                                   const Acts::KalmanFitterOptions&)>;
 
-  /// Nested configuration struct
   struct Config
   {
-    /// input hit collection
-    std::string simulatedHitCollection;
-    /// input event collection
-    std::string simulatedEventCollection;
-    /// output track collection
-    std::string trackCollection = "";
-
-    /// Type erased fit function
-    std::function<ResultType(std::vector<Identifier>&,
-                             const StartParameters&,
-                             const Acts::KalmanFitterOptions&)>
-        fitFunction;
-
-    /// FW random number service
-    std::shared_ptr<RandomNumbers> randomNumberSvc = nullptr;
-    /// Gaussian sigma used to smear the truth track parameter
-    std::vector<double> parameterSigma = {10, 10, 0.02, 0.02, 1};
-    /// Gaussian sigma used to smear the truth hit
-    std::vector<double> measurementSigma = {30, 30};
+    /// Input source links collection.
+    std::string inputSourceLinks;
+    /// Input proto tracks collection, i.e. groups of hit indices.
+    std::string inputProtoTracks;
+    /// Input initial track parameter estimates for for each proto track.
+    std::string inputInitialTrackParameters;
+    /// Output fitted trajectories collection.
+    std::string outputTrajectories;
+    /// Type erased fit function.
+    FitterFunction fit;
   };
 
   /// Constructor of the fitting algorithm
   ///
   /// @param cfg is the config struct to configure the algorihtm
   /// @param level is the logging level
-  FittingAlgorithm(Config               cfg,
-                   Acts::Logging::Level level = Acts::Logging::INFO);
+  FittingAlgorithm(Config cfg, Acts::Logging::Level lvl);
 
   /// Framework execute method of the fitting algorithm
   ///
@@ -75,7 +59,7 @@ public:
   execute(const FW::AlgorithmContext& ctx) const final override;
 
 private:
-  Config m_cfg;  /// config struct
+  Config m_cfg;
 };
 
 }  // namespace FW
