@@ -84,26 +84,25 @@ propagationExample(int argc, char* argv[], FW::IBaseDetector& detector)
 
         using field_map_type = decltype(fieldMap);
 
-        std::variant<Acts::EigenStepper<field_map_type>,
-                     Acts::AtlasStepper<field_map_type>,
-                     Acts::StraightLineStepper>
+        std::optional<std::variant<Acts::EigenStepper<field_map_type>,
+                                   Acts::AtlasStepper<field_map_type>,
+                                   Acts::StraightLineStepper>>
             var_stepper;
 
         // translate option to variant
         if (vm["prop-stepper"].template as<int>() == 0) {
           var_stepper = Acts::StraightLineStepper{};
         } else if (vm["prop-stepper"].template as<int>() == 1) {
-          var_stepper = Acts::EigenStepper<field_map_type>{};
+          var_stepper = Acts::EigenStepper<field_map_type>{std::move(fieldMap)};
         } else if (vm["prop-stepper"].template as<int>() == 2) {
-          var_stepper = Acts::AtlasStepper<field_map_type>{};
+          var_stepper = Acts::AtlasStepper<field_map_type>{std::move(fieldMap)};
         }
 
         // resolve stepper, setup propagator
         std::visit(
             [&](auto& stepper) {
-              using Stepper    = decltype(stepper);
+              using Stepper    = std::decay_t<decltype(stepper)>;
               using Propagator = Acts::Propagator<Stepper, Acts::Navigator>;
-              Stepper    stepper(std::move(fieldMap));
               Propagator propagator(std::move(stepper), std::move(navigator));
 
               // Read the propagation config and create the algorithms
@@ -114,7 +113,7 @@ propagationExample(int argc, char* argv[], FW::IBaseDetector& detector)
                   std::make_shared<FW::PropagationAlgorithm<Propagator>>(
                       pAlgConfig, logLevel));
             },
-            var_stepper);
+            *var_stepper);
       },
       bFieldVar);
 

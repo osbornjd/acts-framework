@@ -28,6 +28,7 @@ namespace Options {
   ///
   ///@tparam omap_t Type of the options map
   ///@param vm the options map to be read out
+  DigitizationAlgorithm::Config
   readDigitizationConfig(const boost::program_options::variables_map& vm);
 }  // namespace Options
 }  // namespace FW
