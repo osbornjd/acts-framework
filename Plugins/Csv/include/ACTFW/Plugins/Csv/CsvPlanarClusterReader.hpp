@@ -47,10 +47,12 @@ namespace Csv {
       std::string inputDir;
       /// Output cluster collection.
       std::string outputClusters;
-      /// Output hit-particles mapping collection.
-      std::string outputHitParticlesMap;
       /// For each cluster/ hit index the original hit id stored on file.
       std::string outputHitIds;
+      /// Output hit-particles mapping collection.
+      std::string outputHitParticlesMap;
+      /// Output simulated (truth) hits collection.
+      std::string outputSimulatedHits;
     };
 
     CsvPlanarClusterReader(const Config&        cfg,
