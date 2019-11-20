@@ -8,4 +8,6 @@ target_link_libraries(
   ACTFWFatras 
   PUBLIC ActsCore FatrasCore ACTFramework)
 
-# interface libraries do not exist in the filesystem; no installation needed
+install(
+  TARGETS ACTFWFatras
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

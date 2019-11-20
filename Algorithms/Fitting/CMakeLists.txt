@@ -10,4 +10,6 @@ target_link_libraries(
   ACTFWFitting 
   PUBLIC ActsCore ACTFramework)
 
-# interface libraries do not exist in the filesystem; no installation needed
+install(
+  TARGETS ACTFWFitting
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
