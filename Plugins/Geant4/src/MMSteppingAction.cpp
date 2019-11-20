@@ -61,11 +61,9 @@ FW::Geant4::MMSteppingAction::UserSteppingAction(const G4Step* step)
       Z = material->GetZ();
     } else {
       for (size_t i = 0; i < nElements; i++) {
-        A += elements->at(i)->GetA() * fraction[i];
+        A += elements->at(i)->GetA() * fraction[i] * CLHEP::mole / CLHEP::gram;
         Z += elements->at(i)->GetZ() * fraction[i];
       }
-      if (A != 0.) A /= nElements;
-      if (A != 0.) Z /= nElements;
     }
 
     /*   G4cout << *material << G4endl;
