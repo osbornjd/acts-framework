@@ -29,7 +29,6 @@
 #include "detail/FatrasDigitizationBase.hpp"
 #include "detail/FatrasEvgenBase.hpp"
 #include "detail/FatrasSimulationBase.hpp"
-#include "detail/FittingBase.hpp"
 
 int
 fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
@@ -47,7 +46,6 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   FW::Options::addBFieldOptions(desc);
   FW::Options::addFatrasOptions(desc);
   FW::Options::addDigitizationOptions(desc);
-  FW::Options::addFittingOptions(desc);
   FW::Options::addOutputOptions(desc);
   desc.add_options()("evg-input-type",
                      value<std::string>()->default_value("pythia8"),
@@ -89,11 +87,6 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   // (C) DIGITIZATION
   // Setup the digitization
   setupDigitization(vm, sequencer, barcodeSvc, randomNumberSvc);
-
-  // (D) TRUTH TRACKING
-  setupFitting(vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
-
-  // (E) PATTERN RECOGNITION
 
   return sequencer.run();
 }
