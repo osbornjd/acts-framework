@@ -19,7 +19,7 @@
 // material, the boundaries and the material of the detector in different views.
 // The in file needs to be in the format created form the ExtrapolationTest.
 // To plot two or three histograms of this kind  in one canvas the root script
-// "compareHistogram.cpp" can be used.
+// "compareHistogram.C" can be used.
 
 void
 printHits(std::string inFile,

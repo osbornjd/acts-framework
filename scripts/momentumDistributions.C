@@ -16,7 +16,7 @@
 // This root script creates different momentum distributions with the inFile
 // created from the ExtrapolationTest.
 // To plot two momentum distributions of this kind  in one canvas the root
-// script "compareDistributions.cpp" can be used.
+// script "compareDistributions.C" can be used.
 
 void
 momentumDistributions(std::string inFile,

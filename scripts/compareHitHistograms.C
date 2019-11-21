@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 /*
- * compareHitHistograms.cpp
+ * compareHitHistograms.C
  *
  *  Created on: 15 Dec 2016
  *      Author: jhrdinka
