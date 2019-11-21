@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 //
-//  layerMaterial.cpp
+//  layerMaterial.C
 //
 //
 //  Created by Julia Hrdinka on 18/08/16.

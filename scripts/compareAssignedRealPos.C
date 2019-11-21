@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 /*
- * compareAssignedRealPos.cpp
+ * compareAssignedRealPos.C
  *
  *  Created on: 16 Dec 2016
  *      Author: jhrdinka
@@ -25,7 +25,7 @@
 // All the layers which should be printed into one canvas need to be in the same
 // file. Every layer has its own directory with the contained material
 // histograms.
-// This script is foreseen to use the input of scripts/layerMaterial.cpp
+// This script is foreseen to use the input of scripts/layerMaterial.C
 
 void
 compareAssignedRealPos(std::string inFile,

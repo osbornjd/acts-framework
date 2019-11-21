@@ -7,7 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 /*
- * errorOfHistograms.cpp
+ * errorOfHistograms.C
  *
  *  Created on: 24 Jan 2017
  *      Author: jhrdinka

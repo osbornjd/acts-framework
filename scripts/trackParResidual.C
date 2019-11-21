@@ -23,7 +23,8 @@ setHistStyle(TH1F* hist, short color);
 // loc2, phi, theta, q/p) from root file produced by the RootTrajectoryWriter
 //
 void
-trackParResidual(const std::string& fileName)
+trackParResidual(const std::string& inFile,
+          const std::string& treeName)
 {
   gStyle->SetOptFit(0000);
   gStyle->SetOptStat(0000);
@@ -31,12 +32,13 @@ trackParResidual(const std::string& fileName)
   gStyle->SetPadRightMargin(0.05);
   gStyle->SetPadTopMargin(0.1);
   gStyle->SetPadBottomMargin(0.15);
-
-  // The root file written by RootTrajectoryWriter
-  std::string filePath = "./" + fileName + ".root";
-  TFile*      file     = TFile::Open(filePath.c_str(), "read");
-  TTree*      tree     = (TTree*)file->Get(fileName.c_str());
-
+ 
+  // Open root file written by RootTrajectoryWriter
+  std::cout << "Opening file: " << inFile << std::endl;
+  TFile*  file = TFile::Open(inFile.c_str(), "read");
+  std::cout << "Reading tree: " << treeName << std::endl;
+  TTree* tree = (TTree*)file->Get(treeName.c_str());
+ 
   // Track parameter name
   std::vector<std::string> paramNames
       = {"loc1", "loc2", "#phi", "#theta", "q/p"};

@@ -63,7 +63,7 @@ done
 # Check whether the results were identical (up to thread-induced reordering)
 for output in "${outputs[@]}"; do
   # Compare the active results files
-  cmd="root -b -q -l -x -e '.x compareRootFiles.cpp(\"ST$output\", \"MT$output\")'"
+  cmd="root -b -q -l -x -e '.x compareRootFiles.C(\"ST$output\", \"MT$output\")'"
   eval $cmd
   result=$?
 
