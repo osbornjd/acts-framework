@@ -20,6 +20,7 @@
 #include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
+#include "ACTFW/Options/Pythia8Options.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 
@@ -86,8 +87,7 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   setupDigitization(vm, sequencer, barcodeSvc, randomNumberSvc);
 
   // (D) TRUTH TRACKING
-  setupFitting<po::variables_map>(
-      vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
+  setupFitting(vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
 
   // (E) PATTERN RECOGNITION
 

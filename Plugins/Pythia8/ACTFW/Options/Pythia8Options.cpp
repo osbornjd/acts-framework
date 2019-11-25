@@ -8,6 +8,8 @@
 
 #include "ACTFW/Options/Pythia8Options.hpp"
 
+#include <boost/program_options.hpp>
+
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
 
 void

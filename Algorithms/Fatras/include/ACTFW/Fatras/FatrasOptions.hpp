@@ -8,15 +8,16 @@
 
 #pragma once
 
-#include <iostream>
-#include "ACTFW/Utilities/Options.hpp"
+//#include "ACTFW/Utilities/Options.hpp"
+#include "Acts/Utilities/Units.hpp"
 #include "Fatras/Kernel/SelectorList.hpp"
 #include "Fatras/Selectors/ChargeSelectors.hpp"
 #include "Fatras/Selectors/KinematicCasts.hpp"
 #include "Fatras/Selectors/SelectorHelpers.hpp"
 #include "FatrasAlgorithm.hpp"
 
-namespace po = boost::program_options;
+#include <iostream>
+#include "ACTFW/Utilities/OptionsFwd.hpp"
 
 namespace FW {
 
@@ -26,39 +27,10 @@ namespace Options {
   ///
   /// Adding Fatras specific options to the Options package
   ///
-  /// @tparam aopt_t Type of the options object (API bound to boost)
-  ///
   /// @param [in] opt_t The options object where the specific digitization
   /// options are attached to
-  template <typename aopt_t>
   void
-  addFatrasOptions(aopt_t& opt)
-  {
-    opt.add_options()(
-        "fatras-sim-particles",
-        po::value<std::string>()->default_value("fatras-particles"),
-        "The collection of simulated particles.")(
-        "fatras-sim-hits",
-        po::value<std::string>()->default_value("fatras-hits"),
-        "The collection of simulated hits")(
-        "fatras-em-ionisation",
-        po::value<bool>()->default_value(true),
-        "Switch on ionisiation loss of charged particles")(
-        "fatras-em-radiation",
-        po::value<bool>()->default_value(true),
-        "Switch on radiation for charged particles")(
-        "fatras-em-scattering",
-        po::value<bool>()->default_value(true),
-        "Switch on multiple scattering")(
-        "fatras-em-conversions",
-        po::value<bool>()->default_value(false),
-        "Switch on gamma conversions")("fatras-had-interaction",
-                                       po::value<bool>()->default_value(false),
-                                       "Switch on hadronic interaction")(
-        "fatras-debug-output",
-        po::value<bool>()->default_value(false),
-        "Switch on debug output on/off");
-  }
+  addFatrasOptions(boost::program_options::options_description& opt);
 
   /// @brief read the fatras specific options and return a Config file
   ///
@@ -68,6 +40,7 @@ namespace Options {
   typename FatrasAlgorithm<simulator_t, event_collection_t>::Config
   readFatrasConfig(const AMAP& vm, simulator_t& simulator)
   {
+    using namespace Acts::UnitLiterals;
     // Create a config
     typename FatrasAlgorithm<simulator_t, event_collection_t>::Config
         fatrasConfig(std::move(simulator));
@@ -89,12 +62,10 @@ namespace Options {
     typedef Fatras::Min<Fatras::casts::E>      NMinE;
 
     simulator.chargedSelector.template get<CMaxEtaAbs>().valMax = 5.;
-    simulator.chargedSelector.template get<CMinPt>().valMin
-        = 100. * Acts::units::_MeV;
+    simulator.chargedSelector.template get<CMinPt>().valMin     = 100._MeV;
 
     simulator.neutralSelector.template get<NMaxEtaAbs>().valMax = 5.;
-    simulator.neutralSelector.template get<NMinE>().valMin
-        = 100. * Acts::units::_MeV;
+    simulator.neutralSelector.template get<NMinE>().valMin      = 100._MeV;
 
     // and return the config
     return fatrasConfig;

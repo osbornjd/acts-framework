@@ -1,5 +1,6 @@
 add_library(
   ACTFWDigitization SHARED
+  src/DigitizationOptions.cpp
   src/DigitizationAlgorithm.cpp)
 target_include_directories(
   ACTFWDigitization

@@ -16,6 +16,7 @@
 
 #include <memory>
 #include <tuple>
+#include <variant>
 
 // Forward declarations
 namespace Acts {
@@ -54,15 +55,18 @@ namespace FW {
 
 namespace Options {
 
+  using BFieldVariant
+      = std::variant<std::shared_ptr<InterpolatedBFieldMap2D>,
+                     std::shared_ptr<InterpolatedBFieldMap3D>,
+                     std::shared_ptr<Acts::ConstantBField>,
+                     std::shared_ptr<FW::BField::ScalableBField>>;
+
   // common bfield options, with a bf prefix
   void
   addBFieldOptions(boost::program_options::options_description& opt);
 
   // create the bfield maps
-  std::tuple<std::shared_ptr<InterpolatedBFieldMap2D>,
-             std::shared_ptr<InterpolatedBFieldMap3D>,
-             std::shared_ptr<Acts::ConstantBField>,
-             std::shared_ptr<FW::BField::ScalableBField>>
+  BFieldVariant
   readBField(const boost::program_options::variables_map& vm);
 
 }  // namespace Options
