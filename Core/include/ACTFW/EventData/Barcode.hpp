@@ -10,8 +10,6 @@
 
 #include <cstdint>
 
-#include <Acts/Utilities/Helpers.hpp>
-
 namespace FW {
 
 /// Particle barcode.
@@ -40,13 +38,13 @@ public:
            barcode_type secondary  = 0,
            barcode_type process    = 0) const
   {
-    // create the barcode w/ all components
     barcode_type barcode = 0;
-    barcode += ACTS_BIT_ENCODE(vertex, m_cfg.vertex_mask);
-    barcode += ACTS_BIT_ENCODE(primary, m_cfg.primary_mask);
-    barcode += ACTS_BIT_ENCODE(generation, m_cfg.generation_mask);
-    barcode += ACTS_BIT_ENCODE(secondary, m_cfg.secondary_mask);
-    barcode += ACTS_BIT_ENCODE(process, m_cfg.process_mask);
+    // create the barcode w/ all components
+    barcode = setBits(barcode, vertex, m_cfg.vertex_mask);
+    barcode = setBits(barcode, primary, m_cfg.primary_mask);
+    barcode = setBits(barcode, generation, m_cfg.generation_mask);
+    barcode = setBits(barcode, secondary, m_cfg.secondary_mask);
+    barcode = setBits(barcode, process, m_cfg.process_mask);
     return barcode;
   }
 
@@ -54,38 +52,61 @@ public:
   barcode_type
   vertex(barcode_type barcode) const
   {
-    return ACTS_BIT_DECODE(barcode, m_cfg.vertex_mask);
+    return getBits(barcode, m_cfg.vertex_mask);
   }
 
   /// Decode the primary index.
   barcode_type
   primary(barcode_type barcode) const
   {
-    return ACTS_BIT_DECODE(barcode, m_cfg.primary_mask);
+    return getBits(barcode, m_cfg.primary_mask);
   }
 
   /// Decode the generation number.
   barcode_type
   generation(barcode_type barcode) const
   {
-    return ACTS_BIT_DECODE(barcode, m_cfg.generation_mask);
+    return getBits(barcode, m_cfg.generation_mask);
   }
 
   /// Decode the secondary index.
   barcode_type
   secondary(barcode_type barcode) const
   {
-    return ACTS_BIT_DECODE(barcode, m_cfg.secondary_mask);
+    return getBits(barcode, m_cfg.secondary_mask);
   }
 
   /// Decode the process number.
   barcode_type
   process(barcode_type barcode) const
   {
-    return ACTS_BIT_DECODE(barcode, m_cfg.process_mask);
+    return getBits(barcode, m_cfg.process_mask);
   }
 
 private:
+  /// Extract the bit shift necessary to access the masked values.
+  static constexpr int
+  extractShift(barcode_type mask)
+  {
+    // use compiler builtin to extract the number of trailing bits from the
+    // mask. the builtin should be available on all supported compilers.
+    // need unsigned long long version (...ll) to ensure uint64_t compatibility.
+    // WARNING undefined behaviour for mask == 0 which we should not have.
+    return __builtin_ctzll(mask);
+  }
+  /// Extract the masked bits from the encoded value.
+  static constexpr barcode_type
+  getBits(barcode_type value, barcode_type mask)
+  {
+    return (value & mask) >> extractShift(mask);
+  }
+  /// Set the masked bits to id in the encoded value.
+  static constexpr barcode_type
+  setBits(barcode_type value, barcode_type mask, barcode_type id)
+  {
+    return (value & ~mask) | ((id << extractShift(mask)) & mask);
+  }
+
   Config m_cfg;
 };
 
