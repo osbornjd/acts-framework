@@ -116,7 +116,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
         double rn_th = gaussDist_angular(rng);
         double rn_qp = gaussDist_qp(rng);
 
-        Acts::TrackParametersBase::ParVector_t smrdParamVec;
+        Acts::BoundVector smrdParamVec;
         smrdParamVec << rn_d0, rn_z0, rn_ph, rn_th, rn_qp, 0.;
 
         // Update track parameters
