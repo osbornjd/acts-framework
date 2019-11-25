@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <map>
 #include <utility>
@@ -26,46 +27,39 @@ namespace detail {
     // indicate allowed transparent comparisons between ids and full objects
     using is_transparent = void;
     // support direct comparision with geometry ids
-    inline geo_id_value
+    constexpr Acts::GeometryID
     key(Acts::GeometryID geoId) const
     {
-      return geoId.value();
+      return geoId;
+    }
+    // support direct comparision with encoded geometry ids
+    constexpr Acts::GeometryID
+    key(Acts::GeometryID::Value encoded) const
+    {
+      return Acts::GeometryID(encoded);
     }
     // support comparison for items in map-like structures
     template <typename T>
-    inline geo_id_value
+    constexpr Acts::GeometryID
     key(const std::pair<Acts::GeometryID, T>& mapItem) const
     {
-      return mapItem.first.value();
+      return mapItem.first;
     }
     // support comparison for items that implement `.geoId()` directly
     template <typename T>
     inline auto
-    key(const T& thing) const -> decltype(thing.geoId(), geo_id_value())
+    key(const T& thing) const -> decltype(thing.geoId(), Acts::GeometryID())
     {
-      return thing.geoId().value();
+      return thing.geoId();
     }
     // compare two elements using the automatic key extraction defined above
     template <typename Left, typename Right>
-    inline bool
-    operator()(const Left& left, const Right& right) const
+    constexpr bool
+    operator()(Left&& left, Right&& right) const
     {
       return key(left) < key(right);
     }
   };
-
-  /// Get the last geometry id below the mask and keep everything above.
-  ///
-  /// E.g 0x00101000 with mask 0x00111100 would become 0x00101011.
-  inline Acts::GeometryID
-  getLastId(Acts::GeometryID value, geo_id_value mask)
-  {
-    // ctzll = count trailing zeros for long long
-    geo_id_value firstNonZero = (1u << __builtin_ctzll(mask));
-    // a value with all trailing bits (according to the mask) set to one
-    geo_id_value trailingOnes = firstNonZero - 1;
-    return value.value() | trailingOnes;
-  }
 }  // namespace detail
 
 /// Store elements that know their detector geometry id, e.g. simulation hits.
@@ -101,63 +95,73 @@ using GeometryIdMultimap = GeometryIdMultiset<std::pair<Acts::GeometryID, T>>;
 /// Select all elements within the given volume.
 template <typename T>
 inline Range<typename GeometryIdMultiset<T>::const_iterator>
-selectVolume(const GeometryIdMultiset<T>& container, geo_id_value volumne)
+selectVolume(const GeometryIdMultiset<T>& container,
+             Acts::GeometryID::Value      volume)
 {
-  Acts::GeometryID first(volumne, Acts::GeometryID::volume_mask);
-  Acts::GeometryID last(
-      detail::getLastId(first, Acts::GeometryID::volume_mask));
-  return makeRange(container.lower_bound(first), container.upper_bound(last));
+  auto cmp = Acts::GeometryID().setVolume(volume);
+  auto beg = std::lower_bound(
+      container.begin(), container.end(), cmp, detail::CompareGeometryId{});
+  // WARNING overflows to volume==0 if the input volume is the last one
+  cmp = Acts::GeometryID().setVolume(volume + 1u);
+  // optimize search by using the lower bound as start point. also handles
+  // volume overflows since the geo id would be located before the start of
+  // the upper edge search window.
+  auto end = std::lower_bound(
+      beg, container.end(), cmp, detail::CompareGeometryId{});
+  return makeRange(beg, end);
 }
 template <typename T>
 inline auto
 selectVolume(const GeometryIdMultiset<T>& container, Acts::GeometryID id)
 {
-  return selectVolume(container, id.value(Acts::GeometryID::volume_mask));
+  return selectVolume(container, id.volume());
 }
 
 /// Select all elements within the given layer.
 template <typename T>
 inline Range<typename GeometryIdMultiset<T>::const_iterator>
 selectLayer(const GeometryIdMultiset<T>& container,
-            geo_id_value                 volumne,
-            geo_id_value                 layer)
+            Acts::GeometryID::Value      volume,
+            Acts::GeometryID::Value      layer)
 {
-  Acts::GeometryID first(volumne, Acts::GeometryID::volume_mask);
-  first.add(layer, Acts::GeometryID::layer_mask);
-  Acts::GeometryID last(detail::getLastId(first, Acts::GeometryID::layer_mask));
-  return makeRange(container.lower_bound(first), container.upper_bound(last));
+  auto cmp = Acts::GeometryID().setVolume(volume).setLayer(layer);
+  auto beg = std::lower_bound(
+      container.begin(), container.end(), cmp, detail::CompareGeometryId{});
+  // WARNING resets to layer==0 if the input layer is the last one
+  cmp = Acts::GeometryID().setVolume(volume).setLayer(layer + 1u);
+  // optimize search by using the lower bound as start point. also handles
+  // volume overflows since the geo id would be located before the start of
+  // the upper edge search window.
+  auto end = std::lower_bound(
+      beg, container.end(), cmp, detail::CompareGeometryId{});
+  return makeRange(beg, end);
 }
 template <typename T>
 inline auto
 selectLayer(const GeometryIdMultiset<T>& container, Acts::GeometryID id)
 {
-  return selectLayer(container,
-                     id.value(Acts::GeometryID::volume_mask),
-                     id.value(Acts::GeometryID::layer_mask));
+  return selectLayer(container, id.volume(), id.layer());
 }
 
 /// Select all elements for the given module / sensitive surface.
 template <typename T>
 inline Range<typename GeometryIdMultiset<T>::const_iterator>
-selectModule(const GeometryIdMultiset<T>& container,
-             geo_id_value                 volumne,
-             geo_id_value                 layer,
-             geo_id_value                 module)
+selectModule(const GeometryIdMultiset<T>& container, Acts::GeometryID geoId)
 {
   // module is the lowest level and defines a single geometry id value
-  Acts::GeometryID geoId(volumne, Acts::GeometryID::volume_mask);
-  geoId.add(layer, Acts::GeometryID::layer_mask);
-  geoId.add(module, Acts::GeometryID::sensitive_mask);
   return makeRange(container.equal_range(geoId));
 }
 template <typename T>
 inline auto
-selectModule(const GeometryIdMultiset<T>& container, Acts::GeometryID id)
+selectModule(const GeometryIdMultiset<T>& container,
+             Acts::GeometryID::Value      volume,
+             Acts::GeometryID::Value      layer,
+             Acts::GeometryID::Value      module)
 {
-  return selectModule(container,
-                      id.value(Acts::GeometryID::volume_mask),
-                      id.value(Acts::GeometryID::layer_mask),
-                      id.value(Acts::GeometryID::sensitive_mask));
+  return selectModule(
+      container,
+      Acts::GeometryID().setVolume(volume).setLayer(layer).setSensitive(
+          module));
 }
 
 /// Store elements that are identified by an index, e.g. in another container.
