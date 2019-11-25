@@ -118,9 +118,9 @@ FW::Root::RootPlanarClusterWriter::writeT(
     // transform local into global position information
     clusterSurface.localToGlobal(context.geoContext, local, mom, pos);
     // identification
-    m_volumeID  = geoId.value(Acts::GeometryID::volume_mask);
-    m_layerID   = geoId.value(Acts::GeometryID::layer_mask);
-    m_surfaceID = geoId.value(Acts::GeometryID::sensitive_mask);
+    m_volumeID  = geoId.volume();
+    m_layerID   = geoId.layer();
+    m_surfaceID = geoId.sensitive();
     m_x         = pos.x();
     m_y         = pos.y();
     m_z         = pos.z();

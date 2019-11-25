@@ -117,24 +117,22 @@ FW::Root::RootPropagationStepsWriter::writeT(
     // loop over single steps
     for (auto& step : steps) {
       // the identification of the step
-      geo_id_value volumeID    = 0;
-      geo_id_value boundaryID  = 0;
-      geo_id_value layerID     = 0;
-      geo_id_value approachID  = 0;
-      geo_id_value sensitiveID = 0;
+      Acts::GeometryID::Value volumeID    = 0;
+      Acts::GeometryID::Value boundaryID  = 0;
+      Acts::GeometryID::Value layerID     = 0;
+      Acts::GeometryID::Value approachID  = 0;
+      Acts::GeometryID::Value sensitiveID = 0;
       // get the identification from the surface first
       if (step.surface) {
         auto geoID  = step.surface->geoID();
-        sensitiveID = geoID.value(ag::sensitive_mask);
-        approachID  = geoID.value(ag::approach_mask);
-        layerID     = geoID.value(ag::layer_mask);
-        boundaryID  = geoID.value(ag::boundary_mask);
-        volumeID    = geoID.value(ag::volume_mask);
+        volumeID    = geoID.volume();
+        boundaryID  = geoID.boundary();
+        layerID     = geoID.layer();
+        approachID  = geoID.approach();
+        sensitiveID = geoID.sensitive();
       }
       // a current volume overwrites the surface tagged one
-      if (step.volume) {
-        volumeID = step.volume->geoID().value(ag::volume_mask);
-      }
+      if (step.volume) { volumeID = step.volume->geoID().volume(); }
       // now fill
       m_sensitiveID.push_back(sensitiveID);
       m_approachID.push_back(approachID);

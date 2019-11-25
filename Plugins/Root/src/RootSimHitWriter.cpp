@@ -89,9 +89,9 @@ FW::Root::RootSimHitWriter::writeT(const AlgorithmContext& context,
   // Loop over the planar fatras hits in this event
   for (const auto& hit : hits) {
     // extract geometry identification
-    m_volumeID  = hit.geoId().value(Acts::GeometryID::volume_mask);
-    m_layerID   = hit.geoId().value(Acts::GeometryID::layer_mask);
-    m_surfaceID = hit.geoId().value(Acts::GeometryID::sensitive_mask);
+    m_volumeID  = hit.geoId().volume();
+    m_layerID   = hit.geoId().layer();
+    m_surfaceID = hit.geoId().sensitive();
     m_x         = hit.position.x();
     m_y         = hit.position.y();
     m_z         = hit.position.z();

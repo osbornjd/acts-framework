@@ -68,28 +68,29 @@ FW::Root::RootMaterialDecorator::RootMaterialDecorator(
     iter_split(
         splitNames, tdName, boost::algorithm::first_finder(m_cfg.voltag));
     boost::split(splitNames, splitNames[1], boost::is_any_of("_"));
-    geo_id_value volID = std::stoi(splitNames[0]);
+    Acts::GeometryID::Value volID = std::stoi(splitNames[0]);
     // layer
     iter_split(
         splitNames, tdName, boost::algorithm::first_finder(m_cfg.laytag));
     boost::split(splitNames, splitNames[1], boost::is_any_of("_"));
-    geo_id_value layID = std::stoi(splitNames[0]);
+    Acts::GeometryID::Value layID = std::stoi(splitNames[0]);
     // approach
     iter_split(
         splitNames, tdName, boost::algorithm::first_finder(m_cfg.apptag));
     boost::split(splitNames, splitNames[1], boost::is_any_of("_"));
-    geo_id_value appID = std::stoi(splitNames[0]);
+    Acts::GeometryID::Value appID = std::stoi(splitNames[0]);
     // sensitive
     iter_split(
         splitNames, tdName, boost::algorithm::first_finder(m_cfg.sentag));
-    geo_id_value senID = std::stoi(splitNames[1]);
+    Acts::GeometryID::Value senID = std::stoi(splitNames[1]);
 
     // Reconstruct the geometry ID
-    Acts::GeometryID geoID(volID, Acts::GeometryID::volume_mask);
-    geoID.add(layID, Acts::GeometryID::layer_mask);
-    geoID.add(appID, Acts::GeometryID::approach_mask);
-    geoID.add(senID, Acts::GeometryID::sensitive_mask);
-    ACTS_VERBOSE("GeometryID re-constructed as " << geoID.toString());
+    Acts::GeometryID geoID;
+    geoID.setVolume(volID);
+    geoID.setLayer(layID);
+    geoID.setApproach(appID);
+    geoID.setSensitive(senID);
+    ACTS_VERBOSE("GeometryID re-constructed as " << geoID);
 
     // Construct the names
     std::string nName   = tdName + "/" + m_cfg.ntag;
@@ -177,7 +178,7 @@ FW::Root::RootMaterialDecorator::RootMaterialDecorator(
             Acts::MaterialProperties(dx0, dl0, da, dz, drho, dt));
       }
     }
-    ACTS_VERBOSE("Successfully read Material for : " << geoID.toString());
+    ACTS_VERBOSE("Successfully read Material for : " << geoID);
 
     // Insert into the new collection
     m_surfaceMaterialMap.insert({geoID, std::move(sMaterial)});

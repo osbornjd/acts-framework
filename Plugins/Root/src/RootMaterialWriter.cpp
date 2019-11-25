@@ -53,10 +53,10 @@ FW::Root::RootMaterialWriter::write(
     // get the geometry ID
     Acts::GeometryID geoID = key;
     // decode the geometryID
-    geo_id_value gvolID = geoID.value(Acts::GeometryID::volume_mask);
-    geo_id_value glayID = geoID.value(Acts::GeometryID::layer_mask);
-    geo_id_value gappID = geoID.value(Acts::GeometryID::approach_mask);
-    geo_id_value gsenID = geoID.value(Acts::GeometryID::sensitive_mask);
+    const auto gvolID = geoID.volume();
+    const auto glayID = geoID.layer();
+    const auto gappID = geoID.approach();
+    const auto gsenID = geoID.sensitive();
     // create the directory
     std::string tdName = m_cfg.folderNameBase.c_str();
     tdName += m_cfg.voltag + std::to_string(gvolID);
