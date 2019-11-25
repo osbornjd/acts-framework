@@ -100,7 +100,7 @@ FW::Obj::ObjSurfaceWriter::write(const AlgorithmContext& context,
     ACTS_VERBOSE(">>Obj: Writing out a CylinderSurface with r = "
                  << cylinderBounds->r());
     // name the object
-    auto layerID = surface.geoID().value(Acts::GeometryID::layer_mask);
+    auto layerID = surface.geoID().layer();
     (*(m_cfg.outputStream))
         << " o Cylinder_" << std::to_string(layerID) << '\n';
     // output to the file
@@ -122,7 +122,7 @@ FW::Obj::ObjSurfaceWriter::write(const AlgorithmContext& context,
     ACTS_VERBOSE(">>Obj: Writing out a DiskSurface at z = "
                  << sTransform.translation().z());
     // name the object
-    auto layerID = surface.geoID().value(Acts::GeometryID::layer_mask);
+    auto layerID = surface.geoID().layer();
     (*(m_cfg.outputStream)) << "o Disk_" << std::to_string(layerID) << '\n';
     // we use the tube writer in the other direction
     double rMin      = radialBounds->rMin();
