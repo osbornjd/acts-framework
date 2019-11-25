@@ -90,9 +90,9 @@ inline Acts::GeometryID
 extractGeometryId(const FW::HitData& data)
 {
   Acts::GeometryID geoId;
-  geoId.add(data.volume_id, Acts::GeometryID::volume_mask);
-  geoId.add(data.layer_id, Acts::GeometryID::layer_mask);
-  geoId.add(data.module_id, Acts::GeometryID::sensitive_mask);
+  geoId.setVolume(data.volume_id);
+  geoId.setLayer(data.layer_id);
+  geoId.setSensitive(data.module_id);
   return geoId;
 }
 

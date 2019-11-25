@@ -62,9 +62,9 @@ writeSurface(SurfaceWriter&               writer,
 
   // unpack geo id
   auto geoID     = surface.geoID();
-  data.volume_id = geoID.value(Acts::GeometryID::volume_mask);
-  data.layer_id  = geoID.value(Acts::GeometryID::layer_mask);
-  data.module_id = geoID.value(Acts::GeometryID::sensitive_mask);
+  data.volume_id = geoID.volume();
+  data.layer_id  = geoID.layer();
+  data.module_id = geoID.sensitive();
 
   // coordinate transformation
   auto center    = surface.center(geoCtx);

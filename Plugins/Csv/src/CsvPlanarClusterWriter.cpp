@@ -73,9 +73,9 @@ FW::Csv::CsvPlanarClusterWriter::writeT(
     hit.z = globalPos.z() / Acts::UnitConstants::mm;
     // TODO add time once it is stored in clusters
     hit.t         = 0 / Acts::UnitConstants::ns;
-    hit.volume_id = geoId.value(Acts::GeometryID::volume_mask);
-    hit.layer_id  = geoId.value(Acts::GeometryID::layer_mask);
-    hit.module_id = geoId.value(Acts::GeometryID::sensitive_mask);
+    hit.volume_id = geoId.volume();
+    hit.layer_id  = geoId.layer();
+    hit.module_id = geoId.sensitive();
     writerHits.append(hit);
 
     // write local cell information
