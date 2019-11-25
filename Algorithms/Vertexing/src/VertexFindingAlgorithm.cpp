@@ -40,85 +40,61 @@ FWE::VertexFindingAlgorithm::VertexFindingAlgorithm(const Config&        cfg,
 /// @brief Algorithm that receives all selected tracks from an event
 /// and finds and fits its vertices
 FW::ProcessCode
-FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& context) const
+FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
 {
-
-  using Propagator = Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>;
-  using Linearizer_t
-      = Acts::HelicalTrackLinearizer<Acts::ConstantBField, Propagator>;
-
+  using MagneticField     = Acts::ConstantBField;
+  using Stepper           = Acts::EigenStepper<MagneticField>;
+  using Propagator        = Acts::Propagator<Stepper>;
+  using PropagatorOptions = Acts::PropagatorOptions<>;
+  using TrackParameters   = Acts::BoundParameters;
+  using Linearizer        = Acts::HelicalTrackLinearizer<Propagator>;
   using VertexFitter
-      = Acts::FullBilloirVertexFitter<Acts::BoundParameters, Linearizer_t>;
+      = Acts::FullBilloirVertexFitter<TrackParameters, Linearizer>;
+  using VertexSeederImpactPointEstimator
+      = Acts::TrackToVertexIPEstimator<TrackParameters, Propagator>;
+  using VertexSeeder = Acts::ZScanVertexFinder<VertexFitter>;
+  using VertexFinder = Acts::IterativeVertexFinder<VertexFitter, VertexSeeder>;
+  using VertexFinderOptions = Acts::VertexFinderOptions<TrackParameters>;
 
-  const auto& input = context.eventStore.get<std::vector<FW::VertexAndTracks>>(
-      m_cfg.trackCollection);
-
-  // Set up constant B-Field
-  Acts::ConstantBField bField(m_cfg.bField);
-
-  // Set up Eigenstepper
-  Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
-
-  // Set up propagator with void navigator
-  auto propagator = std::make_shared<Propagator>(stepper);
-
-  // Set up track linearizer
-  Acts::PropagatorOptions<Acts::ActionList<>, Acts::AbortList<>> pOptions
-      = Linearizer_t::getDefaultPropagatorOptions(context.geoContext,
-                                                  context.magFieldContext);
-
-  Linearizer_t::Config ltConfig(bField, propagator, pOptions);
-  Linearizer_t         linearizer(ltConfig);
-
-  // Set up vertex fitter
-  VertexFitter::Config vertexFitterCfg;
-  VertexFitter         vertexFitter(vertexFitterCfg);
-
-  // Set up all seed finder related things
-  Acts::TrackToVertexIPEstimator<Acts::BoundParameters, Propagator>::Config
-                                                                    ipEstCfg(propagator, pOptions);
-  Acts::TrackToVertexIPEstimator<Acts::BoundParameters, Propagator> ipEst(
-      ipEstCfg);
-
-  using ZScanSeedFinder = Acts::ZScanVertexFinder<VertexFitter>;
-
-  static_assert(Acts::VertexFinderConcept<ZScanSeedFinder>,
-                "Vertex finder does not fulfill vertex finder concept.");
-
-  ZScanSeedFinder::Config sFcfg(std::move(ipEst));
-
-  ZScanSeedFinder sFinder(std::move(sFcfg));
-
-  // IP 3D Estimator
-  using ImpactPointEstimator
-      = Acts::ImpactPoint3dEstimator<Acts::ConstantBField,
-                                     Acts::BoundParameters,
-                                     Propagator>;
-
-  ImpactPointEstimator::Config ip3dEstCfg(bField, propagator);
-  ImpactPointEstimator         ip3dEst(ip3dEstCfg);
-
-  // Vertex Finder
-  using VertexFinder
-      = Acts::IterativeVertexFinder<VertexFitter, ZScanSeedFinder>;
-
+  static_assert(Acts::VertexFinderConcept<VertexSeeder>,
+                "VertexSeeder does not fulfill vertex finder concept.");
   static_assert(Acts::VertexFinderConcept<VertexFinder>,
-                "Vertex finder does not fulfill vertex finder concept.");
+                "VertexFinder does not fulfill vertex finder concept.");
 
-  VertexFinder::Config cfg(std::move(vertexFitter),
-                           std::move(linearizer),
-                           std::move(sFinder),
-                           std::move(ip3dEst));
+  // Set up the magnetic field
+  MagneticField bField(m_cfg.bField);
+  // Set up propagator with void navigator
+  auto              propagator = std::make_shared<Propagator>(Stepper(bField));
+  PropagatorOptions propagatorOpts(ctx.geoContext, ctx.magFieldContext);
+  // Setup the vertex fitter
+  VertexFitter::Config vertexFitterCfg;
+  VertexFitter         vertexFitter(std::move(vertexFitterCfg));
+  // Setup the track linearizer
+  Linearizer::Config linearizerCfg(bField, propagator, propagatorOpts);
+  Linearizer         linearizer(std::move(linearizerCfg));
+  // Setup the seed finder
+  VertexSeederImpactPointEstimator::Config seederIpEstCfg(propagator,
+                                                          propagatorOpts);
+  VertexSeederImpactPointEstimator seederIpEst(std::move(seederIpEstCfg));
+  VertexSeeder::Config             seederCfg(std::move(seederIpEst));
+  VertexSeeder                     seeder(std::move(seederCfg));
+  // Setup the impact point estimator
+  VertexFinder::ImpactPointEstimator::Config finderIpEstCfg(
+      bField, propagator, propagatorOpts);
+  VertexFinder::ImpactPointEstimator finderIpEst(std::move(finderIpEstCfg));
+  // Set up the actual vertex finder
+  VertexFinder::Config finderCfg(std::move(vertexFitter),
+                                 std::move(linearizer),
+                                 std::move(seeder),
+                                 std::move(finderIpEst));
+  finderCfg.maxVertices                 = 200;
+  finderCfg.reassignTracksAfterFirstFit = true;
+  VertexFinder        finder(finderCfg);
+  VertexFinderOptions finderOpts(ctx.geoContext, ctx.magFieldContext);
 
-  cfg.maxVertices                 = 200;
-  cfg.reassignTracksAfterFirstFit = true;
-
-  VertexFinder vertexFinder(cfg);
-
-  // Vertex finder options
-  Acts::VertexFinderOptions<Acts::BoundParameters> vFinderOptions(
-      context.geoContext, context.magFieldContext);
-
+  // Setup containers
+  const auto& input = ctx.eventStore.get<std::vector<FW::VertexAndTracks>>(
+      m_cfg.trackCollection);
   std::vector<Acts::BoundParameters> inputTrackCollection;
 
   int counte = 0;
@@ -138,7 +114,7 @@ FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& context) const
   }
 
   // Find vertices
-  auto res = vertexFinder.find(inputTrackCollection, vFinderOptions);
+  auto res = finder.find(inputTrackCollection, finderOpts);
 
   if (res.ok()) {
     // Retrieve vertices found by vertex finder
