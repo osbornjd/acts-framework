@@ -37,9 +37,9 @@ namespace FW {
 namespace Json {
 
   using SurfaceMaterialRep
-      = std::map<geo_id_value, const Acts::ISurfaceMaterial*>;
+      = std::map<Acts::GeometryID::Value, const Acts::ISurfaceMaterial*>;
   using VolumeMaterialRep
-      = std::map<geo_id_value, const Acts::IVolumeMaterial*>;
+      = std::map<Acts::GeometryID::Value, const Acts::IVolumeMaterial*>;
 
   /// @brief Layer representation for Json writing
   struct LayerRep
@@ -64,13 +64,11 @@ namespace Json {
   {
     // The geometry id
     Acts::GeometryID volumeID;
-
-    /// The namne
-    std::string volumeName;
-
-    std::map<geo_id_value, LayerRep> layers;
-    SurfaceMaterialRep               boundaries;
-    const Acts::IVolumeMaterial*     material = nullptr;
+    /// The name
+    std::string                                 volumeName;
+    std::map<Acts::GeometryID::Value, LayerRep> layers;
+    SurfaceMaterialRep                          boundaries;
+    const Acts::IVolumeMaterial*                material = nullptr;
 
     /// The VolumeRep is actually worth it to write out
     operator bool() const
@@ -83,8 +81,7 @@ namespace Json {
   /// @brief Detector representation for Json writing
   struct DetectorRep
   {
-
-    std::map<geo_id_value, VolumeRep> volumes;
+    std::map<Acts::GeometryID::Value, VolumeRep> volumes;
   };
 
   /// @class JsonGeometryConverter
