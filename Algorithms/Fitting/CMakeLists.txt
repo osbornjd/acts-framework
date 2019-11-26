@@ -8,7 +8,7 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(
   ACTFWFitting 
-  PUBLIC ActsCore ACTFramework)
+  PUBLIC ActsCore ACTFramework Boost::program_options)
 
 install(
   TARGETS ACTFWFitting

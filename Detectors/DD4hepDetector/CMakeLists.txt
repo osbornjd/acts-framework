@@ -1,4 +1,4 @@
-add_library(
+ add_library(
   ACTFWDD4hepDetector SHARED
   src/Demonstrator/DemonstratorBarrel_geo.cpp
   src/Demonstrator/DemonstratorBeamPipe_geo.cpp
@@ -6,6 +6,7 @@ add_library(
   src/FCChh/FCChhTrackerTkLayout_Beampipe.cpp
   src/FCChh/FCChhTrackerTkLayout_Endcap.cpp
   src/IBL/IBLSimpleBarrel_geo.cpp
+  src/iDetector/iDCylinder_geo.cpp
   src/OpenDataDetector/ODDCylinder_geo.cpp
   src/OpenDataDetector/ODDPixelBarrel_geo.cpp
   src/OpenDataDetector/ODDPixelEndcap_geo.cpp

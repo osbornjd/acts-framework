@@ -6,7 +6,7 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(
   ACTFWFatras 
-  PUBLIC ActsCore FatrasCore ACTFramework)
+  PUBLIC ActsCore FatrasCore ACTFramework Boost::program_options)
 
 install(
   TARGETS ACTFWFatras
