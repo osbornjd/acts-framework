@@ -33,48 +33,41 @@ FWE::VertexFitAlgorithm::VertexFitAlgorithm(const Config&        cfg,
 /// @brief Algorithm that receives a set of tracks belonging to a common
 /// vertex and fits the associated vertex to it
 FW::ProcessCode
-FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
+FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& ctx) const
 {
-  using Propagator = Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>>;
-  using Linearizer_t
-      = Acts::HelicalTrackLinearizer<Acts::ConstantBField, Propagator>;
-
+  using MagneticField     = Acts::ConstantBField;
+  using Stepper           = Acts::EigenStepper<MagneticField>;
+  using Propagator        = Acts::Propagator<Stepper>;
+  using PropagatorOptions = Acts::PropagatorOptions<>;
+  using TrackParameters   = Acts::BoundParameters;
+  using Linearizer        = Acts::HelicalTrackLinearizer<Propagator>;
   using VertexFitter
-      = Acts::FullBilloirVertexFitter<Acts::BoundParameters, Linearizer_t>;
+      = Acts::FullBilloirVertexFitter<TrackParameters, Linearizer>;
+  using VertexFitterOptions = Acts::VertexFitterOptions<TrackParameters>;
 
-  const auto& input = context.eventStore.get<std::vector<FW::VertexAndTracks>>(
-      m_cfg.trackCollection);
-
-  // Set up constant B-Field
-  Acts::ConstantBField bField(m_cfg.bField);
-
-  // Set up Eigenstepper
-  Acts::EigenStepper<Acts::ConstantBField> stepper(bField);
-
-  // Set up propagator with void navigator
-  auto propagator = std::make_shared<Propagator>(stepper);
-
-  Acts::PropagatorOptions<Acts::ActionList<>, Acts::AbortList<>> pOptions
-      = Linearizer_t::getDefaultPropagatorOptions(context.geoContext,
-                                                  context.magFieldContext);
-
-  Linearizer_t::Config ltConfig(bField, propagator, pOptions);
-  Linearizer_t         linearizer(ltConfig);
-
+  // Setup the magnetic field
+  MagneticField bField(m_cfg.bField);
+  // Setup the propagator with void navigator
+  auto              propagator = std::make_shared<Propagator>(Stepper(bField));
+  PropagatorOptions propagatorOpts(ctx.geoContext, ctx.magFieldContext);
+  // Setup the vertex fitter
   VertexFitter::Config vertexFitterCfg;
+  VertexFitter         vertexFitter(vertexFitterCfg);
+  // Setup the linearizer
+  Linearizer::Config ltConfig(bField, propagator, propagatorOpts);
+  Linearizer         linearizer(ltConfig);
 
-  VertexFitter vertexFitter(vertexFitterCfg);
-
+  const auto& input = ctx.eventStore.get<std::vector<FW::VertexAndTracks>>(
+      m_cfg.trackCollection);
   for (auto& vertexAndTracks : input) {
 
     auto& inputTrackCollection = vertexAndTracks.tracks;
 
-    Acts::Vertex<Acts::BoundParameters> fittedVertex;
+    Acts::Vertex<TrackParameters> fittedVertex;
     if (!m_cfg.doConstrainedFit) {
       if (inputTrackCollection.size() < 2) { continue; }
       // Vertex fitter options
-      Acts::VertexFitterOptions<Acts::BoundParameters> vfOptions(
-          context.geoContext, context.magFieldContext);
+      VertexFitterOptions vfOptions(ctx.geoContext, ctx.magFieldContext);
 
       auto fitRes
           = vertexFitter.fit(inputTrackCollection, linearizer, vfOptions);
@@ -85,14 +78,14 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& context) const
       }
     } else {
       // Vertex constraint
-      Acts::Vertex<Acts::BoundParameters> theConstraint;
+      Acts::Vertex<TrackParameters> theConstraint;
 
       theConstraint.setCovariance(m_cfg.constraintCov);
       theConstraint.setPosition(m_cfg.constraintPos);
 
       // Vertex fitter options
-      Acts::VertexFitterOptions<Acts::BoundParameters> vfOptionsConstr(
-          context.geoContext, context.magFieldContext, theConstraint);
+      VertexFitterOptions vfOptionsConstr(
+          ctx.geoContext, ctx.magFieldContext, theConstraint);
 
       auto fitRes
           = vertexFitter.fit(inputTrackCollection, linearizer, vfOptionsConstr);

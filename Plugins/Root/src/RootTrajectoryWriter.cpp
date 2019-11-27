@@ -271,9 +271,9 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext& ctx,
 
       // get the geometry ID
       auto geoID = state.referenceSurface().geoID();
-      m_volumeID.push_back(geoID.value(Acts::GeometryID::volume_mask));
-      m_layerID.push_back(geoID.value(Acts::GeometryID::layer_mask));
-      m_moduleID.push_back(geoID.value(Acts::GeometryID::sensitive_mask));
+      m_volumeID.push_back(geoID.volume());
+      m_layerID.push_back(geoID.layer());
+      m_moduleID.push_back(geoID.sensitive());
 
       auto meas = std::get<Measurement>(**state.measurement.uncalibrated);
 

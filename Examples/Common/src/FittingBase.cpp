@@ -87,7 +87,8 @@ setupFitting(boost::program_options::variables_map&        vm,
                   const FW::FittingAlgorithm::StartParameters&   sParameters,
                   const Acts::KalmanFitterOptions&               kfOptions)
             -> FW::FittingAlgorithm::ResultType {
-          return kFitter->fit(sourceLinks, sParameters, kfOptions);
+          // TODO propagate error using the result type
+          return kFitter->fit(sourceLinks, sParameters, kfOptions).value();
         };
       },
       bFieldVar);
