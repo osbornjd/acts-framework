@@ -8,6 +8,8 @@
 
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 
+#include <string>
+
 void
 FW::Options::addFatrasOptions(FW::Options::Description& desc)
 {
