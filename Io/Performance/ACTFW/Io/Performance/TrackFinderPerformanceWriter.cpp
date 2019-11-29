@@ -90,8 +90,15 @@ struct FW::TrackFinderPerformanceWriter::Impl
       throw std::invalid_argument("Missing output filename");
     }
 
-    file = TFile::Open(joinPaths(cfg.outputDir, cfg.outputFilename).c_str(),
-                       "RECREATE");
+    // the output file can not be given externally since TFile accesses to the
+    // same file from multiple threads are unsafe.
+    // must always be opened internally
+    auto path = joinPaths(cfg.outputDir, cfg.outputFilename);
+    file      = TFile::Open(path.c_str(), "RECREATE");
+    if (not file) {
+      throw std::invalid_argument("Could not open '" + path + "'");
+    }
+
     // construct trees
     trkTree = new TTree("track_finder_tracks", "");
     trkTree->SetDirectory(file);
