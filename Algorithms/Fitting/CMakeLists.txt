@@ -1,8 +1,7 @@
 add_library(
   ACTFWFitting SHARED
   src/FittingAlgorithm.cpp
-  src/FittingAlgorithmFitterFunction.cpp
-  src/FittingOptions.cpp)
+  src/FittingAlgorithmFitterFunction.cpp)
 target_include_directories(
   ACTFWFitting
   PUBLIC
