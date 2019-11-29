@@ -15,10 +15,10 @@
 
 using Acts::VectorHelpers::eta;
 
-FW::Root::RootPerformanceWriter::RootPerformanceWriter(
-    const FW::Root::RootPerformanceWriter::Config& cfg,
-    Acts::Logging::Level                           level)
-  : WriterT(cfg.trackCollection, "RootPerformanceWriter", level)
+FW::TrackFitterPerformanceWriter::TrackFitterPerformanceWriter(
+    const FW::TrackFitterPerformanceWriter::Config& cfg,
+    Acts::Logging::Level                            level)
+  : WriterT(cfg.trackCollection, "TrackFitterPerformanceWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
@@ -50,7 +50,7 @@ FW::Root::RootPerformanceWriter::RootPerformanceWriter(
   m_effPlotTool->book(m_effPlotCache);
 }
 
-FW::Root::RootPerformanceWriter::~RootPerformanceWriter()
+FW::TrackFitterPerformanceWriter::~TrackFitterPerformanceWriter()
 {
   m_resPlotTool->clear(m_resPlotCache);
   m_effPlotTool->clear(m_effPlotCache);
@@ -60,7 +60,7 @@ FW::Root::RootPerformanceWriter::~RootPerformanceWriter()
 }
 
 FW::ProcessCode
-FW::Root::RootPerformanceWriter::endRun()
+FW::TrackFitterPerformanceWriter::endRun()
 {
   // fill residual and pull details into additional hists
   m_resPlotTool->refinement(m_resPlotCache);
@@ -75,8 +75,8 @@ FW::Root::RootPerformanceWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootPerformanceWriter::writeT(const AlgorithmContext& ctx,
-                                        const TrajectoryVector& trajectories)
+FW::TrackFitterPerformanceWriter::writeT(const AlgorithmContext& ctx,
+                                         const TrajectoryVector& trajectories)
 {
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
 
