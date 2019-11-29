@@ -30,32 +30,29 @@
 #include "Acts/Utilities/Units.hpp"
 
 FW::DigitizationAlgorithm::DigitizationAlgorithm(
-    const FW::DigitizationAlgorithm::Config& cfg,
-    Acts::Logging::Level                     level)
-  : FW::BareAlgorithm("DigitizationAlgorithm", level), m_cfg(cfg)
+    FW::DigitizationAlgorithm::Config cfg,
+    Acts::Logging::Level              lvl)
+  : FW::BareAlgorithm("DigitizationAlgorithm", lvl), m_cfg(std::move(cfg))
 {
-  if (m_cfg.simulatedHitCollection.empty()) {
+  if (m_cfg.inputSimulatedHits.empty()) {
     throw std::invalid_argument("Missing input hits collection");
   }
-  if (m_cfg.clusterCollection.empty()) {
+  if (m_cfg.outputClusters.empty()) {
     throw std::invalid_argument("Missing output clusters collection");
-  }
-  if (!m_cfg.randomNumberSvc) {
-    throw std::invalid_argument("Missing random numbers service");
   }
   if (!m_cfg.planarModuleStepper) {
     throw std::invalid_argument("Missing planar module stepper");
   }
+  if (!m_cfg.randomNumbers) {
+    throw std::invalid_argument("Missing random numbers tool");
+  }
 }
 
 FW::ProcessCode
-FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
+FW::DigitizationAlgorithm::execute(const AlgorithmContext& ctx) const
 {
-  // Read the input data collection from the event store
-  const auto& simHits
-      = context.eventStore.get<SimHits>(m_cfg.simulatedHitCollection);
-
-  // Prepare the output data: Clusters
+  // Prepare the input and output collections
+  const auto& simHits = ctx.eventStore.get<SimHits>(m_cfg.inputSimulatedHits);
   FW::GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
 
   // now digitise
@@ -76,7 +73,7 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
         double lorentzShift = thickness * tan(lorentzAngle);
         lorentzShift *= -(hitDigitizationModule->readoutDirection());
         // parameters
-        auto invTransfrom = hitSurface.transform(context.geoContext).inverse();
+        auto invTransfrom = hitSurface.transform(ctx.geoContext).inverse();
         // local intersection / direction
         Acts::Vector3D localIntersect3D(invTransfrom * hit.position);
         Acts::Vector2D localIntersection(localIntersect3D.x(),
@@ -85,7 +82,7 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
                                       * hit.direction.normalized());
         // now calculate the steps through the silicon
         std::vector<Acts::DigitizationStep> dSteps
-            = m_cfg.planarModuleStepper->cellSteps(context.geoContext,
+            = m_cfg.planarModuleStepper->cellSteps(ctx.geoContext,
                                                    *hitDigitizationModule,
                                                    localIntersection,
                                                    localDirection);
@@ -148,7 +145,8 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& context) const
       }
     }
   }
+
   // write the clusters to the EventStore
-  context.eventStore.add(m_cfg.clusterCollection, std::move(clusters));
+  ctx.eventStore.add(m_cfg.outputClusters, std::move(clusters));
   return FW::ProcessCode::SUCCESS;
 }
