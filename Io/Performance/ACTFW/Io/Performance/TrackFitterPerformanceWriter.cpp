@@ -8,46 +8,49 @@
 
 #include "ACTFW/Io/Performance/TrackFitterPerformanceWriter.hpp"
 
-#include <ios>
 #include <stdexcept>
 
-#include <Acts/EventData/Measurement.hpp>
-#include <Acts/EventData/TrackParameters.hpp>
-#include <Acts/EventData/TrackState.hpp>
-#include <Acts/Geometry/GeometryID.hpp>
 #include <Acts/Utilities/Helpers.hpp>
 #include <TFile.h>
 #include <TTree.h>
 
-#include "ACTFW/EventData/SimVertex.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 
 using Acts::VectorHelpers::eta;
 
 FW::TrackFitterPerformanceWriter::TrackFitterPerformanceWriter(
     const FW::TrackFitterPerformanceWriter::Config& cfg,
     Acts::Logging::Level                            lvl)
-  : WriterT(cfg.trackCollection, "TrackFitterPerformanceWriter", lvl)
+  : WriterT(cfg.inputTrajectories, "TrackFitterPerformanceWriter", lvl)
   , m_cfg(cfg)
-  , m_outputFile(m_cfg.rootFile)
+  , m_outputFile(
+        TFile::Open(joinPaths(cfg.outputDir, cfg.outputFilename).c_str(),
+                    "RECREATE"))
   , m_resPlotTool(m_cfg.resPlotToolConfig, lvl)
   , m_effPlotTool(m_cfg.effPlotToolConfig, lvl)
 {
   // Input track and truth collection name
-  if (m_cfg.trackCollection.empty()) {
-    throw std::invalid_argument("Missing input trajectory collection");
-  } else if (m_cfg.simulatedEventCollection.empty()) {
-    throw std::invalid_argument("Missing input particle collection");
+  if (m_cfg.inputTrajectories.empty()) {
+    throw std::invalid_argument("Missing input trajectories collection");
+  }
+  if (m_cfg.inputParticles.empty()) {
+    throw std::invalid_argument("Missing input particles collection");
+  }
+  if (cfg.outputFilename.empty()) {
+    throw std::invalid_argument("Missing output filename");
   }
 
-  // Setup ROOT I/O
-  if (m_outputFile == nullptr) {
-    m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
-    if (m_outputFile == nullptr) {
-      throw std::ios_base::failure("Could not open '" + m_cfg.filePath);
-    }
+  // the output file can not be given externally since TFile accesses to the
+  // same file from multiple threads are unsafe.
+  // must always be opened internally
+  auto path    = joinPaths(cfg.outputDir, cfg.outputFilename);
+  m_outputFile = TFile::Open(path.c_str(), "RECREATE");
+  if (not m_outputFile) {
+    throw std::invalid_argument("Could not open '" + path + "'");
   }
 
-  // Initialize the residual and efficiency plots tool
+  // initialize the residual and efficiency plots tool
   m_resPlotTool.book(m_resPlotCache);
   m_effPlotTool.book(m_effPlotCache);
 }
@@ -69,54 +72,41 @@ FW::TrackFitterPerformanceWriter::endRun()
     m_outputFile->cd();
     m_resPlotTool.write(m_resPlotCache);
     m_effPlotTool.write(m_effPlotCache);
-    ACTS_INFO("Write performance plots to '" << m_cfg.filePath << "'");
+    ACTS_INFO("Wrote performance plots to '" << m_outputFile->GetPath() << "'");
   }
   return ProcessCode::SUCCESS;
 }
 
 FW::ProcessCode
-FW::TrackFitterPerformanceWriter::writeT(const AlgorithmContext& ctx,
-                                         const Trajectories&     trajectories)
+FW::TrackFitterPerformanceWriter::writeT(
+    const AlgorithmContext&    ctx,
+    const TrajectoryContainer& trajectories)
 {
-  if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
+  // read truth particles from input collection
+  const auto& particles
+      = ctx.eventStore.get<SimParticles>(m_cfg.inputParticles);
 
-  // Exclusive access to the tree while writing
+  // exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
-  // Read truth particles from input collection
-  const auto& simulatedEvent = ctx.eventStore.get<std::vector<Data::SimVertex>>(
-      m_cfg.simulatedEventCollection);
-  ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
-                                 << simulatedEvent.size() << " vertices");
-
-  // Get the map of truth particle
-  ACTS_DEBUG("Get the truth particles.");
-  std::map<barcode_type, Data::SimParticle> particles;
-  for (auto& vertex : simulatedEvent) {
-    for (auto& particle : vertex.outgoing) {
-      particles.insert(std::make_pair(particle.barcode(), particle));
-    }
-  }
-
-  // Loop over the trajectories
-  for (auto& traj : trajectories) {
+  for (const auto& traj : trajectories) {
     // retrieve the truth particle barcode for this track state
+    // TODO use majority particle instead to support reconstructed, non-truth
+    // trajectories
     auto truthHitAtFirstState = (*traj[0].measurement.uncalibrated).truthHit();
     auto barcode              = truthHitAtFirstState.particle.barcode();
-    // find the truth Particle for this trajectory
+    // find the truth particle for this trajectory
     Data::SimParticle truthParticle;
-    if (particles.find(barcode) != particles.end()) {
-      ACTS_DEBUG("Find the truth particle with barcode = " << barcode);
-      truthParticle = particles.find(barcode)->second;
+    auto              ip = particles.find(barcode);
+    if (ip != particles.end()) {
+      truthParticle = *ip;
     } else {
-      ACTS_WARNING("Truth particle with barcode = " << barcode << "not found.");
+      ACTS_WARNING("Truth particle " << barcode << "not found.");
     }
-
     // fill the plots
     m_resPlotTool.fill(m_resPlotCache, ctx.geoContext, traj);
     m_effPlotTool.fill(m_effPlotCache, traj, truthParticle);
-
-  }  // all trajectories
+  }
 
   return ProcessCode::SUCCESS;
 }

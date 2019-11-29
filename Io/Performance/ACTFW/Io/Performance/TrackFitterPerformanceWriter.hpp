@@ -28,21 +28,20 @@ namespace FW {
 /// this is done by setting the Config::rootFile pointer to an existing file
 ///
 /// Safe to use from multiple writer threads - uses a std::mutex lock.
-class TrackFitterPerformanceWriter final : public WriterT<Trajectories>
+class TrackFitterPerformanceWriter final : public WriterT<TrajectoryContainer>
 {
 public:
   struct Config
   {
-    /// trajectory collection to write
-    std::string trackCollection;
-    /// truth particle collection
-    std::string simulatedEventCollection;
-    /// path of the output file
-    std::string filePath;
-    /// file access mode
-    std::string fileMode = "RECREATE";
-    /// common root file
-    TFile*              rootFile = nullptr;
+    /// Input truth particles collection.
+    std::string inputParticles;
+    /// Input (fitted) trajectories collection.
+    std::string inputTrajectories;
+    /// Output directory.
+    std::string outputDir;
+    /// Output filename.
+    std::string outputFilename = "performance_track_fitter.root";
+    /// Plot tool configurations.
     ResPlotTool::Config resPlotToolConfig;
     EffPlotTool::Config effPlotToolConfig;
   };
@@ -57,8 +56,8 @@ public:
 
 private:
   ProcessCode
-  writeT(const AlgorithmContext& ctx,
-         const Trajectories&     trajectories) final override;
+  writeT(const AlgorithmContext&    ctx,
+         const TrajectoryContainer& trajectories) final override;
 
   Config m_cfg;
   /// Mutex used to protect multi-threaded writes.
