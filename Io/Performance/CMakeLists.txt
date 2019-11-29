@@ -1,6 +1,7 @@
 add_library(
   ActsFrameworkIoPerformance SHARED
-  ACTFW/Io/Performance/TrackFinderPerformanceWriter.cpp)
+  ACTFW/Io/Performance/TrackFinderPerformanceWriter.cpp
+  ACTFW/Io/Performance/TrackFitterPerformanceWriter.cpp)
 target_include_directories(
   ActsFrameworkIoPerformance
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
