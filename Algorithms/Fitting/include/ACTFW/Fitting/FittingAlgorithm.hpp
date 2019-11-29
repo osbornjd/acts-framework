@@ -9,27 +9,43 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <vector>
 
-#include "ACTFW/EventData/ProtoTrack.hpp"
+// this include is a work-around. its missing in the KalmanFitter header
+#include <map>
+
+#include <Acts/Fitter/KalmanFitter.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+
 #include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/EventData/Track.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
+#include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 
 namespace FW {
 
 class FittingAlgorithm final : public BareAlgorithm
 {
 public:
-  using SourceLink = Data::SimSourceLink;
-  using FitterResultType
-      = Acts::KalmanFitterResult<SourceLink, Acts::BoundParameters>;
+  using FitterResult
+      = Acts::KalmanFitterResult<Data::SimSourceLink, Acts::BoundParameters>;
   /// Fit function that takes input measurements, initial trackstate and fitter
   /// options and returns some fit-specific result.
   using FitterFunction
       = std::function<FitterResult(const std::vector<Data::SimSourceLink>&,
                                    const TrackParameters&,
                                    const Acts::KalmanFitterOptions&)>;
+
+  /// Create the fitter function implementation.
+  ///
+  /// The magnetic field is intentionally given by-value since the variant
+  /// contains shared_ptr anyways.
+  static FitterFunction
+  makeFitterFunction(
+      std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
+      Options::BFieldVariant                        magneticField,
+      Acts::Logging::Level                          lvl);
 
   struct Config
   {
@@ -41,7 +57,7 @@ public:
     std::string inputInitialTrackParameters;
     /// Output fitted trajectories collection.
     std::string outputTrajectories;
-    /// Type erased fit function.
+    /// Type erased fitter function.
     FitterFunction fit;
   };
 

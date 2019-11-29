@@ -8,21 +8,10 @@
 
 #include "ACTFW/Fitting/FittingAlgorithm.hpp"
 
-#include <iostream>
-#include <map>
-#include <random>
 #include <stdexcept>
 
-#include "ACTFW/EventData/SimHit.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimVertex.hpp"
-#include "ACTFW/Framework/RandomNumbers.hpp"
+#include "ACTFW/EventData/ProtoTrack.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "Acts/EventData/Measurement.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/Helpers.hpp"
-#include "Acts/Utilities/ParameterDefinitions.hpp"
 
 FW::FittingAlgorithm::FittingAlgorithm(Config cfg, Acts::Logging::Level level)
   : FW::BareAlgorithm("FittingAlgorithm", level), m_cfg(std::move(cfg))
@@ -43,7 +32,7 @@ FW::FittingAlgorithm::FittingAlgorithm(Config cfg, Acts::Logging::Level level)
 }
 
 FW::ProcessCode
-FW::FittingAlgorithm::execute(const FW::AlgorithmContext& context) const
+FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
 {
   // read input data
   const auto sourceLinks
@@ -70,13 +59,19 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& context) const
     const auto& protoTrack    = protoTracks[itrack];
     const auto& initialParams = initialParameters[itrack];
 
-    // prepare source links for this track
+    // gather source links for this track
     trackSourceLinks.clear();
     for (auto hitIndex : protoTrack) {
-      trackSourceLinks.push_back(sourceLinks.nth(hitIndex));
+      auto sl = sourceLinks.nth(hitIndex);
+      if (sl == sourceLinks.end()) {
+        ACTS_FATAL("Proto track " << itrack << " contains invalid hit index"
+                                  << hitIndex);
+        return ProcessCode::ABORT;
+      }
+      trackSourceLinks.push_back(*sl);
     }
 
-    // setup the Kalman fitter
+    // setup and run the Kalman fitter
     Acts::KalmanFitterOptions fitterOptions(ctx.geoContext,
                                             ctx.magFieldContext,
                                             ctx.calibContext,
@@ -90,16 +85,13 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& context) const
       ACTS_DEBUG("Fitted paramemeter for track " << itrack);
       ACTS_DEBUG("  position: " << params.position().transpose());
       ACTS_DEBUG("  momentum: " << params.momentum().transpose());
+      trajectories.push_back(std::move(result.fittedStates));
     } else {
       ACTS_WARNING("No fitted parameters for track track " << itrack);
+      trajectories.push_back({});
     }
-
-    // store the results. always store something even if the states are empty
-    // (bad fit) so the number of output tracks is consistent w/ the number of
-    // input proto tracks
-    fittedTrajectories.emplace_back(std::move(result.fittedStates));
   }
 
-  ctx.eventStore.add(m_cfg.outputTrajectories, std::move(fittedTrajectories));
+  ctx.eventStore.add(m_cfg.outputTrajectories, std::move(trajectories));
   return FW::ProcessCode::SUCCESS;
 }
