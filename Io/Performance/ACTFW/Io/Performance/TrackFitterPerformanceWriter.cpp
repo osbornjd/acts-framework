@@ -7,11 +7,19 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Io/Performance/TrackFitterPerformanceWriter.hpp"
-#include <TFile.h>
-#include <TTree.h>
+
 #include <ios>
 #include <stdexcept>
-#include "Acts/Utilities/Helpers.hpp"
+
+#include <Acts/EventData/Measurement.hpp>
+#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/EventData/TrackState.hpp>
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Utilities/Helpers.hpp>
+#include <TFile.h>
+#include <TTree.h>
+
+#include "ACTFW/EventData/SimVertex.hpp"
 
 using Acts::VectorHelpers::eta;
 
@@ -76,7 +84,7 @@ FW::TrackFitterPerformanceWriter::endRun()
 
 FW::ProcessCode
 FW::TrackFitterPerformanceWriter::writeT(const AlgorithmContext& ctx,
-                                         const TrajectoryVector& trajectories)
+                                         const Trajectories&     trajectories)
 {
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
 
