@@ -25,10 +25,12 @@ using Acts::VectorHelpers::eta;
 
 FW::TrackFitterPerformanceWriter::TrackFitterPerformanceWriter(
     const FW::TrackFitterPerformanceWriter::Config& cfg,
-    Acts::Logging::Level                            level)
-  : WriterT(cfg.trackCollection, "TrackFitterPerformanceWriter", level)
+    Acts::Logging::Level                            lvl)
+  : WriterT(cfg.trackCollection, "TrackFitterPerformanceWriter", lvl)
   , m_cfg(cfg)
-  , m_outputFile(cfg.rootFile)
+  , m_outputFile(m_cfg.rootFile)
+  , m_resPlotTool(m_cfg.resPlotToolConfig, lvl)
+  , m_effPlotTool(m_cfg.effPlotToolConfig, lvl)
 {
   // Input track and truth collection name
   if (m_cfg.trackCollection.empty()) {
@@ -46,24 +48,14 @@ FW::TrackFitterPerformanceWriter::TrackFitterPerformanceWriter(
   }
 
   // Initialize the residual and efficiency plots tool
-  m_resPlotTool = new FW::ResPlotTool(m_cfg.resPlotToolConfig, level);
-  m_effPlotTool = new FW::EffPlotTool(m_cfg.effPlotToolConfig, level);
-  if (m_resPlotTool == nullptr) {
-    throw std::bad_alloc();
-  } else if (m_effPlotTool == nullptr) {
-    throw std::bad_alloc();
-  }
-
-  m_resPlotTool->book(m_resPlotCache);
-  m_effPlotTool->book(m_effPlotCache);
+  m_resPlotTool.book(m_resPlotCache);
+  m_effPlotTool.book(m_effPlotCache);
 }
 
 FW::TrackFitterPerformanceWriter::~TrackFitterPerformanceWriter()
 {
-  m_resPlotTool->clear(m_resPlotCache);
-  m_effPlotTool->clear(m_effPlotCache);
-  delete m_resPlotTool;
-  delete m_effPlotTool;
+  m_resPlotTool.clear(m_resPlotCache);
+  m_effPlotTool.clear(m_effPlotCache);
   if (m_outputFile) { m_outputFile->Close(); }
 }
 
@@ -71,12 +63,12 @@ FW::ProcessCode
 FW::TrackFitterPerformanceWriter::endRun()
 {
   // fill residual and pull details into additional hists
-  m_resPlotTool->refinement(m_resPlotCache);
+  m_resPlotTool.refinement(m_resPlotCache);
 
   if (m_outputFile) {
     m_outputFile->cd();
-    m_resPlotTool->write(m_resPlotCache);
-    m_effPlotTool->write(m_effPlotCache);
+    m_resPlotTool.write(m_resPlotCache);
+    m_effPlotTool.write(m_effPlotCache);
     ACTS_INFO("Write performance plots to '" << m_cfg.filePath << "'");
   }
   return ProcessCode::SUCCESS;
@@ -90,9 +82,6 @@ FW::TrackFitterPerformanceWriter::writeT(const AlgorithmContext& ctx,
 
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
-
-  // Get the event number
-  m_eventNr = ctx.eventNumber;
 
   // Read truth particles from input collection
   const auto& simulatedEvent = ctx.eventStore.get<std::vector<Data::SimVertex>>(
@@ -124,8 +113,8 @@ FW::TrackFitterPerformanceWriter::writeT(const AlgorithmContext& ctx,
     }
 
     // fill the plots
-    m_resPlotTool->fill(m_resPlotCache, ctx.geoContext, traj);
-    m_effPlotTool->fill(m_effPlotCache, traj, truthParticle);
+    m_resPlotTool.fill(m_resPlotCache, ctx.geoContext, traj);
+    m_effPlotTool.fill(m_effPlotCache, traj, truthParticle);
 
   }  // all trajectories
 

@@ -20,11 +20,9 @@ class TTree;
 
 namespace FW {
 
-/// @class RootPerformanceWriter
+/// Write out the residual and pull of track parameters and efficiency.
 ///
-/// Write out the residual and pull of track parameters and efficiency, i.e.
-/// fraction of smoothed track
-///  into output file
+/// Efficiency here is the fraction of smoothed tracks compared to all tracks.
 ///
 /// A common file can be provided for to the writer to attach his TTree,
 /// this is done by setting the Config::rootFile pointer to an existing file
@@ -35,49 +33,43 @@ class TrackFitterPerformanceWriter final : public WriterT<Trajectories>
 public:
   struct Config
   {
-    std::string trackCollection;            ///< trajectory collection to write
-    std::string simulatedEventCollection;   ///< truth particle collection
-    std::string filePath;                   ///< path of the output file
-    std::string fileMode = "RECREATE";      ///< file access mode
-    TFile*      rootFile = nullptr;         ///< common root file
-    ResPlotTool::Config resPlotToolConfig;  ///< ResPlotTool config
-    EffPlotTool::Config effPlotToolConfig;  ///< EffPlotTool config
+    /// trajectory collection to write
+    std::string trackCollection;
+    /// truth particle collection
+    std::string simulatedEventCollection;
+    /// path of the output file
+    std::string filePath;
+    /// file access mode
+    std::string fileMode = "RECREATE";
+    /// common root file
+    TFile*              rootFile = nullptr;
+    ResPlotTool::Config resPlotToolConfig;
+    EffPlotTool::Config effPlotToolConfig;
   };
 
-  /// Constructor
-  ///
-  /// @param cfg Configuration struct
-  /// @param level Message level declaration
-  TrackFitterPerformanceWriter(const Config&        cfg,
-                               Acts::Logging::Level level
-                               = Acts::Logging::INFO);
-
-  /// Virtual destructor
+  /// Construct from configuration and log level.
+  TrackFitterPerformanceWriter(const Config& cfg, Acts::Logging::Level lvl);
   ~TrackFitterPerformanceWriter() override;
 
-  /// End-of-run hook
+  /// Finalize plots.
   ProcessCode
   endRun() final override;
 
-protected:
-  /// @brief Write method called by the base class
-  /// @param [in] ctx is the algorithm context for event information
-  /// @param [in] trajectories are what to be written out
+private:
   ProcessCode
   writeT(const AlgorithmContext& ctx,
          const Trajectories&     trajectories) final override;
 
-private:
-  Config     m_cfg;         ///< The config class
-  std::mutex m_writeMutex;  ///< Mutex used to protect multi-threaded writes
-  TFile*     m_outputFile{nullptr};  ///< The output file
-  int        m_eventNr{0};           ///< The event number
-  ResPlotTool::ResPlotCache
-      m_resPlotCache;  ///< The cache object for residual/pull plots
-  EffPlotTool::EffPlotCache
-               m_effPlotCache;  ///< The cache object for efficiency plots
-  ResPlotTool* m_resPlotTool{nullptr};  ///< The plot tool for residual&pull
-  EffPlotTool* m_effPlotTool{nullptr};  ///< The plot tool for efficiency
+  Config m_cfg;
+  /// Mutex used to protect multi-threaded writes.
+  std::mutex m_writeMutex;
+  TFile*     m_outputFile{nullptr};
+  /// Plot tool for residuals and pulls.
+  ResPlotTool               m_resPlotTool;
+  ResPlotTool::ResPlotCache m_resPlotCache;
+  /// Plot tool for efficiency
+  EffPlotTool               m_effPlotTool;
+  EffPlotTool::EffPlotCache m_effPlotCache;
 };
 
 }  // namespace FW
