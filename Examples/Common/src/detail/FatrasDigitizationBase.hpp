@@ -14,12 +14,10 @@
 
 namespace FW {
 class Sequencer;
-class BarcodeSvc;
 class RandomNumbers;
 }  // namespace FW
 
 void
-setupDigitization(boost::program_options::variables_map& vm,
-                  FW::Sequencer&                         sequencer,
-                  std::shared_ptr<FW::BarcodeSvc>        barcodeSvc,
-                  std::shared_ptr<FW::RandomNumbers>     randomNumberSvc);
+setupDigitization(FW::Options::Variables&            vars,
+                  FW::Sequencer&                     sequencer,
+                  std::shared_ptr<FW::RandomNumbers> randomNumbers);

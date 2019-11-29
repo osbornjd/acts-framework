@@ -10,10 +10,8 @@
 
 #include <boost/program_options.hpp>
 
-#include "ACTFW/Digitization/DigitizationOptions.hpp"
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
-#include "ACTFW/Fitting/FittingOptions.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -45,7 +43,6 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   FW::Options::addRandomNumbersOptions(desc);
   FW::Options::addBFieldOptions(desc);
   FW::Options::addFatrasOptions(desc);
-  FW::Options::addDigitizationOptions(desc);
   FW::Options::addOutputOptions(desc);
   desc.add_options()("evg-input-type",
                      value<std::string>()->default_value("pythia8"),
@@ -86,7 +83,7 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
 
   // (C) DIGITIZATION
   // Setup the digitization
-  setupDigitization(vm, sequencer, barcodeSvc, randomNumberSvc);
+  setupDigitization(vm, sequencer, randomNumberSvc);
 
   return sequencer.run();
 }
