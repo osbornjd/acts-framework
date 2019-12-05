@@ -59,6 +59,12 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
     const auto& protoTrack    = protoTracks[itrack];
     const auto& initialParams = initialParameters[itrack];
 
+    // we can have empty tracks which must give empty fit results
+    if (protoTrack.empty()) {
+      trajectories.push_back({});
+      continue;
+    }
+
     // gather source links for this track
     trackSourceLinks.clear();
     for (auto hitIndex : protoTrack) {
