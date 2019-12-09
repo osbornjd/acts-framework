@@ -8,6 +8,19 @@
 
 #include "detail/FatrasSimulationBase.hpp"
 
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
+#include <Acts/MagneticField/SharedBField.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/Navigator.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/StraightLineStepper.hpp>
+#include <Acts/Propagator/detail/DebugOutputActor.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <boost/program_options.hpp>
+
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
@@ -23,28 +36,12 @@
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
-#include "Acts/MagneticField/SharedBField.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/Navigator.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Propagator/StraightLineStepper.hpp"
-#include "Acts/Propagator/detail/DebugOutputActor.hpp"
-#include "Acts/Surfaces/Surface.hpp"
 #include "Fatras/Kernel/Interactor.hpp"
 #include "Fatras/Kernel/SelectorList.hpp"
 #include "Fatras/Kernel/Simulator.hpp"
 #include "Fatras/Selectors/ChargeSelectors.hpp"
 #include "Fatras/Selectors/KinematicCasts.hpp"
 #include "Fatras/Selectors/SelectorHelpers.hpp"
-
-typedef FW::Data::SimHit                 FatrasHit;
-typedef std::vector<FW::Data::SimVertex> FatrasEvent;
-
-namespace po = boost::program_options;
 
 /// Construct SimHits from Fatras.
 struct SimHitCreator
@@ -123,8 +120,8 @@ void
 setupSimulationAlgorithm(
     bfield_t                                      fieldMap,
     FW::Sequencer&                                sequencer,
-    po::variables_map&                            vm,
-    std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
+    boost::program_options::variables_map&        vm,
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
     std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
     std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
@@ -134,72 +131,61 @@ setupSimulationAlgorithm(
   /// Read the evgen particle collection
   std::string evgenCollection = "particles";
 
-  // Create a navigator for this tracking geometry
-  Acts::Navigator cNavigator(tGeometry);
-  Acts::Navigator nNavigator(tGeometry);
-
-  // using ChargedStepper     = Acts::AtlasStepper<bfield_t>;
+  // define propagator types for charged and neutral particles
+  using Navigator         = Acts::Navigator;
   using ChargedStepper    = Acts::EigenStepper<bfield_t>;
-  using ChargedPropagator = Acts::Propagator<ChargedStepper, Acts::Navigator>;
+  using ChargedPropagator = Acts::Propagator<ChargedStepper, Navigator>;
   using NeutralStepper    = Acts::StraightLineStepper;
-  using NeutralPropagator = Acts::Propagator<NeutralStepper, Acts::Navigator>;
+  using NeutralPropagator = Acts::Propagator<NeutralStepper, Navigator>;
+  // define selector types for particle cuts
+  using NonZeroCharge = Fatras::ChargedSelector;
+  using ZeroCharge    = Fatras::NeutralSelector;
+  using PtMin         = Fatras::Min<Fatras::casts::pT>;
+  using EMin          = Fatras::Min<Fatras::casts::E>;
+  using AbsEtaMax     = Fatras::Max<Fatras::casts::absEta>;
+  using ChargedSelector
+      = Fatras::SelectorListAND<NonZeroCharge, PtMin, AbsEtaMax>;
+  using NeutralSelector = Fatras::SelectorListAND<ZeroCharge, EMin, AbsEtaMax>;
+  // define interactor types
+  using PhysicsList       = Fatras::PhysicsList<>;
+  using ChargedInteractor = Fatras::Interactor<FW::RandomEngine,
+                                               FW::Data::SimParticle,
+                                               FW::Data::SimHit,
+                                               SimHitCreator,
+                                               SurfaceSelector,
+                                               PhysicsList>;
+  using NeutralInteractor = Fatras::Interactor<FW::RandomEngine,
+                                               FW::Data::SimParticle,
+                                               FW::Data::SimHit,
+                                               SimHitCreator>;
+  // define simulator type
+  using Simulator = Fatras::Simulator<ChargedPropagator,
+                                      ChargedSelector,
+                                      ChargedInteractor,
+                                      NeutralPropagator,
+                                      NeutralSelector,
+                                      NeutralInteractor>;
+  // define algorithm type
+  using SimulationAlgorithm = FW::FatrasAlgorithm<Simulator>;
 
-  ChargedStepper    cStepper(std::move(fieldMap));
-  ChargedPropagator cPropagator(std::move(cStepper), std::move(cNavigator));
-  NeutralStepper    nStepper;
-  NeutralPropagator nPropagator(std::move(nStepper), std::move(nNavigator));
+  // construct the propagators
+  Navigator         navigator(trackingGeometry);
+  ChargedStepper    chargedStepper(std::move(fieldMap));
+  ChargedPropagator chargedPropagator(std::move(chargedStepper), navigator);
+  NeutralPropagator neutralPropagator(NeutralStepper(), navigator);
+  // construct the simulator
+  Simulator simulator(std::move(chargedPropagator),
+                      std::move(neutralPropagator));
+  simulator.debug = vm["fatras-debug-output"].template as<bool>();
 
-  // The Selector for charged particles, including kinematic cuts
-  typedef Fatras::ChargedSelector            CSelector;
-  typedef Fatras::Max<Fatras::casts::absEta> CMaxEtaAbs;
-  typedef Fatras::Min<Fatras::casts::pT>     CMinPt;
-  typedef Fatras::SelectorListAND<CSelector, CMinPt, CMaxEtaAbs>
-      ChargedSelector;
-
-  typedef Fatras::NeutralSelector                               NSelector;
-  typedef Fatras::Max<Fatras::casts::absEta>                    NMaxEtaAbs;
-  typedef Fatras::Min<Fatras::casts::E>                         NMinE;
-  typedef Fatras::SelectorListAND<NSelector, NMinE, NMaxEtaAbs> NeutralSelector;
-
-  typedef Fatras::PhysicsList<> PhysicsList;
-
-  typedef Fatras::Interactor<FW::RandomEngine,
-                             FW::Data::SimParticle,
-                             FW::Data::SimHit,
-                             SimHitCreator,
-                             SurfaceSelector,
-                             PhysicsList>
-      ChargedInteractor;
-
-  typedef Fatras::Interactor<FW::RandomEngine,
-                             FW::Data::SimParticle,
-                             FW::Data::SimHit,
-                             SimHitCreator>
-      NeutralInteractor;
-
-  typedef Fatras::Simulator<ChargedPropagator,
-                            ChargedSelector,
-                            ChargedInteractor,
-                            NeutralPropagator,
-                            NeutralSelector,
-                            NeutralInteractor>
-      FatrasSimulator;
-
-  FatrasSimulator fatrasSimulator(cPropagator, nPropagator);
-  fatrasSimulator.debug = vm["fatras-debug-output"].template as<bool>();
-
-  using FatrasAlgorithm = FW::FatrasAlgorithm<FatrasSimulator, FatrasEvent>;
-
-  typename FatrasAlgorithm::Config fatrasConfig
-      = FW::Options::readFatrasConfig<po::variables_map,
-                                      FatrasSimulator,
-                                      FatrasEvent>(vm, fatrasSimulator);
+  // construct the simulation algorithm
+  auto fatrasConfig = FW::Options::readFatrasConfig(vm, std::move(simulator));
   fatrasConfig.randomNumberSvc      = randomNumberSvc;
   fatrasConfig.inputEventCollection = evgenCollection;
 
   // Finally the fatras algorithm
   sequencer.addAlgorithm(
-      std::make_shared<FatrasAlgorithm>(fatrasConfig, logLevel));
+      std::make_shared<SimulationAlgorithm>(fatrasConfig, logLevel));
 
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
