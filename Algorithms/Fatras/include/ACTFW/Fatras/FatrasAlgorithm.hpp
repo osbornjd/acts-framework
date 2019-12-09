@@ -13,34 +13,22 @@
 #include <memory>
 
 #include "ACTFW/EventData/SimHit.hpp"
+#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/BareAlgorithm.hpp"
-#include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
 namespace FW {
 
-/// @class FatrasAlgorithm
+/// Fast track simulation using the Acts propagation and navigation.
 ///
-/// The fatras algorithm runs the fast track simulation using the
-/// Propagator from the acts-core toolkit.
-///
-/// Random numbers are reset per event using the event context
-///
-/// @tparam simulator_t The Fatras simulation kernel type
-/// @tparam event_collection_t  The event collection type
-/// @tparam hit_t The hit Type
-template <typename simulator_t, typename event_collection_t>
+/// @tparam simulator_t the Fatras simulation kernel type
+template <typename simulator_t>
 class FatrasAlgorithm : public BareAlgorithm
 {
 public:
   struct Config
   {
-    /// @brief Config constructor with propagator type
-    ///
-    /// @param[in] fsimulator Propagator object for charged particles
-    Config(simulator_t fsimulator) : simulator(std::move(fsimulator)) {}
-
     /// The simulation kernel
     simulator_t simulator;
 
@@ -55,21 +43,26 @@ public:
 
     /// the simulated hit output collection name
     std::string simulatedHitCollection;
+
+    /// @brief Config constructor with propagator type
+    ///
+    /// @param s the Fatras simulation kernel
+    Config(simulator_t&& s) : simulator(std::move(s)) {}
   };
 
-  /// Constructor
-  /// @param [in] cnf is the configuration struct
-  /// @param [in] loglevel is the logging level
-  FatrasAlgorithm(const Config& cnf, Acts::Logging::Level loglevel);
+  /// Construct the algorithm from a config.
+  ///
+  /// @param cfg is the configuration struct
+  /// @param lvl is the logging level
+  FatrasAlgorithm(const Config& cfg, Acts::Logging::Level lvl);
 
-  /// Framework execute method
-  /// @param [in] the algorithm context for event consistency
-  /// @return a process code
+  /// Run the simulation for a single event.
+  ///
+  /// @param ctx the algorithm context containing all event information
   FW::ProcessCode
-  execute(const AlgorithmContext& context) const final override;
+  execute(const AlgorithmContext& ctx) const final override;
 
 private:
-  /// The config class
   Config m_cfg;
 };
 

@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2018 CERN for the benefit of the Acts project
+// Copyright (C) 2018-2019 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,67 +8,57 @@
 
 #pragma once
 
-//#include "ACTFW/Utilities/Options.hpp"
-#include "Acts/Utilities/Units.hpp"
+#include <utility>
+
+#include <Acts/Utilities/Units.hpp>
+#include <boost/program_options.hpp>
+
+#include "ACTFW/Fatras/FatrasAlgorithm.hpp"
+#include "ACTFW/Utilities/OptionsFwd.hpp"
 #include "Fatras/Kernel/SelectorList.hpp"
 #include "Fatras/Selectors/ChargeSelectors.hpp"
 #include "Fatras/Selectors/KinematicCasts.hpp"
 #include "Fatras/Selectors/SelectorHelpers.hpp"
-#include "FatrasAlgorithm.hpp"
-
-#include <iostream>
-#include "ACTFW/Utilities/OptionsFwd.hpp"
 
 namespace FW {
-
 namespace Options {
 
-  /// @brief read the Fatras options
+  /// Add Fatras options.
   ///
-  /// Adding Fatras specific options to the Options package
-  ///
-  /// @param [in] opt_t The options object where the specific digitization
-  /// options are attached to
+  /// @param desc The options description to add options to
   void
-  addFatrasOptions(boost::program_options::options_description& opt);
+  addFatrasOptions(Description& desc);
 
-  /// @brief read the fatras specific options and return a Config file
+  /// Read Fatras options to create the algorithm config.
   ///
-  ///@tparam omap_t Type of the options map
-  ///@param vm the options map to be read out
-  template <typename AMAP, typename simulator_t, typename event_collection_t>
-  typename FatrasAlgorithm<simulator_t, event_collection_t>::Config
-  readFatrasConfig(const AMAP& vm, simulator_t& simulator)
+  /// @tparam simulator_t type of the simulation kernel
+  /// @param vars         the variables to read from
+  /// @param simulator    the simulation kernel
+  template <typename simulator_t>
+  typename FatrasAlgorithm<simulator_t>::Config
+  readFatrasConfig(const Variables& vars, simulator_t&& simulator)
   {
     using namespace Acts::UnitLiterals;
-    // Create a config
-    typename FatrasAlgorithm<simulator_t, event_collection_t>::Config
-        fatrasConfig(std::move(simulator));
+    using Config    = typename FatrasAlgorithm<simulator_t>::Config;
+    using PtMin     = Fatras::Min<Fatras::casts::pT>;
+    using EMin      = Fatras::Min<Fatras::casts::E>;
+    using AbsEtaMax = Fatras::Max<Fatras::casts::absEta>;
 
-    // set the collections
-    fatrasConfig.simulatedHitCollection
-        = vm["fatras-sim-hits"].template as<std::string>();
-    fatrasConfig.simulatedEventCollection
-        = vm["fatras-sim-particles"].template as<std::string>();
+    Config cfg(std::forward<simulator_t>(simulator));
 
-    typedef Fatras::ChargedSelector            CSelector;
-    typedef Fatras::Max<Fatras::casts::absEta> CMaxEtaAbs;
-    typedef Fatras::Min<Fatras::casts::pT>     CMinPt;
-    typedef Fatras::SelectorListAND<CSelector, CMinPt, CMaxEtaAbs>
-        ChargedSelector;
+    // set particle cuts
+    cfg.simulator.chargedSelector.template get<PtMin>().valMin     = 100._MeV;
+    cfg.simulator.chargedSelector.template get<AbsEtaMax>().valMax = 5.;
+    cfg.simulator.neutralSelector.template get<EMin>().valMin      = 100._MeV;
+    cfg.simulator.neutralSelector.template get<AbsEtaMax>().valMax = 5.;
 
-    typedef Fatras::NeutralSelector            NSelector;
-    typedef Fatras::Max<Fatras::casts::absEta> NMaxEtaAbs;
-    typedef Fatras::Min<Fatras::casts::E>      NMinE;
+    // set the input collections
+    cfg.simulatedHitCollection
+        = vars["fatras-sim-hits"].template as<std::string>();
+    cfg.simulatedEventCollection
+        = vars["fatras-sim-particles"].template as<std::string>();
 
-    simulator.chargedSelector.template get<CMaxEtaAbs>().valMax = 5.;
-    simulator.chargedSelector.template get<CMinPt>().valMin     = 100._MeV;
-
-    simulator.neutralSelector.template get<NMaxEtaAbs>().valMax = 5.;
-    simulator.neutralSelector.template get<NMinE>().valMin      = 100._MeV;
-
-    // and return the config
-    return fatrasConfig;
+    return cfg;
   }
 
 }  // namespace Options
