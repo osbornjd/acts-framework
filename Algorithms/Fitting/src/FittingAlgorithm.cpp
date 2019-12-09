@@ -83,17 +83,23 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
                                             ctx.calibContext,
                                             &initialParams.referenceSurface());
     auto result = m_cfg.fit(trackSourceLinks, initialParams, fitterOptions);
-    // store the results. always store something even if the states are empty
+    // always store something even if the fit failed or the states are empty
     // (bad fit) so the number of output trajectories is consistent w/ the
-    // number of input proto tracks
-    if (result.fittedParameters) {
-      const auto& params = result.fittedParameters.get();
-      ACTS_DEBUG("Fitted paramemeter for track " << itrack);
-      ACTS_DEBUG("  position: " << params.position().transpose());
-      ACTS_DEBUG("  momentum: " << params.momentum().transpose());
-      trajectories.push_back(std::move(result.fittedStates));
+    // number of input proto tracks.
+    if (result.ok()) {
+      trajectories.push_back(std::move(result.value().fittedStates));
+      // fitted parameters on the reference surface are only used for debug
+      // output for now. only the fit trajectory is actually stored.
+      // TODO store single track parameters in separate container.
+      if (result.value().fittedParameters) {
+        const auto& params = result.value().fittedParameters.get();
+        ACTS_DEBUG("Fitted paramemeters for track " << itrack);
+        ACTS_DEBUG("  position: " << params.position().transpose());
+        ACTS_DEBUG("  momentum: " << params.momentum().transpose());
+      }
     } else {
-      ACTS_WARNING("No fitted parameters for track track " << itrack);
+      ACTS_WARNING("Fit failed for track " << itrack << " with error"
+                                           << result.error());
       trajectories.push_back({});
     }
   }

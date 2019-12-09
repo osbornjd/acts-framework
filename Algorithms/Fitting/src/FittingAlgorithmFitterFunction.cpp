@@ -42,8 +42,7 @@ struct FitterFunctionImpl
              const FW::TrackParameters&                  initialParameters,
              const Acts::KalmanFitterOptions&            options) const
   {
-    // TODO propagate error using the result type
-    return fitter.fit(sourceLinks, initialParameters, options).value();
+    return fitter.fit(sourceLinks, initialParameters, options);
   };
 };
 }  // namespace
