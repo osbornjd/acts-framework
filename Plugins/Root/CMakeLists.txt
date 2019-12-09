@@ -11,8 +11,7 @@ add_library(
   src/RootTrackParameterWriter.cpp
   src/RootVertexAndTracksWriter.cpp
   src/RootVertexAndTracksReader.cpp
-  src/RootTrajectoryWriter.cpp
-  src/RootPerformanceWriter.cpp)
+  src/RootTrajectoryWriter.cpp)
 target_include_directories(
   ACTFWRootPlugin
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
