@@ -1,11 +1,13 @@
-add_library(ACTFWFatras SHARED src/FatrasOptions.cpp)
-
+add_library(
+  ACTFWFatras SHARED
+  src/FatrasOptions.cpp)
 target_include_directories(
-  ACTFWFatras 
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/> 
-  $<INSTALL_INTERFACE:include>)
+  ACTFWFatras
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 target_link_libraries(
-  ACTFWFatras 
+  ACTFWFatras
   PUBLIC ActsCore FatrasCore ACTFramework Boost::program_options)
 
 install(
