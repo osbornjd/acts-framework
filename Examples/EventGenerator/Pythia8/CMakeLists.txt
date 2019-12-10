@@ -1,8 +1,9 @@
 add_executable(ActsPythia8 Pythia8.cpp)
 target_link_libraries(
   ActsPythia8
-  PRIVATE ActsFrameworkGenerators ActsFrameworkPythia8 ACTFWExamplesCommon
-    ACTFWRootPlugin ActsFrameworkIoCsv Boost::program_options)
+  PRIVATE
+    ActsFrameworkGenerators ActsFrameworkPythia8 ACTFWExamplesCommon
+    ActsFrameworkIoRoot ActsFrameworkIoCsv Boost::program_options)
 
 install(
   TARGETS ActsPythia8

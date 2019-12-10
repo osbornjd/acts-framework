@@ -2,7 +2,7 @@ set(_common_libraries
   ActsCore
   ACTFramework
   ACTFWExamplesCommon
-  ACTFWRootPlugin
+  ActsFrameworkIoRoot
   ACTFWJsonPlugin
   ACTFWBFieldPlugin
   Boost::program_options)

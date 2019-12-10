@@ -6,7 +6,7 @@ set(_common_libraries
   ACTFWBFieldPlugin
   ACTFWObjPlugin
   ACTFWJsonPlugin
-  ACTFWRootPlugin
+  ActsFrameworkIoRoot
   Boost::program_options)
 
 # Generic detector

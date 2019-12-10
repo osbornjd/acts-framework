@@ -13,7 +13,7 @@ target_link_libraries(
   ACTFWExamplesCommon
   PUBLIC
     ActsCore FatrasCore ACTFramework ACTFWObjPlugin ActsFrameworkIoCsv
-    ACTFWJsonPlugin ACTFWRootPlugin ACTFWDetectorsCommon ACTFWBFieldPlugin
+    ACTFWJsonPlugin ActsFrameworkIoRoot ACTFWDetectorsCommon ACTFWBFieldPlugin
     ACTFWDigitization ACTFWPropagation ACTFWFatras ActsFrameworkGenerators
     ACTFWMaterialMapping ACTFWFitting)
 

@@ -5,7 +5,7 @@ set(_common_libraries
   ACTFWObjPlugin
   ActsFrameworkIoCsv
   ACTFWJsonPlugin
-  ACTFWRootPlugin
+  ActsFrameworkIoRoot
   Boost::program_options)
 
 # Empty detector

@@ -3,8 +3,9 @@ add_executable(
   ParticleGun.cpp)
 target_link_libraries(
   ActsParticleGun
-  PRIVATE ActsFrameworkGenerators ACTFWExamplesCommon ACTFWRootPlugin
-    ActsFrameworkIoCsv Boost::program_options)
+  PRIVATE
+    ActsFrameworkGenerators ACTFWExamplesCommon ActsFrameworkIoRoot
+    ActsFrameworkIoCsv  Boost::program_options)
 
 install(
   TARGETS ActsParticleGun
