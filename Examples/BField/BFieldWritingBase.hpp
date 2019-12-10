@@ -21,12 +21,17 @@ namespace BField {
   writeField(boost::program_options::variables_map vm,
              std::shared_ptr<const bfield_t>       bField)
   {
+    using Writer   = FW::RootBFieldWriter<bfield_t>;
+    using Config   = typename Writer::Config;
+    using GridType = typename Writer::GridType;
+
     // Write the interpolated magnetic field
-    typename FW::RootBFieldWriter<bfield_t>::Config writerConfig;
-    if (vm["bf-out-rz"].template as<bool>())
+    Config writerConfig;
+    if (vm["bf-out-rz"].template as<bool>()) {
       writerConfig.gridType = GridType::rz;
-    else
+    } else {
       writerConfig.gridType = GridType::xyz;
+    }
     writerConfig.treeName = vm["bf-map-out"].template as<std::string>();
     writerConfig.fileName = vm["bf-file-out"].template as<std::string>();
     writerConfig.bField   = bField;

@@ -29,10 +29,6 @@
 
 namespace FW {
 
-/// @enum gridType
-/// Describes the axes definition of the grid of the magnetic field map
-enum GridType { rz = 0, xyz = 1 };
-
 /// @class RootBFieldWriter
 ///
 /// Writes out the Acts::InterpolatedbFieldMap. Currently implemented for 'rz'
@@ -41,6 +37,9 @@ template <typename bfield_t>
 class RootBFieldWriter
 {
 public:
+  /// Describes the axes definition of the grid of the magnetic field map.
+  enum class GridType { rz = 0, xyz = 1 };
+
   struct Config
   {
     /// The name of the output tree
@@ -52,7 +51,7 @@ public:
     /// The magnetic field to be written out
     std::shared_ptr<const bfield_t> bField = nullptr;
     /// How the magnetic field map should be written out
-    GridType gridType = xyz;
+    GridType gridType = GridType::xyz;
     /// [optional] Setting the range to be printed out in either r (for
     /// cylinder coordinates) or x/y (in cartesian coordinates)
     /// @note setting this parameter is optional, in case no boundaries are
