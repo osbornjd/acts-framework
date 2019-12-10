@@ -3,7 +3,7 @@ set(_common_libraries
   ACTFramework
   ACTFWExamplesCommon
   ACTFWObjPlugin
-  ACTFWCsvPlugin
+  ActsFrameworkIoCsv
   ACTFWJsonPlugin
   ACTFWRootPlugin
   Boost::program_options)

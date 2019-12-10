@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
-#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
-#include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
+#include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Io/Csv/CsvPlanarClusterWriter.hpp"
+#include "ACTFW/Io/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Utilities/OptionsFwd.hpp"
 
 namespace FW {

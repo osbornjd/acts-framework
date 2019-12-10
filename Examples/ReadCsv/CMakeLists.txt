@@ -4,7 +4,7 @@ add_executable(
   PrintHits.cpp)
 target_link_libraries(
   ACTFWGenericReadCsvExample
-  PRIVATE ActsCore ACTFramework ACTFWExamplesCommon ACTFWCsvPlugin
+  PRIVATE ActsCore ACTFramework ACTFWExamplesCommon ActsFrameworkIoCsv
     ACTFWGenericDetector Boost::program_options)
 
 install(

@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "ACTFW/Plugins/Csv/CsvParticleReader.hpp"
-#include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
+#include "ACTFW/Io/Csv/CsvParticleReader.hpp"
+#include "ACTFW/Io/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Utilities/OptionsFwd.hpp"
 
 namespace FW {

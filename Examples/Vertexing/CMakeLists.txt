@@ -6,7 +6,7 @@ set(_common_libraries
   ActsFrameworkPythia8
   ActsFrameworkTruthTracking
   ACTFWVertexing
-  ACTFWCsvPlugin
+  ActsFrameworkIoCsv
   ACTFWRootPlugin
   Boost::program_options)
 

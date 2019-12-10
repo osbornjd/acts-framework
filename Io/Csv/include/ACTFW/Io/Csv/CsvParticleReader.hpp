@@ -11,8 +11,9 @@
 #include <memory>
 #include <string>
 
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/IReader.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 namespace Csv {

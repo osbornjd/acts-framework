@@ -9,6 +9,6 @@ target_link_libraries(
       ACTFWGenericDetector
       ACTFWExamplesCommon
       ACTFWBFieldPlugin
-      ACTFWCsvPlugin
       ActsFrameworkTruthTracking
+      ActsFrameworkIoCsv
       ActsFrameworkIoPerformance)

@@ -9,7 +9,6 @@ set(_common_libraries
   ACTFWRootPlugin
   Boost::program_options)
 
-
 # Generic detector
 add_executable(ACTFWEmptyPropagationExample src/EmptyDetectorPropagationExample.cpp)
 target_include_directories(ACTFWEmptyPropagationExample PRIVATE

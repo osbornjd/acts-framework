@@ -11,10 +11,11 @@
 #include <memory>
 #include <string>
 
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/IReader.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 class Surface;
