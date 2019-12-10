@@ -75,7 +75,7 @@ main(int argc, char* argv[])
   auto particleReaderCfg            = Options::readCsvParticleReaderConfig(vm);
   particleReaderCfg.outputParticles = "truth_particles";
   sequencer.addReader(
-      std::make_shared<Csv::CsvParticleReader>(particleReaderCfg, logLevel));
+      std::make_shared<CsvParticleReader>(particleReaderCfg, logLevel));
   // Read clusters from CSV files
   auto clusterReaderCfg = Options::readCsvPlanarClusterReaderConfig(vm);
   clusterReaderCfg.trackingGeometry = trackingGeometry;
@@ -84,8 +84,8 @@ main(int argc, char* argv[])
   clusterReaderCfg.outputHitIds          = "hit_ids";
   clusterReaderCfg.outputHitParticlesMap = "truth_hit_particles_map";
   clusterReaderCfg.outputSimulatedHits   = "truth_hits";
-  sequencer.addReader(std::make_shared<Csv::CsvPlanarClusterReader>(
-      clusterReaderCfg, logLevel));
+  sequencer.addReader(
+      std::make_shared<CsvPlanarClusterReader>(clusterReaderCfg, logLevel));
 
   // Create smeared measurements
   HitSmearing::Config hitSmearingCfg;

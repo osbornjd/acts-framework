@@ -23,9 +23,9 @@
 #include "ACTFW/Utilities/Range.hpp"
 #include "TrackMlData.hpp"
 
-FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
-    const FW::Csv::CsvPlanarClusterReader::Config& cfg,
-    Acts::Logging::Level                           level)
+FW::CsvPlanarClusterReader::CsvPlanarClusterReader(
+    const FW::CsvPlanarClusterReader::Config& cfg,
+    Acts::Logging::Level                      level)
   : m_cfg(cfg)
   // TODO check that all files (hits,cells,truth) exists
   , m_eventsRange(determineEventFilesRange(cfg.inputDir, "hits.csv"))
@@ -53,13 +53,13 @@ FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader(
 }
 
 std::string
-FW::Csv::CsvPlanarClusterReader::CsvPlanarClusterReader::name() const
+FW::CsvPlanarClusterReader::CsvPlanarClusterReader::name() const
 {
   return "CsvPlanarClusterReader";
 }
 
 std::pair<size_t, size_t>
-FW::Csv::CsvPlanarClusterReader::availableEvents() const
+FW::CsvPlanarClusterReader::availableEvents() const
 {
   return m_eventsRange;
 }
@@ -157,7 +157,7 @@ readHitsByGeoId(const std::string& inputDir, size_t event)
 }  // namespace
 
 FW::ProcessCode
-FW::Csv::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
+FW::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
 {
   // hit_id in the files is not required to be neither continuous nor
   // monotonic. internally, we want continous indices within [0,#hits)

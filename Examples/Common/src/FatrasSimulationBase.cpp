@@ -191,14 +191,14 @@ setupSimulationAlgorithm(
   std::string outputDir = vm["output-dir"].template as<std::string>();
 
   // Write simulation information as CSV files
-  std::shared_ptr<FW::Csv::CsvParticleWriter> pWriterCsv = nullptr;
+  std::shared_ptr<FW::CsvParticleWriter> pWriterCsv = nullptr;
   if (vm["output-csv"].template as<bool>()) {
-    FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
+    FW::CsvParticleWriter::Config pWriterCsvConfig;
     pWriterCsvConfig.inputEvent = fatrasConfig.simulatedEventCollection;
     pWriterCsvConfig.outputDir  = outputDir;
     pWriterCsvConfig.outputStem = fatrasConfig.simulatedEventCollection;
     sequencer.addWriter(
-        std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig));
+        std::make_shared<FW::CsvParticleWriter>(pWriterCsvConfig));
   }
 
   // Write simulation information as ROOT files

@@ -52,8 +52,8 @@ main(int argc, char* argv[])
   // Read particles from CSV files
   auto particleReaderCfg = FW::Options::readCsvParticleReaderConfig(vm);
   particleReaderCfg.outputParticles = "particles";
-  sequencer.addReader(std::make_shared<FW::Csv::CsvParticleReader>(
-      particleReaderCfg, logLevel));
+  sequencer.addReader(
+      std::make_shared<FW::CsvParticleReader>(particleReaderCfg, logLevel));
 
   // Read clusters from CSV files
   auto clusterReaderCfg = FW::Options::readCsvPlanarClusterReaderConfig(vm);
@@ -61,8 +61,8 @@ main(int argc, char* argv[])
   clusterReaderCfg.outputClusters        = "clusters";
   clusterReaderCfg.outputHitParticlesMap = "hit_particle_map";
   clusterReaderCfg.outputHitIds          = "hit_ids";
-  sequencer.addReader(std::make_shared<FW::Csv::CsvPlanarClusterReader>(
-      clusterReaderCfg, logLevel));
+  sequencer.addReader(
+      std::make_shared<FW::CsvPlanarClusterReader>(clusterReaderCfg, logLevel));
 
   // Print some information as crosscheck
   FW::PrintHits::Config printCfg;

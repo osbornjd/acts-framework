@@ -21,15 +21,15 @@ namespace Options {
   addCsvWriterOptions(Description& desc);
 
   /// Read the CSV particle writer options.
-  FW::Csv::CsvParticleWriter::Config
+  FW::CsvParticleWriter::Config
   readCsvParticleWriterConfig(const Variables& vm);
 
   /// Read the CSV planar cluster writer options.
-  FW::Csv::CsvPlanarClusterWriter::Config
+  FW::CsvPlanarClusterWriter::Config
   readCsvPlanarClusterWriterConfig(const Variables& vm);
 
   /// Read the CSV tracking geometry writer config.
-  FW::Csv::CsvTrackingGeometryWriter::Config
+  FW::CsvTrackingGeometryWriter::Config
   readCsvTrackingGeometryWriterConfig(const Variables& vm);
 
 }  // namespace Options

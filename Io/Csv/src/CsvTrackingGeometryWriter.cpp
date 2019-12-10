@@ -24,7 +24,6 @@
 #include "TrackMlData.hpp"
 
 using namespace FW;
-using namespace FW::Csv;
 
 CsvTrackingGeometryWriter::CsvTrackingGeometryWriter(
     const CsvTrackingGeometryWriter::Config& cfg,

@@ -16,56 +16,54 @@
 #include "ACTFW/Framework/IReader.hpp"
 
 namespace FW {
-namespace Csv {
 
-  /// Read particles in the TrackML comma-separated-value format.
-  ///
-  /// This reads one file per event in the configured input directory
-  /// and filename. Files are assumed to be named using the following schema
-  ///
-  ///     event000000001-<stem>.csv
-  ///     event000000002-<stem>.csv
-  ///
-  /// and each line in the file corresponds to one particle. The
-  /// input filename can be configured and defaults to `particles.csv`.
-  class CsvParticleReader : public IReader
+/// Read particles in the TrackML comma-separated-value format.
+///
+/// This reads one file per event in the configured input directory
+/// and filename. Files are assumed to be named using the following schema
+///
+///     event000000001-<stem>.csv
+///     event000000002-<stem>.csv
+///
+/// and each line in the file corresponds to one particle. The
+/// input filename can be configured and defaults to `particles.csv`.
+class CsvParticleReader : public IReader
+{
+public:
+  struct Config
   {
-  public:
-    struct Config
-    {
-      /// Which particle collection to read into.
-      std::string outputParticles;
-      /// Where to read input files from.
-      std::string inputDir;
-      /// Input filename stem.
-      std::string inputStem = "particles";
-    };
-
-    CsvParticleReader(const Config&        cfg,
-                      Acts::Logging::Level level = Acts::Logging::INFO);
-
-    std::string
-    name() const final override;
-
-    /// Return the available events range.
-    std::pair<size_t, size_t>
-    availableEvents() const final override;
-
-    /// Read out data from the input stream.
-    ProcessCode
-    read(const FW::AlgorithmContext& ctx) final override;
-
-  private:
-    Config                              m_cfg;
-    std::pair<size_t, size_t>           m_eventsRange;
-    std::unique_ptr<const Acts::Logger> m_logger;
-
-    const Acts::Logger&
-    logger() const
-    {
-      return *m_logger;
-    }
+    /// Which particle collection to read into.
+    std::string outputParticles;
+    /// Where to read input files from.
+    std::string inputDir;
+    /// Input filename stem.
+    std::string inputStem = "particles";
   };
 
-}  // namespace Csv
+  CsvParticleReader(const Config&        cfg,
+                    Acts::Logging::Level level = Acts::Logging::INFO);
+
+  std::string
+  name() const final override;
+
+  /// Return the available events range.
+  std::pair<size_t, size_t>
+  availableEvents() const final override;
+
+  /// Read out data from the input stream.
+  ProcessCode
+  read(const FW::AlgorithmContext& ctx) final override;
+
+private:
+  Config                              m_cfg;
+  std::pair<size_t, size_t>           m_eventsRange;
+  std::unique_ptr<const Acts::Logger> m_logger;
+
+  const Acts::Logger&
+  logger() const
+  {
+    return *m_logger;
+  }
+};
+
 }  // namespace FW

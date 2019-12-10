@@ -136,12 +136,12 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
     // CSV output
     if (vm["output-csv"].as<bool>()) {
       // setup the tracking geometry writer
-      FW::Csv::CsvTrackingGeometryWriter::Config tgCsvWriterConfig;
+      FW::CsvTrackingGeometryWriter::Config tgCsvWriterConfig;
       tgCsvWriterConfig.trackingGeometry = tGeometry;
       tgCsvWriterConfig.outputDir        = outputDir;
       tgCsvWriterConfig.writePerEvent    = true;
-      auto tgCsvWriter = std::make_shared<FW::Csv::CsvTrackingGeometryWriter>(
-          tgCsvWriterConfig);
+      auto tgCsvWriter
+          = std::make_shared<FW::CsvTrackingGeometryWriter>(tgCsvWriterConfig);
 
       // Write the tracking geometry object
       tgCsvWriter->write(context);

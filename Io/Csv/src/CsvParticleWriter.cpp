@@ -19,9 +19,9 @@
 #include "ACTFW/Utilities/Paths.hpp"
 #include "TrackMlData.hpp"
 
-FW::Csv::CsvParticleWriter::CsvParticleWriter(
-    const FW::Csv::CsvParticleWriter::Config& cfg,
-    Acts::Logging::Level                      level)
+FW::CsvParticleWriter::CsvParticleWriter(
+    const FW::CsvParticleWriter::Config& cfg,
+    Acts::Logging::Level                 level)
   : WriterT(cfg.inputEvent, "CsvParticleWriter", level), m_cfg(cfg)
 {
   // inputEvent is already checked by base constructor
@@ -31,8 +31,8 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
 }
 
 FW::ProcessCode
-FW::Csv::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
-                                   const std::vector<Data::SimVertex>& vertices)
+FW::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
+                              const std::vector<Data::SimVertex>& vertices)
 {
   // use pointer instead of reference since it is optional
   const std::map<barcode_type, size_t>* hitsPerParticle = nullptr;

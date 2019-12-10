@@ -23,9 +23,9 @@
 #include "ACTFW/Utilities/Paths.hpp"
 #include "TrackMlData.hpp"
 
-FW::Csv::CsvParticleReader::CsvParticleReader(
-    const FW::Csv::CsvParticleReader::Config& cfg,
-    Acts::Logging::Level                      level)
+FW::CsvParticleReader::CsvParticleReader(
+    const FW::CsvParticleReader::Config& cfg,
+    Acts::Logging::Level                 level)
   : m_cfg(cfg)
   , m_eventsRange(
         determineEventFilesRange(cfg.inputDir, cfg.inputStem + ".csv"))
@@ -40,19 +40,19 @@ FW::Csv::CsvParticleReader::CsvParticleReader(
 }
 
 std::string
-FW::Csv::CsvParticleReader::CsvParticleReader::name() const
+FW::CsvParticleReader::CsvParticleReader::name() const
 {
   return "CsvParticleReader";
 }
 
 std::pair<size_t, size_t>
-FW::Csv::CsvParticleReader::availableEvents() const
+FW::CsvParticleReader::availableEvents() const
 {
   return m_eventsRange;
 }
 
 FW::ProcessCode
-FW::Csv::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
+FW::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 {
   SimParticles particles;
 

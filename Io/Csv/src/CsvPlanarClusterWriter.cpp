@@ -22,16 +22,16 @@
 #include "ACTFW/Utilities/Paths.hpp"
 #include "TrackMlData.hpp"
 
-FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
-    const FW::Csv::CsvPlanarClusterWriter::Config& cfg,
-    Acts::Logging::Level                           level)
+FW::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
+    const FW::CsvPlanarClusterWriter::Config& cfg,
+    Acts::Logging::Level                      level)
   : WriterT(cfg.inputClusters, "CsvPlanarClusterWriter", level), m_cfg(cfg)
 {
   // inputClusters is already checked by base constructor
 }
 
 FW::ProcessCode
-FW::Csv::CsvPlanarClusterWriter::writeT(
+FW::CsvPlanarClusterWriter::writeT(
     const AlgorithmContext&                                  context,
     const FW::GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
 {
