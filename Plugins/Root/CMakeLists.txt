@@ -17,7 +17,7 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(
   ACTFWRootPlugin
-  PUBLIC ActsCore ActsDigitizationPlugin IdentificationPlugin ACTFramework
+  PUBLIC ActsCore ActsDigitizationPlugin ActsIdentificationPlugin ACTFramework
     ACTFWPropagation ActsFrameworkTruthTracking Threads::Threads
   PRIVATE ROOT::Core ROOT::Hist ROOT::Tree)
 

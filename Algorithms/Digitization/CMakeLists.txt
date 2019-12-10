@@ -8,7 +8,7 @@ target_include_directories(
 target_link_libraries(
   ACTFWDigitization
   PRIVATE
-    ACTFramework ActsCore ActsDigitizationPlugin IdentificationPlugin
+    ACTFramework ActsCore ActsDigitizationPlugin ActsIdentificationPlugin
     Boost::program_options)
 
 install(

@@ -13,6 +13,7 @@
 #include <vector>
 
 // this include is a work-around. its missing in the KalmanFitter header
+// @TODO: include map in KalmanFitter
 #include <map>
 
 #include <Acts/Fitter/KalmanFitter.hpp>
@@ -29,7 +30,7 @@ class FittingAlgorithm final : public BareAlgorithm
 {
 public:
   using FitterResult = Acts::Result<
-      Acts::KalmanFitterResult<Data::SimSourceLink, Acts::BoundParameters>>;
+      Acts::KalmanFitterResult<Data::SimSourceLink>>;
   /// Fit function that takes input measurements, initial trackstate and fitter
   /// options and returns some fit-specific result.
   using FitterFunction

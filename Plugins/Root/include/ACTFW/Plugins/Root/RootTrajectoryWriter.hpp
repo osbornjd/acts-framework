@@ -17,6 +17,7 @@
 #include "ACTFW/EventData/Track.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 #include "Acts/EventData/Measurement.hpp"
+#include "Acts/EventData/MultiTrajectory.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
@@ -38,11 +39,12 @@ namespace Root {
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
   ///
-  /// Each entry in the TTree corresponds to one trajectory for optimum writing
-  /// speed. The event number is part of the written data.
+  /// Each entry in the TTree corresponds to one trajectory for optimum
+  /// writing speed. The event number is part of the written data.
   ///
   /// A common file can be provided for to the writer to attach his TTree,
-  /// this is done by setting the Config::rootFile pointer to an existing file
+  /// this is done by setting the Config::rootFile pointer to an existing
+  /// file
   ///
   /// Safe to use from multiple writer threads - uses a std::mutex lock.
   class RootTrajectoryWriter final : public WriterT<TrajectoryContainer>
