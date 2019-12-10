@@ -15,8 +15,8 @@
 #include "Acts/Material/BinnedSurfaceMaterial.hpp"
 
 FW::Json::JsonMaterialWriter::JsonMaterialWriter(
-    const FW::Json::JsonGeometryConverter::Config& cfg,
-    const std::string&                             fileName)
+    const Acts::JsonGeometryConverter::Config& cfg,
+    const std::string&                         fileName)
   : m_cfg(cfg), m_fileName(fileName)
 {
   // Validate the configuration
@@ -32,7 +32,7 @@ FW::Json::JsonMaterialWriter::write(
     const Acts::DetectorMaterialMaps& detMaterial)
 {
   // Evoke the converter
-  FW::Json::JsonGeometryConverter jmConverter(m_cfg);
+  Acts::JsonGeometryConverter jmConverter(m_cfg);
   auto jout = jmConverter.materialMapsToJson(detMaterial);
   // And write the file
   std::ofstream ofj(m_fileName);
@@ -43,7 +43,7 @@ void
 FW::Json::JsonMaterialWriter::write(const Acts::TrackingGeometry& tGeometry)
 {
   // Evoke the converter
-  FW::Json::JsonGeometryConverter jmConverter(m_cfg);
+  Acts::JsonGeometryConverter jmConverter(m_cfg);
   auto jout = jmConverter.trackingGeometryToJson(tGeometry);
   // And write the file
   std::ofstream ofj(m_fileName);

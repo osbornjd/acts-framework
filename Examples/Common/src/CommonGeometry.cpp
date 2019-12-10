@@ -13,9 +13,9 @@
 #include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include "ACTFW/Geometry/MaterialWiper.hpp"
-#include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
-#include "ACTFW/Plugins/Json/JsonMaterialDecorator.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialDecorator.hpp"
+#include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
+#include "Acts/Plugins/Json/JsonMaterialDecorator.hpp"
 
 #include "ACTFW/Detector/IBaseDetector.hpp"
 
@@ -48,9 +48,9 @@ namespace Geometry {
       // json or root based decorator
       if (fileName.find(".json") != std::string::npos) {
         // Set up the converter first
-        FW::Json::JsonGeometryConverter::Config jsonGeoConvConfig;
+        Acts::JsonGeometryConverter::Config jsonGeoConvConfig;
         // Set up the json-based decorator
-        matDeco = std::make_shared<const FW::Json::JsonMaterialDecorator>(
+        matDeco = std::make_shared<const Acts::JsonMaterialDecorator>(
             jsonGeoConvConfig, fileName);
       } else if (fileName.find(".root") != std::string::npos) {
         // Set up the root-based decorator
