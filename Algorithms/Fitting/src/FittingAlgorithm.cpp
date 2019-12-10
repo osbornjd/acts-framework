@@ -10,6 +10,7 @@
 
 #include <stdexcept>
 #include "ACTFW/EventData/ProtoTrack.hpp"
+#include "ACTFW/EventData/Track.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
 FW::FittingAlgorithm::FittingAlgorithm(Config cfg, Acts::Logging::Level level)
@@ -48,9 +49,8 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
     return ProcessCode::ABORT;
   }
 
-  // Prepare the output data with MultiTrajectory 
-  using Trajectory = Acts::MultiTrajectory<Data::SimSourceLink>;
-  std::vector<std::pair<size_t, Trajectory>> trajectories;
+  // Prepare the output data with MultiTrajectory
+  TrajectoryContainer trajectories;
   trajectories.reserve(protoTracks.size());
 
   /// Perform the fit for each input track
@@ -65,7 +65,7 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       trajectories.push_back({});
       continue;
     }
-    // Clear & reserve the right size 
+    // Clear & reserve the right size
     trackSourceLinks.clear();
     trackSourceLinks.reserve(protoTrack.size());
 
@@ -80,19 +80,17 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       trackSourceLinks.push_back(*sourceLink);
     }
 
-     // Set the target surface
+    // Set the target surface
     const Acts::Surface* rSurface = &initialParams.referenceSurface();
 
     // Set the KalmanFitter options
-    Acts::KalmanFitterOptions kfOptions(ctx.geoContext,
-                                        ctx.magFieldContext,
-                                        ctx.calibContext,
-                                        rSurface);
+    Acts::KalmanFitterOptions kfOptions(
+        ctx.geoContext, ctx.magFieldContext, ctx.calibContext, rSurface);
 
     ACTS_DEBUG("Invoke fitter");
     auto result = m_cfg.fit(trackSourceLinks, initialParams, kfOptions);
     if (result.ok()) {
-      // Get the fit output object 
+      // Get the fit output object
       const auto& fitOutput = result.value();
       trajectories.push_back(
           std::make_pair(fitOutput.trackTip, fitOutput.fittedStates));

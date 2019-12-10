@@ -13,7 +13,7 @@
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Geometry/TrackingVolume.hpp"
-#include "Acts/Propagator/detail/ConstrainedStep.hpp"
+#include "Acts/Propagator/ConstrainedStep.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 
 FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
@@ -149,12 +149,10 @@ FW::Root::RootPropagationStepsWriter::writeT(
       m_dy.push_back(direction.y());
       m_dz.push_back(direction.z());
 
-      using cs = Acts::detail::ConstrainedStep;
-
-      double accuracy = step.stepSize.value(cs::accuracy);
-      double actor    = step.stepSize.value(cs::actor);
-      double aborter  = step.stepSize.value(cs::aborter);
-      double user     = step.stepSize.value(cs::user);
+      double accuracy = step.stepSize.value(Acts::ConstrainedStep::accuracy);
+      double actor    = step.stepSize.value(Acts::ConstrainedStep::actor);
+      double aborter  = step.stepSize.value(Acts::ConstrainedStep::aborter);
+      double user     = step.stepSize.value(Acts::ConstrainedStep::user);
       double act2     = actor * actor;
       double acc2     = accuracy * accuracy;
       double abo2     = aborter * aborter;

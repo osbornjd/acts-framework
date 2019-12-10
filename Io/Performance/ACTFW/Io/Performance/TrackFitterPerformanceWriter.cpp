@@ -89,13 +89,22 @@ FW::TrackFitterPerformanceWriter::writeT(
   // exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
+<<<<<<< HEAD
   for (const auto& traj : trajectories) {
     if (traj.empty()) { continue; }
+=======
+  for (auto& [trackTip, traj] : trajectories) {
+>>>>>>> c52c355f... framework compiles again
     // retrieve the truth particle barcode for this track state
     // TODO use majority particle instead to support reconstructed, non-truth
     // trajectories
-    auto truthHitAtFirstState = (*traj[0].measurement.uncalibrated).truthHit();
-    auto barcode              = truthHitAtFirstState.particle.barcode();
+    auto truthHitAtFirstState
+        = traj.getTrackState(trackTip).uncalibrated().truthHit();
+
+    traj.visitBackwards(trackTip, [&](const auto& state) {
+      auto truthHitAtFirstState = state;
+    });
+    auto barcode = truthHitAtFirstState.particle.barcode();
     // find the truth particle for this trajectory
     Data::SimParticle truthParticle;
     auto              ip = particles.find(barcode);
@@ -105,8 +114,8 @@ FW::TrackFitterPerformanceWriter::writeT(
       ACTS_WARNING("Truth particle " << barcode << "not found.");
     }
     // fill the plots
-    m_resPlotTool.fill(m_resPlotCache, ctx.geoContext, traj);
-    m_effPlotTool.fill(m_effPlotCache, traj, truthParticle);
+    m_resPlotTool.fill(m_resPlotCache, ctx.geoContext, traj, trackTip);
+    m_effPlotTool.fill(m_effPlotCache, traj, trackTip, truthParticle);
   }
 
   return ProcessCode::SUCCESS;
