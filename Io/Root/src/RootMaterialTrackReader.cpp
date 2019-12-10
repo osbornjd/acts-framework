@@ -6,13 +6,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
-#include <iostream>
-#include "ACTFW/Framework/WhiteBoard.hpp"
-#include "TChain.h"
-#include "TFile.h"
+#include "ACTFW/Io/Root/RootMaterialTrackReader.hpp"
 
-#include "ACTFW/TruthTracking/VertexAndTracks.hpp"
+#include <TChain.h>
+#include <TFile.h>
+#include <iostream>
+
+#include "ACTFW/Framework/WhiteBoard.hpp"
 
 FW::Root::RootMaterialTrackReader::RootMaterialTrackReader(
     const FW::Root::RootMaterialTrackReader::Config& cfg)

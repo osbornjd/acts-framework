@@ -6,25 +6,27 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootMaterialDecorator.hpp"
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/finder.hpp>
-#include <boost/algorithm/string/iter_find.hpp>
+#include "ACTFW/Io/Root/RootMaterialDecorator.hpp"
+
 #include <cstdio>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Material/BinnedSurfaceMaterial.hpp"
-#include "Acts/Material/HomogeneousSurfaceMaterial.hpp"
-#include "Acts/Utilities/BinUtility.hpp"
-#include "Acts/Utilities/BinningType.hpp"
-#include "TFile.h"
-#include "TH2F.h"
-#include "TIterator.h"
-#include "TKey.h"
-#include "TList.h"
+
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Material/BinnedSurfaceMaterial.hpp>
+#include <Acts/Material/HomogeneousSurfaceMaterial.hpp>
+#include <Acts/Utilities/BinUtility.hpp>
+#include <Acts/Utilities/BinningType.hpp>
+#include <TFile.h>
+#include <TH2F.h>
+#include <TIterator.h>
+#include <TKey.h>
+#include <TList.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/finder.hpp>
+#include <boost/algorithm/string/iter_find.hpp>
 
 FW::Root::RootMaterialDecorator::RootMaterialDecorator(
     const FW::Root::RootMaterialDecorator::Config& cfg)

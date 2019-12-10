@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "ACTFW/Plugins/Root/RootBFieldWriter.hpp"
-#include "ACTFW/Utilities/Options.hpp"
-
 #include <boost/program_options.hpp>
+
+#include "ACTFW/Io/Root/RootBFieldWriter.hpp"
+#include "ACTFW/Utilities/Options.hpp"
 
 namespace FW {
 namespace BField {

@@ -10,15 +10,17 @@
 
 #include <map>
 #include <mutex>
+
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
+#include <Acts/Material/IMaterialDecorator.hpp>
+#include <Acts/Material/ISurfaceMaterial.hpp>
+#include <Acts/Material/IVolumeMaterial.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Definitions.hpp>
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Geometry/TrackingVolume.hpp"
-#include "Acts/Material/IMaterialDecorator.hpp"
-#include "Acts/Material/ISurfaceMaterial.hpp"
-#include "Acts/Material/IVolumeMaterial.hpp"
-#include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 class TFile;
 

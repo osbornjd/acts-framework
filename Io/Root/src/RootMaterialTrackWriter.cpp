@@ -6,15 +6,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
+#include "ACTFW/Io/Root/RootMaterialTrackWriter.hpp"
 
 #include <ios>
 #include <iostream>
 #include <stdexcept>
 
-#include "TFile.h"
-
-#include "Acts/Utilities/Helpers.hpp"
+#include <Acts/Utilities/Helpers.hpp>
+#include <TFile.h>
+#include <TTree.h>
 
 using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;

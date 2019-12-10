@@ -9,12 +9,16 @@
 #pragma once
 
 #include <mutex>
+
+#include <Acts/Propagator/MaterialInteractor.hpp>
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "Acts/Propagator/MaterialInteractor.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "TTree.h"
+
+class TFile;
+class TTree;
 
 namespace Acts {
 // Using some short hands for Recorded Material

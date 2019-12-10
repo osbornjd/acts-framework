@@ -15,9 +15,9 @@
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Io/Csv/CsvPlanarClusterWriter.hpp"
+#include "ACTFW/Io/Root/RootPlanarClusterWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Obj/ObjSpacePointWriter.hpp"
-#include "ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp"
 
 void
 setupDigitization(boost::program_options::variables_map& vars,

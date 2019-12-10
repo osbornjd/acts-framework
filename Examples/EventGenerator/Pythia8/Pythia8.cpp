@@ -16,9 +16,9 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Io/Root/RootParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
-#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
 using namespace Acts::units;

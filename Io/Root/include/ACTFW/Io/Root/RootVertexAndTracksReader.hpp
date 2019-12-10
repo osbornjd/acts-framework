@@ -10,12 +10,14 @@
 
 #include <mutex>
 #include <vector>
+
+#include <Acts/Propagator/MaterialInteractor.hpp>
+#include <Acts/Utilities/Definitions.hpp>
+#include <Acts/Utilities/Logger.hpp>
+
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/IService.hpp"
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "Acts/Propagator/MaterialInteractor.hpp"
-#include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/Logger.hpp"
 
 class TChain;
 

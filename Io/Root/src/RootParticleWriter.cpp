@@ -6,16 +6,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
+#include "ACTFW/Io/Root/RootParticleWriter.hpp"
 
 #include <ios>
 #include <stdexcept>
 
-#include <TFile.h>
-#include <TTree.h>
-
 #include <Acts/Utilities/Helpers.hpp>
 #include <Acts/Utilities/Units.hpp>
+#include <TFile.h>
+#include <TTree.h>
 
 using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;

@@ -6,28 +6,29 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <boost/program_options.hpp>
 #include <memory>
+
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/Material/SurfaceMaterialMapper.hpp>
+#include <Acts/Plugins/Json/JsonGeometryConverter.hpp>
+#include <Acts/Propagator/Navigator.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/StraightLineStepper.hpp>
+#include <boost/program_options.hpp>
+
+#include "ACTFW/Detector/IBaseDetector.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
+#include "ACTFW/Io/Root/RootMaterialTrackReader.hpp"
+#include "ACTFW/Io/Root/RootMaterialWriter.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
 #include "ACTFW/MaterialMapping/MaterialMappingOptions.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
-#include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
-#include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Geometry/GeometryContext.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/MagneticField/MagneticFieldContext.hpp"
-#include "Acts/Material/SurfaceMaterialMapper.hpp"
-#include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
-#include "Acts/Propagator/Navigator.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Propagator/StraightLineStepper.hpp"
-
-#include "ACTFW/Detector/IBaseDetector.hpp"
 
 namespace po = boost::program_options;
 

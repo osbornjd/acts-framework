@@ -6,18 +6,21 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
+#include "ACTFW/Io/Root/RootSimHitWriter.hpp"
 
 #include <ios>
 #include <stdexcept>
+
+#include <Acts/Plugins/Digitization/DigitizationModule.hpp>
+#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
+#include <Acts/Plugins/Digitization/Segmentation.hpp>
+#include <TFile.h>
+#include <TTree.h>
 
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
-#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
-#include "Acts/Plugins/Digitization/Segmentation.hpp"
 
 FW::Root::RootSimHitWriter::RootSimHitWriter(
     const FW::Root::RootSimHitWriter::Config& cfg,

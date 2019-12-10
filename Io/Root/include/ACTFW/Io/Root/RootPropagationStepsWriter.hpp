@@ -9,10 +9,13 @@
 #pragma once
 
 #include <mutex>
-#include "ACTFW/Framework/WriterT.hpp"
+
+#include <ACTFW/Framework/WriterT.hpp>
+
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
-#include "TFile.h"
-#include "TTree.h"
+
+class TFile;
+class TTree;
 
 namespace FW {
 

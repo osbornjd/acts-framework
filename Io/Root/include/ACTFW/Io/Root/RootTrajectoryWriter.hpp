@@ -9,6 +9,12 @@
 #pragma once
 
 #include <mutex>
+
+#include <Acts/EventData/Measurement.hpp>
+#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Utilities/ParameterDefinitions.hpp>
+
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
@@ -16,11 +22,6 @@
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/EventData/Track.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "Acts/EventData/Measurement.hpp"
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Utilities/ParameterDefinitions.hpp"
 
 class TFile;
 class TTree;

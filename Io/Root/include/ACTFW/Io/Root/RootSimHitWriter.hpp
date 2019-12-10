@@ -10,12 +10,12 @@
 
 #include <mutex>
 
-#include <TFile.h>
-#include <TTree.h>
-
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
+
+class TFile;
+class TTree;
 
 namespace FW {
 namespace Root {

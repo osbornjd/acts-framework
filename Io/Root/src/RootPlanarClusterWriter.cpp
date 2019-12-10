@@ -6,20 +6,25 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp"
+#include "ACTFW/Io/Root/RootPlanarClusterWriter.hpp"
+
 #include <ios>
 #include <stdexcept>
+
+#include <Acts/Plugins/Digitization/DigitizationModule.hpp>
+#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
+#include <Acts/Plugins/Digitization/Segmentation.hpp>
+#include <Acts/Plugins/Identification/IdentifiedDetectorElement.hpp>
+#include <Acts/Utilities/Units.hpp>
+#include <TFile.h>
+#include <TTree.h>
+
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
-#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
-#include "Acts/Plugins/Digitization/Segmentation.hpp"
-#include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
-#include "Acts/Utilities/Units.hpp"
 
 FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
     const FW::Root::RootPlanarClusterWriter::Config& cfg,

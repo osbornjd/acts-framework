@@ -8,12 +8,15 @@
 
 #pragma once
 
-#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
 #include <mutex>
+
+#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
+
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "TFile.h"
-#include "TTree.h"
+
+class TFile;
+class TTree;
 
 namespace FW {
 

@@ -6,13 +6,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootVertexAndTracksReader.hpp"
+#include "ACTFW/Io/Root/RootVertexAndTracksReader.hpp"
+
 #include <iostream>
+
+#include <Acts/Surfaces/PerigeeSurface.hpp>
+#include <TChain.h>
+#include <TFile.h>
+
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/TruthTracking/VertexAndTracks.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
-#include "TChain.h"
-#include "TFile.h"
 
 FW::Root::RootVertexAndTracksReader::RootVertexAndTracksReader(
     const FW::Root::RootVertexAndTracksReader::Config& cfg)

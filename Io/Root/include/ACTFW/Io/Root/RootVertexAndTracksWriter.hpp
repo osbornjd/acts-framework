@@ -9,6 +9,7 @@
 #pragma once
 
 #include <mutex>
+
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 #include "ACTFW/TruthTracking/VertexAndTracks.hpp"

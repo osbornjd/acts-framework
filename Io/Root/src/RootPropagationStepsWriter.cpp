@@ -6,15 +6,20 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootPropagationStepsWriter.hpp"
+#include "ACTFW/Io/Root/RootPropagationStepsWriter.hpp"
+
 #include <ios>
 #include <stdexcept>
+
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
+#include <Acts/Propagator/ConstrainedStep.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <TFile.h>
+#include <TTree.h>
+
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Geometry/TrackingVolume.hpp"
-#include "Acts/Propagator/ConstrainedStep.hpp"
-#include "Acts/Surfaces/Surface.hpp"
 
 FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
     const FW::Root::RootPropagationStepsWriter::Config& cfg,

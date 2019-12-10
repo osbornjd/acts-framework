@@ -6,12 +6,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootVertexAndTracksWriter.hpp"
-#include <TFile.h>
-#include <TTree.h>
+#include "ACTFW/Io/Root/RootVertexAndTracksWriter.hpp"
+
 #include <ios>
 #include <stdexcept>
-#include "Acts/Utilities/Helpers.hpp"
+
+#include <Acts/Utilities/Helpers.hpp>
+#include <TFile.h>
+#include <TTree.h>
 
 using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;

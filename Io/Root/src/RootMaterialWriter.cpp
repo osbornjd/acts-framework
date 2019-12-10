@@ -6,14 +6,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
+#include "ACTFW/Io/Root/RootMaterialWriter.hpp"
+
 #include <ios>
 #include <iostream>
 #include <stdexcept>
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Material/BinnedSurfaceMaterial.hpp"
-#include "TFile.h"
-#include "TH2F.h"
+
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Material/BinnedSurfaceMaterial.hpp>
+#include <TFile.h>
+#include <TH2F.h>
 
 FW::Root::RootMaterialWriter::RootMaterialWriter(
     const FW::Root::RootMaterialWriter::Config& cfg)
