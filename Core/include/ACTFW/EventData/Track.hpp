@@ -26,7 +26,8 @@ using TrackParametersContainer = std::vector<TrackParameters>;
 
 /// MultiTrajectory definition
 using Trajectory = Acts::MultiTrajectory<Data::SimSourceLink>;
-/// Container for trajectories
+/// Container for pair of trajectory entry indices and corresponding trajectory
+/// instance
 using TrajectoryContainer = std::vector<std::pair<size_t, Trajectory>>;
 
 }  // namespace FW

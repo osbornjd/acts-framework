@@ -248,11 +248,15 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
   // Loop over the trajectories
   int iTraj = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
   for (const auto& traj : trajectories) {
     if (traj.empty()) { continue; }
 =======
   for (auto& [trackTip, mj] : trajectories) {
 >>>>>>> 2d2e984b... adapt Fitting and IdentificationPlugin
+=======
+  for (const auto& [trackTip, mj] : trajectories) {
+>>>>>>> d6d56d9c... addressing MR comments
     /// collect the information
     m_trajNr = iTraj;
     // retrieve the truth particle barcode for this track state

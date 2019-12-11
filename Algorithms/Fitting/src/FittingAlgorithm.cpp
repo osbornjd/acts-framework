@@ -53,7 +53,7 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
   TrajectoryContainer trajectories;
   trajectories.reserve(protoTracks.size());
 
-  /// Perform the fit for each input track
+  // Perform the fit for each input track
   std::vector<Data::SimSourceLink> trackSourceLinks;
   for (std::size_t itrack = 0; itrack < protoTracks.size(); ++itrack) {
     // The list of hits and the initial start parameters
