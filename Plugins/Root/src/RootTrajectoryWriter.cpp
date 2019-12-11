@@ -216,28 +216,11 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
 
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;
 
-<<<<<<< HEAD
+  auto& gctx = ctx.geoContext;
+
   // read truth particles from input collection
   const auto& particles
       = ctx.eventStore.get<SimParticles>(m_cfg.inputParticles);
-=======
-  auto& gctx = ctx.geoContext;
-
-  // Read truth particles from input collection
-  const auto& simulatedEvent = ctx.eventStore.get<std::vector<Data::SimVertex>>(
-      m_cfg.simulatedEventCollection);
-  ACTS_DEBUG("Read collection '" << m_cfg.simulatedEventCollection << "' with "
-                                 << simulatedEvent.size() << " vertices");
-
-  // Get the map of truth particle
-  ACTS_DEBUG("Get the truth particles.");
-  std::map<barcode_type, Data::SimParticle> particles;
-  for (auto& vertex : simulatedEvent) {
-    for (auto& particle : vertex.outgoing) {
-      particles.insert(std::make_pair(particle.barcode(), particle));
-    }
-  }
->>>>>>> 2d2e984b... adapt Fitting and IdentificationPlugin
 
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
@@ -247,16 +230,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
 
   // Loop over the trajectories
   int iTraj = 0;
-<<<<<<< HEAD
-<<<<<<< HEAD
-  for (const auto& traj : trajectories) {
-    if (traj.empty()) { continue; }
-=======
-  for (auto& [trackTip, mj] : trajectories) {
->>>>>>> 2d2e984b... adapt Fitting and IdentificationPlugin
-=======
   for (const auto& [trackTip, mj] : trajectories) {
->>>>>>> d6d56d9c... addressing MR comments
     /// collect the information
     m_trajNr = iTraj;
     // retrieve the truth particle barcode for this track state
@@ -301,12 +275,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
     m_nPredicted = 0;
     m_nFiltered  = 0;
     m_nSmoothed  = 0;
-<<<<<<< HEAD
-    for (const auto& state : traj) {
-
-=======
     mj.visitBackwards(trackTip, [&](const auto& state) {
->>>>>>> 2d2e984b... adapt Fitting and IdentificationPlugin
       // get the geometry ID
       auto geoID = state.referenceSurface().geoID();
       m_volumeID.push_back(geoID.volume());
@@ -340,7 +309,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
       // get local truth position
       Acts::Vector2D truthlocal;
       truthHit.surface->globalToLocal(
-          ctx.geoContext, truthHit.position, truthHit.direction, truthlocal);
+          gctx, truthHit.position, truthHit.direction, truthlocal);
 
       // push the truth hit info
       m_t_x.push_back(truthHit.position.x());

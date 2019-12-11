@@ -89,12 +89,7 @@ FW::TrackFitterPerformanceWriter::writeT(
   // exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
-<<<<<<< HEAD
-  for (const auto& traj : trajectories) {
-    if (traj.empty()) { continue; }
-=======
-  for (auto& [trackTip, traj] : trajectories) {
->>>>>>> c52c355f... framework compiles again
+  for (const auto& [trackTip, traj] : trajectories) {
     // retrieve the truth particle barcode for this track state
     // TODO use majority particle instead to support reconstructed, non-truth
     // trajectories
