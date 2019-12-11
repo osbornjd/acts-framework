@@ -12,7 +12,7 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(
   ACTFWCsvPlugin
-  PRIVATE ACTFramework ActsCore ActsDigitizationPlugin IdentificationPlugin
+  PRIVATE ACTFramework ActsCore ActsDigitizationPlugin ActsIdentificationPlugin
     Threads::Threads Boost::program_options dfelibs)
 
 install(

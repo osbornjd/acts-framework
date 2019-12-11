@@ -13,9 +13,8 @@
 
 #include <vector>
 
+#include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
-#include <Acts/EventData/TrackState.hpp>
-
 #include "ACTFW/EventData/SimSourceLink.hpp"
 
 namespace FW {
@@ -25,12 +24,10 @@ using TrackParameters = Acts::CurvilinearParameters;
 /// Container of reconstructed track states for multiple tracks.
 using TrackParametersContainer = std::vector<TrackParameters>;
 
-/// A bound state on a surface w/ associated measurements.
-using TrajectoryState
-    = Acts::TrackState<Data::SimSourceLink, Acts::BoundParameters>;
-/// A trajectory is a set of track states along a reconstructed path.
-using Trajectory = std::vector<TrajectoryState>;
-/// Container of reconstructed trajectories.
-using TrajectoryContainer = std::vector<Trajectory>;
+/// MultiTrajectory definition
+using Trajectory = Acts::MultiTrajectory<Data::SimSourceLink>;
+/// Container for pair of trajectory entry indices and corresponding trajectory
+/// instance
+using TrajectoryContainer = std::vector<std::pair<size_t, Trajectory>>;
 
 }  // namespace FW

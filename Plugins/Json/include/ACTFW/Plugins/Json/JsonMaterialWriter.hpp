@@ -14,10 +14,10 @@
 
 #include <mutex>
 #include "ACTFW/Framework/ProcessCode.hpp"
-#include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Material/ISurfaceMaterial.hpp"
 #include "Acts/Material/IVolumeMaterial.hpp"
+#include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
@@ -49,8 +49,8 @@ namespace Json {
     /// Constructor
     ///
     /// @param cfg The configuration struct of the converter
-    JsonMaterialWriter(const JsonGeometryConverter::Config& cfg,
-                       const std::string&                   fileName);
+    JsonMaterialWriter(const Acts::JsonGeometryConverter::Config& cfg,
+                       const std::string&                         fileName);
 
     /// Virtual destructor
     ~JsonMaterialWriter();
@@ -69,7 +69,7 @@ namespace Json {
 
   private:
     /// The config class of the converter
-    JsonGeometryConverter::Config m_cfg;
+    Acts::JsonGeometryConverter::Config m_cfg;
 
     /// The file name
     std::string m_fileName;

@@ -1,7 +1,6 @@
 add_library(
   ACTFWJsonPlugin SHARED
-  src/JsonMaterialWriter.cpp
-  src/JsonGeometryConverter.cpp)
+  src/JsonMaterialWriter.cpp)
 target_include_directories(
   ACTFWJsonPlugin
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)

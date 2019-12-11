@@ -13,7 +13,6 @@
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
 #include "ACTFW/MaterialMapping/MaterialMappingOptions.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
-#include "ACTFW/Plugins/Json/JsonGeometryConverter.hpp"
 #include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
 #include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
@@ -23,6 +22,7 @@
 #include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Material/SurfaceMaterialMapper.hpp"
+#include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
 #include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/StraightLineStepper.hpp"
@@ -124,8 +124,8 @@ materialMappingExample(int argc, char* argv[], FW::IBaseDetector& detector)
     /// The name of the output file
     std::string fileName = vm["mat-output-file"].template as<std::string>();
     // the material writer
-    FW::Json::JsonGeometryConverter::Config jmConverterCfg(
-        "JsonGeometryConverter", Acts::Logging::INFO);
+    Acts::JsonGeometryConverter::Config jmConverterCfg("JsonGeometryConverter",
+                                                       Acts::Logging::INFO);
     jmConverterCfg.processSensitives
         = vm["mat-output-sensitives"].template as<bool>();
     jmConverterCfg.processApproaches

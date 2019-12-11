@@ -8,7 +8,7 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_link_libraries(
   ACTFWGenericDetector
-  PUBLIC ActsCore IdentificationPlugin ActsDigitizationPlugin)
+  PUBLIC ActsCore ActsIdentificationPlugin ActsDigitizationPlugin)
 target_link_libraries(
   ACTFWGenericDetector
   PUBLIC ACTFramework ACTFWDetectorsCommon)

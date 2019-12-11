@@ -178,7 +178,7 @@ using IndexMultimap = boost::container::flat_multimap<Key, Value>;
 ///       sortable index-like object, as would be the case when mapping e.g.
 ///       hit ids to particle ids/ barcodes.
 template <typename Value, typename Key>
-inline IndexMultimap<Value, Key>
+inline IndexMultimap<Key, Value>
 invertIndexMultimap(const IndexMultimap<Value, Key>& multimap)
 {
   // switch key-value without enforcing the new ordering (linear copy)
