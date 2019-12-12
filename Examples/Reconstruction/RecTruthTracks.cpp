@@ -17,13 +17,13 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/GenericDetector/GenericDetector.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
+#include "ACTFW/Io/Csv/CsvOptionsReader.hpp"
+#include "ACTFW/Io/Csv/CsvParticleReader.hpp"
+#include "ACTFW/Io/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Io/Performance/TrackFinderPerformanceWriter.hpp"
 #include "ACTFW/Io/Performance/TrackFitterPerformanceWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/Csv/CsvOptionsReader.hpp"
-#include "ACTFW/Plugins/Csv/CsvParticleReader.hpp"
-#include "ACTFW/Plugins/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Plugins/Root/RootTrajectoryWriter.hpp"
 #include "ACTFW/TruthTracking/ParticleSmearing.hpp"
 #include "ACTFW/TruthTracking/TruthTrackFinder.hpp"
@@ -75,7 +75,7 @@ main(int argc, char* argv[])
   auto particleReaderCfg            = Options::readCsvParticleReaderConfig(vm);
   particleReaderCfg.outputParticles = "truth_particles";
   sequencer.addReader(
-      std::make_shared<Csv::CsvParticleReader>(particleReaderCfg, logLevel));
+      std::make_shared<CsvParticleReader>(particleReaderCfg, logLevel));
   // Read clusters from CSV files
   auto clusterReaderCfg = Options::readCsvPlanarClusterReaderConfig(vm);
   clusterReaderCfg.trackingGeometry = trackingGeometry;
@@ -84,8 +84,8 @@ main(int argc, char* argv[])
   clusterReaderCfg.outputHitIds          = "hit_ids";
   clusterReaderCfg.outputHitParticlesMap = "truth_hit_particles_map";
   clusterReaderCfg.outputSimulatedHits   = "truth_hits";
-  sequencer.addReader(std::make_shared<Csv::CsvPlanarClusterReader>(
-      clusterReaderCfg, logLevel));
+  sequencer.addReader(
+      std::make_shared<CsvPlanarClusterReader>(clusterReaderCfg, logLevel));
 
   // Create smeared measurements
   HitSmearing::Config hitSmearingCfg;

@@ -15,9 +15,9 @@
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
+#include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
-#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
@@ -66,12 +66,12 @@ main(int argc, char* argv[])
   std::string outputDir = vm["output-dir"].as<std::string>();
 
   if (vm["output-csv"].as<bool>()) {
-    Csv::CsvParticleWriter::Config csvWriterCfg;
+    CsvParticleWriter::Config csvWriterCfg;
     csvWriterCfg.inputEvent = selectorCfg.output;
     csvWriterCfg.outputDir  = outputDir;
     csvWriterCfg.outputStem = "particles";
     sequencer.addWriter(
-        std::make_shared<Csv::CsvParticleWriter>(csvWriterCfg, logLevel));
+        std::make_shared<CsvParticleWriter>(csvWriterCfg, logLevel));
   }
   if (vm["output-root"].as<bool>()) {
     Root::RootParticleWriter::Config rootWriterCfg;

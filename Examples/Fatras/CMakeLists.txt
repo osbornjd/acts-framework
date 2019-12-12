@@ -3,7 +3,7 @@ set(_common_libraries
   FatrasCore
   ACTFramework
   ACTFWBFieldPlugin
-  ACTFWCsvPlugin
+  ActsFrameworkIoCsv
   ACTFWDigitization
   ACTFWExamplesCommon
   ACTFWFatras

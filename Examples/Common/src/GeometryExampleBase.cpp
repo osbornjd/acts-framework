@@ -15,9 +15,9 @@
 #include "ACTFW/Framework/IContextDecorator.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
+#include "ACTFW/Io/Csv/CsvOptionsWriter.hpp"
+#include "ACTFW/Io/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
-#include "ACTFW/Plugins/Csv/CsvOptionsWriter.hpp"
-#include "ACTFW/Plugins/Csv/CsvTrackingGeometryWriter.hpp"
 #include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSurfaceWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjTrackingGeometryWriter.hpp"
@@ -136,12 +136,12 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
     // CSV output
     if (vm["output-csv"].as<bool>()) {
       // setup the tracking geometry writer
-      FW::Csv::CsvTrackingGeometryWriter::Config tgCsvWriterConfig;
+      FW::CsvTrackingGeometryWriter::Config tgCsvWriterConfig;
       tgCsvWriterConfig.trackingGeometry = tGeometry;
       tgCsvWriterConfig.outputDir        = outputDir;
       tgCsvWriterConfig.writePerEvent    = true;
-      auto tgCsvWriter = std::make_shared<FW::Csv::CsvTrackingGeometryWriter>(
-          tgCsvWriterConfig);
+      auto tgCsvWriter
+          = std::make_shared<FW::CsvTrackingGeometryWriter>(tgCsvWriterConfig);
 
       // Write the tracking geometry object
       tgCsvWriter->write(context);

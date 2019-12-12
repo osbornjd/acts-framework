@@ -6,7 +6,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "ACTFW/Plugins/Csv/CsvOptionsWriter.hpp"
+#include "ACTFW/Io/Csv/CsvOptionsWriter.hpp"
 
 #include <boost/program_options.hpp>
 
@@ -23,10 +23,10 @@ FW::Options::addCsvWriterOptions(FW::Options::Description& desc)
       "csv-tg-perevent", bool_switch(), "Write tracking geometry per event.");
 }
 
-FW::Csv::CsvParticleWriter::Config
+FW::CsvParticleWriter::Config
 FW::Options::readCsvParticleWriterConfig(const FW::Options::Variables& vm)
 {
-  FW::Csv::CsvParticleWriter::Config cfg;
+  FW::CsvParticleWriter::Config cfg;
   if (not vm["output-dir"].empty()) {
     cfg.outputDir = vm["output-dir"].as<std::string>();
   }
@@ -34,10 +34,10 @@ FW::Options::readCsvParticleWriterConfig(const FW::Options::Variables& vm)
   return cfg;
 }
 
-FW::Csv::CsvPlanarClusterWriter::Config
+FW::CsvPlanarClusterWriter::Config
 FW::Options::readCsvPlanarClusterWriterConfig(const FW::Options::Variables& vm)
 {
-  FW::Csv::CsvPlanarClusterWriter::Config cfg;
+  FW::CsvPlanarClusterWriter::Config cfg;
   if (not vm["output-dir"].empty()) {
     cfg.outputDir = vm["output-dir"].as<std::string>();
   }
@@ -45,11 +45,11 @@ FW::Options::readCsvPlanarClusterWriterConfig(const FW::Options::Variables& vm)
   return cfg;
 }
 
-FW::Csv::CsvTrackingGeometryWriter::Config
+FW::CsvTrackingGeometryWriter::Config
 FW::Options::readCsvTrackingGeometryWriterConfig(
     const FW::Options::Variables& vm)
 {
-  FW::Csv::CsvTrackingGeometryWriter::Config cfg;
+  FW::CsvTrackingGeometryWriter::Config cfg;
   if (not vm["output-dir"].empty()) {
     cfg.outputDir = vm["output-dir"].as<std::string>();
   }

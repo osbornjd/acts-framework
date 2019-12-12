@@ -12,10 +12,10 @@
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/EventGenerator.hpp"
+#include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
-#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
@@ -53,12 +53,12 @@ setupEvgenInput(boost::program_options::variables_map& vm,
 
   // Write particles as CSV files
   if (vm["output-csv"].template as<bool>()) {
-    FW::Csv::CsvParticleWriter::Config pWriterCsvConfig;
+    FW::CsvParticleWriter::Config pWriterCsvConfig;
     pWriterCsvConfig.inputEvent = "particles";
     pWriterCsvConfig.outputDir  = outputDir;
     pWriterCsvConfig.outputStem = "particles";
     sequencer.addWriter(
-        std::make_shared<FW::Csv::CsvParticleWriter>(pWriterCsvConfig));
+        std::make_shared<FW::CsvParticleWriter>(pWriterCsvConfig));
   }
 
   // Write particles as ROOT file

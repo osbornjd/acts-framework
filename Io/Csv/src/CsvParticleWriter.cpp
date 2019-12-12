@@ -5,7 +5,8 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
-#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
+
+#include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 
 #include <map>
 #include <stdexcept>
@@ -18,9 +19,9 @@
 #include "ACTFW/Utilities/Paths.hpp"
 #include "TrackMlData.hpp"
 
-FW::Csv::CsvParticleWriter::CsvParticleWriter(
-    const FW::Csv::CsvParticleWriter::Config& cfg,
-    Acts::Logging::Level                      level)
+FW::CsvParticleWriter::CsvParticleWriter(
+    const FW::CsvParticleWriter::Config& cfg,
+    Acts::Logging::Level                 level)
   : WriterT(cfg.inputEvent, "CsvParticleWriter", level), m_cfg(cfg)
 {
   // inputEvent is already checked by base constructor
@@ -30,8 +31,8 @@ FW::Csv::CsvParticleWriter::CsvParticleWriter(
 }
 
 FW::ProcessCode
-FW::Csv::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
-                                   const std::vector<Data::SimVertex>& vertices)
+FW::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
+                              const std::vector<Data::SimVertex>& vertices)
 {
   // use pointer instead of reference since it is optional
   const std::map<barcode_type, size_t>* hitsPerParticle = nullptr;

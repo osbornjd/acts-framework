@@ -16,11 +16,11 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
+#include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
 #include "ACTFW/Detector/IBaseDetector.hpp"

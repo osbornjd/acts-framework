@@ -6,6 +6,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "ACTFW/Io/Csv/CsvPlanarClusterWriter.hpp"
+
 #include <stdexcept>
 
 #include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
@@ -17,20 +19,19 @@
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
-#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "TrackMlData.hpp"
 
-FW::Csv::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
-    const FW::Csv::CsvPlanarClusterWriter::Config& cfg,
-    Acts::Logging::Level                           level)
+FW::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
+    const FW::CsvPlanarClusterWriter::Config& cfg,
+    Acts::Logging::Level                      level)
   : WriterT(cfg.inputClusters, "CsvPlanarClusterWriter", level), m_cfg(cfg)
 {
   // inputClusters is already checked by base constructor
 }
 
 FW::ProcessCode
-FW::Csv::CsvPlanarClusterWriter::writeT(
+FW::CsvPlanarClusterWriter::writeT(
     const AlgorithmContext&                                  context,
     const FW::GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
 {

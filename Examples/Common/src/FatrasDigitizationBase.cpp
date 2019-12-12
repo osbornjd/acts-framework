@@ -14,8 +14,8 @@
 #include "ACTFW/Digitization/DigitizationAlgorithm.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Io/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
-#include "ACTFW/Plugins/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Plugins/Obj/ObjSpacePointWriter.hpp"
 #include "ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp"
 
@@ -49,11 +49,11 @@ setupDigitization(boost::program_options::variables_map& vars,
   // Write digitisation output as Csv files
   if (vars["output-csv"].template as<bool>()) {
     // clusters as root
-    FW::Csv::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
+    FW::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
     clusterWriterCsvConfig.inputClusters = digiConfig.outputClusters;
     clusterWriterCsvConfig.outputDir     = outputDir;
-    auto clusteWriterCsv = std::make_shared<FW::Csv::CsvPlanarClusterWriter>(
-        clusterWriterCsvConfig);
+    auto clusteWriterCsv
+        = std::make_shared<FW::CsvPlanarClusterWriter>(clusterWriterCsvConfig);
     // Add to the sequencer
     sequencer.addWriter(clusteWriterCsv);
   }
