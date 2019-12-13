@@ -44,7 +44,7 @@ find_package(TBB REQUIRED)
 
 if(USE_STANDALONE_ACTS)
   message(STATUS "Using external Acts installation")
-  find_package(Acts REQUIRED COMPONENTS Core Legacy MaterialMappingPlugin IdentificationPlugin TGeoPlugin DD4hepPlugin DigitizationPlugin)
+  find_package(Acts REQUIRED COMPONENTS Core DD4hepPlugin DigitizationPlugin IdentificationPlugin JsonPlugin Legacy TGeoPlugin)
 else()
   message(STATUS "Building Acts from source")
   # acts-core and acts-fatras are build as subprojects with fixed options
