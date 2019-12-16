@@ -15,6 +15,7 @@
 #include <boost/container/flat_set.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
+#include "Acts/Surfaces/Surface.hpp"
 
 namespace FW {
 
@@ -270,5 +271,7 @@ namespace detail {
 using SimParticles
     = boost::container::flat_set<Data::SimParticle,
                                  detail::CompareSimParticleBarcode>;
-
+using SimSurfaces
+    = boost::container::flat_map<barcode_type,
+                                 std::vector<const Acts::Surface*>>;
 }  // end of namespace FW

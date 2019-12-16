@@ -57,6 +57,8 @@ namespace Options {
         = vars["fatras-sim-hits"].template as<std::string>();
     cfg.simulatedEventCollection
         = vars["fatras-sim-particles"].template as<std::string>();
+    cfg.simulatedSurfaceCollection
+        = vars["fatras-sim-surfaces"].template as<std::string>();
 
     return cfg;
   }

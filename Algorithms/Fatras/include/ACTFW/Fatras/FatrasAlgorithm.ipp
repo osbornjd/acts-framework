@@ -50,9 +50,12 @@ FW::FatrasAlgorithm<simulator_t>::execute(const AlgorithmContext& ctx) const
   SimHits                  simulatedHits;
   detail::UnorderedSimHits unorderedHits;
 
+  // the passed surfaces with material of the particle
+  SimSurfaces simulatedSurfaces;
+
   // run the simulation w/ a local random generator
   auto rng = m_cfg.randomNumberSvc->spawnGenerator(ctx);
-  m_cfg.simulator(ctx, rng, simulatedEvent, unorderedHits);
+  m_cfg.simulator(ctx, rng, simulatedEvent, unorderedHits, simulatedSurfaces);
 
   // restablish geometry ordering for the output hits container
   simulatedHits.adopt_sequence(std::move(unorderedHits.hits));
@@ -60,5 +63,7 @@ FW::FatrasAlgorithm<simulator_t>::execute(const AlgorithmContext& ctx) const
   // write data to the event store
   ctx.eventStore.add(m_cfg.simulatedEventCollection, std::move(simulatedEvent));
   ctx.eventStore.add(m_cfg.simulatedHitCollection, std::move(simulatedHits));
+  ctx.eventStore.add(m_cfg.simulatedSurfaceCollection,
+                     std::move(simulatedSurfaces));
   return FW::ProcessCode::SUCCESS;
 }

@@ -44,6 +44,9 @@ public:
     /// the simulated hit output collection name
     std::string simulatedHitCollection;
 
+    /// the passed surface sequence output collection name
+    std::string simulatedSurfaceCollection;
+
     /// @brief Config constructor with propagator type
     ///
     /// @param s the Fatras simulation kernel

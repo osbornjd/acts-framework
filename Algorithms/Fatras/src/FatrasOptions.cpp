@@ -21,6 +21,9 @@ FW::Options::addFatrasOptions(FW::Options::Description& desc)
       "fatras-sim-hits",
       value<std::string>()->default_value("fatras-hits"),
       "The collection of simulated hits")(
+      "fatras-sim-surfaces",
+      value<std::string>()->default_value("fatras-surfaces"),
+      "The collection of simulated surfaces")(
       "fatras-em-ionisation",
       value<bool>()->default_value(true),
       "Switch on ionisiation loss of charged particles")(
