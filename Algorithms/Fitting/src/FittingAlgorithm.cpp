@@ -99,7 +99,7 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       // output for now. only the fit trajectory is actually stored.
       // TODO store single track parameters in separate container.
       if (fitOutput.fittedParameters) {
-        const auto& params = fitOutput.fittedParameters.get();
+        const auto& params = fitOutput.fittedParameters.value();
         ACTS_DEBUG("Fitted paramemeters for track " << itrack);
         ACTS_DEBUG("  position: " << params.position().transpose());
         ACTS_DEBUG("  momentum: " << params.momentum().transpose());
