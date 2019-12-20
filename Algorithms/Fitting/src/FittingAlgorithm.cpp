@@ -62,9 +62,11 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
 
     // We can have empty tracks which must give empty fit results
     if (protoTrack.empty()) {
-      trajectories.push_back({});
+      trajectories.push_back(TruthFitTrack());
+      ACTS_WARNING("Empty track " << itrack << " found.");
       continue;
     }
+
     // Clear & reserve the right size
     trackSourceLinks.clear();
     trackSourceLinks.reserve(protoTrack.size());
@@ -92,22 +94,27 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
     if (result.ok()) {
       // Get the fit output object
       const auto& fitOutput = result.value();
-      trajectories.push_back(
-          std::make_pair(fitOutput.trackTip, fitOutput.fittedStates));
-
-      // fitted parameters on the reference surface are only used for debug
-      // output for now. only the fit trajectory is actually stored.
-      // TODO store single track parameters in separate container.
       if (fitOutput.fittedParameters) {
         const auto& params = fitOutput.fittedParameters.get();
-        ACTS_DEBUG("Fitted paramemeters for track " << itrack);
-        ACTS_DEBUG("  position: " << params.position().transpose());
-        ACTS_DEBUG("  momentum: " << params.momentum().transpose());
+        ACTS_VERBOSE("Fitted paramemeters for track " << itrack);
+        ACTS_VERBOSE("  position: " << params.position().transpose());
+        ACTS_VERBOSE("  momentum: " << params.momentum().transpose());
+        // Construct a truth fit track using trajectory and
+        // track parameter
+        trajectories.emplace_back(fitOutput.trackTip,
+                                  std::move(fitOutput.fittedStates),
+                                  std::move(params));
+      } else {
+        ACTS_DEBUG("No fitted paramemeters for track " << itrack);
+        // Construct a truth fit track using trajectory
+        trajectories.emplace_back(fitOutput.trackTip,
+                                  std::move(fitOutput.fittedStates));
       }
     } else {
       ACTS_WARNING("Fit failed for track " << itrack << " with error"
                                            << result.error());
-      trajectories.push_back({});
+      // Fit failed, but still create a empty truth fit track
+      trajectories.push_back(TruthFitTrack());
     }
   }
 

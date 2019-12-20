@@ -28,7 +28,7 @@ trackParResidual(const std::string& inFile,
 {
   gStyle->SetOptFit(0000);
   gStyle->SetOptStat(0000);
-  gStyle->SetPadLeftMargin(0.18);
+  gStyle->SetPadLeftMargin(0.20);
   gStyle->SetPadRightMargin(0.05);
   gStyle->SetPadTopMargin(0.1);
   gStyle->SetPadBottomMargin(0.15);
@@ -95,16 +95,16 @@ trackParResidual(const std::string& inFile,
                              -1 * pullRange,
                              pullRange);
 
-    res_prt[par]->GetXaxis()->SetTitle(Form("res_%s", par.c_str()));
+    res_prt[par]->GetXaxis()->SetTitle(Form("residual_%s", par.c_str()));
     res_prt[par]->GetYaxis()->SetTitle("Entries");
-    res_flt[par]->GetXaxis()->SetTitle(Form("res_%s", par.c_str()));
+    res_flt[par]->GetXaxis()->SetTitle(Form("residual_%s", par.c_str()));
     res_flt[par]->GetYaxis()->SetTitle("Entries");
-    res_smt[par]->GetXaxis()->SetTitle(Form("res_%s", par.c_str()));
+    res_smt[par]->GetXaxis()->SetTitle(Form("residual_%s", par.c_str()));
     res_smt[par]->GetYaxis()->SetTitle("Entries");
 
-    pull_prt[par]->GetXaxis()->SetTitle(Form("pull of %s", par.c_str()));
+    pull_prt[par]->GetXaxis()->SetTitle(Form("pull_%s", par.c_str()));
     pull_prt[par]->GetYaxis()->SetTitle("Entries");
-    pull_flt[par]->GetXaxis()->SetTitle(Form("pull of %s", par.c_str()));
+    pull_flt[par]->GetXaxis()->SetTitle(Form("pull_%s", par.c_str()));
     pull_flt[par]->GetYaxis()->SetTitle("Entries");
     pull_smt[par]->GetXaxis()->SetTitle(Form("pull_%s", par.c_str()));
     pull_smt[par]->GetYaxis()->SetTitle("Entries");
@@ -220,7 +220,7 @@ trackParResidual(const std::string& inFile,
   std::vector<bool>* filtered  = new std::vector<bool>;  ///< filtering status
   std::vector<bool>* smoothed  = new std::vector<bool>;  ///< smoothing status
 
-  int nStates;
+  int nStates, nMeasurements;
 
   tree->SetBranchAddress("eLOC0_prt", &LOC0_prt);
   tree->SetBranchAddress("eLOC1_prt", &LOC1_prt);
@@ -271,6 +271,7 @@ trackParResidual(const std::string& inFile,
   tree->SetBranchAddress("pull_eQOP_smt", &pull_QOP_smt);
 
   tree->SetBranchAddress("nStates", &nStates);
+  tree->SetBranchAddress("nMeasurements", &nMeasurements);
   tree->SetBranchAddress("volume_id", &volume_id);
   tree->SetBranchAddress("layer_id", &layer_id);
   tree->SetBranchAddress("module_id", &module_id);
@@ -281,8 +282,8 @@ trackParResidual(const std::string& inFile,
   Int_t entries = tree->GetEntries();
   for (int j = 0; j < entries; j++) {
     tree->GetEvent(j);
-
-    for (int i = 0; i < nStates; i++) {
+  
+    for (int i = 0; i < nMeasurements; i++) {
       if (predicted->at(i)) {
         res_prt[paramNames[0]]->Fill(res_LOC0_prt->at(i), 1);
         res_prt[paramNames[1]]->Fill(res_LOC1_prt->at(i), 1);
@@ -386,4 +387,5 @@ setHistStyle(TH1F* hist, short color = 1)
   hist->SetLineWidth(2);
   hist->SetTitle("");
   hist->SetLineColor(color);
+  hist->SetMarkerColor(color);
 }

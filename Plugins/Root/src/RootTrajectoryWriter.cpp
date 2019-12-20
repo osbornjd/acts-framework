@@ -79,8 +79,10 @@ FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
     m_outputTree->Branch("t_ePHI", &m_t_ePHI);
     m_outputTree->Branch("t_eTHETA", &m_t_eTHETA);
     m_outputTree->Branch("t_eQOP", &m_t_eQOP);
+    m_outputTree->Branch("t_eT", &m_t_eT);
 
     m_outputTree->Branch("nStates", &m_nStates);
+    m_outputTree->Branch("nMeasurements", &m_nMeasurements);
     m_outputTree->Branch("volume_id", &m_volumeID);
     m_outputTree->Branch("layer_id", &m_layerID);
     m_outputTree->Branch("module_id", &m_moduleID);
@@ -96,6 +98,20 @@ FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
     m_outputTree->Branch("pull_x_hit", &m_pull_x_hit);
     m_outputTree->Branch("pull_y_hit", &m_pull_y_hit);
 
+    m_outputTree->Branch("hasFittedParams", &m_hasFittedParams);
+    m_outputTree->Branch("eLOC0_fit", &m_eLOC0_fit);
+    m_outputTree->Branch("eLOC1_fit", &m_eLOC1_fit);
+    m_outputTree->Branch("ePHI_fit", &m_ePHI_fit);
+    m_outputTree->Branch("eTHETA_fit", &m_eTHETA_fit);
+    m_outputTree->Branch("eQOP_fit", &m_eQOP_fit);
+    m_outputTree->Branch("eT_fit", &m_eT_fit);
+    m_outputTree->Branch("err_eLOC0_fit", &m_err_eLOC0_fit);
+    m_outputTree->Branch("err_eLOC1_fit", &m_err_eLOC1_fit);
+    m_outputTree->Branch("err_ePHI_fit", &m_err_ePHI_fit);
+    m_outputTree->Branch("err_eTHETA_fit", &m_err_eTHETA_fit);
+    m_outputTree->Branch("err_eQOP_fit", &m_err_eQOP_fit);
+    m_outputTree->Branch("err_eT_fit", &m_err_eT_fit);
+
     m_outputTree->Branch("nPredicted", &m_nPredicted);
     m_outputTree->Branch("predicted", &m_prt);
     m_outputTree->Branch("eLOC0_prt", &m_eLOC0_prt);
@@ -103,21 +119,25 @@ FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
     m_outputTree->Branch("ePHI_prt", &m_ePHI_prt);
     m_outputTree->Branch("eTHETA_prt", &m_eTHETA_prt);
     m_outputTree->Branch("eQOP_prt", &m_eQOP_prt);
+    m_outputTree->Branch("eT_prt", &m_eT_prt);
     m_outputTree->Branch("res_eLOC0_prt", &m_res_eLOC0_prt);
     m_outputTree->Branch("res_eLOC1_prt", &m_res_eLOC1_prt);
     m_outputTree->Branch("res_ePHI_prt", &m_res_ePHI_prt);
     m_outputTree->Branch("res_eTHETA_prt", &m_res_eTHETA_prt);
     m_outputTree->Branch("res_eQOP_prt", &m_res_eQOP_prt);
+    m_outputTree->Branch("res_eT_prt", &m_res_eT_prt);
     m_outputTree->Branch("err_eLOC0_prt", &m_err_eLOC0_prt);
     m_outputTree->Branch("err_eLOC1_prt", &m_err_eLOC1_prt);
     m_outputTree->Branch("err_ePHI_prt", &m_err_ePHI_prt);
     m_outputTree->Branch("err_eTHETA_prt", &m_err_eTHETA_prt);
     m_outputTree->Branch("err_eQOP_prt", &m_err_eQOP_prt);
+    m_outputTree->Branch("err_eT_prt", &m_err_eT_prt);
     m_outputTree->Branch("pull_eLOC0_prt", &m_pull_eLOC0_prt);
     m_outputTree->Branch("pull_eLOC1_prt", &m_pull_eLOC1_prt);
     m_outputTree->Branch("pull_ePHI_prt", &m_pull_ePHI_prt);
     m_outputTree->Branch("pull_eTHETA_prt", &m_pull_eTHETA_prt);
     m_outputTree->Branch("pull_eQOP_prt", &m_pull_eQOP_prt);
+    m_outputTree->Branch("pull_eT_prt", &m_pull_eT_prt);
     m_outputTree->Branch("g_x_prt", &m_x_prt);
     m_outputTree->Branch("g_y_prt", &m_y_prt);
     m_outputTree->Branch("g_z_prt", &m_z_prt);
@@ -134,21 +154,25 @@ FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
     m_outputTree->Branch("ePHI_flt", &m_ePHI_flt);
     m_outputTree->Branch("eTHETA_flt", &m_eTHETA_flt);
     m_outputTree->Branch("eQOP_flt", &m_eQOP_flt);
+    m_outputTree->Branch("eT_flt", &m_eT_flt);
     m_outputTree->Branch("res_eLOC0_flt", &m_res_eLOC0_flt);
     m_outputTree->Branch("res_eLOC1_flt", &m_res_eLOC1_flt);
     m_outputTree->Branch("res_ePHI_flt", &m_res_ePHI_flt);
     m_outputTree->Branch("res_eTHETA_flt", &m_res_eTHETA_flt);
     m_outputTree->Branch("res_eQOP_flt", &m_res_eQOP_flt);
+    m_outputTree->Branch("res_eT_flt", &m_res_eT_flt);
     m_outputTree->Branch("err_eLOC0_flt", &m_err_eLOC0_flt);
     m_outputTree->Branch("err_eLOC1_flt", &m_err_eLOC1_flt);
     m_outputTree->Branch("err_ePHI_flt", &m_err_ePHI_flt);
     m_outputTree->Branch("err_eTHETA_flt", &m_err_eTHETA_flt);
     m_outputTree->Branch("err_eQOP_flt", &m_err_eQOP_flt);
+    m_outputTree->Branch("err_eT_flt", &m_err_eT_flt);
     m_outputTree->Branch("pull_eLOC0_flt", &m_pull_eLOC0_flt);
     m_outputTree->Branch("pull_eLOC1_flt", &m_pull_eLOC1_flt);
     m_outputTree->Branch("pull_ePHI_flt", &m_pull_ePHI_flt);
     m_outputTree->Branch("pull_eTHETA_flt", &m_pull_eTHETA_flt);
     m_outputTree->Branch("pull_eQOP_flt", &m_pull_eQOP_flt);
+    m_outputTree->Branch("pull_eT_flt", &m_pull_eT_flt);
     m_outputTree->Branch("g_x_flt", &m_x_flt);
     m_outputTree->Branch("g_y_flt", &m_y_flt);
     m_outputTree->Branch("g_z_flt", &m_z_flt);
@@ -165,21 +189,25 @@ FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
     m_outputTree->Branch("ePHI_smt", &m_ePHI_smt);
     m_outputTree->Branch("eTHETA_smt", &m_eTHETA_smt);
     m_outputTree->Branch("eQOP_smt", &m_eQOP_smt);
+    m_outputTree->Branch("eT_smt", &m_eT_smt);
     m_outputTree->Branch("res_eLOC0_smt", &m_res_eLOC0_smt);
     m_outputTree->Branch("res_eLOC1_smt", &m_res_eLOC1_smt);
     m_outputTree->Branch("res_ePHI_smt", &m_res_ePHI_smt);
     m_outputTree->Branch("res_eTHETA_smt", &m_res_eTHETA_smt);
     m_outputTree->Branch("res_eQOP_smt", &m_res_eQOP_smt);
+    m_outputTree->Branch("res_eT_smt", &m_res_eT_smt);
     m_outputTree->Branch("err_eLOC0_smt", &m_err_eLOC0_smt);
     m_outputTree->Branch("err_eLOC1_smt", &m_err_eLOC1_smt);
     m_outputTree->Branch("err_ePHI_smt", &m_err_ePHI_smt);
     m_outputTree->Branch("err_eTHETA_smt", &m_err_eTHETA_smt);
     m_outputTree->Branch("err_eQOP_smt", &m_err_eQOP_smt);
+    m_outputTree->Branch("err_eT_smt", &m_err_eT_smt);
     m_outputTree->Branch("pull_eLOC0_smt", &m_pull_eLOC0_smt);
     m_outputTree->Branch("pull_eLOC1_smt", &m_pull_eLOC1_smt);
     m_outputTree->Branch("pull_ePHI_smt", &m_pull_ePHI_smt);
     m_outputTree->Branch("pull_eTHETA_smt", &m_pull_eTHETA_smt);
     m_outputTree->Branch("pull_eQOP_smt", &m_pull_eQOP_smt);
+    m_outputTree->Branch("pull_eT_smt", &m_pull_eT_smt);
     m_outputTree->Branch("g_x_smt", &m_x_smt);
     m_outputTree->Branch("g_y_smt", &m_y_smt);
     m_outputTree->Branch("g_z_smt", &m_z_smt);
@@ -230,52 +258,85 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
 
   // Loop over the trajectories
   int iTraj = 0;
-  for (const auto& [trackTip, mj] : trajectories) {
-    /// collect the information
+  for (const auto& traj : trajectories) {
+    /// Collect the information
     m_trajNr = iTraj;
-    // retrieve the truth particle barcode for this track state
-    // this is actually the last, will reset with preceding ones
-    auto truthHitAtFirstState
-        = mj.getTrackState(trackTip).uncalibrated().truthHit();
 
-    // collect first track state and number of trackstates
-    m_nStates = 0;
+    // Collect number of trackstates with measurements
+    m_nMeasurements = traj.numMeasurements();
 
-    mj.visitBackwards(trackTip, [&](const auto& state) {
-      m_nStates++;
-      auto truthHitAtFirstState = state;
-    });
+    // No entry for the track without measurements in the tree
+    if (m_nMeasurements == 0) { continue; }
 
-    m_t_barcode = truthHitAtFirstState.particle.barcode();
-    // find the truth particle via the barcode
-    auto ip = particles.find(m_t_barcode);
-    if (ip != particles.end()) {
-      const auto& particle = *ip;
-      ACTS_DEBUG("Find the truth particle with barcode = " << m_t_barcode);
-      // get the truth particle info at vertex
-      Acts::Vector3D truthPos = particle.position();
-      Acts::Vector3D truthMom = particle.momentum();
-      m_t_charge              = particle.q();
-      m_t_vx                  = truthPos.x();
-      m_t_vy                  = truthPos.y();
-      m_t_vz                  = truthPos.z();
-      m_t_px                  = truthMom.x();
-      m_t_py                  = truthMom.y();
-      m_t_pz                  = truthMom.z();
-      m_t_theta               = theta(truthMom);
-      m_t_phi                 = phi(truthMom);
-      m_t_pT                  = perp(truthMom);
-      m_t_eta                 = eta(truthMom);
-    } else {
-      ACTS_WARNING("Truth particle with barcode = " << m_t_barcode
-                                                    << " not found!");
+    // Collect number of all trackstates
+    m_nStates = traj.numStates();
+
+    // Get the majority truth particle to this track
+    std::vector<ParticleHitCount> particleHitCount
+        = traj.identifyMajorityParticle();
+    if (not particleHitCount.empty()) {
+      // Get the barcode of the majority truth particle
+      m_t_barcode = particleHitCount.front().particleId;
+      // Find the truth particle via the barcode
+      auto ip = particles.find(m_t_barcode);
+      if (ip != particles.end()) {
+        const auto& particle = *ip;
+        ACTS_DEBUG("Find the truth particle with barcode = " << m_t_barcode);
+        // Get the truth particle info at vertex
+        Acts::Vector3D truthPos = particle.position();
+        Acts::Vector3D truthMom = particle.momentum();
+        m_t_charge              = particle.q();
+        m_t_vx                  = truthPos.x();
+        m_t_vy                  = truthPos.y();
+        m_t_vz                  = truthPos.z();
+        m_t_px                  = truthMom.x();
+        m_t_py                  = truthMom.y();
+        m_t_pz                  = truthMom.z();
+        m_t_theta               = theta(truthMom);
+        m_t_phi                 = phi(truthMom);
+        m_t_pT                  = perp(truthMom);
+        m_t_eta                 = eta(truthMom);
+      } else {
+        ACTS_WARNING("Truth particle with barcode = " << m_t_barcode
+                                                      << " not found!");
+      }
     }
 
-    // get the trackState info
+    // Get the fitted track parameter
+    m_hasFittedParams = false;
+    if (traj.hasTrackParameters()) {
+      m_hasFittedParams      = true;
+      const auto& boundParam = traj.trackParameters();
+      const auto& parameter  = boundParam.parameters();
+      const auto& covariance = *boundParam.covariance();
+      m_eLOC0_fit            = parameter[Acts::ParDef::eLOC_0];
+      m_eLOC1_fit            = parameter[Acts::ParDef::eLOC_1];
+      m_ePHI_fit             = parameter[Acts::ParDef::ePHI];
+      m_eTHETA_fit           = parameter[Acts::ParDef::eTHETA];
+      m_eQOP_fit             = parameter[Acts::ParDef::eQOP];
+      m_eT_fit               = parameter[Acts::ParDef::eT];
+      m_err_eLOC0_fit
+          = sqrt(covariance(Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_0));
+      m_err_eLOC1_fit
+          = sqrt(covariance(Acts::ParDef::eLOC_1, Acts::ParDef::eLOC_1));
+      m_err_ePHI_fit = sqrt(covariance(Acts::ParDef::ePHI, Acts::ParDef::ePHI));
+      m_err_eTHETA_fit
+          = sqrt(covariance(Acts::ParDef::eTHETA, Acts::ParDef::eTHETA));
+      m_err_eQOP_fit = sqrt(covariance(Acts::ParDef::eQOP, Acts::ParDef::eQOP));
+      m_err_eT_fit   = sqrt(covariance(Acts::ParDef::eT, Acts::ParDef::eT));
+    }
+
+    // Get the fitted trajectory
+    const auto& [trackTip, mj] = traj.trajectory();
+
+    // Get the trackStates on the trajectory
     m_nPredicted = 0;
     m_nFiltered  = 0;
     m_nSmoothed  = 0;
     mj.visitBackwards(trackTip, [&](const auto& state) {
+      // we only fill the track states with measurement
+      if (not state.hasUncalibrated()) { return true; }
+
       // get the geometry ID
       auto geoID = state.referenceSurface().geoID();
       m_volumeID.push_back(geoID.volume());
@@ -322,12 +383,13 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
 
       // get the truth track parameter at this track State
       float truthLOC0 = 0, truthLOC1 = 0, truthPHI = 0, truthTHETA = 0,
-            truthQOP = 0;
-      truthLOC0      = truthlocal.x();
-      truthLOC1      = truthlocal.y();
-      truthPHI       = phi(truthHit.particle.momentum());
-      truthTHETA     = theta(truthHit.particle.momentum());
-      truthQOP       = m_t_charge / truthHit.particle.momentum().norm();
+            truthQOP = 0, truthTIME = 0;
+      truthLOC0  = truthlocal.x();
+      truthLOC1  = truthlocal.y();
+      truthPHI   = phi(truthHit.particle.momentum());
+      truthTHETA = theta(truthHit.particle.momentum());
+      truthQOP   = m_t_charge / truthHit.particle.momentum().norm();
+      truthTIME  = truthHit.particle.time();
 
       // push the truth track parameter at this track State
       m_t_eLOC0.push_back(truthLOC0);
@@ -335,6 +397,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
       m_t_ePHI.push_back(truthPHI);
       m_t_eTHETA.push_back(truthTHETA);
       m_t_eQOP.push_back(truthQOP);
+      m_t_eT.push_back(truthTIME);
 
       // get the predicted parameter
       bool predicted = false;
@@ -364,12 +427,15 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
             residual(Acts::ParDef::eLOC_1)
             / sqrt(resCov(Acts::ParDef::eLOC_1, Acts::ParDef::eLOC_1)));
 
-        // predicted parameter info
+        // predicted parameter
         m_eLOC0_prt.push_back(parameter.parameters()[Acts::ParDef::eLOC_0]);
         m_eLOC1_prt.push_back(parameter.parameters()[Acts::ParDef::eLOC_1]);
         m_ePHI_prt.push_back(parameter.parameters()[Acts::ParDef::ePHI]);
         m_eTHETA_prt.push_back(parameter.parameters()[Acts::ParDef::eTHETA]);
         m_eQOP_prt.push_back(parameter.parameters()[Acts::ParDef::eQOP]);
+        m_eT_prt.push_back(parameter.parameters()[Acts::ParDef::eT]);
+
+        // predicted residual
         m_res_eLOC0_prt.push_back(parameter.parameters()[Acts::ParDef::eLOC_0]
                                   - truthLOC0);
         m_res_eLOC1_prt.push_back(parameter.parameters()[Acts::ParDef::eLOC_1]
@@ -380,6 +446,10 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
                                    - truthTHETA);
         m_res_eQOP_prt.push_back(parameter.parameters()[Acts::ParDef::eQOP]
                                  - truthQOP);
+        m_res_eT_prt.push_back(parameter.parameters()[Acts::ParDef::eT]
+                               - truthTIME);
+
+        // predicted parameter error
         m_err_eLOC0_prt.push_back(
             sqrt(covariance(Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_0)));
         m_err_eLOC1_prt.push_back(
@@ -390,6 +460,10 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
             sqrt(covariance(Acts::ParDef::eTHETA, Acts::ParDef::eTHETA)));
         m_err_eQOP_prt.push_back(
             sqrt(covariance(Acts::ParDef::eQOP, Acts::ParDef::eQOP)));
+        m_err_eT_prt.push_back(
+            sqrt(covariance(Acts::ParDef::eT, Acts::ParDef::eT)));
+
+        // predicted parameter pull
         m_pull_eLOC0_prt.push_back(
             (parameter.parameters()[Acts::ParDef::eLOC_0] - truthLOC0)
             / sqrt(covariance(Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_0)));
@@ -405,6 +479,11 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         m_pull_eQOP_prt.push_back(
             (parameter.parameters()[Acts::ParDef::eQOP] - truthQOP)
             / sqrt(covariance(Acts::ParDef::eQOP, Acts::ParDef::eQOP)));
+        m_pull_eT_prt.push_back(
+            (parameter.parameters()[Acts::ParDef::eT] - truthTIME)
+            / sqrt(covariance(Acts::ParDef::eT, Acts::ParDef::eT)));
+
+        // further predicted parameter info
         m_x_prt.push_back(parameter.position().x());
         m_y_prt.push_back(parameter.position().y());
         m_z_prt.push_back(parameter.position().z());
@@ -420,21 +499,25 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         m_ePHI_prt.push_back(-99.);
         m_eTHETA_prt.push_back(-99.);
         m_eQOP_prt.push_back(-99.);
+        m_eT_prt.push_back(-99.);
         m_res_eLOC0_prt.push_back(-99.);
         m_res_eLOC1_prt.push_back(-99.);
         m_res_ePHI_prt.push_back(-99.);
         m_res_eTHETA_prt.push_back(-99.);
         m_res_eQOP_prt.push_back(-99.);
+        m_res_eT_prt.push_back(-99.);
         m_err_eLOC0_prt.push_back(-99);
         m_err_eLOC1_prt.push_back(-99);
         m_err_ePHI_prt.push_back(-99);
         m_err_eTHETA_prt.push_back(-99);
         m_err_eQOP_prt.push_back(-99);
+        m_err_eT_prt.push_back(-99);
         m_pull_eLOC0_prt.push_back(-99.);
         m_pull_eLOC1_prt.push_back(-99.);
         m_pull_ePHI_prt.push_back(-99.);
         m_pull_eTHETA_prt.push_back(-99.);
         m_pull_eQOP_prt.push_back(-99.);
+        m_pull_eT_prt.push_back(-99.);
         m_x_prt.push_back(-99.);
         m_y_prt.push_back(-99.);
         m_z_prt.push_back(-99.);
@@ -456,12 +539,15 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
             state.filtered(),
             state.referenceSurface().getSharedPtr());
         auto covariance = state.filteredCovariance();
-        // filtered parameter info
+        // filtered parameter
         m_eLOC0_flt.push_back(parameter.parameters()[Acts::ParDef::eLOC_0]);
         m_eLOC1_flt.push_back(parameter.parameters()[Acts::ParDef::eLOC_1]);
         m_ePHI_flt.push_back(parameter.parameters()[Acts::ParDef::ePHI]);
         m_eTHETA_flt.push_back(parameter.parameters()[Acts::ParDef::eTHETA]);
         m_eQOP_flt.push_back(parameter.parameters()[Acts::ParDef::eQOP]);
+        m_eT_flt.push_back(parameter.parameters()[Acts::ParDef::eT]);
+
+        // filtered residual
         m_res_eLOC0_flt.push_back(parameter.parameters()[Acts::ParDef::eLOC_0]
                                   - truthLOC0);
         m_res_eLOC1_flt.push_back(parameter.parameters()[Acts::ParDef::eLOC_1]
@@ -472,6 +558,10 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
                                    - truthTHETA);
         m_res_eQOP_flt.push_back(parameter.parameters()[Acts::ParDef::eQOP]
                                  - truthQOP);
+        m_res_eT_flt.push_back(parameter.parameters()[Acts::ParDef::eT]
+                               - truthTIME);
+
+        // filtered parameter error
         m_err_eLOC0_flt.push_back(
             sqrt(covariance(Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_0)));
         m_err_eLOC1_flt.push_back(
@@ -482,6 +572,10 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
             sqrt(covariance(Acts::ParDef::eTHETA, Acts::ParDef::eTHETA)));
         m_err_eQOP_flt.push_back(
             sqrt(covariance(Acts::ParDef::eQOP, Acts::ParDef::eQOP)));
+        m_err_eT_flt.push_back(
+            sqrt(covariance(Acts::ParDef::eT, Acts::ParDef::eT)));
+
+        // filtered parameter pull
         m_pull_eLOC0_flt.push_back(
             (parameter.parameters()[Acts::ParDef::eLOC_0] - truthLOC0)
             / sqrt(covariance(Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_0)));
@@ -497,6 +591,11 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         m_pull_eQOP_flt.push_back(
             (parameter.parameters()[Acts::ParDef::eQOP] - truthQOP)
             / sqrt(covariance(Acts::ParDef::eQOP, Acts::ParDef::eQOP)));
+        m_pull_eT_flt.push_back(
+            (parameter.parameters()[Acts::ParDef::eT] - truthTIME)
+            / sqrt(covariance(Acts::ParDef::eT, Acts::ParDef::eT)));
+
+        // more filtered parameter info
         m_x_flt.push_back(parameter.position().x());
         m_y_flt.push_back(parameter.position().y());
         m_z_flt.push_back(parameter.position().z());
@@ -512,21 +611,25 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         m_ePHI_flt.push_back(-99.);
         m_eTHETA_flt.push_back(-99.);
         m_eQOP_flt.push_back(-99.);
+        m_eT_flt.push_back(-99.);
         m_res_eLOC0_flt.push_back(-99.);
         m_res_eLOC1_flt.push_back(-99.);
         m_res_ePHI_flt.push_back(-99.);
         m_res_eTHETA_flt.push_back(-99.);
         m_res_eQOP_flt.push_back(-99.);
+        m_res_eT_flt.push_back(-99.);
         m_err_eLOC0_flt.push_back(-99);
         m_err_eLOC1_flt.push_back(-99);
         m_err_ePHI_flt.push_back(-99);
         m_err_eTHETA_flt.push_back(-99);
         m_err_eQOP_flt.push_back(-99);
+        m_err_eT_flt.push_back(-99);
         m_pull_eLOC0_flt.push_back(-99.);
         m_pull_eLOC1_flt.push_back(-99.);
         m_pull_ePHI_flt.push_back(-99.);
         m_pull_eTHETA_flt.push_back(-99.);
         m_pull_eQOP_flt.push_back(-99.);
+        m_pull_eT_flt.push_back(-99.);
         m_x_flt.push_back(-99.);
         m_y_flt.push_back(-99.);
         m_z_flt.push_back(-99.);
@@ -547,12 +650,16 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
             state.smoothed(),
             state.referenceSurface().getSharedPtr());
         auto covariance = state.smoothedCovariance();
-        // smoothed parameter info
+
+        // smoothed parameter
         m_eLOC0_smt.push_back(parameter.parameters()[Acts::ParDef::eLOC_0]);
         m_eLOC1_smt.push_back(parameter.parameters()[Acts::ParDef::eLOC_1]);
         m_ePHI_smt.push_back(parameter.parameters()[Acts::ParDef::ePHI]);
         m_eTHETA_smt.push_back(parameter.parameters()[Acts::ParDef::eTHETA]);
         m_eQOP_smt.push_back(parameter.parameters()[Acts::ParDef::eQOP]);
+        m_eT_smt.push_back(parameter.parameters()[Acts::ParDef::eT]);
+
+        // smoothed residual
         m_res_eLOC0_smt.push_back(parameter.parameters()[Acts::ParDef::eLOC_0]
                                   - truthLOC0);
         m_res_eLOC1_smt.push_back(parameter.parameters()[Acts::ParDef::eLOC_1]
@@ -563,6 +670,10 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
                                    - truthTHETA);
         m_res_eQOP_smt.push_back(parameter.parameters()[Acts::ParDef::eQOP]
                                  - truthQOP);
+        m_res_eT_smt.push_back(parameter.parameters()[Acts::ParDef::eT]
+                               - truthTIME);
+
+        // smoothed parameter error
         m_err_eLOC0_smt.push_back(
             sqrt(covariance(Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_0)));
         m_err_eLOC1_smt.push_back(
@@ -573,6 +684,10 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
             sqrt(covariance(Acts::ParDef::eTHETA, Acts::ParDef::eTHETA)));
         m_err_eQOP_smt.push_back(
             sqrt(covariance(Acts::ParDef::eQOP, Acts::ParDef::eQOP)));
+        m_err_eT_smt.push_back(
+            sqrt(covariance(Acts::ParDef::eT, Acts::ParDef::eT)));
+
+        // smoothed parameter pull
         m_pull_eLOC0_smt.push_back(
             (parameter.parameters()[Acts::ParDef::eLOC_0] - truthLOC0)
             / sqrt(covariance(Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_0)));
@@ -588,6 +703,11 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         m_pull_eQOP_smt.push_back(
             (parameter.parameters()[Acts::ParDef::eQOP] - truthQOP)
             / sqrt(covariance(Acts::ParDef::eQOP, Acts::ParDef::eQOP)));
+        m_pull_eT_smt.push_back(
+            (parameter.parameters()[Acts::ParDef::eT] - truthTIME)
+            / sqrt(covariance(Acts::ParDef::eT, Acts::ParDef::eT)));
+
+        // further smoothed parameter info
         m_x_smt.push_back(parameter.position().x());
         m_y_smt.push_back(parameter.position().y());
         m_z_smt.push_back(parameter.position().z());
@@ -603,21 +723,25 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         m_ePHI_smt.push_back(-99.);
         m_eTHETA_smt.push_back(-99.);
         m_eQOP_smt.push_back(-99.);
+        m_eT_smt.push_back(-99.);
         m_res_eLOC0_smt.push_back(-99.);
         m_res_eLOC1_smt.push_back(-99.);
         m_res_ePHI_smt.push_back(-99.);
         m_res_eTHETA_smt.push_back(-99.);
         m_res_eQOP_smt.push_back(-99.);
+        m_res_eT_smt.push_back(-99.);
         m_err_eLOC0_smt.push_back(-99);
         m_err_eLOC1_smt.push_back(-99);
         m_err_ePHI_smt.push_back(-99);
         m_err_eTHETA_smt.push_back(-99);
         m_err_eQOP_smt.push_back(-99);
+        m_err_eT_smt.push_back(-99);
         m_pull_eLOC0_smt.push_back(-99.);
         m_pull_eLOC1_smt.push_back(-99.);
         m_pull_ePHI_smt.push_back(-99.);
         m_pull_eTHETA_smt.push_back(-99.);
         m_pull_eQOP_smt.push_back(-99.);
+        m_pull_eT_smt.push_back(-99.);
         m_x_smt.push_back(-99.);
         m_y_smt.push_back(-99.);
         m_z_smt.push_back(-99.);
@@ -631,6 +755,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
       m_prt.push_back(predicted);
       m_flt.push_back(filtered);
       m_smt.push_back(smoothed);
+      return true;
     });  // all states
 
     // fill the variables for one track to tree
@@ -649,6 +774,7 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
     m_t_ePHI.clear();
     m_t_eTHETA.clear();
     m_t_eQOP.clear();
+    m_t_eT.clear();
 
     m_volumeID.clear();
     m_layerID.clear();
@@ -671,21 +797,25 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
     m_ePHI_prt.clear();
     m_eTHETA_prt.clear();
     m_eQOP_prt.clear();
+    m_eT_prt.clear();
     m_res_eLOC0_prt.clear();
     m_res_eLOC1_prt.clear();
     m_res_ePHI_prt.clear();
     m_res_eTHETA_prt.clear();
     m_res_eQOP_prt.clear();
+    m_res_eT_prt.clear();
     m_err_eLOC0_prt.clear();
     m_err_eLOC1_prt.clear();
     m_err_ePHI_prt.clear();
     m_err_eTHETA_prt.clear();
     m_err_eQOP_prt.clear();
+    m_err_eT_prt.clear();
     m_pull_eLOC0_prt.clear();
     m_pull_eLOC1_prt.clear();
     m_pull_ePHI_prt.clear();
     m_pull_eTHETA_prt.clear();
     m_pull_eQOP_prt.clear();
+    m_pull_eT_prt.clear();
     m_x_prt.clear();
     m_y_prt.clear();
     m_z_prt.clear();
@@ -701,21 +831,25 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
     m_ePHI_flt.clear();
     m_eTHETA_flt.clear();
     m_eQOP_flt.clear();
+    m_eT_flt.clear();
     m_res_eLOC0_flt.clear();
     m_res_eLOC1_flt.clear();
     m_res_ePHI_flt.clear();
     m_res_eTHETA_flt.clear();
     m_res_eQOP_flt.clear();
+    m_res_eT_flt.clear();
     m_err_eLOC0_flt.clear();
     m_err_eLOC1_flt.clear();
     m_err_ePHI_flt.clear();
     m_err_eTHETA_flt.clear();
     m_err_eQOP_flt.clear();
+    m_err_eT_flt.clear();
     m_pull_eLOC0_flt.clear();
     m_pull_eLOC1_flt.clear();
     m_pull_ePHI_flt.clear();
     m_pull_eTHETA_flt.clear();
     m_pull_eQOP_flt.clear();
+    m_pull_eT_flt.clear();
     m_x_flt.clear();
     m_y_flt.clear();
     m_z_flt.clear();
@@ -731,21 +865,25 @@ FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
     m_ePHI_smt.clear();
     m_eTHETA_smt.clear();
     m_eQOP_smt.clear();
+    m_eT_smt.clear();
     m_res_eLOC0_smt.clear();
     m_res_eLOC1_smt.clear();
     m_res_ePHI_smt.clear();
     m_res_eTHETA_smt.clear();
     m_res_eQOP_smt.clear();
+    m_res_eT_smt.clear();
     m_err_eLOC0_smt.clear();
     m_err_eLOC1_smt.clear();
     m_err_ePHI_smt.clear();
     m_err_eTHETA_smt.clear();
     m_err_eQOP_smt.clear();
+    m_err_eT_smt.clear();
     m_pull_eLOC0_smt.clear();
     m_pull_eLOC1_smt.clear();
     m_pull_ePHI_smt.clear();
     m_pull_eTHETA_smt.clear();
     m_pull_eQOP_smt.clear();
+    m_pull_eT_smt.clear();
     m_x_smt.clear();
     m_y_smt.clear();
     m_z_smt.clear();
