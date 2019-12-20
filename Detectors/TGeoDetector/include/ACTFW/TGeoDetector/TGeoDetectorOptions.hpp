@@ -74,6 +74,10 @@ namespace Options {
                    po::value<read_strings>()->multitoken()->default_value({}),
                    "Axes definition for negative sensitive objects, odered "
                    "along the series.")(
+        "geo-tgeo-clayer-split",
+        po::value<double>()->default_value(0.),
+        "Radial tolerance (if different from 0.) that triggers splitting "
+        " of collected surfaces into different layers.")(
         "geo-tgeo-cmoduleaxes",
         po::value<read_strings>()->multitoken()->default_value({}),
         "Axes definition for central sensitive objects, odered along the "
@@ -156,6 +160,8 @@ namespace Options {
         lConfig.sensorName = csensitivenames[tic];
         lConfig.localAxes  = csensitiveaxes[tic];
         layerBuilderConfig.centralLayerConfigs.push_back(lConfig);
+        layerBuilderConfig.centralLayerSplit
+            = vm["geo-tgeo-clayer-split"].template as<double>();
       }
       // fill the configs - for positive
       for (int ip = 0; ip < cp; ++ip, ++tip) {
