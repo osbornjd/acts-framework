@@ -20,9 +20,9 @@ using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;
 using Acts::VectorHelpers::phi;
 
-FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
-    const FW::Root::RootMaterialTrackWriter::Config& cfg,
-    Acts::Logging::Level                             level)
+FW::RootMaterialTrackWriter::RootMaterialTrackWriter(
+    const FW::RootMaterialTrackWriter::Config& cfg,
+    Acts::Logging::Level                       level)
   : WriterT(cfg.collection, "RootMaterialTrackWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
@@ -77,13 +77,13 @@ FW::Root::RootMaterialTrackWriter::RootMaterialTrackWriter(
   }
 }
 
-FW::Root::RootMaterialTrackWriter::~RootMaterialTrackWriter()
+FW::RootMaterialTrackWriter::~RootMaterialTrackWriter()
 {
   m_outputFile->Close();
 }
 
 FW::ProcessCode
-FW::Root::RootMaterialTrackWriter::endRun()
+FW::RootMaterialTrackWriter::endRun()
 {
   // write the tree and close the file
   ACTS_INFO("Writing ROOT output File : " << m_cfg.filePath);
@@ -93,7 +93,7 @@ FW::Root::RootMaterialTrackWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootMaterialTrackWriter::writeT(
+FW::RootMaterialTrackWriter::writeT(
     const AlgorithmContext&                         ctx,
     const std::vector<Acts::RecordedMaterialTrack>& materialTracks)
 {

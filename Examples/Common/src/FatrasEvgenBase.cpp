@@ -64,12 +64,12 @@ setupEvgenInput(boost::program_options::variables_map& vm,
   // Write particles as ROOT file
   if (vm["output-root"].template as<bool>()) {
     // Write particles as ROOT TTree
-    FW::Root::RootParticleWriter::Config pWriterRootConfig;
+    FW::RootParticleWriter::Config pWriterRootConfig;
     pWriterRootConfig.collection = "particles";
     pWriterRootConfig.filePath   = FW::joinPaths(outputDir, "particles.root");
     pWriterRootConfig.treeName   = "particles";
     pWriterRootConfig.barcodeSvc = barcodeSvc;
     sequencer.addWriter(
-        std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig));
+        std::make_shared<FW::RootParticleWriter>(pWriterRootConfig));
   }
 }

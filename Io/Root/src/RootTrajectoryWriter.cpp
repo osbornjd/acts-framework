@@ -22,9 +22,9 @@ using Acts::VectorHelpers::perp;
 using Acts::VectorHelpers::phi;
 using Acts::VectorHelpers::theta;
 
-FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
-    const FW::Root::RootTrajectoryWriter::Config& cfg,
-    Acts::Logging::Level                          level)
+FW::RootTrajectoryWriter::RootTrajectoryWriter(
+    const FW::RootTrajectoryWriter::Config& cfg,
+    Acts::Logging::Level                    level)
   : WriterT(cfg.inputTrajectories, "RootTrajectoryWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
@@ -222,13 +222,13 @@ FW::Root::RootTrajectoryWriter::RootTrajectoryWriter(
   }
 }
 
-FW::Root::RootTrajectoryWriter::~RootTrajectoryWriter()
+FW::RootTrajectoryWriter::~RootTrajectoryWriter()
 {
   if (m_outputFile) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
-FW::Root::RootTrajectoryWriter::endRun()
+FW::RootTrajectoryWriter::endRun()
 {
   if (m_outputFile) {
     m_outputFile->cd();
@@ -241,8 +241,8 @@ FW::Root::RootTrajectoryWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
-                                       const TrajectoryContainer& trajectories)
+FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
+                                 const TrajectoryContainer& trajectories)
 {
 
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;

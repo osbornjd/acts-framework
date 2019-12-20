@@ -28,8 +28,8 @@
 #include <boost/algorithm/string/finder.hpp>
 #include <boost/algorithm/string/iter_find.hpp>
 
-FW::Root::RootMaterialDecorator::RootMaterialDecorator(
-    const FW::Root::RootMaterialDecorator::Config& cfg)
+FW::RootMaterialDecorator::RootMaterialDecorator(
+    const FW::RootMaterialDecorator::Config& cfg)
   : m_cfg(cfg), m_inputFile(nullptr)
 {
   // Validate the configuration
@@ -187,7 +187,7 @@ FW::Root::RootMaterialDecorator::RootMaterialDecorator(
   }
 }
 
-FW::Root::RootMaterialDecorator::~RootMaterialDecorator()
+FW::RootMaterialDecorator::~RootMaterialDecorator()
 {
   m_inputFile->Close();
 }

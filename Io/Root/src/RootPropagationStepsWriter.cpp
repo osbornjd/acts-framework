@@ -21,9 +21,9 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
-FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
-    const FW::Root::RootPropagationStepsWriter::Config& cfg,
-    Acts::Logging::Level                                level)
+FW::RootPropagationStepsWriter::RootPropagationStepsWriter(
+    const FW::RootPropagationStepsWriter::Config& cfg,
+    Acts::Logging::Level                          level)
   : WriterT(cfg.collection, "RootPropagationStepsWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
@@ -68,14 +68,14 @@ FW::Root::RootPropagationStepsWriter::RootPropagationStepsWriter(
   m_outputTree->Branch("step_usr", &m_step_usr);
 }
 
-FW::Root::RootPropagationStepsWriter::~RootPropagationStepsWriter()
+FW::RootPropagationStepsWriter::~RootPropagationStepsWriter()
 {
   /// Close the file if it's yours
   if (m_cfg.rootFile == nullptr) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
-FW::Root::RootPropagationStepsWriter::endRun()
+FW::RootPropagationStepsWriter::endRun()
 {
   // Write the tree
   m_outputFile->cd();
@@ -86,7 +86,7 @@ FW::Root::RootPropagationStepsWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootPropagationStepsWriter::writeT(
+FW::RootPropagationStepsWriter::writeT(
     const AlgorithmContext&              context,
     const std::vector<PropagationSteps>& stepCollection)
 {

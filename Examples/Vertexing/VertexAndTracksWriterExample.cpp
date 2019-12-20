@@ -83,7 +83,7 @@ main(int argc, char* argv[])
   selectorConfig.ptMin       = 400. * Acts::units::_MeV;
   selectorConfig.keepNeutral = false;
 
-  Root::RootVertexAndTracksWriter::Config writerCfg;
+  RootVertexAndTracksWriter::Config writerCfg;
   writerCfg.collection = selectorConfig.output;
 
   int         nPileup        = vm["evg-pileup"].template as<int>();
@@ -110,7 +110,7 @@ main(int argc, char* argv[])
       std::make_shared<TrackSelector>(selectorConfig, logLevel));
 
   sequencer.addWriter(
-      std::make_shared<Root::RootVertexAndTracksWriter>(writerCfg, logLevel));
+      std::make_shared<RootVertexAndTracksWriter>(writerCfg, logLevel));
 
   return sequencer.run();
 }

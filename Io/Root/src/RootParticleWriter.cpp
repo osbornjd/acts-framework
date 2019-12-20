@@ -20,9 +20,9 @@ using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;
 using Acts::VectorHelpers::phi;
 
-FW::Root::RootParticleWriter::RootParticleWriter(
-    const FW::Root::RootParticleWriter::Config& cfg,
-    Acts::Logging::Level                        level)
+FW::RootParticleWriter::RootParticleWriter(
+    const FW::RootParticleWriter::Config& cfg,
+    Acts::Logging::Level                  level)
   : WriterT(cfg.collection, "RootParticleWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
@@ -70,13 +70,13 @@ FW::Root::RootParticleWriter::RootParticleWriter(
   }
 }
 
-FW::Root::RootParticleWriter::~RootParticleWriter()
+FW::RootParticleWriter::~RootParticleWriter()
 {
   if (m_outputFile) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
-FW::Root::RootParticleWriter::endRun()
+FW::RootParticleWriter::endRun()
 {
   if (m_outputFile) {
     m_outputFile->cd();
@@ -88,9 +88,8 @@ FW::Root::RootParticleWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootParticleWriter::writeT(
-    const AlgorithmContext&             context,
-    const std::vector<Data::SimVertex>& vertices)
+FW::RootParticleWriter::writeT(const AlgorithmContext&             context,
+                               const std::vector<Data::SimVertex>& vertices)
 {
 
   if (m_outputFile == nullptr) return ProcessCode::SUCCESS;

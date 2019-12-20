@@ -49,7 +49,7 @@ main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  Root::RootVertexAndTracksReader::Config vtxAndTracksReaderCfg;
+  RootVertexAndTracksReader::Config vtxAndTracksReaderCfg;
   vtxAndTracksReaderCfg.fileList.push_back(fileString);
 
   // Set magnetic field
@@ -64,7 +64,7 @@ main(int argc, char* argv[])
   Sequencer         sequencer(sequencerCfg);
 
   sequencer.addReader(
-      std::make_shared<Root::RootVertexAndTracksReader>(vtxAndTracksReaderCfg));
+      std::make_shared<RootVertexAndTracksReader>(vtxAndTracksReaderCfg));
 
   sequencer.addAlgorithm(std::make_shared<FWE::VertexFindingAlgorithm>(
       vertexFindingCfg, logLevel));

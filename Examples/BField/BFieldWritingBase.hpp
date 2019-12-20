@@ -22,11 +22,11 @@ namespace BField {
              std::shared_ptr<const bfield_t>       bField)
   {
     // Write the interpolated magnetic field
-    typename FW::Root::RootBFieldWriter<bfield_t>::Config writerConfig;
+    typename FW::RootBFieldWriter<bfield_t>::Config writerConfig;
     if (vm["bf-out-rz"].template as<bool>())
-      writerConfig.gridType = Root::GridType::rz;
+      writerConfig.gridType = GridType::rz;
     else
-      writerConfig.gridType = Root::GridType::xyz;
+      writerConfig.gridType = GridType::xyz;
     writerConfig.treeName = vm["bf-map-out"].template as<std::string>();
     writerConfig.fileName = vm["bf-file-out"].template as<std::string>();
     writerConfig.bField   = bField;
@@ -43,7 +43,7 @@ namespace BField {
     writerConfig.zBins   = vm["bf-ZBins"].template as<size_t>();
     writerConfig.phiBins = vm["bf-PhiBins"].template as<size_t>();
 
-    FW::Root::RootBFieldWriter<bfield_t>::run(writerConfig);
+    FW::RootBFieldWriter<bfield_t>::run(writerConfig);
   }
 }  // namespace BField
 }  // namespace FW

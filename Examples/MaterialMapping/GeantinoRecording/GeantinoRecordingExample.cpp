@@ -84,15 +84,14 @@ main(int argc, char* argv[])
 
   if (vm["output-root"].template as<bool>()) {
     // Write the propagation steps as ROOT TTree
-    FW::Root::RootMaterialTrackWriter::Config matTrackWriterRootConfig;
+    FW::RootMaterialTrackWriter::Config matTrackWriterRootConfig;
     matTrackWriterRootConfig.prePostStep       = true;
     matTrackWriterRootConfig.recalculateTotals = true;
     matTrackWriterRootConfig.collection        = matCollection;
     matTrackWriterRootConfig.filePath
         = FW::joinPaths(outputDir, matCollection + ".root");
-    auto matTrackWriterRoot
-        = std::make_shared<FW::Root::RootMaterialTrackWriter>(
-            matTrackWriterRootConfig);
+    auto matTrackWriterRoot = std::make_shared<FW::RootMaterialTrackWriter>(
+        matTrackWriterRootConfig);
     g4sequencer.addWriter(matTrackWriterRoot);
   }
 

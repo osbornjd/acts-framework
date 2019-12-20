@@ -22,9 +22,8 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
-FW::Root::RootSimHitWriter::RootSimHitWriter(
-    const FW::Root::RootSimHitWriter::Config& cfg,
-    Acts::Logging::Level                      level)
+FW::RootSimHitWriter::RootSimHitWriter(const FW::RootSimHitWriter::Config& cfg,
+                                       Acts::Logging::Level level)
   : WriterT(cfg.collection, "RootSimHitWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
@@ -62,14 +61,14 @@ FW::Root::RootSimHitWriter::RootSimHitWriter(
   m_outputTree->Branch("value", &m_value);
 }
 
-FW::Root::RootSimHitWriter::~RootSimHitWriter()
+FW::RootSimHitWriter::~RootSimHitWriter()
 {
   /// Close the file if it's yours
   if (m_cfg.rootFile == nullptr) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
-FW::Root::RootSimHitWriter::endRun()
+FW::RootSimHitWriter::endRun()
 {
   // Write the tree
   m_outputFile->cd();
@@ -80,8 +79,8 @@ FW::Root::RootSimHitWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootSimHitWriter::writeT(const AlgorithmContext& context,
-                                   const FW::SimHits&      hits)
+FW::RootSimHitWriter::writeT(const AlgorithmContext& context,
+                             const FW::SimHits&      hits)
 {
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);

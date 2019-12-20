@@ -14,8 +14,8 @@
 
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
-FW::Root::RootMaterialTrackReader::RootMaterialTrackReader(
-    const FW::Root::RootMaterialTrackReader::Config& cfg)
+FW::RootMaterialTrackReader::RootMaterialTrackReader(
+    const FW::RootMaterialTrackReader::Config& cfg)
   : FW::IReader(), m_cfg(cfg), m_events(0), m_inputChain(nullptr)
 {
   m_inputChain = new TChain(m_cfg.treeName.c_str());
@@ -53,7 +53,7 @@ FW::Root::RootMaterialTrackReader::RootMaterialTrackReader(
   ACTS_DEBUG("The full chain has " << m_events << " entries.");
 }
 
-FW::Root::RootMaterialTrackReader::~RootMaterialTrackReader()
+FW::RootMaterialTrackReader::~RootMaterialTrackReader()
 {
 
   delete m_step_x;
@@ -68,19 +68,19 @@ FW::Root::RootMaterialTrackReader::~RootMaterialTrackReader()
 }
 
 std::string
-FW::Root::RootMaterialTrackReader::name() const
+FW::RootMaterialTrackReader::name() const
 {
   return m_cfg.name;
 }
 
 std::pair<size_t, size_t>
-FW::Root::RootMaterialTrackReader::availableEvents() const
+FW::RootMaterialTrackReader::availableEvents() const
 {
   return {0u, m_events};
 }
 
 FW::ProcessCode
-FW::Root::RootMaterialTrackReader::read(const FW::AlgorithmContext& context)
+FW::RootMaterialTrackReader::read(const FW::AlgorithmContext& context)
 {
 
   ACTS_DEBUG("Trying to read recorded material from tracks.");

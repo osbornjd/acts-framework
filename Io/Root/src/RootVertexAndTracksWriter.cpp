@@ -19,9 +19,9 @@ using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;
 using Acts::VectorHelpers::phi;
 
-FW::Root::RootVertexAndTracksWriter::RootVertexAndTracksWriter(
-    const FW::Root::RootVertexAndTracksWriter::Config& cfg,
-    Acts::Logging::Level                               level)
+FW::RootVertexAndTracksWriter::RootVertexAndTracksWriter(
+    const FW::RootVertexAndTracksWriter::Config& cfg,
+    Acts::Logging::Level                         level)
   : VertexAndTracksWriter(cfg.collection, "RootVertexAndTracksWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
@@ -103,13 +103,13 @@ FW::Root::RootVertexAndTracksWriter::RootVertexAndTracksWriter(
   }
 }
 
-FW::Root::RootVertexAndTracksWriter::~RootVertexAndTracksWriter()
+FW::RootVertexAndTracksWriter::~RootVertexAndTracksWriter()
 {
   if (m_outputFile) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
-FW::Root::RootVertexAndTracksWriter::endRun()
+FW::RootVertexAndTracksWriter::endRun()
 {
   if (m_outputFile) {
     m_outputFile->cd();
@@ -121,7 +121,7 @@ FW::Root::RootVertexAndTracksWriter::endRun()
 }
 
 void
-FW::Root::RootVertexAndTracksWriter::ClearAll()
+FW::RootVertexAndTracksWriter::ClearAll()
 {
   m_vx.clear();
   m_vy.clear();
@@ -178,7 +178,7 @@ FW::Root::RootVertexAndTracksWriter::ClearAll()
 }
 
 FW::ProcessCode
-FW::Root::RootVertexAndTracksWriter::writeT(
+FW::RootVertexAndTracksWriter::writeT(
     const AlgorithmContext&             context,
     const std::vector<VertexAndTracks>& vertexAndTracksCollection)
 {

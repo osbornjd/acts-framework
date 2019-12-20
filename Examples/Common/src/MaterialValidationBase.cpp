@@ -176,13 +176,12 @@ materialValidationExample(int argc, char* argv[], FW::IBaseDetector& detector)
 
   if (vm["output-root"].template as<bool>()) {
     // Write the propagation steps as ROOT TTree
-    FW::Root::RootMaterialTrackWriter::Config matTrackWriterRootConfig;
+    FW::RootMaterialTrackWriter::Config matTrackWriterRootConfig;
     matTrackWriterRootConfig.collection = matCollection;
     matTrackWriterRootConfig.filePath
         = FW::joinPaths(outputDir, matCollection + ".root");
-    auto matTrackWriterRoot
-        = std::make_shared<FW::Root::RootMaterialTrackWriter>(
-            matTrackWriterRootConfig, logLevel);
+    auto matTrackWriterRoot = std::make_shared<FW::RootMaterialTrackWriter>(
+        matTrackWriterRootConfig, logLevel);
     sequencer.addWriter(matTrackWriterRoot);
   }
 

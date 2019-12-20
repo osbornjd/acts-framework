@@ -83,14 +83,13 @@ materialMappingExample(int argc, char* argv[], FW::IBaseDetector& detector)
 
   if (vm["input-root"].template as<bool>()) {
     // Read the material step information from a ROOT TTree
-    FW::Root::RootMaterialTrackReader::Config matTrackReaderRootConfig;
+    FW::RootMaterialTrackReader::Config matTrackReaderRootConfig;
     if (not matCollection.empty()) {
       matTrackReaderRootConfig.collection = matCollection;
     }
     matTrackReaderRootConfig.fileList = intputFiles;
-    auto matTrackReaderRoot
-        = std::make_shared<FW::Root::RootMaterialTrackReader>(
-            matTrackReaderRootConfig);
+    auto matTrackReaderRoot = std::make_shared<FW::RootMaterialTrackReader>(
+        matTrackReaderRootConfig);
     sequencer.addReader(matTrackReaderRoot);
   }
 
@@ -112,11 +111,11 @@ materialMappingExample(int argc, char* argv[], FW::IBaseDetector& detector)
   if (!materialFileName.empty() and vm["output-root"].template as<bool>()) {
 
     // The writer of the indexed material
-    FW::Root::RootMaterialWriter::Config rmwConfig("MaterialWriter");
+    FW::RootMaterialWriter::Config rmwConfig("MaterialWriter");
     rmwConfig.fileName = materialFileName + ".root";
-    FW::Root::RootMaterialWriter rmwImpl(rmwConfig);
+    FW::RootMaterialWriter rmwImpl(rmwConfig);
     // Fullfill the IMaterialWriter interface
-    using RootWriter = FW::MaterialWriterT<FW::Root::RootMaterialWriter>;
+    using RootWriter = FW::MaterialWriterT<FW::RootMaterialWriter>;
     mmAlgConfig.materialWriters.push_back(
         std::make_shared<RootWriter>(std::move(rmwImpl)));
   }

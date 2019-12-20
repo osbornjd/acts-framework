@@ -62,12 +62,12 @@ main(int argc, char* argv[])
         std::make_shared<CsvParticleWriter>(csvWriterCfg, logLevel));
   }
   if (vm["output-root"].as<bool>()) {
-    Root::RootParticleWriter::Config rootWriterCfg;
+    RootParticleWriter::Config rootWriterCfg;
     rootWriterCfg.collection = evgenCfg.output;
     rootWriterCfg.filePath   = joinPaths(outputDir, "particles.root");
     rootWriterCfg.barcodeSvc = barcode;
     sequencer.addWriter(
-        std::make_shared<Root::RootParticleWriter>(rootWriterCfg, logLevel));
+        std::make_shared<RootParticleWriter>(rootWriterCfg, logLevel));
   }
 
   return sequencer.run();

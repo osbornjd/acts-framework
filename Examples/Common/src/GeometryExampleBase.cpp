@@ -154,9 +154,9 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
     if (!materialFileName.empty() and vm["output-root"].template as<bool>()) {
 
       // The writer of the indexed material
-      FW::Root::RootMaterialWriter::Config rmwConfig("MaterialWriter");
+      FW::RootMaterialWriter::Config rmwConfig("MaterialWriter");
       rmwConfig.fileName = materialFileName + ".root";
-      FW::Root::RootMaterialWriter rmwImpl(rmwConfig);
+      FW::RootMaterialWriter rmwImpl(rmwConfig);
       rmwImpl.write(*tGeometry);
     }
 

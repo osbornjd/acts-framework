@@ -123,11 +123,11 @@ propagationExample(int argc, char* argv[], FW::IBaseDetector& detector)
 
   if (vm["output-root"].template as<bool>()) {
     // Write the propagation steps as ROOT TTree
-    FW::Root::RootPropagationStepsWriter::Config pstepWriterRootConfig;
+    FW::RootPropagationStepsWriter::Config pstepWriterRootConfig;
     pstepWriterRootConfig.collection = psCollection;
     pstepWriterRootConfig.filePath
         = FW::joinPaths(outputDir, psCollection + ".root");
-    sequencer.addWriter(std::make_shared<FW::Root::RootPropagationStepsWriter>(
+    sequencer.addWriter(std::make_shared<FW::RootPropagationStepsWriter>(
         pstepWriterRootConfig));
   }
 

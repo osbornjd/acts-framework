@@ -26,9 +26,9 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
-FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
-    const FW::Root::RootPlanarClusterWriter::Config& cfg,
-    Acts::Logging::Level                             level)
+FW::RootPlanarClusterWriter::RootPlanarClusterWriter(
+    const FW::RootPlanarClusterWriter::Config& cfg,
+    Acts::Logging::Level                       level)
   : WriterT(cfg.collection, "RootPlanarClusterWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
@@ -79,14 +79,14 @@ FW::Root::RootPlanarClusterWriter::RootPlanarClusterWriter(
   m_outputTree->Branch("truth_barcode", &m_t_barcode, "truth_barcode/l");
 }
 
-FW::Root::RootPlanarClusterWriter::~RootPlanarClusterWriter()
+FW::RootPlanarClusterWriter::~RootPlanarClusterWriter()
 {
   /// Close the file if it's yours
   if (m_cfg.rootFile == nullptr) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
-FW::Root::RootPlanarClusterWriter::endRun()
+FW::RootPlanarClusterWriter::endRun()
 {
   // Write the tree
   m_outputFile->cd();
@@ -97,7 +97,7 @@ FW::Root::RootPlanarClusterWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootPlanarClusterWriter::writeT(
+FW::RootPlanarClusterWriter::writeT(
     const AlgorithmContext&                                  context,
     const FW::GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
 {

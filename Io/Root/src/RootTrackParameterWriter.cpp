@@ -16,9 +16,9 @@
 #include <TFile.h>
 #include <TTree.h>
 
-FW::Root::RootTrackParameterWriter::RootTrackParameterWriter(
-    const FW::Root::RootTrackParameterWriter::Config& cfg,
-    Acts::Logging::Level                              level)
+FW::RootTrackParameterWriter::RootTrackParameterWriter(
+    const FW::RootTrackParameterWriter::Config& cfg,
+    Acts::Logging::Level                        level)
   : TrackParameterWriter(cfg.collection, "RootTrackParameterWriter", level)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
@@ -53,13 +53,13 @@ FW::Root::RootTrackParameterWriter::RootTrackParameterWriter(
   }
 }
 
-FW::Root::RootTrackParameterWriter::~RootTrackParameterWriter()
+FW::RootTrackParameterWriter::~RootTrackParameterWriter()
 {
   if (m_outputFile) { m_outputFile->Close(); }
 }
 
 FW::ProcessCode
-FW::Root::RootTrackParameterWriter::endRun()
+FW::RootTrackParameterWriter::endRun()
 {
   if (m_outputFile) {
     m_outputFile->cd();
@@ -71,7 +71,7 @@ FW::Root::RootTrackParameterWriter::endRun()
 }
 
 FW::ProcessCode
-FW::Root::RootTrackParameterWriter::writeT(
+FW::RootTrackParameterWriter::writeT(
     const FW::AlgorithmContext&              ctx,
     const std::vector<BoundTrackParameters>& trackParams)
 {

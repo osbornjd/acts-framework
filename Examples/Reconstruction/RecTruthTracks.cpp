@@ -139,14 +139,14 @@ main(int argc, char* argv[])
   sequencer.addAlgorithm(std::make_shared<FittingAlgorithm>(fitCfg, logLevel));
 
   // write tracks from fitting
-  Root::RootTrajectoryWriter::Config trackWriterCfg;
+  RootTrajectoryWriter::Config trackWriterCfg;
   trackWriterCfg.inputParticles    = particleReaderCfg.outputParticles;
   trackWriterCfg.inputTrajectories = fitCfg.outputTrajectories;
   trackWriterCfg.outputDir         = outputDir;
   trackWriterCfg.outputFilename    = "tracks.root";
   trackWriterCfg.outputTreename    = "tracks";
   sequencer.addWriter(
-      std::make_shared<Root::RootTrajectoryWriter>(trackWriterCfg, logLevel));
+      std::make_shared<RootTrajectoryWriter>(trackWriterCfg, logLevel));
   // write reconstruction performance data
   TrackFinderPerformanceWriter::Config perFindCfg;
   perFindCfg.inputParticles       = particleReaderCfg.outputParticles;

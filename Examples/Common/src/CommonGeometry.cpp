@@ -53,9 +53,9 @@ namespace Geometry {
             jsonGeoConvConfig, fileName);
       } else if (fileName.find(".root") != std::string::npos) {
         // Set up the root-based decorator
-        FW::Root::RootMaterialDecorator::Config rootMatDecConfig;
+        FW::RootMaterialDecorator::Config rootMatDecConfig;
         rootMatDecConfig.fileName = fileName;
-        matDeco = std::make_shared<const FW::Root::RootMaterialDecorator>(
+        matDeco = std::make_shared<const FW::RootMaterialDecorator>(
             rootMatDecConfig);
       }
     }

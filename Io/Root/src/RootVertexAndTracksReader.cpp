@@ -17,8 +17,8 @@
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/TruthTracking/VertexAndTracks.hpp"
 
-FW::Root::RootVertexAndTracksReader::RootVertexAndTracksReader(
-    const FW::Root::RootVertexAndTracksReader::Config& cfg)
+FW::RootVertexAndTracksReader::RootVertexAndTracksReader(
+    const FW::RootVertexAndTracksReader::Config& cfg)
   : FW::IReader(), m_cfg(cfg), m_events(0), m_inputChain(nullptr)
 {
   m_inputChain = new TChain(m_cfg.treeName.c_str());
@@ -49,7 +49,7 @@ FW::Root::RootVertexAndTracksReader::RootVertexAndTracksReader(
   ACTS_DEBUG("The full chain has " << m_events << " entries.");
 }
 
-FW::Root::RootVertexAndTracksReader::~RootVertexAndTracksReader()
+FW::RootVertexAndTracksReader::~RootVertexAndTracksReader()
 {
   delete m_ptrVx;
   delete m_ptrVy;
@@ -65,19 +65,19 @@ FW::Root::RootVertexAndTracksReader::~RootVertexAndTracksReader()
 }
 
 std::string
-FW::Root::RootVertexAndTracksReader::name() const
+FW::RootVertexAndTracksReader::name() const
 {
   return m_cfg.name;
 }
 
 std::pair<size_t, size_t>
-FW::Root::RootVertexAndTracksReader::availableEvents() const
+FW::RootVertexAndTracksReader::availableEvents() const
 {
   return {0u, m_events};
 }
 
 FW::ProcessCode
-FW::Root::RootVertexAndTracksReader::read(const FW::AlgorithmContext& context)
+FW::RootVertexAndTracksReader::read(const FW::AlgorithmContext& context)
 {
 
   ACTS_DEBUG("Trying to read vertex and tracks.");
