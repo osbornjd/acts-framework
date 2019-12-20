@@ -27,16 +27,14 @@ FW::EffPlotTool::book(EffPlotTool::EffPlotCache& effPlotCache) const
   PlotHelpers::Binning bPt  = m_cfg.varBinning.at("Pt");
   ACTS_DEBUG("Initialize the histograms for efficiency plots");
   // efficiency vs pT
-  effPlotCache.trackeff_vs_pT
-      = PlotHelpers::bookEff("trackeff_vs_pT",
-                             "Fraction of smoothed track;pT [GeV/c];Efficiency",
-                             bPt);
+  effPlotCache.trackeff_vs_pT = PlotHelpers::bookEff(
+      "trackeff_vs_pT", "Tracking efficiency;pT [GeV/c];Efficiency", bPt);
   // efficiency vs eta
   effPlotCache.trackeff_vs_eta = PlotHelpers::bookEff(
-      "trackeff_vs_eta", "Fraction of smoothed track;#eta;Efficiency", bEta);
+      "trackeff_vs_eta", "Tracking efficiency;#eta;Efficiency", bEta);
   // efficiency vs phi
   effPlotCache.trackeff_vs_phi = PlotHelpers::bookEff(
-      "trackeff_vs_phi", "Fraction of smoothed track;#phi;Efficiency", bPhi);
+      "trackeff_vs_phi", "Tracking efficiency;#phi;Efficiency", bPhi);
 }
 
 void
@@ -57,28 +55,15 @@ FW::EffPlotTool::write(const EffPlotTool::EffPlotCache& effPlotCache) const
 }
 
 void
-FW::EffPlotTool::fill(EffPlotTool::EffPlotCache&               effPlotCache,
-                      const Acts::MultiTrajectory<Identifier>& trajectory,
-                      size_t                                   trackTip,
-                      const Data::SimParticle& truthParticle) const
+FW::EffPlotTool::fill(EffPlotTool::EffPlotCache& effPlotCache,
+                      const Data::SimParticle&   truthParticle,
+                      bool                       status) const
 {
-  int    nSmoothed = 0;
-  size_t nTotal    = 0;
-  trajectory.visitBackwards(trackTip, [&](const auto& state) {
-    nTotal++;
-    if (state.hasSmoothed()) nSmoothed++;
-  });
-
-  ACTS_DEBUG("There are " << nTotal << " states in total and " << nSmoothed
-                          << " of them are processed.");
-
   Acts::Vector3D truthMom = truthParticle.momentum();
 
   double t_phi = phi(truthMom);
   double t_eta = eta(truthMom);
   double t_pT  = perp(truthMom);
-
-  bool status = nSmoothed > 0 ? true : false;
 
   PlotHelpers::fillEff(effPlotCache.trackeff_vs_pT, t_pT, status);
   PlotHelpers::fillEff(effPlotCache.trackeff_vs_eta, t_eta, status);

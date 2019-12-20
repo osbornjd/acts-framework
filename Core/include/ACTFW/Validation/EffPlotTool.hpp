@@ -67,14 +67,14 @@ public:
   book(EffPlotCache& effPlotCache) const;
 
   /// @brief fill efficiency plots
+  ///
   /// @param effPlotCache cache object for efficiency plots
-  /// @param trajectory a vector of trackStates
   /// @param truthParticle the truth Particle
+  /// @param status the reconstruction status
   void
-  fill(EffPlotCache&                            effPlotCache,
-       const Acts::MultiTrajectory<Identifier>& trajectory,
-       size_t                                   trackTip,
-       const Data::SimParticle&                 truthParticle) const;
+  fill(EffPlotCache&            effPlotCache,
+       const Data::SimParticle& truthParticle,
+       bool                     status) const;
 
   /// @brief write the efficiency plots to file
   /// @param effPlotCache cache object for efficiency plots

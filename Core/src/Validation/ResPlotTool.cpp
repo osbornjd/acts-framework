@@ -199,13 +199,18 @@ FW::ResPlotTool::write(const ResPlotTool::ResPlotCache& resPlotCache) const
 }
 
 void
-FW::ResPlotTool::fill(ResPlotTool::ResPlotCache&               resPlotCache,
-                      const Acts::GeometryContext&             gctx,
-                      const Acts::MultiTrajectory<Identifier>& trajectory,
-                      size_t                                   trackTip) const
+FW::ResPlotTool::fill(
+    ResPlotTool::ResPlotCache&                                  resPlotCache,
+    const Acts::GeometryContext&                                gctx,
+    const std::pair<size_t, Acts::MultiTrajectory<Identifier>>& trajectory)
+    const
 {
   // get the distribution of residual/pull
-  trajectory.visitBackwards(trackTip, [&](const auto& state) {
+  const auto& [trackTip, mj] = trajectory;
+  mj.visitBackwards(trackTip, [&](const auto& state) {
+    // we only fill the track states with measurement
+    if (not state.hasUncalibrated()) { return true; }
+
     ParVector_t truthParameter;
     float       truthEta, truthR, truthZ;
     auto        geoID = state.referenceSurface().geoID();
@@ -261,6 +266,7 @@ FW::ResPlotTool::fill(ResPlotTool::ResPlotCache&               resPlotCache,
         }
       }
     }
+    return true;
   });  // all states
 }
 

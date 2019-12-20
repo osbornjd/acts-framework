@@ -82,35 +82,53 @@ FW::TrackFitterPerformanceWriter::writeT(
     const AlgorithmContext&    ctx,
     const TrajectoryContainer& trajectories)
 {
-  // read truth particles from input collection
+  // Read truth particles from input collection
   const auto& particles
       = ctx.eventStore.get<SimParticles>(m_cfg.inputParticles);
 
-  // exclusive access to the tree while writing
+  // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
-  for (const auto& [trackTip, traj] : trajectories) {
-    // retrieve the truth particle barcode for this track state
-    // TODO use majority particle instead to support reconstructed, non-truth
-    // trajectories
-    auto truthHitAtFirstState
-        = traj.getTrackState(trackTip).uncalibrated().truthHit();
+  // All reconstructed trajectories with truth info
+  std::map<barcode_type, TruthFitTrack> reconTrajectories;
 
-    traj.visitBackwards(trackTip, [&](const auto& state) {
-      auto truthHitAtFirstState = state;
-    });
-    auto barcode = truthHitAtFirstState.particle.barcode();
-    // find the truth particle for this trajectory
-    Data::SimParticle truthParticle;
-    auto              ip = particles.find(barcode);
-    if (ip != particles.end()) {
-      truthParticle = *ip;
-    } else {
-      ACTS_WARNING("Truth particle " << barcode << "not found.");
+  // Loop over all trajectories
+  for (const auto& traj : trajectories) {
+
+    // get the majority truth particle to this track
+    std::vector<ParticleHitCount> particleHitCount
+        = traj.identifyMajorityParticle();
+    if (not particleHitCount.empty()) {
+      // get the barcode of the majority truth particle
+      auto barcode = particleHitCount.front().particleId;
+      // find the truth particle via the barcode
+      auto ip = particles.find(barcode);
+      if (ip != particles.end()) {
+        // record this trajectory with its truth info
+        reconTrajectories.emplace(ip->barcode(), traj);
+      }
     }
-    // fill the plots
-    m_resPlotTool.fill(m_resPlotCache, ctx.geoContext, traj, trackTip);
-    m_effPlotTool.fill(m_effPlotCache, traj, trackTip, truthParticle);
+
+    // fill the residual plots
+    if (not(traj.numMeasurements() > 0)) { continue; }
+    m_resPlotTool.fill(m_resPlotCache, ctx.geoContext, traj.trajectory());
+  }
+
+  // Fill the efficiency, defined as the ratio between number of tracks with
+  // fitted parameter and total truth tracks (assumes one truth partilce means
+  // one truth track)
+  // @Todo: add fake rate plots
+  for (const auto& particle : particles) {
+    auto barcode = particle.barcode();
+    auto it      = reconTrajectories.find(barcode);
+    if (it != reconTrajectories.end()) {
+      // when the trajectory is reconstructed
+      m_effPlotTool.fill(
+          m_effPlotCache, particle, it->second.hasTrackParameters());
+    } else {
+      // when the trajectory is NOT reconstructed
+      m_effPlotTool.fill(m_effPlotCache, particle, false);
+    }
   }
 
   return ProcessCode::SUCCESS;
