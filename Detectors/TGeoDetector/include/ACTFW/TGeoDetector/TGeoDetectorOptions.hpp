@@ -74,9 +74,9 @@ namespace Options {
                    po::value<read_strings>()->multitoken()->default_value({}),
                    "Axes definition for negative sensitive objects, odered "
                    "along the series.")(
-        "geo-tgeo-clayer-split",
-        po::value<double>()->default_value(0.),
-        "Radial tolerance (if different from 0.) that triggers splitting "
+        "geo-tgeo-clayersplits",
+        po::value<read_range>()->multitoken()->default_value({}),
+        "Radial tolerances (if different from 0.) that triggers splitting "
         " of collected surfaces into different layers.")(
         "geo-tgeo-cmoduleaxes",
         po::value<read_strings>()->multitoken()->default_value({}),
@@ -111,6 +111,8 @@ namespace Options {
     read_series nlayers = vm["geo-tgeo-nlayers"].template as<read_series>();
     read_series clayers = vm["geo-tgeo-clayers"].template as<read_series>();
     read_series players = vm["geo-tgeo-players"].template as<read_series>();
+    //
+
     // these are going continously through the series, such as i in [ 1 + 3 + 4
     // ]
     read_strings nlayernames
@@ -131,7 +133,9 @@ namespace Options {
         = vm["geo-tgeo-cmoduleaxes"].template as<read_strings>();
     read_strings psensitiveaxes
         = vm["geo-tgeo-pmoduleaxes"].template as<read_strings>();
-    // todo consistency checks
+    // the layer splits
+    read_range clayersplits
+        = vm["geo-tgeo-clayersplits"].template as<read_range>();
 
     // total coutners
     int tin = 0;
@@ -156,12 +160,11 @@ namespace Options {
       // fill the configs - for barrel
       for (int ic = 0; ic < cc; ++ic, ++tic) {
         Acts::TGeoLayerBuilder::LayerConfig lConfig;
-        lConfig.layerName  = clayernames[tic];
-        lConfig.sensorName = csensitivenames[tic];
-        lConfig.localAxes  = csensitiveaxes[tic];
+        lConfig.layerName                    = clayernames[tic];
+        lConfig.sensorName                   = csensitivenames[tic];
+        lConfig.localAxes                    = csensitiveaxes[tic];
+        layerBuilderConfig.centralLayerSplit = clayersplits[tic];
         layerBuilderConfig.centralLayerConfigs.push_back(lConfig);
-        layerBuilderConfig.centralLayerSplit
-            = vm["geo-tgeo-clayer-split"].template as<double>();
       }
       // fill the configs - for positive
       for (int ip = 0; ip < cp; ++ip, ++tip) {
@@ -175,6 +178,7 @@ namespace Options {
       layerBuilderConfig.configurationName = subdetectors[idet];
       layerBuilderConfig.unit              = unitScalor;
       layerBuilderConfig.layerCreator      = layerCreator;
+
       // now add it to the configs
       detLayerConfigs.push_back(layerBuilderConfig);
     }
