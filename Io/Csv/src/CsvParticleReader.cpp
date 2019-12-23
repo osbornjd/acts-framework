@@ -37,6 +37,20 @@ FW::CsvParticleReader::CsvParticleReader(
   if (m_cfg.inputStem.empty()) {
     throw std::invalid_argument("Missing input filename stem");
   }
+
+  if (not m_cfg.inputParticleSurface.empty()) {
+
+    if (not m_cfg.trackingGeometry) {
+      throw std::invalid_argument("Missing tracking geometry");
+    }
+
+    // fill the geo id to surface map once to speed up lookups later on
+    //@TODO: we need material surfaces as well as sensitive surfaces though. How
+    // to do that?
+    m_cfg.trackingGeometry->visitSurfaces([this](const Acts::Surface* surface) {
+      this->m_surfaces[surface->geoID()] = surface;
+    });
+  }
 }
 
 std::string
@@ -84,6 +98,37 @@ FW::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 
   // write the truth particles to the EventStore
   ctx.eventStore.add(m_cfg.outputParticles, std::move(particles));
+
+  if (not m_cfg.inputParticleSurface.empty()) {
+    SimSurfaces surfaces;
+    auto        path = perEventFilepath(
+        m_cfg.inputDir, m_cfg.inputParticleSurface + ".csv", ctx.eventNumber);
+    dfe::CsvNamedTupleReader<ParticleSurfaceData> reader(path);
+
+    ParticleSurfaceData data;
+    while (reader.read(data)) {
+      barcode_type particle_id = data.particle_id;
+      // identify surface
+      Acts::GeometryID geoId;
+      geoId.setVolume(data.volume_id);
+      geoId.setLayer(data.layer_id);
+      geoId.setSensitive(data.module_id);
+
+      auto it = m_surfaces.find(geoId);
+      if (it == m_surfaces.end() or not it->second) {
+        ACTS_FATAL("Could not retrieve the surface for particle surface data"
+                   << data);
+        return ProcessCode::ABORT;
+      }
+      const Acts::Surface* surface = it->second;
+
+      // push back the surface
+      surfaces[particle_id].push_back(surface);
+    }
+
+    // write the passed surface sequence of truth particle to EventStore
+    ctx.eventStore.add(m_cfg.outputParticleSurfacesMap, std::move(surfaces));
+  }
 
   return ProcessCode::SUCCESS;
 }

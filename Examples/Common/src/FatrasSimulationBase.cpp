@@ -195,6 +195,8 @@ setupSimulationAlgorithm(
   if (vm["output-csv"].template as<bool>()) {
     FW::CsvParticleWriter::Config pWriterCsvConfig;
     pWriterCsvConfig.inputEvent = fatrasConfig.simulatedEventCollection;
+    pWriterCsvConfig.inputSurfacesPerParticle
+        = fatrasConfig.simulatedSurfaceCollection;
     pWriterCsvConfig.outputDir  = outputDir;
     pWriterCsvConfig.outputStem = fatrasConfig.simulatedEventCollection;
     sequencer.addWriter(

@@ -8,9 +8,11 @@
 
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 
+#include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
 #include "ACTFW/Framework/IReader.hpp"
@@ -32,12 +34,18 @@ class CsvParticleReader : public IReader
 public:
   struct Config
   {
+    /// Tracking geometry required to access surface from geoID
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
     /// Which particle collection to read into.
     std::string outputParticles;
+    /// Which particle surface sequence collection to read into.
+    std::string outputParticleSurfacesMap;
     /// Where to read input files from.
     std::string inputDir;
     /// Input filename stem.
     std::string inputStem = "particles";
+    /// Input filename for particle surface sequence.
+    std::string inputParticleSurface = "surfaces";
   };
 
   CsvParticleReader(const Config&        cfg,
@@ -55,9 +63,10 @@ public:
   read(const FW::AlgorithmContext& ctx) final override;
 
 private:
-  Config                              m_cfg;
-  std::pair<size_t, size_t>           m_eventsRange;
-  std::unique_ptr<const Acts::Logger> m_logger;
+  Config                                           m_cfg;
+  std::map<Acts::GeometryID, const Acts::Surface*> m_surfaces;
+  std::pair<size_t, size_t>                        m_eventsRange;
+  std::unique_ptr<const Acts::Logger>              m_logger;
 
   const Acts::Logger&
   logger() const

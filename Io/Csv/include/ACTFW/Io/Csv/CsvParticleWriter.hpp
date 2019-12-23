@@ -40,6 +40,8 @@ public:
     std::string inputEvent;
     /// Input collection to map particle ids to number of hits (optional).
     std::string inputHitsPerParticle;
+    /// Input collection to map particle ids to surface sequence (optional).
+    std::string inputSurfacesPerParticle = "";
     /// Where to place output files.
     std::string outputDir;
     /// Output filename stem.

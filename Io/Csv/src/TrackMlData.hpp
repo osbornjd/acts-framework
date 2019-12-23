@@ -43,6 +43,18 @@ struct ParticleData
                  nhits);
 };
 
+struct ParticleSurfaceData
+{
+  uint64_t particle_id;
+  uint32_t volume_id, layer_id, module_id;
+
+  DFE_NAMEDTUPLE(ParticleSurfaceData,
+                 particle_id,
+                 volume_id,
+                 layer_id,
+                 module_id);
+};
+
 struct HitData
 {
   uint64_t hit_id;

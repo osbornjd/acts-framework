@@ -72,8 +72,10 @@ main(int argc, char* argv[])
   auto magneticField = Options::readBField(vm);
 
   // Read particles and clusters from CSV files
-  auto particleReaderCfg            = Options::readCsvParticleReaderConfig(vm);
-  particleReaderCfg.outputParticles = "truth_particles";
+  auto particleReaderCfg             = Options::readCsvParticleReaderConfig(vm);
+  particleReaderCfg.trackingGeometry = trackingGeometry;
+  particleReaderCfg.outputParticles  = "truth_particles";
+  particleReaderCfg.outputParticleSurfacesMap = "truth_particle_surfaces_map";
   sequencer.addReader(
       std::make_shared<CsvParticleReader>(particleReaderCfg, logLevel));
   // Read clusters from CSV files

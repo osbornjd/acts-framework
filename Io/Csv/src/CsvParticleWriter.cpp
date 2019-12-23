@@ -41,6 +41,12 @@ FW::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
         m_cfg.inputHitsPerParticle);
   }
 
+  const SimSurfaces* surfacesPerParticle = nullptr;
+  if (not m_cfg.inputSurfacesPerParticle.empty()) {
+    surfacesPerParticle
+        = &context.eventStore.get<SimSurfaces>(m_cfg.inputSurfacesPerParticle);
+  }
+
   auto pathParticles = perEventFilepath(
       m_cfg.outputDir, m_cfg.outputStem + ".csv", context.eventNumber);
   dfe::CsvNamedTupleWriter<ParticleData> writer(pathParticles,
@@ -70,6 +76,30 @@ FW::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
         }
       }
       writer.append(data);
+    }
+  }
+
+  if (surfacesPerParticle) {
+    auto pathSurfaces = perEventFilepath(
+        m_cfg.outputDir, "surfaces.csv", context.eventNumber);
+    dfe::CsvNamedTupleWriter<ParticleSurfaceData> writer(pathSurfaces,
+                                                         m_cfg.outputPrecision);
+
+    for (auto& vertex : vertices) {
+      for (auto& particle : vertex.outgoing) {
+        auto spp = surfacesPerParticle->find(particle.barcode());
+        if (spp != surfacesPerParticle->end()) {
+          ParticleSurfaceData data;
+          data.particle_id = particle.barcode();
+          for (const auto& surface : spp->second) {
+            Acts::GeometryID geoId = surface->geoID();
+            data.volume_id         = geoId.volume();
+            data.layer_id          = geoId.layer();
+            data.module_id         = geoId.sensitive();
+            writer.append(data);
+          }
+        }
+      }
     }
   }
 

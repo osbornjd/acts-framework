@@ -12,6 +12,7 @@
 #include <cmath>
 
 #include <Acts/Utilities/Definitions.hpp>
+#include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
