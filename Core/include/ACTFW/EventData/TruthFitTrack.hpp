@@ -8,8 +8,12 @@
 
 #pragma once
 
+#include <optional>
+#include <utility>
+
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
+
 #include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/Validation/ProtoTrackClassification.hpp"
 
@@ -165,14 +169,13 @@ public:
 
 private:
   // The optional fitted multitrajectory
-  boost::optional<Acts::MultiTrajectory<Data::SimSourceLink>> m_trajectory{
-      boost::none};
+  std::optional<Acts::MultiTrajectory<Data::SimSourceLink>> m_trajectory;
 
   // This is the index of the 'tip' of the track stored in multitrajectory.
   size_t m_trackTip = SIZE_MAX;
 
   // The optional Parameters at the provided surface
-  boost::optional<Acts::BoundParameters> m_trackParameters{boost::none};
+  std::optional<Acts::BoundParameters> m_trackParameters;
 };
 
 }  // namespace FW
