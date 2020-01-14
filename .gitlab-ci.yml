@@ -92,7 +92,7 @@ build-full:
     - cvmfs
   before_script:
     - set +e && source CI/lcg_setup.sh; set -e
-    - source install/setup.sh
+    - source install/bin/this_acts.sh
 
 hello_world:
   extends: .run
