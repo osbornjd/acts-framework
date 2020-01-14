@@ -95,7 +95,7 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       // Get the fit output object
       const auto& fitOutput = result.value();
       if (fitOutput.fittedParameters) {
-        const auto& params = fitOutput.fittedParameters.get();
+        const auto& params = fitOutput.fittedParameters.value();
         ACTS_VERBOSE("Fitted paramemeters for track " << itrack);
         ACTS_VERBOSE("  position: " << params.position().transpose());
         ACTS_VERBOSE("  momentum: " << params.momentum().transpose());
