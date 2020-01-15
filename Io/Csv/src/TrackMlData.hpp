@@ -42,7 +42,28 @@ struct ParticleData
                  nhits);
 };
 
-struct HitData
+struct TruthHitData
+{
+  uint64_t hit_id;
+  uint64_t particle_id;
+  float    tx, ty, tz;
+  // defaulted since time is not available in the original TrackML datasets
+  float tt = 0.0f;
+  float tpx, tpy, tpz;
+
+  DFE_NAMEDTUPLE(TruthHitData,
+                 hit_id,
+                 particle_id,
+                 tx,
+                 ty,
+                 tz,
+                 tt,
+                 tpx,
+                 tpy,
+                 tpz);
+};
+
+struct SimHitData
 {
   uint64_t hit_id;
   float    x, y, z;
@@ -50,7 +71,15 @@ struct HitData
   float    t = 0.0f;
   uint32_t volume_id, layer_id, module_id;
 
-  DFE_NAMEDTUPLE(HitData, hit_id, x, y, z, t, volume_id, layer_id, module_id);
+  DFE_NAMEDTUPLE(SimHitData,
+                 hit_id,
+                 x,
+                 y,
+                 z,
+                 t,
+                 volume_id,
+                 layer_id,
+                 module_id);
 };
 
 struct CellData
@@ -64,18 +93,6 @@ struct CellData
   int32_t value;
 
   DFE_NAMEDTUPLE(CellData, hit_id, ch0, ch1, timestamp, value);
-};
-
-struct TruthData
-{
-  uint64_t hit_id;
-  uint64_t particle_id;
-  float    tx, ty, tz;
-  // defaulted since time is not available in the original TrackML datasets
-  float tt = 0.0f;
-  float tpx, tpy, tpz;
-
-  DFE_NAMEDTUPLE(TruthData, hit_id, particle_id, tx, ty, tz, tt, tpx, tpy, tpz);
 };
 
 struct SurfaceData

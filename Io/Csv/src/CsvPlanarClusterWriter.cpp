@@ -43,15 +43,16 @@ FW::CsvPlanarClusterWriter::writeT(
   std::string pathTruth
       = perEventFilepath(m_cfg.outputDir, "truth.csv", context.eventNumber);
 
-  dfe::NamedTupleCsvWriter<HitData> writerHits(pathHits, m_cfg.outputPrecision);
-  dfe::NamedTupleCsvWriter<CellData>  writerCells(pathCells,
-                                                 m_cfg.outputPrecision);
-  dfe::NamedTupleCsvWriter<TruthData> writerTruth(pathTruth,
+  dfe::NamedTupleCsvWriter<SimHitData>   writerHits(pathHits,
                                                   m_cfg.outputPrecision);
+  dfe::NamedTupleCsvWriter<CellData>     writerCells(pathCells,
+                                                 m_cfg.outputPrecision);
+  dfe::NamedTupleCsvWriter<TruthHitData> writerTruth(pathTruth,
+                                                     m_cfg.outputPrecision);
 
-  HitData   hit;
-  CellData  cell;
-  TruthData truth;
+  TruthHitData truth;
+  SimHitData   hit;
+  CellData     cell;
   // will be reused as hit counter
   hit.hit_id = 0;
 
