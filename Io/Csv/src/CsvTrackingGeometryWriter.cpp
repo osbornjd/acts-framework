@@ -49,7 +49,7 @@ CsvTrackingGeometryWriter::name() const
 }
 
 namespace {
-using SurfaceWriter = dfe::CsvNamedTupleWriter<SurfaceData>;
+using SurfaceWriter = dfe::NamedTupleCsvWriter<SurfaceData>;
 
 /// Write a single surface.
 void

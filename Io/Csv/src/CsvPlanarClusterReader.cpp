@@ -113,12 +113,13 @@ struct CompareGeometryId
 
 template <typename Data>
 inline std::vector<Data>
-readEverything(const std::string& inputDir,
-               const std::string& filename,
-               size_t             event)
+readEverything(const std::string&              inputDir,
+               const std::string&              filename,
+               const std::vector<std::string>& optional_columns,
+               size_t                          event)
 {
   std::string path = FW::perEventFilepath(inputDir, filename, event);
-  dfe::CsvNamedTupleReader<Data> reader(path);
+  dfe::NamedTupleCsvReader<Data> reader(path, optional_columns);
 
   std::vector<Data> everything;
   Data              one;
@@ -130,7 +131,9 @@ readEverything(const std::string& inputDir,
 std::vector<FW::TruthData>
 readTruthByHitId(const std::string& inputDir, size_t event)
 {
-  auto truths = readEverything<FW::TruthData>(inputDir, "truth.csv", event);
+  // tt is an optional element
+  auto truths
+      = readEverything<FW::TruthData>(inputDir, "truth.csv", {"tt"}, event);
   // sort for fast hit id look up
   std::sort(truths.begin(), truths.end(), CompareHitId{});
   return truths;
@@ -139,7 +142,9 @@ readTruthByHitId(const std::string& inputDir, size_t event)
 std::vector<FW::CellData>
 readCellsByHitId(const std::string& inputDir, size_t event)
 {
-  auto cells = readEverything<FW::CellData>(inputDir, "cells.csv", event);
+  // timestamp is an optional element
+  auto cells = readEverything<FW::CellData>(
+      inputDir, "cells.csv", {"timestamp"}, event);
   // sort for fast hit id look up
   std::sort(cells.begin(), cells.end(), CompareHitId{});
   return cells;
@@ -148,7 +153,8 @@ readCellsByHitId(const std::string& inputDir, size_t event)
 std::vector<FW::HitData>
 readHitsByGeoId(const std::string& inputDir, size_t event)
 {
-  auto hits = readEverything<FW::HitData>(inputDir, "hits.csv", event);
+  // t is an optional element
+  auto hits = readEverything<FW::HitData>(inputDir, "hits.csv", {"t"}, event);
   // sort same way they will be sorted in the output container
   std::sort(hits.begin(), hits.end(), CompareGeometryId{});
   return hits;

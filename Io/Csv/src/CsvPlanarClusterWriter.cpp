@@ -43,10 +43,10 @@ FW::CsvPlanarClusterWriter::writeT(
   std::string pathTruth
       = perEventFilepath(m_cfg.outputDir, "truth.csv", context.eventNumber);
 
-  dfe::CsvNamedTupleWriter<HitData> writerHits(pathHits, m_cfg.outputPrecision);
-  dfe::CsvNamedTupleWriter<CellData>  writerCells(pathCells,
+  dfe::NamedTupleCsvWriter<HitData> writerHits(pathHits, m_cfg.outputPrecision);
+  dfe::NamedTupleCsvWriter<CellData>  writerCells(pathCells,
                                                  m_cfg.outputPrecision);
-  dfe::CsvNamedTupleWriter<TruthData> writerTruth(pathTruth,
+  dfe::NamedTupleCsvWriter<TruthData> writerTruth(pathTruth,
                                                   m_cfg.outputPrecision);
 
   HitData   hit;
@@ -69,11 +69,10 @@ FW::CsvPlanarClusterWriter::writeT(
         context.geoContext, localPos, globalFakeMom, globalPos);
 
     // write global hit information
-    hit.x = globalPos.x() / Acts::UnitConstants::mm;
-    hit.y = globalPos.y() / Acts::UnitConstants::mm;
-    hit.z = globalPos.z() / Acts::UnitConstants::mm;
-    // TODO add time once it is stored in clusters
-    hit.t         = 0 / Acts::UnitConstants::ns;
+    hit.x         = globalPos.x() / Acts::UnitConstants::mm;
+    hit.y         = globalPos.y() / Acts::UnitConstants::mm;
+    hit.z         = globalPos.z() / Acts::UnitConstants::mm;
+    hit.t         = parameters[Acts::ParDef::eT] / Acts::UnitConstants::ns;
     hit.volume_id = geoId.volume();
     hit.layer_id  = geoId.layer();
     hit.module_id = geoId.sensitive();
@@ -82,9 +81,10 @@ FW::CsvPlanarClusterWriter::writeT(
     // write local cell information
     cell.hit_id = hit.hit_id;
     for (auto& c : cluster.digitizationCells()) {
-      cell.ch0       = c.channel0;
-      cell.ch1       = c.channel1;
-      cell.timestamp = 0;  // TODO
+      cell.ch0 = c.channel0;
+      cell.ch1 = c.channel1;
+      // TODO store digitial timestamp once added to the cell definition
+      cell.timestamp = 0;
       cell.value     = c.data;
       writerCells.append(cell);
     }
