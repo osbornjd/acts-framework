@@ -8,8 +8,10 @@ target_include_directories(
   PRIVATE ${DD4hep_INCLUDE_DIRS})
 target_link_libraries(
   ACTFWGeantinoRecordingExample
-  PRIVATE ${_common_libraries} ACTFWMaterialMapping ACTFWDD4hepG4Plugin
-    ACTFWRootPlugin ACTFWDD4hepDetector ${DD4hep_LIBRARIES} ${Geant4_LIBRARIES})
+  PRIVATE
+    ${_common_libraries} ACTFWMaterialMapping ACTFWDD4hepG4Plugin
+    ActsFrameworkIoRoot ACTFWDD4hepDetector
+    ${DD4hep_LIBRARIES} ${Geant4_LIBRARIES})
 
 install(
   TARGETS ACTFWGeantinoRecordingExample

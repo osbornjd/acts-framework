@@ -6,23 +6,22 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <boost/program_options.hpp>
 #include <memory>
 
-#include "Acts/EventData/TrackParameters.hpp"
+#include <Acts/EventData/TrackParameters.hpp>
+#include <boost/program_options.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
-#include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
-#include "ACTFW/Options/CommonOptions.hpp"
-#include "ACTFW/Options/Pythia8Options.hpp"
-#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include "ACTFW/Utilities/Paths.hpp"
-
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
+#include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Io/Root/RootParticleWriter.hpp"
+#include "ACTFW/Options/CommonOptions.hpp"
+#include "ACTFW/Options/Pythia8Options.hpp"
 #include "ACTFW/TruthTracking/TrackSelector.hpp"
 #include "ACTFW/TruthTracking/TruthVerticesToTracks.hpp"
+#include "ACTFW/Utilities/Paths.hpp"
 #include "ACTFW/Vertexing/VertexFindingAlgorithm.hpp"
 
 using namespace FW;

@@ -6,18 +6,19 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
 #include <boost/program_options.hpp>
+
 #include "ACTFW/DD4hepDetector/DD4hepDetectorOptions.hpp"
 #include "ACTFW/DD4hepDetector/DD4hepGeometryService.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Io/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/MaterialMapping/GeantinoRecording.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/DD4hepG4/DD4hepToG4Svc.hpp"
-#include "ACTFW/Plugins/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Geometry/GeometryContext.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
 
 namespace po = boost::program_options;
 
@@ -83,15 +84,14 @@ main(int argc, char* argv[])
 
   if (vm["output-root"].template as<bool>()) {
     // Write the propagation steps as ROOT TTree
-    FW::Root::RootMaterialTrackWriter::Config matTrackWriterRootConfig;
+    FW::RootMaterialTrackWriter::Config matTrackWriterRootConfig;
     matTrackWriterRootConfig.prePostStep       = true;
     matTrackWriterRootConfig.recalculateTotals = true;
     matTrackWriterRootConfig.collection        = matCollection;
     matTrackWriterRootConfig.filePath
         = FW::joinPaths(outputDir, matCollection + ".root");
-    auto matTrackWriterRoot
-        = std::make_shared<FW::Root::RootMaterialTrackWriter>(
-            matTrackWriterRootConfig);
+    auto matTrackWriterRoot = std::make_shared<FW::RootMaterialTrackWriter>(
+        matTrackWriterRootConfig);
     g4sequencer.addWriter(matTrackWriterRoot);
   }
 

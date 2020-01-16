@@ -9,7 +9,7 @@ set(_common_libraries
   ACTFWFatras
   ACTFWFitting
   ACTFWObjPlugin
-  ACTFWRootPlugin
+  ActsFrameworkIoRoot
   ActsFrameworkGenerators
   ActsFrameworkPythia8
   Boost::program_options)

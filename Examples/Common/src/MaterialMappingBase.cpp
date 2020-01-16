@@ -6,28 +6,29 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <boost/program_options.hpp>
 #include <memory>
+
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/Material/SurfaceMaterialMapper.hpp>
+#include <Acts/Plugins/Json/JsonGeometryConverter.hpp>
+#include <Acts/Propagator/Navigator.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/StraightLineStepper.hpp>
+#include <boost/program_options.hpp>
+
+#include "ACTFW/Detector/IBaseDetector.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
+#include "ACTFW/Io/Root/RootMaterialTrackReader.hpp"
+#include "ACTFW/Io/Root/RootMaterialWriter.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
 #include "ACTFW/MaterialMapping/MaterialMappingOptions.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Json/JsonMaterialWriter.hpp"
-#include "ACTFW/Plugins/Root/RootMaterialTrackReader.hpp"
-#include "ACTFW/Plugins/Root/RootMaterialWriter.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Geometry/GeometryContext.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/MagneticField/MagneticFieldContext.hpp"
-#include "Acts/Material/SurfaceMaterialMapper.hpp"
-#include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
-#include "Acts/Propagator/Navigator.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Propagator/StraightLineStepper.hpp"
-
-#include "ACTFW/Detector/IBaseDetector.hpp"
 
 namespace po = boost::program_options;
 
@@ -82,14 +83,13 @@ materialMappingExample(int argc, char* argv[], FW::IBaseDetector& detector)
 
   if (vm["input-root"].template as<bool>()) {
     // Read the material step information from a ROOT TTree
-    FW::Root::RootMaterialTrackReader::Config matTrackReaderRootConfig;
+    FW::RootMaterialTrackReader::Config matTrackReaderRootConfig;
     if (not matCollection.empty()) {
       matTrackReaderRootConfig.collection = matCollection;
     }
     matTrackReaderRootConfig.fileList = intputFiles;
-    auto matTrackReaderRoot
-        = std::make_shared<FW::Root::RootMaterialTrackReader>(
-            matTrackReaderRootConfig);
+    auto matTrackReaderRoot = std::make_shared<FW::RootMaterialTrackReader>(
+        matTrackReaderRootConfig);
     sequencer.addReader(matTrackReaderRoot);
   }
 
@@ -111,11 +111,11 @@ materialMappingExample(int argc, char* argv[], FW::IBaseDetector& detector)
   if (!materialFileName.empty() and vm["output-root"].template as<bool>()) {
 
     // The writer of the indexed material
-    FW::Root::RootMaterialWriter::Config rmwConfig("MaterialWriter");
+    FW::RootMaterialWriter::Config rmwConfig("MaterialWriter");
     rmwConfig.fileName = materialFileName + ".root";
-    FW::Root::RootMaterialWriter rmwImpl(rmwConfig);
+    FW::RootMaterialWriter rmwImpl(rmwConfig);
     // Fullfill the IMaterialWriter interface
-    using RootWriter = FW::MaterialWriterT<FW::Root::RootMaterialWriter>;
+    using RootWriter = FW::MaterialWriterT<FW::RootMaterialWriter>;
     mmAlgConfig.materialWriters.push_back(
         std::make_shared<RootWriter>(std::move(rmwImpl)));
   }

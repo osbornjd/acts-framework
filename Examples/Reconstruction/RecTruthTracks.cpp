@@ -22,9 +22,9 @@
 #include "ACTFW/Io/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Io/Performance/TrackFinderPerformanceWriter.hpp"
 #include "ACTFW/Io/Performance/TrackFitterPerformanceWriter.hpp"
+#include "ACTFW/Io/Root/RootTrajectoryWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
-#include "ACTFW/Plugins/Root/RootTrajectoryWriter.hpp"
 #include "ACTFW/TruthTracking/ParticleSmearing.hpp"
 #include "ACTFW/TruthTracking/TruthTrackFinder.hpp"
 #include "ACTFW/Utilities/Options.hpp"
@@ -139,14 +139,14 @@ main(int argc, char* argv[])
   sequencer.addAlgorithm(std::make_shared<FittingAlgorithm>(fitCfg, logLevel));
 
   // write tracks from fitting
-  Root::RootTrajectoryWriter::Config trackWriterCfg;
+  RootTrajectoryWriter::Config trackWriterCfg;
   trackWriterCfg.inputParticles    = particleReaderCfg.outputParticles;
   trackWriterCfg.inputTrajectories = fitCfg.outputTrajectories;
   trackWriterCfg.outputDir         = outputDir;
   trackWriterCfg.outputFilename    = "tracks.root";
   trackWriterCfg.outputTreename    = "tracks";
   sequencer.addWriter(
-      std::make_shared<Root::RootTrajectoryWriter>(trackWriterCfg, logLevel));
+      std::make_shared<RootTrajectoryWriter>(trackWriterCfg, logLevel));
   // write reconstruction performance data
   TrackFinderPerformanceWriter::Config perFindCfg;
   perFindCfg.inputParticles       = particleReaderCfg.outputParticles;

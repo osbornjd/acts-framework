@@ -16,9 +16,9 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Io/Root/RootParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
-#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
 using namespace Acts::units;
@@ -74,12 +74,12 @@ main(int argc, char* argv[])
         std::make_shared<CsvParticleWriter>(csvWriterCfg, logLevel));
   }
   if (vm["output-root"].as<bool>()) {
-    Root::RootParticleWriter::Config rootWriterCfg;
+    RootParticleWriter::Config rootWriterCfg;
     rootWriterCfg.collection = selectorCfg.output;
     rootWriterCfg.filePath   = joinPaths(outputDir, "particles.root");
     rootWriterCfg.barcodeSvc = barcode;
     sequencer.addWriter(
-        std::make_shared<Root::RootParticleWriter>(rootWriterCfg, logLevel));
+        std::make_shared<RootParticleWriter>(rootWriterCfg, logLevel));
   }
 
   return sequencer.run();

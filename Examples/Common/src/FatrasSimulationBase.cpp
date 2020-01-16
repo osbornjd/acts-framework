@@ -30,11 +30,11 @@
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Io/Root/RootParticleWriter.hpp"
+#include "ACTFW/Io/Root/RootSimHitWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
-#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
-#include "ACTFW/Plugins/Root/RootSimHitWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "Fatras/Kernel/Interactor.hpp"
 #include "Fatras/Kernel/Process.hpp"
@@ -236,26 +236,26 @@ setupSimulationAlgorithm(
   }
 
   // Write simulation information as ROOT files
-  std::shared_ptr<FW::Root::RootParticleWriter> pWriterRoot = nullptr;
+  std::shared_ptr<FW::RootParticleWriter> pWriterRoot = nullptr;
   if (vm["output-root"].template as<bool>()) {
     // Write particles as ROOT TTree
-    FW::Root::RootParticleWriter::Config pWriterRootConfig;
+    FW::RootParticleWriter::Config pWriterRootConfig;
     pWriterRootConfig.collection = fatrasConfig.simulatedEventCollection;
     pWriterRootConfig.filePath   = FW::joinPaths(
         outputDir, fatrasConfig.simulatedEventCollection + ".root");
     pWriterRootConfig.treeName   = fatrasConfig.simulatedEventCollection;
     pWriterRootConfig.barcodeSvc = barcodeSvc;
     sequencer.addWriter(
-        std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig));
+        std::make_shared<FW::RootParticleWriter>(pWriterRootConfig));
 
     // Write simulated hits as ROOT TTree
-    FW::Root::RootSimHitWriter::Config fhitWriterRootConfig;
+    FW::RootSimHitWriter::Config fhitWriterRootConfig;
     fhitWriterRootConfig.collection = fatrasConfig.simulatedHitCollection;
     fhitWriterRootConfig.filePath   = FW::joinPaths(
         outputDir, fatrasConfig.simulatedHitCollection + ".root");
     fhitWriterRootConfig.treeName = fatrasConfig.simulatedHitCollection;
     sequencer.addWriter(
-        std::make_shared<FW::Root::RootSimHitWriter>(fhitWriterRootConfig));
+        std::make_shared<FW::RootSimHitWriter>(fhitWriterRootConfig));
   }
 }
 

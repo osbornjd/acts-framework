@@ -13,10 +13,10 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/EventGenerator.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
+#include "ACTFW/Io/Root/RootParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
-#include "ACTFW/Plugins/Root/RootParticleWriter.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
 void
@@ -64,12 +64,12 @@ setupEvgenInput(boost::program_options::variables_map& vm,
   // Write particles as ROOT file
   if (vm["output-root"].template as<bool>()) {
     // Write particles as ROOT TTree
-    FW::Root::RootParticleWriter::Config pWriterRootConfig;
+    FW::RootParticleWriter::Config pWriterRootConfig;
     pWriterRootConfig.collection = "particles";
     pWriterRootConfig.filePath   = FW::joinPaths(outputDir, "particles.root");
     pWriterRootConfig.treeName   = "particles";
     pWriterRootConfig.barcodeSvc = barcodeSvc;
     sequencer.addWriter(
-        std::make_shared<FW::Root::RootParticleWriter>(pWriterRootConfig));
+        std::make_shared<FW::RootParticleWriter>(pWriterRootConfig));
   }
 }

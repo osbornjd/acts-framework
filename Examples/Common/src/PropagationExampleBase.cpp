@@ -8,30 +8,29 @@
 
 #include <memory>
 
+#include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
+#include <Acts/MagneticField/SharedBField.hpp>
+#include <Acts/Propagator/AtlasStepper.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/Navigator.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/StraightLineStepper.hpp>
 #include <boost/program_options.hpp>
 
+#include "ACTFW/Detector/IBaseDetector.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
+#include "ACTFW/Io/Root/RootPropagationStepsWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Plugins/Obj/ObjPropagationStepsWriter.hpp"
-#include "ACTFW/Plugins/Root/RootPropagationStepsWriter.hpp"
 #include "ACTFW/Propagation/PropagationAlgorithm.hpp"
 #include "ACTFW/Propagation/PropagationOptions.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
-#include "Acts/MagneticField/SharedBField.hpp"
-#include "Acts/Propagator/AtlasStepper.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/Navigator.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Propagator/StraightLineStepper.hpp"
-
-#include "ACTFW/Detector/IBaseDetector.hpp"
 
 int
 propagationExample(int argc, char* argv[], FW::IBaseDetector& detector)
@@ -124,11 +123,11 @@ propagationExample(int argc, char* argv[], FW::IBaseDetector& detector)
 
   if (vm["output-root"].template as<bool>()) {
     // Write the propagation steps as ROOT TTree
-    FW::Root::RootPropagationStepsWriter::Config pstepWriterRootConfig;
+    FW::RootPropagationStepsWriter::Config pstepWriterRootConfig;
     pstepWriterRootConfig.collection = psCollection;
     pstepWriterRootConfig.filePath
         = FW::joinPaths(outputDir, psCollection + ".root");
-    sequencer.addWriter(std::make_shared<FW::Root::RootPropagationStepsWriter>(
+    sequencer.addWriter(std::make_shared<FW::RootPropagationStepsWriter>(
         pstepWriterRootConfig));
   }
 

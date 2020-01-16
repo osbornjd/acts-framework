@@ -9,14 +9,13 @@
 #include <boost/program_options.hpp>
 #include <memory>
 
-#include "Acts/EventData/TrackParameters.hpp"
+#include <Acts/EventData/TrackParameters.hpp>
 
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Io/Root/RootVertexAndTracksReader.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
-#include "ACTFW/Plugins/Root/RootVertexAndTracksReader.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-
 #include "ACTFW/Vertexing/VertexFindingAlgorithm.hpp"
 
 using namespace FW;
@@ -50,7 +49,7 @@ main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  Root::RootVertexAndTracksReader::Config vtxAndTracksReaderCfg;
+  RootVertexAndTracksReader::Config vtxAndTracksReaderCfg;
   vtxAndTracksReaderCfg.fileList.push_back(fileString);
 
   // Set magnetic field
@@ -65,7 +64,7 @@ main(int argc, char* argv[])
   Sequencer         sequencer(sequencerCfg);
 
   sequencer.addReader(
-      std::make_shared<Root::RootVertexAndTracksReader>(vtxAndTracksReaderCfg));
+      std::make_shared<RootVertexAndTracksReader>(vtxAndTracksReaderCfg));
 
   sequencer.addAlgorithm(std::make_shared<FWE::VertexFindingAlgorithm>(
       vertexFindingCfg, logLevel));

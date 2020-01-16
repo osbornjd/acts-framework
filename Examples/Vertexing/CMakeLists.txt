@@ -7,7 +7,7 @@ set(_common_libraries
   ActsFrameworkTruthTracking
   ACTFWVertexing
   ActsFrameworkIoCsv
-  ACTFWRootPlugin
+  ActsFrameworkIoRoot
   Boost::program_options)
 
 # Fitter example

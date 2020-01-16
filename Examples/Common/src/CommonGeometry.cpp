@@ -8,16 +8,15 @@
 
 #include <string>
 
+#include <Acts/Material/IMaterialDecorator.hpp>
+#include <Acts/Plugins/Json/JsonGeometryConverter.hpp>
+#include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
+#include <Acts/Utilities/Logger.hpp>
 #include <boost/program_options.hpp>
 
-#include <Acts/Material/IMaterialDecorator.hpp>
-#include <Acts/Utilities/Logger.hpp>
-#include "ACTFW/Geometry/MaterialWiper.hpp"
-#include "ACTFW/Plugins/Root/RootMaterialDecorator.hpp"
-#include "Acts/Plugins/Json/JsonGeometryConverter.hpp"
-#include "Acts/Plugins/Json/JsonMaterialDecorator.hpp"
-
 #include "ACTFW/Detector/IBaseDetector.hpp"
+#include "ACTFW/Geometry/MaterialWiper.hpp"
+#include "ACTFW/Io/Root/RootMaterialDecorator.hpp"
 
 namespace FW {
 namespace Geometry {
@@ -54,9 +53,9 @@ namespace Geometry {
             jsonGeoConvConfig, fileName);
       } else if (fileName.find(".root") != std::string::npos) {
         // Set up the root-based decorator
-        FW::Root::RootMaterialDecorator::Config rootMatDecConfig;
+        FW::RootMaterialDecorator::Config rootMatDecConfig;
         rootMatDecConfig.fileName = fileName;
-        matDeco = std::make_shared<const FW::Root::RootMaterialDecorator>(
+        matDeco = std::make_shared<const FW::RootMaterialDecorator>(
             rootMatDecConfig);
       }
     }

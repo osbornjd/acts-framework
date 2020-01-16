@@ -15,9 +15,9 @@
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Io/Csv/CsvPlanarClusterWriter.hpp"
+#include "ACTFW/Io/Root/RootPlanarClusterWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Plugins/Obj/ObjSpacePointWriter.hpp"
-#include "ACTFW/Plugins/Root/RootPlanarClusterWriter.hpp"
 
 void
 setupDigitization(boost::program_options::variables_map& vars,
@@ -61,12 +61,12 @@ setupDigitization(boost::program_options::variables_map& vars,
   // Write digitsation output as ROOT files
   if (vars["output-root"].template as<bool>()) {
     // clusters as root
-    FW::Root::RootPlanarClusterWriter::Config clusterWriterRootConfig;
+    FW::RootPlanarClusterWriter::Config clusterWriterRootConfig;
     clusterWriterRootConfig.collection = digiConfig.outputClusters;
     clusterWriterRootConfig.filePath
         = FW::joinPaths(outputDir, digiConfig.outputClusters + ".root");
     clusterWriterRootConfig.treeName = digiConfig.outputClusters;
-    auto clusteWriterRoot = std::make_shared<FW::Root::RootPlanarClusterWriter>(
+    auto clusteWriterRoot = std::make_shared<FW::RootPlanarClusterWriter>(
         clusterWriterRootConfig);
     // Add to the sequencer
     sequencer.addWriter(clusteWriterRoot);

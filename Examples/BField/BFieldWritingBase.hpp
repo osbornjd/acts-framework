@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "ACTFW/Plugins/Root/RootBFieldWriter.hpp"
-#include "ACTFW/Utilities/Options.hpp"
-
 #include <boost/program_options.hpp>
+
+#include "ACTFW/Io/Root/RootBFieldWriter.hpp"
+#include "ACTFW/Utilities/Options.hpp"
 
 namespace FW {
 namespace BField {
@@ -21,12 +21,17 @@ namespace BField {
   writeField(boost::program_options::variables_map vm,
              std::shared_ptr<const bfield_t>       bField)
   {
+    using Writer   = FW::RootBFieldWriter<bfield_t>;
+    using Config   = typename Writer::Config;
+    using GridType = typename Writer::GridType;
+
     // Write the interpolated magnetic field
-    typename FW::Root::RootBFieldWriter<bfield_t>::Config writerConfig;
-    if (vm["bf-out-rz"].template as<bool>())
-      writerConfig.gridType = Root::GridType::rz;
-    else
-      writerConfig.gridType = Root::GridType::xyz;
+    Config writerConfig;
+    if (vm["bf-out-rz"].template as<bool>()) {
+      writerConfig.gridType = GridType::rz;
+    } else {
+      writerConfig.gridType = GridType::xyz;
+    }
     writerConfig.treeName = vm["bf-map-out"].template as<std::string>();
     writerConfig.fileName = vm["bf-file-out"].template as<std::string>();
     writerConfig.bField   = bField;
@@ -43,7 +48,7 @@ namespace BField {
     writerConfig.zBins   = vm["bf-ZBins"].template as<size_t>();
     writerConfig.phiBins = vm["bf-PhiBins"].template as<size_t>();
 
-    FW::Root::RootBFieldWriter<bfield_t>::run(writerConfig);
+    FW::RootBFieldWriter<bfield_t>::run(writerConfig);
   }
 }  // namespace BField
 }  // namespace FW
