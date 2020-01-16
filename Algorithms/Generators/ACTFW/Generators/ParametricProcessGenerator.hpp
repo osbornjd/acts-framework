@@ -35,13 +35,15 @@ public:
     std::array<double, 2> d0Range = {{0.0, 0.0}};
     /// Low, high for the z position at the point of closest approach
     std::array<double, 2> z0Range = {{0.0, 0.0}};
+    /// Low, high for the time at the point of closest approach
+    std::array<double, 2> t0Range = {{0.0, 0.0}};
     /// Low, high for the transverse angle
     std::array<double, 2> phiRange = {{-M_PI, M_PI}};
     /// Low, high for pseudo-rapidity
     std::array<double, 2> etaRange = {{-4.0, 4.0}};
     /// Low, high for transverse momentum
     std::array<double, 2> ptRange
-        = {{100 * Acts::units::_MeV, 10 * Acts::units::_GeV}};
+        = {{100 * Acts::UnitConstants::MeV, 10 * Acts::UnitConstants::GeV}};
     /// Particle mass
     double mass = 0.;
     /// Particle charge

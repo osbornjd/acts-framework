@@ -23,6 +23,7 @@ FW::ParametricProcessGenerator::operator()(FW::RandomEngine& rng) const
 
   Uniform d0Dist(m_cfg.d0Range[0], m_cfg.d0Range[1]);
   Uniform z0Dist(m_cfg.z0Range[0], m_cfg.z0Range[1]);
+  Uniform t0Dist(m_cfg.t0Range[0], m_cfg.t0Range[1]);
   Uniform phiDist(m_cfg.phiRange[0], m_cfg.phiRange[1]);
   Uniform etaDist(m_cfg.etaRange[0], m_cfg.etaRange[1]);
   Uniform ptDist(m_cfg.ptRange[0], m_cfg.ptRange[1]);
@@ -36,10 +37,14 @@ FW::ParametricProcessGenerator::operator()(FW::RandomEngine& rng) const
   for (size_t ip = 0; ip < m_cfg.numParticles; ip++) {
     auto d0    = d0Dist(rng);
     auto z0    = z0Dist(rng);
+    auto t0    = t0Dist(rng);
     auto phi   = phiDist(rng);
     auto eta   = etaDist(rng);
     auto pt    = ptDist(rng);
     auto qsign = generateChargeSign(rng);
+    // all generated particles are treated as primary particles
+    // TODO remove barcode service altogether
+    auto barcode = BarcodeSvc(BarcodeSvc::Config()).generate(0u, ip);
 
     Acts::Vector3D position(d0 * std::sin(phi), d0 * -std::cos(phi), z0);
     Acts::Vector3D momentum(
@@ -48,7 +53,10 @@ FW::ParametricProcessGenerator::operator()(FW::RandomEngine& rng) const
                                   momentum,
                                   m_cfg.mass,
                                   qsign * m_cfg.charge,
-                                  qsign * m_cfg.pdg);
+                                  qsign * m_cfg.pdg,
+                                  barcode,
+                                  t0);
   }
+
   return {process};
 }
