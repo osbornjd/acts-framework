@@ -60,9 +60,9 @@ FW::ParticleSmearing::execute(const AlgorithmContext& ctx) const
     // var(q/p) = (d(1/p)/dp)² * var(p) = (-1/p²)² * var(p)
     const auto sigmaQOverP = sigmaP / (p * p);
     // shortcuts for other resolutions
+    const auto sigmaT0    = m_cfg.sigmaT0;
     const auto sigmaPhi   = m_cfg.sigmaPhi;
     const auto sigmaTheta = m_cfg.sigmaTheta;
-    const auto sigmaT0    = m_cfg.sigmaT0;
     // converstion from perigee d0,z0 to curvilinear u,v
     // d0 and u differ only by a sign
     const auto sigmaU = sigmaD0;
@@ -72,16 +72,16 @@ FW::ParticleSmearing::execute(const AlgorithmContext& ctx) const
     // draw random noise
     const auto deltaD0    = sigmaD0 * stdNormal(rng);
     const auto deltaZ0    = sigmaZ0 * stdNormal(rng);
+    const auto deltaT0    = sigmaT0 * stdNormal(rng);
     const auto deltaPhi   = sigmaPhi * stdNormal(rng);
     const auto deltaTheta = sigmaTheta * stdNormal(rng);
     const auto deltaP     = sigmaP * stdNormal(rng);
-    const auto deltaT0    = sigmaT0 * stdNormal(rng);
 
     // smear the position
-    Acts::Vector3D pos = particle.position();
-    pos.x() += deltaD0 * std::sin(phi);
-    pos.y() -= deltaD0 * std::cos(phi);
-    pos.z() += deltaZ0;
+    const Acts::Vector3D pos = particle.position()
+        + Acts::Vector3D(deltaD0 * std::sin(phi),
+                         deltaD0 * -std::cos(phi),
+                         deltaZ0);
     // smear the time
     const auto time = particle.time() + deltaT0;
     // smear direction angles phi,theta ensuring correct bounds
