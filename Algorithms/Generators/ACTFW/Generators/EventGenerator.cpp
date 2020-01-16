@@ -15,9 +15,8 @@
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
-FW::EventGenerator::EventGenerator(const Config&        cfg,
-                                   Acts::Logging::Level level)
-  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("EventGenerator", level))
+FW::EventGenerator::EventGenerator(const Config& cfg, Acts::Logging::Level lvl)
+  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("EventGenerator", lvl))
 {
   if (m_cfg.output.empty()) {
     throw std::invalid_argument("Missing output collection");
@@ -50,69 +49,86 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
 {
   std::vector<Data::SimVertex> event;
 
-  auto   rng             = m_cfg.randomNumbers->spawnGenerator(ctx);
-  size_t iGenerator      = 0;
-  size_t iPrimary        = 0;  // primary vertex index within event
-  size_t nTotalParticles = 0;  // total number of particles within event
+  auto rng = m_cfg.randomNumbers->spawnGenerator(ctx);
+  // number of primary vertices within event
+  size_t nPrimaryVertices = 0;
+  // total number of particles within event
+  size_t nParticles = 0;
 
-  for (auto& generator : m_cfg.generators) {
-    for (size_t n = generator.multiplicity(rng); 0 < n; --n) {
+  for (size_t iGenerate = 0; iGenerate < m_cfg.generators.size(); ++iGenerate) {
+    auto& generate = m_cfg.generators[iGenerate];
 
-      // generate position and secondaries for this primary vertex
-      auto vertex  = generator.vertex(rng);
-      auto process = generator.process(rng);
+    // generate the number of primary vertices from this generator
+    for (size_t n = generate.multiplicity(rng); 0 < n; --n) {
 
-      // modify secondaries to move everything to the primary vertex position
-      size_t iSecondary = 0;  // secondary vertex index within current primary
-      for (auto& secondaryVertex : process) {
-        size_t iParticle = 0;  // particle index within secondary vertex
+      nPrimaryVertices += 1;
+      size_t nSecondaryVertices = 0;
+      size_t nParticlesVertex   = 0;
+
+      // generate primary vertex position
+      auto vertex = generate.vertex(rng);
+      // generate associated process vertices
+      // by convention the first process vertex should contain the
+      // particles associated directly to the primary vertex itself.
+      auto processVertices = generate.process(rng);
+
+      // updae
+      for (auto& processVertex : processVertices) {
+        nSecondaryVertices += 1;
 
         // TODO use 4d vector in process directly
         Acts::Vector3D vertexPosition = vertex.head<3>();
         double         vertexTime     = vertex[3];
-        secondaryVertex.position += vertexPosition;
-        secondaryVertex.time += vertexTime;
+        processVertex.position += vertexPosition;
+        processVertex.time += vertexTime;
 
         auto updateParticleInPlace = [&](Data::SimParticle& particle) {
-          // generate new barcode and retain some existing information
-          // TODO check if barcode components are correct
-          auto generation  = m_cfg.barcodeSvc->generation(particle.barcode());
-          auto processCode = m_cfg.barcodeSvc->process(particle.barcode());
-          auto barcode     = m_cfg.barcodeSvc->generate(
-              iPrimary, iParticle, generation, iSecondary, processCode);
-          // extend particle position with vertex information
+          // move particle to the vertex
           Acts::Vector3D particlePos  = vertexPosition + particle.position();
           double         particleTime = vertexTime + particle.time();
+          // update barcode vertex index and leave the rest intact.
+          // using the number of primary vertices as the index ensures
+          // that barcode=0 is not used, since it is typically used elsewhere
+          // to signify elements w/o an associated particle.
+          auto iPrimary    = m_cfg.barcodeSvc->primary(particle.barcode());
+          auto iGeneration = m_cfg.barcodeSvc->generation(particle.barcode());
+          auto iSecondary  = m_cfg.barcodeSvc->secondary(particle.barcode());
+          auto iProcess    = m_cfg.barcodeSvc->process(particle.barcode());
+          auto barcode     = m_cfg.barcodeSvc->generate(
+              nPrimaryVertices, iPrimary, iGeneration, iSecondary, iProcess);
           particle.place(particlePos, barcode, particleTime);
         };
 
-        for (auto& particle : secondaryVertex.incoming) {
+        for (auto& particle : processVertex.incoming) {
           updateParticleInPlace(particle);
-          iParticle += 1;
+          nParticlesVertex += 1;
         }
-        for (auto& particle : secondaryVertex.outgoing) {
+        for (auto& particle : processVertex.outgoing) {
           updateParticleInPlace(particle);
-          iParticle += 1;
+          nParticlesVertex += 1;
         }
-
-        ACTS_VERBOSE("event " << ctx.eventNumber << " generator=" << iGenerator
-                              << " primary=" << iPrimary << " secondary="
-                              << iSecondary << " nparticles=" << iParticle);
-        iSecondary += 1;
-        nTotalParticles += iParticle;
       }
+      nParticles += nParticlesVertex;
 
-      // move all processes to the full event
-      std::move(process.begin(), process.end(), std::back_inserter(event));
+      // append all process vertices to the full event
+      std::move(processVertices.begin(),
+                processVertices.end(),
+                std::back_inserter(event));
 
-      iPrimary += 1;
+      ACTS_VERBOSE("event=" << ctx.eventNumber << " generator=" << iGenerate
+                            << " primary_vertex=" << nPrimaryVertices
+                            << " n_secondary_vertices=" << nSecondaryVertices
+                            << " n_particles=" << nParticlesVertex);
     }
-    iGenerator += 1;
   }
+  // TODO should this reassign the vertex ids?
+  // if not, what is the purpose? can it be removed altogether?
   if (m_cfg.shuffle) { std::shuffle(event.begin(), event.end(), rng); }
 
-  ACTS_DEBUG("event " << ctx.eventNumber << " nprimaries=" << iPrimary
-                      << " nparticles=" << nTotalParticles);
+  ACTS_DEBUG("event=" << ctx.eventNumber
+                      << " n_primary_vertices=" << nPrimaryVertices
+                      << " n_secondary_vertices=" << event.size()
+                      << " n_particles=" << nParticles);
 
   // move generated event to the store
   ctx.eventStore.add(m_cfg.output, std::move(event));

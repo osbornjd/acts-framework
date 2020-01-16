@@ -43,6 +43,10 @@ public:
   /// at the primary vertex position. The first group of particles generated
   /// by the process are the particles associated directly to the primary
   /// vertex.
+  ///
+  /// The process generator is responsible for defining all components of the
+  /// particle barcode except the primary vertex. The primary vertex will be
+  /// set/overwritten by the event generator.
   using MultiplicityGenerator = std::function<size_t(RandomEngine&)>;
   using VertexGenerator
       = std::function<Acts::ActsVector<double, 4>(RandomEngine&)>;
@@ -69,8 +73,7 @@ public:
     std::shared_ptr<BarcodeSvc> barcodeSvc = nullptr;
   };
 
-  EventGenerator(const Config&        cfg,
-                 Acts::Logging::Level level = Acts::Logging::INFO);
+  EventGenerator(const Config& cfg, Acts::Logging::Level lvl);
 
   /// Name of the reader.
   std::string
