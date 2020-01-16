@@ -40,11 +40,11 @@ public:
   {
     barcode_type barcode = 0;
     // create the barcode w/ all components
-    barcode = setBits(barcode, vertex, m_cfg.vertex_mask);
-    barcode = setBits(barcode, primary, m_cfg.primary_mask);
-    barcode = setBits(barcode, generation, m_cfg.generation_mask);
-    barcode = setBits(barcode, secondary, m_cfg.secondary_mask);
-    barcode = setBits(barcode, process, m_cfg.process_mask);
+    barcode = setBits(barcode, m_cfg.vertex_mask, vertex);
+    barcode = setBits(barcode, m_cfg.primary_mask, primary);
+    barcode = setBits(barcode, m_cfg.generation_mask, generation);
+    barcode = setBits(barcode, m_cfg.secondary_mask, secondary);
+    barcode = setBits(barcode, m_cfg.process_mask, process);
     return barcode;
   }
 
@@ -88,7 +88,7 @@ private:
   static constexpr int
   extractShift(barcode_type mask)
   {
-    // use compiler builtin to extract the number of trailing bits from the
+    // use compiler builtin to extract the number of trailing zero bits from the
     // mask. the builtin should be available on all supported compilers.
     // need unsigned long long version (...ll) to ensure uint64_t compatibility.
     // WARNING undefined behaviour for mask == 0 which we should not have.
