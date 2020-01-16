@@ -54,10 +54,14 @@ FW::Pythia8Generator::Pythia8Generator(const FW::Pythia8Generator::Config& cfg,
 std::vector<FW::Data::SimVertex>
 FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
 {
+  using namespace Acts::UnitLiterals;
   using namespace Data;
 
-  // first vertex in list is the primary one at origin with time=0
-  std::vector<SimVertex> processes = {
+  // TODO remove barcode service altogether
+  auto barcodeSvc = BarcodeSvc(BarcodeSvc::Config());
+
+  // first process vertex is the primary one at origin with time=0
+  std::vector<SimVertex> processVertices = {
       SimVertex({0.0, 0.0, 0.0}),
   };
 
@@ -68,50 +72,75 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
   m_pythia8.rndm.rndmEnginePtr(&rndmEngine);
   m_pythia8.next();
 
-  // convert generated final state particles into acts format
+  // convert generated final state particles into internal format
   for (size_t ip = 0; ip < m_pythia8.event.size(); ++ip) {
-    const auto& genParticle = m_pythia8.event[ip];
+    const auto& particle = m_pythia8.event[ip];
 
+    // ignore beam particles
+    if (particle.statusHepMC() == 4) { continue; }
     // only interested in final, visible particles
-    if (!genParticle.isFinal()) continue;
-    if (!genParticle.isVisible()) continue;
+    if (not particle.isFinal()) { continue; }
+    if (not particle.isVisible()) { continue; }
 
-    // define particle state
-    // TODO check barcode and process code
-    SimParticle particle(
-        {
-            genParticle.xProd() * Acts::units::_mm,
-            genParticle.yProd() * Acts::units::_mm,
-            genParticle.zProd() * Acts::units::_mm,
-        },
-        {
-            genParticle.px() * Acts::units::_GeV,
-            genParticle.py() * Acts::units::_GeV,
-            genParticle.pz() * Acts::units::_GeV,
-        },
-        genParticle.m0(),
-        genParticle.charge(),
-        genParticle.id());
+    // extract particle identity
+    const auto mass   = particle.m0() * 1_GeV;
+    const auto charge = particle.charge() * 1_e;
+    const auto pdg    = particle.id();
+    // extract particle kinematic state
+    const auto pos  = Acts::Vector3D(particle.xProd() * 1_mm,
+                                    particle.yProd() * 1_mm,
+                                    particle.zProd() * 1_mm);
+    const auto time = particle.tProd() * 1_mm;  // units mm/c, and we use c=1
+    const auto mom  = Acts::Vector3D(
+        particle.px() * 1_GeV, particle.py() * 1_GeV, particle.pz() * 1_GeV);
 
-    if (genParticle.hasVertex()) {
-      // either add to existing vertex w/ the same position or create new one
-      // TODO can we do this w/o the manual search?
-      auto it = std::find_if(
-          processes.begin(), processes.end(), [&](const SimVertex& vertex) {
-            return (vertex.position == particle.position());
-          });
-      if (it == processes.end()) {
-        processes.push_back(SimVertex(particle.position()));
-        processes.back().outgoing.push_back(std::move(particle));
-        ACTS_VERBOSE("created new secondary vertex "
-                     << processes.back().position.transpose());
-      } else {
-        it->outgoing.push_back(std::move(particle));
-      }
+    if (not particle.hasVertex()) {
+      // w/o defined vertex, must belong to the first (primary) process vertex
+      auto& outgoing = processVertices.front().outgoing;
+      // TODO validate available index range
+      auto iprimary = outgoing.size();
+      auto barcode  = barcodeSvc.generate(0u, iprimary);
+      outgoing.emplace_back(pos, mom, mass, charge, pdg, barcode, time);
     } else {
-      // without a set vertex particles belong to the primary one
-      processes.front().outgoing.push_back(std::move(particle));
+      // either add to existing process vertex w/ if exists or create new one
+      // TODO can we do this w/o the manual search and position/time check?
+      auto it = std::find_if(processVertices.begin(),
+                             processVertices.end(),
+                             [=](const SimVertex& vertex) {
+                               return (vertex.position == pos)
+                                   and (vertex.time == time);
+                             });
+      if (it == processVertices.end()) {
+        // no maching secondary vertex exists
+        // 1st particle (primary mask) for nth process vertex (secondary mask)
+        // TODO what is the generation and process code?
+        auto iprimary    = 0u;
+        auto igeneration = 0u;
+        auto isecondary  = processVertices.size();
+        auto iprocess    = 0u;
+        auto barcode     = barcodeSvc.generate(
+            0u, iprimary, igeneration, isecondary, iprocess);
+        // no incoming particles
+        auto vertex = SimVertex(
+            pos,
+            {},
+            {SimParticle(pos, mom, mass, charge, pdg, barcode, time)},
+            iprocess,
+            time);
+        processVertices.push_back(std::move(vertex));
+        ACTS_VERBOSE("created new secondary vertex " << pos.transpose());
+      } else {
+        // particle belongs to an existing secondary vertex
+        auto& outgoing    = it->outgoing;
+        auto  iprimary    = outgoing.size();
+        auto  igeneration = 0u;
+        auto  isecondary  = std::distance(processVertices.begin(), it);
+        auto  iprocess    = 0u;
+        auto  barcode     = barcodeSvc.generate(
+            0u, iprimary, igeneration, isecondary, iprocess);
+        outgoing.emplace_back(pos, mom, mass, charge, pdg, barcode, time);
+      }
     }
   }
-  return processes;
+  return processVertices;
 }
