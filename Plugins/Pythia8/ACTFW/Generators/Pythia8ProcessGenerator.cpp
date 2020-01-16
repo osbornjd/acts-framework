@@ -26,16 +26,17 @@ struct FrameworkRndmEngine : public Pythia8::RndmEngine
 }  // namespace
 
 std::function<std::vector<FW::Data::SimVertex>(FW::RandomEngine&)>
-FW::Pythia8Generator::makeFunction(const FW::Pythia8Generator::Config& cfg)
+FW::Pythia8Generator::makeFunction(const FW::Pythia8Generator::Config& cfg,
+                                   Acts::Logging::Level                lvl)
 {
-  auto gen = std::make_shared<Pythia8Generator>(cfg);
+  auto gen = std::make_shared<Pythia8Generator>(cfg, lvl);
   return [=](RandomEngine& rng) { return (*gen)(rng); };
 }
 
 FW::Pythia8Generator::Pythia8Generator(const FW::Pythia8Generator::Config& cfg,
-                                       Acts::Logging::Level level)
+                                       Acts::Logging::Level                lvl)
   : m_cfg(cfg)
-  , m_logger(Acts::getDefaultLogger("Pythia8Generator", level))
+  , m_logger(Acts::getDefaultLogger("Pythia8Generator", lvl))
   , m_pythia8("", false)
 {
   // disable all output by default but allow reenable via config

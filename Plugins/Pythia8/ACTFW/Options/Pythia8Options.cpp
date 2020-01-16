@@ -49,7 +49,8 @@ FW::Options::addPythia8Options(boost::program_options::options_description& opt)
 }
 
 FW::EventGenerator::Config
-FW::Options::readPythia8Options(const boost::program_options::variables_map& vm)
+FW::Options::readPythia8Options(const boost::program_options::variables_map& vm,
+                                Acts::Logging::Level lvl)
 {
   Pythia8Generator::Config hardCfg;
   hardCfg.pdgBeam0  = vm["evg-pdgBeam0"].template as<int>();

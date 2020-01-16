@@ -45,8 +45,8 @@ main(int argc, char* argv[])
       = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
   auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
 
-  // event generation w/ process guns
-  EventGenerator::Config evgenCfg = Options::readPythia8Options(vm);
+  // event generation w/ internal pythia8 instance
+  EventGenerator::Config evgenCfg = Options::readPythia8Options(vm, logLevel);
   evgenCfg.output                 = "generated_particles";
   evgenCfg.randomNumbers          = rnd;
   evgenCfg.barcodeSvc             = barcode;

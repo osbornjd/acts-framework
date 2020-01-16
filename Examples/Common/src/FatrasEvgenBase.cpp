@@ -38,7 +38,7 @@ setupEvgenInput(boost::program_options::variables_map& vm,
     sequencer.addReader(std::make_shared<FW::EventGenerator>(evgCfg, logLevel));
 
   } else if (evgenInput == "pythia8") {
-    auto evgCfg          = FW::Options::readPythia8Options(vm);
+    auto evgCfg          = FW::Options::readPythia8Options(vm, logLevel);
     evgCfg.output        = "particles";
     evgCfg.randomNumbers = randomNumberSvc;
     evgCfg.barcodeSvc    = barcodeSvc;
