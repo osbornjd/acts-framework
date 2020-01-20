@@ -10,7 +10,9 @@
 
 #include <boost/program_options.hpp>
 
+#include "ACTFW/Generators/MultiplicityGenerators.hpp"
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
+#include "ACTFW/Generators/VertexGenerators.hpp"
 
 void
 FW::Options::addPythia8Options(boost::program_options::options_description& opt)
@@ -47,7 +49,8 @@ FW::Options::addPythia8Options(boost::program_options::options_description& opt)
 }
 
 FW::EventGenerator::Config
-FW::Options::readPythia8Options(const boost::program_options::variables_map& vm)
+FW::Options::readPythia8Options(const boost::program_options::variables_map& vm,
+                                Acts::Logging::Level lvl)
 {
   Pythia8Generator::Config hardCfg;
   hardCfg.pdgBeam0  = vm["evg-pdgBeam0"].template as<int>();
@@ -66,17 +69,16 @@ FW::Options::readPythia8Options(const boost::program_options::variables_map& vm)
       = vm["evg-vertex-z-std"].template as<double>() * Acts::UnitConstants::mm;
   auto vtxStdT
       = vm["evg-vertex-t-std"].template as<double>() * Acts::UnitConstants::ns;
+  auto mu = static_cast<size_t>(vm["evg-pileup"].template as<int>());
 
   EventGenerator::Config cfg;
   cfg.generators = {
       {FixedMultiplicityGenerator{1},
-       GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ, 0.},
-       Pythia8Generator::makeFunction(hardCfg)},
-      {PoissonMultiplicityGenerator{
-           static_cast<size_t>(vm["evg-pileup"].template as<int>())},
-       GaussianVertexGenerator{
-           vtxStdXY, vtxStdXY, vtxStdZ, vtxStdT * Acts::UnitConstants::ns},
-       Pythia8Generator::makeFunction(pileupCfg)},
+       GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ, vtxStdT},
+       Pythia8Generator::makeFunction(hardCfg, lvl)},
+      {PoissonMultiplicityGenerator{mu},
+       GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ, vtxStdT},
+       Pythia8Generator::makeFunction(pileupCfg, lvl)},
   };
   cfg.shuffle = vm["evg-shuffle"].template as<bool>();
 

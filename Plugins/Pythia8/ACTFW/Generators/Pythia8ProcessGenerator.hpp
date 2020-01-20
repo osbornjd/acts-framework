@@ -34,7 +34,7 @@ public:
   };
 
   static std::function<std::vector<Data::SimVertex>(RandomEngine&)>
-  makeFunction(const Config& cfg);
+  makeFunction(const Config& cfg, Acts::Logging::Level lvl);
 
   // try to prevent pythia breakage by forbidding copying
   Pythia8Generator()                        = delete;
@@ -47,8 +47,7 @@ public:
   operator=(Pythia8Generator&& other)
       = default;
 
-  Pythia8Generator(const Config&        cfg,
-                   Acts::Logging::Level level = Acts::Logging::INFO);
+  Pythia8Generator(const Config& cfg, Acts::Logging::Level lvl);
 
   std::vector<Data::SimVertex>
   operator()(RandomEngine& rng);

@@ -41,14 +41,14 @@ public:
     /// Pt-dependent z0 resolution of the form sigma_z0 = A*exp(-1.*abs(B)*pt).
     double sigmaZ0PtA = 0 * Acts::UnitConstants::um;
     double sigmaZ0PtB = 1 / Acts::UnitConstants::GeV;
+    /// Time resolution.
+    double sigmaT0 = 5 * Acts::UnitConstants::ns;
     /// Phi angular resolution.
     double sigmaPhi = 1 * Acts::UnitConstants::degree;
     /// Theta angular resolution.
     double sigmaTheta = 1 * Acts::UnitConstants::degree;
     /// Relative momentum resolution.
     double sigmaPRel = 0.001;
-    /// Time resolution.
-    double sigmaT0 = 5 * Acts::UnitConstants::ns;
     /// Random numbers service.
     std::shared_ptr<RandomNumbers> randomNumbers = nullptr;
   };

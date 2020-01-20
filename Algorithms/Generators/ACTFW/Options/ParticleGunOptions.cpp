@@ -43,6 +43,10 @@ FW::Options::addParticleGunOptions(
       value<read_range>()->multitoken()->default_value({0., 0.}),
       "range in which the z0 parameter is simulated in [mm]. Please hand"
       "over by simply seperating the values by space")(
+      "pg-t0-range",
+      value<read_range>()->multitoken()->default_value({0., 0.}),
+      "range in which the t0 parameter is simulated in [ns]. Please hand"
+      "over by simply seperating the values by space")(
       "pg-phi-range",
       value<read_range>()->multitoken()->default_value({-M_PI, M_PI}),
       "range in which the phi0 parameter is simulated. Please hand over by "
@@ -61,22 +65,26 @@ FW::EventGenerator::Config
 FW::Options::readParticleGunOptions(
     const boost::program_options::variables_map& vm)
 {
+  using namespace Acts::UnitLiterals;
+
   // read the range as vector (missing istream for std::array)
   auto d0  = vm["pg-d0-range"].template as<read_range>();
   auto z0  = vm["pg-z0-range"].template as<read_range>();
+  auto t0  = vm["pg-t0-range"].template as<read_range>();
   auto phi = vm["pg-phi-range"].template as<read_range>();
   auto eta = vm["pg-eta-range"].template as<read_range>();
   auto pt  = vm["pg-pt-range"].template as<read_range>();
 
   ParametricProcessGenerator::Config pgCfg;
   pgCfg.numParticles = vm["pg-nparticles"].template as<size_t>();
-  pgCfg.d0Range      = {{d0[0] * Acts::units::_mm, d0[1] * Acts::units::_mm}};
-  pgCfg.z0Range      = {{z0[0] * Acts::units::_mm, z0[1] * Acts::units::_mm}};
+  pgCfg.d0Range      = {{d0[0] * 1_mm, d0[1] * 1_mm}};
+  pgCfg.z0Range      = {{z0[0] * 1_mm, z0[1] * 1_mm}};
+  pgCfg.t0Range      = {{t0[0] * 1_ns, t0[1] * 1_ns}};
   pgCfg.phiRange     = {{phi[0], phi[1]}};
   pgCfg.etaRange     = {{eta[0], eta[1]}};
-  pgCfg.ptRange      = {{pt[0] * Acts::units::_GeV, pt[1] * Acts::units::_GeV}};
-  pgCfg.mass         = vm["pg-mass"].template as<double>() * Acts::units::_MeV;
-  pgCfg.charge       = vm["pg-charge"].template as<double>() * Acts::units::_e;
+  pgCfg.ptRange      = {{pt[0] * 1_GeV, pt[1] * 1_GeV}};
+  pgCfg.mass         = vm["pg-mass"].template as<double>() * 1_MeV;
+  pgCfg.charge       = vm["pg-charge"].template as<double>() * 1_e;
   pgCfg.randomCharge = vm["pg-chargeflip"].template as<bool>();
   pgCfg.pdg          = vm["pg-pdg"].template as<int>();
 

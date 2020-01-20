@@ -13,7 +13,9 @@
 
 #include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Generators/MultiplicityGenerators.hpp"
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
+#include "ACTFW/Generators/VertexGenerators.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Io/Root/RootParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
@@ -61,7 +63,7 @@ main(int argc, char* argv[])
   EventGenerator::Config evgenCfg;
   evgenCfg.generators = {{FixedMultiplicityGenerator{1},
                           GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ},
-                          Pythia8Generator::makeFunction(hardCfg)}};
+                          Pythia8Generator::makeFunction(hardCfg, logLevel)}};
 
   evgenCfg.output        = "generated_particles";
   evgenCfg.randomNumbers = rnd;

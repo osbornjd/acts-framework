@@ -50,7 +50,7 @@ main(int argc, char* argv[])
   auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
 
   // Set up event generator producing one single hard collision
-  EventGenerator::Config evgenCfg = Options::readPythia8Options(vm);
+  EventGenerator::Config evgenCfg = Options::readPythia8Options(vm, logLevel);
   evgenCfg.output                 = "generated_particles";
   evgenCfg.randomNumbers          = rnd;
   evgenCfg.barcodeSvc             = barcode;

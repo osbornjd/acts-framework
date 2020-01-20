@@ -11,8 +11,6 @@
 #include "ACTFW/Utilities/OptionsFwd.hpp"
 
 #include "ACTFW/Generators/EventGenerator.hpp"
-#include "ACTFW/Generators/MultiplicityGenerators.hpp"
-#include "ACTFW/Generators/VertexGenerators.hpp"
 
 namespace FW {
 namespace Options {
@@ -27,7 +25,8 @@ namespace Options {
   /// This builds a full event generator with separate hard scatter and pileup.
   /// Not just the Pythia8 process generators to simplify the handling.
   EventGenerator::Config
-  readPythia8Options(const boost::program_options::variables_map& vm);
+  readPythia8Options(const boost::program_options::variables_map& vm,
+                     Acts::Logging::Level                         lvl);
 
 }  // namespace Options
 }  // namespace FW
