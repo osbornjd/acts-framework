@@ -55,12 +55,14 @@ FW::RootMaterialWriter::write(const Acts::DetectorMaterialMaps& detMaterial)
     Acts::GeometryID geoID = key;
     // decode the geometryID
     const auto gvolID = geoID.volume();
+    const auto gbouID = geoID.boundary();
     const auto glayID = geoID.layer();
     const auto gappID = geoID.approach();
     const auto gsenID = geoID.sensitive();
     // create the directory
     std::string tdName = m_cfg.folderNameBase.c_str();
     tdName += m_cfg.voltag + std::to_string(gvolID);
+    tdName += m_cfg.boutag + std::to_string(gbouID);
     tdName += m_cfg.laytag + std::to_string(glayID);
     tdName += m_cfg.apptag + std::to_string(gappID);
     tdName += m_cfg.sentag + std::to_string(gsenID);
