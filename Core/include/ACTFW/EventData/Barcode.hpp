@@ -9,84 +9,113 @@
 #pragma once
 
 #include <cstdint>
+#include <ostream>
 
 namespace FW {
 
-/// Particle barcode.
-using barcode_type = uint64_t;
-
-/// Encode and decode particle barcodes.
-class BarcodeSvc
+/// Particle identifier that encodes some event information.
+class Barcode
 {
 public:
-  struct Config
-  {
-    barcode_type vertex_mask     = 0xfff0000000000000;
-    barcode_type primary_mask    = 0x000ffff000000000;
-    barcode_type generation_mask = 0x0000000fff000000;
-    barcode_type secondary_mask  = 0x0000000000fff000;
-    barcode_type process_mask    = 0x0000000000000fff;
-  };
+  using Value = uint64_t;
 
-  BarcodeSvc(const Config& cfg) : m_cfg(cfg) {}
+  /// Construct the barcode from an already encoded value
+  constexpr Barcode(Value encoded) : m_value(encoded) {}
+  /// Construct default Barcode with all values set to zero.
+  Barcode()               = default;
+  Barcode(Barcode&&)      = default;
+  Barcode(const Barcode&) = default;
+  ~Barcode()              = default;
+  Barcode&
+  operator=(Barcode&&)
+      = default;
+  Barcode&
+  operator=(const Barcode&)
+      = default;
 
-  /// Encode a new barcode.
-  barcode_type
-  generate(barcode_type vertex     = 0,
-           barcode_type primary    = 0,
-           barcode_type generation = 0,
-           barcode_type secondary  = 0,
-           barcode_type process    = 0) const
+  /// Return the encoded value.
+  constexpr Value
+  value() const
   {
-    barcode_type barcode = 0;
-    // create the barcode w/ all components
-    barcode = setBits(barcode, m_cfg.vertex_mask, vertex);
-    barcode = setBits(barcode, m_cfg.primary_mask, primary);
-    barcode = setBits(barcode, m_cfg.generation_mask, generation);
-    barcode = setBits(barcode, m_cfg.secondary_mask, secondary);
-    barcode = setBits(barcode, m_cfg.process_mask, process);
-    return barcode;
+    return m_value;
   }
 
-  /// Decode the vertex number.
-  barcode_type
-  vertex(barcode_type barcode) const
+  /// Return the vertex identifier.
+  constexpr Value
+  vertex() const
   {
-    return getBits(barcode, m_cfg.vertex_mask);
+    return getBits(Masks::Vertex);
+  }
+  /// Return the primary particle identifier.
+  constexpr Value
+  primary() const
+  {
+    return getBits(Masks::Primary);
+  }
+  /// Return the generation identifier.
+  constexpr Value
+  generation() const
+  {
+    return getBits(Masks::Generation);
+  }
+  /// Return the secondary particle identifier.
+  constexpr Value
+  secondary() const
+  {
+    return getBits(Masks::Secondary);
+  }
+  /// Return the process identifier.
+  constexpr Value
+  process() const
+  {
+    return getBits(Masks::Process);
   }
 
-  /// Decode the primary index.
-  barcode_type
-  primary(barcode_type barcode) const
+  /// Set the vertex identifier.
+  constexpr Barcode&
+  setVertex(Value id)
   {
-    return getBits(barcode, m_cfg.primary_mask);
+    return setBits(Masks::Vertex, id);
   }
-
-  /// Decode the generation number.
-  barcode_type
-  generation(barcode_type barcode) const
+  /// Set the primary particle identifier.
+  constexpr Barcode&
+  setPrimary(Value id)
   {
-    return getBits(barcode, m_cfg.generation_mask);
+    return setBits(Masks::Primary, id);
   }
-
-  /// Decode the secondary index.
-  barcode_type
-  secondary(barcode_type barcode) const
+  /// Set the generation identifier.
+  constexpr Barcode&
+  setGeneration(Value id)
   {
-    return getBits(barcode, m_cfg.secondary_mask);
+    return setBits(Masks::Generation, id);
   }
-
-  /// Decode the process number.
-  barcode_type
-  process(barcode_type barcode) const
+  /// Set the secondary particle identifier.
+  constexpr Barcode&
+  setSecondary(Value id)
   {
-    return getBits(barcode, m_cfg.process_mask);
+    return setBits(Masks::Secondary, id);
+  }
+  /// Set the process identifier.
+  constexpr Barcode&
+  setProcess(Value id)
+  {
+    return setBits(Masks::Process, id);
   }
 
 private:
+  enum Masks : Value {
+    Vertex     = UINT64_C(0xfff0000000000000),
+    Primary    = UINT64_C(0x000ffff000000000),
+    Generation = UINT64_C(0x0000000fff000000),
+    Secondary  = UINT64_C(0x0000000000fff000),
+    Process    = UINT64_C(0x0000000000000fff),
+  };
+
+  Value m_value = 0;
+
   /// Extract the bit shift necessary to access the masked values.
   static constexpr int
-  extractShift(barcode_type mask)
+  extractShift(Value mask)
   {
     // use compiler builtin to extract the number of trailing zero bits from the
     // mask. the builtin should be available on all supported compilers.
@@ -95,19 +124,52 @@ private:
     return __builtin_ctzll(mask);
   }
   /// Extract the masked bits from the encoded value.
-  static constexpr barcode_type
-  getBits(barcode_type value, barcode_type mask)
+  constexpr Value
+  getBits(Value mask) const
   {
-    return (value & mask) >> extractShift(mask);
+    return (m_value & mask) >> extractShift(mask);
   }
   /// Set the masked bits to id in the encoded value.
-  static constexpr barcode_type
-  setBits(barcode_type value, barcode_type mask, barcode_type id)
+  constexpr Barcode&
+  setBits(Value mask, Value id)
   {
-    return (value & ~mask) | ((id << extractShift(mask)) & mask);
+    m_value = (m_value & ~mask) | ((id << extractShift(mask)) & mask);
+    // return *this here so we need to write less lines in the set... methods
+    return *this;
   }
 
-  Config m_cfg;
+  friend constexpr bool
+  operator==(Barcode lhs, Barcode rhs)
+  {
+    return lhs.m_value == rhs.m_value;
+  }
+  friend constexpr bool
+  operator<(Barcode lhs, Barcode rhs)
+  {
+    return lhs.m_value < rhs.m_value;
+  }
+  friend std::ostream&
+  operator<<(std::ostream& os, Barcode x)
+  {
+    os << x.vertex() << "|" << x.primary() << "|" << x.generation() << "|"
+       << x.secondary() << "|" << x.process();
+    return os;
+  }
 };
 
 }  // namespace FW
+
+namespace std {
+
+// specialize std::hash so the Barcode can be used e.g. in an unordered_map
+template <>
+struct hash<FW::Barcode>
+{
+  auto
+  operator()(FW::Barcode idx) const noexcept
+  {
+    return std::hash<FW::Barcode::Value>()(idx.value());
+  }
+};
+
+}  // namespace std
