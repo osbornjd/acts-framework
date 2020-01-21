@@ -58,9 +58,6 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
   using namespace Acts::UnitLiterals;
   using namespace Data;
 
-  // TODO remove barcode service altogether
-  auto barcodeSvc = BarcodeSvc(BarcodeSvc::Config());
-
   // first process vertex is the primary one at origin with time=0
   std::vector<SimVertex> processVertices = {
       SimVertex({0.0, 0.0, 0.0}),
@@ -95,13 +92,18 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
     const auto mom  = Acts::Vector3D(
         particle.px() * 1_GeV, particle.py() * 1_GeV, particle.pz() * 1_GeV);
 
+    // vertex identifier is set by the event generator not the process generator
+    // at the moment all particles from the event generator must be treated as
+    // primary particles including the ones from displaced decay vertices. there
+    // is no secondary vertex identifier in the barcode at the moment.
+    // TODO update barcode definition
+    Barcode barcode;
+    barcode.setPrimary(ip);
+
     if (not particle.hasVertex()) {
       // w/o defined vertex, must belong to the first (primary) process vertex
-      auto& outgoing = processVertices.front().outgoing;
-      // TODO validate available index range
-      auto iprimary = outgoing.size();
-      auto barcode  = barcodeSvc.generate(0u, iprimary);
-      outgoing.emplace_back(pos, mom, mass, charge, pdg, barcode, time);
+      processVertices.front().outgoing.emplace_back(
+          pos, mom, mass, charge, pdg, barcode, time);
     } else {
       // either add to existing process vertex w/ if exists or create new one
       // TODO can we do this w/o the manual search and position/time check?
@@ -112,34 +114,20 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
                                    and (vertex.time == time);
                              });
       if (it == processVertices.end()) {
-        // no maching secondary vertex exists
-        // 1st particle (primary mask) for nth process vertex (secondary mask)
-        // TODO what is the generation and process code?
-        auto iprimary    = 0u;
-        auto igeneration = 0u;
-        auto isecondary  = processVertices.size();
-        auto iprocess    = 0u;
-        auto barcode     = barcodeSvc.generate(
-            0u, iprimary, igeneration, isecondary, iprocess);
-        // no incoming particles
-        auto vertex = SimVertex(
+        // no maching secondary vertex exists -> create new one
+        SimVertex vertex(
             pos,
-            {},
-            {SimParticle(pos, mom, mass, charge, pdg, barcode, time)},
-            iprocess,
+            {},  // ignore incoming particles
+            {
+                SimParticle(pos, mom, mass, charge, pdg, barcode, time),
+            },
+            0u,  // no process identifier
             time);
         processVertices.push_back(std::move(vertex));
         ACTS_VERBOSE("created new secondary vertex " << pos.transpose());
       } else {
         // particle belongs to an existing secondary vertex
-        auto& outgoing    = it->outgoing;
-        auto  iprimary    = outgoing.size();
-        auto  igeneration = 0u;
-        auto  isecondary  = std::distance(processVertices.begin(), it);
-        auto  iprocess    = 0u;
-        auto  barcode     = barcodeSvc.generate(
-            0u, iprimary, igeneration, isecondary, iprocess);
-        outgoing.emplace_back(pos, mom, mass, charge, pdg, barcode, time);
+        it->outgoing.emplace_back(pos, mom, mass, charge, pdg, barcode, time);
       }
     }
   }
