@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <Acts/Utilities/Logger.hpp>
+#include <Acts/Utilities/Units.hpp>
 
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -23,6 +24,7 @@ FW::PrintParticles::PrintParticles(const Config& cfg, Acts::Logging::Level lvl)
 FW::ProcessCode
 FW::PrintParticles::execute(const FW::AlgorithmContext& ctx) const
 {
+  using namespace Acts::UnitLiterals;
   using Event = std::vector<Data::SimVertex>;
 
   const auto& event = ctx.eventStore.get<Event>(m_cfg.inputEvent);
@@ -35,7 +37,8 @@ FW::PrintParticles::execute(const FW::AlgorithmContext& ctx) const
     ACTS_INFO("vertex idx=" << ivtx);
 
     for (const auto& prt : vtx.outgoing) {
-      ACTS_INFO("  barcode=" << prt.barcode() << " pdg=" << prt.pdg());
+      ACTS_INFO("  barcode=" << prt.barcode() << " pdg=" << prt.pdg()
+                             << " pt=" << prt.pT() / 1_GeV << "GeV");
     }
   }
   return ProcessCode::SUCCESS;
