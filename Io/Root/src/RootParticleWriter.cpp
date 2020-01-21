@@ -62,10 +62,10 @@ FW::RootParticleWriter::RootParticleWriter(
     m_outputTree->Branch("mass", &m_mass);
     m_outputTree->Branch("pdg", &m_pdgCode);
     m_outputTree->Branch("barcode", &m_barcode, "barcode/l");
-    m_outputTree->Branch("vertex", &m_vertex);
-    m_outputTree->Branch("primary", &m_primary);
-    m_outputTree->Branch("generation", &m_generation);
-    m_outputTree->Branch("secondary", &m_secondary);
+    m_outputTree->Branch("vertex_primary", &m_vertexPrimary);
+    m_outputTree->Branch("vertex_secondary", &m_vertexSecondary);
+    m_outputTree->Branch("particle", &m_particle);
+    m_outputTree->Branch("parent_particle", &m_parentParticle);
     m_outputTree->Branch("process", &m_process);
   }
 }
@@ -117,13 +117,14 @@ FW::RootParticleWriter::writeT(const AlgorithmContext&             context,
       m_charge  = particle.q();
       m_mass    = particle.m();
       m_pdgCode = particle.pdg();
-      // store encoded and decoded barcode
-      m_barcode    = particle.barcode().value();
-      m_vertex     = particle.barcode().vertex();
-      m_primary    = particle.barcode().primary();
-      m_generation = particle.barcode().generation();
-      m_secondary  = particle.barcode().secondary();
-      m_process    = particle.barcode().process();
+      // store encoded barcode
+      m_barcode = particle.barcode().value();
+      // store decoded barcode components
+      m_vertexPrimary   = particle.barcode().vertexPrimary();
+      m_vertexSecondary = particle.barcode().vertexSecondary();
+      m_particle        = particle.barcode().particle();
+      m_parentParticle  = particle.barcode().parentParticle();
+      m_process         = particle.barcode().process();
       m_outputTree->Fill();
     }
   }
