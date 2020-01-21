@@ -66,30 +66,30 @@ protected:
          const std::vector<Data::SimVertex>& vertices) final override;
 
 private:
-  Config        m_cfg;         ///< The config class
-  std::mutex    m_writeMutex;  ///< Mutex used to protect multi-threaded writes
-  TFile*        m_outputFile{nullptr};  ///< The output file
-  TTree*        m_outputTree{nullptr};  ///< The output tree
-  int           m_eventNr{0};           ///< the event number of
-  float         m_vx{0.};               ///< Vertex position x
-  float         m_vy{0.};               ///< Vertex position y
-  float         m_vz{0.};               ///< Vertex position z
-  float         m_vt{0.};               ///< Vertex time t
-  float         m_px{0.};               ///< Momentum position x
-  float         m_py{0.};               ///< Momentum position y
-  float         m_pz{0.};               ///< Momentum position z
-  float         m_pT{0.};         ///< Momentum position transverse component
-  float         m_eta{0.};        ///< Momentum direction eta
-  float         m_phi{0.};        ///< Momentum direction phi
-  float         m_mass{0.};       ///< Particle mass
-  int           m_charge{0};      ///< Particle charge
-  int           m_pdgCode{0};     ///< Particle pdg code
-  unsigned long m_barcode{0};     ///< Particle barcode
-  int           m_vertex{0};      ///< Barcode vertex generation
-  int           m_primary{0};     ///< Barcode primary identifcation
-  int           m_generation{0};  ///< Barcode generation
-  int           m_secondary{0};   ///< Barcode secondary identification
-  int           m_process{0};     ///< Barcode process production
+  Config     m_cfg;         ///< The config class
+  std::mutex m_writeMutex;  ///< Mutex used to protect multi-threaded writes
+  TFile*     m_outputFile{nullptr};  ///< The output file
+  TTree*     m_outputTree{nullptr};  ///< The output tree
+  int        m_eventNr{0};           ///< the event number of
+  float      m_vx{0.};               ///< Vertex position x
+  float      m_vy{0.};               ///< Vertex position y
+  float      m_vz{0.};               ///< Vertex position z
+  float      m_vt{0.};               ///< Vertex time t
+  float      m_px{0.};               ///< Momentum position x
+  float      m_py{0.};               ///< Momentum position y
+  float      m_pz{0.};               ///< Momentum position z
+  float      m_pT{0.};               ///< Momentum position transverse component
+  float      m_eta{0.};              ///< Momentum direction eta
+  float      m_phi{0.};              ///< Momentum direction phi
+  float      m_mass{0.};             ///< Particle mass
+  int        m_charge{0};            ///< Particle charge
+  int        m_pdgCode{0};           ///< Particle pdg code
+  uint64_t   m_barcode{0};           ///< Particle barcode
+  uint32_t   m_vertexPrimary{0};     ///< Barcode primary vertex id
+  uint32_t   m_vertexSecondary{0};   ///< Barcode secondary vertex id
+  uint32_t   m_particle{0};          ///< Barcode particle id
+  uint32_t   m_parentParticle{0};    ///< Barcode parent particle id
+  uint32_t   m_process{0};           ///< Barcode process id
 };
 
 }  // namespace FW
