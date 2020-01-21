@@ -14,7 +14,7 @@
 
 void
 FW::identifyContributingParticles(
-    const IndexMultimap<barcode_type>& hitParticlesMap,
+    const IndexMultimap<Barcode>&      hitParticlesMap,
     const ProtoTrack&                  protoTrack,
     std::vector<FW::ParticleHitCount>& particleHitCount)
 {

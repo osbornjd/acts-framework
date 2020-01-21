@@ -20,15 +20,14 @@ namespace FW {
 /// Associate a particle to its hit count within a proto track.
 struct ParticleHitCount
 {
-  barcode_type particleId;
-  size_t       hitCount;
+  Barcode particleId;
+  size_t  hitCount;
 };
 
 /// Identify all particles that contribute to the proto track and count hits.
 void
-identifyContributingParticles(
-    const IndexMultimap<barcode_type>& hitParticlesMap,
-    const ProtoTrack&                  protoTrack,
-    std::vector<ParticleHitCount>&     particleHitCount);
+identifyContributingParticles(const IndexMultimap<Barcode>&  hitParticlesMap,
+                              const ProtoTrack&              protoTrack,
+                              std::vector<ParticleHitCount>& particleHitCount);
 
 }  // namespace FW
