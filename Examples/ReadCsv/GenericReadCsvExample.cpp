@@ -17,8 +17,8 @@
 #include "ACTFW/Io/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Io/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
+#include "ACTFW/Printers/PrintHits.hpp"
 #include "ACTFW/Utilities/Options.hpp"
-#include "PrintHits.hpp"
 
 int
 main(int argc, char* argv[])
