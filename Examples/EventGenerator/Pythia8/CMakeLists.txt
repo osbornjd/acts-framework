@@ -3,7 +3,8 @@ target_link_libraries(
   ActsPythia8
   PRIVATE
     ActsFrameworkGenerators ActsFrameworkPythia8 ACTFWExamplesCommon
-    ActsFrameworkIoRoot ActsFrameworkIoCsv Boost::program_options)
+    ActsFrameworkIoRoot ActsFrameworkIoCsv ActsFrameworkPrinters
+    Boost::program_options)
 
 install(
   TARGETS ActsPythia8

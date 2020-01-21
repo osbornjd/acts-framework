@@ -17,6 +17,7 @@
 #include "ACTFW/Io/Root/RootParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
+#include "ACTFW/Printers/PrintParticles.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
 using namespace Acts::units;
@@ -47,6 +48,11 @@ main(int argc, char* argv[])
   evgenCfg.output                 = "particles";
   evgenCfg.randomNumbers          = rnd;
   sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
+
+  // print generated particles
+  PrintParticles::Config printCfg;
+  printCfg.inputEvent = evgenCfg.output;
+  sequencer.addAlgorithm(std::make_shared<PrintParticles>(printCfg, logLevel));
 
   // different output modes
   std::string outputDir = vm["output-dir"].as<std::string>();
