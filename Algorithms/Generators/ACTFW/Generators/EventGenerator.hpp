@@ -20,7 +20,6 @@
 #include <Acts/Utilities/Definitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
@@ -69,8 +68,6 @@ public:
     bool shuffle = false;
     /// The random number service
     std::shared_ptr<RandomNumbers> randomNumbers = nullptr;
-    /// The barcode service to generate particle identifiers
-    std::shared_ptr<BarcodeSvc> barcodeSvc = nullptr;
   };
 
   EventGenerator(const Config& cfg, Acts::Logging::Level lvl);
