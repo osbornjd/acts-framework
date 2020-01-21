@@ -17,7 +17,6 @@
 #include <Acts/Utilities/Units.hpp>
 #include <dfe/dfe_io_dsv.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"

@@ -14,7 +14,6 @@
 #include <Acts/Utilities/Units.hpp>
 #include <dfe/dfe_io_dsv.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "TrackMlData.hpp"
@@ -35,9 +34,9 @@ FW::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
                               const std::vector<Data::SimVertex>& vertices)
 {
   // use pointer instead of reference since it is optional
-  const std::map<barcode_type, size_t>* hitsPerParticle = nullptr;
+  const std::map<Barcode, size_t>* hitsPerParticle = nullptr;
   if (not m_cfg.inputHitsPerParticle.empty()) {
-    hitsPerParticle = &context.eventStore.get<std::map<barcode_type, size_t>>(
+    hitsPerParticle = &context.eventStore.get<std::map<Barcode, size_t>>(
         m_cfg.inputHitsPerParticle);
   }
 
@@ -50,7 +49,7 @@ FW::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
   data.nhits = -1;  // default for every entry if information unvailable
   for (auto& vertex : vertices) {
     for (auto& particle : vertex.outgoing) {
-      data.particle_id   = particle.barcode();
+      data.particle_id   = particle.barcode().value();
       data.particle_type = particle.pdg();
       data.vx            = particle.position().x() / Acts::UnitConstants::mm;
       data.vy            = particle.position().y() / Acts::UnitConstants::mm;
