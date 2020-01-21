@@ -18,6 +18,7 @@
 #include "ACTFW/Io/Root/RootParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
+#include "ACTFW/Printers/PrintParticles.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
 using namespace Acts::units;
@@ -59,9 +60,13 @@ main(int argc, char* argv[])
   sequencer.addAlgorithm(
       std::make_shared<ParticleSelector>(selectorCfg, logLevel));
 
+  // print generated particles
+  PrintParticles::Config printCfg;
+  printCfg.inputEvent = selectorCfg.output;
+  sequencer.addAlgorithm(std::make_shared<PrintParticles>(printCfg, logLevel));
+
   // different output modes
   std::string outputDir = vm["output-dir"].as<std::string>();
-
   if (vm["output-csv"].as<bool>()) {
     CsvParticleWriter::Config csvWriterCfg;
     csvWriterCfg.inputEvent = selectorCfg.output;
