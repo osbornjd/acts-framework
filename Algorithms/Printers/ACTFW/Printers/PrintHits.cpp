@@ -10,8 +10,8 @@
 
 #include <vector>
 
+#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"

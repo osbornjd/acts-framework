@@ -1,11 +1,10 @@
 add_executable(
   ACTFWGenericReadCsvExample
-  GenericReadCsvExample.cpp
-  PrintHits.cpp)
+  GenericReadCsvExample.cpp)
 target_link_libraries(
   ACTFWGenericReadCsvExample
   PRIVATE ActsCore ACTFramework ACTFWExamplesCommon ActsFrameworkIoCsv
-    ACTFWGenericDetector Boost::program_options)
+    ActsFrameworkPrinters ACTFWGenericDetector Boost::program_options)
 
 install(
   TARGETS ACTFWGenericReadCsvExample
