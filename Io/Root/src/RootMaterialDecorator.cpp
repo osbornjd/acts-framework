@@ -71,6 +71,11 @@ FW::RootMaterialDecorator::RootMaterialDecorator(
         splitNames, tdName, boost::algorithm::first_finder(m_cfg.voltag));
     boost::split(splitNames, splitNames[1], boost::is_any_of("_"));
     Acts::GeometryID::Value volID = std::stoi(splitNames[0]);
+    // boundary
+    iter_split(
+        splitNames, tdName, boost::algorithm::first_finder(m_cfg.boutag));
+    boost::split(splitNames, splitNames[1], boost::is_any_of("_"));
+    Acts::GeometryID::Value bouID = std::stoi(splitNames[0]);
     // layer
     iter_split(
         splitNames, tdName, boost::algorithm::first_finder(m_cfg.laytag));
@@ -89,6 +94,7 @@ FW::RootMaterialDecorator::RootMaterialDecorator(
     // Reconstruct the geometry ID
     Acts::GeometryID geoID;
     geoID.setVolume(volID);
+    geoID.setBoundary(bouID);
     geoID.setLayer(layID);
     geoID.setApproach(appID);
     geoID.setSensitive(senID);

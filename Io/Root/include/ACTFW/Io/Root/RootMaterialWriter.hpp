@@ -70,6 +70,8 @@ public:
     std::string folderNameBase = "Material";
     /// The volume identification string
     std::string voltag = "_vol";
+    /// The boundary identification string
+    std::string boutag = "_bou";
     /// The layer identification string
     std::string laytag = "_lay";
     /// The approach identification string
