@@ -169,14 +169,15 @@ FW::HepMC3Event::removeParticle(
     const std::shared_ptr<Data::SimParticle>& particle)
 {
   const std::vector<HepMC3::GenParticlePtr> genParticles = event->particles();
-  const barcode_type                        id           = particle->barcode();
+  const auto                                id           = particle->barcode();
   // Search HepMC3::GenParticle with the same id as the Acts particle
-  for (auto& genParticle : genParticles)
+  for (auto& genParticle : genParticles) {
     if (genParticle->id() == id) {
       // Remove particle if found
       event->remove_particle(genParticle);
       break;
     }
+  }
 }
 
 bool
