@@ -8,7 +8,6 @@
 
 #include "detail/FatrasEvgenBase.hpp"
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/EventGenerator.hpp"
@@ -22,7 +21,6 @@
 void
 setupEvgenInput(boost::program_options::variables_map& vm,
                 FW::Sequencer&                         sequencer,
-                std::shared_ptr<FW::BarcodeSvc>        barcodeSvc,
                 std::shared_ptr<FW::RandomNumbers>     randomNumberSvc)
 {
   // Read the standard options
@@ -34,14 +32,12 @@ setupEvgenInput(boost::program_options::variables_map& vm,
     auto evgCfg          = FW::Options::readParticleGunOptions(vm);
     evgCfg.output        = "particles";
     evgCfg.randomNumbers = randomNumberSvc;
-    evgCfg.barcodeSvc    = barcodeSvc;
     sequencer.addReader(std::make_shared<FW::EventGenerator>(evgCfg, logLevel));
 
   } else if (evgenInput == "pythia8") {
     auto evgCfg          = FW::Options::readPythia8Options(vm, logLevel);
     evgCfg.output        = "particles";
     evgCfg.randomNumbers = randomNumberSvc;
-    evgCfg.barcodeSvc    = barcodeSvc;
     sequencer.addReader(std::make_shared<FW::EventGenerator>(evgCfg, logLevel));
 
   } else {
@@ -68,7 +64,6 @@ setupEvgenInput(boost::program_options::variables_map& vm,
     pWriterRootConfig.collection = "particles";
     pWriterRootConfig.filePath   = FW::joinPaths(outputDir, "particles.root");
     pWriterRootConfig.treeName   = "particles";
-    pWriterRootConfig.barcodeSvc = barcodeSvc;
     sequencer.addWriter(
         std::make_shared<FW::RootParticleWriter>(pWriterRootConfig));
   }

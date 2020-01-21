@@ -11,7 +11,6 @@
 #include <Acts/EventData/TrackParameters.hpp>
 #include <boost/program_options.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
@@ -45,15 +44,13 @@ main(int argc, char* argv[])
   auto logLevel = Options::readLogLevel(vm);
 
   // basic services
-  auto rndCfg  = Options::readRandomNumbersConfig(vm);
-  auto rnd     = std::make_shared<RandomNumbers>(rndCfg);
-  auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
+  auto rndCfg = Options::readRandomNumbersConfig(vm);
+  auto rnd    = std::make_shared<RandomNumbers>(rndCfg);
 
   // Set up event generator producing one single hard collision
   EventGenerator::Config evgenCfg = Options::readPythia8Options(vm, logLevel);
   evgenCfg.output                 = "generated_particles";
   evgenCfg.randomNumbers          = rnd;
-  evgenCfg.barcodeSvc             = barcode;
 
   ParticleSelector::Config ptcSelectorCfg;
   ptcSelectorCfg.input       = evgenCfg.output;

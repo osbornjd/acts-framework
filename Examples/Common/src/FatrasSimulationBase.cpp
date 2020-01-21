@@ -21,7 +21,6 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <boost/program_options.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
@@ -139,7 +138,6 @@ setupSimulationAlgorithm(
     FW::Sequencer&                                sequencer,
     boost::program_options::variables_map&        vm,
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
-    std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
     std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
   // Read the log level
@@ -243,8 +241,7 @@ setupSimulationAlgorithm(
     pWriterRootConfig.collection = fatrasConfig.simulatedEventCollection;
     pWriterRootConfig.filePath   = FW::joinPaths(
         outputDir, fatrasConfig.simulatedEventCollection + ".root");
-    pWriterRootConfig.treeName   = fatrasConfig.simulatedEventCollection;
-    pWriterRootConfig.barcodeSvc = barcodeSvc;
+    pWriterRootConfig.treeName = fatrasConfig.simulatedEventCollection;
     sequencer.addWriter(
         std::make_shared<FW::RootParticleWriter>(pWriterRootConfig));
 
@@ -263,7 +260,6 @@ void
 setupSimulation(boost::program_options::variables_map&        vm,
                 FW::Sequencer&                                sequencer,
                 std::shared_ptr<const Acts::TrackingGeometry> tGeometry,
-                std::shared_ptr<FW::BarcodeSvc>               barcodeSvc,
                 std::shared_ptr<FW::RandomNumbers>            randomNumberSvc)
 {
   // Create BField service
@@ -274,12 +270,8 @@ setupSimulation(boost::program_options::variables_map&        vm,
         using field_type =
             typename std::decay_t<decltype(bField)>::element_type;
         Acts::SharedBField<field_type> fieldMap(bField);
-        setupSimulationAlgorithm(std::move(fieldMap),
-                                 sequencer,
-                                 vm,
-                                 tGeometry,
-                                 barcodeSvc,
-                                 randomNumberSvc);
+        setupSimulationAlgorithm(
+            std::move(fieldMap), sequencer, vm, tGeometry, randomNumberSvc);
       },
       bFieldVar);
 }

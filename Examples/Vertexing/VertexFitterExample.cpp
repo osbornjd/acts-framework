@@ -11,7 +11,6 @@
 #include <Acts/EventData/TrackParameters.hpp>
 #include <boost/program_options.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/MultiplicityGenerators.hpp"
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
@@ -46,9 +45,8 @@ main(int argc, char* argv[])
   auto logLevel = Options::readLogLevel(vm);
 
   // basic services
-  auto rndCfg  = Options::readRandomNumbersConfig(vm);
-  auto rnd     = std::make_shared<RandomNumbers>(rndCfg);
-  auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
+  auto rndCfg = Options::readRandomNumbersConfig(vm);
+  auto rnd    = std::make_shared<RandomNumbers>(rndCfg);
 
   // Set up event generator producing one single hard collision
   Pythia8Generator::Config hardCfg;
@@ -61,13 +59,11 @@ main(int argc, char* argv[])
   auto vtxStdZ  = vm["evg-vertex-z-std"].template as<double>();
 
   EventGenerator::Config evgenCfg;
-  evgenCfg.generators = {{FixedMultiplicityGenerator{1},
+  evgenCfg.generators    = {{FixedMultiplicityGenerator{1},
                           GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ},
                           Pythia8Generator::makeFunction(hardCfg, logLevel)}};
-
   evgenCfg.output        = "generated_particles";
   evgenCfg.randomNumbers = rnd;
-  evgenCfg.barcodeSvc    = barcode;
 
   // Set magnetic field
   Acts::Vector3D bField(0., 0., 2. * Acts::units::_T);
