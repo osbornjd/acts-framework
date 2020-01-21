@@ -83,12 +83,12 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
           // move particle to the vertex
           Acts::Vector3D particlePos  = vertexPosition + particle.position();
           double         particleTime = vertexTime + particle.time();
-          // update barcode vertex index and leave the rest intact.
+          // only set the primary vertex, leave everything else as-is
           // using the number of primary vertices as the index ensures
           // that barcode=0 is not used, since it is typically used elsewhere
           // to signify elements w/o an associated particle.
           auto barcode = particle.barcode();
-          barcode.setVertex(nPrimaryVertices);
+          barcode.setVertexPrimary(nPrimaryVertices);
           particle.place(particlePos, barcode, particleTime);
         };
 
