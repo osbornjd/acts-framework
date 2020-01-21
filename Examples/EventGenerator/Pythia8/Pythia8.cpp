@@ -62,7 +62,7 @@ main(int argc, char* argv[])
 
   // print generated particles
   PrintParticles::Config printCfg;
-  printCfg.inputEvent = selectorCfg.output;
+  printCfg.inputEvent = evgenCfg.output;
   sequencer.addAlgorithm(std::make_shared<PrintParticles>(printCfg, logLevel));
 
   // different output modes
