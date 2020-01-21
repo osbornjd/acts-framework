@@ -11,7 +11,6 @@
 
 #include <Acts/Utilities/Units.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
@@ -43,13 +42,11 @@ main(int argc, char* argv[])
   // basic services
   auto rnd
       = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
-  auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
 
   // event generation w/ internal pythia8 instance
   EventGenerator::Config evgenCfg = Options::readPythia8Options(vm, logLevel);
   evgenCfg.output                 = "generated_particles";
   evgenCfg.randomNumbers          = rnd;
-  evgenCfg.barcodeSvc             = barcode;
   sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
 
   // event selection
@@ -77,7 +74,6 @@ main(int argc, char* argv[])
     RootParticleWriter::Config rootWriterCfg;
     rootWriterCfg.collection = selectorCfg.output;
     rootWriterCfg.filePath   = joinPaths(outputDir, "particles.root");
-    rootWriterCfg.barcodeSvc = barcode;
     sequencer.addWriter(
         std::make_shared<RootParticleWriter>(rootWriterCfg, logLevel));
   }

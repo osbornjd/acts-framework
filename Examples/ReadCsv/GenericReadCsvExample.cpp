@@ -8,7 +8,6 @@
 
 #include <memory>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/GenericDetector/GenericDetector.hpp"

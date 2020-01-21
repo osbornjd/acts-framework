@@ -11,7 +11,6 @@
 #include <Acts/Utilities/Units.hpp>
 
 #include "ACTFW/Digitization/HitSmearing.hpp"
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Fitting/FittingAlgorithm.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"

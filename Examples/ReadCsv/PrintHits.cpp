@@ -28,7 +28,7 @@ FW::ProcessCode
 FW::PrintHits::execute(const FW::AlgorithmContext& ctx) const
 {
   using Clusters        = FW::GeometryIdMultimap<Acts::PlanarModuleCluster>;
-  using HitParticlesMap = FW::IndexMultimap<FW::barcode_type>;
+  using HitParticlesMap = FW::IndexMultimap<FW::Barcode>;
   using HitIds          = std::vector<size_t>;
 
   const auto& clusters = ctx.eventStore.get<Clusters>(m_cfg.inputClusters);
