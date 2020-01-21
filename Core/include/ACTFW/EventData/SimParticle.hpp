@@ -41,7 +41,7 @@ namespace Data {
                 double                mass,
                 double                charge,
                 pdg_type              pdg     = 0,
-                barcode_type          barcode = 0,
+                Barcode               barcode = Barcode(),
                 double                time    = 0.)
       : m_position(position)
       , m_time(time)
@@ -68,7 +68,7 @@ namespace Data {
 
     /// Place the particle at the given position and reset its identifier.
     void
-    place(Acts::Vector3D position, barcode_type barcode, double time = 0.)
+    place(Acts::Vector3D position, Barcode barcode, double time = 0.)
     {
       m_position = position;
       m_time     = time;
@@ -187,7 +187,7 @@ namespace Data {
       return m_pdg;
     }
     /// Particle identifier/ barcode.
-    barcode_type
+    Barcode
     barcode() const
     {
       return m_barcode;
@@ -233,9 +233,9 @@ namespace Data {
     double         m_mass     = 0.;                          //!< particle mass
     double         m_charge   = 0.;                          //!< the charge
     pdg_type       m_pdg      = 0;         //!< pdg code of the particle
-    barcode_type   m_barcode  = 0;         //!< barcode of the particle
-    double         m_pathInX0 = 0.;        //!< passed path in X0
-    double         m_pathInL0 = 0.;        //!< passed path in L0
+    Barcode        m_barcode;              //!< barcode of the particle
+    double         m_pathInX0  = 0.;       //!< passed path in X0
+    double         m_pathInL0  = 0.;       //!< passed path in L0
     double         m_limitTime = DBL_MAX;  //!< time limit
     double         m_limitInX0 = DBL_MAX;  //!< path limit in X0
     double         m_limitInL0 = DBL_MAX;  //!< path limit in X0
@@ -254,12 +254,12 @@ namespace detail {
       return left.barcode() < right.barcode();
     }
     bool
-    operator()(barcode_type left, const Data::SimParticle& right) const
+    operator()(Barcode left, const Data::SimParticle& right) const
     {
       return left < right.barcode();
     }
     bool
-    operator()(const Data::SimParticle& left, barcode_type right) const
+    operator()(const Data::SimParticle& left, Barcode right) const
     {
       return left.barcode() < right;
     }
