@@ -36,7 +36,7 @@ TruthTrackFinder::TruthTrackFinder(const Config& cfg, Acts::Logging::Level lvl)
 ProcessCode
 TruthTrackFinder::execute(const AlgorithmContext& ctx) const
 {
-  using HitParticlesMap = IndexMultimap<barcode_type>;
+  using HitParticlesMap = IndexMultimap<Barcode>;
 
   // prepare input collections
   const auto& particles
