@@ -10,7 +10,6 @@
 
 #include <mutex>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
@@ -40,9 +39,7 @@ public:
     std::string filePath;                ///< path of the output file
     std::string fileMode = "RECREATE";   ///< file access mode
     std::string treeName = "particles";  ///< name of the output tree
-    std::shared_ptr<FW::BarcodeSvc>
-           barcodeSvc;          ///< the barcode service to decode (optional)
-    TFile* rootFile = nullptr;  ///< common root file
+    TFile*      rootFile = nullptr;      ///< common root file
   };
 
   /// Constructor

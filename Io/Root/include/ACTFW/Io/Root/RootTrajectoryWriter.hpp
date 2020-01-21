@@ -15,7 +15,6 @@
 #include <Acts/Geometry/GeometryID.hpp>
 #include <Acts/Utilities/ParameterDefinitions.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimSourceLink.hpp"

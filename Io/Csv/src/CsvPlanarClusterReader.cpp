@@ -171,7 +171,7 @@ FW::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
   // prepare containers for the hit data using the framework event data types
   GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
   std::vector<uint64_t>                         hitIds;
-  IndexMultimap<barcode_type>                   hitParticlesMap;
+  IndexMultimap<Barcode>                        hitParticlesMap;
   SimHits                                       simHits;
   clusters.reserve(hits.size());
   hitIds.reserve(hits.size());

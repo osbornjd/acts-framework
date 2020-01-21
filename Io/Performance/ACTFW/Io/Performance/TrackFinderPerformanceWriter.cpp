@@ -27,7 +27,7 @@
 
 namespace {
 using SimParticles        = FW::SimParticles;
-using HitParticlesMap     = FW::IndexMultimap<FW::barcode_type>;
+using HitParticlesMap     = FW::IndexMultimap<FW::Barcode>;
 using ProtoTrackContainer = FW::ProtoTrackContainer;
 }  // namespace
 
@@ -142,10 +142,10 @@ struct FW::TrackFinderPerformanceWriter::Impl
     // compute the inverse mapping on-the-fly
     const auto& particleHitsMap = invertIndexMultimap(hitParticlesMap);
     // How often a particle was reconstructed.
-    std::unordered_map<barcode_type, size_t> reconCount;
+    std::unordered_map<Barcode, size_t> reconCount;
     reconCount.reserve(particles.size());
     // How often a particle was reconstructed as the majority particle.
-    std::unordered_map<barcode_type, size_t> majorityCount;
+    std::unordered_map<Barcode, size_t> majorityCount;
     majorityCount.reserve(particles.size());
     // For each particle within a track, how many hits did it contribute
     std::vector<ParticleHitCount> particleHitCounts;
@@ -181,10 +181,11 @@ struct FW::TrackFinderPerformanceWriter::Impl
         trkParticleNumHitsTotal.clear();
         trkParticleNumHitsOnTrack.clear();
         for (const auto& phc : particleHitCounts) {
-          trkParticleId.push_back(phc.particleId);
+          trkParticleId.push_back(phc.particleId.value());
           // count total number of hits for this particle
-          trkParticleNumHitsTotal.push_back(
-              makeRange(particleHitsMap.equal_range(phc.particleId)).size());
+          auto trueParticleHits
+              = makeRange(particleHitsMap.equal_range(phc.particleId.value()));
+          trkParticleNumHitsTotal.push_back(trueParticleHits.size());
           trkParticleNumHitsOnTrack.push_back(phc.hitCount);
         }
 
@@ -201,7 +202,7 @@ struct FW::TrackFinderPerformanceWriter::Impl
 
         // identification
         prtEventId      = eventId;
-        prtParticleId   = particle.barcode();
+        prtParticleId   = particle.barcode().value();
         prtParticleType = particle.pdg();
         // kinematics
         prtVx = particle.position().x();

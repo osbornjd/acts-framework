@@ -174,7 +174,7 @@ FW::RootPlanarClusterWriter::writeT(
       m_t_gt.push_back(sParticle->time());
       m_t_lx.push_back(lPosition.x());
       m_t_ly.push_back(lPosition.y());
-      m_t_barcode.push_back(sParticle->barcode());
+      m_t_barcode.push_back(sParticle->barcode().value());
     }
     // fill the tree
     m_outputTree->Fill();
