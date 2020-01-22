@@ -36,34 +36,12 @@ public:
   /// Nested configuration struct
   struct Config
   {
-    /// Input event (vertex collection)
-    std::string input = "";
+    /// Input particles
+    std::string inputParticles = "";
+    /// Input perigees
+    std::string inputPerigees = "";
     /// Output track collection
     std::string output = "";
-
-    /// FW random number service
-    std::shared_ptr<RandomNumbers> randomNumberSvc = nullptr;
-
-    /// The magnetic field
-    Acts::Vector3D bField;
-
-    /// Reference position relatice to which track
-    /// parameters will be defined
-    Acts::Vector3D refPosition = Acts::Vector3D::Zero();
-
-    /// Do track smearing
-    bool doSmearing = true;
-
-    /// Define parameter for pt-dependent IP resolution
-    /// of the form sigma_d/z(p_t[GeV]) = A*exp(-B*p_t[GeV]) + C
-    double ipResA = 30_um;
-    double ipResB = 0.3 / 1_GeV;
-    double ipResC = 20_um;
-
-    /// Angular resolution
-    double angRes = 0.05;
-    /// q/p relative resolution factor
-    double qpRelRes = 0.001;
   };
 
   /// Constructor of the TruthVerticesToTracks algorithm

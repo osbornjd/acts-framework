@@ -11,12 +11,12 @@ set(_common_libraries
   Boost::program_options)
 
 # Fitter example
-add_executable(ACTFWVertexFitterExample VertexFitterExample.cpp)
-target_link_libraries(ACTFWVertexFitterExample PRIVATE ${_common_libraries})
+#add_executable(ACTFWVertexFitterExample VertexFitterExample.cpp)
+#target_link_libraries(ACTFWVertexFitterExample PRIVATE ${_common_libraries})
 
 # Finder example
-add_executable(ACTFWVertexFinderExample VertexFinderExample.cpp)
-target_link_libraries(ACTFWVertexFinderExample PRIVATE ${_common_libraries})
+#add_executable(ACTFWVertexFinderExample VertexFinderExample.cpp)
+#target_link_libraries(ACTFWVertexFinderExample PRIVATE ${_common_libraries})
 
 # Writer example
 add_executable(ACTFWVertexWriterExample VertexAndTracksWriterExample.cpp)
@@ -30,8 +30,8 @@ target_link_libraries(ACTFWVertexReaderExample PRIVATE ${_common_libraries})
 
 install(
   TARGETS
-    ACTFWVertexFitterExample
-    ACTFWVertexFinderExample
+   # ACTFWVertexFitterExample
+   # ACTFWVertexFinderExample
     ACTFWVertexWriterExample
     ACTFWVertexReaderExample
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

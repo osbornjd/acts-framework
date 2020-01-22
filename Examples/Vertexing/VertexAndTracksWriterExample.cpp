@@ -12,6 +12,7 @@
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Generators/FlattenEvent.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
@@ -19,6 +20,8 @@
 #include "ACTFW/Io/Root/RootVertexAndTracksWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
+#include "ACTFW/TruthTracking/ParticleSmearing.hpp"
+#include "ACTFW/TruthTracking/ParticleToPerigee.hpp"
 #include "ACTFW/TruthTracking/TrackSelector.hpp"
 #include "ACTFW/TruthTracking/TruthVerticesToTracks.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
@@ -49,39 +52,56 @@ main(int argc, char* argv[])
 
   // Set up event generator producing one single hard collision
   EventGenerator::Config evgenCfg = Options::readPythia8Options(vm, logLevel);
-  evgenCfg.output                 = "generated_particles";
+  evgenCfg.output                 = "generatedEvent";
   evgenCfg.randomNumbers          = rnd;
 
   ParticleSelector::Config ptcSelectorCfg;
   ptcSelectorCfg.input       = evgenCfg.output;
-  ptcSelectorCfg.output      = "selected_particles";
+  ptcSelectorCfg.output      = "selectedParticles";
   ptcSelectorCfg.absEtaMax   = 2.5;
   ptcSelectorCfg.rhoMax      = 4 * Acts::units::_mm;
   ptcSelectorCfg.ptMin       = 400. * Acts::units::_MeV;
   ptcSelectorCfg.keepNeutral = false;
 
+  FlattenEvent::Config flattenEventCfg;
+  flattenEventCfg.inputEvent      = ptcSelectorCfg.output;
+  flattenEventCfg.outputParticles = "flattenedParticles";
+
+  // Create smeared particles states
+  ParticleSmearing::Config particleSmearingCfg;
+  particleSmearingCfg.inputParticles        = flattenEventCfg.outputParticles;
+  particleSmearingCfg.outputTrackParameters = "smearedparameters";
+  particleSmearingCfg.randomNumbers         = rnd;
+  // Gaussian sigmas to smear particle parameters
+  particleSmearingCfg.sigmaD0    = 20_um;
+  particleSmearingCfg.sigmaD0PtA = 30_um;
+  particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaZ0    = 20_um;
+  particleSmearingCfg.sigmaZ0PtA = 30_um;
+  particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaPhi   = 1_degree;
+  particleSmearingCfg.sigmaTheta = 1_degree;
+  particleSmearingCfg.sigmaPRel  = 0.01;
+  particleSmearingCfg.sigmaT0    = 1_ns;
+
   // Set magnetic field
   Acts::Vector3D bField(0., 0., 1. * Acts::units::_T);
 
-  // Set up TruthVerticesToTracks converter algorithm
-  TruthVerticesToTracksAlgorithm::Config trkConvConfig;
-  trkConvConfig.doSmearing      = true;
-  trkConvConfig.randomNumberSvc = rnd;
-  trkConvConfig.bField          = bField;
-  trkConvConfig.input           = ptcSelectorCfg.output;
-  trkConvConfig.output          = "all_tracks";
+  ParticleToPerigee::Config particleToPerigeeCfg;
+  particleToPerigeeCfg.inputParameters
+      = particleSmearingCfg.outputTrackParameters;
+  particleToPerigeeCfg.outputPerigee = "perigeeParameters";
+  particleToPerigeeCfg.bField        = bField;
 
-  // Set up track selector
-  TrackSelector::Config selectorConfig;
-  selectorConfig.input       = trkConvConfig.output;
-  selectorConfig.output      = "selectedTracks";
-  selectorConfig.absEtaMax   = 2.5;
-  selectorConfig.rhoMax      = 4 * Acts::units::_mm;
-  selectorConfig.ptMin       = 400. * Acts::units::_MeV;
-  selectorConfig.keepNeutral = false;
+  // Set up TruthVerticesToTracks converter algorithm
+  TruthVerticesToTracksAlgorithm::Config trkConvCfg;
+
+  trkConvCfg.inputParticles = flattenEventCfg.outputParticles;
+  trkConvCfg.inputPerigees  = particleToPerigeeCfg.outputPerigee;
+  trkConvCfg.output         = "allTracks";
 
   RootVertexAndTracksWriter::Config writerCfg;
-  writerCfg.collection = selectorConfig.output;
+  writerCfg.collection = trkConvCfg.output;
 
   int         nPileup        = vm["evg-pileup"].template as<int>();
   int         nEvents        = vm["events"].as<size_t>();
@@ -100,11 +120,17 @@ main(int argc, char* argv[])
   sequencer.addAlgorithm(
       std::make_shared<ParticleSelector>(ptcSelectorCfg, logLevel));
 
-  sequencer.addAlgorithm(std::make_shared<TruthVerticesToTracksAlgorithm>(
-      trkConvConfig, logLevel));
+  sequencer.addAlgorithm(
+      std::make_shared<FlattenEvent>(flattenEventCfg, logLevel));
 
   sequencer.addAlgorithm(
-      std::make_shared<TrackSelector>(selectorConfig, logLevel));
+      std::make_shared<ParticleSmearing>(particleSmearingCfg, logLevel));
+
+  sequencer.addAlgorithm(
+      std::make_shared<ParticleToPerigee>(particleToPerigeeCfg, logLevel));
+
+  sequencer.addAlgorithm(
+      std::make_shared<TruthVerticesToTracksAlgorithm>(trkConvCfg, logLevel));
 
   sequencer.addWriter(
       std::make_shared<RootVertexAndTracksWriter>(writerCfg, logLevel));
