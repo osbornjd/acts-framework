@@ -114,7 +114,7 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
                                    and (vertex.time == time);
                              });
       if (it == processVertices.end()) {
-        // no maching secondary vertex exists -> create new one
+        // no matching secondary vertex exists -> create new one
         SimVertex vertex(
             pos,
             {},  // ignore incoming particles
