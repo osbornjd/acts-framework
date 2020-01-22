@@ -10,7 +10,6 @@
 
 #include <boost/program_options.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
@@ -60,8 +59,6 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   auto randomNumberSvcCfg = FW::Options::readRandomNumbersConfig(vm);
   auto randomNumberSvc
       = std::make_shared<FW::RandomNumbers>(randomNumberSvcCfg);
-  // Create the barcode service
-  auto barcodeSvc = std::make_shared<FW::BarcodeSvc>(FW::BarcodeSvc::Config());
 
   // The geometry, material and decoration
   auto geometry          = FW::Geometry::build(vm, detector);
@@ -75,11 +72,11 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
 
   // (A) EVGEN
   // Setup the evgen input to the simulation
-  setupEvgenInput(vm, sequencer, barcodeSvc, randomNumberSvc);
+  setupEvgenInput(vm, sequencer, randomNumberSvc);
 
   // (B) SIMULATION
   // Setup the simulation
-  setupSimulation(vm, sequencer, tGeometry, barcodeSvc, randomNumberSvc);
+  setupSimulation(vm, sequencer, tGeometry, randomNumberSvc);
 
   // (C) DIGITIZATION
   // Setup the digitization

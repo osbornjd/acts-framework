@@ -8,7 +8,6 @@
 
 #include <memory>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/GenericDetector/GenericDetector.hpp"
@@ -18,8 +17,8 @@
 #include "ACTFW/Io/Csv/CsvPlanarClusterReader.hpp"
 #include "ACTFW/Io/Csv/CsvPlanarClusterWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
+#include "ACTFW/Printers/PrintHits.hpp"
 #include "ACTFW/Utilities/Options.hpp"
-#include "PrintHits.hpp"
 
 int
 main(int argc, char* argv[])

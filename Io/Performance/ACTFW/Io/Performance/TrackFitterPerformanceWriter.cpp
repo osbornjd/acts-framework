@@ -90,7 +90,7 @@ FW::TrackFitterPerformanceWriter::writeT(
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // All reconstructed trajectories with truth info
-  std::map<barcode_type, TruthFitTrack> reconTrajectories;
+  std::map<Barcode, TruthFitTrack> reconTrajectories;
 
   // Loop over all trajectories
   for (const auto& traj : trajectories) {

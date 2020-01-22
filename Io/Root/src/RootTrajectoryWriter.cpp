@@ -279,7 +279,7 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         = traj.identifyMajorityParticle();
     if (not particleHitCount.empty()) {
       // Get the barcode of the majority truth particle
-      m_t_barcode = particleHitCount.front().particleId;
+      m_t_barcode = particleHitCount.front().particleId.value();
       // Find the truth particle via the barcode
       auto ip = particles.find(m_t_barcode);
       if (ip != particles.end()) {

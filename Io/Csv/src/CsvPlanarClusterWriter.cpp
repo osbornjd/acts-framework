@@ -93,7 +93,7 @@ FW::CsvPlanarClusterWriter::writeT(
     // each hit can have multiple particles, e.g. in a dense environment
     truth.hit_id = hit.hit_id;
     for (auto& p : cluster.sourceLink().truthParticles()) {
-      truth.particle_id = p->barcode();
+      truth.particle_id = p->barcode().value();
       truth.tx          = p->position().x() / Acts::UnitConstants::mm;
       truth.ty          = p->position().y() / Acts::UnitConstants::mm;
       truth.tz          = p->position().z() / Acts::UnitConstants::mm;

@@ -11,7 +11,6 @@
 
 #include <Acts/Utilities/Units.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
@@ -19,6 +18,7 @@
 #include "ACTFW/Io/Root/RootParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/Pythia8Options.hpp"
+#include "ACTFW/Printers/PrintParticles.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
 using namespace Acts::units;
@@ -43,13 +43,11 @@ main(int argc, char* argv[])
   // basic services
   auto rnd
       = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
-  auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
 
   // event generation w/ internal pythia8 instance
   EventGenerator::Config evgenCfg = Options::readPythia8Options(vm, logLevel);
   evgenCfg.output                 = "generated_particles";
   evgenCfg.randomNumbers          = rnd;
-  evgenCfg.barcodeSvc             = barcode;
   sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
 
   // event selection
@@ -62,9 +60,13 @@ main(int argc, char* argv[])
   sequencer.addAlgorithm(
       std::make_shared<ParticleSelector>(selectorCfg, logLevel));
 
+  // print generated particles
+  PrintParticles::Config printCfg;
+  printCfg.inputEvent = selectorCfg.output;
+  sequencer.addAlgorithm(std::make_shared<PrintParticles>(printCfg, logLevel));
+
   // different output modes
   std::string outputDir = vm["output-dir"].as<std::string>();
-
   if (vm["output-csv"].as<bool>()) {
     CsvParticleWriter::Config csvWriterCfg;
     csvWriterCfg.inputEvent = selectorCfg.output;
@@ -77,7 +79,6 @@ main(int argc, char* argv[])
     RootParticleWriter::Config rootWriterCfg;
     rootWriterCfg.collection = selectorCfg.output;
     rootWriterCfg.filePath   = joinPaths(outputDir, "particles.root");
-    rootWriterCfg.barcodeSvc = barcode;
     sequencer.addWriter(
         std::make_shared<RootParticleWriter>(rootWriterCfg, logLevel));
   }

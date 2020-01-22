@@ -24,9 +24,6 @@ FW::EventGenerator::EventGenerator(const Config& cfg, Acts::Logging::Level lvl)
   if (m_cfg.generators.empty()) {
     throw std::invalid_argument("No generators are configured");
   }
-  if (!m_cfg.barcodeSvc) {
-    throw std::invalid_argument("Missing barcode service");
-  }
   if (!m_cfg.randomNumbers) {
     throw std::invalid_argument("Missing random numbers service");
   }
@@ -72,7 +69,7 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
       // particles associated directly to the primary vertex itself.
       auto processVertices = generate.process(rng);
 
-      // updae
+      // update
       for (auto& processVertex : processVertices) {
         nSecondaryVertices += 1;
 
@@ -90,12 +87,8 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
           // using the number of primary vertices as the index ensures
           // that barcode=0 is not used, since it is typically used elsewhere
           // to signify elements w/o an associated particle.
-          auto iPrimary    = m_cfg.barcodeSvc->primary(particle.barcode());
-          auto iGeneration = m_cfg.barcodeSvc->generation(particle.barcode());
-          auto iSecondary  = m_cfg.barcodeSvc->secondary(particle.barcode());
-          auto iProcess    = m_cfg.barcodeSvc->process(particle.barcode());
-          auto barcode     = m_cfg.barcodeSvc->generate(
-              nPrimaryVertices, iPrimary, iGeneration, iSecondary, iProcess);
+          auto barcode = particle.barcode();
+          barcode.setVertex(nPrimaryVertices);
           particle.place(particlePos, barcode, particleTime);
         };
 

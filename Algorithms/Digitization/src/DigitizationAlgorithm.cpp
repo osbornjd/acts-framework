@@ -11,7 +11,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"

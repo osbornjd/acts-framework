@@ -15,7 +15,7 @@
 
 namespace FW {
 
-/// Select tracks by applying some selection cuts.
+/// Print hits within some geometric region-of-interest.
 class PrintHits : public BareAlgorithm
 {
 public:
@@ -37,8 +37,7 @@ public:
     size_t moduleId = 0u;
   };
 
-  PrintHits(const Config&        cfg,
-            Acts::Logging::Level level = Acts::Logging::INFO);
+  PrintHits(const Config& cfg, Acts::Logging::Level level);
 
   ProcessCode
   execute(const AlgorithmContext& ctx) const;

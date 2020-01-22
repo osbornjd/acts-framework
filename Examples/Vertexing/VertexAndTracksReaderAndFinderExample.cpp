@@ -11,7 +11,6 @@
 
 #include <Acts/EventData/TrackParameters.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Io/Root/RootVertexAndTracksReader.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"

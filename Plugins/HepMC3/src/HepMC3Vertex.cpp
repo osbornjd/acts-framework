@@ -111,12 +111,14 @@ FW::HepMC3Vertex::matchParticles(
     const std::vector<HepMC3::GenParticlePtr>& genParticles,
     std::shared_ptr<Data::SimParticle>         actsParticle)
 {
-  const barcode_type id = actsParticle->barcode();
+  const auto id = actsParticle->barcode();
   // Search HepMC3::GenParticle with the same id as the Acts particle
-  for (auto& genParticle : genParticles)
-    if (genParticle->id() == id)
+  for (auto& genParticle : genParticles) {
+    if (genParticle->id() == id) {
       // Return particle if found
       return genParticle;
+    }
+  }
   return nullptr;
 }
 

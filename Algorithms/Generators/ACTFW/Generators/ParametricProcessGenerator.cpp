@@ -43,8 +43,7 @@ FW::ParametricProcessGenerator::operator()(FW::RandomEngine& rng) const
     auto pt    = ptDist(rng);
     auto qsign = generateChargeSign(rng);
     // all generated particles are treated as primary particles
-    // TODO remove barcode service altogether
-    auto barcode = BarcodeSvc(BarcodeSvc::Config()).generate(0u, ip);
+    auto barcode = Barcode().setPrimary(ip);
 
     Acts::Vector3D position(d0 * std::sin(phi), d0 * -std::cos(phi), z0);
     Acts::Vector3D momentum(

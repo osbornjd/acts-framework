@@ -11,13 +11,13 @@
 
 #include <Acts/Utilities/Units.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Io/Root/RootParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
 #include "ACTFW/Options/ParticleGunOptions.hpp"
+#include "ACTFW/Printers/PrintParticles.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
 using namespace Acts::units;
@@ -42,14 +42,17 @@ main(int argc, char* argv[])
   // basic services
   auto rnd
       = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
-  auto barcode = std::make_shared<BarcodeSvc>(BarcodeSvc::Config());
 
   // event generation w/ particle gun
   EventGenerator::Config evgenCfg = Options::readParticleGunOptions(vm);
   evgenCfg.output                 = "particles";
   evgenCfg.randomNumbers          = rnd;
-  evgenCfg.barcodeSvc             = barcode;
   sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
+
+  // print generated particles
+  PrintParticles::Config printCfg;
+  printCfg.inputEvent = evgenCfg.output;
+  sequencer.addAlgorithm(std::make_shared<PrintParticles>(printCfg, logLevel));
 
   // different output modes
   std::string outputDir = vm["output-dir"].as<std::string>();
@@ -65,7 +68,6 @@ main(int argc, char* argv[])
     RootParticleWriter::Config rootWriterCfg;
     rootWriterCfg.collection = evgenCfg.output;
     rootWriterCfg.filePath   = joinPaths(outputDir, "particles.root");
-    rootWriterCfg.barcodeSvc = barcode;
     sequencer.addWriter(
         std::make_shared<RootParticleWriter>(rootWriterCfg, logLevel));
   }

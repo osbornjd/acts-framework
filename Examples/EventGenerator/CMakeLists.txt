@@ -5,7 +5,7 @@ target_link_libraries(
   ActsParticleGun
   PRIVATE
     ActsFrameworkGenerators ACTFWExamplesCommon ActsFrameworkIoRoot
-    ActsFrameworkIoCsv  Boost::program_options)
+  ActsFrameworkIoCsv ActsFrameworkPrinters Boost::program_options)
 
 install(
   TARGETS ActsParticleGun

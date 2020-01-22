@@ -103,7 +103,7 @@ FW::RootParticleWriter::writeT(const AlgorithmContext&             context,
   // loop over the process vertices
   for (auto& vertex : vertices) {
     for (auto& particle : vertex.outgoing) {
-      /// collect the information
+      // collect the information
       m_vx      = particle.position().x();
       m_vy      = particle.position().y();
       m_vz      = particle.position().z();
@@ -117,18 +117,13 @@ FW::RootParticleWriter::writeT(const AlgorithmContext&             context,
       m_charge  = particle.q();
       m_mass    = particle.m();
       m_pdgCode = particle.pdg();
-
-      auto barcode = particle.barcode();
-      m_barcode    = barcode;
-      // decode using the barcode service
-      if (m_cfg.barcodeSvc) {
-        // the barcode service
-        m_vertex     = m_cfg.barcodeSvc->vertex(barcode);
-        m_primary    = m_cfg.barcodeSvc->primary(barcode);
-        m_generation = m_cfg.barcodeSvc->generate(barcode);
-        m_secondary  = m_cfg.barcodeSvc->secondary(barcode);
-        m_process    = m_cfg.barcodeSvc->process(barcode);
-      }
+      // store encoded and decoded barcode
+      m_barcode    = particle.barcode().value();
+      m_vertex     = particle.barcode().vertex();
+      m_primary    = particle.barcode().primary();
+      m_generation = particle.barcode().generation();
+      m_secondary  = particle.barcode().secondary();
+      m_process    = particle.barcode().process();
       m_outputTree->Fill();
     }
   }
