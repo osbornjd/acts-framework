@@ -69,7 +69,7 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
       // particles associated directly to the primary vertex itself.
       auto processVertices = generate.process(rng);
 
-      // updae
+      // update
       for (auto& processVertex : processVertices) {
         nSecondaryVertices += 1;
 
