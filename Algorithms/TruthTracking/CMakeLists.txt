@@ -1,7 +1,7 @@
 add_library(
   ActsFrameworkTruthTracking SHARED
   ACTFW/TruthTracking/ParticleSmearing.cpp
-  ACTFW/TruthTracking/TrackSelector.cpp
+  #ACTFW/TruthTracking/TrackSelector.cpp
   ACTFW/TruthTracking/TruthTrackFinder.cpp
   ACTFW/TruthTracking/ParticleToPerigee.cpp
   ACTFW/TruthTracking/TruthVerticesToTracks.cpp)

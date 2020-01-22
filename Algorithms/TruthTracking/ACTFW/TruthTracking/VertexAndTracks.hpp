@@ -8,17 +8,17 @@
 
 #pragma once
 
-#include "ACTFW/EventData/SimVertex.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/Utilities/Definitions.hpp"
 
 namespace FW {
 
-/// @brief Helper struct that stores a SimVertex object
+/// @brief Helper struct that stores a vertex position
 /// together with std::vector<Acts::BoundParameters>
 struct VertexAndTracks
 {
   // The vertex
-  Data::SimVertex vertex;
+  Acts::Vector3D vertexPosition;
   // The tracks
   std::vector<Acts::BoundParameters> tracks;
 };

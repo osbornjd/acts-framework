@@ -49,16 +49,46 @@ FW::TruthVerticesToTracksAlgorithm::execute(const AlgorithmContext& ctx) const
 
   // assert(particles.size()==perigees.size());
 
-  // Vector to store VertexAndTracks extracted from event
+  // Vector to store vertex with tracks extracted from event
   std::vector<VertexAndTracks> vertexAndTracksCollection;
+
+  int                                oldVtxIdx = -1;
+  std::vector<Acts::BoundParameters> tracks;
+  Acts::Vector3D                     vtxPos;
 
   for (unsigned int i = 0; i < particles.size(); i++) {
     const auto& particle = particles.nth(i);
     const auto& perigee  = perigees[i];
 
-    std::cout << particle->barcode() << std::endl;
-    std::cout << perigee.parameters() << std::endl;
+    Barcode barcode = particle->barcode();
+
+    int vtxId = barcode.vertexPrimary();
+
+    if (vtxId != oldVtxIdx && oldVtxIdx != -1) {
+      // TEMP for now, TODO: correct position
+      vtxPos = Acts::Vector3D::Zero();
+      VertexAndTracks vtxAndTrks;
+      vtxAndTrks.vertexPosition = vtxPos;
+      vtxAndTrks.tracks         = tracks;
+      vertexAndTracksCollection.push_back(vtxAndTrks);
+      tracks.clear();
+      std::cout << "SAVED - new vertex now..." << std::endl;
+    }
+
+    tracks.push_back(perigee);
+
+    oldVtxIdx = vtxId;
+
+    std::cout << barcode.vertexPrimary() << std::endl;
+
+    // std::cout << perigee.parameters() << std::endl;
   }
+
+  vtxPos = Acts::Vector3D::Zero();
+  VertexAndTracks vtxAndTrks;
+  vtxAndTrks.vertexPosition = vtxPos;
+  vtxAndTrks.tracks         = tracks;
+  vertexAndTracksCollection.push_back(vtxAndTrks);
 
   // VertexAndTracks objects to the EventStore
   ctx.eventStore.add(m_cfg.output, std::move(vertexAndTracksCollection));

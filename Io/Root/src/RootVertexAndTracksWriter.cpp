@@ -198,9 +198,9 @@ FW::RootVertexAndTracksWriter::writeT(
   for (auto& vertexAndTracks : vertexAndTracksCollection) {
 
     // Collect the vertex information
-    m_vx.push_back(vertexAndTracks.vertex.position.x());
-    m_vy.push_back(vertexAndTracks.vertex.position.y());
-    m_vz.push_back(vertexAndTracks.vertex.position.z());
+    m_vx.push_back(vertexAndTracks.vertexPosition.x());
+    m_vy.push_back(vertexAndTracks.vertexPosition.y());
+    m_vz.push_back(vertexAndTracks.vertexPosition.z());
 
     for (auto& track : vertexAndTracks.tracks) {
       // Collect the track information

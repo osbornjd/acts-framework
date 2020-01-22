@@ -99,7 +99,7 @@ FW::RootVertexAndTracksReader::read(const FW::AlgorithmContext& context)
       // Loop over all vertices
       for (int idx = 0; idx < m_ptrVx->size(); ++idx) {
         FW::VertexAndTracks vtxAndTracks;
-        vtxAndTracks.vertex.position
+        vtxAndTracks.vertexPosition
             = Acts::Vector3D((*m_ptrVx)[idx], (*m_ptrVy)[idx], (*m_ptrVz)[idx]);
 
         std::vector<Acts::BoundParameters> tracks;

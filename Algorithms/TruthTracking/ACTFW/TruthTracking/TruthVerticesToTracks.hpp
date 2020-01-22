@@ -36,11 +36,11 @@ public:
   /// Nested configuration struct
   struct Config
   {
-    /// Input particles
+    // Input particles
     std::string inputParticles = "";
-    /// Input perigees
+    // Input perigees
     std::string inputPerigees = "";
-    /// Output track collection
+    // Output track collection
     std::string output = "";
   };
 
@@ -62,13 +62,6 @@ public:
 private:
   /// Config struct
   Config m_cfg;
-
-  /// @brief Function that corrects phi and theta wraps
-  ///
-  /// @param phiIn Phi
-  /// @param thetaIn Theta
-  void
-  correctPhiThetaPeriodicity(double& phiIn, double& thetaIn) const;
 };
 
 }  // namespace FW

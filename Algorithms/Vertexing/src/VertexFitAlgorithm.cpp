@@ -101,9 +101,9 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& ctx) const
               << fittedVertex.position()[1] << "," << fittedVertex.position()[2]
               << ")");
     ACTS_INFO("Truth Vertex: "
-              << "(" << vertexAndTracks.vertex.position[0] << ","
-              << vertexAndTracks.vertex.position[1] << ","
-              << vertexAndTracks.vertex.position[2] << ")");
+              << "(" << vertexAndTracks.vertexPosition[0] << ","
+              << vertexAndTracks.vertexPosition[1] << ","
+              << vertexAndTracks.vertexPosition[2] << ")");
   }
 
   return FW::ProcessCode::SUCCESS;
