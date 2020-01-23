@@ -59,8 +59,8 @@ main(int argc, char* argv[])
   ptcSelectorCfg.input       = evgenCfg.output;
   ptcSelectorCfg.output      = "selectedParticles";
   ptcSelectorCfg.absEtaMax   = 2.5;
-  ptcSelectorCfg.rhoMax      = 4 * Acts::units::_mm;
-  ptcSelectorCfg.ptMin       = 400. * Acts::units::_MeV;
+  ptcSelectorCfg.rhoMax      = 4_mm;
+  ptcSelectorCfg.ptMin       = 400._MeV;
   ptcSelectorCfg.keepNeutral = false;
 
   FlattenEvent::Config flattenEventCfg;
@@ -85,7 +85,7 @@ main(int argc, char* argv[])
   particleSmearingCfg.sigmaT0    = 1_ns;
 
   // Set magnetic field
-  Acts::Vector3D bField(0., 0., 1. * Acts::units::_T);
+  Acts::Vector3D bField(0., 0., 2.08_T);
 
   ParticleToPerigee::Config particleToPerigeeCfg;
   particleToPerigeeCfg.inputParameters
