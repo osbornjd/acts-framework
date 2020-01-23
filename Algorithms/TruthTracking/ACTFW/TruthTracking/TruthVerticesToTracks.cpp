@@ -56,6 +56,10 @@ FW::TruthVerticesToTracksAlgorithm::execute(const AlgorithmContext& ctx) const
   std::vector<Acts::BoundParameters> tracks;
   Acts::Vector3D                     vtxPos;
 
+  // If no primary vertex information is available, one might
+  // to skip over some vertices, the index is saved here
+  int skipVtxIdx = -1;
+
   // Loop over all particles in event
   for (unsigned int i = 0; i < particles.size(); i++) {
     const auto& particle = particles.nth(i);
@@ -65,12 +69,14 @@ FW::TruthVerticesToTracksAlgorithm::execute(const AlgorithmContext& ctx) const
 
     int vtxId = barcode.vertexPrimary();
 
+    // Skip over vtx with ID skipVtxIdx
+    if (vtxId == skipVtxIdx) { continue; }
+
     if (i == 0) {
       vtxPos = particle->position();
       if (barcode.vertexSecondary() != 0) {
-        std::cout << "CAUTION: Taking position of a displaced secondary "
-                     "vertex, no primary found?"
-                  << std::endl;
+        skipVtxIdx = vtxId;
+        continue;
       }
     }
 
@@ -78,17 +84,18 @@ FW::TruthVerticesToTracksAlgorithm::execute(const AlgorithmContext& ctx) const
     // If so, save old collection of tracks (from previous vertex)
     // and set the position of the new vertex
     if (vtxId != oldVtxIdx && oldVtxIdx != -1) {
-      VertexAndTracks vtxAndTrks;
-      vtxAndTrks.vertexPosition = vtxPos;
-      vtxAndTrks.tracks         = tracks;
-      vertexAndTracksCollection.push_back(vtxAndTrks);
-      tracks.clear();
+      if (not tracks.empty()) {
+        VertexAndTracks vtxAndTrks;
+        vtxAndTrks.vertexPosition = vtxPos;
+        vtxAndTrks.tracks         = tracks;
+        vertexAndTracksCollection.push_back(vtxAndTrks);
+        tracks.clear();
+      }
 
       vtxPos = particle->position();
       if (barcode.vertexSecondary() != 0) {
-        std::cout << "CAUTION: Taking position of a displaced secondary "
-                     "vertex, no primary found?"
-                  << std::endl;
+        skipVtxIdx = vtxId;
+        continue;
       }
     }
 
