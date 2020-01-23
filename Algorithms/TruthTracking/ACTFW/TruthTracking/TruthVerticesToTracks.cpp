@@ -47,7 +47,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(const AlgorithmContext& ctx) const
   const auto& perigees = ctx.eventStore.get<std::vector<Acts::BoundParameters>>(
       m_cfg.inputPerigees);
 
-  // assert(particles.size()==perigees.size());
+  assert(particles.size() == perigees.size());
 
   // Vector to store vertex with tracks extracted from event
   std::vector<VertexAndTracks> vertexAndTracksCollection;
@@ -56,6 +56,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(const AlgorithmContext& ctx) const
   std::vector<Acts::BoundParameters> tracks;
   Acts::Vector3D                     vtxPos;
 
+  // Loop over all particles in event
   for (unsigned int i = 0; i < particles.size(); i++) {
     const auto& particle = particles.nth(i);
     const auto& perigee  = perigees[i];
@@ -64,27 +65,39 @@ FW::TruthVerticesToTracksAlgorithm::execute(const AlgorithmContext& ctx) const
 
     int vtxId = barcode.vertexPrimary();
 
+    if (i == 0) {
+      vtxPos = particle->position();
+      if (barcode.vertexSecondary() != 0) {
+        std::cout << "CAUTION: Taking position of a displaced secondary "
+                     "vertex, no primary found?"
+                  << std::endl;
+      }
+    }
+
+    // Check if particle comes from a new vertex.
+    // If so, save old collection of tracks (from previous vertex)
+    // and set the position of the new vertex
     if (vtxId != oldVtxIdx && oldVtxIdx != -1) {
-      // TEMP for now, TODO: correct position
-      vtxPos = Acts::Vector3D::Zero();
       VertexAndTracks vtxAndTrks;
       vtxAndTrks.vertexPosition = vtxPos;
       vtxAndTrks.tracks         = tracks;
       vertexAndTracksCollection.push_back(vtxAndTrks);
       tracks.clear();
-      std::cout << "SAVED - new vertex now..." << std::endl;
+
+      vtxPos = particle->position();
+      if (barcode.vertexSecondary() != 0) {
+        std::cout << "CAUTION: Taking position of a displaced secondary "
+                     "vertex, no primary found?"
+                  << std::endl;
+      }
     }
 
     tracks.push_back(perigee);
 
     oldVtxIdx = vtxId;
-
-    std::cout << barcode.vertexPrimary() << std::endl;
-
-    // std::cout << perigee.parameters() << std::endl;
   }
 
-  vtxPos = Acts::Vector3D::Zero();
+  // Save collection of tracks from last iterations
   VertexAndTracks vtxAndTrks;
   vtxAndTrks.vertexPosition = vtxPos;
   vtxAndTrks.tracks         = tracks;
