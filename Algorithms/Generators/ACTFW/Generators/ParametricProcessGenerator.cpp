@@ -42,8 +42,10 @@ FW::ParametricProcessGenerator::operator()(FW::RandomEngine& rng) const
     auto eta   = etaDist(rng);
     auto pt    = ptDist(rng);
     auto qsign = generateChargeSign(rng);
-    // all generated particles are treated as primary particles
-    auto barcode = Barcode().setPrimary(ip);
+    // all particles are treated as originating from the same primary vertex
+    // ensure particle id is non-zero
+    Barcode barcode;
+    barcode.setParticle(1u + ip);
 
     Acts::Vector3D position(d0 * std::sin(phi), d0 * -std::cos(phi), z0);
     Acts::Vector3D momentum(

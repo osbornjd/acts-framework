@@ -9,6 +9,7 @@
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
 
 #include <algorithm>
+#include <iterator>
 #include <random>
 
 namespace {
@@ -59,7 +60,7 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
   using namespace Data;
 
   // first process vertex is the primary one at origin with time=0
-  std::vector<SimVertex> processVertices = {
+  std::vector<SimVertex> vertices = {
       SimVertex({0.0, 0.0, 0.0}),
   };
 
@@ -80,7 +81,7 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
     if (not particle.isFinal()) { continue; }
     if (not particle.isVisible()) { continue; }
 
-    // extract particle identity
+    // extract particle type
     const auto mass   = particle.m0() * 1_GeV;
     const auto charge = particle.charge() * 1_e;
     const auto pdg    = particle.id();
@@ -92,44 +93,38 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
     const auto mom  = Acts::Vector3D(
         particle.px() * 1_GeV, particle.py() * 1_GeV, particle.pz() * 1_GeV);
 
-    // vertex identifier is set by the event generator not the process generator
-    // at the moment all particles from the event generator must be treated as
-    // primary particles including the ones from displaced decay vertices. there
-    // is no secondary vertex identifier in the barcode at the moment.
-    // TODO update barcode definition
-    Barcode barcode;
-    barcode.setPrimary(ip);
-
+    // identify secondary vertex
+    std::vector<SimVertex>::iterator secondaryVertex;
     if (not particle.hasVertex()) {
       // w/o defined vertex, must belong to the first (primary) process vertex
-      processVertices.front().outgoing.emplace_back(
-          pos, mom, mass, charge, pdg, barcode, time);
+      secondaryVertex = vertices.begin();
     } else {
-      // either add to existing process vertex w/ if exists or create new one
+      // either add to existing secondary vertex if exists or create new one
       // TODO can we do this w/o the manual search and position/time check?
-      auto it = std::find_if(processVertices.begin(),
-                             processVertices.end(),
-                             [=](const SimVertex& vertex) {
-                               return (vertex.position == pos)
-                                   and (vertex.time == time);
-                             });
-      if (it == processVertices.end()) {
+      secondaryVertex = std::find_if(
+          vertices.begin(), vertices.end(), [=](const SimVertex& vertex) {
+            return (vertex.position == pos) and (vertex.time == time);
+          });
+      if (secondaryVertex == vertices.end()) {
         // no matching secondary vertex exists -> create new one
-        SimVertex vertex(
-            pos,
-            {},  // ignore incoming particles
-            {
-                SimParticle(pos, mom, mass, charge, pdg, barcode, time),
-            },
-            0u,  // no process identifier
-            time);
-        processVertices.push_back(std::move(vertex));
+        SimVertex tmp(pos, {}, {}, 0u, time);
+        vertices.push_back(std::move(tmp));
+        secondaryVertex = std::prev(vertices.end());
+
         ACTS_VERBOSE("created new secondary vertex " << pos.transpose());
-      } else {
-        // particle belongs to an existing secondary vertex
-        it->outgoing.emplace_back(pos, mom, mass, charge, pdg, barcode, time);
       }
     }
+
+    // encode event structure information into barcode
+    Barcode barcode;
+    // NOTE: the primary vertex identifier in the barcode is set in the event
+    //      generator and does not need to be set here in the process generator.
+    barcode.setVertexSecondary(
+        std::distance(vertices.begin(), secondaryVertex));
+    // ensure particle identifier is non-zero
+    barcode.setParticle(1u + secondaryVertex->outgoing.size());
+    secondaryVertex->outgoing.emplace_back(
+        pos, mom, mass, charge, pdg, barcode, time);
   }
-  return processVertices;
+  return vertices;
 }
