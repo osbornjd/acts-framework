@@ -117,7 +117,7 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
 
     // encode event structure information into barcode
     Barcode barcode;
-    // NOTE the primary vertex identifier in the barcode is set in the event
+    // NOTE: the primary vertex identifier in the barcode is set in the event
     //      generator and does not need to be set here in the process generator.
     barcode.setVertexSecondary(
         std::distance(vertices.begin(), secondaryVertex));
