@@ -106,7 +106,7 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
             return (vertex.position == pos) and (vertex.time == time);
           });
       if (secondaryVertex == vertices.end()) {
-        // no maching secondary vertex exists -> create new one
+        // no matching secondary vertex exists -> create new one
         SimVertex tmp(pos, {}, {}, 0u, time);
         vertices.push_back(std::move(tmp));
         secondaryVertex = std::prev(vertices.end());
