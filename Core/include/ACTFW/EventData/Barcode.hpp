@@ -29,7 +29,7 @@ namespace FW {
 ///     where the leading secondary particle has similar kinematic properties
 ///     to the primary particle.
 ///
-/// The vertex information is encoded as two 12bit numbers the define the
+/// The vertex information is encoded as two 12bit numbers that define the
 /// primary and secondary vertex. The primary vertex must be non-zero.
 /// Particles with secondary vertex 0 originate directly from the primary
 /// vertex.
