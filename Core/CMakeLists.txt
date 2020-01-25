@@ -6,6 +6,8 @@ add_library(ACTFramework SHARED
   src/Utilities/Paths.cpp
   src/Utilities/Helpers.cpp
   src/Validation/EffPlotTool.cpp
+  src/Validation/FakeRatePlotTool.cpp
+  src/Validation/TrackSummaryPlotTool.cpp
   src/Validation/ProtoTrackClassification.cpp
   src/Validation/ResPlotTool.cpp)
 target_include_directories(
