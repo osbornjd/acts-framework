@@ -109,11 +109,37 @@ namespace PlotHelpers {
   }
 
   void
-  fillEff(TEfficiency* efficiency, float valueX, float valueY, bool status)
+  fillEff(TEfficiency* efficiency, float xValue, float yValue, bool status)
   {
     assert(efficiency != nullptr);
-    efficiency->Fill(status, valueX, valueY);
+    efficiency->Fill(status, xValue, yValue);
   }
+
+  TProfile*
+  bookProf(const char*    profName,
+           const char*    profTitle,
+           const Binning& varXBinning,
+           const Binning& varYBinning)
+  {
+    TProfile* prof = new TProfile(profName,
+                                  profTitle,
+                                  varXBinning.nBins,
+                                  varXBinning.min,
+                                  varXBinning.max,
+                                  varYBinning.min,
+                                  varYBinning.max);
+    prof->GetXaxis()->SetTitle(varXBinning.title.c_str());
+    prof->GetYaxis()->SetTitle(varYBinning.title.c_str());
+    return prof;
+  }
+
+  void
+  fillProf(TProfile* profile, float xValue, float yValue, float weight)
+  {
+    assert(profile != nullptr);
+    profile->Fill(xValue, yValue, weight);
+  }
+
 }  // namespace PlotHelpers
 
 }  // namespace FW
