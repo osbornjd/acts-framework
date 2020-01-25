@@ -337,8 +337,11 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
     m_nFiltered  = 0;
     m_nSmoothed  = 0;
     mj.visitBackwards(trackTip, [&](const auto& state) {
-      // we only fill the track states with measurement
-      if (not state.hasUncalibrated()) { return true; }
+      // we only fill the track states with non-outlier measurement
+      auto typeFlags = state.typeFlags();
+      if (not typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+        return true;
+      }
 
       // get the geometry ID
       auto geoID = state.referenceSurface().geoID();
