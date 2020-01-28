@@ -10,15 +10,15 @@
 
 #include <utility>
 
-#include <Acts/Utilities/Units.hpp>
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Fatras/FatrasAlgorithm.hpp"
 #include "ACTFW/Utilities/OptionsFwd.hpp"
-#include "Fatras/Kernel/SelectorList.hpp"
-#include "Fatras/Selectors/ChargeSelectors.hpp"
-#include "Fatras/Selectors/KinematicCasts.hpp"
-#include "Fatras/Selectors/SelectorHelpers.hpp"
+#include "Acts/Utilities/Units.hpp"
+#include "ActsFatras/Kernel/SelectorList.hpp"
+#include "ActsFatras/Selectors/ChargeSelectors.hpp"
+#include "ActsFatras/Selectors/KinematicCasts.hpp"
+#include "ActsFatras/Selectors/SelectorHelpers.hpp"
 
 namespace FW {
 namespace Options {
@@ -40,9 +40,9 @@ namespace Options {
   {
     using namespace Acts::UnitLiterals;
     using Config    = typename FatrasAlgorithm<simulator_t>::Config;
-    using PtMin     = Fatras::Min<Fatras::casts::pT>;
-    using EMin      = Fatras::Min<Fatras::casts::E>;
-    using AbsEtaMax = Fatras::Max<Fatras::casts::absEta>;
+    using PtMin     = ActsFatras::Min<ActsFatras::Casts::pT>;
+    using EMin      = ActsFatras::Min<ActsFatras::Casts::E>;
+    using AbsEtaMax = ActsFatras::Max<ActsFatras::Casts::absEta>;
 
     Config cfg(std::forward<simulator_t>(simulator));
 

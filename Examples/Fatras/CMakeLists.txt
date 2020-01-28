@@ -1,6 +1,6 @@
 set(_common_libraries
   ActsCore
-  FatrasCore
+  ActsFatras
   ACTFramework
   ACTFWBFieldPlugin
   ActsFrameworkIoCsv
