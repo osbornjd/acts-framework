@@ -93,7 +93,6 @@ endif()
 
 # packages not available as external packages that are alway build from source
 
-add_subdirectory(external/acts-fatras)
 add_subdirectory(external/dfelibs)
 
 # simplify handling of optional components
