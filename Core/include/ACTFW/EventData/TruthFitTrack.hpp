@@ -17,6 +17,9 @@
 #include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/Validation/ProtoTrackClassification.hpp"
 
+#include <boost/none.hpp>
+#include <boost/optional.hpp>
+
 namespace FW {
 
 /// @brief struct for truth fitting result
@@ -102,7 +105,9 @@ public:
     size_t nMeasurements = 0;
     if (m_trajectory) {
       (*m_trajectory).visitBackwards(m_trackTip, [&](const auto& state) {
-        if (state.hasUncalibrated()) { nMeasurements++; }
+        if (state.typeFlags().test(Acts::TrackStateFlag::MeasurementFlag)) {
+          nMeasurements++;
+        }
       });
     }
     return nMeasurements;
@@ -131,7 +136,9 @@ public:
     if (m_trajectory) {
       (*m_trajectory).visitBackwards(m_trackTip, [&](const auto& state) {
         // No truth info with non-measurement state
-        if (not state.hasUncalibrated()) { return true; }
+        if (not state.typeFlags().test(Acts::TrackStateFlag::MeasurementFlag)) {
+          return true;
+        }
         // Find the truth particle associated with this state
         const auto& particle = state.uncalibrated().truthHit().particle;
 
