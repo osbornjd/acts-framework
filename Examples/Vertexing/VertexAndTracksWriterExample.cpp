@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2019 CERN for the benefit of the Acts project
+// Copyright (C) 2019-2020 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -73,12 +73,12 @@ main(int argc, char* argv[])
   particleSmearingCfg.outputTrackParameters = "smearedparameters";
   particleSmearingCfg.randomNumbers         = rnd;
   // Gaussian sigmas to smear particle parameters
-  particleSmearingCfg.sigmaD0    = 20_um;
-  particleSmearingCfg.sigmaD0PtA = 30_um;
-  particleSmearingCfg.sigmaD0PtB = 0.3 / 1_GeV;
-  particleSmearingCfg.sigmaZ0    = 20_um;
-  particleSmearingCfg.sigmaZ0PtA = 30_um;
-  particleSmearingCfg.sigmaZ0PtB = 0.3 / 1_GeV;
+  particleSmearingCfg.sigmaD0    = 33_um;
+  particleSmearingCfg.sigmaD0PtA = 108_um;
+  particleSmearingCfg.sigmaD0PtB = 0.473 / 1_GeV;
+  particleSmearingCfg.sigmaZ0    = 59_um;
+  particleSmearingCfg.sigmaZ0PtA = 152_um;
+  particleSmearingCfg.sigmaZ0PtB = 0.264 / 1_GeV;
   particleSmearingCfg.sigmaPhi   = 1_degree;
   particleSmearingCfg.sigmaTheta = 1_degree;
   particleSmearingCfg.sigmaPRel  = 0.01;
