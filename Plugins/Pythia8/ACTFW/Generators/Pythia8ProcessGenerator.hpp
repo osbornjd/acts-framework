@@ -29,8 +29,7 @@ public:
     pdg_type pdgBeam0  = 2212;  ///< pdg code of incoming beam 1
     pdg_type pdgBeam1  = 2212;  ///< pdg code of incoming beam 2
     double   cmsEnergy = 14 * Acts::units::_TeV;  ///< center of mass energy
-    std::vector<std::string> settings
-        = {{"HardQCD:all = on"}};  ///< additional pythia settings
+    std::vector<std::string> settings{"Top:gg2ttbar = on", "Top:qq2ttbar = on"};
   };
 
   static std::function<std::vector<Data::SimVertex>(RandomEngine&)>
