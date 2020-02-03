@@ -36,6 +36,13 @@ public:
     /// Pt-dependent d0 resolution of the form sigma_d0 = A*exp(-1.*abs(B)*pt).
     double sigmaD0PtA = 0 * Acts::UnitConstants::um;
     double sigmaD0PtB = 1 / Acts::UnitConstants::GeV;
+
+    // Eta-dependent d0 resolution of form A*eta*eta
+    double sigmaD0etaA = 1.1 * Acts::UnitConstants::um;
+    // Eta-dependent z0 resolution of form A*eta*eta
+    double sigmaZ0etaA = 6.3 * Acts::UnitConstants::um;
+
+
     /// Constant term of the z0 resolution.
     double sigmaZ0 = 30 * Acts::UnitConstants::um;
     /// Pt-dependent z0 resolution of the form sigma_z0 = A*exp(-1.*abs(B)*pt).

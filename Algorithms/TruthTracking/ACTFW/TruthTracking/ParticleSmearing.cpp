@@ -52,9 +52,9 @@ FW::ParticleSmearing::execute(const AlgorithmContext& ctx) const
     const auto phi   = vh::phi(particle.momentum());
 
     // compute momentum-dependent resolutions
-    const auto sigmaD0 = m_cfg.sigmaD0
+    auto sigmaD0 = m_cfg.sigmaD0
         + m_cfg.sigmaD0PtA * std::exp(-1.0 * std::abs(m_cfg.sigmaD0PtB) * pt);
-    const auto sigmaZ0 = m_cfg.sigmaZ0
+    auto sigmaZ0 = m_cfg.sigmaZ0
         + m_cfg.sigmaZ0PtA * std::exp(-1.0 * std::abs(m_cfg.sigmaZ0PtB) * pt);
     const auto sigmaP = m_cfg.sigmaPRel * p;
     // var(q/p) = (d(1/p)/dp)² * var(p) = (-1/p²)² * var(p)
@@ -63,6 +63,15 @@ FW::ParticleSmearing::execute(const AlgorithmContext& ctx) const
     const auto sigmaT0    = m_cfg.sigmaT0;
     const auto sigmaPhi   = m_cfg.sigmaPhi;
     const auto sigmaTheta = m_cfg.sigmaTheta;
+
+
+    const auto eta = -std::log(std::tan(theta/2));
+    const auto sigmaD0eta = m_cfg.sigmaD0etaA * eta * eta;
+    const auto sigmaZ0eta = m_cfg.sigmaZ0etaA * eta * eta;
+
+    sigmaD0 = std::sqrt(sigmaD0*sigmaD0 + sigmaD0eta*sigmaD0eta);
+    sigmaZ0 = std::sqrt(sigmaZ0*sigmaZ0 + sigmaZ0eta*sigmaZ0eta);
+
     // converstion from perigee d0,z0 to curvilinear u,v
     // d0 and u differ only by a sign
     const auto sigmaU = sigmaD0;
