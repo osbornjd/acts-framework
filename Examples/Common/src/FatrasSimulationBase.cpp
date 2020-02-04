@@ -8,17 +8,6 @@
 
 #include "detail/FatrasSimulationBase.hpp"
 
-#include <Acts/Geometry/GeometryID.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/MagneticField/ConstantBField.hpp>
-#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
-#include <Acts/MagneticField/SharedBField.hpp>
-#include <Acts/Propagator/EigenStepper.hpp>
-#include <Acts/Propagator/Navigator.hpp>
-#include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Propagator/StraightLineStepper.hpp>
-#include <Acts/Propagator/detail/DebugOutputActor.hpp>
-#include <Acts/Surfaces/Surface.hpp>
 #include <boost/program_options.hpp>
 
 #include "ACTFW/EventData/SimHit.hpp"
@@ -35,17 +24,28 @@
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-#include "Fatras/Kernel/Interactor.hpp"
-#include "Fatras/Kernel/Process.hpp"
-#include "Fatras/Kernel/SelectorList.hpp"
-#include "Fatras/Kernel/Simulator.hpp"
-#include "Fatras/Physics/EnergyLoss/BetheBloch.hpp"
-#include "Fatras/Physics/EnergyLoss/BetheHeitler.hpp"
-#include "Fatras/Physics/Scattering/Highland.hpp"
-#include "Fatras/Physics/Scattering/Scattering.hpp"
-#include "Fatras/Selectors/ChargeSelectors.hpp"
-#include "Fatras/Selectors/KinematicCasts.hpp"
-#include "Fatras/Selectors/SelectorHelpers.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
+#include "Acts/MagneticField/SharedBField.hpp"
+#include "Acts/Propagator/EigenStepper.hpp"
+#include "Acts/Propagator/Navigator.hpp"
+#include "Acts/Propagator/Propagator.hpp"
+#include "Acts/Propagator/StraightLineStepper.hpp"
+#include "Acts/Propagator/detail/DebugOutputActor.hpp"
+#include "Acts/Surfaces/Surface.hpp"
+#include "ActsFatras/Kernel/Interactor.hpp"
+#include "ActsFatras/Kernel/Process.hpp"
+#include "ActsFatras/Kernel/SelectorList.hpp"
+#include "ActsFatras/Kernel/Simulator.hpp"
+#include "ActsFatras/Physics/EnergyLoss/BetheBloch.hpp"
+#include "ActsFatras/Physics/EnergyLoss/BetheHeitler.hpp"
+#include "ActsFatras/Physics/Scattering/Highland.hpp"
+#include "ActsFatras/Physics/Scattering/Scattering.hpp"
+#include "ActsFatras/Selectors/ChargeSelectors.hpp"
+#include "ActsFatras/Selectors/KinematicCasts.hpp"
+#include "ActsFatras/Selectors/SelectorHelpers.hpp"
 
 /// Construct SimHits from Fatras.
 struct SimHitCreator
@@ -153,43 +153,45 @@ setupSimulationAlgorithm(
   using NeutralStepper    = Acts::StraightLineStepper;
   using NeutralPropagator = Acts::Propagator<NeutralStepper, Navigator>;
   // define selector types for particle cuts
-  using NonZeroCharge = Fatras::ChargedSelector;
-  using ZeroCharge    = Fatras::NeutralSelector;
-  using PtMin         = Fatras::Min<Fatras::casts::pT>;
-  using EMin          = Fatras::Min<Fatras::casts::E>;
-  using AbsEtaMax     = Fatras::Max<Fatras::casts::absEta>;
+  using NonZeroCharge = ActsFatras::ChargedSelector;
+  using ZeroCharge    = ActsFatras::NeutralSelector;
+  using PtMin         = ActsFatras::Min<ActsFatras::Casts::pT>;
+  using EMin          = ActsFatras::Min<ActsFatras::Casts::E>;
+  using AbsEtaMax     = ActsFatras::Max<ActsFatras::Casts::absEta>;
   using ChargedSelector
-      = Fatras::SelectorListAND<NonZeroCharge, PtMin, AbsEtaMax>;
-  using NeutralSelector = Fatras::SelectorListAND<ZeroCharge, EMin, AbsEtaMax>;
+      = ActsFatras::SelectorListAND<NonZeroCharge, PtMin, AbsEtaMax>;
+  using NeutralSelector
+      = ActsFatras::SelectorListAND<ZeroCharge, EMin, AbsEtaMax>;
 
   // Define interactor types
   using All = Selector;
   // Define the processes with selectors (no hadronic interaction yet??)
-  using BetheBlochProcess = Fatras::Process<Fatras::BetheBloch, All, All, All>;
+  using BetheBlochProcess
+      = ActsFatras::Process<ActsFatras::BetheBloch, All, All, All>;
   using BetheHeitlerProcess
-      = Fatras::Process<Fatras::BetheHeitler, All, All, All>;
-  using ScatteringProcess
-      = Fatras::Process<Fatras::Scattering<Fatras::Highland>, All, All, All>;
-  using PhysicsList = Fatras::
+      = ActsFatras::Process<ActsFatras::BetheHeitler, All, All, All>;
+  using ScatteringProcess = ActsFatras::
+      Process<ActsFatras::Scattering<ActsFatras::Highland>, All, All, All>;
+  using PhysicsList = ActsFatras::
       PhysicsList<BetheBlochProcess, BetheHeitlerProcess, ScatteringProcess>;
 
-  using ChargedInteractor = Fatras::Interactor<FW::RandomEngine,
-                                               FW::Data::SimParticle,
-                                               FW::Data::SimHit,
-                                               SimHitCreator,
-                                               SurfaceSelector,
-                                               PhysicsList>;
-  using NeutralInteractor = Fatras::Interactor<FW::RandomEngine,
-                                               FW::Data::SimParticle,
-                                               FW::Data::SimHit,
-                                               SimHitCreator>;
+  using ChargedInteractor = ActsFatras::Interactor<FW::RandomEngine,
+                                                   FW::Data::SimParticle,
+                                                   FW::Data::SimHit,
+                                                   SimHitCreator,
+                                                   SurfaceSelector,
+                                                   PhysicsList>;
+  using NeutralInteractor = ActsFatras::Interactor<FW::RandomEngine,
+                                                   FW::Data::SimParticle,
+                                                   FW::Data::SimHit,
+                                                   SimHitCreator>;
   // define simulator type
-  using Simulator = Fatras::Simulator<ChargedPropagator,
-                                      ChargedSelector,
-                                      ChargedInteractor,
-                                      NeutralPropagator,
-                                      NeutralSelector,
-                                      NeutralInteractor>;
+  using Simulator = ActsFatras::Simulator<ChargedPropagator,
+                                          ChargedSelector,
+                                          ChargedInteractor,
+                                          NeutralPropagator,
+                                          NeutralSelector,
+                                          NeutralInteractor>;
   // define algorithm type
   using SimulationAlgorithm = FW::FatrasAlgorithm<Simulator>;
 
