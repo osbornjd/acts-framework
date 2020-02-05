@@ -22,6 +22,7 @@
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Io/Root/RootMaterialTrackReader.hpp"
+#include "ACTFW/Io/Root/RootMaterialTrackWriter.hpp"
 #include "ACTFW/Io/Root/RootMaterialWriter.hpp"
 #include "ACTFW/MaterialMapping/MaterialMapping.hpp"
 #include "ACTFW/MaterialMapping/MaterialMappingOptions.hpp"
@@ -118,6 +119,16 @@ materialMappingExample(int argc, char* argv[], FW::IBaseDetector& detector)
     using RootWriter = FW::MaterialWriterT<FW::RootMaterialWriter>;
     mmAlgConfig.materialWriters.push_back(
         std::make_shared<RootWriter>(std::move(rmwImpl)));
+
+    // Write the propagation steps as ROOT TTree
+    FW::RootMaterialTrackWriter::Config matTrackWriterRootConfig;
+    matTrackWriterRootConfig.filePath   = materialFileName + "_tracks.root";
+    matTrackWriterRootConfig.collection = mmAlgConfig.mappingMaterialCollection;
+    matTrackWriterRootConfig.storesurface = true;
+    auto matTrackWriterRoot = std::make_shared<FW::RootMaterialTrackWriter>(
+        matTrackWriterRootConfig, logLevel);
+
+    sequencer.addWriter(matTrackWriterRoot);
   }
 
   if (!materialFileName.empty() and vm["output-json"].template as<bool>()) {

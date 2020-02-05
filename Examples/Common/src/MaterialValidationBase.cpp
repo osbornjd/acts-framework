@@ -180,6 +180,7 @@ materialValidationExample(int argc, char* argv[], FW::IBaseDetector& detector)
     matTrackWriterRootConfig.collection = matCollection;
     matTrackWriterRootConfig.filePath
         = FW::joinPaths(outputDir, matCollection + ".root");
+    matTrackWriterRootConfig.storesurface = true;
     auto matTrackWriterRoot = std::make_shared<FW::RootMaterialTrackWriter>(
         matTrackWriterRootConfig, logLevel);
     sequencer.addWriter(matTrackWriterRoot);
