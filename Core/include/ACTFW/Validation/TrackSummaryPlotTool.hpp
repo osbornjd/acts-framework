@@ -41,7 +41,7 @@ public:
   };
 
   /// @brief Nested Cache struct
-  struct RecoTrackPlotCache
+  struct TrackSummaryPlotCache
   {
     TProfile* nStates_vs_eta;        ///< number of total states vs eta
     TProfile* nMeasurements_vs_eta;  ///< number of non-outlier measurements
@@ -62,20 +62,20 @@ public:
                        Acts::Logging::Level level = Acts::Logging::INFO);
 
   /// @brief book the track info plots
-  /// @param recoTrackPlotCache the cache for track info plots
+  /// @param trackSummaryPlotCache the cache for track info plots
   void
-  book(RecoTrackPlotCache& recoTrackPlotCache) const;
+  book(TrackSummaryPlotCache& trackSummaryPlotCache) const;
 
   /// @brief fill track info
   ///
-  /// @param recoTrackPlotCache cache object for track info plots
+  /// @param trackSummaryPlotCache cache object for track info plots
   /// @param truthParticle truth particle for this track
   /// @param nStates number of track states
   /// @param nMeasurements number of measurements
   /// @param nOutliers number of outliers
   /// @param nHoles number of holes
   void
-  fill(RecoTrackPlotCache&      recoTrackPlotCache,
+  fill(TrackSummaryPlotCache&   trackSummaryPlotCache,
        const Data::SimParticle& truthParticle,
        const size_t&            nStates,
        const size_t&            nMeasurments,
@@ -83,14 +83,14 @@ public:
        const size_t&            nHoles) const;
 
   /// @brief write the track info plots to file
-  /// @param recoTrackPlotCache cache object for track info plots
+  /// @param trackSummaryPlotCache cache object for track info plots
   void
-  write(const RecoTrackPlotCache& recoTrackPlotCache) const;
+  write(const TrackSummaryPlotCache& trackSummaryPlotCache) const;
 
   /// @brief delete the track info plots
-  /// @param recoTrackPlotCache cache object for track info plots
+  /// @param trackSummaryPlotCache cache object for track info plots
   void
-  clear(RecoTrackPlotCache& recoTrackPlotCache) const;
+  clear(TrackSummaryPlotCache& trackSummaryPlotCache) const;
 
 private:
   Config                              m_cfg;     ///< The Config class
