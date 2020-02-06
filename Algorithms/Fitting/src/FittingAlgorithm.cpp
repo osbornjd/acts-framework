@@ -57,7 +57,8 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
   // Synchronize the access to the fitting results (trajectories)
   tbb::queuing_mutex trajectoriesMutex;
 
-  //tbb::task_scheduler_init init(4);   
+
+  tbb::task_scheduler_init init(1);   
   // Perform the fit for each input track
   tbb::parallel_for(tbb::blocked_range<size_t> (0, protoTracks.size()),
         [&](const tbb::blocked_range<size_t>& r) {
@@ -137,6 +138,7 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
               trajectories.push_back(TruthFitTrack());
             }
         } //end for
+      return FW::ProcessCode::SUCCESS;
     } //end parallel_for
   );
 
