@@ -29,6 +29,8 @@ FW::TrackFitterPerformanceWriter::TrackFitterPerformanceWriter(
                     "RECREATE"))
   , m_resPlotTool(m_cfg.resPlotToolConfig, lvl)
   , m_effPlotTool(m_cfg.effPlotToolConfig, lvl)
+  , m_trackSummaryPlotTool(m_cfg.trackSummaryPlotToolConfig, lvl)
+
 {
   // Input track and truth collection name
   if (m_cfg.inputTrajectories.empty()) {
@@ -53,12 +55,15 @@ FW::TrackFitterPerformanceWriter::TrackFitterPerformanceWriter(
   // initialize the residual and efficiency plots tool
   m_resPlotTool.book(m_resPlotCache);
   m_effPlotTool.book(m_effPlotCache);
+  m_trackSummaryPlotTool.book(m_trackSummaryPlotCache);
 }
 
 FW::TrackFitterPerformanceWriter::~TrackFitterPerformanceWriter()
 {
   m_resPlotTool.clear(m_resPlotCache);
   m_effPlotTool.clear(m_effPlotCache);
+  m_trackSummaryPlotTool.clear(m_trackSummaryPlotCache);
+
   if (m_outputFile) { m_outputFile->Close(); }
 }
 
@@ -72,6 +77,8 @@ FW::TrackFitterPerformanceWriter::endRun()
     m_outputFile->cd();
     m_resPlotTool.write(m_resPlotCache);
     m_effPlotTool.write(m_effPlotCache);
+    m_trackSummaryPlotTool.write(m_trackSummaryPlotCache);
+
     ACTS_INFO("Wrote performance plots to '" << m_outputFile->GetPath() << "'");
   }
   return ProcessCode::SUCCESS;
@@ -94,6 +101,8 @@ FW::TrackFitterPerformanceWriter::writeT(
 
   // Loop over all trajectories
   for (const auto& traj : trajectories) {
+    if (not traj.hasTrajectory()) { continue; }
+    const auto& [trackTip, track] = traj.trajectory();
 
     // get the majority truth particle to this track
     std::vector<ParticleHitCount> particleHitCount
@@ -106,6 +115,29 @@ FW::TrackFitterPerformanceWriter::writeT(
       if (ip != particles.end()) {
         // record this trajectory with its truth info
         reconTrajectories.emplace(ip->barcode(), traj);
+
+        // count the total number of hits and hits from the majority truth
+        // particle
+        size_t nTotalStates = 0, nHits = 0, nOutliers = 0, nHoles = 0;
+        track.visitBackwards(trackTip, [&](const auto& state) {
+          nTotalStates++;
+          auto typeFlags = state.typeFlags();
+          if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+            nHits++;
+          } else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
+            nOutliers++;
+          } else if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
+            nHoles++;
+          }
+        });
+
+        // fill the track detailed info
+        m_trackSummaryPlotTool.fill(m_trackSummaryPlotCache,
+                                    *ip,
+                                    nTotalStates,
+                                    nHits,
+                                    nOutliers,
+                                    nHoles);
       }
     }
 
