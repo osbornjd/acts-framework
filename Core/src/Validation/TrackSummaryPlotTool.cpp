@@ -40,16 +40,16 @@ FW::TrackSummaryPlotTool::book(
       "nOutliers_vs_eta", "Number of outliers vs. eta", bEta, bMult);
   // number of track states versus pt
   trackSummaryPlotCache.nStates_vs_pt = PlotHelpers::bookProf(
-      "nStates_vs_pt", "Number of total states vs. pt", bPt, bMult);
+      "nStates_vs_pT", "Number of total states vs. pt", bPt, bMult);
   // number of measurements versus pt
   trackSummaryPlotCache.nMeasurements_vs_pt = PlotHelpers::bookProf(
-      "nMeasurements_vs_pt", "Number of measurements vs. pt", bPt, bMult);
+      "nMeasurements_vs_pT", "Number of measurements vs. pt", bPt, bMult);
   // number of holes versus pt
   trackSummaryPlotCache.nHoles_vs_pt = PlotHelpers::bookProf(
-      "nHoles_vs_pt", "Number of holes vs. pt", bPt, bMult);
+      "nHoles_vs_pT", "Number of holes vs. pt", bPt, bMult);
   // number of outliers versus pt
   trackSummaryPlotCache.nOutliers_vs_pt = PlotHelpers::bookProf(
-      "nOutliers_vs_pt", "Number of outliers vs. pt", bPt, bMult);
+      "nOutliers_vs_pT", "Number of outliers vs. pt", bPt, bMult);
 }
 
 void
