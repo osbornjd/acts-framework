@@ -147,7 +147,7 @@ namespace Options {
         lConfig.layerName  = nlayernames[tin];
         lConfig.sensorName = nsensitivenames[tin];
         lConfig.localAxes  = nsensitiveaxes[tin];
-        layerBuilderConfig.negativeLayerConfigs.push_back(lConfig);
+        layerBuilderConfig.layerConfigurations[0].push_back(lConfig);
       }
       // fill the configs - for barrel
       for (int ic = 0; ic < cc; ++ic, ++tic) {
@@ -155,7 +155,7 @@ namespace Options {
         lConfig.layerName  = clayernames[tic];
         lConfig.sensorName = csensitivenames[tic];
         lConfig.localAxes  = csensitiveaxes[tic];
-        layerBuilderConfig.centralLayerConfigs.push_back(lConfig);
+        layerBuilderConfig.layerConfigurations[1].push_back(lConfig);
       }
       // fill the configs - for positive
       for (int ip = 0; ip < cp; ++ip, ++tip) {
@@ -163,7 +163,7 @@ namespace Options {
         lConfig.layerName  = playernames[tip];
         lConfig.sensorName = psensitivenames[tip];
         lConfig.localAxes  = psensitiveaxes[tip];
-        layerBuilderConfig.positiveLayerConfigs.push_back(lConfig);
+        layerBuilderConfig.layerConfigurations[2].push_back(lConfig);
       }
       // set the scale and the layer creator
       layerBuilderConfig.configurationName = subdetectors[idet];
