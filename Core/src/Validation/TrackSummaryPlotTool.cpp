@@ -22,34 +22,34 @@ void
 FW::TrackSummaryPlotTool::book(
     TrackSummaryPlotTool::TrackSummaryPlotCache& trackSummaryPlotCache) const
 {
-  PlotHelpers::Binning bEta  = m_cfg.varBinning.at("Eta");
-  PlotHelpers::Binning bPt   = m_cfg.varBinning.at("Pt");
-  PlotHelpers::Binning bMult = m_cfg.varBinning.at("Multiplicity");
+  PlotHelpers::Binning bEta = m_cfg.varBinning.at("Eta");
+  PlotHelpers::Binning bPt  = m_cfg.varBinning.at("Pt");
+  PlotHelpers::Binning bNum = m_cfg.varBinning.at("Num");
   ACTS_DEBUG("Initialize the histograms for track info plots");
   // number of track states versus eta
   trackSummaryPlotCache.nStates_vs_eta = PlotHelpers::bookProf(
-      "nStates_vs_eta", "Number of total states vs. eta", bEta, bMult);
+      "nStates_vs_eta", "Number of total states vs. #eta", bEta, bNum);
   // number of measurements versus eta
   trackSummaryPlotCache.nMeasurements_vs_eta = PlotHelpers::bookProf(
-      "nMeasurements_vs_eta", "Number of measurements vs. eta", bEta, bMult);
+      "nMeasurements_vs_eta", "Number of measurements vs. #eta", bEta, bNum);
   // number of holes versus eta
   trackSummaryPlotCache.nHoles_vs_eta = PlotHelpers::bookProf(
-      "nHoles_vs_eta", "Number of holes vs. eta", bEta, bMult);
+      "nHoles_vs_eta", "Number of holes vs. #eta", bEta, bNum);
   // number of outliers versus eta
   trackSummaryPlotCache.nOutliers_vs_eta = PlotHelpers::bookProf(
-      "nOutliers_vs_eta", "Number of outliers vs. eta", bEta, bMult);
+      "nOutliers_vs_eta", "Number of outliers vs. #eta", bEta, bNum);
   // number of track states versus pt
   trackSummaryPlotCache.nStates_vs_pt = PlotHelpers::bookProf(
-      "nStates_vs_pT", "Number of total states vs. pt", bPt, bMult);
+      "nStates_vs_pT", "Number of total states vs. pT", bPt, bNum);
   // number of measurements versus pt
   trackSummaryPlotCache.nMeasurements_vs_pt = PlotHelpers::bookProf(
-      "nMeasurements_vs_pT", "Number of measurements vs. pt", bPt, bMult);
+      "nMeasurements_vs_pT", "Number of measurements vs. pT", bPt, bNum);
   // number of holes versus pt
   trackSummaryPlotCache.nHoles_vs_pt = PlotHelpers::bookProf(
-      "nHoles_vs_pT", "Number of holes vs. pt", bPt, bMult);
+      "nHoles_vs_pT", "Number of holes vs. pT", bPt, bNum);
   // number of outliers versus pt
   trackSummaryPlotCache.nOutliers_vs_pt = PlotHelpers::bookProf(
-      "nOutliers_vs_pT", "Number of outliers vs. pt", bPt, bMult);
+      "nOutliers_vs_pT", "Number of outliers vs. pT", bPt, bNum);
 }
 
 void

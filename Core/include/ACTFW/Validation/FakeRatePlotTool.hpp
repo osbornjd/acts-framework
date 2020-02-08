@@ -33,11 +33,11 @@ public:
   /// @brief The nested configuration struct
   struct Config
   {
-    std::map<std::string, PlotHelpers::Binning> varBinning = {
-        {"Eta", PlotHelpers::Binning("#eta", 40, -4, 4)},
-        {"Phi", PlotHelpers::Binning("#phi", 100, -3.15, 3.15)},
-        {"Pt", PlotHelpers::Binning("pT [GeV/c]", 20, 0, 100)},
-        {"Multiplicity", PlotHelpers::Binning("N_{tracks}", 30, -0.5, 29.5)}};
+    std::map<std::string, PlotHelpers::Binning> varBinning
+        = {{"Eta", PlotHelpers::Binning("#eta", 40, -4, 4)},
+           {"Phi", PlotHelpers::Binning("#phi", 100, -3.15, 3.15)},
+           {"Pt", PlotHelpers::Binning("pT [GeV/c]", 20, 0, 100)},
+           {"Num", PlotHelpers::Binning("N", 30, -0.5, 29.5)}};
   };
 
   /// @brief Nested Cache struct
@@ -49,6 +49,10 @@ public:
     TEfficiency* fakerate_vs_eta;      ///< Tracking fake rate vs eta
     TEfficiency* fakerate_vs_phi;      ///< Tracking fake rate vs phi
     TEfficiency* fakerate_vs_pT;       ///< Tracking fake rate vs pT
+    //@Todo: make duplication number plots with duplication plot tool
+    TProfile* duplicationNum_vs_eta;  ///< Tracking duplication number vs eta
+    TProfile* duplicationNum_vs_phi;  ///< Tracking duplication number vs phi
+    TProfile* duplicationNum_vs_pT;   ///< Tracking duplication number vs pT
   };
 
   /// Constructor
@@ -77,12 +81,14 @@ public:
   /// Multi-trajectory
   ///
   /// @param fakeRatePlotCache cache object for fake rate plots
+  /// @param truthParticle the truth Particle
   /// @param nTruthMatchedTracks the number of truth-Matched tracks
   /// @param nFakeTracks the number of fake tracks
   void
-  fill(FakeRatePlotCache& fakeRatePlotCache,
-       const size_t&      nTruthMatchedTracks,
-       const size_t&      nFakeTracks) const;
+  fill(FakeRatePlotCache&       fakeRatePlotCache,
+       const Data::SimParticle& truthParticle,
+       const size_t&            nTruthMatchedTracks,
+       const size_t&            nFakeTracks) const;
 
   /// @brief write the fake rate plots to file
   /// @param fakeRatePlotCache cache object for fake rate plots
