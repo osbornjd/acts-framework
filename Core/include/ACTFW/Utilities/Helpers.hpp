@@ -14,6 +14,7 @@
 #include "TFitResultPtr.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TProfile.h"
 #include "TROOT.h"
 
 namespace FW {
@@ -110,11 +111,31 @@ namespace PlotHelpers {
 
   /// @brief fill a 2D efficiency plot
   /// @param efficiency plot to fill
-  /// @param valueX x value to fill
-  /// @param valueY y value to fill
+  /// @param xValue x value to fill
+  /// @param yValue y value to fill
   /// @param status bool to denote passed or not
   void
-  fillEff(TEfficiency* efficiency, float valueX, float valueY, bool status);
+  fillEff(TEfficiency* efficiency, float xValue, float yValue, bool status);
+
+  /// @brief book a TProfile plot
+  /// @param profName the name of plot
+  /// @param profTitle the title of plot
+  /// @param varXBinning the binning info of variable at x axis
+  /// @param varYBinning the binning info of variable at y axis
+  /// @return TProfile pointer
+  TProfile*
+  bookProf(const char*    profName,
+           const char*    profTitle,
+           const Binning& varXBinning,
+           const Binning& varYBinning);
+
+  /// @brief fill a TProfile plot
+  /// @param profile plot to fill
+  /// @param xValue  xvalue to fill
+  /// @param yValue  yvalue to fill
+  /// @param weight weight to fill
+  void
+  fillProf(TProfile* profile, float xValue, float yValue, float weight = 1.0);
 
 }  // namespace PlotHelpers
 
