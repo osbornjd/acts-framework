@@ -245,15 +245,12 @@ namespace Options {
         = *std::max_element(series_size.begin(), series_size.end());
     std::array<size_t, 3> ti = {0, 0, 0};
 
-
-      // If a beam pipe is present, shift the sub detector names by one
-      // Create a beam pipe if configured to do so
-      int idetaddon = 0;
-      auto beamPipeParameters 
+    // If a beam pipe is present, shift the sub detector names by one
+    // Create a beam pipe if configured to do so
+    int  idetaddon = 0;
+    auto beamPipeParameters
         = vm["geo-tgeo-bp-parameters"].template as<read_range>();
-      if (beamPipeParameters.size() > 2){
-         ++idetaddon;
-      }
+    if (beamPipeParameters.size() > 2) { ++idetaddon; }
 
     // Prepare the TGeoLayerBuilder::Configs
     for (size_t idet = 0; idet < max_series; ++idet) {
@@ -294,9 +291,8 @@ namespace Options {
         }
       }
 
-
       // Set the scale and the layer creator
-      layerBuilderConfig.configurationName = subdetectors[idet+idetaddon];
+      layerBuilderConfig.configurationName = subdetectors[idet + idetaddon];
       layerBuilderConfig.unit              = unitScalor;
       layerBuilderConfig.layerCreator      = layerCreator;
 
