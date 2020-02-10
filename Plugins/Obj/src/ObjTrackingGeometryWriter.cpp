@@ -74,8 +74,9 @@ FW::Obj::ObjTrackingGeometryWriter::write(const AlgorithmContext&     context,
       if (!surfaceWriter) return;
       // layer prefix
       surfaceWriter->write(m_cfg.layerPrefix);
-      // try to write the material surface as well
-      if (layer->surfaceRepresentation().surfaceMaterial()) {
+      // Try to write the material surface as well
+      if (layer->surfaceRepresentation().surfaceMaterial()
+          or layer->surfaceArray() == nullptr) {
         surfaceWriter->write(context, layer->surfaceRepresentation());
       }
       // the the approaching surfaces and check if they have material
