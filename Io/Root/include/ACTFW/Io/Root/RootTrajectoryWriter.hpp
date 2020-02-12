@@ -9,18 +9,18 @@
 #pragma once
 
 #include <mutex>
-
-#include <Acts/EventData/Measurement.hpp>
-#include <Acts/EventData/TrackParameters.hpp>
-#include <Acts/Geometry/GeometryID.hpp>
-#include <Acts/Utilities/ParameterDefinitions.hpp>
-
+#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/EventData/DataContainers.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/EventData/Track.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
+#include "Acts/EventData/Measurement.hpp"
+#include "Acts/EventData/MultiTrajectory.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/Utilities/ParameterDefinitions.hpp"
 
 class TFile;
 class TTree;
@@ -38,11 +38,12 @@ using Measurement
 ///
 /// Safe to use from multiple writer threads - uses a std::mutex lock.
 ///
-/// Each entry in the TTree corresponds to one trajectory for optimum writing
-/// speed. The event number is part of the written data.
+/// Each entry in the TTree corresponds to one trajectory for optimum
+/// writing speed. The event number is part of the written data.
 ///
 /// A common file can be provided for to the writer to attach his TTree,
-/// this is done by setting the Config::rootFile pointer to an existing file
+/// this is done by setting the Config::rootFile pointer to an existing
+/// file
 ///
 /// Safe to use from multiple writer threads - uses a std::mutex lock.
 class RootTrajectoryWriter final : public WriterT<TrajectoryContainer>
@@ -90,18 +91,18 @@ private:
   int        m_eventNr{0};           ///< the event number
   int        m_trajNr{0};            ///< the trajectory number
 
-  unsigned long m_t_barcode{0};  ///< Truth particle barcode
-  int           m_t_charge{0};   ///< Truth particle charge
-  float         m_t_vx{0.};      ///< Truth particle vertex x
-  float         m_t_vy{0.};      ///< Truth particle vertex y
-  float         m_t_vz{0.};      ///< Truth particle vertex z
-  float         m_t_px{0.};      ///< Truth particle initial momentum px
-  float         m_t_py{0.};      ///< Truth particle initial momentum py
-  float         m_t_pz{0.};      ///< Truth particle initial momentum pz
-  float         m_t_theta{0.};   ///< Truth particle initial momentum theta
-  float         m_t_phi{0.};     ///< Truth particle initial momentum phi
-  float         m_t_pT{0.};      ///< Truth particle initial momentum pT
-  float         m_t_eta{0.};     ///< Truth particle initial momentum eta
+  unsigned long m_t_barcode{0};   ///< Truth particle barcode
+  int           m_t_charge{0};    ///< Truth particle charge
+  float         m_t_vx{-99.};     ///< Truth particle vertex x
+  float         m_t_vy{-99.};     ///< Truth particle vertex y
+  float         m_t_vz{-99.};     ///< Truth particle vertex z
+  float         m_t_px{-99.};     ///< Truth particle initial momentum px
+  float         m_t_py{-99.};     ///< Truth particle initial momentum py
+  float         m_t_pz{-99.};     ///< Truth particle initial momentum pz
+  float         m_t_theta{-99.};  ///< Truth particle initial momentum theta
+  float         m_t_phi{-99.};    ///< Truth particle initial momentum phi
+  float         m_t_pT{-99.};     ///< Truth particle initial momentum pT
+  float         m_t_eta{-99.};    ///< Truth particle initial momentum eta
 
   std::vector<float> m_t_x;  ///< Global truth hit position x
   std::vector<float> m_t_y;  ///< Global truth hit position y
@@ -112,7 +113,8 @@ private:
   std::vector<float>
       m_t_dy;  ///< Truth particle direction y at global hit position
   std::vector<float>
-                     m_t_dz;  ///< Truth particle direction z at global hit position
+      m_t_dz;  ///< Truth particle direction z at global hit position
+
   std::vector<float> m_t_eLOC0;   ///< truth parameter eLOC_0
   std::vector<float> m_t_eLOC1;   ///< truth parameter eLOC_1
   std::vector<float> m_t_ePHI;    ///< truth parameter ePHI
@@ -120,7 +122,7 @@ private:
   std::vector<float> m_t_eQOP;    ///< truth parameter eQOP
   std::vector<float> m_t_eT;      ///< truth parameter eT
 
-  int              m_nStates{0};        ///< number of states
+  int              m_nStates{0};        ///< number of all states
   int              m_nMeasurements{0};  ///< number of states with measurements
   std::vector<int> m_volumeID;          ///< volume identifier
   std::vector<int> m_layerID;           ///< layer identifier
@@ -136,6 +138,7 @@ private:
   std::vector<float> m_err_y_hit;       ///< hit err y
   std::vector<float> m_pull_x_hit;      ///< hit pull x
   std::vector<float> m_pull_y_hit;      ///< hit pull y
+  std::vector<int>   m_dim_hit;         ///< dimension of measurement
 
   bool  m_hasFittedParams;       ///< if the track has fitted parameter
   float m_eLOC0_fit{-99.};       ///< fitted parameter eLOC_0
@@ -220,6 +223,7 @@ private:
   std::vector<float> m_pz_flt;           ///< filtered momentum pz
   std::vector<float> m_eta_flt;          ///< filtered momentum eta
   std::vector<float> m_pT_flt;           ///< filtered momentum pT
+  std::vector<float> m_chi2;             ///< chisq from filtering
 
   int m_nSmoothed{0};              ///< number of states with smoothed parameter
   std::vector<bool>  m_smt;        ///< smoothed status

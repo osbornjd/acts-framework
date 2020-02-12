@@ -208,8 +208,11 @@ FW::ResPlotTool::fill(
   // get the distribution of residual/pull
   const auto& [trackTip, mj] = trajectory;
   mj.visitBackwards(trackTip, [&](const auto& state) {
-    // we only fill the track states with measurement
-    if (not state.hasUncalibrated()) { return true; }
+    // we only fill the track states with non-outlier measurement
+    auto typeFlags = state.typeFlags();
+    if (not typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+      return true;
+    }
 
     ParVector_t truthParameter;
     float       truthEta, truthR, truthZ;

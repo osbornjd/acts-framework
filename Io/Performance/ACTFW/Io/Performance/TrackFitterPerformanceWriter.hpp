@@ -14,6 +14,7 @@
 #include "ACTFW/Framework/WriterT.hpp"
 #include "ACTFW/Validation/EffPlotTool.hpp"
 #include "ACTFW/Validation/ResPlotTool.hpp"
+#include "ACTFW/Validation/TrackSummaryPlotTool.hpp"
 
 class TFile;
 class TTree;
@@ -42,8 +43,9 @@ public:
     /// Output filename.
     std::string outputFilename = "performance_track_fitter.root";
     /// Plot tool configurations.
-    ResPlotTool::Config resPlotToolConfig;
-    EffPlotTool::Config effPlotToolConfig;
+    ResPlotTool::Config          resPlotToolConfig;
+    EffPlotTool::Config          effPlotToolConfig;
+    TrackSummaryPlotTool::Config trackSummaryPlotToolConfig;
   };
 
   /// Construct from configuration and log level.
@@ -69,6 +71,9 @@ private:
   /// Plot tool for efficiency
   EffPlotTool               m_effPlotTool;
   EffPlotTool::EffPlotCache m_effPlotCache;
+  /// Plot tool for track hit info
+  TrackSummaryPlotTool                        m_trackSummaryPlotTool;
+  TrackSummaryPlotTool::TrackSummaryPlotCache m_trackSummaryPlotCache;
 };
 
 }  // namespace FW

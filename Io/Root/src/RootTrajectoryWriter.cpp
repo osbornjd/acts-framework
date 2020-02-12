@@ -100,6 +100,7 @@ FW::RootTrajectoryWriter::RootTrajectoryWriter(
     m_outputTree->Branch("err_y_hit", &m_err_y_hit);
     m_outputTree->Branch("pull_x_hit", &m_pull_x_hit);
     m_outputTree->Branch("pull_y_hit", &m_pull_y_hit);
+    m_outputTree->Branch("dim_hit", &m_dim_hit);
 
     m_outputTree->Branch("hasFittedParams", &m_hasFittedParams);
     m_outputTree->Branch("eLOC0_fit", &m_eLOC0_fit);
@@ -184,6 +185,7 @@ FW::RootTrajectoryWriter::RootTrajectoryWriter(
     m_outputTree->Branch("pz_flt", &m_pz_flt);
     m_outputTree->Branch("eta_flt", &m_eta_flt);
     m_outputTree->Branch("pT_flt", &m_pT_flt);
+    m_outputTree->Branch("chi2", &m_chi2);
 
     m_outputTree->Branch("nSmoothed", &m_nSmoothed);
     m_outputTree->Branch("smoothed", &m_smt);
@@ -337,8 +339,11 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
     m_nFiltered  = 0;
     m_nSmoothed  = 0;
     mj.visitBackwards(trackTip, [&](const auto& state) {
-      // we only fill the track states with measurement
-      if (not state.hasUncalibrated()) { return true; }
+      // we only fill the track states with non-outlier measurement
+      auto typeFlags = state.typeFlags();
+      if (not typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+        return true;
+      }
 
       // get the geometry ID
       auto geoID = state.referenceSurface().geoID();
@@ -429,6 +434,7 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         m_pull_y_hit.push_back(
             residual(Acts::ParDef::eLOC_1)
             / sqrt(resCov(Acts::ParDef::eLOC_1, Acts::ParDef::eLOC_1)));
+        m_dim_hit.push_back(state.calibratedSize());
 
         // predicted parameter
         m_eLOC0_prt.push_back(parameter.parameters()[Acts::ParDef::eLOC_0]);
@@ -497,6 +503,13 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         m_eta_prt.push_back(eta(parameter.position()));
       } else {
         // push default values if no predicted parameter
+        m_res_x_hit.push_back(-99.);
+        m_res_y_hit.push_back(-99.);
+        m_err_x_hit.push_back(-99.);
+        m_err_y_hit.push_back(-99.);
+        m_pull_x_hit.push_back(-99.);
+        m_pull_y_hit.push_back(-99.);
+        m_dim_hit.push_back(-99.);
         m_eLOC0_prt.push_back(-99.);
         m_eLOC1_prt.push_back(-99.);
         m_ePHI_prt.push_back(-99.);
@@ -607,6 +620,7 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         m_pz_flt.push_back(parameter.momentum().z());
         m_pT_flt.push_back(parameter.pT());
         m_eta_flt.push_back(eta(parameter.position()));
+        m_chi2.push_back(state.chi2());
       } else {
         // push default values if no filtered parameter
         m_eLOC0_flt.push_back(-99.);
@@ -640,6 +654,7 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         m_pz_flt.push_back(-99.);
         m_pT_flt.push_back(-99.);
         m_eta_flt.push_back(-99.);
+        m_chi2.push_back(-99.0);
       }
 
       // get the smoothed parameter
@@ -793,6 +808,7 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
     m_err_y_hit.clear();
     m_pull_x_hit.clear();
     m_pull_y_hit.clear();
+    m_dim_hit.clear();
 
     m_prt.clear();
     m_eLOC0_prt.clear();
@@ -861,6 +877,7 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
     m_pz_flt.clear();
     m_eta_flt.clear();
     m_pT_flt.clear();
+    m_chi2.clear();
 
     m_smt.clear();
     m_eLOC0_smt.clear();

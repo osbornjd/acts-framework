@@ -47,7 +47,7 @@ public:
         = {"LOC_0", "LOC_1", "PHI", "THETA", "QOP", "TIME"};
     /// Binning info for variables
     std::map<std::string, PlotHelpers::Binning> varBinning
-        = {{"Eta", PlotHelpers::Binning("#eta", 50, -4, 4)},
+        = {{"Eta", PlotHelpers::Binning("#eta", 40, -4, 4)},
            {"R", PlotHelpers::Binning("r [mm]", 100, 0, 1100)},
            {"Z", PlotHelpers::Binning("z [mm]", 100, -3500, 3500)},
            {"Residual", PlotHelpers::Binning("residual", 100, -0.05, 0.05)},
@@ -115,8 +115,8 @@ public:
 
   /// @brief fill the histograms
   /// @param resPlotCache the cache for residual/pull histograms
-  /// @param track a vector of trackState for the moment
-  /// @param truth a vector of truthHit
+  /// @param gctx geometry context
+  /// @param trajectory pair of entry index and multi-trajectory
   void
   fill(ResPlotCache&                                               resPlotCache,
        const Acts::GeometryContext&                                gctx,
