@@ -131,6 +131,7 @@ private:
                                   ///< associated with the step
   std::vector<float> m_sur_z;     ///< z position of the center of the suface
                                   ///< associated with the step
+
   std::vector<float>
       m_sur_range_min;  ///< Min range of the suface associated with the step
   std::vector<float>
