@@ -11,31 +11,21 @@
 #include <map>
 #include <string>
 
-#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/Utilities/Helpers.hpp"
-#include "Acts/EventData/Measurement.hpp"
 #include "Acts/EventData/MultiTrajectory.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/EventData/TrackState.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
 
 namespace FW {
 
-// Tools to make hists to show residual (smoothed_parameter - truth_parameter)
-// and pull (smoothed_parameter - truth_parameter)/smoothed_paramter_error
-// distributions of track parameters.
-// For the moment, the entry is state-wise.
+// Tools to make hists to show residual, i.e. smoothed_parameter -
+// truth_parameter, and pull, i.e. (smoothed_parameter -
+// truth_parameter)/smoothed_paramter_error, of track parameters at perigee surface 
 class ResPlotTool
 {
-  using Identifier  = Data::SimSourceLink;
-  using Measurement = Acts::
-      Measurement<Identifier, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>;
   using ParVector_t = typename Acts::BoundParameters::ParVector_t;
 
 public:
@@ -44,12 +34,10 @@ public:
   {
     /// parameter sets to do plots
     std::vector<std::string> paramNames
-        = {"LOC_0", "LOC_1", "PHI", "THETA", "QOP", "TIME"};
+        = {"loc0", "loc1", "phi", "theta", "qop", "t"};
     /// Binning info for variables
     std::map<std::string, PlotHelpers::Binning> varBinning
         = {{"Eta", PlotHelpers::Binning("#eta", 40, -4, 4)},
-           {"R", PlotHelpers::Binning("r [mm]", 100, 0, 1100)},
-           {"Z", PlotHelpers::Binning("z [mm]", 100, -3500, 3500)},
            {"Residual", PlotHelpers::Binning("residual", 100, -0.05, 0.05)},
            {"Pull", PlotHelpers::Binning("pull", 100, -5, 5)}};
   };
@@ -58,47 +46,19 @@ public:
   struct ResPlotCache
   {
 
-    std::map<std::string, TH1F*> res;  ///< Residual distribution
-
+    std::map<std::string, TH1F*> res;         ///< Residual distribution
     std::map<std::string, TH2F*> res_vs_eta;  ///< Residual vs eta scatter plot
     std::map<std::string, TH1F*>
         resmean_vs_eta;  ///< Residual mean vs eta distribution
     std::map<std::string, TH1F*>
         reswidth_vs_eta;  ///< Residual width vs eta distribution
 
-    std::map<std::string, TH2F*>
-        res_vs_r;  ///< Residual vs global r scatter plot
-    std::map<std::string, TH1F*>
-        resmean_vs_r;  ///< Residual mean vs global r distribution
-    std::map<std::string, TH1F*>
-        reswidth_vs_r;  ///< Residual width vs global r distribution
-
-    std::map<std::string, TH2F*>
-        res_vs_z;  ///< Residual vs global z scatter plot
-    std::map<std::string, TH1F*>
-        resmean_vs_z;  ///< Residual mean vs global z distribution
-    std::map<std::string, TH1F*>
-        reswidth_vs_z;  ///< Residual width vs global z distribution
-
-    std::map<std::string, TH1F*> pull;  ///< Pull distribution
-
+    std::map<std::string, TH1F*> pull;         ///< Pull distribution
     std::map<std::string, TH2F*> pull_vs_eta;  ///< Pull vs eta scatter plot
     std::map<std::string, TH1F*>
         pullmean_vs_eta;  ///< Pull mean vs eta distribution
     std::map<std::string, TH1F*>
         pullwidth_vs_eta;  ///< Pull width vs eta distribution
-
-    std::map<std::string, TH2F*> pull_vs_r;  ///< Pull vs global r scatter plot
-    std::map<std::string, TH1F*>
-        pullmean_vs_r;  ///< Pull mean vs global r distribution
-    std::map<std::string, TH1F*>
-        pullwidth_vs_r;  ///< Pull width vs global r distribution
-
-    std::map<std::string, TH2F*> pull_vs_z;  ///< Pull vs global z scatter plot
-    std::map<std::string, TH1F*>
-        pullmean_vs_z;  ///< Pull mean vs global z distribution
-    std::map<std::string, TH1F*>
-        pullwidth_vs_z;  ///< Pull width vs global z distribution
   };
 
   /// Constructor
@@ -115,13 +75,12 @@ public:
 
   /// @brief fill the histograms
   /// @param resPlotCache the cache for residual/pull histograms
-  /// @param gctx geometry context
-  /// @param trajectory pair of entry index and multi-trajectory
+  /// @param truthParticle the truth particle
+  /// @param fittedParamters the fitted parameters at perigee surface 
   void
-  fill(ResPlotCache&                                               resPlotCache,
-       const Acts::GeometryContext&                                gctx,
-       const std::pair<size_t, Acts::MultiTrajectory<Identifier>>& trajectory)
-      const;
+  fill(ResPlotCache&                resPlotCache,
+       const Data::SimParticle&     truthParticle,
+       const Acts::BoundParameters& fittedParamters) const;
 
   /// @brief extract the details of the residual/pull plots and fill details
   /// into separate histograms
