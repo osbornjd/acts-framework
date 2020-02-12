@@ -121,15 +121,16 @@ private:
   std::vector<float> m_step_Z;       ///< step material Z
   std::vector<float> m_step_rho;     ///< step material rho
 
-  std::vector<std::string>
-                   m_sur_id;    ///< ID of the suface associated with the step
-  std::vector<int> m_sur_type;  ///< Type of the suface associated with the step
-  std::vector<float> m_sur_x;   ///< x position of the center of the suface
-                                ///< associated with the step
-  std::vector<float> m_sur_y;   ///< y position of the center of the suface
-                                ///< associated with the step
-  std::vector<float> m_sur_z;   ///< z position of the center of the suface
-                                ///< associated with the step
+  std::vector<std::uint64_t>
+      m_sur_id;  ///< ID of the suface associated with the step
+  std::vector<int32_t>
+                     m_sur_type;  ///< Type of the suface associated with the step
+  std::vector<float> m_sur_x;     ///< x position of the center of the suface
+                                  ///< associated with the step
+  std::vector<float> m_sur_y;     ///< y position of the center of the suface
+                                  ///< associated with the step
+  std::vector<float> m_sur_z;     ///< z position of the center of the suface
+                                  ///< associated with the step
   std::vector<float>
       m_sur_range_min;  ///< Min range of the suface associated with the step
   std::vector<float>

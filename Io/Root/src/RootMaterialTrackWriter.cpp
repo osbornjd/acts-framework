@@ -12,6 +12,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <Acts/Geometry/GeometryID.hpp>
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Utilities/Helpers.hpp>
@@ -206,14 +207,13 @@ FW::RootMaterialTrackWriter::writeT(
 
       if (m_cfg.storesurface) {
         const Acts::Surface* surface = mint.surface;
+        Acts::GeometryID     layerID;
         if (surface) {
           Acts::Intersection intersection = surface->intersectionEstimate(
               ctx.geoContext, mint.position, mint.direction, true);
-          std::ostringstream layerID;
-          layerID << surface->geoID();
-          m_sur_id.push_back(layerID.str());
+          layerID = surface->geoID();
+          m_sur_id.push_back(layerID.value());
           m_sur_type.push_back(surface->type());
-
           m_sur_x.push_back(intersection.position.x());
           m_sur_y.push_back(intersection.position.y());
           m_sur_z.push_back(intersection.position.z());
@@ -236,8 +236,12 @@ FW::RootMaterialTrackWriter::writeT(
             m_sur_range_max.push_back(0);
           }
         } else {
-
-          m_sur_id.push_back("[   0 |   0 |   0 |   0 |    0 ]");
+          layerID.setVolume(0);
+          layerID.setBoundary(0);
+          layerID.setLayer(0);
+          layerID.setApproach(0);
+          layerID.setSensitive(0);
+          m_sur_id.push_back(layerID.value());
           m_sur_type.push_back(-1);
 
           m_sur_x.push_back(0);
