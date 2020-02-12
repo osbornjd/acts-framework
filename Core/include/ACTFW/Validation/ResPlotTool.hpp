@@ -35,7 +35,7 @@ public:
   {
     /// parameter sets to do plots
     std::vector<std::string> paramNames
-        = {"loc0", "loc1", "phi", "theta", "qop", "t"};
+        = {"d0", "z0", "phi", "theta", "qop", "time"};
     /// Binning info for variables
     std::map<std::string, PlotHelpers::Binning> varBinning
         = {{"Eta", PlotHelpers::Binning("#eta", 40, -4, 4)},
@@ -86,10 +86,12 @@ public:
 
   /// @brief fill the histograms
   /// @param resPlotCache the cache for residual/pull histograms
+  /// @param gctx the geometry context
   /// @param truthParticle the truth particle
   /// @param fittedParamters the fitted parameters at perigee surface
   void
   fill(ResPlotCache&                resPlotCache,
+       const Acts::GeometryContext& gctx,
        const Data::SimParticle&     truthParticle,
        const Acts::BoundParameters& fittedParamters) const;
 

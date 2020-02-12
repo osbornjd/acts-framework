@@ -141,7 +141,8 @@ FW::TrackFitterPerformanceWriter::writeT(
 
         // fill the residual plots it the track has fitted parameter
         if (traj.hasTrackParameters()) {
-          m_resPlotTool.fill(m_resPlotCache, *ip, traj.trackParameters());
+          m_resPlotTool.fill(
+              m_resPlotCache, ctx.geoContext, *ip, traj.trackParameters());
         }
       }
     }
