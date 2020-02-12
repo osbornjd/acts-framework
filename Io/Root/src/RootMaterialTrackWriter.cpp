@@ -12,6 +12,9 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <Acts/Geometry/GeometryID.hpp>
+#include <Acts/Surfaces/CylinderBounds.hpp>
+#include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Utilities/Helpers.hpp>
 #include <TFile.h>
 #include <TTree.h>
@@ -75,6 +78,15 @@ FW::RootMaterialTrackWriter::RootMaterialTrackWriter(
     m_outputTree->Branch("mat_ey", &m_step_ey);
     m_outputTree->Branch("mat_ez", &m_step_ez);
   }
+  if (m_cfg.storesurface) {
+    m_outputTree->Branch("sur_id", &m_sur_id);
+    m_outputTree->Branch("sur_type", &m_sur_type);
+    m_outputTree->Branch("sur_x", &m_sur_x);
+    m_outputTree->Branch("sur_y", &m_sur_y);
+    m_outputTree->Branch("sur_z", &m_sur_z);
+    m_outputTree->Branch("sur_range_min", &m_sur_range_min);
+    m_outputTree->Branch("sur_range_max", &m_sur_range_max);
+  }
 }
 
 FW::RootMaterialTrackWriter::~RootMaterialTrackWriter()
@@ -120,6 +132,14 @@ FW::RootMaterialTrackWriter::writeT(
     m_step_Z.clear();
     m_step_rho.clear();
 
+    m_sur_id.clear();
+    m_sur_type.clear();
+    m_sur_x.clear();
+    m_sur_y.clear();
+    m_sur_z.clear();
+    m_sur_range_min.clear();
+    m_sur_range_max.clear();
+
     // Reserve the vector then
     size_t mints = mtrack.second.materialInteractions.size();
     m_step_sx.reserve(mints);
@@ -137,6 +157,14 @@ FW::RootMaterialTrackWriter::writeT(
     m_step_A.reserve(mints);
     m_step_Z.reserve(mints);
     m_step_rho.reserve(mints);
+
+    m_sur_id.reserve(mints);
+    m_sur_type.reserve(mints);
+    m_sur_x.reserve(mints);
+    m_sur_y.reserve(mints);
+    m_sur_z.reserve(mints);
+    m_sur_range_min.reserve(mints);
+    m_sur_range_max.reserve(mints);
 
     // reset the global counter
     if (m_cfg.recalculateTotals) {
@@ -176,6 +204,54 @@ FW::RootMaterialTrackWriter::writeT(
         m_step_ey.push_back(posPos.y());
         m_step_ez.push_back(posPos.z());
       }
+
+      if (m_cfg.storesurface) {
+        const Acts::Surface* surface = mint.surface;
+        Acts::GeometryID     layerID;
+        if (surface) {
+          Acts::Intersection intersection = surface->intersectionEstimate(
+              ctx.geoContext, mint.position, mint.direction, true);
+          layerID = surface->geoID();
+          m_sur_id.push_back(layerID.value());
+          m_sur_type.push_back(surface->type());
+          m_sur_x.push_back(intersection.position.x());
+          m_sur_y.push_back(intersection.position.y());
+          m_sur_z.push_back(intersection.position.z());
+
+          const Acts::SurfaceBounds& surfaceBounds = surface->bounds();
+
+          const Acts::RadialBounds* radialBounds
+              = dynamic_cast<const Acts::RadialBounds*>(&surfaceBounds);
+          const Acts::CylinderBounds* cylinderBounds
+              = dynamic_cast<const Acts::CylinderBounds*>(&surfaceBounds);
+
+          if (radialBounds) {
+            m_sur_range_min.push_back(radialBounds->rMin());
+            m_sur_range_max.push_back(radialBounds->rMax());
+          } else if (cylinderBounds) {
+            m_sur_range_min.push_back(-1 * cylinderBounds->halflengthZ());
+            m_sur_range_max.push_back(cylinderBounds->halflengthZ());
+          } else {
+            m_sur_range_min.push_back(0);
+            m_sur_range_max.push_back(0);
+          }
+        } else {
+          layerID.setVolume(0);
+          layerID.setBoundary(0);
+          layerID.setLayer(0);
+          layerID.setApproach(0);
+          layerID.setSensitive(0);
+          m_sur_id.push_back(layerID.value());
+          m_sur_type.push_back(-1);
+
+          m_sur_x.push_back(0);
+          m_sur_y.push_back(0);
+          m_sur_z.push_back(0);
+          m_sur_range_min.push_back(0);
+          m_sur_range_max.push_back(0);
+        }
+      }
+
       // the material information
       const auto& mprops = mint.materialProperties;
       m_step_length.push_back(mprops.thickness());
