@@ -23,14 +23,18 @@ FW::ResPlotTool::ResPlotTool(const FW::ResPlotTool::Config& cfg,
 void
 FW::ResPlotTool::book(ResPlotTool::ResPlotCache& resPlotCache) const
 {
-  PlotHelpers::Binning bEta      = m_cfg.varBinning.at("Eta");
-  PlotHelpers::Binning bPt       = m_cfg.varBinning.at("Pt");
-  PlotHelpers::Binning bResidual = m_cfg.varBinning.at("Residual");
-  PlotHelpers::Binning bPull     = m_cfg.varBinning.at("Pull");
+  PlotHelpers::Binning bEta  = m_cfg.varBinning.at("Eta");
+  PlotHelpers::Binning bPt   = m_cfg.varBinning.at("Pt");
+  PlotHelpers::Binning bPull = m_cfg.varBinning.at("Pull");
 
   ACTS_DEBUG("Initialize the histograms for residual and pull plots");
   for (unsigned int parID = 0; parID < Acts::BoundParsDim; parID++) {
     std::string parName = m_cfg.paramNames.at(parID);
+
+    std::string parResidual = "Residual_" + parName;
+    // Binning for residual is parameter dependent
+    PlotHelpers::Binning bResidual = m_cfg.varBinning.at(parResidual);
+
     // residual distributions
     resPlotCache.res[parName]
         = PlotHelpers::bookHisto(Form("res_%s", parName.c_str()),
