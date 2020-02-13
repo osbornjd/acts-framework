@@ -17,14 +17,12 @@
 
 namespace FW {
 
-// TODO readd time to tuple once the readers support optional fields.
-
 struct ParticleData
 {
   uint64_t particle_id;
   int32_t  particle_type;
   float    vx, vy, vz;
-  // Time is not available in the original TrackML datasets
+  // defaulted since time is not available in the TrackML datasets
   float   vt = 0.0f;
   float   px, py, pz;
   float   q;
@@ -36,6 +34,7 @@ struct ParticleData
                  vx,
                  vy,
                  vz,
+                 vt,
                  px,
                  py,
                  pz,
@@ -43,15 +42,44 @@ struct ParticleData
                  nhits);
 };
 
-struct HitData
+struct TruthHitData
+{
+  uint64_t hit_id;
+  uint64_t particle_id;
+  float    tx, ty, tz;
+  // defaulted since time is not available in the original TrackML datasets
+  float tt = 0.0f;
+  float tpx, tpy, tpz;
+
+  DFE_NAMEDTUPLE(TruthHitData,
+                 hit_id,
+                 particle_id,
+                 tx,
+                 ty,
+                 tz,
+                 tt,
+                 tpx,
+                 tpy,
+                 tpz);
+};
+
+struct SimHitData
 {
   uint64_t hit_id;
   float    x, y, z;
-  // Time is not available in the original TrackML datasets
+  // defaulted since time is not available in the TrackML datasets
   float    t = 0.0f;
   uint32_t volume_id, layer_id, module_id;
 
-  DFE_NAMEDTUPLE(HitData, hit_id, x, y, z, volume_id, layer_id, module_id);
+  DFE_NAMEDTUPLE(SimHitData,
+                 hit_id,
+                 x,
+                 y,
+                 z,
+                 t,
+                 volume_id,
+                 layer_id,
+                 module_id);
 };
 
 struct CellData
@@ -60,23 +88,11 @@ struct CellData
   // These should have been named channel{0,1} but we cannot change it now
   // to avoid breaking backward compatibility.
   int32_t ch0, ch1;
-  // Timestamp is not available in the original TrackML datasets
+  // defaulted since timestamp is not available in the TrackML datasets
   int32_t timestamp = 0;
   int32_t value;
 
-  DFE_NAMEDTUPLE(CellData, hit_id, ch0, ch1, value);
-};
-
-struct TruthData
-{
-  uint64_t hit_id;
-  uint64_t particle_id;
-  float    tx, ty, tz;
-  // Time is not available in the original TrackML datasets
-  float tt = 0.0f;
-  float tpx, tpy, tpz;
-
-  DFE_NAMEDTUPLE(TruthData, hit_id, particle_id, tx, ty, tz, tpx, tpy, tpz);
+  DFE_NAMEDTUPLE(CellData, hit_id, ch0, ch1, timestamp, value);
 };
 
 struct SurfaceData

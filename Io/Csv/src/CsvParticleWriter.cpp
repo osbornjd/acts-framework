@@ -42,7 +42,7 @@ FW::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
 
   auto pathParticles = perEventFilepath(
       m_cfg.outputDir, m_cfg.outputStem + ".csv", context.eventNumber);
-  dfe::CsvNamedTupleWriter<ParticleData> writer(pathParticles,
+  dfe::NamedTupleCsvWriter<ParticleData> writer(pathParticles,
                                                 m_cfg.outputPrecision);
 
   ParticleData data;

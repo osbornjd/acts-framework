@@ -57,7 +57,8 @@ FW::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 
   auto path = perEventFilepath(
       m_cfg.inputDir, m_cfg.inputStem + ".csv", ctx.eventNumber);
-  dfe::CsvNamedTupleReader<ParticleData> reader(path);
+  // vt is an optional element
+  dfe::NamedTupleCsvReader<ParticleData> reader(path, {"vt"});
   ParticleData                           data;
 
   while (reader.read(data)) {
