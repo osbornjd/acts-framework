@@ -1,6 +1,6 @@
 [submodule "acts-core"]
 	path = external/acts-core
-	url = ../acts-core.git
+	url = git@github.com:sPHENIX-Collaboration/acts-core
 [submodule "external/dfelibs"]
 	path = external/dfelibs
-	url = ../../msmk/dfelibs.git
+	url = git@github.com:sPHENIX-Collaboration/dfelibs
