@@ -35,23 +35,22 @@ public:
   {
     /// parameter sets to do plots
     std::vector<std::string> paramNames
-        = {"d0", "z0", "phi", "theta", "qop", "time"};
+        = {"d0", "z0", "phi", "theta", "qop", "t"};
 
     /// Binning info for variables
-    std::map<std::string, PlotHelpers::Binning> varBinning = {
-        {"Eta", PlotHelpers::Binning("#eta", 40, -4, 4)},
-        {"Pt", PlotHelpers::Binning("pT [GeV/c]", 20, 0, 100)},
-        {"Pull", PlotHelpers::Binning("pull", 100, -5, 5)},
-        {"Residual_d0", PlotHelpers::Binning("Residual(d0)", 100, -0.5, 0.5)},
-        {"Residual_z0", PlotHelpers::Binning("Residual(z0)", 100, -0.5, 0.5)},
-        {"Residual_phi",
-         PlotHelpers::Binning("Residual(#phi)", 100, -0.005, 0.005)},
-        {"Residual_theta",
-         PlotHelpers::Binning("Residual(#theta)", 100, -0.005, 0.005)},
-        {"Residual_qop",
-         PlotHelpers::Binning("Residual(q/p)", 100, -0.005, 0.005)},
-        {"Residual_time",
-         PlotHelpers::Binning("Residual(t)", 100, -0.0005, 0.0005)}};
+    std::map<std::string, PlotHelpers::Binning> varBinning
+        = {{"Eta", PlotHelpers::Binning("#eta", 40, -4, 4)},
+           {"Pt", PlotHelpers::Binning("pT [GeV/c]", 20, 0, 100)},
+           {"Pull", PlotHelpers::Binning("pull", 100, -5, 5)},
+           {"Residual_d0", PlotHelpers::Binning("r_{d0} [mm]", 100, -0.5, 0.5)},
+           {"Residual_z0", PlotHelpers::Binning("r_{z0} [mm]", 100, -0.5, 0.5)},
+           {"Residual_phi",
+            PlotHelpers::Binning("r_{#phi} [rad]", 100, -0.005, 0.005)},
+           {"Residual_theta",
+            PlotHelpers::Binning("r_{#theta} [rad]", 100, -0.005, 0.005)},
+           {"Residual_qop",
+            PlotHelpers::Binning("r_{q/p} [c/GeV]", 100, -0.005, 0.005)},
+           {"Residual_t", PlotHelpers::Binning("r_{t} [s]", 100, -1000, 1000)}};
   };
 
   /// @brief Nested Cache struct

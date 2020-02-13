@@ -38,7 +38,7 @@ perigeeParamResolution(const std::string& inFile)
  
   // Track parameter name
   std::vector<std::string> paramNames
-      = {"d0", "z0", "phi", "theta", "qop", "time"};
+      = {"d0", "z0", "phi", "theta", "qop", "t"};
 
   map<string, TH1F*> res;
   map<string, TH1F*> pull;
@@ -54,6 +54,7 @@ perigeeParamResolution(const std::string& inFile)
     setHistStyle(res[par], 2);
     setHistStyle(pull[par], 2);
   }
+
 
   // plotting residual
   TCanvas* c1 = new TCanvas("c1", "c1", 1200, 800);
@@ -86,7 +87,7 @@ setHistStyle(TH1F* hist, short color = 1)
   hist->SetMarkerStyle(20);
   hist->SetMarkerSize(0.8);
   hist->SetLineWidth(2);
-  hist->SetTitle("");
+  //hist->SetTitle("");
   hist->SetLineColor(1);
   hist->SetMarkerColor(color);
 }

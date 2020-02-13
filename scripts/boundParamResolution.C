@@ -96,18 +96,18 @@ boundParamResolution(const std::string& inFile,
                              -1 * pullRange,
                              pullRange);
 
-    res_prt[par]->GetXaxis()->SetTitle(Form("residual_%s", par.c_str()));
+    res_prt[par]->GetXaxis()->SetTitle(Form("r_{%s}", par.c_str()));
     res_prt[par]->GetYaxis()->SetTitle("Entries");
-    res_flt[par]->GetXaxis()->SetTitle(Form("residual_%s", par.c_str()));
+    res_flt[par]->GetXaxis()->SetTitle(Form("r_{%s}", par.c_str()));
     res_flt[par]->GetYaxis()->SetTitle("Entries");
-    res_smt[par]->GetXaxis()->SetTitle(Form("residual_%s", par.c_str()));
+    res_smt[par]->GetXaxis()->SetTitle(Form("r_{%s}", par.c_str()));
     res_smt[par]->GetYaxis()->SetTitle("Entries");
 
-    pull_prt[par]->GetXaxis()->SetTitle(Form("pull_%s", par.c_str()));
+    pull_prt[par]->GetXaxis()->SetTitle(Form("pull_{%s}", par.c_str()));
     pull_prt[par]->GetYaxis()->SetTitle("Entries");
-    pull_flt[par]->GetXaxis()->SetTitle(Form("pull_%s", par.c_str()));
+    pull_flt[par]->GetXaxis()->SetTitle(Form("pull_{%s}", par.c_str()));
     pull_flt[par]->GetYaxis()->SetTitle("Entries");
-    pull_smt[par]->GetXaxis()->SetTitle(Form("pull_%s", par.c_str()));
+    pull_smt[par]->GetXaxis()->SetTitle(Form("pull_{%s}", par.c_str()));
     pull_smt[par]->GetYaxis()->SetTitle("Entries");
 
     // set style
@@ -419,7 +419,7 @@ setHistStyle(TH1F* hist, short color = 1)
   hist->SetMarkerStyle(20);
   hist->SetMarkerSize(0.8);
   hist->SetLineWidth(2);
-  hist->SetTitle("");
+  //hist->SetTitle("");
   hist->SetLineColor(color);
   hist->SetMarkerColor(color);
 }
