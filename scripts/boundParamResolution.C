@@ -20,10 +20,10 @@ void
 setHistStyle(TH1F* hist, short color);
 
 // This ROOT script will plot the residual and pull of track parameters (loc1,
-// loc2, phi, theta, q/p) from root file produced by the RootTrajectoryWriter
+// loc2, phi, theta, q/p, t) from root file produced by the RootTrajectoryWriter
 //
 void
-trackParResidual(const std::string& inFile,
+boundParamResolution(const std::string& inFile,
           const std::string& treeName)
 {
   gStyle->SetOptFit(0000);
@@ -41,14 +41,15 @@ trackParResidual(const std::string& inFile,
  
   // Track parameter name
   std::vector<std::string> paramNames
-      = {"loc1", "loc2", "#phi", "#theta", "q/p"};
+      = {"loc1", "loc2", "#phi", "#theta", "q/p" ,"t"};
 
   // Residual range
   std::map<std::string, double> paramResidualRange = {{"loc1", 0.5},
                                                       {"loc2", 0.5},
                                                       {"#phi", 0.005},
                                                       {"#theta", 0.005},
-                                                      {"q/p", 0.05}};
+                                                      {"q/p", 0.05},
+                                                      {"t", 0.005}};
   // Pull range
   double pullRange = 7;
 
@@ -95,18 +96,18 @@ trackParResidual(const std::string& inFile,
                              -1 * pullRange,
                              pullRange);
 
-    res_prt[par]->GetXaxis()->SetTitle(Form("residual_%s", par.c_str()));
+    res_prt[par]->GetXaxis()->SetTitle(Form("r_{%s}", par.c_str()));
     res_prt[par]->GetYaxis()->SetTitle("Entries");
-    res_flt[par]->GetXaxis()->SetTitle(Form("residual_%s", par.c_str()));
+    res_flt[par]->GetXaxis()->SetTitle(Form("r_{%s}", par.c_str()));
     res_flt[par]->GetYaxis()->SetTitle("Entries");
-    res_smt[par]->GetXaxis()->SetTitle(Form("residual_%s", par.c_str()));
+    res_smt[par]->GetXaxis()->SetTitle(Form("r_{%s}", par.c_str()));
     res_smt[par]->GetYaxis()->SetTitle("Entries");
 
-    pull_prt[par]->GetXaxis()->SetTitle(Form("pull_%s", par.c_str()));
+    pull_prt[par]->GetXaxis()->SetTitle(Form("pull_{%s}", par.c_str()));
     pull_prt[par]->GetYaxis()->SetTitle("Entries");
-    pull_flt[par]->GetXaxis()->SetTitle(Form("pull_%s", par.c_str()));
+    pull_flt[par]->GetXaxis()->SetTitle(Form("pull_{%s}", par.c_str()));
     pull_flt[par]->GetYaxis()->SetTitle("Entries");
-    pull_smt[par]->GetXaxis()->SetTitle(Form("pull_%s", par.c_str()));
+    pull_smt[par]->GetXaxis()->SetTitle(Form("pull_{%s}", par.c_str()));
     pull_smt[par]->GetYaxis()->SetTitle("Entries");
 
     // set style
@@ -129,6 +130,8 @@ trackParResidual(const std::string& inFile,
       = new std::vector<float>;  ///< predicted parameter theta
   std::vector<float>* QOP_prt
       = new std::vector<float>;  ///< predicted parameter q/p
+  std::vector<float>* T_prt
+      = new std::vector<float>;  ///< predicted parameter t 
   std::vector<float>* LOC0_flt
       = new std::vector<float>;  ///< filtered parameter local x
   std::vector<float>* LOC1_flt
@@ -139,6 +142,8 @@ trackParResidual(const std::string& inFile,
       = new std::vector<float>;  ///< filtered parameter theta
   std::vector<float>* QOP_flt
       = new std::vector<float>;  ///< filtered parameter q/p
+  std::vector<float>* T_flt
+      = new std::vector<float>;  ///< filtered parameter t 
   std::vector<float>* LOC0_smt
       = new std::vector<float>;  ///< smoothed parameter local x
   std::vector<float>* LOC1_smt
@@ -149,68 +154,82 @@ trackParResidual(const std::string& inFile,
       = new std::vector<float>;  ///< smoothed parameter theta
   std::vector<float>* QOP_smt
       = new std::vector<float>;  ///< smoothed parameter q/p
+  std::vector<float>* T_smt
+      = new std::vector<float>;  ///< smoothed parameter t 
 
   std::vector<float>* res_LOC0_prt
-      = new std::vector<float>;  ///< residual ofpredicted parameter local x
+      = new std::vector<float>;  ///< residual of predicted parameter local x
   std::vector<float>* res_LOC1_prt
-      = new std::vector<float>;  ///< residual ofpredicted parameter local y
+      = new std::vector<float>;  ///< residual of predicted parameter local y
   std::vector<float>* res_PHI_prt
-      = new std::vector<float>;  ///< residual ofpredicted parameter phi
+      = new std::vector<float>;  ///< residual of predicted parameter phi
   std::vector<float>* res_THETA_prt
-      = new std::vector<float>;  ///< residual ofpredicted parameter theta
+      = new std::vector<float>;  ///< residual of predicted parameter theta
   std::vector<float>* res_QOP_prt
-      = new std::vector<float>;  ///< residual ofpredicted parameter q/p
+      = new std::vector<float>;  ///< residual of predicted parameter q/p
+  std::vector<float>* res_T_prt
+      = new std::vector<float>;  ///< residual of predicted parameter t 
   std::vector<float>* res_LOC0_flt
-      = new std::vector<float>;  ///< residual offiltered parameter local x
+      = new std::vector<float>;  ///< residual of filtered parameter local x
   std::vector<float>* res_LOC1_flt
-      = new std::vector<float>;  ///< residual offiltered parameter local y
+      = new std::vector<float>;  ///< residual of filtered parameter local y
   std::vector<float>* res_PHI_flt
-      = new std::vector<float>;  ///< residual offiltered parameter phi
+      = new std::vector<float>;  ///< residual of filtered parameter phi
   std::vector<float>* res_THETA_flt
-      = new std::vector<float>;  ///< residual offiltered parameter theta
+      = new std::vector<float>;  ///< residual of filtered parameter theta
   std::vector<float>* res_QOP_flt
-      = new std::vector<float>;  ///< residual offiltered parameter q/p
+      = new std::vector<float>;  ///< residual of filtered parameter q/p
+  std::vector<float>* res_T_flt
+      = new std::vector<float>;  ///< residual of filtered parameter t 
   std::vector<float>* res_LOC0_smt
-      = new std::vector<float>;  ///< residual ofsmoothed parameter local x
+      = new std::vector<float>;  ///< residual of smoothed parameter local x
   std::vector<float>* res_LOC1_smt
-      = new std::vector<float>;  ///< residual ofsmoothed parameter local y
+      = new std::vector<float>;  ///< residual of smoothed parameter local y
   std::vector<float>* res_PHI_smt
-      = new std::vector<float>;  ///< residual ofsmoothed parameter phi
+      = new std::vector<float>;  ///< residual of smoothed parameter phi
   std::vector<float>* res_THETA_smt
-      = new std::vector<float>;  ///< residual ofsmoothed parameter theta
+      = new std::vector<float>;  ///< residual of smoothed parameter theta
   std::vector<float>* res_QOP_smt
-      = new std::vector<float>;  ///< residual ofsmoothed parameter q/p
+      = new std::vector<float>;  ///< residual of smoothed parameter q/p
+  std::vector<float>* res_T_smt
+      = new std::vector<float>;  ///< residual of smoothed parameter t 
 
   std::vector<float>* pull_LOC0_prt
-      = new std::vector<float>;  ///< pull ofpredicted parameter local x
+      = new std::vector<float>;  ///< pull of predicted parameter local x
   std::vector<float>* pull_LOC1_prt
-      = new std::vector<float>;  ///< pull ofpredicted parameter local y
+      = new std::vector<float>;  ///< pull of predicted parameter local y
   std::vector<float>* pull_PHI_prt
-      = new std::vector<float>;  ///< pull ofpredicted parameter phi
+      = new std::vector<float>;  ///< pull of predicted parameter phi
   std::vector<float>* pull_THETA_prt
-      = new std::vector<float>;  ///< pull ofpredicted parameter theta
+      = new std::vector<float>;  ///< pull of predicted parameter theta
   std::vector<float>* pull_QOP_prt
-      = new std::vector<float>;  ///< pull ofpredicted parameter q/p
+      = new std::vector<float>;  ///< pull of predicted parameter q/p
+  std::vector<float>* pull_T_prt
+      = new std::vector<float>;  ///< pull of predicted parameter t 
   std::vector<float>* pull_LOC0_flt
-      = new std::vector<float>;  ///< pull offiltered parameter local x
+      = new std::vector<float>;  ///< pull of filtered parameter local x
   std::vector<float>* pull_LOC1_flt
-      = new std::vector<float>;  ///< pull offiltered parameter local y
+      = new std::vector<float>;  ///< pull of filtered parameter local y
   std::vector<float>* pull_PHI_flt
-      = new std::vector<float>;  ///< pull offiltered parameter phi
+      = new std::vector<float>;  ///< pull of filtered parameter phi
   std::vector<float>* pull_THETA_flt
-      = new std::vector<float>;  ///< pull offiltered parameter theta
+      = new std::vector<float>;  ///< pull of filtered parameter theta
   std::vector<float>* pull_QOP_flt
-      = new std::vector<float>;  ///< pull offiltered parameter q/p
+      = new std::vector<float>;  ///< pull of filtered parameter q/p
+  std::vector<float>* pull_T_flt
+      = new std::vector<float>;  ///< pull of filtered parameter t 
   std::vector<float>* pull_LOC0_smt
-      = new std::vector<float>;  ///< pull ofsmoothed parameter local x
+      = new std::vector<float>;  ///< pull of smoothed parameter local x
   std::vector<float>* pull_LOC1_smt
-      = new std::vector<float>;  ///< pull ofsmoothed parameter local y
+      = new std::vector<float>;  ///< pull of smoothed parameter local y
   std::vector<float>* pull_PHI_smt
-      = new std::vector<float>;  ///< pull ofsmoothed parameter phi
+      = new std::vector<float>;  ///< pull of smoothed parameter phi
   std::vector<float>* pull_THETA_smt
-      = new std::vector<float>;  ///< pull ofsmoothed parameter theta
+      = new std::vector<float>;  ///< pull of smoothed parameter theta
   std::vector<float>* pull_QOP_smt
-      = new std::vector<float>;  ///< pull ofsmoothed parameter q/p
+      = new std::vector<float>;  ///< pull of smoothed parameter q/p
+  std::vector<float>* pull_T_smt
+      = new std::vector<float>;  ///< pull of smoothed parameter t 
 
   std::vector<int>* volume_id = new std::vector<int>;  ///< volume_id
   std::vector<int>* layer_id  = new std::vector<int>;  ///< layer_id
@@ -227,48 +246,57 @@ trackParResidual(const std::string& inFile,
   tree->SetBranchAddress("ePHI_prt", &PHI_prt);
   tree->SetBranchAddress("eTHETA_prt", &THETA_prt);
   tree->SetBranchAddress("eQOP_prt", &QOP_prt);
+  tree->SetBranchAddress("eT_prt", &T_prt);
   tree->SetBranchAddress("eLOC0_flt", &LOC0_flt);
   tree->SetBranchAddress("eLOC1_flt", &LOC1_flt);
   tree->SetBranchAddress("ePHI_flt", &PHI_flt);
   tree->SetBranchAddress("eTHETA_flt", &THETA_flt);
   tree->SetBranchAddress("eQOP_flt", &QOP_flt);
+  tree->SetBranchAddress("eT_flt", &T_flt);
   tree->SetBranchAddress("eLOC0_smt", &LOC0_smt);
   tree->SetBranchAddress("eLOC1_smt", &LOC1_smt);
   tree->SetBranchAddress("ePHI_smt", &PHI_smt);
   tree->SetBranchAddress("eTHETA_smt", &THETA_smt);
   tree->SetBranchAddress("eQOP_smt", &QOP_smt);
+  tree->SetBranchAddress("eT_smt", &T_smt);
 
   tree->SetBranchAddress("res_eLOC0_prt", &res_LOC0_prt);
   tree->SetBranchAddress("res_eLOC1_prt", &res_LOC1_prt);
   tree->SetBranchAddress("res_ePHI_prt", &res_PHI_prt);
   tree->SetBranchAddress("res_eTHETA_prt", &res_THETA_prt);
   tree->SetBranchAddress("res_eQOP_prt", &res_QOP_prt);
+  tree->SetBranchAddress("res_eT_prt", &res_T_prt);
   tree->SetBranchAddress("res_eLOC0_flt", &res_LOC0_flt);
   tree->SetBranchAddress("res_eLOC1_flt", &res_LOC1_flt);
   tree->SetBranchAddress("res_ePHI_flt", &res_PHI_flt);
   tree->SetBranchAddress("res_eTHETA_flt", &res_THETA_flt);
   tree->SetBranchAddress("res_eQOP_flt", &res_QOP_flt);
+  tree->SetBranchAddress("res_eT_flt", &res_T_flt);
   tree->SetBranchAddress("res_eLOC0_smt", &res_LOC0_smt);
   tree->SetBranchAddress("res_eLOC1_smt", &res_LOC1_smt);
   tree->SetBranchAddress("res_ePHI_smt", &res_PHI_smt);
   tree->SetBranchAddress("res_eTHETA_smt", &res_THETA_smt);
   tree->SetBranchAddress("res_eQOP_smt", &res_QOP_smt);
+  tree->SetBranchAddress("res_eT_smt", &res_T_smt);
 
   tree->SetBranchAddress("pull_eLOC0_prt", &pull_LOC0_prt);
   tree->SetBranchAddress("pull_eLOC1_prt", &pull_LOC1_prt);
   tree->SetBranchAddress("pull_ePHI_prt", &pull_PHI_prt);
   tree->SetBranchAddress("pull_eTHETA_prt", &pull_THETA_prt);
   tree->SetBranchAddress("pull_eQOP_prt", &pull_QOP_prt);
+  tree->SetBranchAddress("pull_eT_prt", &pull_T_prt);
   tree->SetBranchAddress("pull_eLOC0_flt", &pull_LOC0_flt);
   tree->SetBranchAddress("pull_eLOC1_flt", &pull_LOC1_flt);
   tree->SetBranchAddress("pull_ePHI_flt", &pull_PHI_flt);
   tree->SetBranchAddress("pull_eTHETA_flt", &pull_THETA_flt);
   tree->SetBranchAddress("pull_eQOP_flt", &pull_QOP_flt);
+  tree->SetBranchAddress("pull_eT_flt", &pull_T_flt);
   tree->SetBranchAddress("pull_eLOC0_smt", &pull_LOC0_smt);
   tree->SetBranchAddress("pull_eLOC1_smt", &pull_LOC1_smt);
   tree->SetBranchAddress("pull_ePHI_smt", &pull_PHI_smt);
   tree->SetBranchAddress("pull_eTHETA_smt", &pull_THETA_smt);
   tree->SetBranchAddress("pull_eQOP_smt", &pull_QOP_smt);
+  tree->SetBranchAddress("pull_eT_smt", &pull_T_smt);
 
   tree->SetBranchAddress("nStates", &nStates);
   tree->SetBranchAddress("nMeasurements", &nMeasurements);
@@ -290,11 +318,13 @@ trackParResidual(const std::string& inFile,
         res_prt[paramNames[2]]->Fill(res_PHI_prt->at(i), 1);
         res_prt[paramNames[3]]->Fill(res_THETA_prt->at(i), 1);
         res_prt[paramNames[4]]->Fill(res_QOP_prt->at(i), 1);
+        res_prt[paramNames[5]]->Fill(res_T_prt->at(i), 1);
         pull_prt[paramNames[0]]->Fill(pull_LOC0_prt->at(i), 1);
         pull_prt[paramNames[1]]->Fill(pull_LOC1_prt->at(i), 1);
         pull_prt[paramNames[2]]->Fill(pull_PHI_prt->at(i), 1);
         pull_prt[paramNames[3]]->Fill(pull_THETA_prt->at(i), 1);
         pull_prt[paramNames[4]]->Fill(pull_QOP_prt->at(i), 1);
+        pull_prt[paramNames[5]]->Fill(pull_T_prt->at(i), 1);
       }
       if (filtered->at(i)) {
         res_flt[paramNames[0]]->Fill(res_LOC0_flt->at(i), 1);
@@ -302,23 +332,27 @@ trackParResidual(const std::string& inFile,
         res_flt[paramNames[2]]->Fill(res_PHI_flt->at(i), 1);
         res_flt[paramNames[3]]->Fill(res_THETA_flt->at(i), 1);
         res_flt[paramNames[4]]->Fill(res_QOP_flt->at(i), 1);
+        res_flt[paramNames[5]]->Fill(res_T_flt->at(i), 1);
         pull_flt[paramNames[0]]->Fill(pull_LOC0_flt->at(i), 1);
         pull_flt[paramNames[1]]->Fill(pull_LOC1_flt->at(i), 1);
         pull_flt[paramNames[2]]->Fill(pull_PHI_flt->at(i), 1);
         pull_flt[paramNames[3]]->Fill(pull_THETA_flt->at(i), 1);
         pull_flt[paramNames[4]]->Fill(pull_QOP_flt->at(i), 1);
+        pull_flt[paramNames[5]]->Fill(pull_T_flt->at(i), 1);
       }
       if (smoothed->at(i)) {
         res_smt[paramNames[0]]->Fill(res_LOC0_smt->at(i), 1);
         res_smt[paramNames[1]]->Fill(res_LOC1_smt->at(i), 1);
         res_smt[paramNames[2]]->Fill(res_PHI_smt->at(i), 1);
         res_smt[paramNames[3]]->Fill(res_THETA_smt->at(i), 1);
-        res_smt[paramNames[4]]->Fill(res_QOP_smt->at(i));
+        res_smt[paramNames[4]]->Fill(res_QOP_smt->at(i), 1);
+        res_smt[paramNames[5]]->Fill(res_T_smt->at(i), 1);
         pull_smt[paramNames[0]]->Fill(pull_LOC0_smt->at(i), 1);
         pull_smt[paramNames[1]]->Fill(pull_LOC1_smt->at(i), 1);
         pull_smt[paramNames[2]]->Fill(pull_PHI_smt->at(i), 1);
         pull_smt[paramNames[3]]->Fill(pull_THETA_smt->at(i), 1);
-        pull_smt[paramNames[4]]->Fill(pull_QOP_smt->at(i));
+        pull_smt[paramNames[4]]->Fill(pull_QOP_smt->at(i), 1);
+        pull_smt[paramNames[5]]->Fill(pull_T_smt->at(i), 1);
       }
     }
   }
@@ -328,14 +362,14 @@ trackParResidual(const std::string& inFile,
   c1->Divide(3, 2);
   for (size_t ipar = 0; ipar < paramNames.size(); ipar++) {
     c1->cd(ipar + 1);
-    res_prt[paramNames.at(ipar)]->Draw("");
+    res_smt[paramNames.at(ipar)]->Draw("");
+    res_prt[paramNames.at(ipar)]->Draw("same");
     res_flt[paramNames.at(ipar)]->Draw("same");
-    res_smt[paramNames.at(ipar)]->Draw("same");
 
-    int binmax     = res_flt[paramNames.at(ipar)]->GetMaximumBin();
-    int bincontent = res_flt[paramNames.at(ipar)]->GetBinContent(binmax);
+    int binmax     = res_smt[paramNames.at(ipar)]->GetMaximumBin();
+    int bincontent = res_smt[paramNames.at(ipar)]->GetBinContent(binmax);
 
-    res_prt[paramNames.at(ipar)]->GetYaxis()->SetRangeUser(0, bincontent * 1.2);
+    res_smt[paramNames.at(ipar)]->GetYaxis()->SetRangeUser(0, bincontent * 1.2);
     TLegend* legend = new TLegend(0.7, 0.7, 0.9, 0.9);
     legend->AddEntry(res_prt[paramNames.at(ipar)], "prediction", "lp");
     legend->AddEntry(res_flt[paramNames.at(ipar)], "filtering", "lp");
@@ -351,14 +385,14 @@ trackParResidual(const std::string& inFile,
   c2->Divide(3, 2);
   for (size_t ipar = 0; ipar < paramNames.size(); ipar++) {
     c2->cd(ipar + 1);
-    pull_prt[paramNames.at(ipar)]->Draw("");
+    pull_smt[paramNames.at(ipar)]->Draw("");
+    pull_prt[paramNames.at(ipar)]->Draw("same");
     pull_flt[paramNames.at(ipar)]->Draw("same");
-    pull_smt[paramNames.at(ipar)]->Draw("same");
 
-    int binmax     = pull_prt[paramNames.at(ipar)]->GetMaximumBin();
-    int bincontent = pull_prt[paramNames.at(ipar)]->GetBinContent(binmax);
+    int binmax     = pull_smt[paramNames.at(ipar)]->GetMaximumBin();
+    int bincontent = pull_smt[paramNames.at(ipar)]->GetBinContent(binmax);
 
-    pull_prt[paramNames.at(ipar)]->GetYaxis()->SetRangeUser(0,
+    pull_smt[paramNames.at(ipar)]->GetYaxis()->SetRangeUser(0,
                                                             bincontent * 1.2);
     TLegend* legend = new TLegend(0.7, 0.7, 0.9, 0.9);
     legend->AddEntry(pull_prt[paramNames.at(ipar)], "prediction", "lp");
@@ -382,10 +416,10 @@ setHistStyle(TH1F* hist, short color = 1)
   hist->GetXaxis()->SetTitleOffset(1.);
   hist->GetYaxis()->SetTitleOffset(1.8);
   hist->GetXaxis()->SetNdivisions(505);
-  hist->SetMarkerStyle(24);
+  hist->SetMarkerStyle(20);
   hist->SetMarkerSize(0.8);
   hist->SetLineWidth(2);
-  hist->SetTitle("");
+  //hist->SetTitle("");
   hist->SetLineColor(color);
   hist->SetMarkerColor(color);
 }

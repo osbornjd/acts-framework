@@ -59,6 +59,7 @@ FW::RootTrajectoryWriter::RootTrajectoryWriter(
     m_outputTree->Branch("traj_nr", &m_trajNr);
     m_outputTree->Branch("t_barcode", &m_t_barcode, "t_barcode/l");
     m_outputTree->Branch("t_charge", &m_t_charge);
+    m_outputTree->Branch("t_time", &m_t_time);
     m_outputTree->Branch("t_vx", &m_t_vx);
     m_outputTree->Branch("t_vy", &m_t_vy);
     m_outputTree->Branch("t_vz", &m_t_vz);
@@ -291,6 +292,7 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         Acts::Vector3D truthPos = particle.position();
         Acts::Vector3D truthMom = particle.momentum();
         m_t_charge              = particle.q();
+        m_t_time                = particle.time();
         m_t_vx                  = truthPos.x();
         m_t_vy                  = truthPos.y();
         m_t_vz                  = truthPos.z();

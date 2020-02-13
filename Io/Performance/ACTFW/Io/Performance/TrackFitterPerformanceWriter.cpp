@@ -138,12 +138,14 @@ FW::TrackFitterPerformanceWriter::writeT(
                                     nHits,
                                     nOutliers,
                                     nHoles);
+
+        // fill the residual plots it the track has fitted parameter
+        if (traj.hasTrackParameters()) {
+          m_resPlotTool.fill(
+              m_resPlotCache, ctx.geoContext, *ip, traj.trackParameters());
+        }
       }
     }
-
-    // fill the residual plots
-    if (not(traj.numMeasurements() > 0)) { continue; }
-    m_resPlotTool.fill(m_resPlotCache, ctx.geoContext, traj.trajectory());
   }
 
   // Fill the efficiency, defined as the ratio between number of tracks with

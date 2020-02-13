@@ -12,6 +12,7 @@
 #include "ACTFW/EventData/ProtoTrack.hpp"
 #include "ACTFW/EventData/Track.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "Acts/Surfaces/PerigeeSurface.hpp"
 
 FW::FittingAlgorithm::FittingAlgorithm(Config cfg, Acts::Logging::Level level)
   : FW::BareAlgorithm("FittingAlgorithm", level), m_cfg(std::move(cfg))
@@ -53,6 +54,10 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
   TrajectoryContainer trajectories;
   trajectories.reserve(protoTracks.size());
 
+  // Construct a perigee surface as the target surface
+  auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(
+      Acts::Vector3D{0., 0., 0.});
+
   // Perform the fit for each input track
   std::vector<Data::SimSourceLink> trackSourceLinks;
   for (std::size_t itrack = 0; itrack < protoTracks.size(); ++itrack) {
@@ -82,12 +87,9 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       trackSourceLinks.push_back(*sourceLink);
     }
 
-    // Set the target surface
-    const Acts::Surface* rSurface = &initialParams.referenceSurface();
-
     // Set the KalmanFitter options
     Acts::KalmanFitterOptions kfOptions(
-        ctx.geoContext, ctx.magFieldContext, ctx.calibContext, rSurface);
+        ctx.geoContext, ctx.magFieldContext, ctx.calibContext, &(*pSurface));
 
     ACTS_DEBUG("Invoke fitter");
     auto result = m_cfg.fit(trackSourceLinks, initialParams, kfOptions);

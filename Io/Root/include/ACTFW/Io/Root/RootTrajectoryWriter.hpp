@@ -93,6 +93,7 @@ private:
 
   unsigned long m_t_barcode{0};   ///< Truth particle barcode
   int           m_t_charge{0};    ///< Truth particle charge
+  float         m_t_time{0};      ///< Truth particle time
   float         m_t_vx{-99.};     ///< Truth particle vertex x
   float         m_t_vy{-99.};     ///< Truth particle vertex y
   float         m_t_vz{-99.};     ///< Truth particle vertex z
