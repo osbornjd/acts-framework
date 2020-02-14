@@ -1,9 +1,9 @@
 [submodule "acts-core"]
 	path = external/acts-core
-	url = ../acts-core.git
+	url = https://github.com/sPHENIX-Collaboration/acts-core
 [submodule "acts-fatras"]
 	path = external/acts-fatras
-	url = ../acts-fatras.git
+	url = https://gitlab.cern.ch/acts/acts-fatras.git
 [submodule "external/dfelibs"]
 	path = external/dfelibs
-	url = ../../msmk/dfelibs.git
+	url = https://github.com/sPHENIX-Collaboration/dfelibs
