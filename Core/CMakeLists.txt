@@ -25,3 +25,6 @@ target_compile_features(ACTFramework PUBLIC cxx_std_17)
 install(
   TARGETS ACTFramework
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+install(
+DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
