@@ -7,3 +7,6 @@ target_link_libraries(
   ACTFWDetectorsCommon INTERFACE Boost::program_options)
 
 # interface libraries do not exist in the filesystem; no installation needed
+
+install(
+DIRECTORY include/ACTFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
