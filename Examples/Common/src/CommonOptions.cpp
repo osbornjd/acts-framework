@@ -102,7 +102,10 @@ FW::Options::addMaterialOptions(
       "Write material information of dense volumes.")(
       "mat-output-data",
       value<bool>()->default_value(true),
-      "Output the data field(s).");
+      "Output the data field(s).")(
+      "mat-output-allsurfaces",
+      value<bool>()->default_value(false),
+      "Output all the selected surfaces to create a surface map.");
 }
 
 void
