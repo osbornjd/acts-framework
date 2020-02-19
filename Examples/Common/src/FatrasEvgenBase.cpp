@@ -54,7 +54,7 @@ setupEvgenInput(boost::program_options::variables_map& vm,
     pWriterCsvConfig.outputDir  = outputDir;
     pWriterCsvConfig.outputStem = "particles";
     sequencer.addWriter(
-        std::make_shared<FW::CsvParticleWriter>(pWriterCsvConfig));
+        std::make_shared<FW::CsvParticleWriter>(pWriterCsvConfig, logLevel));
   }
 
   // Write particles as ROOT file
@@ -65,6 +65,6 @@ setupEvgenInput(boost::program_options::variables_map& vm,
     pWriterRootConfig.filePath   = FW::joinPaths(outputDir, "particles.root");
     pWriterRootConfig.treeName   = "particles";
     sequencer.addWriter(
-        std::make_shared<FW::RootParticleWriter>(pWriterRootConfig));
+        std::make_shared<FW::RootParticleWriter>(pWriterRootConfig, logLevel));
   }
 }

@@ -40,8 +40,11 @@ public:
     std::string inputStem = "particles";
   };
 
-  CsvParticleReader(const Config&        cfg,
-                    Acts::Logging::Level level = Acts::Logging::INFO);
+  /// Construct the particle reader.
+  ///
+  /// @params cfg is the configuration object
+  /// @params lvl is the logging level
+  CsvParticleReader(const Config& cfg, Acts::Logging::Level lvl);
 
   std::string
   name() const final override;

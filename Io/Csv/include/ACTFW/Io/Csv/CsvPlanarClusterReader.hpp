@@ -56,8 +56,11 @@ public:
     std::string outputSimulatedHits;
   };
 
-  CsvPlanarClusterReader(const Config&        cfg,
-                         Acts::Logging::Level level = Acts::Logging::INFO);
+  /// Construct the cluster reader.
+  ///
+  /// @params cfg is the configuration object
+  /// @params lvl is the logging level
+  CsvPlanarClusterReader(const Config& cfg, Acts::Logging::Level lvl);
 
   std::string
   name() const final override;

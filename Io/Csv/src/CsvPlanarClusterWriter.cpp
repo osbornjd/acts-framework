@@ -24,8 +24,8 @@
 
 FW::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
     const FW::CsvPlanarClusterWriter::Config& cfg,
-    Acts::Logging::Level                      level)
-  : WriterT(cfg.inputClusters, "CsvPlanarClusterWriter", level), m_cfg(cfg)
+    Acts::Logging::Level                      lvl)
+  : WriterT(cfg.inputClusters, "CsvPlanarClusterWriter", lvl), m_cfg(cfg)
 {
   // inputClusters is already checked by base constructor
 }

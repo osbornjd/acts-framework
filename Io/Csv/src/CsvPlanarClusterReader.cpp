@@ -25,11 +25,11 @@
 
 FW::CsvPlanarClusterReader::CsvPlanarClusterReader(
     const FW::CsvPlanarClusterReader::Config& cfg,
-    Acts::Logging::Level                      level)
+    Acts::Logging::Level                      lvl)
   : m_cfg(cfg)
   // TODO check that all files (hits,cells,truth) exists
   , m_eventsRange(determineEventFilesRange(cfg.inputDir, "hits.csv"))
-  , m_logger(Acts::getDefaultLogger("CsvPlanarClusterReader", level))
+  , m_logger(Acts::getDefaultLogger("CsvPlanarClusterReader", lvl))
 {
   if (not m_cfg.trackingGeometry) {
     throw std::invalid_argument("Missing tracking geometry");

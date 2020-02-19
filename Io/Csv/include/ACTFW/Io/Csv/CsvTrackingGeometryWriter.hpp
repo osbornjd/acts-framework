@@ -47,10 +47,11 @@ public:
     bool writePerEvent = false;
   };
 
-  /// Constructor
-  /// @param cfg is the configuration class
-  CsvTrackingGeometryWriter(const Config&        cfg,
-                            Acts::Logging::Level lvl = Acts::Logging::INFO);
+  /// Construct the geometry writer.
+  ///
+  /// @param cfg is the configuration object
+  /// @param lvl is the logging level
+  CsvTrackingGeometryWriter(const Config& cfg, Acts::Logging::Level lvl);
 
   std::string
   name() const final override;

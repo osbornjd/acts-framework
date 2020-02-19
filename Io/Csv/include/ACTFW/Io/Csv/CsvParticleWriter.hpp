@@ -49,11 +49,11 @@ public:
     size_t outputPrecision = std::numeric_limits<float>::max_digits10;
   };
 
-  /// constructor
-  /// @param cfg is the configuration object
-  /// @parm level is the output logging level
-  CsvParticleWriter(const Config&        cfg,
-                    Acts::Logging::Level level = Acts::Logging::INFO);
+  /// Construct the particle writer.
+  ///
+  /// @params cfg is the configuration object
+  /// @params lvl is the logging level
+  CsvParticleWriter(const Config& cfg, Acts::Logging::Level lvl);
 
 protected:
   /// @brief Write method called by the base class

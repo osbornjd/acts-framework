@@ -48,11 +48,11 @@ public:
     size_t outputPrecision = std::numeric_limits<float>::max_digits10;
   };
 
-  /// Constructor with
-  /// @param cfg configuration struct
-  /// @param output logging level
-  CsvPlanarClusterWriter(const Config&        cfg,
-                         Acts::Logging::Level level = Acts::Logging::INFO);
+  /// Construct the cluster writer.
+  ///
+  /// @params cfg is the configuration object
+  /// @params lvl is the logging level
+  CsvPlanarClusterWriter(const Config& cfg, Acts::Logging::Level lvl);
 
 protected:
   /// This implementation holds the actual writing method

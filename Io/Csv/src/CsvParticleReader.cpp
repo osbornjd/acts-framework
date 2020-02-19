@@ -24,11 +24,11 @@
 
 FW::CsvParticleReader::CsvParticleReader(
     const FW::CsvParticleReader::Config& cfg,
-    Acts::Logging::Level                 level)
+    Acts::Logging::Level                 lvl)
   : m_cfg(cfg)
   , m_eventsRange(
         determineEventFilesRange(cfg.inputDir, cfg.inputStem + ".csv"))
-  , m_logger(Acts::getDefaultLogger("CsvParticleReader", level))
+  , m_logger(Acts::getDefaultLogger("CsvParticleReader", lvl))
 {
   if (m_cfg.outputParticles.empty()) {
     throw std::invalid_argument("Missing output collection");

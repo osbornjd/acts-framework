@@ -232,7 +232,7 @@ setupSimulationAlgorithm(
     pWriterCsvConfig.outputDir  = outputDir;
     pWriterCsvConfig.outputStem = fatrasConfig.simulatedEventCollection;
     sequencer.addWriter(
-        std::make_shared<FW::CsvParticleWriter>(pWriterCsvConfig));
+        std::make_shared<FW::CsvParticleWriter>(pWriterCsvConfig, logLevel));
   }
 
   // Write simulation information as ROOT files
@@ -245,7 +245,7 @@ setupSimulationAlgorithm(
         outputDir, fatrasConfig.simulatedEventCollection + ".root");
     pWriterRootConfig.treeName = fatrasConfig.simulatedEventCollection;
     sequencer.addWriter(
-        std::make_shared<FW::RootParticleWriter>(pWriterRootConfig));
+        std::make_shared<FW::RootParticleWriter>(pWriterRootConfig, logLevel));
 
     // Write simulated hits as ROOT TTree
     FW::RootSimHitWriter::Config fhitWriterRootConfig;
@@ -254,7 +254,7 @@ setupSimulationAlgorithm(
         outputDir, fatrasConfig.simulatedHitCollection + ".root");
     fhitWriterRootConfig.treeName = fatrasConfig.simulatedHitCollection;
     sequencer.addWriter(
-        std::make_shared<FW::RootSimHitWriter>(fhitWriterRootConfig));
+        std::make_shared<FW::RootSimHitWriter>(fhitWriterRootConfig, logLevel));
   }
 }
 

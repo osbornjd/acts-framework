@@ -20,8 +20,8 @@
 
 FW::CsvParticleWriter::CsvParticleWriter(
     const FW::CsvParticleWriter::Config& cfg,
-    Acts::Logging::Level                 level)
-  : WriterT(cfg.inputEvent, "CsvParticleWriter", level), m_cfg(cfg)
+    Acts::Logging::Level                 lvl)
+  : WriterT(cfg.inputEvent, "CsvParticleWriter", lvl), m_cfg(cfg)
 {
   // inputEvent is already checked by base constructor
   if (m_cfg.outputStem.empty()) {
