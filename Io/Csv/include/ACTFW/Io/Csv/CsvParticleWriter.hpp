@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 
 namespace FW {
@@ -32,13 +31,13 @@ namespace FW {
 ///     ...
 ///
 /// and each line in the file corresponds to one particle.
-class CsvParticleWriter : public WriterT<std::vector<Data::SimVertex>>
+class CsvParticleWriter : public WriterT<SimParticles>
 {
 public:
   struct Config
   {
-    /// Input event (vector of simulation vertices) collection to write.
-    std::string inputEvent;
+    /// Input particles collection to write.
+    std::string inputParticles;
     /// Where to place output files.
     std::string outputDir;
     /// Output filename stem.
@@ -54,13 +53,13 @@ public:
   CsvParticleWriter(const Config& cfg, Acts::Logging::Level lvl);
 
 protected:
-  /// @brief Write method called by the base class
-  /// @param [in] context is the algorithm context for consistency
-  /// @param [in] vertices is the process vertex collection for the
-  /// particles to be attached
+  /// Type-specific write implementation.
+  ///
+  /// @param[in] ctx is the algorithm context
+  /// @param[in] particles are the particle to be written
   ProcessCode
-  writeT(const FW::AlgorithmContext&         context,
-         const std::vector<Data::SimVertex>& vertices) final override;
+  writeT(const FW::AlgorithmContext& ctx,
+         const SimParticles&         particles) final override;
 
 private:
   Config m_cfg;  //!< Nested configuration struct

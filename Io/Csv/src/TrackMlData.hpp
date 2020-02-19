@@ -21,16 +21,20 @@ struct ParticleData
 {
   uint64_t particle_id;
   int32_t  particle_type;
+  /// defaulted, process type is not available in the TrackML datasets
+  uint32_t process = 0u;
   float    vx, vy, vz;
-  // defaulted since time is not available in the TrackML datasets
-  float   vt = 0.0f;
-  float   px, py, pz;
-  float   q;
-  int32_t nhits;
+  // defaulted, time is not available in the TrackML datasets
+  float vt = 0.0f;
+  float px, py, pz;
+  // defaulted, mass is not available in the TrackML datasets
+  float m = 0.0f;
+  float q;
 
   DFE_NAMEDTUPLE(ParticleData,
                  particle_id,
                  particle_type,
+                 process,
                  vx,
                  vy,
                  vz,
@@ -38,8 +42,8 @@ struct ParticleData
                  px,
                  py,
                  pz,
-                 q,
-                 nhits);
+                 m,
+                 q);
 };
 
 struct TruthHitData
