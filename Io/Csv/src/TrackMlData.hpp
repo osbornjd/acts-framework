@@ -58,6 +58,8 @@ struct TruthHitData
   float tpx, tpy, tpz;
   // defaulted, particle energy is not available in the TrackML datasets
   float te = 0.0f;
+  // defaulted, hit index is not available in the TrackML datasets
+  int32_t index = -1;
 
   DFE_NAMEDTUPLE(TruthHitData,
                  hit_id,
@@ -70,7 +72,8 @@ struct TruthHitData
                  tpx,
                  tpy,
                  tpz,
-                 te);
+                 te,
+                 index);
 };
 
 struct HitData

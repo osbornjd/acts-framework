@@ -158,7 +158,7 @@ readTruthHitsByHitId(const std::string& inputDir, size_t event)
 {
   // tt is an optional element
   auto truths = readEverything<FW::TruthHitData>(
-      inputDir, "truth.csv", {"geometry_id", "tt", "te"}, event);
+      inputDir, "truth.csv", {"geometry_id", "tt", "te", "index"}, event);
   // sort for fast hit id look up
   std::sort(truths.begin(), truths.end(), CompareHitId{});
   return truths;
