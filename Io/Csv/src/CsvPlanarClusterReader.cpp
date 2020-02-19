@@ -91,8 +91,11 @@ struct CompareHitId
 
 /// Convert separate volume/layer/module id into a single geometry identifier.
 inline Acts::GeometryID
-extractGeometryId(const FW::SimHitData& data)
+extractGeometryId(const FW::HitData& data)
 {
+  // if available, use the encoded geometry directly
+  if (data.geometry_id != 0u) { return data.geometry_id; }
+  // otherwise, reconstruct it from the available components
   Acts::GeometryID geoId;
   geoId.setVolume(data.volume_id);
   geoId.setLayer(data.layer_id);
@@ -103,7 +106,7 @@ extractGeometryId(const FW::SimHitData& data)
 struct CompareGeometryId
 {
   bool
-  operator()(const FW::SimHitData& left, const FW::SimHitData& right) const
+  operator()(const FW::HitData& left, const FW::HitData& right) const
   {
     auto leftId  = extractGeometryId(left).value();
     auto rightId = extractGeometryId(right).value();
@@ -115,11 +118,11 @@ template <typename Data>
 inline std::vector<Data>
 readEverything(const std::string&              inputDir,
                const std::string&              filename,
-               const std::vector<std::string>& optional_columns,
+               const std::vector<std::string>& optionalColumns,
                size_t                          event)
 {
   std::string path = FW::perEventFilepath(inputDir, filename, event);
-  dfe::NamedTupleCsvReader<Data> reader(path, optional_columns);
+  dfe::NamedTupleCsvReader<Data> reader(path, optionalColumns);
 
   std::vector<Data> everything;
   Data              one;
@@ -128,23 +131,12 @@ readEverything(const std::string&              inputDir,
   return everything;
 }
 
-std::vector<FW::TruthHitData>
-readTruthHitsByHitId(const std::string& inputDir, size_t event)
+std::vector<FW::HitData>
+readHitsByGeoId(const std::string& inputDir, size_t event)
 {
-  // tt is an optional element
-  auto truths
-      = readEverything<FW::TruthHitData>(inputDir, "truth.csv", {"tt"}, event);
-  // sort for fast hit id look up
-  std::sort(truths.begin(), truths.end(), CompareHitId{});
-  return truths;
-}
-
-std::vector<FW::SimHitData>
-readSimHitsByGeoId(const std::string& inputDir, size_t event)
-{
-  // t is an optional element
-  auto hits
-      = readEverything<FW::SimHitData>(inputDir, "hits.csv", {"t"}, event);
+  // geometry_id and t are optional columns
+  auto hits = readEverything<FW::HitData>(
+      inputDir, "hits.csv", {"geometry_id", "t"}, event);
   // sort same way they will be sorted in the output container
   std::sort(hits.begin(), hits.end(), CompareGeometryId{});
   return hits;
@@ -161,6 +153,17 @@ readCellsByHitId(const std::string& inputDir, size_t event)
   return cells;
 }
 
+std::vector<FW::TruthHitData>
+readTruthHitsByHitId(const std::string& inputDir, size_t event)
+{
+  // tt is an optional element
+  auto truths = readEverything<FW::TruthHitData>(
+      inputDir, "truth.csv", {"geometry_id", "tt", "te"}, event);
+  // sort for fast hit id look up
+  std::sort(truths.begin(), truths.end(), CompareHitId{});
+  return truths;
+}
+
 }  // namespace
 
 FW::ProcessCode
@@ -171,9 +174,9 @@ FW::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
   // to simplify data handling. to be able to perform this mapping we first
   // read all data into memory before converting to the internal event data
   // types.
-  auto truths = readTruthHitsByHitId(m_cfg.inputDir, ctx.eventNumber);
-  auto hits   = readSimHitsByGeoId(m_cfg.inputDir, ctx.eventNumber);
+  auto hits   = readHitsByGeoId(m_cfg.inputDir, ctx.eventNumber);
   auto cells  = readCellsByHitId(m_cfg.inputDir, ctx.eventNumber);
+  auto truths = readTruthHitsByHitId(m_cfg.inputDir, ctx.eventNumber);
 
   // prepare containers for the hit data using the framework event data types
   GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
@@ -185,7 +188,7 @@ FW::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
   hitParticlesMap.reserve(truths.size());
   simHits.reserve(truths.size());
 
-  for (const SimHitData& hit : hits) {
+  for (const HitData& hit : hits) {
 
     // identify hit surface
     Acts::GeometryID geoId = extractGeometryId(hit);

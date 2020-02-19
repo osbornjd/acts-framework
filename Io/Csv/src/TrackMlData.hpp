@@ -50,40 +50,49 @@ struct TruthHitData
 {
   uint64_t hit_id;
   uint64_t particle_id;
+  // defaulted, geometry identifier is not available in the TrackML datasets
+  uint64_t geometry_id = 0u;
   float    tx, ty, tz;
-  // defaulted since time is not available in the original TrackML datasets
+  // defaulted, time is not available in the TrackML datasets
   float tt = 0.0f;
   float tpx, tpy, tpz;
+  // defaulted, particle energy is not available in the TrackML datasets
+  float te = 0.0f;
 
   DFE_NAMEDTUPLE(TruthHitData,
                  hit_id,
                  particle_id,
+                 geometry_id,
                  tx,
                  ty,
                  tz,
                  tt,
                  tpx,
                  tpy,
-                 tpz);
+                 tpz,
+                 te);
 };
 
-struct SimHitData
+struct HitData
 {
   uint64_t hit_id;
-  float    x, y, z;
-  // defaulted since time is not available in the TrackML datasets
-  float    t = 0.0f;
+  // defaulted, geometry identifier is not available in the TrackML datasets
+  uint64_t geometry_id = 0u;
   uint32_t volume_id, layer_id, module_id;
+  float    x, y, z;
+  // defaulted, time is not available in the TrackML datasets
+  float t = 0.0f;
 
-  DFE_NAMEDTUPLE(SimHitData,
+  DFE_NAMEDTUPLE(HitData,
                  hit_id,
+                 geometry_id,
+                 volume_id,
+                 layer_id,
+                 module_id,
                  x,
                  y,
                  z,
-                 t,
-                 volume_id,
-                 layer_id,
-                 module_id);
+                 t);
 };
 
 struct CellData
@@ -92,7 +101,7 @@ struct CellData
   // These should have been named channel{0,1} but we cannot change it now
   // to avoid breaking backward compatibility.
   int32_t ch0, ch1;
-  // defaulted since timestamp is not available in the TrackML datasets
+  // defaulted, timestamp is not available in the TrackML datasets
   int32_t timestamp = 0;
   int32_t value;
 

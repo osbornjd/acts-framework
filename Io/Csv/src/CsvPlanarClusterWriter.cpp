@@ -43,16 +43,15 @@ FW::CsvPlanarClusterWriter::writeT(
   std::string pathTruth
       = perEventFilepath(m_cfg.outputDir, "truth.csv", context.eventNumber);
 
-  dfe::NamedTupleCsvWriter<SimHitData>   writerHits(pathHits,
-                                                  m_cfg.outputPrecision);
+  dfe::NamedTupleCsvWriter<HitData> writerHits(pathHits, m_cfg.outputPrecision);
   dfe::NamedTupleCsvWriter<CellData>     writerCells(pathCells,
                                                  m_cfg.outputPrecision);
   dfe::NamedTupleCsvWriter<TruthHitData> writerTruth(pathTruth,
                                                      m_cfg.outputPrecision);
 
-  TruthHitData truth;
-  SimHitData   hit;
+  HitData      hit;
   CellData     cell;
+  TruthHitData truth;
   // will be reused as hit counter
   hit.hit_id = 0;
 
@@ -69,14 +68,17 @@ FW::CsvPlanarClusterWriter::writeT(
     cluster.referenceSurface().localToGlobal(
         context.geoContext, localPos, globalFakeMom, globalPos);
 
-    // write global hit information
-    hit.x         = globalPos.x() / Acts::UnitConstants::mm;
-    hit.y         = globalPos.y() / Acts::UnitConstants::mm;
-    hit.z         = globalPos.z() / Acts::UnitConstants::mm;
-    hit.t         = parameters[Acts::ParDef::eT] / Acts::UnitConstants::ns;
+    // encoded geometry identifier
+    hit.geometry_id = geoId.value();
+    // (partially) decoded geometry identifier
     hit.volume_id = geoId.volume();
     hit.layer_id  = geoId.layer();
     hit.module_id = geoId.sensitive();
+    // write global hit information
+    hit.x = globalPos.x() / Acts::UnitConstants::mm;
+    hit.y = globalPos.y() / Acts::UnitConstants::mm;
+    hit.z = globalPos.z() / Acts::UnitConstants::mm;
+    hit.t = parameters[Acts::ParDef::eT] / Acts::UnitConstants::ns;
     writerHits.append(hit);
 
     // write local cell information
@@ -92,7 +94,8 @@ FW::CsvPlanarClusterWriter::writeT(
 
     // write hit-particle truth association
     // each hit can have multiple particles, e.g. in a dense environment
-    truth.hit_id = hit.hit_id;
+    truth.hit_id      = hit.hit_id;
+    truth.geometry_id = hit.geometry_id;
     for (auto& p : cluster.sourceLink().truthParticles()) {
       truth.particle_id = p->barcode().value();
       truth.tx          = p->position().x() / Acts::UnitConstants::mm;
@@ -102,6 +105,7 @@ FW::CsvPlanarClusterWriter::writeT(
       truth.tpx         = p->momentum().x() / Acts::UnitConstants::GeV;
       truth.tpy         = p->momentum().y() / Acts::UnitConstants::GeV;
       truth.tpz         = p->momentum().z() / Acts::UnitConstants::GeV;
+      truth.te          = p->E() / Acts::UnitConstants::GeV;
       writerTruth.append(truth);
     }
 
