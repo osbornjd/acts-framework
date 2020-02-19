@@ -59,28 +59,27 @@ writeSurface(SurfaceWriter&               writer,
 {
   SurfaceData data;
 
-  // unpack geo id
-  auto geoID     = surface.geoID();
-  data.volume_id = geoID.volume();
-  data.layer_id  = geoID.layer();
-  data.module_id = geoID.sensitive();
-
-  // coordinate transformation
-  auto center    = surface.center(geoCtx);
-  auto transform = surface.transform(geoCtx);
-  data.cx        = center.x() / Acts::UnitConstants::mm;
-  data.cy        = center.y() / Acts::UnitConstants::mm;
-  data.cz        = center.z() / Acts::UnitConstants::mm;
+  // encoded and partially decoded geometry identifier
+  data.geometry_id = surface.geoID().value();
+  data.volume_id   = surface.geoID().volume();
+  data.layer_id    = surface.geoID().layer();
+  data.module_id   = surface.geoID().sensitive();
+  // center position
+  auto center = surface.center(geoCtx);
+  data.cx     = center.x() / Acts::UnitConstants::mm;
+  data.cy     = center.y() / Acts::UnitConstants::mm;
+  data.cz     = center.z() / Acts::UnitConstants::mm;
   // rotation matrix components are unit-less
-  data.rot_xu = transform(0, 0);
-  data.rot_xv = transform(0, 1);
-  data.rot_xw = transform(0, 2);
-  data.rot_yu = transform(1, 0);
-  data.rot_yv = transform(1, 1);
-  data.rot_yw = transform(1, 2);
-  data.rot_zu = transform(2, 0);
-  data.rot_zv = transform(2, 1);
-  data.rot_zw = transform(2, 2);
+  auto transform = surface.transform(geoCtx);
+  data.rot_xu    = transform(0, 0);
+  data.rot_xv    = transform(0, 1);
+  data.rot_xw    = transform(0, 2);
+  data.rot_yu    = transform(1, 0);
+  data.rot_yv    = transform(1, 1);
+  data.rot_yw    = transform(1, 2);
+  data.rot_zu    = transform(2, 0);
+  data.rot_zv    = transform(2, 1);
+  data.rot_zw    = transform(2, 2);
 
   // module thickness
   if (surface.associatedDetectorElement()) {

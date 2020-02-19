@@ -97,6 +97,7 @@ struct CellData
 
 struct SurfaceData
 {
+  uint64_t geometry_id;
   uint32_t volume_id, layer_id, module_id;
   float    cx, cy, cz;
   float    rot_xu, rot_xv, rot_xw;
@@ -111,6 +112,7 @@ struct SurfaceData
   float pitch_v      = -1;
 
   DFE_NAMEDTUPLE(SurfaceData,
+                 geometry_id,
                  volume_id,
                  layer_id,
                  module_id,
