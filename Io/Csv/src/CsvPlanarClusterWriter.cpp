@@ -60,8 +60,7 @@ FW::CsvPlanarClusterWriter::writeT(
     const Acts::PlanarModuleCluster& cluster = entry.second;
     // local cluster information
     const auto&    parameters = cluster.parameters();
-    Acts::Vector2D localPos(parameters[Acts::ParDef::eLOC_0],
-                            parameters[Acts::ParDef::eLOC_1]);
+    Acts::Vector2D localPos(parameters[0], parameters[1]);
     Acts::Vector3D globalFakeMom(1, 1, 1);
     Acts::Vector3D globalPos(0, 0, 0);
     // transform local into global position information
@@ -78,7 +77,7 @@ FW::CsvPlanarClusterWriter::writeT(
     hit.x = globalPos.x() / Acts::UnitConstants::mm;
     hit.y = globalPos.y() / Acts::UnitConstants::mm;
     hit.z = globalPos.z() / Acts::UnitConstants::mm;
-    hit.t = parameters[Acts::ParDef::eT] / Acts::UnitConstants::ns;
+    hit.t = parameters[2] / Acts::UnitConstants::ns;
     writerHits.append(hit);
 
     // write local cell information
