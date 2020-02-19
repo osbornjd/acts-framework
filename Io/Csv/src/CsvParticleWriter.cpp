@@ -33,20 +33,12 @@ FW::ProcessCode
 FW::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
                               const std::vector<Data::SimVertex>& vertices)
 {
-  // use pointer instead of reference since it is optional
-  const std::map<Barcode, size_t>* hitsPerParticle = nullptr;
-  if (not m_cfg.inputHitsPerParticle.empty()) {
-    hitsPerParticle = &context.eventStore.get<std::map<Barcode, size_t>>(
-        m_cfg.inputHitsPerParticle);
-  }
-
   auto pathParticles = perEventFilepath(
       m_cfg.outputDir, m_cfg.outputStem + ".csv", context.eventNumber);
   dfe::NamedTupleCsvWriter<ParticleData> writer(pathParticles,
                                                 m_cfg.outputPrecision);
 
   ParticleData data;
-  data.nhits = -1;  // default for every entry if information unvailable
   for (auto& vertex : vertices) {
     for (auto& particle : vertex.outgoing) {
       data.particle_id   = particle.barcode().value();
@@ -59,15 +51,6 @@ FW::CsvParticleWriter::writeT(const FW::AlgorithmContext&         context,
       data.py            = particle.momentum().y() / Acts::UnitConstants::GeV;
       data.pz            = particle.momentum().z() / Acts::UnitConstants::GeV;
       data.q             = particle.q() / Acts::UnitConstants::e;
-      // add the hits per particle
-      if (hitsPerParticle) {
-        auto hppEntry = hitsPerParticle->find(particle.barcode());
-        if (hppEntry != hitsPerParticle->end()) {
-          data.nhits = hppEntry->second;
-        } else {
-          data.nhits = -1;
-        }
-      }
       writer.append(data);
     }
   }
