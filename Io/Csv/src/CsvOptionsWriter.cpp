@@ -8,8 +8,9 @@
 
 #include "ACTFW/Io/Csv/CsvOptionsWriter.hpp"
 
-#include <boost/program_options.hpp>
+#include <limits>
 
+#include <boost/program_options.hpp>
 #include <dfe/dfe_io_dsv.hpp>
 
 void
@@ -17,9 +18,10 @@ FW::Options::addCsvWriterOptions(FW::Options::Description& desc)
 {
   using namespace boost::program_options;
 
-  desc.add_options()("csv-output-precision",
-                     value<size_t>()->default_value(6),
-                     "Floating number output precision.")(
+  desc.add_options()(
+      "csv-output-precision",
+      value<size_t>()->default_value(std::numeric_limits<float>::max_digits10),
+      "Floating number output precision.")(
       "csv-tg-perevent", bool_switch(), "Write tracking geometry per event.");
 }
 

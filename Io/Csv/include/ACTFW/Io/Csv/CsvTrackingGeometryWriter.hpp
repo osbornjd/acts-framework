@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <limits>
+
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
@@ -40,7 +42,7 @@ public:
     /// Where to place output files.
     std::string outputDir;
     /// Number of decimal digits for floating point precision in output.
-    std::size_t outputPrecision = 6;
+    std::size_t outputPrecision = std::numeric_limits<float>::max_digits10;
     /// Whether to write the per-event file.
     bool writePerEvent = false;
   };

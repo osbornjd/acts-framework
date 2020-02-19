@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <limits>
 #include <string>
 
 #include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
@@ -44,7 +45,7 @@ public:
     /// Where to place output files
     std::string outputDir;
     /// Number of decimal digits for floating point precision in output.
-    size_t outputPrecision = 6;
+    size_t outputPrecision = std::numeric_limits<float>::max_digits10;
   };
 
   /// Constructor with

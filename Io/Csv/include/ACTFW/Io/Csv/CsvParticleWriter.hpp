@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -45,7 +46,7 @@ public:
     /// Output filename stem.
     std::string outputStem = "particles";
     /// Number of decimal digits for floating point precision in output.
-    size_t outputPrecision = 6;
+    size_t outputPrecision = std::numeric_limits<float>::max_digits10;
   };
 
   /// constructor
