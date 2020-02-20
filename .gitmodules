@@ -3,7 +3,7 @@
 	url = https://github.com/sPHENIX-Collaboration/acts-core.git
 [submodule "acts-fatras"]
 	path = external/acts-fatras
-	url = https://gitlab.cern.ch/acts/acts-fatras.git
+	url = https://github.com/sPHENIX-Collaboration/acts-fatras.git
 [submodule "external/dfelibs"]
 	path = external/dfelibs
 	url = https://github.com/sPHENIX-Collaboration/dfelibs.git
