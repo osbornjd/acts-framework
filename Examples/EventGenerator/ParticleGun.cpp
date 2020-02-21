@@ -62,7 +62,7 @@ main(int argc, char* argv[])
   sequencer.addAlgorithm(std::make_shared<PrintParticles>(printCfg, logLevel));
 
   // different output modes
-  std::string outputDir = vm["output-dir"].as<std::string>();
+  auto outputDir = ensureWritableDirectory(vm["output-dir"].as<std::string>());
   if (vm["output-csv"].as<bool>()) {
     CsvParticleWriter::Config csvWriterCfg;
     csvWriterCfg.inputParticles = flatten.outputParticles;
