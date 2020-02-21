@@ -13,6 +13,7 @@
 
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Generators/FlattenEvent.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Io/Root/RootParticleWriter.hpp"
@@ -60,25 +61,31 @@ main(int argc, char* argv[])
   sequencer.addAlgorithm(
       std::make_shared<ParticleSelector>(selectorCfg, logLevel));
 
+  // flatten event to just particles
+  FlattenEvent::Config flatten;
+  flatten.inputEvent      = selectorCfg.output;
+  flatten.outputParticles = "particles";
+  sequencer.addAlgorithm(std::make_shared<FlattenEvent>(flatten, logLevel));
+
   // print generated particles
   PrintParticles::Config printCfg;
-  printCfg.inputEvent = evgenCfg.output;
+  printCfg.inputParticles = flatten.outputParticles;
   sequencer.addAlgorithm(std::make_shared<PrintParticles>(printCfg, logLevel));
 
   // different output modes
   std::string outputDir = vm["output-dir"].as<std::string>();
   if (vm["output-csv"].as<bool>()) {
     CsvParticleWriter::Config csvWriterCfg;
-    csvWriterCfg.inputEvent = selectorCfg.output;
-    csvWriterCfg.outputDir  = outputDir;
-    csvWriterCfg.outputStem = "particles";
+    csvWriterCfg.inputParticles = flatten.outputParticles;
+    csvWriterCfg.outputDir      = outputDir;
+    csvWriterCfg.outputStem     = "particles";
     sequencer.addWriter(
         std::make_shared<CsvParticleWriter>(csvWriterCfg, logLevel));
   }
   if (vm["output-root"].as<bool>()) {
     RootParticleWriter::Config rootWriterCfg;
-    rootWriterCfg.collection = selectorCfg.output;
-    rootWriterCfg.filePath   = joinPaths(outputDir, "particles.root");
+    rootWriterCfg.inputParticles = flatten.outputParticles;
+    rootWriterCfg.filePath       = joinPaths(outputDir, "particles.root");
     sequencer.addWriter(
         std::make_shared<RootParticleWriter>(rootWriterCfg, logLevel));
   }
