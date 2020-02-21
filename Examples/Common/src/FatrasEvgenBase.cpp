@@ -11,6 +11,7 @@
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Generators/EventGenerator.hpp"
+#include "ACTFW/Generators/FlattenEvent.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Io/Root/RootParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
@@ -44,15 +45,20 @@ setupEvgenInput(boost::program_options::variables_map& vm,
     throw std::runtime_error("unknown event generator input: " + evgenInput);
   }
 
+  FW::FlattenEvent::Config flatten;
+  flatten.inputEvent      = "particles";
+  flatten.outputParticles = "particles-flat";
+  sequencer.addAlgorithm(std::make_shared<FW::FlattenEvent>(flatten, logLevel));
+
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
 
   // Write particles as CSV files
   if (vm["output-csv"].template as<bool>()) {
     FW::CsvParticleWriter::Config pWriterCsvConfig;
-    pWriterCsvConfig.inputEvent = "particles";
-    pWriterCsvConfig.outputDir  = outputDir;
-    pWriterCsvConfig.outputStem = "particles";
+    pWriterCsvConfig.inputParticles = flatten.outputParticles;
+    pWriterCsvConfig.outputDir      = outputDir;
+    pWriterCsvConfig.outputStem     = "particles";
     sequencer.addWriter(
         std::make_shared<FW::CsvParticleWriter>(pWriterCsvConfig, logLevel));
   }
@@ -61,9 +67,9 @@ setupEvgenInput(boost::program_options::variables_map& vm,
   if (vm["output-root"].template as<bool>()) {
     // Write particles as ROOT TTree
     FW::RootParticleWriter::Config pWriterRootConfig;
-    pWriterRootConfig.collection = "particles";
-    pWriterRootConfig.filePath   = FW::joinPaths(outputDir, "particles.root");
-    pWriterRootConfig.treeName   = "particles";
+    pWriterRootConfig.inputParticles = flatten.outputParticles;
+    pWriterRootConfig.filePath = FW::joinPaths(outputDir, "particles.root");
+    pWriterRootConfig.treeName = "particles";
     sequencer.addWriter(
         std::make_shared<FW::RootParticleWriter>(pWriterRootConfig, logLevel));
   }
