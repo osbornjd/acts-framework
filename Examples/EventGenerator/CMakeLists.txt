@@ -1,14 +1,14 @@
 add_executable(
-  ActsParticleGun
+  ActsGenParticleGun
   ParticleGun.cpp)
 target_link_libraries(
-  ActsParticleGun
+  ActsGenParticleGun
   PRIVATE
     ActsFrameworkGenerators ACTFWExamplesCommon ActsFrameworkIoRoot
   ActsFrameworkIoCsv ActsFrameworkPrinters Boost::program_options)
 
 install(
-  TARGETS ActsParticleGun
+  TARGETS ActsGenParticleGun
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_subdirectory_if(Pythia8 USE_PYTHIA8)

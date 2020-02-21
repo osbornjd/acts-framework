@@ -117,12 +117,12 @@ tgeo_fatras_example:
 generator_particle_gun:
   extends: .run
   script:
-    - ActsParticleGun -n ${EVENTS} --output-root 1 --output-csv 1
+    - ActsGenParticleGun -n ${EVENTS} --output-root 1 --output-csv 1
 
 generator_pythia8:
   extends: .run
   script:
-    - ActsPythia8 -n ${EVENTS} --output-root 1 --output-csv 1
+    - ActsGenPythia8 -n ${EVENTS} --output-root 1 --output-csv 1
 
 generic_geometry_example:
   extends: .run

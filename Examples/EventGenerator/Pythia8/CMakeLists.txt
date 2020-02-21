@@ -1,11 +1,13 @@
-add_executable(ActsPythia8 Pythia8.cpp)
+add_executable(
+  ActsGenPythia8
+  Pythia8.cpp)
 target_link_libraries(
-  ActsPythia8
+  ActsGenPythia8
   PRIVATE
     ActsFrameworkGenerators ActsFrameworkPythia8 ACTFWExamplesCommon
     ActsFrameworkIoRoot ActsFrameworkIoCsv ActsFrameworkPrinters
     Boost::program_options)
 
 install(
-  TARGETS ActsPythia8
+  TARGETS ActsGenPythia8
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
