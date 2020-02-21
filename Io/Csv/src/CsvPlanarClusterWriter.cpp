@@ -105,6 +105,13 @@ FW::CsvPlanarClusterWriter::writeT(
       truth.tpy         = p->momentum().y() / Acts::UnitConstants::GeV;
       truth.tpz         = p->momentum().z() / Acts::UnitConstants::GeV;
       truth.te          = p->E() / Acts::UnitConstants::GeV;
+      // TODO write four-momentum change
+      truth.deltapx = 0.0f / Acts::UnitConstants::GeV;
+      truth.deltapy = 0.0f / Acts::UnitConstants::GeV;
+      truth.deltapz = 0.0f / Acts::UnitConstants::GeV;
+      truth.deltae  = 0.0f / Acts::UnitConstants::GeV;
+      // TODO write hit index along the particle trajectory
+      truth.index = -1;
       writerTruth.append(truth);
     }
 

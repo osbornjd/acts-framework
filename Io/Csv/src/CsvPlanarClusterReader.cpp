@@ -156,9 +156,19 @@ readCellsByHitId(const std::string& inputDir, size_t event)
 std::vector<FW::TruthHitData>
 readTruthHitsByHitId(const std::string& inputDir, size_t event)
 {
-  // tt is an optional element
+  // define all optional columns
+  std::vector<std::string> optionalColumns = {
+      "geometry_id",
+      "tt",
+      "te",
+      "deltapx",
+      "deltapy",
+      "deltapz",
+      "deltae",
+      "index",
+  };
   auto truths = readEverything<FW::TruthHitData>(
-      inputDir, "truth.csv", {"geometry_id", "tt", "te", "index"}, event);
+      inputDir, "truth.csv", optionalColumns, event);
   // sort for fast hit id look up
   std::sort(truths.begin(), truths.end(), CompareHitId{});
   return truths;
@@ -214,6 +224,8 @@ FW::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
         simHit.direction = Acts::Vector3D(truth.tpx * Acts::UnitConstants::GeV,
                                           truth.tpy * Acts::UnitConstants::GeV,
                                           truth.tpz * Acts::UnitConstants::GeV);
+        // TODO extract four-momentum change
+        // TODO extract hit index
         // TODO extract hit value/charge from cells
         simHit.value = 0;
         // Mass, charge, and PDG identifier are global to the particle and are

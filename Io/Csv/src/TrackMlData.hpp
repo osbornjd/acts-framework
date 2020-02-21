@@ -58,6 +58,11 @@ struct TruthHitData
   float tpx, tpy, tpz;
   // defaulted, particle energy is not available in the TrackML datasets
   float te = 0.0f;
+  /// defaulted, four-momentum change is not available in the TrackML datasets
+  float deltapx = 0.0f;
+  float deltapy = 0.0f;
+  float deltapz = 0.0f;
+  float deltae  = 0.0f;
   // defaulted, hit index is not available in the TrackML datasets
   int32_t index = -1;
 
@@ -73,6 +78,10 @@ struct TruthHitData
                  tpy,
                  tpz,
                  te,
+                 deltapx,
+                 deltapy,
+                 deltapz,
+                 deltae,
                  index);
 };
 
