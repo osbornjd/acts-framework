@@ -32,16 +32,16 @@ FW::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
 
 FW::ProcessCode
 FW::CsvPlanarClusterWriter::writeT(
-    const AlgorithmContext&                                  context,
+    const AlgorithmContext&                                  ctx,
     const FW::GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
 {
   // open per-event file for all components
   std::string pathHits
-      = perEventFilepath(m_cfg.outputDir, "hits.csv", context.eventNumber);
+      = perEventFilepath(m_cfg.outputDir, "hits.csv", ctx.eventNumber);
   std::string pathCells
-      = perEventFilepath(m_cfg.outputDir, "cells.csv", context.eventNumber);
+      = perEventFilepath(m_cfg.outputDir, "cells.csv", ctx.eventNumber);
   std::string pathTruth
-      = perEventFilepath(m_cfg.outputDir, "truth.csv", context.eventNumber);
+      = perEventFilepath(m_cfg.outputDir, "truth.csv", ctx.eventNumber);
 
   dfe::NamedTupleCsvWriter<HitData> writerHits(pathHits, m_cfg.outputPrecision);
   dfe::NamedTupleCsvWriter<CellData>     writerCells(pathCells,
@@ -65,7 +65,7 @@ FW::CsvPlanarClusterWriter::writeT(
     Acts::Vector3D globalPos(0, 0, 0);
     // transform local into global position information
     cluster.referenceSurface().localToGlobal(
-        context.geoContext, localPos, globalFakeMom, globalPos);
+        ctx.geoContext, localPos, globalFakeMom, globalPos);
 
     // encoded geometry identifier
     hit.geometry_id = geoId.value();

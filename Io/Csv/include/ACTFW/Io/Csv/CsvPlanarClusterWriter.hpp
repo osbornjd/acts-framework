@@ -55,10 +55,12 @@ public:
   CsvPlanarClusterWriter(const Config& cfg, Acts::Logging::Level lvl);
 
 protected:
-  /// This implementation holds the actual writing method
-  /// and is called by the WriterT<>::write interface
+  /// Type-specific write implementation.
+  ///
+  /// @param[in] ctx is the algorithm context
+  /// @param[in] particles are the particle to be written
   ProcessCode
-  writeT(const AlgorithmContext&                              context,
+  writeT(const AlgorithmContext&                              ctx,
          const GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
       final override;
 
