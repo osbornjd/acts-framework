@@ -21,8 +21,8 @@ class PrintParticles : public BareAlgorithm
 public:
   struct Config
   {
-    /// Input event collection.
-    std::string inputEvent;
+    /// Input particles collection.
+    std::string inputParticles;
   };
 
   PrintParticles(const Config& cfg, Acts::Logging::Level lvl);
