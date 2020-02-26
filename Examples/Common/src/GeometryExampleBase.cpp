@@ -177,7 +177,8 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
       jmConverterCfg.processVolumes
           = vm["mat-output-volumes"].template as<bool>();
       jmConverterCfg.writeData = vm["mat-output-data"].template as<bool>();
-
+      jmConverterCfg.processnonmaterial
+          = vm["mat-output-allsurfaces"].template as<bool>();
       // The writer
       FW::Json::JsonMaterialWriter jmwImpl(std::move(jmConverterCfg),
                                            materialFileName + ".json");
