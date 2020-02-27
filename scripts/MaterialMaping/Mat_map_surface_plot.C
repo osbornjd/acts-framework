@@ -77,176 +77,175 @@ void plot(std::vector<TH2F*> Map, const sinfo& surface_info, const std::string& 
 void Initialise_hist(std::vector<TH2F*>& surface_hist,
   const sinfo& surface_info){
 
-    TH2F * Map_X0;
-    TH2F * Map_L0;
+  TH2F * Map_X0;
+  TH2F * Map_L0;
 
-    TH2F * Map_scale;
+  TH2F * Map_scale;
 
-    if(surface_info.type == 1){
-      Map_X0    = new TH2F(("Map_X0_"+surface_info.idname).c_str(),("Map_X0_"+surface_info.idname).c_str(),
-                           50,-6,6,50,-3.2,3.2);
-      Map_L0    = new TH2F(("Map_L0_"+surface_info.idname).c_str(),("Map_L0_"+surface_info.idname).c_str(),
-                           50,-6,6,50,-3.2,3.2);
-      Map_scale = new TH2F(("Map_scale_"+surface_info.idname).c_str(),("Map_scale_"+surface_info.idname).c_str(),
-                              50,-6,6,50,-3.2,3.2);
-      Map_X0->GetXaxis()->SetTitle("Eta");
-      Map_X0->GetYaxis()->SetTitle("Phi");
-      Map_X0->GetZaxis()->SetTitle("X0");
-      Map_L0->GetXaxis()->SetTitle("Eta");
-      Map_L0->GetYaxis()->SetTitle("Phi");
-      Map_L0->GetZaxis()->SetTitle("L0");
-    }
-
-    if(surface_info.type == 2){
-      Map_X0    = new TH2F(("Map_X0_"+surface_info.idname).c_str(),("Map_X0_"+surface_info.idname).c_str(),
-                            50,-1*surface_info.range_max,surface_info.range_max,50,-1*surface_info.range_max, surface_info.range_max);
-      Map_L0    = new TH2F(("Map_L0_"+surface_info.idname).c_str(),("Map_L0_"+surface_info.idname).c_str(),
-                            50,-1*surface_info.range_max,surface_info.range_max,50,-1*surface_info.range_max, surface_info.range_max);
-      Map_scale = new TH2F(("Map_scale_"+surface_info.idname).c_str(),("Map_scale_"+surface_info.idname).c_str(),
-                            50,-1*surface_info.range_max,surface_info.range_max,50,-1*surface_info.range_max, surface_info.range_max);
-      Map_X0->GetXaxis()->SetTitle("X [mm]");
-      Map_X0->GetYaxis()->SetTitle("Y [mm]");
-      Map_X0->GetZaxis()->SetTitle("X0");
-      Map_L0->GetXaxis()->SetTitle("X [mm]");
-      Map_L0->GetYaxis()->SetTitle("Y [mm]");
-      Map_L0->GetZaxis()->SetTitle("L0");
-    }
-    std::vector<TH2F*> v_hist;
-    v_hist.push_back(Map_X0);
-    v_hist.push_back(Map_L0);
-    v_hist.push_back(Map_scale);
-    surface_hist = v_hist;
+  if(surface_info.type == 1){
+    Map_X0    = new TH2F(("Map_X0_"+surface_info.idname).c_str(),("Map_X0_"+surface_info.idname).c_str(),
+                         50,-6,6,50,-3.2,3.2);
+    Map_L0    = new TH2F(("Map_L0_"+surface_info.idname).c_str(),("Map_L0_"+surface_info.idname).c_str(),
+                         50,-6,6,50,-3.2,3.2);
+    Map_scale = new TH2F(("Map_scale_"+surface_info.idname).c_str(),("Map_scale_"+surface_info.idname).c_str(),
+                          50,-6,6,50,-3.2,3.2);
+    Map_X0->GetXaxis()->SetTitle("Eta");
+    Map_X0->GetYaxis()->SetTitle("Phi");
+    Map_X0->GetZaxis()->SetTitle("X0");
+    Map_L0->GetXaxis()->SetTitle("Eta");
+    Map_L0->GetYaxis()->SetTitle("Phi");
+    Map_L0->GetZaxis()->SetTitle("L0");
   }
 
-  /// Fill the histograms for each surfaces.
+  if(surface_info.type == 2){
+    Map_X0    = new TH2F(("Map_X0_"+surface_info.idname).c_str(),("Map_X0_"+surface_info.idname).c_str(),
+                          50,-1*surface_info.range_max,surface_info.range_max,50,-1*surface_info.range_max, surface_info.range_max);
+    Map_L0    = new TH2F(("Map_L0_"+surface_info.idname).c_str(),("Map_L0_"+surface_info.idname).c_str(),
+                          50,-1*surface_info.range_max,surface_info.range_max,50,-1*surface_info.range_max, surface_info.range_max);
+    Map_scale = new TH2F(("Map_scale_"+surface_info.idname).c_str(),("Map_scale_"+surface_info.idname).c_str(),
+                          50,-1*surface_info.range_max,surface_info.range_max,50,-1*surface_info.range_max, surface_info.range_max);
+    Map_X0->GetXaxis()->SetTitle("X [mm]");
+    Map_X0->GetYaxis()->SetTitle("Y [mm]");
+    Map_X0->GetZaxis()->SetTitle("X0");
+    Map_L0->GetXaxis()->SetTitle("X [mm]");
+    Map_L0->GetYaxis()->SetTitle("Y [mm]");
+    Map_L0->GetZaxis()->SetTitle("L0");
+  }
+  std::vector<TH2F*> v_hist;
+  v_hist.push_back(Map_X0);
+  v_hist.push_back(Map_L0);
+  v_hist.push_back(Map_scale);
+  surface_hist = v_hist;
+}
 
-  void Fill(std::map<uint64_t,std::vector<TH2F*>>& surface_hist,  std::map<uint64_t,sinfo>& surface_info,
-    const std::string& input_file, const std::string& json_surface_file, const int& nbprocess){
+/// Fill the histograms for each surfaces.
 
-      json Det;
-      std::map<std::string,std::string> surface_name;
+void Fill(std::map<uint64_t,std::vector<TH2F*>>& surface_hist,  std::map<uint64_t,sinfo>& surface_info,
+  const std::string& input_file, const std::string& json_surface_file, const int& nbprocess){
 
-      if(json_surface_file != ""){
-        std::ifstream lfile(json_surface_file.c_str());
-        lfile >> Det;
+  nlohmann::json Det;
+  std::map<std::string,std::string> surface_name;
 
-        Parse_Json(Det, surface_name);
-      }
+  if(json_surface_file != ""){
+    std::ifstream lfile(json_surface_file.c_str());
+    std::cout << "bip" << std::endl;
+    lfile >> Det;
 
-      std::map<uint64_t,float> surface_weight;
+    Parse_Json(Det, surface_name);
+  }
 
-      //Get old file, old tree and set top branch address
-      TFile *tfile = new TFile(input_file.c_str());
-      TTree *tree = (TTree*)tfile->Get("material-tracks");
+  std::map<uint64_t,float> surface_weight;
 
-      float v_phi   = 0;
-      float v_eta   = 0;
-      std::vector<float> *mat_X0   = 0;
-      std::vector<float> *mat_L0   = 0;
-      std::vector<float> *mat_step_length = 0;
+  //Get old file, old tree and set top branch address
+  TFile *tfile = new TFile(input_file.c_str());
+  TTree *tree = (TTree*)tfile->Get("material-tracks");
 
-      std::vector<uint64_t> *sur_id = 0;
-      std::vector<int32_t> *sur_type = 0;
-      std::vector<float> *sur_x = 0;
-      std::vector<float> *sur_y = 0;
-      std::vector<float> *sur_z = 0;
-      std::vector<float> *sur_range_min = 0;
-      std::vector<float> *sur_range_max = 0;
+  float v_phi   = 0;
+  float v_eta   = 0;
+  std::vector<float> *mat_X0   = 0;
+  std::vector<float> *mat_L0   = 0;
+  std::vector<float> *mat_step_length = 0;
 
-      tree->SetBranchAddress("v_phi",&v_phi);
-      tree->SetBranchAddress("v_eta",&v_eta);
-      tree->SetBranchAddress("mat_X0",&mat_X0);
-      tree->SetBranchAddress("mat_L0",&mat_L0);
-      tree->SetBranchAddress("mat_step_length",&mat_step_length);
+  std::vector<uint64_t> *sur_id = 0;
+  std::vector<int32_t> *sur_type = 0;
+  std::vector<float> *sur_x = 0;
+  std::vector<float> *sur_y = 0;
+  std::vector<float> *sur_z = 0;
+  std::vector<float> *sur_range_min = 0;
+  std::vector<float> *sur_range_max = 0;
 
-      tree->SetBranchAddress("sur_id",&sur_id);
-      tree->SetBranchAddress("sur_type",&sur_type);
-      tree->SetBranchAddress("sur_x",&sur_x);
-      tree->SetBranchAddress("sur_y",&sur_y);
-      tree->SetBranchAddress("sur_z",&sur_z);
-      tree->SetBranchAddress("sur_range_min",&sur_range_min);
-      tree->SetBranchAddress("sur_range_max",&sur_range_max);
+  tree->SetBranchAddress("v_phi",&v_phi);
+  tree->SetBranchAddress("v_eta",&v_eta);
+  tree->SetBranchAddress("mat_X0",&mat_X0);
+  tree->SetBranchAddress("mat_L0",&mat_L0);
+  tree->SetBranchAddress("mat_step_length",&mat_step_length);
 
-      int nentries = tree->GetEntries();
-      if(nentries > nbprocess && nbprocess != -1) nentries = nbprocess;
-      // Loop over all the material tracks.
-      for (Long64_t i=0;i<nentries; i++) {
-        if(i%10000==0) std::cout << "processed " << i << " events out of " << nentries << std::endl;
-        tree->GetEntry(i);
+  tree->SetBranchAddress("sur_id",&sur_id);
+  tree->SetBranchAddress("sur_type",&sur_type);
+  tree->SetBranchAddress("sur_x",&sur_x);
+  tree->SetBranchAddress("sur_y",&sur_y);
+  tree->SetBranchAddress("sur_z",&sur_z);
+  tree->SetBranchAddress("sur_range_min",&sur_range_min);
+  tree->SetBranchAddress("sur_range_max",&sur_range_max);
 
-        // Reset the weight
-        for (auto weight_it = surface_weight.begin(); weight_it != surface_weight.end(); weight_it++){
-          weight_it->second = 0;
+  int nentries = tree->GetEntries();
+  if(nentries > nbprocess && nbprocess != -1) nentries = nbprocess;
+  // Loop over all the material tracks.
+  for (Long64_t i=0;i<nentries; i++) {
+    if(i%10000==0) std::cout << "processed " << i << " events out of " << nentries << std::endl;
+    tree->GetEntry(i);
+
+    // Reset the weight
+    for (auto weight_it = surface_weight.begin(); weight_it != surface_weight.end(); weight_it++){
+      weight_it->second = 0;
+    }
+    // loop over all the material hit to do initialisation and compute weight
+    for(int j=0; j<mat_X0->size(); j++ ){
+
+      // Ignore surface of incorrect type
+      if(sur_type->at(j) == -1) continue;
+      // If a surface was never encountered initialise the hist, info and weight
+      if(surface_hist.find(sur_id->at(j))==surface_hist.end()){
+        float pos;
+        if(sur_type->at(j) == 1){
+          pos = sqrt(sur_x->at(j)*sur_x->at(j)+sur_y->at(j)*sur_y->at(j));
         }
-        // loop over all the material hit to do initialisation and compute weight
-        for(int j=0; j<mat_X0->size(); j++ ){
-
-          // Ignore surface of incorrect type
-          if(sur_type->at(j) == -1) continue;
-          // If a surface was never encountered initialise the hist, info and weight
-          if(surface_hist.find(sur_id->at(j))==surface_hist.end()){
-            float pos;
-            if(sur_type->at(j) == 1){
-              pos = sqrt(sur_x->at(j)*sur_x->at(j)+sur_y->at(j)*sur_y->at(j));
-            }
-            if(sur_type->at(j) == 2){
-              pos = sur_z->at(j);
-            }
-            surface_weight[sur_id->at(j)] = 0;
-            Initialise_info(surface_info[sur_id->at(j)], surface_name, sur_id->at(j), sur_type->at(j), pos, sur_range_min->at(j), sur_range_max->at(j));
-            Initialise_hist(surface_hist[sur_id->at(j)], surface_info[sur_id->at(j)]);
-          }
-          // Weight for each surface = number of hit associated to it.
-          surface_weight[sur_id->at(j)]++;
+        if(sur_type->at(j) == 2){
+          pos = sur_z->at(j);
         }
-
-        // loop over all the material hit to fill the histogram
-        for(int j=0; j<mat_X0->size(); j++ ){
-
-          // Ignore surface of incorrect type
-          if(sur_type->at(j) == -1) continue;
-
-          if(sur_type->at(j) == 1){
-            surface_hist[sur_id->at(j)][0]->Fill(v_eta, v_phi, (mat_step_length->at(j)/mat_X0->at(j)));
-            surface_hist[sur_id->at(j)][1]->Fill(v_eta, v_phi, (mat_step_length->at(j)/mat_L0->at(j)));
-            surface_hist[sur_id->at(j)][2]->Fill(v_eta, v_phi, (1/surface_weight[sur_id->at(j)]));
-          }
-          if(sur_type->at(j) == 2){
-            surface_hist[sur_id->at(j)][0]->Fill(sur_x->at(j), sur_y->at(j), (mat_step_length->at(j)/mat_X0->at(j)));
-            surface_hist[sur_id->at(j)][1]->Fill(sur_x->at(j), sur_y->at(j), (mat_step_length->at(j)/mat_L0->at(j)));
-            surface_hist[sur_id->at(j)][2]->Fill(sur_x->at(j), sur_y->at(j), (1/surface_weight[sur_id->at(j)]));
-          }
-        }
+        surface_weight[sur_id->at(j)] = 0;
+        Initialise_info(surface_info[sur_id->at(j)], surface_name, sur_id->at(j), sur_type->at(j), pos, sur_range_min->at(j), sur_range_max->at(j));
+        Initialise_hist(surface_hist[sur_id->at(j)], surface_info[sur_id->at(j)]);
       }
-      // Normalise the histograms
-      for (auto hist_it = surface_hist.begin(); hist_it != surface_hist.end(); hist_it++){
-        hist_it->second[0]->Divide(hist_it->second[2]);
-        hist_it->second[1]->Divide(hist_it->second[2]);
-      }
+      // Weight for each surface = number of hit associated to it.
+      surface_weight[sur_id->at(j)]++;
     }
 
+    // loop over all the material hit to fill the histogram
+    for(int j=0; j<mat_X0->size(); j++ ){
 
+      // Ignore surface of incorrect type
+      if(sur_type->at(j) == -1) continue;
 
-    /// Plot the material on each surface.
-    /// If a surface map json file is specify it is parse to associate name to the different surface id.
-    /// nbprocess : number of parameter to be processed.
-    /// name : name of the output directory.
-
-    void Mat_map_surface_plot(std::string input_file = "", std::string json_surface_file = "", int nbprocess = -1, std::string name = ""){
-
-      gStyle->SetOptStat(0);
-      gStyle->SetOptTitle(0);
-
-      std::map<uint64_t,std::vector<TH2F*>> surface_hist;
-      std::map<uint64_t,sinfo> surface_info;
-
-      Fill(surface_hist, surface_info, input_file, json_surface_file, nbprocess);
-      for (auto hist_it = surface_hist.begin(); hist_it != surface_hist.end(); hist_it++){
-        plot(hist_it->second, surface_info[hist_it->first], name);
-        for (auto hist : hist_it->second){
-          delete hist;
-        }
-        hist_it->second.clear();
+      if(sur_type->at(j) == 1){
+        surface_hist[sur_id->at(j)][0]->Fill(v_eta, v_phi, (mat_step_length->at(j)/mat_X0->at(j)));
+        surface_hist[sur_id->at(j)][1]->Fill(v_eta, v_phi, (mat_step_length->at(j)/mat_L0->at(j)));
+        surface_hist[sur_id->at(j)][2]->Fill(v_eta, v_phi, (1/surface_weight[sur_id->at(j)]));
       }
-
+      if(sur_type->at(j) == 2){
+        surface_hist[sur_id->at(j)][0]->Fill(sur_x->at(j), sur_y->at(j), (mat_step_length->at(j)/mat_X0->at(j)));
+        surface_hist[sur_id->at(j)][1]->Fill(sur_x->at(j), sur_y->at(j), (mat_step_length->at(j)/mat_L0->at(j)));
+        surface_hist[sur_id->at(j)][2]->Fill(sur_x->at(j), sur_y->at(j), (1/surface_weight[sur_id->at(j)]));
+      }
     }
+  }
+  // Normalise the histograms
+  for (auto hist_it = surface_hist.begin(); hist_it != surface_hist.end(); hist_it++){
+    hist_it->second[0]->Divide(hist_it->second[2]);
+    hist_it->second[1]->Divide(hist_it->second[2]);
+  }
+}
+
+/// Plot the material on each surface.
+/// If a surface map json file is specify it is parse to associate name to the different surface id.
+/// nbprocess : number of parameter to be processed.
+/// name : name of the output directory.
+/// This script requiere Root to have been installed with the cxx17 option
+
+void Mat_map_surface_plot(std::string input_file = "", std::string json_surface_file = "", int nbprocess = -1, std::string name = ""){
+
+  gStyle->SetOptStat(0);
+  gStyle->SetOptTitle(0);
+
+  std::map<uint64_t,std::vector<TH2F*>> surface_hist;
+  std::map<uint64_t,sinfo> surface_info;
+
+  Fill(surface_hist, surface_info, input_file, json_surface_file, nbprocess);
+  for (auto hist_it = surface_hist.begin(); hist_it != surface_hist.end(); hist_it++){
+    plot(hist_it->second, surface_info[hist_it->first], name);
+    for (auto hist : hist_it->second){
+      delete hist;
+    }
+    hist_it->second.clear();
+  }
+}

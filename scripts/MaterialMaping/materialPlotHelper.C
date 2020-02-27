@@ -15,8 +15,6 @@
 
 #include <string>
 
-using json = nlohmann::json;
-
 /// Information on a given surface.
 
 struct sinfo {
@@ -29,18 +27,18 @@ struct sinfo {
   float range_max;
 } ;
 
-// std::ostream& Acts::operator<<(std::ostream& os, Acts::GeometryID id) {
-//   os << "[ " << std::setw(3) << id.volume();
-//   os << " | " << std::setw(3) << id.boundary();
-//   os << " | " << std::setw(3) << id.layer();
-//   os << " | " << std::setw(3) << id.approach();
-//   os << " | " << std::setw(4) << id.sensitive() << " ]";
-//   return os;
-// }
+std::ostream& Acts::operator<<(std::ostream& os, Acts::GeometryID id) {
+  os << "[ " << std::setw(3) << id.volume();
+  os << " | " << std::setw(3) << id.boundary();
+  os << " | " << std::setw(3) << id.layer();
+  os << " | " << std::setw(3) << id.approach();
+  os << " | " << std::setw(4) << id.sensitive() << " ]";
+  return os;
+}
 
 /// Parse the surface map json file to associate the surface name to each id
 
-void Parse_Json(const json& Det, std::map<std::string,std::string>& surface_name){
+void Parse_Json(const nlohmann::json& Det, std::map<std::string,std::string>& surface_name){
 
   std::string name;
   for (auto& [key, value] : Det.items()) {
