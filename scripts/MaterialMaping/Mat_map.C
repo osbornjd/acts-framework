@@ -248,8 +248,8 @@ void Mat_map(std::string Val = "", std::string geantino = "", std::string name =
     Float_t score = 0;
     for(int i=0; i<Val_X0->GetXaxis()->GetNbins(); i++){
       score += (Val_X0->GetBinContent(i+1)-geantino_X0->GetBinContent(i+1))*
-	       (Val_X0->GetBinContent(i+1)-geantino_X0->GetBinContent(i+1))/
-	       geantino_X0->GetBinError(i+1)*geantino_X0->GetBinError(i+1);
+      (Val_X0->GetBinContent(i+1)-geantino_X0->GetBinContent(i+1))/
+      geantino_X0->GetBinError(i+1)*geantino_X0->GetBinError(i+1);
     }
     std::cout << "Score : " << score << std::endl;
 
