@@ -82,7 +82,9 @@ void Draw_ratio(TCanvas* c, TProfile* h1, TProfile* h2, TLegend* leg, std::strin
   h5->GetXaxis()->SetLabelFont(43);
   h5->GetXaxis()->SetLabelSize(15);
 
-  c->Print( ("Geo/Ratio_Val_geant_mat_X0"+name+".pdf").c_str());
+  std::string name_axis = h1->GetXaxis()->GetTitle();
+
+  c->Print( (name+"/Ratio_Val_geant_mat_X0_"+name_axis+".pdf").c_str());
 
   delete h5;
 
@@ -94,17 +96,19 @@ void Draw_ratio(TCanvas* c, TProfile* h1, TProfile* h2, TLegend* leg, std::strin
 
 void Mat_map(std::string Val = "", std::string geantino = "", std::string name = ""){
 
-  if(name != "") name = "_" + name;
-
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
 
   TProfile * Val_X0_Eta = new TProfile("Val_X0_Eta","Val_X0_Eta",160,-4,4);
   TProfile * Val_X0_Phi = new TProfile("Val_X0_Phi","Val_X0_Phi",160,-4,4);
+  TH2F * Val_X0_Eta_spread = new TH2F("Val_X0_Eta_spread","Val_X0_Eta_spread",160,-4,4,160,0,4);
+  TH2F * Val_X0_Phi_spread = new TH2F("Val_X0_Phi_spread","Val_X0_Phi_spread",160,-4,4,160,0,4);
   TH2F * Val_X0 = new TH2F("Val_X0","Val_X0",160,-4,4,160,-4,4);
 
   TProfile * geantino_X0_Eta = new TProfile("geantino_X0_Eta","geantino_X0_Eta",160,-4,4);
   TProfile * geantino_X0_Phi = new TProfile("geantino_X0_Phi","geantino_X0_Phi",160,-4,4);
+  TH2F * geantino_X0_Eta_spread = new TH2F("geantino_X0_Eta_spread","geantino_X0_Eta_spread",160,-4,4,160,0,4);
+  TH2F * geantino_X0_Phi_spread = new TH2F("geantino_X0_Phi_spread","geantino_X0_Phi_spread",160,-4,4,160,0,4);
   TH2F * geantino_X0 = new TH2F("geantino_X0","geantinol_X0",160,-4,4,160,-4,4);
 
   TH1F * comp_X0_Eta = new TH1F("comp_X0_Eta","comp_X0_Eta",160,-4,4);
@@ -140,7 +144,7 @@ void Mat_map(std::string Val = "", std::string geantino = "", std::string name =
     Val_file->Add(Val.c_str());
 
     // 2D map for Validation input
-    TCanvas *c1 = new TCanvas("c1","Validation Map") ;
+    TCanvas *VM = new TCanvas("VM","Validation Map") ;
     Val_file->Draw("mat_y:mat_z","fabs(mat_x)<1");
 
     eta_0->Draw("Same");
@@ -153,41 +157,55 @@ void Mat_map(std::string Val = "", std::string geantino = "", std::string name =
     eta_4p->Draw("Same");
     eta_4n->Draw("Same");
 
-    c1->Print( ("Geo/Val_mat_map"+name+".png").c_str());
-    //c1->Print( ("Geo/Val_mat_map"+name+".pdf").c_str());
+    VM->Print( (name+"/Val_mat_map.png").c_str());
+    //VM->Print( (name+"/Val_mat_map.pdf").c_str());
 
     // X0 as function of Eta for Validation input
-    TCanvas *c3 = new TCanvas("c3","Validation X0 Eta") ;
+    TCanvas *VM_X0_Eta = new TCanvas("VM_X0_Eta","Validation X0 Eta") ;
     Val_file->Draw("t_X0:v_eta>>Val_X0_Eta","","profile");
     Val_X0_Eta->SetMarkerStyle(7);
     Val_X0_Eta->Draw("HIST PC");
     Val_X0_Eta->GetXaxis()->SetTitle("Eta");
     Val_X0_Eta->GetYaxis()->SetTitle("X0");
-    c3->Print( ("Geo/Val_mat_Eta_X0"+name+".pdf").c_str());
+    VM_X0_Eta->Print( (name+"/Val_mat_Eta_X0.pdf").c_str());
+
+    // X0 as function of Eta for Validation input
+    TCanvas *VM_X0_Eta_spread = new TCanvas("VM_X0_Eta_spread","Validation X0 Eta") ;
+    Val_file->Draw("t_X0:v_eta>>Val_X0_Eta_spread","","");
+    Val_X0_Eta_spread->GetXaxis()->SetTitle("Eta");
+    Val_X0_Eta_spread->GetYaxis()->SetTitle("X0");
+    VM_X0_Eta_spread->Print( (name+"/Val_X0_Eta_spread.pdf").c_str());
 
     // X0 as function of Phi for Validation input
-    TCanvas *c5 = new TCanvas("c5","Validation X0 Phi") ;
+    TCanvas *VM_X0_Phi = new TCanvas("VM_X0_Phi","Validation X0 Phi") ;
     Val_file->Draw("t_X0:v_phi>>Val_X0_Phi","","profile");
     Val_X0_Phi->SetMarkerStyle(7);
     Val_X0_Phi->Draw("HIST PC");
     Val_X0_Phi->GetXaxis()->SetTitle("Phi");
     Val_X0_Phi->GetYaxis()->SetTitle("X0");
-    c5->Print( ("Geo/Val_mat_Phi_X0"+name+".pdf").c_str());
+    VM_X0_Phi->Print( (name+"/Val_mat_Phi_X0.pdf").c_str());
+
+    // X0 as function of Phi for Validation input
+    TCanvas *VM_X0_Phi_spread = new TCanvas("VM_X0_Phi_spread","Validation X0 Phi") ;
+    Val_file->Draw("t_X0:v_phi>>Val_X0_Phi_spread","","");
+    Val_X0_Phi_spread->GetXaxis()->SetTitle("Phi");
+    Val_X0_Phi_spread->GetYaxis()->SetTitle("X0");
+    VM_X0_Phi_spread->Print( (name+"/Val_mat_Phi_X0_spread.pdf").c_str());
 
     // 2D map of X0 for Validation input
-    TCanvas *c7 = new TCanvas("c7","Validation X0 2D") ;
+    TCanvas *VM_2D = new TCanvas("VM_2D","Validation X0 2D") ;
     Val_file->Draw("v_phi:v_eta:t_X0>>Val_X0","","COLZ");
     Val_X0->GetXaxis()->SetTitle("Eta");
     Val_X0->GetYaxis()->SetTitle("Phi");
     Val_X0->GetZaxis()->SetTitle("X0");
-    c7->Print( ("Geo/Val_mat_X0"+name+".png").c_str());
+    VM_2D->Print( (name+"/Val_mat_X0.png").c_str());
   }
 
   if(geantino != ""){
     geantino_file->Add(geantino.c_str());
 
     // 2D map for Geantino input
-    TCanvas *c2 = new TCanvas("c2","Geantino Map") ;
+    TCanvas *GM = new TCanvas("GM","Geantino Map") ;
     geantino_file->Draw("mat_y:mat_z","fabs(mat_x)<1");
 
     eta_0->Draw("Same");
@@ -200,37 +218,70 @@ void Mat_map(std::string Val = "", std::string geantino = "", std::string name =
     eta_4p->Draw("Same");
     eta_4n->Draw("Same");
 
-    c2->Print( ("Geo/geant_mat_map"+name+".png").c_str());
-    //c2->Print( ("Geo/geant_mat_map"+name+".pdf").c_str());
+    GM->Print( (name+"/geant_mat_map.png").c_str());
+    //GM->Print( (name+"/geant_mat_map.pdf").c_str());
 
     // X0 as function of Eta for Geantino input
-    TCanvas *c4 = new TCanvas("c4","Geantino X0") ;
+    TCanvas *GM_X0_Eta = new TCanvas("GM_X0_Eta","Geantino X0 Eta") ;
     geantino_file->Draw("t_X0:v_eta>>geantino_X0_Eta","","profile");
     geantino_X0_Eta->SetMarkerStyle(7);
     geantino_X0_Eta->Draw("HIST PC");
     geantino_X0_Eta->GetXaxis()->SetTitle("Eta");
     geantino_X0_Eta->GetYaxis()->SetTitle("X0");
-    c4->Print( ("Geo/geant_mat_Eta_X0"+name+".pdf").c_str());
+    GM_X0_Eta->Print( (name+"/geant_mat_Eta_X0.pdf").c_str());
+
+    // X0 as function of Eta for Geantino input
+    TCanvas *GM_X0_Eta_spread = new TCanvas("GM_X0_Eta_spread","Geantino X0 Eta") ;
+    geantino_file->Draw("t_X0:v_eta>>geantino_X0_Eta_spread","","");
+    geantino_X0_Eta_spread->GetXaxis()->SetTitle("Eta");
+    geantino_X0_Eta_spread->GetYaxis()->SetTitle("X0");
+    GM_X0_Eta->Print( (name+"/geant_mat_Eta_X0_spread.pdf").c_str());
 
     // X0 as function of Phi for Geantino input
-    TCanvas *c6 = new TCanvas("c6","Geantino X0 Phi") ;
+    TCanvas *GM_X0_Phi = new TCanvas("GM_X0_Phi","Geantino X0 Phi") ;
     geantino_file->Draw("t_X0:v_phi>>geantino_X0_Phi","","profile");
     geantino_X0_Phi->SetMarkerStyle(7);
     geantino_X0_Phi->Draw("HIST PC");
     geantino_X0_Phi->GetXaxis()->SetTitle("Phi");
     geantino_X0_Phi->GetYaxis()->SetTitle("X0");
-    c6->Print( ("Geo/geant_mat_Phi_X0"+name+".pdf").c_str());
+    GM_X0_Phi->Print( (name+"/geant_mat_Phi_X0.pdf").c_str());
+
+    // X0 as function of Phi for Geantino input
+    TCanvas *GM_X0_Phi_spread = new TCanvas("GM_X0_Phi_spread","Geantino X0 Phi") ;
+    geantino_file->Draw("t_X0:v_phi>>geantino_X0_Phi_spread","","");
+    geantino_X0_Phi_spread->GetXaxis()->SetTitle("Phi");
+    geantino_X0_Phi_spread->GetYaxis()->SetTitle("X0");
+    GM_X0_Phi->Print( (name+"/geant_mat_Phi_X0_spread.pdf").c_str());
 
     // 2D map of X0 for Geantino input
-    TCanvas *c8 = new TCanvas("c8","Geantino X0 2D") ;
+    TCanvas *GM_2D = new TCanvas("GM_2D","Geantino X0 2D") ;
     geantino_file->Draw("v_phi:v_eta:t_X0>>geantino_X0","","COLZ");
     geantino_X0->GetXaxis()->SetTitle("Eta");
     geantino_X0->GetYaxis()->SetTitle("Phi");
     geantino_X0->GetZaxis()->SetTitle("X0");
-    c8->Print( ("Geo/geant_mat_X0"+name+".png").c_str());
+    GM_2D->Print( (name+"/geant_mat_X0.png").c_str());
   }
 
   if(Val != "" && geantino != ""){
+
+    Val_X0_Eta->SetMarkerColor(kBlack);
+    Val_X0_Eta->SetLineColor(kBlack);
+    geantino_X0_Eta->SetMarkerColor(kRed);
+    geantino_X0_Eta->SetLineColor(kRed);
+
+    Val_X0_Phi->SetMarkerColor(kBlack);
+    Val_X0_Phi->SetLineColor(kBlack);
+    geantino_X0_Phi->SetMarkerColor(kRed);
+    geantino_X0_Phi->SetLineColor(kRed);
+
+    TLegend* leg = new TLegend(0.1,0.15,0.25,0.30);
+    leg->AddEntry(Val_X0_Eta,"Validation X0");
+    leg->AddEntry(geantino_X0_Eta,"Geantino X0");
+
+    TLegend* leg2 = new TLegend(0.1,0.15,0.25,0.30);
+    leg2->AddEntry(Val_X0_Phi,"Validation X0");
+    leg2->AddEntry(geantino_X0_Phi,"Geantino X0");
+
     // X0 differences as function of eta of the Validation and Geantino input
     comp_X0_Eta->Add(Val_X0_Eta);
     comp_X0_Eta->Add(geantino_X0_Eta,-1);
@@ -238,9 +289,17 @@ void Mat_map(std::string Val = "", std::string geantino = "", std::string name =
     comp_X0_Eta->Scale(100);
     comp_X0_Eta->GetXaxis()->SetTitle("Eta");
     comp_X0_Eta->GetYaxis()->SetTitle("(Validation X0 - geantino X0) / Validation X0 [%]");
-    TCanvas *c10 = new TCanvas("c10","Comparison geantino_Validation Eta") ;
+    TCanvas *Diff_Eta = new TCanvas("Diff_Eta","Comparison geantino_Validation Eta") ;
     comp_X0_Eta->Draw();
-    c10->Print( ("Geo/Comp_Val_geant_mat_X0_Eta"+name+".pdf").c_str());
+    Diff_Eta->Print( (name+"/Comp_Val_geant_mat_X0_Eta.pdf").c_str());
+
+    // X0 comparison as function of eta of the Validation and Geantino input
+    TCanvas *Comp_Eta_spread = new TCanvas("Comp_Eta_spread","Comparison geantino_Validation Eta") ;
+    Val_X0_Eta_spread->Draw();
+    geantino_X0_Eta_spread->SetMarkerColor(kRed);
+    geantino_X0_Eta_spread->Draw("SAME");
+    leg->Draw("SAME");
+    Comp_Eta_spread->Print( (name+"/Comp_Val_geant_mat_X0_Eta_spread.pdf").c_str());
 
     // X0 differences as function of phi of the Validation and Geantino input
     comp_X0_Phi->Add(Val_X0_Phi);
@@ -249,9 +308,17 @@ void Mat_map(std::string Val = "", std::string geantino = "", std::string name =
     comp_X0_Phi->Scale(100);
     comp_X0_Phi->GetXaxis()->SetTitle("Phi");
     comp_X0_Phi->GetYaxis()->SetTitle("(Validation X0 - geantino X0) / Validation X0 [%]");
-    TCanvas *c11 = new TCanvas("c11","Comparison geantino_Validation") ;
+    TCanvas *Diff_Phi = new TCanvas("Diff_Phi","Comparison geantino_Validation") ;
     comp_X0_Phi->Draw();
-    c11->Print( ("Geo/Comp_Val_geant_mat_X0_Phi"+name+".pdf").c_str());
+    Diff_Phi->Print( (name+"/Comp_Val_geant_mat_X0_Phi.pdf").c_str());
+
+    // X0 comparison as function of eta of the Validation and Geantino input
+    TCanvas *Comp_Phi_spread = new TCanvas("Comp_Phi_spread","Comparison geantino_Validation Phi") ;
+    Val_X0_Phi_spread->Draw();
+    geantino_X0_Phi_spread->SetMarkerColor(kRed);
+    geantino_X0_Phi_spread->Draw("SAME");
+    leg2->Draw("SAME");
+    Comp_Phi_spread->Print( (name+"/Comp_Val_geant_mat_X0_Phi_spread.pdf").c_str());
 
     Float_t score = 0;
     for(int i=0; i<Val_X0->GetXaxis()->GetNbins(); i++){
@@ -265,7 +332,7 @@ void Mat_map(std::string Val = "", std::string geantino = "", std::string name =
     t->Draw();
 
     // X0 ratio plot as function of eta of the Validation and Geantino input
-    TCanvas *c20 = new TCanvas("c20","Ratio geantino_Validation Eta") ;
+    TCanvas *Comp_Eta = new TCanvas("Comp_Eta","Ratio geantino_Validation Eta") ;
     Val_X0_Eta->SetMarkerStyle(7);
     geantino_X0_Eta->SetMarkerStyle(7);
     Val_X0_Eta->SetMarkerColor(kBlack);
@@ -273,14 +340,10 @@ void Mat_map(std::string Val = "", std::string geantino = "", std::string name =
     Val_X0_Eta->SetLineColor(kBlack);
     geantino_X0_Eta->SetLineColor(kRed);
 
-    TLegend* leg = new TLegend(0.2,0.75,0.35,0.90);
-    leg->AddEntry(Val_X0_Eta,"Validation X0");
-    leg->AddEntry(geantino_X0_Eta,"Geantino X0");
-
-    Draw_ratio(c20, geantino_X0_Eta, Val_X0_Eta, leg, ("Eta_"+name));
+    Draw_ratio(Comp_Eta, geantino_X0_Eta, Val_X0_Eta, leg, name);
 
     // X0 ratio plot as function of phi of the Validation and Geantino input
-    TCanvas *c21 = new TCanvas("c21","Ratio geantino_Validation Phi") ;
+    TCanvas *Comp_Phi = new TCanvas("Comp_Phi","Ratio geantino_Validation Phi") ;
     Val_X0_Phi->SetMarkerStyle(7);
     geantino_X0_Phi->SetMarkerStyle(7);
     Val_X0_Phi->SetMarkerColor(kBlack);
@@ -288,11 +351,7 @@ void Mat_map(std::string Val = "", std::string geantino = "", std::string name =
     Val_X0_Phi->SetLineColor(kBlack);
     geantino_X0_Phi->SetLineColor(kRed);
 
-    TLegend* leg2 = new TLegend(0.2,0.75,0.35,0.90);
-    leg2->AddEntry(Val_X0_Phi,"Validation X0");
-    leg2->AddEntry(geantino_X0_Phi,"Geantino X0");
-
-    Draw_ratio(c21, geantino_X0_Phi, Val_X0_Phi, leg, ("Phi"+name));
+    Draw_ratio(Comp_Phi, geantino_X0_Phi, Val_X0_Phi, leg, name);
   }
 
   return;
