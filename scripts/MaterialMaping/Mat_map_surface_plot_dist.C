@@ -1,3 +1,11 @@
+// This file is part of the Acts project.
+//
+// Copyright (C) 2020 CERN for the benefit of the Acts project
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include <TROOT.h>
 
 #include "materialPlotHelper.cpp"
@@ -181,7 +189,7 @@ void Fill(std::map<uint64_t,TGraph*>& surface_hist,  std::map<uint64_t,sinfo>& s
 /// nbprocess : number of parameter to be processed.
 /// name : name of the output directory.
 /// The parsing of the Json surface map file (use to associate the name to the volumes)
-/// might not work with version of root newer that version 6.18.04  
+/// might not work with version of root newer that version 6.18.04
 
 void Mat_map_surface_plot_dist(std::string input_file = "", std::string json_surface_file = "", int nbprocess = -1, std::string name = ""){
 

@@ -1,3 +1,11 @@
+// This file is part of the Acts project.
+//
+// Copyright (C) 2020 CERN for the benefit of the Acts project
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #include "Mat_map_surface_plot.cpp"
 
 /// Draw and save the ratio plots.
@@ -81,7 +89,7 @@ void plot_ratio(std::vector<TH2F*> Map_prop, std::vector<TH2F*> Map_geant, const
 /// name_geant : name of the output directory for the geantino scan.
 /// The map valdation and geantino scan plots are only saved if name_prop and name_geant are defined.
 /// The parsing of the Json surface map file (use to associate the name to the volumes)
-/// might not work with version of root newer that version 6.18.04  
+/// might not work with version of root newer that version 6.18.04
 
 void Mat_map_surface_plot_ratio(std::string input_file_prop = "", std::string input_file_geant = "", std::string json_surface_file = "", int nbprocess = -1, std::string name = "", std::string name_prop = "", std::string name_geant = ""){
 

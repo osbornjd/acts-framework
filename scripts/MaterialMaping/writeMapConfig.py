@@ -1,3 +1,11 @@
+# This file is part of the Acts project.
+#
+# Copyright (C) 2020 CERN for the benefit of the Acts project
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 import json
 import sys
 
@@ -20,7 +28,7 @@ else :
 with open(inFileName,'r') as json_file:
     config = {}
     data = json.load(json_file)
-    
+
     for kvol in data['volumes']:
         vconfig = {}
         bconfig = {}
@@ -38,13 +46,13 @@ with open(inFileName,'r') as json_file:
 
         if 'layers' in data['volumes'][kvol] :
             for klay in data['volumes'][kvol]['layers'] :
-                
+
                 if 'representing' in data['volumes'][kvol]['layers'][klay] :
                     drep = data['volumes'][kvol]['layers'][klay]['representing']
                     if not drep['stype'] in rconfig :
                         rconfig[drep['stype']] = [drep['bin0'], drep['bin1']]
                     vconfig['representing'] = rconfig
-                
+
                 if 'approach' in data['volumes'][kvol]['layers'][klay] :
                     for kapp  in data['volumes'][kvol]['layers'][klay]['approach'] :
                         dapp = data['volumes'][kvol]['layers'][klay]['approach'][kapp]
@@ -65,6 +73,6 @@ if len(sys.argv) < 3 :
     outFileName = 'config-map.json'
 else :
     outFileName = sys.argv[2]
-    
+
 with open(outFileName, 'w') as outfile:
     json.dump(config, outfile, indent=4)
