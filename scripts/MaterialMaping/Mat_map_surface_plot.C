@@ -1,6 +1,6 @@
 #include <TROOT.h>
 
-#include "materialPlotHelper.C"
+#include "materialPlotHelper.cpp"
 
 #include <fstream>
 #include <iostream>
@@ -128,7 +128,6 @@ void Fill(std::map<uint64_t,std::vector<TH2F*>>& surface_hist,  std::map<uint64_
 
   if(json_surface_file != ""){
     std::ifstream lfile(json_surface_file.c_str());
-    std::cout << "bip" << std::endl;
     lfile >> Det;
 
     Parse_Json(Det, surface_name);

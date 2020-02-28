@@ -1,4 +1,4 @@
-#include "Mat_map_surface_plot.C"
+#include "Mat_map_surface_plot.cpp"
 
 /// Draw and save the ratio plots.
 

@@ -1,6 +1,6 @@
 #include <TROOT.h>
 
-#include "materialPlotHelper.C"
+#include "materialPlotHelper.cpp"
 
 #include <fstream>
 #include <iostream>
