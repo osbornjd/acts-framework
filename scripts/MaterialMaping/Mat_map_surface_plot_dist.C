@@ -180,7 +180,8 @@ void Fill(std::map<uint64_t,TGraph*>& surface_hist,  std::map<uint64_t,sinfo>& s
 /// If a surface map json file is specify it is parse to associate name to the different surface id.
 /// nbprocess : number of parameter to be processed.
 /// name : name of the output directory.
-/// This script requiere Root to have been installed with the cxx17 option
+/// The parsing of the Json surface map file (use to associate the name to the volumes)
+/// might not work with version of root newer that version 6.18.04  
 
 void Mat_map_surface_plot_dist(std::string input_file = "", std::string json_surface_file = "", int nbprocess = -1, std::string name = ""){
 
