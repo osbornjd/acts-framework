@@ -71,19 +71,21 @@ private:
   TTree*     m_outputTree = nullptr;
   /// Event identifier.
   uint32_t m_eventId;
-  /// Particle identifier a.k.a. barcode within the event.
+  /// Event-unique particle identifier a.k.a. barcode.
   uint64_t m_particleId;
-  /// Geometry identifier of the hit surface.
+  /// Hit surface identifier.
   uint64_t m_geometryId;
-  /// True hit position components in space and time.
-  float m_tx, m_ty, m_tz, m_tt;
-  /// True particle four-momentum at the hit position before interaction.
+  /// True global hit position components in mm.
+  float m_tx, m_ty, m_tz;
+  // True global hit time in ns.
+  float m_tt;
+  /// True particle four-momentum in GeV at hit position before interaction.
   float m_tpx, m_tpy, m_tpz, m_te;
-  /// True change in particle four-momentum due to interactions.
+  /// True change in particle four-momentum in GeV due to interactions.
   float m_deltapx, m_deltapy, m_deltapz, m_deltae;
   /// Hit index along the particle trajectory
   int32_t m_index;
-  // decoded geometry identifier
+  // Decoded hit surface identifier components.
   uint32_t m_volumeId;
   uint32_t m_boundaryId;
   uint32_t m_layerId;

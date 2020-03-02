@@ -110,7 +110,7 @@ FW::RootSimHitWriter::writeT(const AlgorithmContext& ctx,
     m_deltapy = 0.0f / Acts::UnitConstants::GeV;
     m_deltapz = 0.0f / Acts::UnitConstants::GeV;
     m_deltae  = 0.0f / Acts::UnitConstants::GeV;
-    // TODO write hii index
+    // TODO write hit index
     m_index = -1;
     // decoded geometry for simplicity
     m_volumeId    = hit.geoId().volume();

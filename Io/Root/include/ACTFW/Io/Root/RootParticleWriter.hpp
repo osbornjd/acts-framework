@@ -72,23 +72,28 @@ private:
   TTree*     m_outputTree = nullptr;
   /// Event identifier.
   uint32_t m_eventId;
-  /// Particle identifier a.k.a. barcode within the event.
+  /// Event-unique particle identifier a.k.a barcode.
   uint64_t m_particleId;
   /// Particle type a.k.a. PDG particle number
   int32_t m_particleType;
-  /// Process type identifier, i.e. what generated the particle.
+  /// Production process type, i.e. what generated the particle.
   uint32_t m_process;
-  /// Production vertex components in space and time.
-  float m_vx, m_vy, m_vz, m_vt;
-  /// Three-momentum components.
+  /// Production position components in mm.
+  float m_vx, m_vy, m_vz;
+  // Production time in ns.
+  float m_vt;
+  /// Momentum components in GeV.
   float m_px, m_py, m_pz;
-  /// Particle mass.
+  /// Mass in GeV.
   float m_m;
-  /// Particle charge.
+  /// Charge in e.
   float m_q;
   // Derived kinematic quantities
+  /// Direction pseudo-rapidity.
   float m_eta;
+  /// Direction angle in the transverse plane.
   float m_phi;
+  /// Transverse momentum in GeV.
   float m_pt;
   // Decoded particle identifier; see Barcode definition for details.
   uint32_t m_vertexPrimary;
