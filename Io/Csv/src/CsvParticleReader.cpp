@@ -24,11 +24,11 @@
 
 FW::CsvParticleReader::CsvParticleReader(
     const FW::CsvParticleReader::Config& cfg,
-    Acts::Logging::Level                 level)
+    Acts::Logging::Level                 lvl)
   : m_cfg(cfg)
   , m_eventsRange(
         determineEventFilesRange(cfg.inputDir, cfg.inputStem + ".csv"))
-  , m_logger(Acts::getDefaultLogger("CsvParticleReader", level))
+  , m_logger(Acts::getDefaultLogger("CsvParticleReader", lvl))
 {
   if (m_cfg.outputParticles.empty()) {
     throw std::invalid_argument("Missing output collection");
@@ -53,36 +53,33 @@ FW::CsvParticleReader::availableEvents() const
 FW::ProcessCode
 FW::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 {
-  SimParticles particles;
+  SimParticles::sequence_type unordered;
 
   auto path = perEventFilepath(
       m_cfg.inputDir, m_cfg.inputStem + ".csv", ctx.eventNumber);
-  // vt is an optional element
-  dfe::NamedTupleCsvReader<ParticleData> reader(path, {"vt"});
+  // vt and m are an optional columns
+  dfe::NamedTupleCsvReader<ParticleData> reader(path, {"vt", "m"});
   ParticleData                           data;
 
   while (reader.read(data)) {
     Acts::Vector3D particlePos(data.vx * Acts::UnitConstants::mm,
                                data.vy * Acts::UnitConstants::mm,
                                data.vz * Acts::UnitConstants::mm);
-    double         particleTime = data.vt * Acts::UnitConstants::ns;
     Acts::Vector3D particleMom(data.px * Acts::UnitConstants::GeV,
                                data.py * Acts::UnitConstants::GeV,
                                data.pz * Acts::UnitConstants::GeV);
-    //@TODO: get mass and pdg from config?
-    double mass = 0.;
-    // the file is usually ordered by particle id already
-    particles.emplace_hint(particles.end(),
-                           particlePos,
+    unordered.emplace_back(particlePos,
                            particleMom,
-                           mass,
+                           data.m * Acts::UnitConstants::GeV,
                            data.q * Acts::UnitConstants::e,
                            data.particle_type,  // this is the pdg id
                            data.particle_id,
-                           particleTime);
+                           data.vt * Acts::UnitConstants::ns);
   }
 
-  // write the truth particles to the EventStore
+  // write ordered particles container to the EventStore
+  SimParticles particles;
+  particles.adopt_sequence(std::move(unordered));
   ctx.eventStore.add(m_cfg.outputParticles, std::move(particles));
 
   return ProcessCode::SUCCESS;

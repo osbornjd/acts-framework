@@ -17,6 +17,7 @@
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Generators/FlattenEvent.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Io/Root/RootParticleWriter.hpp"
 #include "ACTFW/Io/Root/RootSimHitWriter.hpp"
@@ -224,15 +225,21 @@ setupSimulationAlgorithm(
   // Output directory
   std::string outputDir = vm["output-dir"].template as<std::string>();
 
+  // flatten event to just particles
+  FW::FlattenEvent::Config flatten;
+  flatten.inputEvent      = fatrasConfig.simulatedEventCollection;
+  flatten.outputParticles = fatrasConfig.simulatedEventCollection + "-flat";
+  sequencer.addAlgorithm(std::make_shared<FW::FlattenEvent>(flatten, logLevel));
+
   // Write simulation information as CSV files
   std::shared_ptr<FW::CsvParticleWriter> pWriterCsv = nullptr;
   if (vm["output-csv"].template as<bool>()) {
     FW::CsvParticleWriter::Config pWriterCsvConfig;
-    pWriterCsvConfig.inputEvent = fatrasConfig.simulatedEventCollection;
-    pWriterCsvConfig.outputDir  = outputDir;
-    pWriterCsvConfig.outputStem = fatrasConfig.simulatedEventCollection;
+    pWriterCsvConfig.inputParticles = flatten.outputParticles;
+    pWriterCsvConfig.outputDir      = outputDir;
+    pWriterCsvConfig.outputStem     = fatrasConfig.simulatedEventCollection;
     sequencer.addWriter(
-        std::make_shared<FW::CsvParticleWriter>(pWriterCsvConfig));
+        std::make_shared<FW::CsvParticleWriter>(pWriterCsvConfig, logLevel));
   }
 
   // Write simulation information as ROOT files
@@ -240,21 +247,22 @@ setupSimulationAlgorithm(
   if (vm["output-root"].template as<bool>()) {
     // Write particles as ROOT TTree
     FW::RootParticleWriter::Config pWriterRootConfig;
-    pWriterRootConfig.collection = fatrasConfig.simulatedEventCollection;
-    pWriterRootConfig.filePath   = FW::joinPaths(
+    pWriterRootConfig.inputParticles = flatten.outputParticles;
+    pWriterRootConfig.filePath       = FW::joinPaths(
         outputDir, fatrasConfig.simulatedEventCollection + ".root");
     pWriterRootConfig.treeName = fatrasConfig.simulatedEventCollection;
     sequencer.addWriter(
-        std::make_shared<FW::RootParticleWriter>(pWriterRootConfig));
+        std::make_shared<FW::RootParticleWriter>(pWriterRootConfig, logLevel));
 
     // Write simulated hits as ROOT TTree
     FW::RootSimHitWriter::Config fhitWriterRootConfig;
-    fhitWriterRootConfig.collection = fatrasConfig.simulatedHitCollection;
-    fhitWriterRootConfig.filePath   = FW::joinPaths(
+    fhitWriterRootConfig.inputSimulatedHits
+        = fatrasConfig.simulatedHitCollection;
+    fhitWriterRootConfig.filePath = FW::joinPaths(
         outputDir, fatrasConfig.simulatedHitCollection + ".root");
     fhitWriterRootConfig.treeName = fatrasConfig.simulatedHitCollection;
     sequencer.addWriter(
-        std::make_shared<FW::RootSimHitWriter>(fhitWriterRootConfig));
+        std::make_shared<FW::RootSimHitWriter>(fhitWriterRootConfig, logLevel));
   }
 }
 

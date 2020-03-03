@@ -52,8 +52,8 @@ setupDigitization(boost::program_options::variables_map& vars,
     FW::CsvPlanarClusterWriter::Config clusterWriterCsvConfig;
     clusterWriterCsvConfig.inputClusters = digiConfig.outputClusters;
     clusterWriterCsvConfig.outputDir     = outputDir;
-    auto clusteWriterCsv
-        = std::make_shared<FW::CsvPlanarClusterWriter>(clusterWriterCsvConfig);
+    auto clusteWriterCsv = std::make_shared<FW::CsvPlanarClusterWriter>(
+        clusterWriterCsvConfig, logLevel);
     // Add to the sequencer
     sequencer.addWriter(clusteWriterCsv);
   }
@@ -67,7 +67,7 @@ setupDigitization(boost::program_options::variables_map& vars,
         = FW::joinPaths(outputDir, digiConfig.outputClusters + ".root");
     clusterWriterRootConfig.treeName = digiConfig.outputClusters;
     auto clusteWriterRoot = std::make_shared<FW::RootPlanarClusterWriter>(
-        clusterWriterRootConfig);
+        clusterWriterRootConfig, logLevel);
     // Add to the sequencer
     sequencer.addWriter(clusteWriterRoot);
   }

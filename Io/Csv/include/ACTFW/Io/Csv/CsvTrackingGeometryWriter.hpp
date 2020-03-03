@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <limits>
+
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
@@ -40,15 +42,16 @@ public:
     /// Where to place output files.
     std::string outputDir;
     /// Number of decimal digits for floating point precision in output.
-    std::size_t outputPrecision = 6;
+    std::size_t outputPrecision = std::numeric_limits<float>::max_digits10;
     /// Whether to write the per-event file.
     bool writePerEvent = false;
   };
 
-  /// Constructor
-  /// @param cfg is the configuration class
-  CsvTrackingGeometryWriter(const Config&        cfg,
-                            Acts::Logging::Level lvl = Acts::Logging::INFO);
+  /// Construct the geometry writer.
+  ///
+  /// @param cfg is the configuration object
+  /// @param lvl is the logging level
+  CsvTrackingGeometryWriter(const Config& cfg, Acts::Logging::Level lvl);
 
   std::string
   name() const final override;
