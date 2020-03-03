@@ -12,3 +12,7 @@ target_link_libraries(
       ActsFrameworkTruthTracking
       ActsFrameworkIoCsv
       ActsFrameworkIoPerformance)
+install(
+   TARGETS 
+     ActsRecTruthTracks
+   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
