@@ -59,7 +59,8 @@ FW::RootParticleWriter::RootParticleWriter(
   m_outputTree->Branch("vertex_primary", &m_vertexPrimary);
   m_outputTree->Branch("vertex_secondary", &m_vertexSecondary);
   m_outputTree->Branch("particle", &m_particle);
-  m_outputTree->Branch("parent_particle", &m_parentParticle);
+  m_outputTree->Branch("generation", &m_generation);
+  m_outputTree->Branch("sub_particle", &m_subParticle);
 }
 
 FW::RootParticleWriter::~RootParticleWriter()
@@ -80,8 +81,8 @@ FW::RootParticleWriter::endRun()
 }
 
 FW::ProcessCode
-FW::RootParticleWriter::writeT(const AlgorithmContext& ctx,
-                               const SimParticles&     particles)
+FW::RootParticleWriter::writeT(const AlgorithmContext&     ctx,
+                               const SimParticleContainer& particles)
 {
   if (not m_outputFile) {
     ACTS_ERROR("Missing output file");
@@ -93,29 +94,32 @@ FW::RootParticleWriter::writeT(const AlgorithmContext& ctx,
 
   m_eventId = ctx.eventNumber;
   for (const auto& particle : particles) {
-    m_particleId   = particle.barcode().value();
+    m_particleId   = particle.particleId().value();
     m_particleType = particle.pdg();
-    m_process      = particle.barcode().process();
-    // collect the information
-    m_vx = particle.position().x() / Acts::UnitConstants::mm;
-    m_vy = particle.position().y() / Acts::UnitConstants::mm;
-    m_vz = particle.position().z() / Acts::UnitConstants::mm;
-    m_vt = particle.time() / Acts::UnitConstants::ns;
-    m_px = particle.momentum().x() / Acts::UnitConstants::GeV;
-    m_py = particle.momentum().y() / Acts::UnitConstants::GeV;
-    m_pz = particle.momentum().z() / Acts::UnitConstants::GeV;
-    m_m  = particle.m() / Acts::UnitConstants::GeV;
-    m_q  = particle.q() / Acts::UnitConstants::e;
+    m_process      = static_cast<decltype(m_process)>(particle.process());
+    // position
+    m_vx = particle.position4().x() / Acts::UnitConstants::mm;
+    m_vy = particle.position4().y() / Acts::UnitConstants::mm;
+    m_vz = particle.position4().z() / Acts::UnitConstants::mm;
+    m_vt = particle.position4().w() / Acts::UnitConstants::ns;
+    // momentum
+    const auto p = particle.absMomentum() / Acts::UnitConstants::GeV;
+    m_px         = p * particle.unitDirection().x();
+    m_py         = p * particle.unitDirection().y();
+    m_pz         = p * particle.unitDirection().z();
+    // particle constants
+    m_m = particle.mass() / Acts::UnitConstants::GeV;
+    m_q = particle.charge() / Acts::UnitConstants::e;
     // derived kinematic quantities
-    m_eta = Acts::VectorHelpers::eta(particle.momentum());
-    m_phi = Acts::VectorHelpers::phi(particle.momentum());
-    m_pt  = Acts::VectorHelpers::perp(particle.momentum())
-        / Acts::UnitConstants::GeV;
+    m_eta = Acts::VectorHelpers::eta(particle.unitDirection());
+    m_phi = Acts::VectorHelpers::phi(particle.unitDirection());
+    m_pt  = p * Acts::VectorHelpers::perp(particle.unitDirection());
     // decoded barcode components
-    m_vertexPrimary   = particle.barcode().vertexPrimary();
-    m_vertexSecondary = particle.barcode().vertexSecondary();
-    m_particle        = particle.barcode().particle();
-    m_parentParticle  = particle.barcode().parentParticle();
+    m_vertexPrimary   = particle.particleId().vertexPrimary();
+    m_vertexSecondary = particle.particleId().vertexSecondary();
+    m_particle        = particle.particleId().particle();
+    m_generation      = particle.particleId().generation();
+    m_subParticle     = particle.particleId().subParticle();
     m_outputTree->Fill();
   }
 
