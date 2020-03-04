@@ -49,7 +49,7 @@ public:
   };
 
   /// Construct from configuration and log level.
-  TrackFitterPerformanceWriter(const Config& cfg, Acts::Logging::Level lvl);
+  TrackFitterPerformanceWriter(Config cfg, Acts::Logging::Level lvl);
   ~TrackFitterPerformanceWriter() override;
 
   /// Finalize plots.
