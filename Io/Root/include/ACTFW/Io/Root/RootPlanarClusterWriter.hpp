@@ -10,10 +10,9 @@
 
 #include <mutex>
 
-#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
-
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/GeometryContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 
 class TFile;
 class TTree;
@@ -37,18 +36,20 @@ class RootPlanarClusterWriter
 public:
   struct Config
   {
-    std::string collection = "";          ///< particle collection to write
-    std::string filePath   = "";          ///< path of the output file
-    std::string fileMode   = "RECREATE";  ///< file access mode
-    std::string treeName   = "clusters";  ///< name of the output tree
-    TFile*      rootFile   = nullptr;     ///< common root file
+    /// Which cluster collection to write.
+    std::string inputClusters;
+    /// Which simulated (truth) hits collection to use.
+    std::string inputSimulatedHits;
+    std::string filePath = "";          ///< path of the output file
+    std::string fileMode = "RECREATE";  ///< file access mode
+    std::string treeName = "clusters";  ///< name of the output tree
+    TFile*      rootFile = nullptr;     ///< common root file
   };
 
   /// Constructor with
   /// @param cfg configuration struct
   /// @param output logging level
-  RootPlanarClusterWriter(const Config&        cfg,
-                          Acts::Logging::Level level = Acts::Logging::INFO);
+  RootPlanarClusterWriter(const Config& cfg, Acts::Logging::Level lvl);
 
   /// Virtual destructor
   ~RootPlanarClusterWriter() override;
@@ -61,10 +62,10 @@ protected:
   /// This implementation holds the actual writing method
   /// and is called by the WriterT<>::write interface
   ///
-  /// @param context The Algorithm context with per event information
+  /// @param ctx The Algorithm context with per event information
   /// @param clusters is the data to be written out
   ProcessCode
-  writeT(const AlgorithmContext&                              context,
+  writeT(const AlgorithmContext&                              ctx,
          const GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
       final override;
 
