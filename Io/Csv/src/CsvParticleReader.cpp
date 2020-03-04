@@ -30,11 +30,11 @@ FW::CsvParticleReader::CsvParticleReader(
         determineEventFilesRange(cfg.inputDir, cfg.inputStem + ".csv"))
   , m_logger(Acts::getDefaultLogger("CsvParticleReader", lvl))
 {
-  if (m_cfg.outputParticles.empty()) {
-    throw std::invalid_argument("Missing output collection");
-  }
   if (m_cfg.inputStem.empty()) {
     throw std::invalid_argument("Missing input filename stem");
+  }
+  if (m_cfg.outputParticles.empty()) {
+    throw std::invalid_argument("Missing output collection");
   }
 }
 
@@ -53,7 +53,7 @@ FW::CsvParticleReader::availableEvents() const
 FW::ProcessCode
 FW::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
 {
-  SimParticles::sequence_type unordered;
+  SimParticleContainer::sequence_type unordered;
 
   auto path = perEventFilepath(
       m_cfg.inputDir, m_cfg.inputStem + ".csv", ctx.eventNumber);
@@ -62,23 +62,24 @@ FW::CsvParticleReader::read(const FW::AlgorithmContext& ctx)
   ParticleData                           data;
 
   while (reader.read(data)) {
-    Acts::Vector3D particlePos(data.vx * Acts::UnitConstants::mm,
-                               data.vy * Acts::UnitConstants::mm,
-                               data.vz * Acts::UnitConstants::mm);
-    Acts::Vector3D particleMom(data.px * Acts::UnitConstants::GeV,
-                               data.py * Acts::UnitConstants::GeV,
-                               data.pz * Acts::UnitConstants::GeV);
-    unordered.emplace_back(particlePos,
-                           particleMom,
-                           data.m * Acts::UnitConstants::GeV,
-                           data.q * Acts::UnitConstants::e,
-                           data.particle_type,  // this is the pdg id
-                           data.particle_id,
-                           data.vt * Acts::UnitConstants::ns);
+    ActsFatras::Particle particle(ActsFatras::Barcode(data.particle_id),
+                                  Acts::PdgParticle(data.particle_type),
+                                  data.q * Acts::UnitConstants::e,
+                                  data.m * Acts::UnitConstants::GeV);
+    particle.setProcess(static_cast<ActsFatras::ProcessType>(data.process));
+    particle.setPosition4(data.vx * Acts::UnitConstants::mm,
+                          data.vy * Acts::UnitConstants::mm,
+                          data.vz * Acts::UnitConstants::mm,
+                          data.vt * Acts::UnitConstants::ns);
+    // only used for direction; normalization/units do not matter
+    particle.setDirection(data.px, data.py, data.pz);
+    particle.setAbsMomentum(std::hypot(data.px, data.py, data.pz)
+                            * Acts::UnitConstants::GeV);
+    unordered.push_back(std::move(particle));
   }
 
   // write ordered particles container to the EventStore
-  SimParticles particles;
+  SimParticleContainer particles;
   particles.adopt_sequence(std::move(unordered));
   ctx.eventStore.add(m_cfg.outputParticles, std::move(particles));
 
