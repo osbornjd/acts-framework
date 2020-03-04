@@ -8,170 +8,97 @@
 
 #pragma once
 
+#include <cstddef>
 #include <vector>
+
 #include "Acts/EventData/MeasurementHelpers.hpp"
 
 namespace FW {
 
-namespace Data {
+/// A hit identifier with additional truth information.
+///
+/// In an addition to a unique identifier, an list of additional indices is
+/// stored. These can refer e.g. to particle indices or truth hit indices.
+/// Using indices instead of pointers allows more flexibility, i.e. we are not
+/// fixed to a specific object type when using e.g. pointers, and is more
+/// robust since no requirements on stable memory locations of the pointed-to
+/// objects are necessary (as would be the case for pointers).
+class SimIdentifier : public Acts::MinimalSourceLink
+{
+public:
+  using Value      = uint64_t;
+  using Difference = int64_t;
 
-  /// These are the SimParticles
-  class SimParticle;
-
-  /// @class SimIdentifier
+  /// Constructor from encoded identifier value.
   ///
-  /// Identifier implementation for the ACTS framework
-  /// including MC truth information
-  class SimIdentifier : public Acts::MinimalSourceLink
-  {
-  public:
-    typedef unsigned long long identifier_type;
-    typedef long long          identifier_diff;
-
-    /// Default constructor
-    SimIdentifier() = default;
-
-    /// Constructor from identifier_type
-    ///
-    /// @param value is the identifier value
-    explicit SimIdentifier(identifier_type value);
-
-    /// Constructor from identifier_type
-    ///
-    /// @param value is the identifier value
-    SimIdentifier(identifier_type                 value,
-                  std::vector<const SimParticle*> truthParticles);
-
-    /// Copy constructor
-    ///
-    /// @param other is the source identifier
-    SimIdentifier(const SimIdentifier& other) = default;
-
-    /// @param old is the assigment parameter
-    SimIdentifier&
-    operator=(const SimIdentifier& old)
-        = default;
-
-    /// @param value is the assigment parameter
-    SimIdentifier&
-    operator=(identifier_type value);
-
-    /// Cast operators to value @todo to bool
-    operator identifier_type() const { return m_id; }
-    identifier_type
-    value() const
-    {
-      return m_id;
-    }
-
-    /// Attach a truth particle
-    ///
-    /// @param particle is the truth particle to be attached;
-    void
-    attachTruthParticle(const SimParticle* particle);
-
-    /// Read the truth particles
-    const std::vector<const SimParticle*>&
-    truthParticles() const;
-
-    /// @param other is the comparison parameter
-    bool
-    operator==(const SimIdentifier& other) const;
-
-    /// @param other is the comparison parameter
-    bool
-    operator!=(const SimIdentifier& other) const;
-
-    /// @param other is the comparison parameter
-    bool
-    operator<(const SimIdentifier& other) const;
-
-    /// @param other is the comparison parameter
-    bool
-    operator>(const SimIdentifier& other) const;
-
-    /// @param other is the comparison parameter
-    bool
-    operator<=(const SimIdentifier& other) const;
-
-    /// @param other is the comparison parameter
-    bool
-    operator>=(const SimIdentifier& other) const;
-
-  private:
-    identifier_type                 m_id = 0;  //! the store identifier value
-    std::vector<const SimParticle*> m_truthParticles
-        = {};  //!< the attached particles
-  };
-
-  inline SimIdentifier::SimIdentifier(identifier_type value)
-    : m_id(value), m_truthParticles()
+  /// @param value is the identifier value
+  explicit SimIdentifier(Value value) : m_value(value) {}
+  /// Constructor from encoded identifier value and truth information.
+  ///
+  /// @param value is the identifier value
+  /// @param indices
+  SimIdentifier(Value value, std::vector<std::size_t> indices)
+    : m_value(value), m_indices(std::move(indices))
   {
   }
 
-  inline SimIdentifier::SimIdentifier(
-      identifier_type                 value,
-      std::vector<const SimParticle*> truthParticles)
-    : m_id(value), m_truthParticles(std::move(truthParticles))
+  // Explicitely defaulted constructors and assignment operators
+  SimIdentifier()                     = default;
+  SimIdentifier(const SimIdentifier&) = default;
+  SimIdentifier(SimIdentifier&&)      = default;
+  SimIdentifier&
+  operator=(const SimIdentifier&)
+      = default;
+  SimIdentifier&
+  operator=(SimIdentifier&&)
+      = default;
+
+  /// Assign from an identifier value.
+  SimIdentifier&
+  operator=(Value value);
+  /// Cast to an identifier value.
+  operator Value() const { return m_value; }
+
+  /// Explicit access the underlying identifier value.
+  Value
+  value() const
   {
+    return m_value;
+  }
+  /// Access all associated truth indices.
+  const std::vector<std::size_t>&
+  indices() const
+  {
+    return m_indices;
   }
 
-  inline SimIdentifier&
-  SimIdentifier::operator=(identifier_type value)
+  /// Attach a truth index to the identifier.
+  void
+  addIndex(std::size_t index)
   {
-    m_id = value;
-    return (*this);
+    m_indices.push_back(index);
   }
 
-  inline bool
-  SimIdentifier::operator==(const SimIdentifier& other) const
-  {
-    return (m_id == other.m_id);
-  }
+private:
+  /// The stored identifier value.
+  Value m_value = 0u;
+  /// Associated truth indices.
+  std::vector<std::size_t> m_indices;
 
-  inline bool
-  SimIdentifier::operator!=(const SimIdentifier& other) const
+  friend constexpr bool
+  operator<(const SimIdentifier& lhs, const SimIdentifier& rhs)
   {
-    return (m_id != other.m_id);
+    return lhs.m_value < rhs.m_value;
   }
-
-  inline bool
-  SimIdentifier::operator<(const SimIdentifier& other) const
+  friend bool
+  operator==(const SimIdentifier& lhs, const SimIdentifier& rhs)
   {
-    return (m_id < other.m_id);
+    return lhs.m_value == rhs.m_value;
   }
+};
 
-  inline bool
-  SimIdentifier::operator>(const SimIdentifier& other) const
-  {
-    return (m_id > other.m_id);
-  }
-
-  inline bool
-  SimIdentifier::operator<=(const SimIdentifier& other) const
-  {
-    return (m_id <= other.m_id);
-  }
-
-  inline bool
-  SimIdentifier::operator>=(const SimIdentifier& other) const
-  {
-    return (m_id >= other.m_id);
-  }
-
-  inline void
-  SimIdentifier::attachTruthParticle(const SimParticle* particle)
-  {
-    m_truthParticles.push_back(particle);
-  }
-
-  inline const std::vector<const SimParticle*>&
-  SimIdentifier::truthParticles() const
-  {
-    return m_truthParticles;
-  }
-
-}  // namespace Data
 }  // end of namespace FW
 
-using Identifier = FW::Data::SimIdentifier;
+using identifier_type = ::FW::SimIdentifier::Value;
+using identifier_diff = ::FW::SimIdentifier::Difference;
+using Identifier      = ::FW::SimIdentifier;
