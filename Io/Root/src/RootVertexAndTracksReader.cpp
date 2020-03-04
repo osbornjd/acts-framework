@@ -18,8 +18,12 @@
 #include "ACTFW/TruthTracking/VertexAndTracks.hpp"
 
 FW::RootVertexAndTracksReader::RootVertexAndTracksReader(
-    const FW::RootVertexAndTracksReader::Config& cfg)
-  : FW::IReader(), m_cfg(cfg), m_events(0), m_inputChain(nullptr)
+    FW::RootVertexAndTracksReader::Config cfg,
+    Acts::Logging::Level                  lvl)
+  : m_cfg(std::move(cfg))
+  , m_events(0)
+  , m_inputChain(nullptr)
+  , m_logger(Acts::getDefaultLogger("RootVertexAndTracksReader", lvl))
 {
   m_inputChain = new TChain(m_cfg.treeName.c_str());
 
@@ -67,7 +71,7 @@ FW::RootVertexAndTracksReader::~RootVertexAndTracksReader()
 std::string
 FW::RootVertexAndTracksReader::name() const
 {
-  return m_cfg.name;
+  return "RootVertexAndTracksReader";
 }
 
 std::pair<size_t, size_t>
@@ -99,8 +103,10 @@ FW::RootVertexAndTracksReader::read(const FW::AlgorithmContext& context)
       // Loop over all vertices
       for (int idx = 0; idx < m_ptrVx->size(); ++idx) {
         FW::VertexAndTracks vtxAndTracks;
-        vtxAndTracks.vertex.position
-            = Acts::Vector3D((*m_ptrVx)[idx], (*m_ptrVy)[idx], (*m_ptrVz)[idx]);
+        vtxAndTracks.vertex.position4[0] = (*m_ptrVx)[idx];
+        vtxAndTracks.vertex.position4[1] = (*m_ptrVy)[idx];
+        vtxAndTracks.vertex.position4[2] = (*m_ptrVz)[idx];
+        vtxAndTracks.vertex.position4[3] = 0;
 
         std::vector<Acts::BoundParameters> tracks;
         // Loop over all tracks in current event
