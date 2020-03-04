@@ -43,12 +43,13 @@ namespace detail {
     {
       return mapItem.first;
     }
-    // support comparison for items that implement `.geoId()` directly
+    // support comparison for items that implement `.geometryId()` directly
     template <typename T>
     inline auto
-    key(const T& thing) const -> decltype(thing.geoId(), Acts::GeometryID())
+    key(const T& thing) const
+        -> decltype(thing.geometryId(), Acts::GeometryID())
     {
-      return thing.geoId();
+      return thing.geometryId();
     }
     // compare two elements using the automatic key extraction defined above
     template <typename Left, typename Right>
