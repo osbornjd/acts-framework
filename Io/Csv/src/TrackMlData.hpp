@@ -57,10 +57,10 @@ struct TruthHitData
   /// used to link back to it; same value can appear multiple times here due to
   /// shared hits in dense environments.
   uint64_t hit_id;
-  /// Event-unique particle identifier of the generating particle.
-  uint64_t particle_id;
   /// Hit surface identifier. Not available in the TrackML datasets.
   uint64_t geometry_id = 0u;
+  /// Event-unique particle identifier of the generating particle.
+  uint64_t particle_id;
   /// True global hit position components in mm.
   float tx, ty, tz;
   // True global hit time in ns. Not available in the TrackML datasets.

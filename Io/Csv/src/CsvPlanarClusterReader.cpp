@@ -8,19 +8,19 @@
 
 #include "ACTFW/Io/Csv/CsvPlanarClusterReader.hpp"
 
-#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
-#include <Acts/Plugins/Identification/IdentifiedDetectorElement.hpp>
-#include <Acts/Utilities/Units.hpp>
 #include <dfe/dfe_io_dsv.hpp>
 
-#include "ACTFW/EventData/Barcode.hpp"
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/GeometryContainers.hpp"
+#include "ACTFW/EventData/IndexContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "ACTFW/Utilities/Range.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
+#include "Acts/Utilities/Units.hpp"
 #include "TrackMlData.hpp"
 
 FW::CsvPlanarClusterReader::CsvPlanarClusterReader(
@@ -31,9 +31,6 @@ FW::CsvPlanarClusterReader::CsvPlanarClusterReader(
   , m_eventsRange(determineEventFilesRange(cfg.inputDir, "hits.csv"))
   , m_logger(Acts::getDefaultLogger("CsvPlanarClusterReader", lvl))
 {
-  if (not m_cfg.trackingGeometry) {
-    throw std::invalid_argument("Missing tracking geometry");
-  }
   if (m_cfg.outputClusters.empty()) {
     throw std::invalid_argument("Missing cluster output collection");
   }
@@ -45,6 +42,9 @@ FW::CsvPlanarClusterReader::CsvPlanarClusterReader(
   }
   if (m_cfg.outputSimulatedHits.empty()) {
     throw std::invalid_argument("Missing simulated hits output collection");
+  }
+  if (not m_cfg.trackingGeometry) {
+    throw std::invalid_argument("Missing tracking geometry");
   }
   // fill the geo id to surface map once to speed up lookups later on
   m_cfg.trackingGeometry->visitSurfaces([this](const Acts::Surface* surface) {
@@ -191,78 +191,63 @@ FW::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
   // prepare containers for the hit data using the framework event data types
   GeometryIdMultimap<Acts::PlanarModuleCluster> clusters;
   std::vector<uint64_t>                         hitIds;
-  IndexMultimap<Barcode>                        hitParticlesMap;
-  SimHits                                       simHits;
+  IndexMultimap<ActsFatras::Barcode>            hitParticlesMap;
+  SimHitContainer                               simHits;
   clusters.reserve(hits.size());
   hitIds.reserve(hits.size());
   hitParticlesMap.reserve(truths.size());
   simHits.reserve(truths.size());
 
   for (const HitData& hit : hits) {
-
-    // identify hit surface
     Acts::GeometryID geoId = extractGeometryId(hit);
-    auto             it    = m_surfaces.find(geoId);
-    if (it == m_surfaces.end() or not it->second) {
-      ACTS_FATAL("Could not retrieve the surface for hit " << hit);
-      return ProcessCode::ABORT;
-    }
-    const Acts::Surface& surface = *(it->second);
 
-    // find associated truth hits and their particle data.
-    std::vector<const FW::Data::SimParticle*> particles;
+    // find associated truth/ simulation hits
+    std::vector<std::size_t> simHitIndices;
     {
       auto range = makeRange(std::equal_range(
           truths.begin(), truths.end(), hit.hit_id, CompareHitId{}));
+      simHitIndices.reserve(range.size());
       for (const auto& truth : range) {
+        const auto simGeometryId = Acts::GeometryID(truth.geometry_id);
+        // TODO validate geo id consistency
+        const auto simParticleId = ActsFatras::Barcode(truth.particle_id);
+        const auto simIndex      = truth.index;
+        ActsFatras::Hit::Vector4 simPos4{
+            truth.tx * Acts::UnitConstants::mm,
+            truth.ty * Acts::UnitConstants::mm,
+            truth.tz * Acts::UnitConstants::mm,
+            truth.tt * Acts::UnitConstants::ns,
+        };
+        ActsFatras::Hit::Vector4 simMom4{
+            truth.tpx * Acts::UnitConstants::GeV,
+            truth.tpy * Acts::UnitConstants::GeV,
+            truth.tpz * Acts::UnitConstants::GeV,
+            truth.te * Acts::UnitConstants::GeV,
+        };
+        ActsFatras::Hit::Vector4 simDelta4{
+            truth.deltapx * Acts::UnitConstants::GeV,
+            truth.deltapy * Acts::UnitConstants::GeV,
+            truth.deltapz * Acts::UnitConstants::GeV,
+            truth.deltae * Acts::UnitConstants::GeV,
+        };
 
-        FW::Data::SimHit simHit(surface);
-        simHit.position  = Acts::Vector3D(truth.tx * Acts::UnitConstants::mm,
-                                         truth.ty * Acts::UnitConstants::mm,
-                                         truth.tz * Acts::UnitConstants::mm);
-        simHit.time      = truth.tt * Acts::UnitConstants::ns;
-        simHit.direction = Acts::Vector3D(truth.tpx * Acts::UnitConstants::GeV,
-                                          truth.tpy * Acts::UnitConstants::GeV,
-                                          truth.tpz * Acts::UnitConstants::GeV);
-        // TODO extract four-momentum change
-        // TODO extract hit index
-        // TODO extract hit value/charge from cells
-        simHit.value = 0;
-        // Mass, charge, and PDG identifier are global to the particle and are
-        // not duplicated in the per-hit truth file. They could be retrieved
-        // from the particles file, but are set to bogus values for now to
-        // simplify the implementation.
-        simHit.particle = FW::Data::SimParticle(simHit.position,
-                                                simHit.direction,
-                                                0,
-                                                0,
-                                                0,
-                                                truth.particle_id,
-                                                simHit.time);
-        // hit should only store direction not full momentum
-        simHit.direction.normalize();
-
-        // the cluster stores pointers to the underlying particles. thus their
-        // memory location must be stable. the preordering of hits by geometry
-        // id should ensure that new sim hits are always added at the end and
-        // previously created ones rest at their existing locations. sufficient
-        // underlying memory should have been allocated once at the beginning
-        // and no reallocation should occur that could modify the memory
-        // addresses.
-        // checks are added to be safe.
-        auto capacity = simHits.capacity();
-        auto inserted = simHits.emplace_hint(simHits.end(), std::move(simHit));
+        // the cluster stores indices to the underlying simulation hits. thus
+        // their position in the container must be stable. the preordering of
+        // hits by geometry id should ensure that new sim hits are always added
+        // at the end and previously created ones rest at their existing
+        // locations.
+        auto inserted = simHits.emplace_hint(simHits.end(),
+                                             simGeometryId,
+                                             simParticleId,
+                                             simPos4,
+                                             simMom4,
+                                             simMom4 + simDelta4,
+                                             simIndex);
         if (std::next(inserted) != simHits.end()) {
           ACTS_FATAL("Truth hit sorting broke for input hit id " << hit.hit_id);
           return ProcessCode::ABORT;
         }
-        if (capacity != simHits.capacity()) {
-          ACTS_FATAL(
-              "Forbidden truth hits reallocation encountered for input hit id "
-              << hit.hit_id);
-          return ProcessCode::ABORT;
-        }
-        particles.push_back(&(inserted->particle));
+        simHitIndices.push_back(simHits.index_of(inserted));
       }
     }
 
@@ -275,6 +260,14 @@ FW::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
         digitizationCells.emplace_back(c.ch0, c.ch1, c.value);
       }
     }
+
+    // identify hit surface
+    auto it = m_surfaces.find(geoId);
+    if (it == m_surfaces.end() or not it->second) {
+      ACTS_FATAL("Could not retrieve the surface for hit " << hit);
+      return ProcessCode::ABORT;
+    }
+    const Acts::Surface& surface = *(it->second);
 
     // transform global hit coordinates into local coordinates on the surface
     Acts::Vector3D pos(hit.x * Acts::UnitConstants::mm,
@@ -289,8 +282,7 @@ FW::CsvPlanarClusterReader::read(const FW::AlgorithmContext& ctx)
     // create the planar cluster
     Acts::PlanarModuleCluster cluster(
         surface.getSharedPtr(),
-        Identifier(Identifier::identifier_type(geoId.value()),
-                   std::move(particles)),
+        Identifier(identifier_type(geoId.value()), std::move(simHitIndices)),
         std::move(cov),
         local[0],
         local[1],

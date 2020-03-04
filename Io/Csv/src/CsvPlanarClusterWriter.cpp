@@ -10,16 +10,16 @@
 
 #include <stdexcept>
 
-#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
-#include <Acts/Utilities/Units.hpp>
 #include <dfe/dfe_io_dsv.hpp>
 
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Utilities/Units.hpp"
 #include "TrackMlData.hpp"
 
 FW::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
@@ -28,6 +28,9 @@ FW::CsvPlanarClusterWriter::CsvPlanarClusterWriter(
   : WriterT(cfg.inputClusters, "CsvPlanarClusterWriter", lvl), m_cfg(cfg)
 {
   // inputClusters is already checked by base constructor
+  if (m_cfg.inputSimulatedHits.empty()) {
+    throw std::invalid_argument("Missing simulated hits input collection");
+  }
 }
 
 FW::ProcessCode
@@ -35,6 +38,10 @@ FW::CsvPlanarClusterWriter::writeT(
     const AlgorithmContext&                                  ctx,
     const FW::GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
 {
+  // retrieve simulated hits
+  const auto& simHits
+      = ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimulatedHits);
+
   // open per-event file for all components
   std::string pathHits
       = perEventFilepath(m_cfg.outputDir, "hits.csv", ctx.eventNumber);
@@ -95,23 +102,33 @@ FW::CsvPlanarClusterWriter::writeT(
     // each hit can have multiple particles, e.g. in a dense environment
     truth.hit_id      = hit.hit_id;
     truth.geometry_id = hit.geometry_id;
-    for (auto& p : cluster.sourceLink().truthParticles()) {
-      truth.particle_id = p->barcode().value();
-      truth.tx          = p->position().x() / Acts::UnitConstants::mm;
-      truth.ty          = p->position().y() / Acts::UnitConstants::mm;
-      truth.tz          = p->position().z() / Acts::UnitConstants::mm;
-      truth.tt          = p->time() / Acts::UnitConstants::ns;
-      truth.tpx         = p->momentum().x() / Acts::UnitConstants::GeV;
-      truth.tpy         = p->momentum().y() / Acts::UnitConstants::GeV;
-      truth.tpz         = p->momentum().z() / Acts::UnitConstants::GeV;
-      truth.te          = p->E() / Acts::UnitConstants::GeV;
-      // TODO write four-momentum change
-      truth.deltapx = 0.0f / Acts::UnitConstants::GeV;
-      truth.deltapy = 0.0f / Acts::UnitConstants::GeV;
-      truth.deltapz = 0.0f / Acts::UnitConstants::GeV;
-      truth.deltae  = 0.0f / Acts::UnitConstants::GeV;
+    for (auto idx : cluster.sourceLink().indices()) {
+      auto it = simHits.nth(idx);
+      if (it == simHits.end()) {
+        ACTS_FATAL("Simulation hit with index " << idx << " does not exist");
+        return ProcessCode::ABORT;
+      }
+
+      const auto& simHit = *it;
+      truth.particle_id  = simHit.particleId().value();
+      // hit position
+      truth.tx = simHit.position().x() / Acts::UnitConstants::mm;
+      truth.ty = simHit.position().y() / Acts::UnitConstants::mm;
+      truth.tz = simHit.position().z() / Acts::UnitConstants::mm;
+      truth.tt = simHit.time() / Acts::UnitConstants::ns;
+      // particle four-momentum before interaction
+      truth.tpx = simHit.momentum4Before().x() / Acts::UnitConstants::GeV;
+      truth.tpy = simHit.momentum4Before().y() / Acts::UnitConstants::GeV;
+      truth.tpz = simHit.momentum4Before().z() / Acts::UnitConstants::GeV;
+      truth.te  = simHit.momentum4Before().w() / Acts::UnitConstants::GeV;
+      // particle four-momentum change due to interaction
+      const auto delta4 = simHit.momentum4After() - simHit.momentum4Before();
+      truth.deltapx     = delta4.x() / Acts::UnitConstants::GeV;
+      truth.deltapy     = delta4.y() / Acts::UnitConstants::GeV;
+      truth.deltapz     = delta4.z() / Acts::UnitConstants::GeV;
+      truth.deltae      = delta4.w() / Acts::UnitConstants::GeV;
       // TODO write hit index along the particle trajectory
-      truth.index = -1;
+      truth.index = simHit.index();
       writerTruth.append(truth);
     }
 
