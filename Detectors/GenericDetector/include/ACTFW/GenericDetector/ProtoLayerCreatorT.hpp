@@ -379,13 +379,6 @@ namespace Generic {
                                                        moduleDigitizationPtr);
             // everything is set for the next module
             layerStore.push_back(std::move(bsmodule));
-            // register the backside as bin member
-            std::vector<const Acts::DetectorElementBase*> bsbinmember
-                = {module.get()};
-            std::vector<const Acts::DetectorElementBase*> binmember
-                = {bsmodule.get()};
-            bsmodule->registerBinmembers(bsbinmember);
-            module->registerBinmembers(binmember);
           }
         }
 
@@ -593,13 +586,6 @@ namespace Generic {
                                                          moduleDigitizationPtr);
               // Put into the detector store
               layerStore.push_back(std::move(bsmodule));
-              // register the backside of the binmembers
-              std::vector<const Acts::DetectorElementBase*> bsbinmember
-                  = {module.get()};
-              std::vector<const Acts::DetectorElementBase*> binmember
-                  = {bsmodule.get()};
-              bsmodule->registerBinmembers(bsbinmember);
-              module->registerBinmembers(binmember);
             }
             // create the surface
             esVector.push_back(module->surface().getSharedPtr());
