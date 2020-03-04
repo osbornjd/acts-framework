@@ -8,14 +8,15 @@
 
 #include "ACTFW/Validation/EffPlotTool.hpp"
 
+#include "Acts/Utilities/Helpers.hpp"
+
 using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;
 using Acts::VectorHelpers::phi;
-using Acts::VectorHelpers::theta;
 
 FW::EffPlotTool::EffPlotTool(const FW::EffPlotTool::Config& cfg,
-                             Acts::Logging::Level           level)
-  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("EffPlotTool", level))
+                             Acts::Logging::Level           lvl)
+  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("EffPlotTool", lvl))
 {
 }
 
@@ -55,15 +56,13 @@ FW::EffPlotTool::write(const EffPlotTool::EffPlotCache& effPlotCache) const
 }
 
 void
-FW::EffPlotTool::fill(EffPlotTool::EffPlotCache& effPlotCache,
-                      const Data::SimParticle&   truthParticle,
-                      bool                       status) const
+FW::EffPlotTool::fill(EffPlotTool::EffPlotCache&  effPlotCache,
+                      const ActsFatras::Particle& truthParticle,
+                      bool                        status) const
 {
-  Acts::Vector3D truthMom = truthParticle.momentum();
-
-  double t_phi = phi(truthMom);
-  double t_eta = eta(truthMom);
-  double t_pT  = perp(truthMom);
+  const auto t_phi = phi(truthParticle.unitDirection());
+  const auto t_eta = eta(truthParticle.unitDirection());
+  const auto t_pT  = truthParticle.transverseMomentum();
 
   PlotHelpers::fillEff(effPlotCache.trackeff_vs_pT, t_pT, status);
   PlotHelpers::fillEff(effPlotCache.trackeff_vs_eta, t_eta, status);

@@ -14,9 +14,9 @@
 
 void
 FW::identifyContributingParticles(
-    const IndexMultimap<Barcode>&      hitParticlesMap,
-    const ProtoTrack&                  protoTrack,
-    std::vector<FW::ParticleHitCount>& particleHitCount)
+    const IndexMultimap<ActsFatras::Barcode>& hitParticlesMap,
+    const ProtoTrack&                         protoTrack,
+    std::vector<FW::ParticleHitCount>&        particleHitCount)
 {
   particleHitCount.clear();
 
@@ -26,7 +26,7 @@ FW::identifyContributingParticles(
       auto particleId = hitParticle.second;
       // search for existing particle in the existing hit counts
       auto isSameParticle = [=](const ParticleHitCount& phc) {
-        return phc.particleId == particleId;
+        return (phc.particleId == particleId);
       };
       auto it = std::find_if(
           particleHitCount.begin(), particleHitCount.end(), isSameParticle);

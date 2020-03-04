@@ -9,20 +9,12 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
-#include "ACTFW/EventData/Barcode.hpp"
-#include "ACTFW/EventData/SimHit.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimSourceLink.hpp"
+
 #include "ACTFW/Utilities/Helpers.hpp"
-#include "Acts/EventData/Measurement.hpp"
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/EventData/TrackState.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
+#include "ActsFatras/EventData/Particle.hpp"
 
 namespace FW {
 
@@ -58,9 +50,8 @@ public:
   /// Constructor
   ///
   /// @param cfg Configuration struct
-  /// @param level Message level declaration
-  FakeRatePlotTool(const Config&        cfg,
-                   Acts::Logging::Level level = Acts::Logging::INFO);
+  /// @param lvl Message level declaration
+  FakeRatePlotTool(const Config& cfg, Acts::Logging::Level lvl);
 
   /// @brief book the fake rate plots
   /// @param fakeRatePlotCache the cache for fake rate plots
@@ -73,9 +64,9 @@ public:
   /// @param truthParticle the truth Particle
   /// @param status the reconstruction status
   void
-  fill(FakeRatePlotCache&       fakeRatePlotCache,
-       const Data::SimParticle& truthParticle,
-       bool                     status) const;
+  fill(FakeRatePlotCache&          fakeRatePlotCache,
+       const ActsFatras::Particle& truthParticle,
+       bool                        status) const;
 
   /// @brief fill number of reco/truth-matched/fake tracks for a single
   /// Multi-trajectory
@@ -85,10 +76,10 @@ public:
   /// @param nTruthMatchedTracks the number of truth-Matched tracks
   /// @param nFakeTracks the number of fake tracks
   void
-  fill(FakeRatePlotCache&       fakeRatePlotCache,
-       const Data::SimParticle& truthParticle,
-       const size_t&            nTruthMatchedTracks,
-       const size_t&            nFakeTracks) const;
+  fill(FakeRatePlotCache&          fakeRatePlotCache,
+       const ActsFatras::Particle& truthParticle,
+       size_t                      nTruthMatchedTracks,
+       size_t                      nFakeTracks) const;
 
   /// @brief write the fake rate plots to file
   /// @param fakeRatePlotCache cache object for fake rate plots

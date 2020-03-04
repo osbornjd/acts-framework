@@ -9,20 +9,12 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
-#include "ACTFW/EventData/Barcode.hpp"
-#include "ACTFW/EventData/SimHit.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimSourceLink.hpp"
+
 #include "ACTFW/Utilities/Helpers.hpp"
-#include "Acts/EventData/Measurement.hpp"
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/EventData/TrackState.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
+#include "ActsFatras/EventData/Particle.hpp"
 
 namespace FW {
 
@@ -57,9 +49,8 @@ public:
   /// Constructor
   ///
   /// @param cfg Configuration struct
-  /// @param level Message level declaration
-  TrackSummaryPlotTool(const Config&        cfg,
-                       Acts::Logging::Level level = Acts::Logging::INFO);
+  /// @param lvl Message level declaration
+  TrackSummaryPlotTool(const Config& cfg, Acts::Logging::Level lvl);
 
   /// @brief book the track info plots
   /// @param trackSummaryPlotCache the cache for track info plots
@@ -75,12 +66,12 @@ public:
   /// @param nOutliers number of outliers
   /// @param nHoles number of holes
   void
-  fill(TrackSummaryPlotCache&   trackSummaryPlotCache,
-       const Data::SimParticle& truthParticle,
-       const size_t&            nStates,
-       const size_t&            nMeasurments,
-       const size_t&            Outliers,
-       const size_t&            nHoles) const;
+  fill(TrackSummaryPlotCache&      trackSummaryPlotCache,
+       const ActsFatras::Particle& truthParticle,
+       size_t                      nStates,
+       size_t                      nMeasurments,
+       size_t                      Outliers,
+       size_t                      nHoles) const;
 
   /// @brief write the track info plots to file
   /// @param trackSummaryPlotCache cache object for track info plots

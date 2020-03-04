@@ -7,16 +7,13 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/Validation/ResPlotTool.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
 
-using Acts::VectorHelpers::eta;
-using Acts::VectorHelpers::perp;
-using Acts::VectorHelpers::phi;
-using Acts::VectorHelpers::theta;
+#include "Acts/Surfaces/PerigeeSurface.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 
 FW::ResPlotTool::ResPlotTool(const FW::ResPlotTool::Config& cfg,
-                             Acts::Logging::Level           level)
-  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("ResPlotTool", level))
+                             Acts::Logging::Level           lvl)
+  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("ResPlotTool", lvl))
 {
 }
 
@@ -162,9 +159,14 @@ FW::ResPlotTool::write(const ResPlotTool::ResPlotCache& resPlotCache) const
 void
 FW::ResPlotTool::fill(ResPlotTool::ResPlotCache&   resPlotCache,
                       const Acts::GeometryContext& gctx,
-                      const Data::SimParticle&     truthParticle,
+                      const ActsFatras::Particle&  truthParticle,
                       const Acts::BoundParameters& fittedParamters) const
 {
+  using Acts::VectorHelpers::eta;
+  using Acts::VectorHelpers::perp;
+  using Acts::VectorHelpers::phi;
+  using Acts::VectorHelpers::theta;
+
   // get the fitted parameter (at perigee surface) and its error
   auto trackParameter = fittedParamters.parameters();
   auto covariance     = *fittedParamters.covariance();
@@ -173,23 +175,23 @@ FW::ResPlotTool::fill(ResPlotTool::ResPlotCache&   resPlotCache,
   auto pSurface = &fittedParamters.referenceSurface();
 
   // get the truth position and momentum
-  ParVector_t    truthParameter;
-  Acts::Vector3D truthPos = truthParticle.position();
-  Acts::Vector3D truthMom = truthParticle.momentum();
+  ParVector_t truthParameter;
 
   // get the truth perigee parameter
   Acts::Vector2D local(0., 0.);
-  pSurface->globalToLocal(gctx, truthPos, truthMom, local);
+  pSurface->globalToLocal(
+      gctx, truthParticle.position(), truthParticle.unitDirection(), local);
   truthParameter[Acts::ParDef::eLOC_D0] = local[Acts::ParDef::eLOC_D0];
   truthParameter[Acts::ParDef::eLOC_Z0] = local[Acts::ParDef::eLOC_Z0];
-  truthParameter[Acts::ParDef::ePHI]    = phi(truthMom);
-  truthParameter[Acts::ParDef::eTHETA]  = theta(truthMom);
-  truthParameter[Acts::ParDef::eQOP]    = truthParticle.q() / truthMom.norm();
-  truthParameter[Acts::ParDef::eT]      = truthParticle.time();
+  truthParameter[Acts::ParDef::ePHI]    = phi(truthParticle.unitDirection());
+  truthParameter[Acts::ParDef::eTHETA]  = theta(truthParticle.unitDirection());
+  truthParameter[Acts::ParDef::eQOP]
+      = truthParticle.charge() / truthParticle.absMomentum();
+  truthParameter[Acts::ParDef::eT] = truthParticle.time();
 
   // get the truth eta and pT
-  auto truthEta = eta(truthMom);
-  auto truthPt  = perp(truthMom);
+  const auto truthEta = eta(truthParticle.unitDirection());
+  const auto truthPt  = truthParticle.transverseMomentum();
 
   // fill the histograms for residual and pull
   for (unsigned int parID = 0; parID < Acts::BoundParsDim; parID++) {
