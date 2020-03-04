@@ -330,8 +330,7 @@ namespace Generic {
                 *= Acts::AngleAxis3D(-stereo, Acts::Vector3D::UnitZ());
           }
           // count the modules
-          Identifier moduleIdentifier
-              = Identifier(Identifier::identifier_type(imodule++));
+          Identifier moduleIdentifier = Identifier(identifier_type(imodule++));
           // Finalize the transform
           auto moduleTransform
               = std::const_pointer_cast<const Acts::Transform3D>(
@@ -353,8 +352,7 @@ namespace Generic {
           // and the backside one (if configured to do so)
           if (m_cfg.centralModuleBacksideGap.size()) {
             // create the module identifier
-            moduleIdentifier
-                = Identifier(Identifier::identifier_type(imodule++));
+            moduleIdentifier = Identifier(identifier_type(imodule++));
             Acts::Vector3D bsModuleCenter = moduleCenter
                 + m_cfg.centralModuleBacksideGap.at(icl) * moduleLocalZ;
             mutableModuleTransform = std::make_shared<Acts::Transform3D>(
@@ -540,7 +538,7 @@ namespace Generic {
 
             // reate the modules identifier
             Identifier moduleIdentifier
-                = Identifier(Identifier::identifier_type(imodule++));
+                = Identifier(identifier_type(imodule++));
 
             // create the module
             auto module
@@ -555,8 +553,7 @@ namespace Generic {
             // now deal with the potential backside
             if (m_cfg.posnegModuleBacksideGap.size()) {
               // increase the counter
-              moduleIdentifier
-                  = Identifier(Identifier::identifier_type(imodule++));
+              moduleIdentifier = Identifier(identifier_type(imodule++));
               // the new centers
               moduleCenter = moduleCenter
                   + m_cfg.posnegModuleBacksideGap.at(ipnl).at(ipnR)

@@ -71,9 +71,8 @@ namespace Contextual {
   PayloadDetectorElement::transform(const Acts::GeometryContext& gctx) const
   {
     // cast into the right context object
-    auto                        alignContext = std::any_cast<ContextType>(gctx);
-    Identifier::identifier_type idValue
-        = Identifier::identifier_type(identifier());
+    auto            alignContext = std::any_cast<ContextType>(gctx);
+    identifier_type idValue      = identifier_type(identifier());
 
     // check if we have the right alignment parameter in hand
     if (idValue < alignContext.alignmentStore.size()) {
