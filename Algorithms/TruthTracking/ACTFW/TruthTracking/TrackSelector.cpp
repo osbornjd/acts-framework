@@ -7,7 +7,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "ACTFW/TruthTracking/TrackSelector.hpp"
-#include "ACTFW/TruthTracking/TruthVerticesToTracks.hpp"
 
 #include <algorithm>
 #include <stdexcept>
@@ -15,6 +14,7 @@
 
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/TruthTracking/TruthVerticesToTracks.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
 
 FW::TrackSelector::TrackSelector(const Config& cfg, Acts::Logging::Level level)
