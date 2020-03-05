@@ -8,12 +8,11 @@
 
 #include "ACTFW/Options/ParticleGunOptions.hpp"
 
-#include <Acts/Utilities/Units.hpp>
-
 #include "ACTFW/Generators/MultiplicityGenerators.hpp"
 #include "ACTFW/Generators/ParametricProcessGenerator.hpp"
 #include "ACTFW/Generators/VertexGenerators.hpp"
 #include "ACTFW/Utilities/Options.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 void
 FW::Options::addParticleGunOptions(
@@ -24,17 +23,6 @@ FW::Options::addParticleGunOptions(
   opt.add_options()("pg-nparticles",
                     value<size_t>()->default_value(1.),
                     "number of particles.")(
-      "pg-pdg",
-      value<int>()->default_value(13),
-      "PDG number of the particle, will be adjusted for charge flip.")(
-      "pg-mass",
-      value<double>()->default_value(105.),
-      "mass of the particle in [MeV]")("pg-charge",
-                                       value<double>()->default_value(-1.),
-                                       "charge of the particle in [e]")(
-      "pg-chargeflip",
-      bool_switch(),
-      "flip the charge (and change PDG accordingly).")(
       "pg-d0-range",
       value<read_range>()->multitoken()->default_value({0., 0.}),
       "range in which the d0 parameter is simulated in [mm]. Please hand"
@@ -58,7 +46,13 @@ FW::Options::addParticleGunOptions(
       "pg-pt-range",
       value<read_range>()->multitoken()->default_value({0.1, 1e3}),
       "range in which the pt in [GeV] parameter is simulated. Please hand "
-      "over by simply seperating the values by space");
+      "over by simply seperating the values by space")(
+      "pg-pdg",
+      value<int32_t>()->default_value(Acts::PdgParticle::eMuon),
+      "PDG number of the particle, will be adjusted for charge flip.")(
+      "pg-randomize-charge",
+      bool_switch(),
+      "flip the charge (and change PDG accordingly).");
 }
 
 FW::EventGenerator::Config
@@ -83,10 +77,9 @@ FW::Options::readParticleGunOptions(
   pgCfg.phiRange     = {{phi[0], phi[1]}};
   pgCfg.etaRange     = {{eta[0], eta[1]}};
   pgCfg.ptRange      = {{pt[0] * 1_GeV, pt[1] * 1_GeV}};
-  pgCfg.mass         = vm["pg-mass"].template as<double>() * 1_MeV;
-  pgCfg.charge       = vm["pg-charge"].template as<double>() * 1_e;
-  pgCfg.randomCharge = vm["pg-chargeflip"].template as<bool>();
-  pgCfg.pdg          = vm["pg-pdg"].template as<int>();
+  pgCfg.pdg
+      = static_cast<Acts::PdgParticle>(vm["pg-pdg"].template as<int32_t>());
+  pgCfg.randomizeCharge = vm["pg-randomize-charge"].template as<bool>();
 
   EventGenerator::Config cfg;
   cfg.generators = {

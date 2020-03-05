@@ -21,7 +21,6 @@
 #include "ACTFW/Printers/PrintParticles.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
-using namespace Acts::units;
 using namespace FW;
 
 int
