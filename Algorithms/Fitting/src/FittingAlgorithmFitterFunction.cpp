@@ -13,21 +13,21 @@
 #include <random>
 #include <stdexcept>
 
-#include <Acts/Fitter/GainMatrixSmoother.hpp>
-#include <Acts/Fitter/GainMatrixUpdater.hpp>
-#include <Acts/Geometry/GeometryID.hpp>
-#include <Acts/MagneticField/ConstantBField.hpp>
-#include <Acts/MagneticField/InterpolatedBFieldMap.hpp>
-#include <Acts/MagneticField/SharedBField.hpp>
-#include <Acts/Propagator/EigenStepper.hpp>
-#include <Acts/Propagator/Navigator.hpp>
-#include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Utilities/Helpers.hpp>
-#include <Acts/Utilities/ParameterDefinitions.hpp>
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Plugins/BField/ScalableBField.hpp"
+#include "Acts/Fitter/GainMatrixSmoother.hpp"
+#include "Acts/Fitter/GainMatrixUpdater.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/MagneticField/InterpolatedBFieldMap.hpp"
+#include "Acts/MagneticField/SharedBField.hpp"
+#include "Acts/Propagator/EigenStepper.hpp"
+#include "Acts/Propagator/Navigator.hpp"
+#include "Acts/Propagator/Propagator.hpp"
+#include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Utilities/ParameterDefinitions.hpp"
 
 namespace {
 template <typename Fitter>
@@ -38,9 +38,10 @@ struct FitterFunctionImpl
   FitterFunctionImpl(Fitter&& f) : fitter(std::move(f)) {}
 
   FW::FittingAlgorithm::FitterResult
-  operator()(const std::vector<FW::Data::SimSourceLink>& sourceLinks,
-             const FW::TrackParameters&                  initialParameters,
-             const Acts::KalmanFitterOptions&            options) const
+  operator()(
+      const std::vector<FW::SimSourceLink>& sourceLinks,
+      const FW::TrackParameters&            initialParameters,
+      const Acts::KalmanFitterOptions<Acts::VoidOutlierFinder>& options) const
   {
     return fitter.fit(sourceLinks, initialParameters, options);
   };

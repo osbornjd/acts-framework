@@ -9,6 +9,7 @@
 #include "ACTFW/Fitting/FittingAlgorithm.hpp"
 
 #include <stdexcept>
+
 #include "ACTFW/EventData/ProtoTrack.hpp"
 #include "ACTFW/EventData/Track.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
@@ -59,7 +60,7 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       Acts::Vector3D{0., 0., 0.});
 
   // Perform the fit for each input track
-  std::vector<Data::SimSourceLink> trackSourceLinks;
+  std::vector<SimSourceLink> trackSourceLinks;
   for (std::size_t itrack = 0; itrack < protoTracks.size(); ++itrack) {
     // The list of hits and the initial start parameters
     const auto& protoTrack    = protoTracks[itrack];
@@ -88,8 +89,12 @@ FW::FittingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
     }
 
     // Set the KalmanFitter options
-    Acts::KalmanFitterOptions kfOptions(
-        ctx.geoContext, ctx.magFieldContext, ctx.calibContext, &(*pSurface));
+    Acts::KalmanFitterOptions<Acts::VoidOutlierFinder> kfOptions(
+        ctx.geoContext,
+        ctx.magFieldContext,
+        ctx.calibContext,
+        Acts::VoidOutlierFinder(),
+        &(*pSurface));
 
     ACTS_DEBUG("Invoke fitter");
     auto result = m_cfg.fit(trackSourceLinks, initialParams, kfOptions);
