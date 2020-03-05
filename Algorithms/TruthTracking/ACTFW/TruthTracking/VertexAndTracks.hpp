@@ -18,7 +18,7 @@ namespace FW {
 struct VertexAndTracks
 {
   // The vertex
-  Data::SimVertex vertex;
+  SimVertex vertex;
   // The tracks
   std::vector<Acts::BoundParameters> tracks;
 };
