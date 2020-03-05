@@ -15,10 +15,8 @@
 #include <array>
 #include <random>
 
-#include <Acts/Utilities/Definitions.hpp>
-#include <Acts/Utilities/Units.hpp>
-
 #include "ACTFW/Framework/RandomNumbers.hpp"
+#include "Acts/Utilities/Definitions.hpp"
 
 namespace FW {
 
