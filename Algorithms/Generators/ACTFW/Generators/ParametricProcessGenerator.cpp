@@ -10,53 +10,63 @@
 
 #include <random>
 
+#include "Acts/Utilities/UnitVectors.hpp"
+#include "ActsFatras/Utilities/ParticleData.hpp"
+
 FW::ParametricProcessGenerator::ParametricProcessGenerator(
     const FW::ParametricProcessGenerator::Config& cfg)
   : m_cfg(cfg)
+  , m_charge(ActsFatras::findCharge(m_cfg.pdg))
+  , m_mass(ActsFatras::findMass(m_cfg.pdg))
 {
 }
 
-std::vector<FW::Data::SimVertex>
+std::vector<FW::SimVertex>
 FW::ParametricProcessGenerator::operator()(FW::RandomEngine& rng) const
 {
-  using Uniform = std::uniform_real_distribution<double>;
+  using UniformReal  = std::uniform_real_distribution<double>;
+  using UniformIndex = std::uniform_int_distribution<size_t>;
 
-  Uniform d0Dist(m_cfg.d0Range[0], m_cfg.d0Range[1]);
-  Uniform z0Dist(m_cfg.z0Range[0], m_cfg.z0Range[1]);
-  Uniform t0Dist(m_cfg.t0Range[0], m_cfg.t0Range[1]);
-  Uniform phiDist(m_cfg.phiRange[0], m_cfg.phiRange[1]);
-  Uniform etaDist(m_cfg.etaRange[0], m_cfg.etaRange[1]);
-  Uniform ptDist(m_cfg.ptRange[0], m_cfg.ptRange[1]);
-  auto    generateChargeSign = [=](RandomEngine& rng) {
-    return (m_cfg.randomCharge and (Uniform(0.0, 1.0)(rng) < 0.5)) ? -1.0 : 1.0;
+  UniformReal d0Dist(m_cfg.d0Range[0], m_cfg.d0Range[1]);
+  UniformReal z0Dist(m_cfg.z0Range[0], m_cfg.z0Range[1]);
+  UniformReal t0Dist(m_cfg.t0Range[0], m_cfg.t0Range[1]);
+  UniformReal phiDist(m_cfg.phiRange[0], m_cfg.phiRange[1]);
+  UniformReal etaDist(m_cfg.etaRange[0], m_cfg.etaRange[1]);
+  UniformReal ptDist(m_cfg.ptRange[0], m_cfg.ptRange[1]);
+  // choose between particle/anti-particle if requested
+  UniformIndex particleTypeChoice(0u, m_cfg.randomizeCharge ? 1u : -0u);
+  // (anti-)particle choice is one random draw but defines two properties
+  const Acts::PdgParticle pdgChoices[] = {
+      m_cfg.pdg,
+      static_cast<Acts::PdgParticle>(-m_cfg.pdg),
   };
+  const double qChoices[] = {m_charge, -m_charge};
 
   // create empty process vertex
-  Data::SimVertex process({0.0, 0.0, 0.0});
+  SimVertex process(SimVertex::Vector4::Zero());
 
-  for (size_t ip = 0; ip < m_cfg.numParticles; ip++) {
-    auto d0    = d0Dist(rng);
-    auto z0    = z0Dist(rng);
-    auto t0    = t0Dist(rng);
-    auto phi   = phiDist(rng);
-    auto eta   = etaDist(rng);
-    auto pt    = ptDist(rng);
-    auto qsign = generateChargeSign(rng);
+  // counter will be reused as barcode particle number which must be non-zero.
+  for (size_t ip = 1; ip <= m_cfg.numParticles; ++ip) {
+    const auto d0   = d0Dist(rng);
+    const auto z0   = z0Dist(rng);
+    const auto t0   = t0Dist(rng);
+    const auto phi  = phiDist(rng);
+    const auto eta  = etaDist(rng);
+    const auto pt   = ptDist(rng);
+    const auto type = particleTypeChoice(rng);
+    const auto pdg  = pdgChoices[type];
+    const auto q    = qChoices[type];
+
     // all particles are treated as originating from the same primary vertex
-    // ensure particle id is non-zero
-    Barcode barcode;
-    barcode.setParticle(1u + ip);
+    const auto pid = ActsFatras::Barcode(0u).setParticle(ip);
+    // construct the particle;
+    ActsFatras::Particle particle(pid, pdg, q, m_mass);
+    particle.setPosition4(d0 * std::sin(phi), d0 * -std::cos(phi), z0, t0);
+    particle.setDirection(Acts::makeDirectionUnitFromPhiEta(phi, eta));
+    // TODO check abs p value
+    particle.setAbsMomentum(pt / std::cosh(eta));
 
-    Acts::Vector3D position(d0 * std::sin(phi), d0 * -std::cos(phi), z0);
-    Acts::Vector3D momentum(
-        pt * std::cos(phi), pt * std::sin(phi), pt * std::sinh(eta));
-    process.outgoing.emplace_back(position,
-                                  momentum,
-                                  m_cfg.mass,
-                                  qsign * m_cfg.charge,
-                                  qsign * m_cfg.pdg,
-                                  barcode,
-                                  t0);
+    process.outgoing.push_back(std::move(particle));
   }
 
   return {process};

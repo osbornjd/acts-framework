@@ -12,10 +12,10 @@
 #include <cmath>
 #include <vector>
 
-#include <Acts/Utilities/Units.hpp>
-
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
+#include "Acts/Utilities/PdgParticle.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace FW {
 
@@ -29,39 +29,38 @@ class ParametricProcessGenerator
 public:
   struct Config
   {
-    /// Number of particles
+    /// Number of particles.
     size_t numParticles = 1;
-    /// Low, high for the transverse point of closest approach
+    /// Low, high for the transverse point of closest approach.
     std::array<double, 2> d0Range = {{0.0, 0.0}};
-    /// Low, high for the z position at the point of closest approach
+    /// Low, high for the z position at the point of closest approach.
     std::array<double, 2> z0Range = {{0.0, 0.0}};
-    /// Low, high for the time at the point of closest approach
+    /// Low, high for the time at the point of closest approach.
     std::array<double, 2> t0Range = {{0.0, 0.0}};
-    /// Low, high for the transverse angle
+    /// Low, high for the transverse angle.
     std::array<double, 2> phiRange = {{-M_PI, M_PI}};
-    /// Low, high for pseudo-rapidity
+    /// Low, high for pseudo-rapidity.
     std::array<double, 2> etaRange = {{-4.0, 4.0}};
-    /// Low, high for transverse momentum
+    /// Low, high for transverse momentum.
     std::array<double, 2> ptRange
         = {{100 * Acts::UnitConstants::MeV, 10 * Acts::UnitConstants::GeV}};
-    /// Particle mass
-    double mass = 0.;
-    /// Particle charge
-    double charge = 1.0;
-    /// Randomize the charge; this will also flip the pdg identifier sign
-    bool randomCharge = false;
-    /// (Absolute) pdg type of the particle
-    pdg_type pdg = 0;
+    /// (Absolute) PDG particle number to identify the particle type.
+    Acts::PdgParticle pdg = Acts::PdgParticle::eMuon;
+    /// Randomize the charge and flip the PDG particle number sign accordingly.
+    bool randomizeCharge = false;
   };
 
   ParametricProcessGenerator(const Config& cfg);
 
   /// Generate a single process vertex with the given number of particles.
-  std::vector<Data::SimVertex>
+  std::vector<SimVertex>
   operator()(RandomEngine& rng) const;
 
 private:
   Config m_cfg;
+  // will be automatically set from PDG data tables
+  double m_charge;
+  double m_mass;
 };
 
 }  // namespace FW
