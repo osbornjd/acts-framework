@@ -30,8 +30,8 @@ FW::FlattenEvent::execute(const AlgorithmContext& ctx) const
 {
   // setup input and output containers
   const auto& event
-      = ctx.eventStore.get<std::vector<Data::SimVertex>>(m_cfg.inputEvent);
-  SimParticles::sequence_type unsortedParticles;
+      = ctx.eventStore.get<std::vector<SimVertex>>(m_cfg.inputEvent);
+  SimParticleContainer::sequence_type unsortedParticles;
 
   // extract particles
   for (const auto& vertex : event) {
@@ -42,7 +42,7 @@ FW::FlattenEvent::execute(const AlgorithmContext& ctx) const
   unsortedParticles.shrink_to_fit();
 
   // re-establish ordering by barcode
-  SimParticles particles;
+  SimParticleContainer particles;
   particles.adopt_sequence(std::move(unsortedParticles));
 
   ctx.eventStore.add(m_cfg.outputParticles, std::move(particles));
