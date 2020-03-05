@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <cstddef>
 #include <string>
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"

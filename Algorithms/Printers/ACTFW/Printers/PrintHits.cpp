@@ -10,13 +10,13 @@
 
 #include <vector>
 
-#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
-#include <Acts/Utilities/Logger.hpp>
-
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/GeometryContainers.hpp"
+#include "ACTFW/EventData/IndexContainers.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Range.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 FW::PrintHits::PrintHits(const FW::PrintHits::Config& cfg,
                          Acts::Logging::Level         level)
@@ -28,7 +28,7 @@ FW::ProcessCode
 FW::PrintHits::execute(const FW::AlgorithmContext& ctx) const
 {
   using Clusters        = FW::GeometryIdMultimap<Acts::PlanarModuleCluster>;
-  using HitParticlesMap = FW::IndexMultimap<FW::Barcode>;
+  using HitParticlesMap = FW::IndexMultimap<ActsFatras::Barcode>;
   using HitIds          = std::vector<size_t>;
 
   const auto& clusters = ctx.eventStore.get<Clusters>(m_cfg.inputClusters);
