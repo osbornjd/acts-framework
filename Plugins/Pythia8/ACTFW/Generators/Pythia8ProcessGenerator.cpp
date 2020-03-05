@@ -26,7 +26,7 @@ struct FrameworkRndmEngine : public Pythia8::RndmEngine
 };
 }  // namespace
 
-std::function<std::vector<FW::Data::SimVertex>(FW::RandomEngine&)>
+std::function<std::vector<FW::SimVertex>(FW::RandomEngine&)>
 FW::Pythia8Generator::makeFunction(const FW::Pythia8Generator::Config& cfg,
                                    Acts::Logging::Level                lvl)
 {
@@ -49,19 +49,19 @@ FW::Pythia8Generator::Pythia8Generator(const FW::Pythia8Generator::Config& cfg,
   m_pythia8.settings.mode("Beams:idA", m_cfg.pdgBeam0);
   m_pythia8.settings.mode("Beams:idB", m_cfg.pdgBeam1);
   m_pythia8.settings.mode("Beams:frameType", 1);
-  m_pythia8.settings.parm("Beams:eCM", m_cfg.cmsEnergy / Acts::units::_GeV);
+  m_pythia8.settings.parm("Beams:eCM",
+                          m_cfg.cmsEnergy / Acts::UnitConstants::GeV);
   m_pythia8.init();
 }
 
-std::vector<FW::Data::SimVertex>
+std::vector<FW::SimVertex>
 FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
 {
   using namespace Acts::UnitLiterals;
-  using namespace Data;
 
   // first process vertex is the primary one at origin with time=0
   std::vector<SimVertex> vertices = {
-      SimVertex({0.0, 0.0, 0.0}),
+      SimVertex(SimVertex::Vector4::Zero()),
   };
 
   // pythia8 is not thread safe and generation needs to be protected
@@ -73,58 +73,60 @@ FW::Pythia8Generator::operator()(FW::RandomEngine& rng)
 
   // convert generated final state particles into internal format
   for (size_t ip = 0; ip < m_pythia8.event.size(); ++ip) {
-    const auto& particle = m_pythia8.event[ip];
+    const auto& genParticle = m_pythia8.event[ip];
 
     // ignore beam particles
-    if (particle.statusHepMC() == 4) { continue; }
+    if (genParticle.statusHepMC() == 4) { continue; }
     // only interested in final, visible particles
-    if (not particle.isFinal()) { continue; }
-    if (not particle.isVisible()) { continue; }
+    if (not genParticle.isFinal()) { continue; }
+    if (not genParticle.isVisible()) { continue; }
 
-    // extract particle type
-    const auto mass   = particle.m0() * 1_GeV;
-    const auto charge = particle.charge() * 1_e;
-    const auto pdg    = particle.id();
-    // extract particle kinematic state
-    const auto pos  = Acts::Vector3D(particle.xProd() * 1_mm,
-                                    particle.yProd() * 1_mm,
-                                    particle.zProd() * 1_mm);
-    const auto time = particle.tProd() * 1_mm;  // units mm/c, and we use c=1
-    const auto mom  = Acts::Vector3D(
-        particle.px() * 1_GeV, particle.py() * 1_GeV, particle.pz() * 1_GeV);
-
-    // identify secondary vertex
-    std::vector<SimVertex>::iterator secondaryVertex;
-    if (not particle.hasVertex()) {
+    // production vertex. Pythia8 time uses units mm/c, and we use c=1
+    SimVertex::Vector4 pos4(genParticle.xProd() * 1_mm,
+                            genParticle.yProd() * 1_mm,
+                            genParticle.zProd() * 1_mm,
+                            genParticle.tProd() * 1_mm);
+    // identify vertex
+    std::vector<SimVertex>::iterator vertex;
+    if (not genParticle.hasVertex()) {
       // w/o defined vertex, must belong to the first (primary) process vertex
-      secondaryVertex = vertices.begin();
+      vertex = vertices.begin();
     } else {
       // either add to existing secondary vertex if exists or create new one
-      // TODO can we do this w/o the manual search and position/time check?
-      secondaryVertex = std::find_if(
+      // TODO can we do this w/o the manual search and position check?
+      vertex = std::find_if(
           vertices.begin(), vertices.end(), [=](const SimVertex& vertex) {
-            return (vertex.position == pos) and (vertex.time == time);
+            return (vertex.position4 == pos4);
           });
-      if (secondaryVertex == vertices.end()) {
+      if (vertex == vertices.end()) {
         // no matching secondary vertex exists -> create new one
-        SimVertex tmp(pos, {}, {}, 0u, time);
-        vertices.push_back(std::move(tmp));
-        secondaryVertex = std::prev(vertices.end());
+        vertices.emplace_back(pos4);
+        vertex = std::prev(vertices.end());
 
-        ACTS_VERBOSE("created new secondary vertex " << pos.transpose());
+        ACTS_VERBOSE("created new secondary vertex " << pos4.transpose());
       }
     }
 
-    // encode event structure information into barcode
-    Barcode barcode;
-    // NOTE: the primary vertex identifier in the barcode is set in the event
-    //      generator and does not need to be set here in the process generator.
-    barcode.setVertexSecondary(
-        std::distance(vertices.begin(), secondaryVertex));
-    // ensure particle identifier is non-zero
-    barcode.setParticle(1u + secondaryVertex->outgoing.size());
-    secondaryVertex->outgoing.emplace_back(
-        pos, mom, mass, charge, pdg, barcode, time);
+    // Ensure particle identifier components are defaulted to zero.
+    ActsFatras::Barcode particleId(0u);
+    // first vertex w/ distance=0 contains all direct particles
+    particleId.setVertexSecondary(std::distance(vertices.begin(), vertex));
+    // ensure particle identifier component is non-zero
+    particleId.setParticle(1u + vertex->outgoing.size());
+    // reuse PDG id from generator
+    const auto pdg = static_cast<Acts::PdgParticle>(genParticle.id());
+
+    // construct internal particle
+    ActsFatras::Particle particle(
+        particleId, pdg, genParticle.charge() * 1_e, genParticle.m0() * 1_GeV);
+    particle.setPosition4(pos4);
+    // normalization/ units are not import for the direction
+    particle.setDirection(genParticle.px(), genParticle.py(), genParticle.pz());
+    particle.setAbsMomentum(
+        std::hypot(genParticle.px(), genParticle.py(), genParticle.pz())
+        * 1_GeV);
+
+    vertex->outgoing.push_back(std::move(particle));
   }
   return vertices;
 }
