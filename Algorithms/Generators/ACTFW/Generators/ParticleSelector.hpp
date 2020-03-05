@@ -19,22 +19,22 @@
 namespace FW {
 
 /// Select particles by applying some selection cuts.
-///
-/// Vertices that end up w/o particles are dropped from the output.
 class ParticleSelector : public BareAlgorithm
 {
 public:
   struct Config
   {
-    /// The input collection
-    std::string input;
-    /// The output collection
-    std::string output;
-    /// Maximum distance from the origin in the transverse plane
+    /// The input event collection.
+    std::string inputEvent;
+    /// The output event collection.
+    std::string outputEvent;
+    /// Minimum distance from the origin in the tranverse plane.
+    double rhoMin = 0;
+    /// Maximum distance from the origin in the transverse plane.
     double rhoMax = std::numeric_limits<double>::max();
-    /// Maximum absolute distance from the origin along z
+    /// Maximum absolute distance from the origin along z.
     double absZMax = std::numeric_limits<double>::max();
-    // Particle cuts
+    // Particle cuts.
     double phiMin    = std::numeric_limits<double>::lowest();
     double phiMax    = std::numeric_limits<double>::max();
     double etaMin    = std::numeric_limits<double>::lowest();
@@ -43,12 +43,11 @@ public:
     double absEtaMax = std::numeric_limits<double>::max();
     double ptMin     = 0.0;
     double ptMax     = std::numeric_limits<double>::max();
-    /// Keep neutral particles
+    /// Keep neutral particles.
     bool keepNeutral = true;
   };
 
-  ParticleSelector(const Config&        cfg,
-                   Acts::Logging::Level level = Acts::Logging::INFO);
+  ParticleSelector(const Config& cfg, Acts::Logging::Level lvl);
 
   ProcessCode
   execute(const AlgorithmContext& ctx) const;

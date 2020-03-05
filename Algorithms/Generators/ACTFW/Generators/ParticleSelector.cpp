@@ -14,84 +14,76 @@
 
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 
 FW::ParticleSelector::ParticleSelector(const Config&        cfg,
-                                       Acts::Logging::Level level)
-  : FW::BareAlgorithm("Selector", level), m_cfg(cfg)
+                                       Acts::Logging::Level lvl)
+  : FW::BareAlgorithm("ParticleSelector", lvl), m_cfg(cfg)
 {
-  if (m_cfg.input.empty()) {
-    throw std::invalid_argument("Missing input collection");
+  if (m_cfg.inputEvent.empty()) {
+    throw std::invalid_argument("Missing input event collection");
   }
-  if (m_cfg.output.empty()) {
-    throw std::invalid_argument("Missing output collection");
+  if (m_cfg.outputEvent.empty()) {
+    throw std::invalid_argument("Missing output event collection");
   }
 }
 
 FW::ProcessCode
 FW::ParticleSelector::execute(const FW::AlgorithmContext& ctx) const
 {
-  std::vector<Data::SimVertex> selected;
+  using SimEvent = std::vector<SimVertex>;
 
-  // get input particles
-  const auto& input
-      = ctx.eventStore.get<std::vector<Data::SimVertex>>(m_cfg.input);
+  // prepare input/ output types
+  const auto& input = ctx.eventStore.get<SimEvent>(m_cfg.inputEvent);
+  SimEvent    selected;
 
   auto within = [](double x, double min, double max) {
     return (min <= x) and (x < max);
   };
-  auto isValidParticle = [&](const Data::SimParticle& p) {
-    auto rho = std::hypot(p.position().x(), p.position().y());
-    auto phi = std::atan2(p.momentum().y(), p.momentum().x());
-    auto eta = std::atanh(p.momentum().z() / p.momentum().norm());
-    auto pt  = std::hypot(p.momentum().x(), p.momentum().y());
-    return within(rho, 0, m_cfg.rhoMax)
+  auto isValidParticle = [&](const ActsFatras::Particle& p) {
+    auto rho = Acts::VectorHelpers::perp(p.position());
+    auto phi = Acts::VectorHelpers::phi(p.unitDirection());
+    auto eta = Acts::VectorHelpers::eta(p.unitDirection());
+    auto pt  = p.transverseMomentum();
+    return within(rho, m_cfg.rhoMin, m_cfg.rhoMax)
         and within(std::abs(p.position().z()), 0, m_cfg.absZMax)
         and within(phi, m_cfg.phiMin, m_cfg.phiMax)
         and within(eta, m_cfg.etaMin, m_cfg.etaMax)
         and within(std::abs(eta), m_cfg.absEtaMin, m_cfg.absEtaMax)
         and within(pt, m_cfg.ptMin, m_cfg.ptMax)
-        and (m_cfg.keepNeutral or (p.q() != 0));
+        and (m_cfg.keepNeutral or (p.charge() != 0));
   };
 
-  // copy selected vertices over to new collection
-  size_t allParticles = 0;
-  size_t selParticles = 0;
+  std::size_t allParticles      = 0;
+  std::size_t selectedParticles = 0;
 
-  for (const auto& vertex : input) {
+  selected.reserve(input.size());
+  for (const auto& inputVertex : input) {
+    allParticles += inputVertex.incoming.size();
+    allParticles += inputVertex.outgoing.size();
 
-    allParticles += vertex.incoming.size();
-    allParticles += vertex.outgoing.size();
-
-    Data::SimVertex sel;
-    sel.position    = vertex.position;
-    sel.time        = vertex.time;
-    sel.processCode = vertex.processCode;
-
+    SimVertex vertex(inputVertex.position4, inputVertex.process);
     // copy selected particles over
-    std::copy_if(vertex.incoming.begin(),
-                 vertex.incoming.end(),
-                 std::back_inserter(sel.incoming),
+    std::copy_if(inputVertex.incoming.begin(),
+                 inputVertex.incoming.end(),
+                 std::back_inserter(vertex.incoming),
                  isValidParticle);
-    std::copy_if(vertex.outgoing.begin(),
-                 vertex.outgoing.end(),
-                 std::back_inserter(sel.outgoing),
+    std::copy_if(inputVertex.outgoing.begin(),
+                 inputVertex.outgoing.end(),
+                 std::back_inserter(vertex.outgoing),
                  isValidParticle);
 
     // only retain vertex if it still contains particles
-    if (not sel.incoming.empty() or not sel.outgoing.empty()) {
-      selParticles += sel.incoming.size();
-      selParticles += sel.outgoing.size();
-      selected.push_back(std::move(sel));
-    }
+    if (vertex.incoming.empty() and vertex.outgoing.empty()) { continue; }
+
+    selectedParticles += vertex.incoming.size();
+    selectedParticles += vertex.outgoing.size();
+    selected.push_back(std::move(vertex));
   }
 
-  ACTS_DEBUG("event " << ctx.eventNumber << " selected " << selected.size()
-                      << " from " << input.size() << " vertices");
-  ACTS_DEBUG("event " << ctx.eventNumber << " selected " << selParticles
+  ACTS_DEBUG("event " << ctx.eventNumber << " selected " << selectedParticles
                       << " from " << allParticles << " particles");
 
-  // write selected particles
-  ctx.eventStore.add(m_cfg.output, std::move(selected));
-
+  ctx.eventStore.add(m_cfg.outputEvent, std::move(selected));
   return ProcessCode::SUCCESS;
 }
