@@ -12,6 +12,7 @@
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Generators/FlattenEvent.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
@@ -24,6 +25,7 @@
 #include "ACTFW/Utilities/Paths.hpp"
 
 using namespace FW;
+using namespace Acts::UnitLiterals;
 
 /// Main vertex finder example executable
 ///
@@ -41,71 +43,53 @@ main(int argc, char* argv[])
   auto vm = Options::parse(desc, argc, argv);
   if (vm.empty()) { return EXIT_FAILURE; }
 
+  // basic setup
   auto logLevel = Options::readLogLevel(vm);
+  auto rnd
+      = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
+  Sequencer sequencer(Options::readSequencerConfig(vm));
 
-  // basic services
-  auto rndCfg = Options::readRandomNumbersConfig(vm);
-  auto rnd    = std::make_shared<RandomNumbers>(rndCfg);
+  // Set up event generator
+  EventGenerator::Config evgen = Options::readPythia8Options(vm, logLevel);
+  evgen.output                 = "event";
+  evgen.randomNumbers          = rnd;
+  sequencer.addReader(std::make_shared<EventGenerator>(evgen, logLevel));
 
-  // Set up event generator producing one single hard collision
-  EventGenerator::Config evgenCfg = Options::readPythia8Options(vm, logLevel);
-  evgenCfg.output                 = "generated_particles";
-  evgenCfg.randomNumbers          = rnd;
+  ParticleSelector::Config selectParticles;
+  selectParticles.inputEvent    = evgen.output;
+  selectParticles.outputEvent   = "event_selected";
+  selectParticles.absEtaMax     = 2.5;
+  selectParticles.rhoMax        = 4_mm;
+  selectParticles.ptMin         = 400_MeV;
+  selectParticles.removeNeutral = true;
+  sequencer.addAlgorithm(
+      std::make_shared<ParticleSelector>(selectParticles, logLevel));
 
-  ParticleSelector::Config ptcSelectorCfg;
-  ptcSelectorCfg.input       = evgenCfg.output;
-  ptcSelectorCfg.output      = "selected_particles";
-  ptcSelectorCfg.absEtaMax   = 2.5;
-  ptcSelectorCfg.rhoMax      = 4 * Acts::units::_mm;
-  ptcSelectorCfg.ptMin       = 400. * Acts::units::_MeV;
-  ptcSelectorCfg.keepNeutral = false;
-
-  // Set magnetic field
-  Acts::Vector3D bField(0., 0., 1. * Acts::units::_T);
-
-  // Set up TruthVerticesToTracks converter algorithm
   TruthVerticesToTracksAlgorithm::Config trkConvConfig;
+  trkConvConfig.input           = selectParticles.outputEvent;
+  trkConvConfig.output          = "tracks";
   trkConvConfig.doSmearing      = true;
   trkConvConfig.randomNumberSvc = rnd;
-  trkConvConfig.bField          = bField;
-  trkConvConfig.input           = ptcSelectorCfg.output;
-  trkConvConfig.output          = "all_tracks";
+  trkConvConfig.bField          = {0_T, 0_T, 1_T};
+  sequencer.addAlgorithm(std::make_shared<TruthVerticesToTracksAlgorithm>(
+      trkConvConfig, logLevel));
 
   // Set up track selector
   TrackSelector::Config selectorConfig;
   selectorConfig.input       = trkConvConfig.output;
-  selectorConfig.output      = "selectedTracks";
+  selectorConfig.output      = "tracks_selected";
   selectorConfig.absEtaMax   = 2.5;
-  selectorConfig.rhoMax      = 4 * Acts::units::_mm;
-  selectorConfig.ptMin       = 400. * Acts::units::_MeV;
+  selectorConfig.rhoMax      = 4_mm;
+  selectorConfig.ptMin       = 400_MeV;
   selectorConfig.keepNeutral = false;
-
-  RootVertexAndTracksWriter::Config writerCfg;
-  writerCfg.collection = selectorConfig.output;
-
-  int         nPileup        = vm["evg-pileup"].template as<int>();
-  int         nEvents        = vm["events"].as<size_t>();
-  std::string pileupString   = std::to_string(nPileup);
-  std::string nEventsString  = std::to_string(nEvents);
-  std::string outputDir      = vm["output-dir"].as<std::string>();
-  std::string outputFilePath = outputDir + "VertexAndTracksCollection_n"
-      + nEventsString + "_p" + pileupString + ".root";
-  writerCfg.filePath = outputFilePath;
-
-  Sequencer::Config sequencerCfg = Options::readSequencerConfig(vm);
-  Sequencer         sequencer(sequencerCfg);
-
-  sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
-
-  sequencer.addAlgorithm(
-      std::make_shared<ParticleSelector>(ptcSelectorCfg, logLevel));
-
-  sequencer.addAlgorithm(std::make_shared<TruthVerticesToTracksAlgorithm>(
-      trkConvConfig, logLevel));
-
   sequencer.addAlgorithm(
       std::make_shared<TrackSelector>(selectorConfig, logLevel));
 
+  auto outputDir = ensureWritableDirectory(vm["output-dir"].as<std::string>());
+
+  RootVertexAndTracksWriter::Config writerCfg;
+  writerCfg.collection = selectorConfig.output;
+  writerCfg.filePath   = joinPaths(outputDir, selectorConfig.output + ".root");
   sequencer.addWriter(
       std::make_shared<RootVertexAndTracksWriter>(writerCfg, logLevel));
 

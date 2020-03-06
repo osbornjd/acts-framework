@@ -42,64 +42,42 @@ main(int argc, char* argv[])
   auto vm = Options::parse(desc, argc, argv);
   if (vm.empty()) { return EXIT_FAILURE; }
 
+  // basic setup
   auto logLevel = Options::readLogLevel(vm);
+  auto rnd
+      = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
+  Sequencer sequencer(Options::readSequencerConfig(vm));
 
-  // basic services
-  auto rndCfg = Options::readRandomNumbersConfig(vm);
-  auto rnd    = std::make_shared<RandomNumbers>(rndCfg);
-
-  // Set up event generator producing one single hard collision
-  Pythia8Generator::Config hardCfg;
-  hardCfg.pdgBeam0  = vm["evg-pdgBeam0"].template as<int>();
-  hardCfg.pdgBeam1  = vm["evg-pdgBeam1"].template as<int>();
-  hardCfg.cmsEnergy = vm["evg-cmsEnergy"].template as<double>();
-  hardCfg.settings  = {vm["evg-hsProcess"].template as<std::string>()};
-
-  auto vtxStdXY = vm["evg-vertex-xy-std"].template as<double>();
-  auto vtxStdZ  = vm["evg-vertex-z-std"].template as<double>();
-
-  EventGenerator::Config evgenCfg;
-  evgenCfg.generators    = {{FixedMultiplicityGenerator{1},
-                          GaussianVertexGenerator{vtxStdXY, vtxStdXY, vtxStdZ},
-                          Pythia8Generator::makeFunction(hardCfg, logLevel)}};
-  evgenCfg.output        = "generated_particles";
-  evgenCfg.randomNumbers = rnd;
-
-  // Set magnetic field
-  Acts::Vector3D bField(0., 0., 2. * Acts::units::_T);
+  // Set up event generator
+  EventGenerator::Config evgen = Options::readPythia8Options(vm, logLevel);
+  evgen.output                 = "generated_event";
+  evgen.randomNumbers          = rnd;
+  sequencer.addReader(std::make_shared<EventGenerator>(evgen, logLevel));
 
   // Set up TruthVerticesToTracks converter algorithm
   TruthVerticesToTracksAlgorithm::Config trkConvConfig;
-  trkConvConfig.randomNumberSvc = rnd;
-  trkConvConfig.bField          = bField;
-  trkConvConfig.input           = evgenCfg.output;
+  trkConvConfig.input           = evgen.output;
   trkConvConfig.output          = "all_tracks";
+  trkConvConfig.randomNumberSvc = rnd;
+  trkConvConfig.bField          = {0_T, 0_T, 2_T};
+  sequencer.addAlgorithm(std::make_shared<TruthVerticesToTracksAlgorithm>(
+      trkConvConfig, logLevel));
 
   // Set up track selector
   TrackSelector::Config selectorConfig;
   selectorConfig.input       = trkConvConfig.output;
   selectorConfig.output      = "selected_tracks";
   selectorConfig.absEtaMax   = 2.5;
-  selectorConfig.rhoMax      = 4 * Acts::units::_mm;
-  selectorConfig.ptMin       = 400. * Acts::units::_MeV;
+  selectorConfig.rhoMax      = 4_mm;
+  selectorConfig.ptMin       = 400_MeV;
   selectorConfig.keepNeutral = false;
+  sequencer.addAlgorithm(
+      std::make_shared<TrackSelector>(selectorConfig, logLevel));
 
   // Add the fit algorithm with Billoir fitter
   FWE::VertexFitAlgorithm::Config vertexFitCfg;
   vertexFitCfg.trackCollection = selectorConfig.output;
-  vertexFitCfg.bField          = bField;
-
-  Sequencer::Config sequencerCfg = Options::readSequencerConfig(vm);
-  Sequencer         sequencer(sequencerCfg);
-
-  sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
-
-  sequencer.addAlgorithm(std::make_shared<TruthVerticesToTracksAlgorithm>(
-      trkConvConfig, logLevel));
-
-  sequencer.addAlgorithm(
-      std::make_shared<TrackSelector>(selectorConfig, logLevel));
-
+  vertexFitCfg.bField          = trkConvConfig.bField;
   sequencer.addAlgorithm(
       std::make_shared<FWE::VertexFitAlgorithm>(vertexFitCfg, logLevel));
 

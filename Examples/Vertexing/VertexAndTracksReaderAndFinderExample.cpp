@@ -62,8 +62,8 @@ main(int argc, char* argv[])
   Sequencer::Config sequencerCfg = Options::readSequencerConfig(vm);
   Sequencer         sequencer(sequencerCfg);
 
-  sequencer.addReader(
-      std::make_shared<RootVertexAndTracksReader>(vtxAndTracksReaderCfg));
+  sequencer.addReader(std::make_shared<RootVertexAndTracksReader>(
+      vtxAndTracksReaderCfg, logLevel));
 
   sequencer.addAlgorithm(std::make_shared<FWE::VertexFindingAlgorithm>(
       vertexFindingCfg, logLevel));
