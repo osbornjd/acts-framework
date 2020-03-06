@@ -15,48 +15,54 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 
+#include "ACTFW/Utilities/GroupBy.hpp"
 #include "ACTFW/Utilities/Range.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
 
 namespace FW {
 namespace detail {
-  struct CompareGeometryId
+  // extract the geometry identifier from a variety of types
+  struct GeometryIdGetter
   {
-    // indicate allowed transparent comparisons between ids and full objects
-    using is_transparent = void;
-    // support direct comparision with geometry ids
+    // explicit geometry identifier are just forwarded
     constexpr Acts::GeometryID
-    key(Acts::GeometryID geoId) const
+    operator()(Acts::GeometryID geometryId) const
     {
-      return geoId;
+      return geometryId;
     }
-    // support direct comparision with encoded geometry ids
+    // encoded geometry ids are converted back to geometry identifiers.
     constexpr Acts::GeometryID
-    key(Acts::GeometryID::Value encoded) const
+    operator()(Acts::GeometryID::Value encoded) const
     {
       return Acts::GeometryID(encoded);
     }
-    // support comparison for items in map-like structures
+    // support elements in map-like structures.
     template <typename T>
     constexpr Acts::GeometryID
-    key(const std::pair<Acts::GeometryID, T>& mapItem) const
+    operator()(const std::pair<Acts::GeometryID, T>& mapItem) const
     {
       return mapItem.first;
     }
-    // support comparison for items that implement `.geometryId()` directly
+    // support elements that implement `.geometryId()`.
     template <typename T>
     inline auto
-    key(const T& thing) const
+    operator()(const T& thing) const
         -> decltype(thing.geometryId(), Acts::GeometryID())
     {
       return thing.geometryId();
     }
-    // compare two elements using the automatic key extraction defined above
+  };
+
+  struct CompareGeometryId
+  {
+    // indicate that comparisons between keys and full objects are allowed.
+    using is_transparent = void;
+    // compare two elements using the automatic key extraction.
     template <typename Left, typename Right>
     constexpr bool
-    operator()(Left&& left, Right&& right) const
+    operator()(Left&& lhs, Right&& rhs) const
     {
-      return key(left) < key(right);
+      return GeometryIdGetter()(lhs) < GeometryIdGetter()(rhs);
     }
   };
 }  // namespace detail
@@ -161,6 +167,15 @@ selectModule(const GeometryIdMultiset<T>& container,
       container,
       Acts::GeometryID().setVolume(volume).setLayer(layer).setSensitive(
           module));
+}
+
+/// Iterate over groups of elements belonging to each module/ sensitive surface.
+template <typename T>
+inline GroupBy<detail::GeometryIdGetter,
+               typename GeometryIdMultiset<T>::const_iterator>
+groupByModule(const GeometryIdMultiset<T>& container)
+{
+  return makeGroupBy(detail::GeometryIdGetter(), container);
 }
 
 }  // namespace FW
