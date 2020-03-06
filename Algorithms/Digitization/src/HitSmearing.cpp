@@ -8,12 +8,12 @@
 
 #include "ACTFW/Digitization/HitSmearing.hpp"
 
-#include <Acts/Utilities/Definitions.hpp>
-
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/GeometryContainers.hpp"
 #include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
+#include "Acts/Utilities/Definitions.hpp"
 
 FW::HitSmearing::HitSmearing(const Config& cfg, Acts::Logging::Level lvl)
   : BareAlgorithm("HitSmearing", lvl), m_cfg(cfg)
@@ -27,16 +27,26 @@ FW::HitSmearing::HitSmearing(const Config& cfg, Acts::Logging::Level lvl)
   if ((m_cfg.sigmaLoc0 < 0) or (m_cfg.sigmaLoc1 < 0)) {
     throw std::invalid_argument("Invalid resolution setting");
   }
+  if (not m_cfg.trackingGeometry) {
+    throw std::invalid_argument("Missing tracking geometry");
+  }
   if (!m_cfg.randomNumbers) {
     throw std::invalid_argument("Missing random numbers tool");
   }
+  // fill the surface map to allow lookup by geometry id only
+  m_cfg.trackingGeometry->visitSurfaces([this](const Acts::Surface* surface) {
+    // for now we just require a valid surface
+    if (not surface) { return; }
+    this->m_surfaces.insert_or_assign(surface->geoID(), surface);
+  });
 }
 
 FW::ProcessCode
 FW::HitSmearing::execute(const AlgorithmContext& ctx) const
 {
   // setup input and output containers
-  const auto& hits = ctx.eventStore.get<SimHits>(m_cfg.inputSimulatedHits);
+  const auto& hits
+      = ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimulatedHits);
   SimSourceLinkContainer sourceLinks;
   sourceLinks.reserve(hits.size());
 
@@ -50,25 +60,33 @@ FW::HitSmearing::execute(const AlgorithmContext& ctx) const
   cov(Acts::eLOC_0, Acts::eLOC_0) = m_cfg.sigmaLoc0 * m_cfg.sigmaLoc0;
   cov(Acts::eLOC_1, Acts::eLOC_1) = m_cfg.sigmaLoc1 * m_cfg.sigmaLoc1;
 
-  for (const auto& hit : hits) {
+  for (auto&& [moduleGeoId, moduleHits] : groupByModule(hits)) {
+    // check if we should create hits for this surface
+    const auto is = m_surfaces.find(moduleGeoId);
+    if (is == m_surfaces.end()) { continue; }
 
-    // transform global position into local coordinates
-    Acts::Vector2D pos(0, 0);
-    hit.surface->globalToLocal(
-        ctx.geoContext, hit.position, hit.direction, pos);
+    // smear all truth hits for this module
+    const Acts::Surface* surface = is->second;
+    for (const auto& hit : moduleHits) {
 
-    // smear truth to create local measurement
-    Acts::BoundVector loc = Acts::BoundVector::Zero();
-    loc[Acts::eLOC_0]     = pos[0] + m_cfg.sigmaLoc0 * stdNormal(rng);
-    loc[Acts::eLOC_1]     = pos[1] + m_cfg.sigmaLoc1 * stdNormal(rng);
+      // transform global position into local coordinates
+      Acts::Vector2D pos(0, 0);
+      surface->globalToLocal(
+          ctx.geoContext, hit.position(), hit.unitDirection(), pos);
 
-    // create source link at the end of the container
-    auto it = sourceLinks.emplace_hint(sourceLinks.end(),
-                                       Data::SimSourceLink(&hit, 2, loc, cov));
-    // ensure hits and links share the same order to prevent ugly surprises
-    if (std::next(it) != sourceLinks.end()) {
-      ACTS_FATAL("The hit ordering broke. Run for your life.");
-      return ProcessCode::ABORT;
+      // smear truth to create local measurement
+      Acts::BoundVector loc = Acts::BoundVector::Zero();
+      loc[Acts::eLOC_0]     = pos[0] + m_cfg.sigmaLoc0 * stdNormal(rng);
+      loc[Acts::eLOC_1]     = pos[1] + m_cfg.sigmaLoc1 * stdNormal(rng);
+
+      // create source link at the end of the container
+      auto it = sourceLinks.emplace_hint(
+          sourceLinks.end(), *surface, hit, 2, loc, cov);
+      // ensure hits and links share the same order to prevent ugly surprises
+      if (std::next(it) != sourceLinks.end()) {
+        ACTS_FATAL("The hit ordering broke. Run for your life.");
+        return ProcessCode::ABORT;
+      }
     }
   }
 
