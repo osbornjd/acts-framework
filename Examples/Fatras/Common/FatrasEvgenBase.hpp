@@ -13,11 +13,13 @@
 #include "ACTFW/Utilities/OptionsFwd.hpp"
 
 namespace FW {
+
 class Sequencer;
 class RandomNumbers;
-}  // namespace FW
 
 void
-setupEvgenInput(boost::program_options::variables_map& vm,
-                FW::Sequencer&                         sequencer,
-                std::shared_ptr<FW::RandomNumbers>     randomNumberSvc);
+setupEvgenInput(const Options::Variables&            variables,
+                Sequencer&                           sequencer,
+                std::shared_ptr<const RandomNumbers> randomNumbers);
+
+}  // namespace FW
