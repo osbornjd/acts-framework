@@ -15,6 +15,7 @@
 #include <limits>
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"
+#include "ACTFW/Utilities/OptionsFwd.hpp"
 
 namespace FW {
 
@@ -49,6 +50,13 @@ public:
     /// Remove neutral particles.
     bool removeNeutral = false;
   };
+
+  /// Add options for the particle selector.
+  static void
+  addOptions(Options::Description& desc);
+  /// Construct particle selector config from user variables.
+  static Config
+  readConfig(const Options::Variables& vars);
 
   ParticleSelector(const Config& cfg, Acts::Logging::Level lvl);
 
