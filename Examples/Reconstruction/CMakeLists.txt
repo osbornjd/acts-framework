@@ -1,9 +1,10 @@
 add_executable(
     ActsRecTruthTracks
     RecTruthTracks.cpp)
+
 target_link_libraries(
-    ActsRecTruthTracks
-    PRIVATE
+   ActsRecTruthTracks
+   PRIVATE
       ACTFramework
       ACTFWFitting
       ACTFWGenericDetector
@@ -15,5 +16,5 @@ target_link_libraries(
 
 install(
   TARGETS
-    ActsRecTruthTracks
+   ActsRecTruthTracks
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
