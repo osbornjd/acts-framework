@@ -44,7 +44,7 @@ FW::Options::addParticleGunOptions(
       "range in which the eta parameter is simulated. Please hand over by "
       "simply seperating the values by space")(
       "pg-pt-range",
-      value<read_range>()->multitoken()->default_value({0.1, 1e3}),
+      value<read_range>()->multitoken()->default_value({1, 100}),
       "range in which the pt in [GeV] parameter is simulated. Please hand "
       "over by simply seperating the values by space")(
       "pg-pdg",
