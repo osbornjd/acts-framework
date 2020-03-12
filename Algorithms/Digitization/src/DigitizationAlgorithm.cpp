@@ -161,6 +161,9 @@ FW::DigitizationAlgorithm::execute(const AlgorithmContext& ctx) const
     }
   }
 
+  ACTS_DEBUG("digitized " << hits.size() << " hits into " << clusters.size()
+                          << " clusters");
+
   // write the clusters to the EventStore
   ctx.eventStore.add(m_cfg.outputClusters, std::move(clusters));
   return FW::ProcessCode::SUCCESS;
