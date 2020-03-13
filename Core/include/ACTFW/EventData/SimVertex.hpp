@@ -10,76 +10,63 @@
 
 #include <vector>
 
-#include <Acts/Utilities/Definitions.hpp>
-
-#include "ACTFW/EventData/Barcode.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
+#include "Acts/Utilities/Definitions.hpp"
+#include "ActsFatras/EventData/Particle.hpp"
+#include "ActsFatras/EventData/ProcessType.hpp"
 
 namespace FW {
 
-/// Value type to identify which process was used to generate the vertex.
-using process_code = unsigned int;
+/// A simultated vertex e.g. from a physics process.
+struct SimVertex
+{
+  using Scalar  = double;
+  using Vector4 = Acts::ActsVector<Scalar, 4>;
 
-namespace Data {
+  /// The vertex four-position.
+  Vector4 position4 = Vector4::Zero();
+  /// The vertex process type.
+  ActsFatras::ProcessType process = ActsFatras::ProcessType::eUndefined;
+  /// The incoming particles into the vertex
+  std::vector<ActsFatras::Particle> incoming = {};
+  /// The outgoing particles from the vertex
+  std::vector<ActsFatras::Particle> outgoing = {};
 
-  /// A simultated vertex e.g. from a physics process.
-  struct SimVertex
+  /// Construct the vertex from a position and optional process type.
+  ///
+  /// @param position4_ the vertex four-position
+  /// @param process_ the process type that generated this vertex
+  ///
+  /// Associated particles are left empty by default and must be filled by the
+  /// user after construction.
+  SimVertex(const Vector4&          position4_,
+            ActsFatras::ProcessType process_
+            = ActsFatras::ProcessType::eUndefined)
+    : position4(position4_), process(process_)
   {
-    /// TODO replace by combined 4d position
-    /// The vertex position
-    Acts::Vector3D position = Acts::Vector3D(0., 0., 0.);
-    /// An optional time stamp
-    double time = 0.;
-    /// The incoming particles into the vertex
-    std::vector<SimParticle> incoming = {};
-    /// The outgoing particles from the vertex
-    std::vector<SimParticle> outgoing = {};
-    /// An optional process code
-    process_code processCode = 9;
+  }
+  // explicitely default rule-of-five.
+  SimVertex()                 = default;
+  SimVertex(const SimVertex&) = default;
+  SimVertex(SimVertex&&)      = default;
+  SimVertex&
+  operator=(const SimVertex&)
+      = default;
+  SimVertex&
+  operator=(SimVertex&&)
+      = default;
 
-    SimVertex() = default;
-    /// @param position_ The vertex position
-    /// @param incoming_ The ingoing particles
-    /// @param outgoing_ The outgoing particles
-    /// @param process   The process code
-    /// @param time      The vertex time
-    SimVertex(const Acts::Vector3D&    position_,
-              std::vector<SimParticle> incoming_ = {},
-              std::vector<SimParticle> outgoing_ = {},
-              process_code             process   = 0,
-              double                   time      = 0.)
-      : position(position_)
-      , time(time)
-      , incoming(std::move(incoming_))
-      , outgoing(std::move(outgoing_))
-      , processCode(process)
-    {
-    }
+  /// The vertex three-position.
+  auto
+  position() const
+  {
+    return position4.head<3>();
+  }
+  /// The vertex time.
+  Scalar
+  time() const
+  {
+    return position4[3];
+  }
+};
 
-    // @todo let fatras use the member variables directly and remove the
-    //       duplicated accessors below.
-
-    /// Forward the particle access to the outgoing particles: begin
-    auto
-    outgoing_begin()
-    {
-      return outgoing.begin();
-    }
-    /// Forward the particle access to the outgoing particles: end
-    auto
-    outgoing_end()
-    {
-      return outgoing.end();
-    }
-    /// Forward the particle access to the outgoing particles: insert
-    ///
-    /// @param inparticles are the particles to be inserted
-    auto
-    outgoing_insert(const std::vector<SimParticle>& inparticles)
-    {
-      return outgoing.insert(
-          outgoing.end(), inparticles.begin(), inparticles.end());
-    }
-  };
-}  // end of namespace Data
-}  // end of namespace FW
+}  // namespace FW

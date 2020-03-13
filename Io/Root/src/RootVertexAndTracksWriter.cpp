@@ -21,8 +21,8 @@ using Acts::VectorHelpers::phi;
 
 FW::RootVertexAndTracksWriter::RootVertexAndTracksWriter(
     const FW::RootVertexAndTracksWriter::Config& cfg,
-    Acts::Logging::Level                         level)
-  : VertexAndTracksWriter(cfg.collection, "RootVertexAndTracksWriter", level)
+    Acts::Logging::Level                         lvl)
+  : WriterT(cfg.collection, "RootVertexAndTracksWriter", lvl)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
@@ -198,9 +198,9 @@ FW::RootVertexAndTracksWriter::writeT(
   for (auto& vertexAndTracks : vertexAndTracksCollection) {
 
     // Collect the vertex information
-    m_vx.push_back(vertexAndTracks.vertex.position.x());
-    m_vy.push_back(vertexAndTracks.vertex.position.y());
-    m_vz.push_back(vertexAndTracks.vertex.position.z());
+    m_vx.push_back(vertexAndTracks.vertex.position().x());
+    m_vy.push_back(vertexAndTracks.vertex.position().y());
+    m_vz.push_back(vertexAndTracks.vertex.position().z());
 
     for (auto& track : vertexAndTracks.tracks) {
       // Collect the track information

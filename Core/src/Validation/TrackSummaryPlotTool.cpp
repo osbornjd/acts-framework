@@ -8,13 +8,12 @@
 
 #include "ACTFW/Validation/TrackSummaryPlotTool.hpp"
 
-using Acts::VectorHelpers::eta;
-using Acts::VectorHelpers::perp;
+#include "Acts/Utilities/Helpers.hpp"
 
 FW::TrackSummaryPlotTool::TrackSummaryPlotTool(
     const FW::TrackSummaryPlotTool::Config& cfg,
-    Acts::Logging::Level                    level)
-  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("TrackSummaryPlotTool", level))
+    Acts::Logging::Level                    lvl)
+  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("TrackSummaryPlotTool", lvl))
 {
 }
 
@@ -85,16 +84,17 @@ FW::TrackSummaryPlotTool::write(
 void
 FW::TrackSummaryPlotTool::fill(
     TrackSummaryPlotTool::TrackSummaryPlotCache& trackSummaryPlotCache,
-    const Data::SimParticle&                     truthParticle,
-    const size_t&                                nStates,
-    const size_t&                                nMeasurements,
-    const size_t&                                nOutliers,
-    const size_t&                                nHoles) const
+    const ActsFatras::Particle&                  truthParticle,
+    size_t                                       nStates,
+    size_t                                       nMeasurements,
+    size_t                                       nOutliers,
+    size_t                                       nHoles) const
 {
-  Acts::Vector3D truthMom = truthParticle.momentum();
+  using Acts::VectorHelpers::eta;
+  using Acts::VectorHelpers::perp;
 
-  double t_eta = eta(truthMom);
-  double t_pT  = perp(truthMom);
+  const auto t_eta = eta(truthParticle.unitDirection());
+  const auto t_pT  = truthParticle.transverseMomentum();
 
   PlotHelpers::fillProf(trackSummaryPlotCache.nStates_vs_eta, t_eta, nStates);
   PlotHelpers::fillProf(

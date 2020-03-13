@@ -56,11 +56,9 @@ main(int argc, char* argv[])
   // Read some standard options
   auto logLevel  = Options::readLogLevel(vm);
   auto inputDir  = vm["input-dir"].as<std::string>();
-  auto outputDir = vm["output-dir"].as<std::string>();
+  auto outputDir = ensureWritableDirectory(vm["output-dir"].as<std::string>());
   auto rnd       = std::make_shared<FW::RandomNumbers>(
       Options::readRandomNumbersConfig(vm));
-  // ensure the output directory exists
-  ensureWritableDirectory(outputDir);
 
   // Setup detector geometry
   auto geometry         = Geometry::build(vm, detector);
@@ -70,21 +68,23 @@ main(int argc, char* argv[])
   // Setup the magnetic field
   auto magneticField = Options::readBField(vm);
 
-  // Read particles and clusters from CSV files
-  auto particleReaderCfg            = Options::readCsvParticleReaderConfig(vm);
-  particleReaderCfg.outputParticles = "truth_particles";
+  // Read particles (initial states) and clusters from CSV files
+  auto particleReader            = Options::readCsvParticleReaderConfig(vm);
+  particleReader.inputStem       = "particles_initial";
+  particleReader.outputParticles = "particles_initial";
   sequencer.addReader(
-      std::make_shared<CsvParticleReader>(particleReaderCfg, logLevel));
+      std::make_shared<CsvParticleReader>(particleReader, logLevel));
   // Read clusters from CSV files
   auto clusterReaderCfg = Options::readCsvPlanarClusterReaderConfig(vm);
-  clusterReaderCfg.trackingGeometry = trackingGeometry;
-  // TODO read truth hits
+  clusterReaderCfg.trackingGeometry      = trackingGeometry;
   clusterReaderCfg.outputClusters        = "clusters";
   clusterReaderCfg.outputHitIds          = "hit_ids";
-  clusterReaderCfg.outputHitParticlesMap = "truth_hit_particles_map";
-  clusterReaderCfg.outputSimulatedHits   = "truth_hits";
+  clusterReaderCfg.outputHitParticlesMap = "hit_particles_map";
+  clusterReaderCfg.outputSimulatedHits   = "hits";
   sequencer.addReader(
       std::make_shared<CsvPlanarClusterReader>(clusterReaderCfg, logLevel));
+
+  // TODO pre-select particles
 
   // Create smeared measurements
   HitSmearing::Config hitSmearingCfg;
@@ -93,23 +93,24 @@ main(int argc, char* argv[])
   hitSmearingCfg.sigmaLoc0          = 25_um;
   hitSmearingCfg.sigmaLoc1          = 100_um;
   hitSmearingCfg.randomNumbers      = rnd;
+  hitSmearingCfg.trackingGeometry   = trackingGeometry;
   sequencer.addAlgorithm(
       std::make_shared<HitSmearing>(hitSmearingCfg, logLevel));
 
-  // TODO pre-select particles
-
-  // The fitter needs the measurements (proto tracks) and initial track states
-  // (proto states). The elements in both collections must match and must be
-  // created from the same input particles. Create truth tracks
+  // The fitter needs the measurements (proto tracks) and initial
+  // track states (proto states). The elements in both collections
+  // must match and must be created from the same input particles.
+  const auto& inputParticles = particleReader.outputParticles;
+  // Create truth tracks
   TruthTrackFinder::Config trackFinderCfg;
-  trackFinderCfg.inputParticles       = particleReaderCfg.outputParticles;
+  trackFinderCfg.inputParticles       = inputParticles;
   trackFinderCfg.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
   trackFinderCfg.outputProtoTracks    = "prototracks";
   sequencer.addAlgorithm(
       std::make_shared<TruthTrackFinder>(trackFinderCfg, logLevel));
   // Create smeared particles states
   ParticleSmearing::Config particleSmearingCfg;
-  particleSmearingCfg.inputParticles        = particleReaderCfg.outputParticles;
+  particleSmearingCfg.inputParticles        = inputParticles;
   particleSmearingCfg.outputTrackParameters = "smearedparameters";
   particleSmearingCfg.randomNumbers         = rnd;
   // Gaussian sigmas to smear particle parameters
@@ -127,39 +128,40 @@ main(int argc, char* argv[])
       std::make_shared<ParticleSmearing>(particleSmearingCfg, logLevel));
 
   // setup the fitter
-  FittingAlgorithm::Config fitCfg;
-  fitCfg.inputSourceLinks = hitSmearingCfg.outputSourceLinks;
-  fitCfg.inputProtoTracks = trackFinderCfg.outputProtoTracks;
-  fitCfg.inputInitialTrackParameters
+  FittingAlgorithm::Config fitter;
+  fitter.inputSourceLinks = hitSmearingCfg.outputSourceLinks;
+  fitter.inputProtoTracks = trackFinderCfg.outputProtoTracks;
+  fitter.inputInitialTrackParameters
       = particleSmearingCfg.outputTrackParameters;
-  fitCfg.outputTrajectories = "trajectories";
-  fitCfg.fit                = FittingAlgorithm::makeFitterFunction(
+  fitter.outputTrajectories = "trajectories";
+  fitter.fit                = FittingAlgorithm::makeFitterFunction(
       trackingGeometry, magneticField, logLevel);
-  sequencer.addAlgorithm(std::make_shared<FittingAlgorithm>(fitCfg, logLevel));
+  sequencer.addAlgorithm(std::make_shared<FittingAlgorithm>(fitter, logLevel));
 
   // write tracks from fitting
-  RootTrajectoryWriter::Config trackWriterCfg;
-  trackWriterCfg.inputParticles    = particleReaderCfg.outputParticles;
-  trackWriterCfg.inputTrajectories = fitCfg.outputTrajectories;
-  trackWriterCfg.outputDir         = outputDir;
-  trackWriterCfg.outputFilename    = "tracks.root";
-  trackWriterCfg.outputTreename    = "tracks";
+  RootTrajectoryWriter::Config trackWriter;
+  trackWriter.inputParticles    = inputParticles;
+  trackWriter.inputTrajectories = fitter.outputTrajectories;
+  trackWriter.outputDir         = outputDir;
+  trackWriter.outputFilename    = "tracks.root";
+  trackWriter.outputTreename    = "tracks";
   sequencer.addWriter(
-      std::make_shared<RootTrajectoryWriter>(trackWriterCfg, logLevel));
+      std::make_shared<RootTrajectoryWriter>(trackWriter, logLevel));
+
   // write reconstruction performance data
-  TrackFinderPerformanceWriter::Config perFindCfg;
-  perFindCfg.inputParticles       = particleReaderCfg.outputParticles;
-  perFindCfg.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
-  perFindCfg.inputProtoTracks     = trackFinderCfg.outputProtoTracks;
-  perFindCfg.outputDir            = outputDir;
-  TrackFitterPerformanceWriter::Config perFitCfg;
-  perFitCfg.inputParticles    = particleReaderCfg.outputParticles;
-  perFitCfg.inputTrajectories = fitCfg.outputTrajectories;
-  perFitCfg.outputDir         = outputDir;
+  TrackFinderPerformanceWriter::Config perfFinder;
+  perfFinder.inputParticles       = inputParticles;
+  perfFinder.inputHitParticlesMap = clusterReaderCfg.outputHitParticlesMap;
+  perfFinder.inputProtoTracks     = trackFinderCfg.outputProtoTracks;
+  perfFinder.outputDir            = outputDir;
   sequencer.addWriter(
-      std::make_shared<TrackFinderPerformanceWriter>(perFindCfg, logLevel));
+      std::make_shared<TrackFinderPerformanceWriter>(perfFinder, logLevel));
+  TrackFitterPerformanceWriter::Config perfFitter;
+  perfFitter.inputParticles    = inputParticles;
+  perfFitter.inputTrajectories = fitter.outputTrajectories;
+  perfFitter.outputDir         = outputDir;
   sequencer.addWriter(
-      std::make_shared<TrackFitterPerformanceWriter>(perFitCfg, logLevel));
+      std::make_shared<TrackFitterPerformanceWriter>(perfFitter, logLevel));
 
   return sequencer.run();
 }

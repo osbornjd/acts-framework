@@ -28,7 +28,7 @@ namespace FW {
 /// Safe to use from multiple writer threads. To avoid thread-saftey issues,
 /// the writer must be the sole owner of the underlying file. Thus, the
 /// output file pointer can not be given from the outside.
-class RootParticleWriter final : public WriterT<SimParticles>
+class RootParticleWriter final : public WriterT<SimParticleContainer>
 {
 public:
   struct Config
@@ -62,8 +62,8 @@ protected:
   /// @param[in] ctx is the algorithm context
   /// @param[in] particles are the particle to be written
   ProcessCode
-  writeT(const AlgorithmContext& ctx,
-         const SimParticles&     particles) final override;
+  writeT(const AlgorithmContext&     ctx,
+         const SimParticleContainer& particles) final override;
 
 private:
   Config     m_cfg;
@@ -99,7 +99,8 @@ private:
   uint32_t m_vertexPrimary;
   uint32_t m_vertexSecondary;
   uint32_t m_particle;
-  uint32_t m_parentParticle;
+  uint32_t m_generation;
+  uint32_t m_subParticle;
 };
 
 }  // namespace FW

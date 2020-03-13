@@ -41,7 +41,7 @@ FW::TruthVerticesToTracksAlgorithm::execute(
 {
 
   const auto& vertexCollection
-      = context.eventStore.get<std::vector<FW::Data::SimVertex>>(m_cfg.input);
+      = context.eventStore.get<std::vector<FW::SimVertex>>(m_cfg.input);
 
   std::shared_ptr<Acts::PerigeeSurface> perigeeSurface
       = Acts::Surface::makeShared<Acts::PerigeeSurface>(m_cfg.refPosition);
@@ -80,11 +80,15 @@ FW::TruthVerticesToTracksAlgorithm::execute(
 
     // Iterate over all particle emerging from current vertex
     for (auto const& particle : vtx.outgoing) {
-      const Acts::Vector3D& ptclMom = particle.momentum();
+      const Acts::Vector3D& ptclMom
+          = particle.absMomentum() * particle.unitDirection();
 
       // Define start track params
-      Acts::CurvilinearParameters start(
-          std::nullopt, particle.position(), ptclMom, particle.q(), 0.);
+      Acts::CurvilinearParameters start(std::nullopt,
+                                        particle.position(),
+                                        ptclMom,
+                                        particle.charge(),
+                                        particle.time());
       // Run propagator
       auto result = propagator.propagate(start, *perigeeSurface, pOptions);
       if (!result.ok()) { continue; }

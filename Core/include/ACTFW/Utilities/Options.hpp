@@ -8,53 +8,62 @@
 
 #pragma once
 
-#include <array>
-#include <ostream>
+#include <iosfwd>
+#include <optional>
 #include <string>
+#include <utility>
 #include <vector>
+
+namespace FW {
+namespace Options {
+
+  /// Half open [lower,upper) interval type for user options.
+  ///
+  /// A missing limit represents an unbounded upper or lower limit. With just
+  /// one defined limit the interval is just a lower/upper bound; with both
+  /// limits undefined, the interval is unbounded everywhere and thus contains
+  /// all possible values.
+  ///
+  /// This is intended as a utility type for the user options and not as a
+  /// variable type for the configuration structs. Simple primitive types should
+  /// be preferred there.
+  struct Interval
+  {
+    std::optional<double> lower;
+    std::optional<double> upper;
+  };
+
+  /// Extract an interval from an input of the form 'lower:upper'.
+  ///
+  /// An input of the form `lower:` or `:upper` sets just one of the limits. Any
+  /// other input leads to an unbounded interval. If the input is `:SECOND` the
+  ///
+  /// @note The more common range notation uses `lower-upper` but the `-`
+  ///       separator complicates the parsing of negative values.
+  std::istream&
+  operator>>(std::istream& is, Interval& interval);
+
+  /// Print an interval as `lower:upper`.
+  std::ostream&
+  operator<<(std::ostream& os, const Interval& interval);
+
+}  // namespace Options
+}  // namespace FW
 
 using read_series  = std::vector<int>;
 using read_range   = std::vector<double>;
 using read_strings = std::vector<std::string>;
 
+// Overloads must exist in the `std` namespace so ADL-lookup can find them.
 namespace std {
-namespace detail {
-  namespace {
 
-    /// Helper function to print multiple elements in a container
-    template <typename Iterator>
-    inline std::ostream&
-    printVector(Iterator      begin,
-                Iterator      end,
-                const char*   separator,
-                std::ostream& os)
-    {
-      for (auto it = begin; it != end; ++it) {
-        if (it != begin) { os << separator; }
-        os << *it;
-      }
-      return os;
-    }
+std::ostream&
+operator<<(std::ostream& os, const read_series& vec);
 
-  }  // namespace
-}  // namespace detail
+std::ostream&
+operator<<(std::ostream& os, const read_range& vec);
 
-inline std::ostream&
-operator<<(std::ostream& os, const read_series& vec)
-{
-  return detail::printVector(vec.begin(), vec.end(), " ", os);
-}
-
-inline std::ostream&
-operator<<(std::ostream& os, const read_range& vec)
-{
-  return detail::printVector(vec.begin(), vec.end(), " ", os);
-}
-
-inline std::ostream&
-operator<<(std::ostream& os, const read_strings& vec)
-{
-  return detail::printVector(vec.begin(), vec.end(), " ", os);
-}
+std::ostream&
+operator<<(std::ostream& os, const read_strings& vec);
 
 }  // namespace std

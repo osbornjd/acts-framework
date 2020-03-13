@@ -1,11 +1,13 @@
-add_executable(ACTFWDD4hepFatrasExample DD4hepFatrasExample.cpp)
+add_executable(
+  ActsSimFatrasDD4hep
+  DD4hepFatrasExample.cpp)
 target_include_directories(
-  ACTFWDD4hepFatrasExample
+  ActsSimFatrasDD4hep
   PRIVATE ${DD4hep_INCLUDE_DIRS})
 target_link_libraries(
-  ACTFWDD4hepFatrasExample
-  PRIVATE ${_common_libraries} ACTFWDD4hepDetector ${DD4hep_LIBRARIES})
+  ActsSimFatrasDD4hep
+  PRIVATE ActsFrameworkFatrasCommon ACTFWDD4hepDetector ${DD4hep_LIBRARIES})
 
 install(
-  TARGETS ACTFWDD4hepFatrasExample
+  TARGETS ActsSimFatrasDD4hep
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

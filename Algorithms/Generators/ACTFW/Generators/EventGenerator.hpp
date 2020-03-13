@@ -14,15 +14,14 @@
 
 #include <functional>
 #include <memory>
-#include <tuple>
+#include <utility>
 #include <vector>
-
-#include <Acts/Utilities/Definitions.hpp>
-#include <Acts/Utilities/Logger.hpp>
 
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/IReader.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
+#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace FW {
 
@@ -49,8 +48,7 @@ public:
   using MultiplicityGenerator = std::function<size_t(RandomEngine&)>;
   using VertexGenerator
       = std::function<Acts::ActsVector<double, 4>(RandomEngine&)>;
-  using ProcessGenerator
-      = std::function<std::vector<Data::SimVertex>(RandomEngine&)>;
+  using ProcessGenerator = std::function<std::vector<SimVertex>(RandomEngine&)>;
   struct Generator
   {
     MultiplicityGenerator multiplicity = nullptr;
@@ -67,7 +65,7 @@ public:
     /// Shuffle generated vertices to mix generator output
     bool shuffle = false;
     /// The random number service
-    std::shared_ptr<RandomNumbers> randomNumbers = nullptr;
+    std::shared_ptr<const RandomNumbers> randomNumbers;
   };
 
   EventGenerator(const Config& cfg, Acts::Logging::Level lvl);

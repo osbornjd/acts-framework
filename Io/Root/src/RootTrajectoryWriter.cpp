@@ -11,21 +11,27 @@
 #include <ios>
 #include <stdexcept>
 
-#include <Acts/Utilities/Helpers.hpp>
 #include <TFile.h>
 #include <TTree.h>
 
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
+#include "Acts/EventData/Measurement.hpp"
+#include "Acts/EventData/MultiTrajectory.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/Utilities/Helpers.hpp"
 
 using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;
 using Acts::VectorHelpers::phi;
 using Acts::VectorHelpers::theta;
+using Measurement = Acts::
+    Measurement<FW::SimSourceLink, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>;
 
 FW::RootTrajectoryWriter::RootTrajectoryWriter(
     const FW::RootTrajectoryWriter::Config& cfg,
-    Acts::Logging::Level                    level)
-  : WriterT(cfg.inputTrajectories, "RootTrajectoryWriter", level)
+    Acts::Logging::Level                    lvl)
+  : WriterT(cfg.inputTrajectories, "RootTrajectoryWriter", lvl)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
@@ -254,7 +260,7 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
 
   // read truth particles from input collection
   const auto& particles
-      = ctx.eventStore.get<SimParticles>(m_cfg.inputParticles);
+      = ctx.eventStore.get<SimParticleContainer>(m_cfg.inputParticles);
 
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
@@ -278,8 +284,7 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
     m_nStates = traj.numStates();
 
     // Get the majority truth particle to this track
-    std::vector<ParticleHitCount> particleHitCount
-        = traj.identifyMajorityParticle();
+    const auto particleHitCount = traj.identifyMajorityParticle();
     if (not particleHitCount.empty()) {
       // Get the barcode of the majority truth particle
       m_t_barcode = particleHitCount.front().particleId.value();
@@ -289,20 +294,19 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
         const auto& particle = *ip;
         ACTS_DEBUG("Find the truth particle with barcode = " << m_t_barcode);
         // Get the truth particle info at vertex
-        Acts::Vector3D truthPos = particle.position();
-        Acts::Vector3D truthMom = particle.momentum();
-        m_t_charge              = particle.q();
-        m_t_time                = particle.time();
-        m_t_vx                  = truthPos.x();
-        m_t_vy                  = truthPos.y();
-        m_t_vz                  = truthPos.z();
-        m_t_px                  = truthMom.x();
-        m_t_py                  = truthMom.y();
-        m_t_pz                  = truthMom.z();
-        m_t_theta               = theta(truthMom);
-        m_t_phi                 = phi(truthMom);
-        m_t_pT                  = perp(truthMom);
-        m_t_eta                 = eta(truthMom);
+        const auto p = particle.absMomentum();
+        m_t_charge   = particle.charge();
+        m_t_time     = particle.time();
+        m_t_vx       = particle.position().x();
+        m_t_vy       = particle.position().y();
+        m_t_vz       = particle.position().z();
+        m_t_px       = p * particle.unitDirection().x();
+        m_t_py       = p * particle.unitDirection().y();
+        m_t_pz       = p * particle.unitDirection().z();
+        m_t_theta    = theta(particle.unitDirection());
+        m_t_phi      = phi(particle.unitDirection());
+        m_t_eta      = eta(particle.unitDirection());
+        m_t_pT       = p * perp(particle.unitDirection());
       } else {
         ACTS_WARNING("Truth particle with barcode = " << m_t_barcode
                                                       << " not found!");
@@ -376,30 +380,31 @@ FW::RootTrajectoryWriter::writeT(const AlgorithmContext&    ctx,
       m_z_hit.push_back(global.z());
 
       // get the truth hit corresponding to this trackState
-      auto truthHit = state.uncalibrated().truthHit();
+      const auto& truthHit = state.uncalibrated().truthHit();
       // get local truth position
       Acts::Vector2D truthlocal;
-      truthHit.surface->globalToLocal(
-          gctx, truthHit.position, truthHit.direction, truthlocal);
+      meas.referenceSurface().globalToLocal(
+          gctx, truthHit.position(), truthHit.unitDirection(), truthlocal);
 
       // push the truth hit info
-      m_t_x.push_back(truthHit.position.x());
-      m_t_y.push_back(truthHit.position.y());
-      m_t_z.push_back(truthHit.position.z());
-      m_t_r.push_back(perp(truthHit.position));
-      m_t_dx.push_back(truthHit.direction.x());
-      m_t_dy.push_back(truthHit.direction.y());
-      m_t_dz.push_back(truthHit.direction.z());
+      m_t_x.push_back(truthHit.position().x());
+      m_t_y.push_back(truthHit.position().y());
+      m_t_z.push_back(truthHit.position().z());
+      m_t_r.push_back(perp(truthHit.position()));
+      m_t_dx.push_back(truthHit.unitDirection().x());
+      m_t_dy.push_back(truthHit.unitDirection().y());
+      m_t_dz.push_back(truthHit.unitDirection().z());
 
       // get the truth track parameter at this track State
       float truthLOC0 = 0, truthLOC1 = 0, truthPHI = 0, truthTHETA = 0,
             truthQOP = 0, truthTIME = 0;
       truthLOC0  = truthlocal.x();
       truthLOC1  = truthlocal.y();
-      truthPHI   = phi(truthHit.particle.momentum());
-      truthTHETA = theta(truthHit.particle.momentum());
-      truthQOP   = m_t_charge / truthHit.particle.momentum().norm();
-      truthTIME  = truthHit.particle.time();
+      truthPHI   = phi(truthHit.unitDirection());
+      truthTHETA = theta(truthHit.unitDirection());
+      truthQOP
+          = m_t_charge / truthHit.momentum4Before().template head<3>().norm();
+      truthTIME = truthHit.time();
 
       // push the truth track parameter at this track State
       m_t_eLOC0.push_back(truthLOC0);

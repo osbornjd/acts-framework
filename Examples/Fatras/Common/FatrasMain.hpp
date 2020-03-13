@@ -8,16 +8,18 @@
 
 #pragma once
 
-namespace FW {
-class IBaseDetector;
-}
+#include <memory>
 
-/// @brief The Fatras example
+namespace FW {
+
+class IBaseDetector;
+
+/// Main function for running Fatras with a specific detector.
 ///
-/// This instantiates the geometry and runs fast track simultion
-///
-/// @param argc the number of argumetns of the call
-/// @param argv the argument list
-/// @param detector The detector instance
+/// @param argc number of command line arguments
+/// @param argv command line arguments
+/// @param detector detector instance
 int
-fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector);
+fatrasMain(int argc, char* argv[], std::shared_ptr<IBaseDetector> detector);
+
+}  // namespace FW

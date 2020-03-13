@@ -7,15 +7,14 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #pragma once
 
-#include <map>
 #include <memory>
 #include <string>
-
-#include <Acts/Geometry/GeometryID.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Utilities/Logger.hpp>
+#include <unordered_map>
 
 #include "ACTFW/Framework/IReader.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 class Surface;
@@ -37,13 +36,11 @@ namespace FW {
 ///     event000000002-truth.csv
 ///
 /// and each line in the file corresponds to one hit/cluster.
-class CsvPlanarClusterReader : public IReader
+class CsvPlanarClusterReader final : public IReader
 {
 public:
   struct Config
   {
-    /// Tracking geometry required to access global-to-local transforms.
-    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
     /// Where to read input files from.
     std::string inputDir;
     /// Output cluster collection.
@@ -54,6 +51,8 @@ public:
     std::string outputHitParticlesMap;
     /// Output simulated (truth) hits collection.
     std::string outputSimulatedHits;
+    /// Tracking geometry required to access global-to-local transforms.
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
   };
 
   /// Construct the cluster reader.
@@ -74,10 +73,10 @@ public:
   read(const FW::AlgorithmContext& ctx) final override;
 
 private:
-  Config                                           m_cfg;
-  std::map<Acts::GeometryID, const Acts::Surface*> m_surfaces;
-  std::pair<size_t, size_t>                        m_eventsRange;
-  std::unique_ptr<const Acts::Logger>              m_logger;
+  Config                                                     m_cfg;
+  std::unordered_map<Acts::GeometryID, const Acts::Surface*> m_surfaces;
+  std::pair<size_t, size_t>                                  m_eventsRange;
+  std::unique_ptr<const Acts::Logger>                        m_logger;
 
   const Acts::Logger&
   logger() const

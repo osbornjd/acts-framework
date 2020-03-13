@@ -11,12 +11,11 @@
 #include <cmath>
 #include <vector>
 
-#include <Acts/EventData/TrackParameters.hpp>
-#include <Acts/Utilities/detail/periodic.hpp>
-
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/Track.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/Utilities/detail/periodic.hpp"
 
 FW::ParticleSmearing::ParticleSmearing(const Config&        cfg,
                                        Acts::Logging::Level lvl)
@@ -37,7 +36,7 @@ FW::ParticleSmearing::execute(const AlgorithmContext& ctx) const
 
   // setup input and output containers
   const auto& particles
-      = ctx.eventStore.get<SimParticles>(m_cfg.inputParticles);
+      = ctx.eventStore.get<SimParticleContainer>(m_cfg.inputParticles);
   TrackParametersContainer parameters;
   parameters.reserve(particles.size());
 
@@ -46,10 +45,10 @@ FW::ParticleSmearing::execute(const AlgorithmContext& ctx) const
   std::normal_distribution<double> stdNormal(0.0, 1.0);
 
   for (const auto& particle : particles) {
-    const auto pt    = particle.pT();
-    const auto p     = particle.p();
-    const auto theta = vh::theta(particle.momentum());
-    const auto phi   = vh::phi(particle.momentum());
+    const auto pt    = particle.transverseMomentum();
+    const auto p     = particle.absMomentum();
+    const auto theta = vh::theta(particle.unitDirection());
+    const auto phi   = vh::phi(particle.unitDirection());
 
     // compute momentum-dependent resolutions
     const auto sigmaD0 = m_cfg.sigmaD0
@@ -104,7 +103,7 @@ FW::ParticleSmearing::execute(const AlgorithmContext& ctx) const
     cov(Acts::eT, Acts::eT)         = sigmaT0 * sigmaT0;
 
     parameters.emplace_back(
-        std::make_optional(std::move(cov)), pos, mom, particle.q(), time);
+        std::make_optional(std::move(cov)), pos, mom, particle.charge(), time);
   };
 
   ctx.eventStore.add(m_cfg.outputTrackParameters, std::move(parameters));

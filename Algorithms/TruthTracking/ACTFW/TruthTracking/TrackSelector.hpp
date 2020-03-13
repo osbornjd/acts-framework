@@ -9,13 +9,14 @@
 #pragma once
 
 #include <limits>
+#include <string>
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 
 namespace FW {
 
 /// Select tracks by applying some selection cuts.
-class TrackSelector : public BareAlgorithm
+class TrackSelector final : public BareAlgorithm
 {
 public:
   struct Config
@@ -45,7 +46,7 @@ public:
                 Acts::Logging::Level level = Acts::Logging::INFO);
 
   ProcessCode
-  execute(const AlgorithmContext& ctx) const;
+  execute(const AlgorithmContext& ctx) const final override;
 
 private:
   Config m_cfg;

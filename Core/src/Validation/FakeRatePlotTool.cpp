@@ -8,14 +8,16 @@
 
 #include "ACTFW/Validation/FakeRatePlotTool.hpp"
 
+#include "Acts/Utilities/Helpers.hpp"
+
 using Acts::VectorHelpers::eta;
 using Acts::VectorHelpers::perp;
 using Acts::VectorHelpers::phi;
 using Acts::VectorHelpers::theta;
 
 FW::FakeRatePlotTool::FakeRatePlotTool(const FW::FakeRatePlotTool::Config& cfg,
-                                       Acts::Logging::Level level)
-  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("FakeRatePlotTool", level))
+                                       Acts::Logging::Level                lvl)
+  : m_cfg(cfg), m_logger(Acts::getDefaultLogger("FakeRatePlotTool", lvl))
 {
 }
 
@@ -93,13 +95,12 @@ FW::FakeRatePlotTool::write(
 void
 FW::FakeRatePlotTool::fill(
     FakeRatePlotTool::FakeRatePlotCache& fakeRatePlotCache,
-    const Data::SimParticle&             truthParticle,
+    const ActsFatras::Particle&          truthParticle,
     bool                                 status) const
 {
-  Acts::Vector3D truthMom = truthParticle.momentum();
-  double         t_phi    = phi(truthMom);
-  double         t_eta    = eta(truthMom);
-  double         t_pT     = perp(truthMom);
+  const auto t_phi = phi(truthParticle.unitDirection());
+  const auto t_eta = eta(truthParticle.unitDirection());
+  const auto t_pT  = truthParticle.transverseMomentum();
 
   PlotHelpers::fillEff(fakeRatePlotCache.fakerate_vs_pT, t_pT, status);
   PlotHelpers::fillEff(fakeRatePlotCache.fakerate_vs_eta, t_eta, status);
@@ -109,14 +110,13 @@ FW::FakeRatePlotTool::fill(
 void
 FW::FakeRatePlotTool::fill(
     FakeRatePlotTool::FakeRatePlotCache& fakeRatePlotCache,
-    const Data::SimParticle&             truthParticle,
-    const size_t&                        nTruthMatchedTracks,
-    const size_t&                        nFakeTracks) const
+    const ActsFatras::Particle&          truthParticle,
+    size_t                               nTruthMatchedTracks,
+    size_t                               nFakeTracks) const
 {
-  Acts::Vector3D truthMom = truthParticle.momentum();
-  double         t_phi    = phi(truthMom);
-  double         t_eta    = eta(truthMom);
-  double         t_pT     = perp(truthMom);
+  const auto t_phi = phi(truthParticle.unitDirection());
+  const auto t_eta = eta(truthParticle.unitDirection());
+  const auto t_pT  = truthParticle.transverseMomentum();
 
   PlotHelpers::fillHisto(fakeRatePlotCache.nRecoTracks,
                          nTruthMatchedTracks + nFakeTracks);

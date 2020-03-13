@@ -31,7 +31,7 @@ namespace FW {
 ///     ...
 ///
 /// and each line in the file corresponds to one particle.
-class CsvParticleWriter : public WriterT<SimParticles>
+class CsvParticleWriter final : public WriterT<SimParticleContainer>
 {
 public:
   struct Config
@@ -59,7 +59,7 @@ protected:
   /// @param[in] particles are the particle to be written
   ProcessCode
   writeT(const FW::AlgorithmContext& ctx,
-         const SimParticles&         particles) final override;
+         const SimParticleContainer& particles) final override;
 
 private:
   Config m_cfg;  //!< Nested configuration struct

@@ -20,7 +20,7 @@ namespace FW {
 ///
 /// Only considers the track finding itself, i.e. grouping of hits into tracks,
 /// and computes relevant per-track and per-particles statistics.
-class TrackFinderPerformanceWriter : public WriterT<ProtoTrackContainer>
+class TrackFinderPerformanceWriter final : public WriterT<ProtoTrackContainer>
 {
 public:
   struct Config
@@ -37,7 +37,7 @@ public:
     std::string outputFilename = "performance_track_finder.root";
   };
 
-  TrackFinderPerformanceWriter(const Config& cfg, Acts::Logging::Level level);
+  TrackFinderPerformanceWriter(Config cfg, Acts::Logging::Level lvl);
   ~TrackFinderPerformanceWriter();
 
   ProcessCode

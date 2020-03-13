@@ -8,10 +8,10 @@
 
 #include <memory>
 
-#include <Acts/EventData/TrackParameters.hpp>
 #include <boost/program_options.hpp>
 
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Generators/FlattenEvent.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Generators/Pythia8ProcessGenerator.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
@@ -22,7 +22,9 @@
 #include "ACTFW/TruthTracking/TruthVerticesToTracks.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "ACTFW/Vertexing/VertexFindingAlgorithm.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
 
+using namespace Acts::UnitLiterals;
 using namespace FW;
 
 /// Main vertex finder example executable
@@ -41,64 +43,53 @@ main(int argc, char* argv[])
   auto vm = Options::parse(desc, argc, argv);
   if (vm.empty()) { return EXIT_FAILURE; }
 
+  // basic setup
   auto logLevel = Options::readLogLevel(vm);
+  auto rnd
+      = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
+  Sequencer sequencer(Options::readSequencerConfig(vm));
 
-  // basic services
-  auto rndCfg = Options::readRandomNumbersConfig(vm);
-  auto rnd    = std::make_shared<RandomNumbers>(rndCfg);
-
-  // Set up event generator producing one single hard collision
-  EventGenerator::Config evgenCfg = Options::readPythia8Options(vm, logLevel);
-  evgenCfg.output                 = "generated_particles";
-  evgenCfg.randomNumbers          = rnd;
+  // Set up event generator
+  EventGenerator::Config evgen = Options::readPythia8Options(vm, logLevel);
+  evgen.output                 = "event";
+  evgen.randomNumbers          = rnd;
+  sequencer.addReader(std::make_shared<EventGenerator>(evgen, logLevel));
 
   ParticleSelector::Config ptcSelectorCfg;
-  ptcSelectorCfg.input       = evgenCfg.output;
-  ptcSelectorCfg.output      = "selected_particles";
-  ptcSelectorCfg.absEtaMax   = 2.5;
-  ptcSelectorCfg.rhoMax      = 4 * Acts::units::_mm;
-  ptcSelectorCfg.ptMin       = 400. * Acts::units::_MeV;
-  ptcSelectorCfg.keepNeutral = false;
-
-  // Set magnetic field
-  Acts::Vector3D bField(0., 0., 1. * Acts::units::_T);
+  ptcSelectorCfg.inputEvent    = evgen.output;
+  ptcSelectorCfg.outputEvent   = "event_selected";
+  ptcSelectorCfg.absEtaMax     = 2.5;
+  ptcSelectorCfg.rhoMax        = 4_mm;
+  ptcSelectorCfg.ptMin         = 400_MeV;
+  ptcSelectorCfg.removeNeutral = true;
+  sequencer.addAlgorithm(
+      std::make_shared<ParticleSelector>(ptcSelectorCfg, logLevel));
 
   // Set up TruthVerticesToTracks converter algorithm
   TruthVerticesToTracksAlgorithm::Config trkConvConfig;
+  trkConvConfig.input           = ptcSelectorCfg.outputEvent;
+  trkConvConfig.output          = "tracks";
   trkConvConfig.doSmearing      = true;
   trkConvConfig.randomNumberSvc = rnd;
-  trkConvConfig.bField          = bField;
-  trkConvConfig.input           = ptcSelectorCfg.output;
-  trkConvConfig.output          = "all_tracks";
+  trkConvConfig.bField          = {0_T, 0_T, 1_T};
+  sequencer.addAlgorithm(std::make_shared<TruthVerticesToTracksAlgorithm>(
+      trkConvConfig, logLevel));
 
   // Set up track selector
   TrackSelector::Config selectorConfig;
   selectorConfig.input       = trkConvConfig.output;
-  selectorConfig.output      = "selectedTracks";
+  selectorConfig.output      = "tracks_selected";
   selectorConfig.absEtaMax   = 2.5;
-  selectorConfig.rhoMax      = 4 * Acts::units::_mm;
-  selectorConfig.ptMin       = 400. * Acts::units::_MeV;
+  selectorConfig.rhoMax      = 4_mm;
+  selectorConfig.ptMin       = 400_MeV;
   selectorConfig.keepNeutral = false;
+  sequencer.addAlgorithm(
+      std::make_shared<TrackSelector>(selectorConfig, logLevel));
 
   // Add the finding algorithm
   FWE::VertexFindingAlgorithm::Config vertexFindingCfg;
   vertexFindingCfg.trackCollection = selectorConfig.output;
-  vertexFindingCfg.bField          = bField;
-
-  Sequencer::Config sequencerCfg = Options::readSequencerConfig(vm);
-  Sequencer         sequencer(sequencerCfg);
-
-  sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
-
-  sequencer.addAlgorithm(
-      std::make_shared<ParticleSelector>(ptcSelectorCfg, logLevel));
-
-  sequencer.addAlgorithm(std::make_shared<TruthVerticesToTracksAlgorithm>(
-      trkConvConfig, logLevel));
-
-  sequencer.addAlgorithm(
-      std::make_shared<TrackSelector>(selectorConfig, logLevel));
-
+  vertexFindingCfg.bField          = trkConvConfig.bField;
   sequencer.addAlgorithm(std::make_shared<FWE::VertexFindingAlgorithm>(
       vertexFindingCfg, logLevel));
 

@@ -28,7 +28,7 @@ namespace FW {
 /// Safe to use from multiple writer threads. To avoid thread-saftey issues,
 /// the writer must be the sole owner of the underlying file. Thus, the
 /// output file pointer can not be given from the outside.
-class RootSimHitWriter : public WriterT<SimHits>
+class RootSimHitWriter final : public WriterT<SimHitContainer>
 {
 public:
   struct Config
@@ -50,7 +50,7 @@ public:
   RootSimHitWriter(const Config& cfg, Acts::Logging::Level lvl);
 
   /// Ensure underlying file is closed.
-  ~RootSimHitWriter() override;
+  ~RootSimHitWriter() final override;
 
   /// End-of-run hook
   ProcessCode
@@ -62,7 +62,8 @@ protected:
   /// @param[in] ctx is the algorithm context
   /// @param[in] hits are the hits to be written
   ProcessCode
-  writeT(const AlgorithmContext& ctx, const SimHits& hits) final override;
+  writeT(const AlgorithmContext& ctx,
+         const SimHitContainer&  hits) final override;
 
 private:
   Config     m_cfg;
@@ -71,10 +72,10 @@ private:
   TTree*     m_outputTree = nullptr;
   /// Event identifier.
   uint32_t m_eventId;
-  /// Event-unique particle identifier a.k.a. barcode.
-  uint64_t m_particleId;
   /// Hit surface identifier.
   uint64_t m_geometryId;
+  /// Event-unique particle identifier a.k.a. barcode.
+  uint64_t m_particleId;
   /// True global hit position components in mm.
   float m_tx, m_ty, m_tz;
   // True global hit time in ns.

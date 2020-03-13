@@ -31,7 +31,7 @@ FW::CsvParticleWriter::CsvParticleWriter(
 
 FW::ProcessCode
 FW::CsvParticleWriter::writeT(const FW::AlgorithmContext& ctx,
-                              const SimParticles&         particles)
+                              const SimParticleContainer& particles)
 {
   auto pathParticles = perEventFilepath(
       m_cfg.outputDir, m_cfg.outputStem + ".csv", ctx.eventNumber);
@@ -40,18 +40,19 @@ FW::CsvParticleWriter::writeT(const FW::AlgorithmContext& ctx,
 
   ParticleData data;
   for (const auto& particle : particles) {
-    data.particle_id   = particle.barcode().value();
+    data.particle_id   = particle.particleId().value();
     data.particle_type = particle.pdg();
-    data.process       = particle.barcode().process();
-    data.vx            = particle.position().x() / Acts::UnitConstants::mm;
-    data.vy            = particle.position().y() / Acts::UnitConstants::mm;
-    data.vz            = particle.position().z() / Acts::UnitConstants::mm;
-    data.vt            = particle.time() / Acts::UnitConstants::ns;
-    data.px            = particle.momentum().x() / Acts::UnitConstants::GeV;
-    data.py            = particle.momentum().y() / Acts::UnitConstants::GeV;
-    data.pz            = particle.momentum().z() / Acts::UnitConstants::GeV;
-    data.m             = particle.m() / Acts::UnitConstants::GeV;
-    data.q             = particle.q() / Acts::UnitConstants::e;
+    data.process = static_cast<decltype(data.process)>(particle.process());
+    data.vx      = particle.position().x() / Acts::UnitConstants::mm;
+    data.vy      = particle.position().y() / Acts::UnitConstants::mm;
+    data.vz      = particle.position().z() / Acts::UnitConstants::mm;
+    data.vt      = particle.time() / Acts::UnitConstants::ns;
+    const auto p = particle.absMomentum() / Acts::UnitConstants::GeV;
+    data.px      = p * particle.unitDirection().x();
+    data.py      = p * particle.unitDirection().y();
+    data.pz      = p * particle.unitDirection().z();
+    data.m       = particle.mass() / Acts::UnitConstants::GeV;
+    data.q       = particle.charge() / Acts::UnitConstants::e;
     writer.append(data);
   }
 

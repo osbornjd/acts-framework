@@ -11,10 +11,9 @@
 #include <limits>
 #include <string>
 
-#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
-
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/GeometryContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 
 namespace FW {
 
@@ -34,7 +33,7 @@ namespace FW {
 ///     ...
 ///
 /// and each line in the file corresponds to one hit/cluster.
-class CsvPlanarClusterWriter
+class CsvPlanarClusterWriter final
   : public WriterT<GeometryIdMultimap<Acts::PlanarModuleCluster>>
 {
 public:
@@ -42,6 +41,8 @@ public:
   {
     /// Which cluster collection to write.
     std::string inputClusters;
+    /// Which simulated (truth) hits collection to use.
+    std::string inputSimulatedHits;
     /// Where to place output files
     std::string outputDir;
     /// Number of decimal digits for floating point precision in output.

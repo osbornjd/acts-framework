@@ -12,12 +12,20 @@
 
 #include "ACTFW/Utilities/OptionsFwd.hpp"
 
+namespace Acts {
+class TrackingGeometry;
+}
+
 namespace FW {
+
 class Sequencer;
 class RandomNumbers;
-}  // namespace FW
 
 void
-setupDigitization(FW::Options::Variables&            vars,
-                  FW::Sequencer&                     sequencer,
-                  std::shared_ptr<FW::RandomNumbers> randomNumbers);
+setupDigitization(
+    Options::Variables&                           variables,
+    Sequencer&                                    sequencer,
+    std::shared_ptr<const RandomNumbers>          randomNumbers,
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry);
+
+}  // namespace FW

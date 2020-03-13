@@ -10,19 +10,22 @@
 
 #include "ACTFW/Plugins/HepMC3/HepMC3Vertex.hpp"
 
-std::unique_ptr<FW::Data::SimParticle>
+std::unique_ptr<FW::SimParticle>
 FW::HepMC3Particle::particle(
     const std::shared_ptr<HepMC3::GenParticle> particle)
 {
-  return std::move(std::make_unique<Data::SimParticle>(
-      Data::SimParticle({0., 0., 0.},
-                        {particle->momentum().x(),
-                         particle->momentum().y(),
-                         particle->momentum().z()},
-                        particle->generated_mass(),
-                        HepPID::charge(particle->pid()),
-                        particle->pid(),
-                        particle->id())));
+  // TODO this is probably not quite right
+  ActsFatras::Barcode particleId;
+  particleId.setParticle(particle->id());
+  SimParticle fw(particleId,
+                 static_cast<Acts::PdgParticle>(particle->pid()),
+                 HepPID::charge(particle->pid()),
+                 particle->generated_mass());
+  fw.setDirection(particle->momentum().x(),
+                  particle->momentum().y(),
+                  particle->momentum().z());
+  fw.setAbsMomentum(particle->momentum().p3mod());
+  return std::make_unique<SimParticle>(std::move(fw));
 }
 
 int
@@ -31,7 +34,7 @@ FW::HepMC3Particle::id(const std::shared_ptr<HepMC3::GenParticle> particle)
   return particle->id();
 }
 
-std::unique_ptr<FW::Data::SimVertex>
+std::unique_ptr<FW::SimVertex>
 FW::HepMC3Particle::productionVertex(
     const std::shared_ptr<HepMC3::GenParticle> particle)
 {
@@ -45,7 +48,7 @@ FW::HepMC3Particle::productionVertex(
     return nullptr;
 }
 
-std::unique_ptr<FW::Data::SimVertex>
+std::unique_ptr<FW::SimVertex>
 FW::HepMC3Particle::endVertex(
     const std::shared_ptr<HepMC3::GenParticle> particle)
 {

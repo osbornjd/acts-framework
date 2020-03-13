@@ -10,7 +10,7 @@
 
 #include <fstream>
 
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/GeometryContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 

@@ -39,8 +39,8 @@ FW::RootSimHitWriter::RootSimHitWriter(const FW::RootSimHitWriter::Config& cfg,
 
   // setup the branches
   m_outputTree->Branch("event_id", &m_eventId);
-  m_outputTree->Branch("particle_id", &m_particleId, "particle_id/l");
   m_outputTree->Branch("geometry_id", &m_geometryId, "geometry_id/l");
+  m_outputTree->Branch("particle_id", &m_particleId, "particle_id/l");
   m_outputTree->Branch("tx", &m_tx);
   m_outputTree->Branch("ty", &m_ty);
   m_outputTree->Branch("tz", &m_tz);
@@ -79,8 +79,8 @@ FW::RootSimHitWriter::endRun()
 }
 
 FW::ProcessCode
-FW::RootSimHitWriter::writeT(const AlgorithmContext& ctx,
-                             const FW::SimHits&      hits)
+FW::RootSimHitWriter::writeT(const AlgorithmContext&    ctx,
+                             const FW::SimHitContainer& hits)
 {
   if (not m_outputFile) {
     ACTS_ERROR("Missing output file");
@@ -93,31 +93,32 @@ FW::RootSimHitWriter::writeT(const AlgorithmContext& ctx,
   // Get the event number
   m_eventId = ctx.eventNumber;
   for (const auto& hit : hits) {
-    m_particleId = hit.particle.barcode().value();
-    m_geometryId = hit.geometryId.value();
+    m_particleId = hit.particleId().value();
+    m_geometryId = hit.geometryId().value();
     // write hit position
-    m_tx = hit.position.x() / Acts::UnitConstants::mm;
-    m_ty = hit.position.y() / Acts::UnitConstants::mm;
-    m_tz = hit.position.z() / Acts::UnitConstants::mm;
-    m_tt = hit.time / Acts::UnitConstants::ns;
-    // TODO use correct momentum/energy values before interaction
-    m_tpx = hit.direction.x();
-    m_tpy = hit.direction.y();
-    m_tpz = hit.direction.z();
-    m_te  = 0.0f / Acts::UnitConstants::GeV;
-    // TODO write four-momentum change
-    m_deltapx = 0.0f / Acts::UnitConstants::GeV;
-    m_deltapy = 0.0f / Acts::UnitConstants::GeV;
-    m_deltapz = 0.0f / Acts::UnitConstants::GeV;
-    m_deltae  = 0.0f / Acts::UnitConstants::GeV;
-    // TODO write hit index
-    m_index = -1;
+    m_tx = hit.position4().x() / Acts::UnitConstants::mm;
+    m_ty = hit.position4().y() / Acts::UnitConstants::mm;
+    m_tz = hit.position4().z() / Acts::UnitConstants::mm;
+    m_tt = hit.position4().w() / Acts::UnitConstants::ns;
+    // write four-momentum before interaction
+    m_tpx = hit.momentum4Before().x() / Acts::UnitConstants::GeV;
+    m_tpy = hit.momentum4Before().y() / Acts::UnitConstants::GeV;
+    m_tpz = hit.momentum4Before().z() / Acts::UnitConstants::GeV;
+    m_te  = hit.momentum4Before().w() / Acts::UnitConstants::GeV;
+    // write four-momentum change due to interaction
+    const auto delta4 = hit.momentum4After() - hit.momentum4Before();
+    m_deltapx         = delta4.x() / Acts::UnitConstants::GeV;
+    m_deltapy         = delta4.y() / Acts::UnitConstants::GeV;
+    m_deltapz         = delta4.z() / Acts::UnitConstants::GeV;
+    m_deltae          = delta4.w() / Acts::UnitConstants::GeV;
+    // write hit index along trajectory
+    m_index = hit.index();
     // decoded geometry for simplicity
-    m_volumeId    = hit.geoId().volume();
-    m_boundaryId  = hit.geoId().boundary();
-    m_layerId     = hit.geoId().layer();
-    m_approachId  = hit.geoId().approach();
-    m_sensitiveId = hit.geoId().sensitive();
+    m_volumeId    = hit.geometryId().volume();
+    m_boundaryId  = hit.geometryId().boundary();
+    m_layerId     = hit.geometryId().layer();
+    m_approachId  = hit.geometryId().approach();
+    m_sensitiveId = hit.geometryId().sensitive();
     // Fill the tree
     m_outputTree->Fill();
   }

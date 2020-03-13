@@ -6,9 +6,10 @@ target_link_libraries(
    ActsRecTruthTracks
    PRIVATE
       ACTFramework
+      ACTFWExamplesCommon
+      ACTFWDigitization
       ACTFWFitting
       ACTFWGenericDetector
-      ACTFWExamplesCommon
       ACTFWBFieldPlugin
       ActsFrameworkTruthTracking
       ActsFrameworkIoCsv

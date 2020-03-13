@@ -9,15 +9,13 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 
-#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Utilities/Helpers.hpp"
-#include "Acts/EventData/MultiTrajectory.hpp"
 #include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "Acts/Utilities/ParameterDefinitions.hpp"
+#include "ActsFatras/EventData/Particle.hpp"
 
 namespace FW {
 
@@ -85,8 +83,7 @@ public:
   ///
   /// @param cfg Configuration struct
   /// @param level Message level declaration
-  ResPlotTool(const Config&        cfg,
-              Acts::Logging::Level level = Acts::Logging::INFO);
+  ResPlotTool(const Config& cfg, Acts::Logging::Level lvl);
 
   /// @brief book the histograms
   /// @param resPlotCache the cache for residual/pull histograms
@@ -101,7 +98,7 @@ public:
   void
   fill(ResPlotCache&                resPlotCache,
        const Acts::GeometryContext& gctx,
-       const Data::SimParticle&     truthParticle,
+       const ActsFatras::Particle&  truthParticle,
        const Acts::BoundParameters& fittedParamters) const;
 
   /// @brief extract the details of the residual/pull plots and fill details

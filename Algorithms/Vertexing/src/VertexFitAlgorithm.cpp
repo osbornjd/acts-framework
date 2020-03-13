@@ -97,13 +97,13 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& ctx) const
     }
 
     ACTS_INFO("Fitted Vertex: "
-              << "(" << fittedVertex.position()[0] << ","
-              << fittedVertex.position()[1] << "," << fittedVertex.position()[2]
-              << ")");
+              << "(" << fittedVertex.position().x() << ","
+              << fittedVertex.position().y() << ","
+              << fittedVertex.position().z() << ")");
     ACTS_INFO("Truth Vertex: "
-              << "(" << vertexAndTracks.vertex.position[0] << ","
-              << vertexAndTracks.vertex.position[1] << ","
-              << vertexAndTracks.vertex.position[2] << ")");
+              << "(" << vertexAndTracks.vertex.position().x() << ","
+              << vertexAndTracks.vertex.position().y() << ","
+              << vertexAndTracks.vertex.position().z() << ")");
   }
 
   return FW::ProcessCode::SUCCESS;

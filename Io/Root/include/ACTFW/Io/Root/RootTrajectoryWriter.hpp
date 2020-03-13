@@ -9,27 +9,16 @@
 #pragma once
 
 #include <mutex>
-#include "ACTFW/EventData/Barcode.hpp"
-#include "ACTFW/EventData/DataContainers.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimSourceLink.hpp"
-#include "ACTFW/EventData/SimVertex.hpp"
+#include <vector>
+
 #include "ACTFW/EventData/Track.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
-#include "Acts/EventData/Measurement.hpp"
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Utilities/ParameterDefinitions.hpp"
 
 class TFile;
 class TTree;
 
 namespace FW {
-
-using Identifier = Data::SimSourceLink;
-using Measurement
-    = Acts::Measurement<Identifier, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>;
 
 /// @class RootTrajectoryWriter
 ///
@@ -65,11 +54,10 @@ public:
   ///
   /// @param cfg Configuration struct
   /// @param level Message level declaration
-  RootTrajectoryWriter(const Config&        cfg,
-                       Acts::Logging::Level level = Acts::Logging::INFO);
+  RootTrajectoryWriter(const Config& cfg, Acts::Logging::Level lvl);
 
   /// Virtual destructor
-  ~RootTrajectoryWriter() override;
+  ~RootTrajectoryWriter() final override;
 
   /// End-of-run hook
   ProcessCode

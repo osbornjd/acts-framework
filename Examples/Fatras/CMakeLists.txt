@@ -1,42 +1,35 @@
-set(_common_libraries
-  ActsCore
-  ActsFatras
-  ACTFramework
-  ACTFWBFieldPlugin
-  ActsFrameworkIoCsv
-  ACTFWDigitization
-  ACTFWExamplesCommon
-  ACTFWFatras
-  ACTFWFitting
-  ACTFWObjPlugin
-  ActsFrameworkIoRoot
-  ActsFrameworkGenerators
-  ActsFrameworkPythia8
-  Boost::program_options)
+# Common library that implements the core functionality
+add_subdirectory(Common)
 
 # Generic detector
-add_executable(ACTFWGenericFatrasExample GenericFatrasExample.cpp)
+add_executable(
+  ActsSimFatrasGeneric
+  GenericFatrasExample.cpp)
 target_link_libraries(
-  ACTFWGenericFatrasExample
-  PRIVATE ${_common_libraries} ACTFWGenericDetector)
+  ActsSimFatrasGeneric
+  PRIVATE ActsFrameworkFatrasCommon ACTFWGenericDetector)
 
 # Generic detector with IOV based alignment
-add_executable(ACTFWAlignedFatrasExample AlignedFatrasExample.cpp)
+add_executable(
+  ActsSimFatrasAligned
+  AlignedFatrasExample.cpp)
 target_link_libraries(
-  ACTFWAlignedFatrasExample
-  PRIVATE ${_common_libraries} ACTFWContextualDetector)
+  ActsSimFatrasAligned
+  PRIVATE ActsFrameworkFatrasCommon ACTFWContextualDetector)
 
 # Generic detector with Payload based alignment
-add_executable(ACTFWPayloadFatrasExample PayloadFatrasExample.cpp)
+add_executable(
+  ActsSimFatrasPayload
+  PayloadFatrasExample.cpp)
 target_link_libraries(
-  ACTFWPayloadFatrasExample
-  PRIVATE ${_common_libraries} ACTFWContextualDetector)
+  ActsSimFatrasPayload
+  PRIVATE ActsFrameworkFatrasCommon ACTFWContextualDetector)
 
 install(
   TARGETS
-    ACTFWGenericFatrasExample
-    ACTFWAlignedFatrasExample
-    ACTFWPayloadFatrasExample
+    ActsSimFatrasGeneric
+    ActsSimFatrasAligned
+    ActsSimFatrasPayload
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_subdirectory_if(DD4hep USE_DD4HEP)

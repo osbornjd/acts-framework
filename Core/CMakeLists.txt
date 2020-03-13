@@ -4,6 +4,7 @@ add_library(ACTFramework SHARED
   src/Framework/RandomNumbers.cpp
   src/Framework/Sequencer.cpp
   src/Utilities/Paths.cpp
+  src/Utilities/Options.cpp
   src/Utilities/Helpers.cpp
   src/Validation/EffPlotTool.cpp
   src/Validation/FakeRatePlotTool.cpp
@@ -16,7 +17,7 @@ target_include_directories(
   PRIVATE ${TBB_INCLUDE_DIRS})
 target_link_libraries(
   ACTFramework
-  PUBLIC ActsCore Boost::boost ROOT::Core ROOT::Hist
+  PUBLIC ActsCore ActsFatras Boost::boost ROOT::Core ROOT::Hist
   PRIVATE ${TBB_LIBRARIES} Boost::filesystem dfelibs)
 target_compile_definitions(
   ACTFramework
