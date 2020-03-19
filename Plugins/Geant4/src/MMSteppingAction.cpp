@@ -23,7 +23,7 @@ FW::Geant4::MMSteppingAction::Instance()
 }
 
 FW::Geant4::MMSteppingAction::MMSteppingAction()
-  : G4UserSteppingAction(), m_steps()
+  : G4UserSteppingAction(), m_steps(), m_tracksteps()
 // m_volMgr(MaterialRunAction::Instance()->getGeant4VolumeManager())
 {
   if (fgInstance) {
@@ -84,6 +84,44 @@ FW::Geant4::MMSteppingAction::UserSteppingAction(const G4Step* step)
     mInteraction.materialProperties
         = Acts::MaterialProperties(X0, L0, A, Z, rho, steplength);
     m_steps.push_back(mInteraction);
+
+    // Get the track associated to the step
+    G4Track*    track   = step->GetTrack();
+    const auto& trkPos  = track->GetPosition();
+    const auto& trkTime = track->GetGlobalTime();
+    // Get the particle from the track
+    const auto& par     = track->GetDynamicParticle();
+    std::string parName = track->GetDefinition()->GetParticleName();
+    const auto& par4Mom = par->Get4Momentum();
+
+    if (track->GetTrackID() == 1) {  // only consider primary tracks
+      /*G4cout <<
+  "px: " << par4Mom.px() << "\t" <<
+  "py: " << par4Mom.py() << "\t" <<
+  "pz: " << par4Mom.pz() << "\t" <<
+  "e: " << par4Mom.e() << G4endl;
+
+      G4cout <<
+  "x: " << trkPos.x() << "\t" <<
+  "y: " << trkPos.y() << "\t" <<
+  "z: " << trkPos.z() << "\t" <<
+  "t: " << trkTime << G4endl;
+      */
+
+      m_tracksteps.emplace_back(
+          0,
+          0,  // set Acts::GeometryID = 0 and Barcode = 0
+          Acts::ActsVectorD<4>(trkPos.x() * Acts::UnitConstants::mm,
+                               trkPos.y() * Acts::UnitConstants::mm,
+                               trkPos.z() * Acts::UnitConstants::mm,
+                               trkTime * Acts::UnitConstants::ns),  // pos4
+          Acts::ActsVectorD<4>(par4Mom.px() * Acts::UnitConstants::MeV,
+                               par4Mom.py() * Acts::UnitConstants::MeV,
+                               par4Mom.pz() * Acts::UnitConstants::MeV,
+                               par4Mom.e()
+                                   * Acts::UnitConstants::MeV),  // before4
+          Acts::ActsVectorD<4>(0, 0, 0, 0));                     // after4
+    }
   }
 }
 
