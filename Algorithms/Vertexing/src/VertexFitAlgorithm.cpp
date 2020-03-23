@@ -61,7 +61,12 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       m_cfg.trackCollection);
   for (auto& vertexAndTracks : input) {
 
-    auto& inputTrackCollection = vertexAndTracks.tracks;
+    const auto& inputTrackCollection = vertexAndTracks.tracks;
+
+    std::vector<const Acts::BoundParameters*> inputTrackPtrCollection;
+    for (const auto& trk : inputTrackCollection) {
+      inputTrackPtrCollection.push_back(&trk);
+    }
 
     Acts::Vertex<TrackParameters> fittedVertex;
     if (!m_cfg.doConstrainedFit) {
@@ -70,7 +75,7 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       VertexFitterOptions vfOptions(ctx.geoContext, ctx.magFieldContext);
 
       auto fitRes
-          = vertexFitter.fit(inputTrackCollection, linearizer, vfOptions);
+          = vertexFitter.fit(inputTrackPtrCollection, linearizer, vfOptions);
       if (fitRes.ok()) {
         fittedVertex = *fitRes;
       } else {
@@ -87,8 +92,8 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       VertexFitterOptions vfOptionsConstr(
           ctx.geoContext, ctx.magFieldContext, theConstraint);
 
-      auto fitRes
-          = vertexFitter.fit(inputTrackCollection, linearizer, vfOptionsConstr);
+      auto fitRes = vertexFitter.fit(
+          inputTrackPtrCollection, linearizer, vfOptionsConstr);
       if (fitRes.ok()) {
         fittedVertex = *fitRes;
       } else {
