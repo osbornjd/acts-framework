@@ -113,8 +113,13 @@ FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
                                 vertexAndTracks.tracks.end());
   }
 
+  std::vector<const Acts::BoundParameters*> inputTrackPtrCollection;
+  for (const auto& trk : inputTrackCollection) {
+    inputTrackPtrCollection.push_back(&trk);
+  }
+
   // Find vertices
-  auto res = finder.find(inputTrackCollection, finderOpts);
+  auto res = finder.find(inputTrackPtrCollection, finderOpts);
 
   if (res.ok()) {
     // Retrieve vertices found by vertex finder
