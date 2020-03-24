@@ -1,6 +1,6 @@
 [submodule "acts-core"]
 	path = external/acts-core
-	url = https://github.com/osbornjd/acts-core.git
+	url = https://github.com/sPHENIX-Collaboration/acts-core.git
 [submodule "acts-fatras"]
 	path = external/acts-fatras
 	url = https://github.com/sPHENIX-Collaboration/acts-fatras.git
