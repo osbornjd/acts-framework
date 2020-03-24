@@ -1,5 +1,6 @@
 add_library(
   ACTFWFitting SHARED
+  src/TrkrClusterFittingAlgorithmFitterFunction.cpp
   src/FittingAlgorithm.cpp
   src/FittingAlgorithmFitterFunction.cpp)
 target_include_directories(
