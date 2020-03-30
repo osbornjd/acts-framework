@@ -8,13 +8,12 @@
 
 #include "PrintParticles.hpp"
 
-#include <vector>
-
-#include <Acts/Utilities/Logger.hpp>
-#include <Acts/Utilities/Units.hpp>
-
-#include "ACTFW/EventData/SimVertex.hpp"
+#include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Utilities/Logger.hpp"
+#include "Acts/Utilities/Units.hpp"
+#include "ActsFatras/Utilities/ParticleData.hpp"
 
 FW::PrintParticles::PrintParticles(const Config& cfg, Acts::Logging::Level lvl)
   : BareAlgorithm("PrintParticles", lvl), m_cfg(cfg)
@@ -25,21 +24,18 @@ FW::ProcessCode
 FW::PrintParticles::execute(const FW::AlgorithmContext& ctx) const
 {
   using namespace Acts::UnitLiterals;
-  using Event = std::vector<Data::SimVertex>;
 
-  const auto& event = ctx.eventStore.get<Event>(m_cfg.inputEvent);
+  const auto& particles
+      = ctx.eventStore.get<SimParticleContainer>(m_cfg.inputParticles);
 
-  ACTS_INFO("event=" << ctx.eventNumber);
-
-  for (size_t ivtx = 0; ivtx < event.size(); ++ivtx) {
-    const auto& vtx = event[ivtx];
-
-    ACTS_INFO("vertex idx=" << ivtx);
-
-    for (const auto& prt : vtx.outgoing) {
-      ACTS_INFO("  barcode=" << prt.barcode() << " pdg=" << prt.pdg()
-                             << " pt=" << prt.pT() / 1_GeV << "GeV");
-    }
+  for (const auto& particle : particles) {
+    ACTS_INFO(
+        "evt=" << ctx.eventNumber << " pid=" << particle.particleId()
+               << " pdg=" << particle.pdg() << " phi="
+               << Acts::VectorHelpers::phi(particle.unitDirection()) / 1_degree
+               << "deg"
+               << " eta=" << Acts::VectorHelpers::eta(particle.unitDirection())
+               << " p=" << particle.absMomentum() / 1_GeV << "GeV");
   }
   return ProcessCode::SUCCESS;
 }

@@ -18,8 +18,6 @@ class TTree;
 
 namespace FW {
 
-using VertexAndTracksWriter = WriterT<std::vector<VertexAndTracks>>;
-
 /// Write out vertices together with associated tracks into a TTree
 ///
 /// Safe to use from multiple writer threads - uses a std::mutex lock.
@@ -28,7 +26,8 @@ using VertexAndTracksWriter = WriterT<std::vector<VertexAndTracks>>;
 /// this is done by setting the Config::rootFile pointer to an existing file
 ///
 /// Safe to use from multiple writer threads - uses a std::mutex lock.
-class RootVertexAndTracksWriter final : public VertexAndTracksWriter
+class RootVertexAndTracksWriter final
+  : public WriterT<std::vector<VertexAndTracks>>
 {
 public:
   /// @brief The nested configuration struct
@@ -44,12 +43,11 @@ public:
   /// Constructor
   ///
   /// @param cfg Configuration struct
-  /// @param level Message level declaration
-  RootVertexAndTracksWriter(const Config&        cfg,
-                            Acts::Logging::Level level = Acts::Logging::INFO);
+  /// @param lvl Message level declaration
+  RootVertexAndTracksWriter(const Config& cfg, Acts::Logging::Level lvl);
 
   /// Virtual destructor
-  ~RootVertexAndTracksWriter() override;
+  ~RootVertexAndTracksWriter() final override;
 
   /// End-of-run hook
   ProcessCode

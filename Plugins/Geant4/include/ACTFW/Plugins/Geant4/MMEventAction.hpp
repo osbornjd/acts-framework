@@ -13,6 +13,7 @@
 #pragma once
 
 #include <memory>
+#include "ACTFW/EventData/SimHit.hpp"
 #include "Acts/Propagator/MaterialInteractor.hpp"
 #include "G4UserEventAction.hh"
 #include "globals.hh"
@@ -66,12 +67,17 @@ namespace Geant4 {
     std::vector<Acts::RecordedMaterialTrack> const
     MaterialTracks();
 
+    //  Access the step sim hit info
+    FW::SimHitContainer const
+    TrackSteps();
+
   private:
     /// Instance of the EventAction
     static MMEventAction* fgInstance;
 
     /// The materialTrackWriter
     std::vector<Acts::RecordedMaterialTrack> m_records;
+    FW::SimHitContainer                      m_tracksteps;
   };
 
   inline std::vector<Acts::RecordedMaterialTrack> const
@@ -81,5 +87,12 @@ namespace Geant4 {
     m_records.clear();
     return rrecords;
   }
+
+  inline FW::SimHitContainer const
+  MMEventAction::TrackSteps()
+  {
+    return m_tracksteps;
+  }
+
 }  // namespace Geant4
 }  // namespace FW

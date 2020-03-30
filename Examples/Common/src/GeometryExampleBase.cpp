@@ -141,8 +141,8 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
       tgCsvWriterConfig.trackingGeometry = tGeometry;
       tgCsvWriterConfig.outputDir        = outputDir;
       tgCsvWriterConfig.writePerEvent    = true;
-      auto tgCsvWriter
-          = std::make_shared<FW::CsvTrackingGeometryWriter>(tgCsvWriterConfig);
+      auto tgCsvWriter = std::make_shared<FW::CsvTrackingGeometryWriter>(
+          tgCsvWriterConfig, logLevel);
 
       // Write the tracking geometry object
       tgCsvWriter->write(context);
@@ -177,7 +177,8 @@ processGeometry(int argc, char* argv[], FW::IBaseDetector& detector)
       jmConverterCfg.processVolumes
           = vm["mat-output-volumes"].template as<bool>();
       jmConverterCfg.writeData = vm["mat-output-data"].template as<bool>();
-
+      jmConverterCfg.processnonmaterial
+          = vm["mat-output-allsurfaces"].template as<bool>();
       // The writer
       FW::Json::JsonMaterialWriter jmwImpl(std::move(jmConverterCfg),
                                            materialFileName + ".json");

@@ -11,35 +11,34 @@
 #include <ios>
 #include <stdexcept>
 
-#include <Acts/Plugins/Digitization/DigitizationModule.hpp>
-#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
-#include <Acts/Plugins/Digitization/Segmentation.hpp>
-#include <Acts/Plugins/Identification/IdentifiedDetectorElement.hpp>
-#include <Acts/Utilities/Units.hpp>
 #include <TFile.h>
 #include <TTree.h>
 
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/SimHit.hpp"
 #include "ACTFW/EventData/SimIdentifier.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
+#include "Acts/Plugins/Digitization/DigitizationModule.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
+#include "Acts/Plugins/Digitization/Segmentation.hpp"
+#include "Acts/Plugins/Identification/IdentifiedDetectorElement.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 FW::RootPlanarClusterWriter::RootPlanarClusterWriter(
     const FW::RootPlanarClusterWriter::Config& cfg,
-    Acts::Logging::Level                       level)
-  : WriterT(cfg.collection, "RootPlanarClusterWriter", level)
+    Acts::Logging::Level                       lvl)
+  : WriterT(cfg.inputClusters, "RootPlanarClusterWriter", lvl)
   , m_cfg(cfg)
   , m_outputFile(cfg.rootFile)
 {
-  // An input collection name and tree name must be specified
-  if (m_cfg.collection.empty()) {
-    throw std::invalid_argument("Missing input collection");
-  } else if (m_cfg.treeName.empty()) {
+  // inputClusters is already checked by base constructor
+  if (m_cfg.inputSimulatedHits.empty()) {
+    throw std::invalid_argument("Missing simulated hits input collection");
+  }
+  if (m_cfg.treeName.empty()) {
     throw std::invalid_argument("Missing tree name");
   }
-
   // Setup ROOT I/O
   if (m_outputFile == nullptr) {
     m_outputFile = TFile::Open(m_cfg.filePath.c_str(), m_cfg.fileMode.c_str());
@@ -98,13 +97,17 @@ FW::RootPlanarClusterWriter::endRun()
 
 FW::ProcessCode
 FW::RootPlanarClusterWriter::writeT(
-    const AlgorithmContext&                                  context,
+    const AlgorithmContext&                                  ctx,
     const FW::GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
 {
+  // retrieve simulated hits
+  const auto& simHits
+      = ctx.eventStore.get<SimHitContainer>(m_cfg.inputSimulatedHits);
+
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
   // Get the event number
-  m_eventNr = context.eventNumber;
+  m_eventNr = ctx.eventNumber;
 
   // Loop over the planar clusters in this event
   for (const auto& entry : clusters) {
@@ -121,7 +124,7 @@ FW::RootPlanarClusterWriter::writeT(
     // the cluster surface
     const auto& clusterSurface = cluster.referenceSurface();
     // transform local into global position information
-    clusterSurface.localToGlobal(context.geoContext, local, mom, pos);
+    clusterSurface.localToGlobal(ctx.geoContext, local, mom, pos);
     // identification
     m_volumeID  = geoId.volume();
     m_layerID   = geoId.layer();
@@ -154,27 +157,28 @@ FW::RootPlanarClusterWriter::writeT(
         m_cell_ly.push_back(cellLocalPosition.y());
       }
     }
-    // get the truth parameters
-    /// Hit identifier
-    auto hitIdentifier = cluster.sourceLink();
     // write hit-particle truth association
     // each hit can have multiple particles, e.g. in a dense environment
-    for (auto& sParticle : hitIdentifier.truthParticles()) {
-      // positon
-      const Acts::Vector3D& sPosition = sParticle->position();
-      const Acts::Vector3D& sMomentum = sParticle->momentum();
+    for (auto idx : cluster.sourceLink().indices()) {
+      auto it = simHits.nth(idx);
+      if (it == simHits.end()) {
+        ACTS_FATAL("Simulation hit with index " << idx << " does not exist");
+        return ProcessCode::ABORT;
+      }
+      const auto& simHit = *it;
+
       // local position to be calculated
       Acts::Vector2D lPosition;
       clusterSurface.globalToLocal(
-          context.geoContext, sPosition, sMomentum, lPosition);
+          ctx.geoContext, simHit.position(), simHit.unitDirection(), lPosition);
       // fill the variables
-      m_t_gx.push_back(sPosition.x());
-      m_t_gy.push_back(sPosition.y());
-      m_t_gz.push_back(sPosition.z());
-      m_t_gt.push_back(sParticle->time());
+      m_t_gx.push_back(simHit.position().x());
+      m_t_gy.push_back(simHit.position().y());
+      m_t_gz.push_back(simHit.position().z());
+      m_t_gt.push_back(simHit.time());
       m_t_lx.push_back(lPosition.x());
       m_t_ly.push_back(lPosition.y());
-      m_t_barcode.push_back(sParticle->barcode().value());
+      m_t_barcode.push_back(simHit.particleId().value());
     }
     // fill the tree
     m_outputTree->Fill();

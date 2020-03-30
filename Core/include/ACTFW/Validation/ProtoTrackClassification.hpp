@@ -8,26 +8,28 @@
 
 #pragma once
 
+#include <cstddef>
 #include <utility>
 #include <vector>
 
-#include "ACTFW/EventData/Barcode.hpp"
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/IndexContainers.hpp"
 #include "ACTFW/EventData/ProtoTrack.hpp"
+#include "ActsFatras/EventData/Barcode.hpp"
 
 namespace FW {
 
 /// Associate a particle to its hit count within a proto track.
 struct ParticleHitCount
 {
-  Barcode particleId;
-  size_t  hitCount;
+  ActsFatras::Barcode particleId;
+  std::size_t         hitCount;
 };
 
 /// Identify all particles that contribute to the proto track and count hits.
 void
-identifyContributingParticles(const IndexMultimap<Barcode>&  hitParticlesMap,
-                              const ProtoTrack&              protoTrack,
-                              std::vector<ParticleHitCount>& particleHitCount);
+identifyContributingParticles(
+    const IndexMultimap<ActsFatras::Barcode>& hitParticlesMap,
+    const ProtoTrack&                         protoTrack,
+    std::vector<ParticleHitCount>&            particleHitCount);
 
 }  // namespace FW

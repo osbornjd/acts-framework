@@ -13,6 +13,7 @@
 #pragma once
 
 #include <vector>
+#include "ACTFW/EventData/SimHit.hpp"
 #include "Acts/Propagator/MaterialInteractor.hpp"
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
@@ -58,12 +59,21 @@ namespace Geant4 {
       return m_steps;
     }
 
+    /// Access to the collected FW::SimHitContainer entities
+    FW::SimHitContainer::sequence_type
+    trackSteps()
+    {
+      return m_tracksteps;
+    }
+
   private:
     /// Instance of the SteppingAction
     static MMSteppingAction* fgInstance;
 
     /// The collected Acts::MaterialInteraction entities
     std::vector<Acts::MaterialInteraction> m_steps = {};
+    /// The collected FW::SimHit entities
+    FW::SimHitContainer::sequence_type m_tracksteps;
   };
 
 }  // namespace Geant4

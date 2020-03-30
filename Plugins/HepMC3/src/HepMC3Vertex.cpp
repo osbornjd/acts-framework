@@ -9,13 +9,13 @@
 #include "ACTFW/Plugins/HepMC3/HepMC3Vertex.hpp"
 #include "ACTFW/Plugins/HepMC3/HepMC3Particle.hpp"
 
-std::vector<FW::Data::SimParticle>
+std::vector<FW::SimParticle>
 FW::HepMC3Vertex::genParticlesToActs(
     const std::vector<HepMC3::GenParticlePtr>& genParticles)
 {
   HepMC3Particle simPart;
 
-  std::vector<Data::SimParticle> actsParticles;
+  std::vector<SimParticle> actsParticles;
   // Translate all particles
   for (auto& genParticle : genParticles)
     actsParticles.push_back(*(
@@ -23,16 +23,17 @@ FW::HepMC3Vertex::genParticlesToActs(
   return actsParticles;
 }
 
-std::unique_ptr<FW::Data::SimVertex>
+std::unique_ptr<FW::SimVertex>
 FW::HepMC3Vertex::processVertex(const std::shared_ptr<HepMC3::GenVertex> vertex)
 {
+  SimVertex vtx({vertex->position().x(),
+                 vertex->position().y(),
+                 vertex->position().z(),
+                 vertex->position().t()});
+  vtx.incoming = genParticlesToActs(vertex->particles_in());
+  vtx.outgoing = genParticlesToActs(vertex->particles_out());
   // Create Acts vertex
-  return std::move(std::make_unique<Data::SimVertex>(Data::SimVertex(
-      {vertex->position().x(), vertex->position().y(), vertex->position().z()},
-      genParticlesToActs(vertex->particles_in()),
-      genParticlesToActs(vertex->particles_out()),
-      0,  // TODO: what does process_type?
-      vertex->position().t())));
+  return std::make_unique<SimVertex>(std::move(vtx));
 }
 
 bool
@@ -47,13 +48,13 @@ FW::HepMC3Vertex::id(const std::shared_ptr<HepMC3::GenVertex> vertex)
   return vertex->id();
 }
 
-std::vector<FW::Data::SimParticle>
+std::vector<FW::SimParticle>
 FW::HepMC3Vertex::particlesIn(const std::shared_ptr<HepMC3::GenVertex> vertex)
 {
   return genParticlesToActs(vertex->particles_in());
 }
 
-std::vector<FW::Data::SimParticle>
+std::vector<FW::SimParticle>
 FW::HepMC3Vertex::particlesOut(const std::shared_ptr<HepMC3::GenVertex> vertex)
 {
   return genParticlesToActs(vertex->particles_out());
@@ -76,32 +77,28 @@ FW::HepMC3Vertex::time(const std::shared_ptr<HepMC3::GenVertex> vertex)
 }
 
 HepMC3::GenParticlePtr
-FW::HepMC3Vertex::actsParticleToGen(
-    std::shared_ptr<Data::SimParticle> actsParticle)
+FW::HepMC3Vertex::actsParticleToGen(std::shared_ptr<SimParticle> actsParticle)
 {
   // Extract momentum and energy from Acts particle for HepMC3::FourVector
-  Acts::Vector3D mom = actsParticle->momentum();
-  double         energy
-      = sqrt(actsParticle->m() * actsParticle->m()
-             + actsParticle->momentum().dot(actsParticle->momentum()));
-  const HepMC3::FourVector vec(mom(0), mom(1), mom(2), energy);
+  const auto               mom = actsParticle->momentum4();
+  const HepMC3::FourVector vec(mom[0], mom[1], mom[2], mom[3]);
   // Create HepMC3::GenParticle
   HepMC3::GenParticle genParticle(vec, actsParticle->pdg());
-  genParticle.set_generated_mass(actsParticle->m());
+  genParticle.set_generated_mass(actsParticle->mass());
 
   return std::shared_ptr<HepMC3::GenParticle>(&genParticle);
 }
 
 void
 FW::HepMC3Vertex::addParticleIn(std::shared_ptr<HepMC3::GenVertex> vertex,
-                                std::shared_ptr<Data::SimParticle> particle)
+                                std::shared_ptr<SimParticle>       particle)
 {
   vertex->add_particle_in(actsParticleToGen(particle));
 }
 
 void
 FW::HepMC3Vertex::addParticleOut(std::shared_ptr<HepMC3::GenVertex> vertex,
-                                 std::shared_ptr<Data::SimParticle> particle)
+                                 std::shared_ptr<SimParticle>       particle)
 {
   vertex->add_particle_out(actsParticleToGen(particle));
 }
@@ -109,9 +106,9 @@ FW::HepMC3Vertex::addParticleOut(std::shared_ptr<HepMC3::GenVertex> vertex,
 HepMC3::GenParticlePtr
 FW::HepMC3Vertex::matchParticles(
     const std::vector<HepMC3::GenParticlePtr>& genParticles,
-    std::shared_ptr<Data::SimParticle>         actsParticle)
+    std::shared_ptr<SimParticle>               actsParticle)
 {
-  const auto id = actsParticle->barcode();
+  const auto id = actsParticle->particleId();
   // Search HepMC3::GenParticle with the same id as the Acts particle
   for (auto& genParticle : genParticles) {
     if (genParticle->id() == id) {
@@ -124,7 +121,7 @@ FW::HepMC3Vertex::matchParticles(
 
 void
 FW::HepMC3Vertex::removeParticleIn(std::shared_ptr<HepMC3::GenVertex> vertex,
-                                   std::shared_ptr<Data::SimParticle> particle)
+                                   std::shared_ptr<SimParticle>       particle)
 {
   // Remove particle if it exists
   if (HepMC3::GenParticlePtr genParticle
@@ -134,7 +131,7 @@ FW::HepMC3Vertex::removeParticleIn(std::shared_ptr<HepMC3::GenVertex> vertex,
 
 void
 FW::HepMC3Vertex::removeParticleOut(std::shared_ptr<HepMC3::GenVertex> vertex,
-                                    std::shared_ptr<Data::SimParticle> particle)
+                                    std::shared_ptr<SimParticle>       particle)
 {
   // Remove particle if it exists
   if (HepMC3::GenParticlePtr genParticle

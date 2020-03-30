@@ -70,6 +70,7 @@ makeRange(Iterator begin, Iterator end)
 {
   return Range<Iterator>(begin, end);
 }
+
 template <typename Iterator>
 Range<Iterator>
 makeRange(std::pair<Iterator, Iterator> range)

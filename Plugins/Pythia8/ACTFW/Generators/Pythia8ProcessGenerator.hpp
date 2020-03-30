@@ -12,12 +12,13 @@
 #include <mutex>
 #include <vector>
 
-#include <Acts/Utilities/Logger.hpp>
-#include <Acts/Utilities/Units.hpp>
 #include <Pythia8/Pythia.h>
 
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
+#include "Acts/Utilities/Logger.hpp"
+#include "Acts/Utilities/PdgParticle.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace FW {
 
@@ -26,14 +27,17 @@ class Pythia8Generator
 public:
   struct Config
   {
-    pdg_type pdgBeam0  = 2212;  ///< pdg code of incoming beam 1
-    pdg_type pdgBeam1  = 2212;  ///< pdg code of incoming beam 2
-    double   cmsEnergy = 14 * Acts::units::_TeV;  ///< center of mass energy
-    std::vector<std::string> settings
-        = {{"HardQCD:all = on"}};  ///< additional pythia settings
+    /// PDG particle number of the first incoming beam.
+    Acts::PdgParticle pdgBeam0 = Acts::PdgParticle::eProton;
+    /// PDG particle number of the second incoming beam.
+    Acts::PdgParticle pdgBeam1 = Acts::PdgParticle::eProton;
+    /// Center-of-mass energy.
+    double cmsEnergy = 14 * Acts::UnitConstants::TeV;
+    /// Additional Pythia8 settings.
+    std::vector<std::string> settings = {{"HardQCD:all = on"}};
   };
 
-  static std::function<std::vector<Data::SimVertex>(RandomEngine&)>
+  static std::function<std::vector<SimVertex>(RandomEngine&)>
   makeFunction(const Config& cfg, Acts::Logging::Level lvl);
 
   // try to prevent pythia breakage by forbidding copying
@@ -49,7 +53,7 @@ public:
 
   Pythia8Generator(const Config& cfg, Acts::Logging::Level lvl);
 
-  std::vector<Data::SimVertex>
+  std::vector<SimVertex>
   operator()(RandomEngine& rng);
 
 private:

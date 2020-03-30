@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include <Acts/Utilities/Units.hpp>
 #include <HepMC3/FourVector.h>
 #include <HepMC3/GenEvent.h>
 #include <HepMC3/GenParticle.h>
@@ -17,6 +16,7 @@
 
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 namespace FW {
 
@@ -82,16 +82,16 @@ public:
   /// @param event event in HepMC data type
   /// @param particle new particle that will be added
   void
-  addParticle(std::shared_ptr<HepMC3::GenEvent>  event,
-              std::shared_ptr<Data::SimParticle> particle);
+  addParticle(std::shared_ptr<HepMC3::GenEvent> event,
+              std::shared_ptr<SimParticle>      particle);
 
   /// @brief Adds a new vertex
   /// @param event event in HepMC data type
   /// @param vertex new vertex that will be added
   /// @note The statuses are not represented in Acts and therefore set to 0
   void
-  addVertex(std::shared_ptr<HepMC3::GenEvent>      event,
-            const std::shared_ptr<Data::SimVertex> vertex);
+  addVertex(std::shared_ptr<HepMC3::GenEvent> event,
+            const std::shared_ptr<SimVertex>  vertex);
   ///
   /// Remover
   ///
@@ -100,8 +100,8 @@ public:
   /// @param event event in HepMC data type
   /// @param particle particle that will be removed
   void
-  removeParticle(std::shared_ptr<HepMC3::GenEvent>         event,
-                 const std::shared_ptr<Data::SimParticle>& particle);
+  removeParticle(std::shared_ptr<HepMC3::GenEvent>   event,
+                 const std::shared_ptr<SimParticle>& particle);
 
   /// @brief Removes a vertex from the record
   /// @note The identification of the vertex is potentially unstable (c.f.
@@ -109,8 +109,8 @@ public:
   /// @param event event in HepMC data type
   /// @param vertex vertex that will be removed
   void
-  removeVertex(std::shared_ptr<HepMC3::GenEvent>       event,
-               const std::shared_ptr<Data::SimVertex>& vertex);
+  removeVertex(std::shared_ptr<HepMC3::GenEvent> event,
+               const std::shared_ptr<SimVertex>& vertex);
 
   ///
   /// Getter
@@ -143,41 +143,41 @@ public:
   /// @brief Get list of particles
   /// @param event event in HepMC data type
   /// @return List of particles
-  std::vector<std::unique_ptr<Data::SimParticle>>
+  std::vector<std::unique_ptr<SimParticle>>
   particles(const std::shared_ptr<HepMC3::GenEvent> event);
 
   /// @brief Get list of vertices
   /// @param event event in HepMC data type
   /// @return List of vertices
-  std::vector<std::unique_ptr<Data::SimVertex>>
+  std::vector<std::unique_ptr<SimVertex>>
   vertices(const std::shared_ptr<HepMC3::GenEvent> event);
 
   /// @brief Get beam particles
   /// @param event event in HepMC data type
   /// @return List of beam particles
-  std::vector<std::unique_ptr<Data::SimParticle>>
+  std::vector<std::unique_ptr<SimParticle>>
   beams(const std::shared_ptr<HepMC3::GenEvent> event);
 
   /// @brief Get final state particles
   /// @param event event in HepMC data type
   /// @return List of final state particles
-  std::vector<std::unique_ptr<Data::SimParticle>>
+  std::vector<std::unique_ptr<SimParticle>>
   finalState(const std::shared_ptr<HepMC3::GenEvent> event);
 
 private:
-  /// @brief Converts an Data::SimParticle into HepMC3::GenParticle
+  /// @brief Converts an SimParticle into HepMC3::GenParticle
   /// @note The conversion ignores HepMC status codes
   /// @param actsParticle Acts particle that will be converted
   /// @return converted particle
   HepMC3::GenParticlePtr
-  actsParticleToGen(std::shared_ptr<Data::SimParticle> actsParticle);
+  actsParticleToGen(std::shared_ptr<SimParticle> actsParticle);
 
   /// @brief Converts an Acts vertex to a HepMC3::GenVertexPtr
   /// @note The conversion ignores HepMC status codes
   /// @param actsVertex Acts vertex that will be converted
   /// @return Converted Acts vertex to HepMC3::GenVertexPtr
   HepMC3::GenVertexPtr
-  createGenVertex(const std::shared_ptr<Data::SimVertex>& actsVertex);
+  createGenVertex(const std::shared_ptr<SimVertex>& actsVertex);
 
   /// @brief Compares an Acts vertex with a HepMC3::GenVertex
   /// @note An Acts vertex does not store a barcode. Therefore the content of
@@ -190,7 +190,7 @@ private:
   /// @param genVertex HepMC3::GenVertex
   /// @return boolean result if both vertices are identical
   bool
-  compareVertices(const std::shared_ptr<Data::SimVertex>& actsVertex,
-                  const HepMC3::GenVertexPtr&             genVertex);
+  compareVertices(const std::shared_ptr<SimVertex>& actsVertex,
+                  const HepMC3::GenVertexPtr&       genVertex);
 };
 }  // namespace FW

@@ -13,28 +13,25 @@
 void
 FW::Options::addFatrasOptions(FW::Options::Description& desc)
 {
+  using boost::program_options::bool_switch;
   using boost::program_options::value;
 
-  desc.add_options()("fatras-sim-particles",
-                     value<std::string>()->default_value("fatras-particles"),
-                     "The collection of simulated particles.")(
-      "fatras-sim-hits",
-      value<std::string>()->default_value("fatras-hits"),
-      "The collection of simulated hits")(
-      "fatras-em-ionisation",
+  auto opt = desc.add_options();
+  opt("fatras-pmin-gev",
+      value<double>()->default_value(0.5),
+      "Minimum momentum for simulated particles in GeV");
+  opt("fatras-em-scattering",
       value<bool>()->default_value(true),
-      "Switch on ionisiation loss of charged particles")(
-      "fatras-em-radiation",
-      value<bool>()->default_value(false),
-      "Switch on radiation for charged particles")(
-      "fatras-em-scattering",
+      "Simulate multiple scattering of charged particles");
+  opt("fatras-em-ionisation",
       value<bool>()->default_value(true),
-      "Switch on multiple scattering")("fatras-em-conversions",
-                                       value<bool>()->default_value(false),
-                                       "Switch on gamma conversions")(
-      "fatras-had-interaction",
-      value<bool>()->default_value(false),
-      "Switch on hadronic interaction")("fatras-debug-output",
-                                        value<bool>()->default_value(false),
-                                        "Switch on debug output on/off");
+      "Simulate ionisiation/excitation energy loss of charged particles");
+  opt("fatras-em-radiation",
+      value<bool>()->default_value(true),
+      "Simulate radiative energy loss of charged particles");
+  opt("fatras-hits",
+      value<std::string>()
+          ->value_name("none|sensitive|material|all")
+          ->default_value("sensitive"),
+      "Which surfaces should record charged particle hits");
 }

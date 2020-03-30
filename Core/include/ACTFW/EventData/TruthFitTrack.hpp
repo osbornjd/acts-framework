@@ -11,14 +11,13 @@
 #include <optional>
 #include <utility>
 
-#include <Acts/EventData/MultiTrajectory.hpp>
-#include <Acts/EventData/TrackParameters.hpp>
+#include <boost/none.hpp>
+#include <boost/optional.hpp>
 
 #include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/Validation/ProtoTrackClassification.hpp"
-
-#include <boost/none.hpp>
-#include <boost/optional.hpp>
+#include "Acts/EventData/MultiTrajectory.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
 
 namespace FW {
 
@@ -36,8 +35,8 @@ public:
   ///
   /// @param tTip The fitted multiTrajectory entry point
   /// @param trajectory The fitted multiTrajectory
-  TruthFitTrack(size_t                                            tTip,
-                const Acts::MultiTrajectory<Data::SimSourceLink>& trajectory)
+  TruthFitTrack(size_t                                      tTip,
+                const Acts::MultiTrajectory<SimSourceLink>& trajectory)
     : m_trackTip(tTip), m_trajectory(trajectory)
   {
   }
@@ -55,15 +54,15 @@ public:
   /// @param tTip The fitted multiTrajectory entry point
   /// @param trajectory The fitted multiTrajectory
   /// @param parameter The fitted track parameter
-  TruthFitTrack(size_t                                            tTip,
-                const Acts::MultiTrajectory<Data::SimSourceLink>& trajectory,
-                const Acts::BoundParameters&                      parameter)
+  TruthFitTrack(size_t                                      tTip,
+                const Acts::MultiTrajectory<SimSourceLink>& trajectory,
+                const Acts::BoundParameters&                parameter)
     : m_trackTip(tTip), m_trajectory(trajectory), m_trackParameters(parameter)
   {
   }
 
   /// Get trajectory along with the entry point
-  const std::pair<size_t, Acts::MultiTrajectory<Data::SimSourceLink>>
+  const std::pair<size_t, Acts::MultiTrajectory<SimSourceLink>>
   trajectory() const
   {
     if (m_trajectory) {
@@ -140,11 +139,7 @@ public:
           return true;
         }
         // Find the truth particle associated with this state
-        const auto& particle = state.uncalibrated().truthHit().particle;
-
-        // Get the barcode
-        auto particleId = particle.barcode();
-
+        const auto particleId = state.uncalibrated().truthHit().particleId();
         // Find if the particle already exists
         auto it = std::find_if(particleHitCount.begin(),
                                particleHitCount.end(),
@@ -176,7 +171,7 @@ public:
 
 private:
   // The optional fitted multitrajectory
-  std::optional<Acts::MultiTrajectory<Data::SimSourceLink>> m_trajectory;
+  std::optional<Acts::MultiTrajectory<SimSourceLink>> m_trajectory;
 
   // This is the index of the 'tip' of the track stored in multitrajectory.
   size_t m_trackTip = SIZE_MAX;

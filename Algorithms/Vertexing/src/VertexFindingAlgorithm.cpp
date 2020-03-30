@@ -104,17 +104,22 @@ FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
 
   for (auto& vertexAndTracks : input) {
     ACTS_INFO("\t True vertex at ("
-              << vertexAndTracks.vertex.position[0] << ","
-              << vertexAndTracks.vertex.position[1] << ","
-              << vertexAndTracks.vertex.position[2] << ") with "
+              << vertexAndTracks.vertex.position().x() << ","
+              << vertexAndTracks.vertex.position().y() << ","
+              << vertexAndTracks.vertex.position().z() << ") with "
               << vertexAndTracks.tracks.size() << " tracks.");
     inputTrackCollection.insert(inputTrackCollection.end(),
                                 vertexAndTracks.tracks.begin(),
                                 vertexAndTracks.tracks.end());
   }
 
+  std::vector<const Acts::BoundParameters*> inputTrackPtrCollection;
+  for (const auto& trk : inputTrackCollection) {
+    inputTrackPtrCollection.push_back(&trk);
+  }
+
   // Find vertices
-  auto res = finder.find(inputTrackCollection, finderOpts);
+  auto res = finder.find(inputTrackPtrCollection, finderOpts);
 
   if (res.ok()) {
     // Retrieve vertices found by vertex finder
@@ -125,8 +130,8 @@ FWE::VertexFindingAlgorithm::execute(const FW::AlgorithmContext& ctx) const
     unsigned int count = 0;
     for (const auto& vtx : vertexCollection) {
       ACTS_INFO("\t" << ++count << ". vertex at "
-                     << "(" << vtx.position()[0] << "," << vtx.position()[1]
-                     << "," << vtx.position()[2] << ") with "
+                     << "(" << vtx.position().x() << "," << vtx.position().y()
+                     << "," << vtx.position().z() << ") with "
                      << vtx.tracks().size() << " tracks.");
     }
   } else {

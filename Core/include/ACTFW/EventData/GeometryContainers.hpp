@@ -1,6 +1,6 @@
 // This file is part of the Acts project.
 //
-// Copyright (C) 2017-2019 CERN for the benefit of the Acts project
+// Copyright (C) 2017-2020 CERN for the benefit of the Acts project
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,54 +10,59 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <map>
 #include <utility>
-#include <vector>
 
-#include <Acts/Geometry/GeometryID.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 
+#include "ACTFW/Utilities/GroupBy.hpp"
 #include "ACTFW/Utilities/Range.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 
 namespace FW {
 namespace detail {
-  struct CompareGeometryId
+  // extract the geometry identifier from a variety of types
+  struct GeometryIdGetter
   {
-    // indicate allowed transparent comparisons between ids and full objects
-    using is_transparent = void;
-    // support direct comparision with geometry ids
+    // explicit geometry identifier are just forwarded
     constexpr Acts::GeometryID
-    key(Acts::GeometryID geoId) const
+    operator()(Acts::GeometryID geometryId) const
     {
-      return geoId;
+      return geometryId;
     }
-    // support direct comparision with encoded geometry ids
+    // encoded geometry ids are converted back to geometry identifiers.
     constexpr Acts::GeometryID
-    key(Acts::GeometryID::Value encoded) const
+    operator()(Acts::GeometryID::Value encoded) const
     {
       return Acts::GeometryID(encoded);
     }
-    // support comparison for items in map-like structures
+    // support elements in map-like structures.
     template <typename T>
     constexpr Acts::GeometryID
-    key(const std::pair<Acts::GeometryID, T>& mapItem) const
+    operator()(const std::pair<Acts::GeometryID, T>& mapItem) const
     {
       return mapItem.first;
     }
-    // support comparison for items that implement `.geoId()` directly
+    // support elements that implement `.geometryId()`.
     template <typename T>
     inline auto
-    key(const T& thing) const -> decltype(thing.geoId(), Acts::GeometryID())
+    operator()(const T& thing) const
+        -> decltype(thing.geometryId(), Acts::GeometryID())
     {
-      return thing.geoId();
+      return thing.geometryId();
     }
-    // compare two elements using the automatic key extraction defined above
+  };
+
+  struct CompareGeometryId
+  {
+    // indicate that comparisons between keys and full objects are allowed.
+    using is_transparent = void;
+    // compare two elements using the automatic key extraction.
     template <typename Left, typename Right>
     constexpr bool
-    operator()(Left&& left, Right&& right) const
+    operator()(Left&& lhs, Right&& rhs) const
     {
-      return key(left) < key(right);
+      return GeometryIdGetter()(lhs) < GeometryIdGetter()(rhs);
     }
   };
 }  // namespace detail
@@ -164,34 +169,13 @@ selectModule(const GeometryIdMultiset<T>& container,
           module));
 }
 
-/// Store elements that are identified by an index, e.g. in another container.
-///
-/// Each index can have zero or more associated elements. A typical case could
-/// be to store all generating particles for a hit where the hit is identified
-/// by its index in the hit container.
-template <typename Value, typename Key = size_t>
-using IndexMultimap = boost::container::flat_multimap<Key, Value>;
-
-/// Invert the multimap, i.e. from a -> {b...} to b -> {a...}.
-///
-/// @note This assumes that the value in the initial multimap is itself a
-///       sortable index-like object, as would be the case when mapping e.g.
-///       hit ids to particle ids/ barcodes.
-template <typename Value, typename Key>
-inline IndexMultimap<Key, Value>
-invertIndexMultimap(const IndexMultimap<Value, Key>& multimap)
+/// Iterate over groups of elements belonging to each module/ sensitive surface.
+template <typename T>
+inline GroupBy<detail::GeometryIdGetter,
+               typename GeometryIdMultiset<T>::const_iterator>
+groupByModule(const GeometryIdMultiset<T>& container)
 {
-  // switch key-value without enforcing the new ordering (linear copy)
-  typename IndexMultimap<Key, Value>::sequence_type unordered;
-  unordered.reserve(multimap.size());
-  for (const auto& keyValue : multimap) {
-    // value is now the key and the key is now the value
-    unordered.emplace_back(keyValue.second, keyValue.first);
-  }
-  // adopting the unordered sequence will reestablish the correct order
-  IndexMultimap<Key, Value> inverse;
-  inverse.adopt_sequence(std::move(unordered));
-  return inverse;
+  return makeGroupBy(detail::GeometryIdGetter(), container);
 }
 
 }  // namespace FW

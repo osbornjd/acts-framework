@@ -14,21 +14,22 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Acts/Utilities/Helpers.hpp>
 #include <TFile.h>
 #include <TTree.h>
 
-#include "ACTFW/EventData/Barcode.hpp"
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/IndexContainers.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 #include "ACTFW/Utilities/Range.hpp"
 #include "ACTFW/Validation/ProtoTrackClassification.hpp"
+#include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Utilities/Units.hpp"
+#include "ActsFatras/EventData/Barcode.hpp"
 
 namespace {
-using SimParticles        = FW::SimParticles;
-using HitParticlesMap     = FW::IndexMultimap<FW::Barcode>;
-using ProtoTrackContainer = FW::ProtoTrackContainer;
+using SimParticleContainer = FW::SimParticleContainer;
+using HitParticlesMap      = FW::IndexMultimap<ActsFatras::Barcode>;
+using ProtoTrackContainer  = FW::ProtoTrackContainer;
 }  // namespace
 
 struct FW::TrackFinderPerformanceWriter::Impl
@@ -62,11 +63,15 @@ struct FW::TrackFinderPerformanceWriter::Impl
   ULong64_t prtParticleId;
   Int_t     prtParticleType;
   // particle kinematics
-  // vertex position and time
-  float prtVx, prtVy, prtVz, prtVt;
-  // particle momentum at vertex
+  // vertex position in mm
+  float prtVx, prtVy, prtVz;
+  // vertex time in ns
+  float prtVt;
+  // particle momentum at production in GeV
   float prtPx, prtPy, prtPz;
-  // particle charge
+  // particle mass in GeV
+  float prtM;
+  // particle charge in e
   float prtQ;
   // particle reconstruction
   UShort_t prtNumHits;    // number of hits for this particle
@@ -75,7 +80,7 @@ struct FW::TrackFinderPerformanceWriter::Impl
   // extra logger reference for the logging macros
   const Acts::Logger& _logger;
 
-  Impl(const Config& c, const Acts::Logger& l) : cfg(c), _logger(l)
+  Impl(Config&& c, const Acts::Logger& l) : cfg(std::move(c)), _logger(l)
   {
     if (cfg.inputParticles.empty()) {
       throw std::invalid_argument("Missing particles input collection");
@@ -121,6 +126,7 @@ struct FW::TrackFinderPerformanceWriter::Impl
     prtTree->Branch("px", &prtPx);
     prtTree->Branch("py", &prtPy);
     prtTree->Branch("pz", &prtPz);
+    prtTree->Branch("m", &prtM);
     prtTree->Branch("q", &prtQ);
     prtTree->Branch("nhits", &prtNumHits);
     prtTree->Branch("ntracks", &prtNumTracks);
@@ -134,18 +140,18 @@ struct FW::TrackFinderPerformanceWriter::Impl
   }
 
   void
-  write(uint64_t                   eventId,
-        const SimParticles&        particles,
-        const HitParticlesMap&     hitParticlesMap,
-        const ProtoTrackContainer& tracks)
+  write(uint64_t                    eventId,
+        const SimParticleContainer& particles,
+        const HitParticlesMap&      hitParticlesMap,
+        const ProtoTrackContainer&  tracks)
   {
     // compute the inverse mapping on-the-fly
     const auto& particleHitsMap = invertIndexMultimap(hitParticlesMap);
     // How often a particle was reconstructed.
-    std::unordered_map<Barcode, size_t> reconCount;
+    std::unordered_map<ActsFatras::Barcode, std::size_t> reconCount;
     reconCount.reserve(particles.size());
     // How often a particle was reconstructed as the majority particle.
-    std::unordered_map<Barcode, size_t> majorityCount;
+    std::unordered_map<ActsFatras::Barcode, std::size_t> majorityCount;
     majorityCount.reserve(particles.size());
     // For each particle within a track, how many hits did it contribute
     std::vector<ParticleHitCount> particleHitCounts;
@@ -198,26 +204,29 @@ struct FW::TrackFinderPerformanceWriter::Impl
       std::lock_guard<std::mutex> guardPrt(trkMutex);
       for (const auto& particle : particles) {
         // find all hits for this particle
-        auto hits = makeRange(particleHitsMap.equal_range(particle.barcode()));
+        auto hits
+            = makeRange(particleHitsMap.equal_range(particle.particleId()));
 
         // identification
         prtEventId      = eventId;
-        prtParticleId   = particle.barcode().value();
+        prtParticleId   = particle.particleId().value();
         prtParticleType = particle.pdg();
         // kinematics
-        prtVx = particle.position().x();
-        prtVy = particle.position().y();
-        prtVz = particle.position().z();
-        prtVt = particle.time();
-        prtPx = particle.momentum().x();
-        prtPy = particle.momentum().y();
-        prtPz = particle.momentum().z();
-        prtQ  = particle.q();
+        prtVx        = particle.position().x() / Acts::UnitConstants::mm;
+        prtVy        = particle.position().y() / Acts::UnitConstants::mm;
+        prtVz        = particle.position().z() / Acts::UnitConstants::mm;
+        prtVt        = particle.time() / Acts::UnitConstants::ns;
+        const auto p = particle.absMomentum() / Acts::UnitConstants::GeV;
+        prtPx        = p * particle.unitDirection().x();
+        prtPy        = p * particle.unitDirection().y();
+        prtPz        = p * particle.unitDirection().z();
+        prtM         = particle.mass() / Acts::UnitConstants::GeV;
+        prtQ         = particle.charge() / Acts::UnitConstants::e;
         // reconstruction
         prtNumHits           = hits.size();
-        auto nt              = reconCount.find(particle.barcode());
+        auto nt              = reconCount.find(particle.particleId());
         prtNumTracks         = (nt != reconCount.end()) ? nt->second : 0u;
-        auto nm              = majorityCount.find(particle.barcode());
+        auto nm              = majorityCount.find(particle.particleId());
         prtNumTracksMajority = (nm != majorityCount.end()) ? nm->second : 0u;
 
         prtTree->Fill();
@@ -238,10 +247,10 @@ struct FW::TrackFinderPerformanceWriter::Impl
 };
 
 FW::TrackFinderPerformanceWriter::TrackFinderPerformanceWriter(
-    const FW::TrackFinderPerformanceWriter::Config& cfg,
-    Acts::Logging::Level                            level)
-  : WriterT(cfg.inputProtoTracks, "TrackFinderPerformanceWriter", level)
-  , m_impl(std::make_unique<Impl>(cfg, logger()))
+    FW::TrackFinderPerformanceWriter::Config cfg,
+    Acts::Logging::Level                     lvl)
+  : WriterT(cfg.inputProtoTracks, "TrackFinderPerformanceWriter", lvl)
+  , m_impl(std::make_unique<Impl>(std::move(cfg), logger()))
 {
 }
 
@@ -255,7 +264,7 @@ FW::TrackFinderPerformanceWriter::writeT(const FW::AlgorithmContext&    ctx,
                                          const FW::ProtoTrackContainer& tracks)
 {
   const auto& particles
-      = ctx.eventStore.get<SimParticles>(m_impl->cfg.inputParticles);
+      = ctx.eventStore.get<SimParticleContainer>(m_impl->cfg.inputParticles);
   const auto& hitParticlesMap
       = ctx.eventStore.get<HitParticlesMap>(m_impl->cfg.inputHitParticlesMap);
   m_impl->write(ctx.eventNumber, particles, hitParticlesMap, tracks);

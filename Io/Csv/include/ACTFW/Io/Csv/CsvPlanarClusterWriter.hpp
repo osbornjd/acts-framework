@@ -8,12 +8,12 @@
 
 #pragma once
 
+#include <limits>
 #include <string>
 
-#include <Acts/Plugins/Digitization/PlanarModuleCluster.hpp>
-
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/GeometryContainers.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
+#include "Acts/Plugins/Digitization/PlanarModuleCluster.hpp"
 
 namespace FW {
 
@@ -33,7 +33,7 @@ namespace FW {
 ///     ...
 ///
 /// and each line in the file corresponds to one hit/cluster.
-class CsvPlanarClusterWriter
+class CsvPlanarClusterWriter final
   : public WriterT<GeometryIdMultimap<Acts::PlanarModuleCluster>>
 {
 public:
@@ -41,23 +41,27 @@ public:
   {
     /// Which cluster collection to write.
     std::string inputClusters;
+    /// Which simulated (truth) hits collection to use.
+    std::string inputSimulatedHits;
     /// Where to place output files
     std::string outputDir;
     /// Number of decimal digits for floating point precision in output.
-    size_t outputPrecision = 6;
+    size_t outputPrecision = std::numeric_limits<float>::max_digits10;
   };
 
-  /// Constructor with
-  /// @param cfg configuration struct
-  /// @param output logging level
-  CsvPlanarClusterWriter(const Config&        cfg,
-                         Acts::Logging::Level level = Acts::Logging::INFO);
+  /// Construct the cluster writer.
+  ///
+  /// @params cfg is the configuration object
+  /// @params lvl is the logging level
+  CsvPlanarClusterWriter(const Config& cfg, Acts::Logging::Level lvl);
 
 protected:
-  /// This implementation holds the actual writing method
-  /// and is called by the WriterT<>::write interface
+  /// Type-specific write implementation.
+  ///
+  /// @param[in] ctx is the algorithm context
+  /// @param[in] particles are the particle to be written
   ProcessCode
-  writeT(const AlgorithmContext&                              context,
+  writeT(const AlgorithmContext&                              ctx,
          const GeometryIdMultimap<Acts::PlanarModuleCluster>& clusters)
       final override;
 

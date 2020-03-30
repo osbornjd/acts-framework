@@ -6,14 +6,18 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include "FatrasMain.hpp"
+
 #include <memory>
 
 #include <boost/program_options.hpp>
 
+#include "ACTFW/Detector/IBaseDetector.hpp"
 #include "ACTFW/Fatras/FatrasOptions.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Geometry/CommonGeometry.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Options/CommonOptions.hpp"
@@ -21,14 +25,14 @@
 #include "ACTFW/Options/Pythia8Options.hpp"
 #include "ACTFW/Plugins/BField/BFieldOptions.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
-
-#include "ACTFW/Detector/IBaseDetector.hpp"
-#include "detail/FatrasDigitizationBase.hpp"
-#include "detail/FatrasEvgenBase.hpp"
-#include "detail/FatrasSimulationBase.hpp"
+#include "FatrasDigitizationBase.hpp"
+#include "FatrasEvgenBase.hpp"
+#include "FatrasSimulationBase.hpp"
 
 int
-fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
+FW::fatrasMain(int                                argc,
+               char*                              argv[],
+               std::shared_ptr<FW::IBaseDetector> detector)
 {
   using boost::program_options::value;
 
@@ -41,13 +45,14 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
   FW::Options::addPythia8Options(desc);
   FW::Options::addRandomNumbersOptions(desc);
   FW::Options::addBFieldOptions(desc);
+  FW::ParticleSelector::addOptions(desc);
   FW::Options::addFatrasOptions(desc);
   FW::Options::addOutputOptions(desc);
   desc.add_options()("evg-input-type",
                      value<std::string>()->default_value("pythia8"),
                      "Type of evgen input 'gun', 'pythia8'");
   // Add specific options for this geometry
-  detector.addOptions(desc);
+  detector->addOptions(desc);
   auto vm = FW::Options::parse(desc, argc, argv);
   if (vm.empty()) { return EXIT_FAILURE; }
 
@@ -61,7 +66,7 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
       = std::make_shared<FW::RandomNumbers>(randomNumberSvcCfg);
 
   // The geometry, material and decoration
-  auto geometry          = FW::Geometry::build(vm, detector);
+  auto geometry          = FW::Geometry::build(vm, *detector);
   auto tGeometry         = geometry.first;
   auto contextDecorators = geometry.second;
   // Add the decorator to the sequencer
@@ -76,11 +81,11 @@ fatrasExample(int argc, char* argv[], FW::IBaseDetector& detector)
 
   // (B) SIMULATION
   // Setup the simulation
-  setupSimulation(vm, sequencer, tGeometry, randomNumberSvc);
+  setupSimulation(vm, sequencer, randomNumberSvc, tGeometry);
 
   // (C) DIGITIZATION
   // Setup the digitization
-  setupDigitization(vm, sequencer, randomNumberSvc);
+  setupDigitization(vm, sequencer, randomNumberSvc, tGeometry);
 
   return sequencer.run();
 }

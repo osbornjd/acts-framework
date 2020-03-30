@@ -61,7 +61,12 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       m_cfg.trackCollection);
   for (auto& vertexAndTracks : input) {
 
-    auto& inputTrackCollection = vertexAndTracks.tracks;
+    const auto& inputTrackCollection = vertexAndTracks.tracks;
+
+    std::vector<const Acts::BoundParameters*> inputTrackPtrCollection;
+    for (const auto& trk : inputTrackCollection) {
+      inputTrackPtrCollection.push_back(&trk);
+    }
 
     Acts::Vertex<TrackParameters> fittedVertex;
     if (!m_cfg.doConstrainedFit) {
@@ -70,7 +75,7 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       VertexFitterOptions vfOptions(ctx.geoContext, ctx.magFieldContext);
 
       auto fitRes
-          = vertexFitter.fit(inputTrackCollection, linearizer, vfOptions);
+          = vertexFitter.fit(inputTrackPtrCollection, linearizer, vfOptions);
       if (fitRes.ok()) {
         fittedVertex = *fitRes;
       } else {
@@ -87,8 +92,8 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& ctx) const
       VertexFitterOptions vfOptionsConstr(
           ctx.geoContext, ctx.magFieldContext, theConstraint);
 
-      auto fitRes
-          = vertexFitter.fit(inputTrackCollection, linearizer, vfOptionsConstr);
+      auto fitRes = vertexFitter.fit(
+          inputTrackPtrCollection, linearizer, vfOptionsConstr);
       if (fitRes.ok()) {
         fittedVertex = *fitRes;
       } else {
@@ -97,13 +102,13 @@ FWE::VertexFitAlgorithm::execute(const FW::AlgorithmContext& ctx) const
     }
 
     ACTS_INFO("Fitted Vertex: "
-              << "(" << fittedVertex.position()[0] << ","
-              << fittedVertex.position()[1] << "," << fittedVertex.position()[2]
-              << ")");
+              << "(" << fittedVertex.position().x() << ","
+              << fittedVertex.position().y() << ","
+              << fittedVertex.position().z() << ")");
     ACTS_INFO("Truth Vertex: "
-              << "(" << vertexAndTracks.vertex.position[0] << ","
-              << vertexAndTracks.vertex.position[1] << ","
-              << vertexAndTracks.vertex.position[2] << ")");
+              << "(" << vertexAndTracks.vertex.position().x() << ","
+              << vertexAndTracks.vertex.position().y() << ","
+              << vertexAndTracks.vertex.position().z() << ")");
   }
 
   return FW::ProcessCode::SUCCESS;

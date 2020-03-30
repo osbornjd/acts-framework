@@ -2,9 +2,9 @@
 #
 # This script tests whether the output of a certain ACTS framework example is
 # reproducible between single-threaded and multi-threaded runs. For example,
-# "./testReproducibility.sh Extrapolation" will run the ExtrapolationExample
-# in single-threaded and multi-threaded mode and check whether the output is
-# the same aside from threading-induced event reordering.
+# "./testReproducibility.sh ACTFWGenericFatrasExample" will run the
+# ACTFWGenericFatrasExample in single-threaded and multi-threaded mode and
+# check whether the output is the same aside from threading-induced event reordering.
 #
 set -uo pipefail
 
@@ -12,16 +12,18 @@ set -uo pipefail
 ARGC=$#
 if [[ $ARGC -lt 2 ]]; then
   echo ""
-  echo " Usage: "$0" <example> <nevents> <output1> [<output2> ...]"
+  echo " Usage: "$0" <example> <flags> <output1> [<output2> ...]"
   echo ""
-  echo " <example> is the example name (which is the executable name without the leading 'ACTFW' and the trailing 'Example')"
+  echo " <example> is the executable name (e.g. ACTFWGenericFatrasExample)"
+  echo " <flags> is a string containing CLI flags (e.g. \"-n 5\")"
   echo " <outputN> is the output name (which is the output file name without the trailing '.root')"
   echo ""
   exit 42
 fi
 
 # Compute the name of the example executable
-executable="ACTFW$1Example -n $2 --output-root true"
+executable="$1 $2 --output-root true"
+echo ${executable}
 
 # Compute the output file names
 for ((i = 3; i <= $ARGC; i++)); do
@@ -48,7 +50,7 @@ for output in "${outputs[@]}"; do
 done
 
 # Run the example in single-threaded mode
-eval "ACTSFW_NUM_THREADS=1 ${executable}"
+eval "${executable} -j 1"
 result=$?
 if [[ result -ne 0 ]]; then
   echo "Single-threaded run failed!"

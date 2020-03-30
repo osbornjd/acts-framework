@@ -13,6 +13,7 @@
 
 #include "ACTFW/Framework/RandomNumbers.hpp"
 #include "ACTFW/Framework/Sequencer.hpp"
+#include "ACTFW/Generators/FlattenEvent.hpp"
 #include "ACTFW/Generators/ParticleSelector.hpp"
 #include "ACTFW/Io/Csv/CsvParticleWriter.hpp"
 #include "ACTFW/Io/Root/RootParticleWriter.hpp"
@@ -21,7 +22,7 @@
 #include "ACTFW/Printers/PrintParticles.hpp"
 #include "ACTFW/Utilities/Paths.hpp"
 
-using namespace Acts::units;
+using namespace Acts::UnitLiterals;
 using namespace FW;
 
 int
@@ -45,40 +46,47 @@ main(int argc, char* argv[])
       = std::make_shared<RandomNumbers>(Options::readRandomNumbersConfig(vm));
 
   // event generation w/ internal pythia8 instance
-  EventGenerator::Config evgenCfg = Options::readPythia8Options(vm, logLevel);
-  evgenCfg.output                 = "generated_particles";
-  evgenCfg.randomNumbers          = rnd;
-  sequencer.addReader(std::make_shared<EventGenerator>(evgenCfg, logLevel));
+  EventGenerator::Config evgen = Options::readPythia8Options(vm, logLevel);
+  evgen.output                 = "event";
+  evgen.randomNumbers          = rnd;
+  sequencer.addReader(std::make_shared<EventGenerator>(evgen, logLevel));
 
   // event selection
   ParticleSelector::Config selectorCfg;
-  selectorCfg.input  = evgenCfg.output;
-  selectorCfg.output = "selected_particles";
-  //  selectorCfg.absEtaMax = 2.0;
-  //  selectorCfg.ptMin     = 0.5 * _GeV;
-  selectorCfg.keepNeutral = false;  // retain only charged particles
+  selectorCfg.inputEvent  = evgen.output;
+  selectorCfg.outputEvent = "event_selected";
+  selectorCfg.absEtaMax   = 5.0;
+  selectorCfg.ptMin       = 250_MeV;
+  // retain only charged particles
+  selectorCfg.removeNeutral = true;
   sequencer.addAlgorithm(
       std::make_shared<ParticleSelector>(selectorCfg, logLevel));
 
+  // flatten event to just particles
+  FlattenEvent::Config flatten;
+  flatten.inputEvent      = selectorCfg.outputEvent;
+  flatten.outputParticles = "particles";
+  sequencer.addAlgorithm(std::make_shared<FlattenEvent>(flatten, logLevel));
+
   // print generated particles
   PrintParticles::Config printCfg;
-  printCfg.inputEvent = evgenCfg.output;
+  printCfg.inputParticles = flatten.outputParticles;
   sequencer.addAlgorithm(std::make_shared<PrintParticles>(printCfg, logLevel));
 
   // different output modes
-  std::string outputDir = vm["output-dir"].as<std::string>();
+  auto outputDir = ensureWritableDirectory(vm["output-dir"].as<std::string>());
   if (vm["output-csv"].as<bool>()) {
     CsvParticleWriter::Config csvWriterCfg;
-    csvWriterCfg.inputEvent = selectorCfg.output;
-    csvWriterCfg.outputDir  = outputDir;
-    csvWriterCfg.outputStem = "particles";
+    csvWriterCfg.inputParticles = flatten.outputParticles;
+    csvWriterCfg.outputDir      = outputDir;
+    csvWriterCfg.outputStem     = "particles";
     sequencer.addWriter(
         std::make_shared<CsvParticleWriter>(csvWriterCfg, logLevel));
   }
   if (vm["output-root"].as<bool>()) {
     RootParticleWriter::Config rootWriterCfg;
-    rootWriterCfg.collection = selectorCfg.output;
-    rootWriterCfg.filePath   = joinPaths(outputDir, "particles.root");
+    rootWriterCfg.inputParticles = flatten.outputParticles;
+    rootWriterCfg.filePath       = joinPaths(outputDir, "particles.root");
     sequencer.addWriter(
         std::make_shared<RootParticleWriter>(rootWriterCfg, logLevel));
   }

@@ -9,9 +9,16 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
 
 #include "ACTFW/Framework/BareAlgorithm.hpp"
 #include "ACTFW/Framework/RandomNumbers.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
+
+namespace Acts {
+class Surface;
+class TrackingGeometry;
+}  // namespace Acts
 
 namespace FW {
 
@@ -19,7 +26,7 @@ namespace FW {
 ///
 /// The truth information is smeared in the local measurement frame using
 /// Gaussian noise to generate a fittable measurement, i.e. a source link.
-class HitSmearing : public BareAlgorithm
+class HitSmearing final : public BareAlgorithm
 {
 public:
   struct Config
@@ -31,8 +38,10 @@ public:
     /// Width of the Gaussian smearing, i.e. resolution; must be positive.
     double sigmaLoc0 = -1;
     double sigmaLoc1 = -1;
+    /// Tracking geometry required to access global-to-local transforms.
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry;
     /// Random numbers tool.
-    std::shared_ptr<RandomNumbers> randomNumbers = nullptr;
+    std::shared_ptr<const RandomNumbers> randomNumbers = nullptr;
   };
 
   HitSmearing(const Config& cfg, Acts::Logging::Level lvl);
@@ -42,6 +51,8 @@ public:
 
 private:
   Config m_cfg;
+  /// Lookup container for hit surfaces that generate smeared hits
+  std::unordered_map<Acts::GeometryID, const Acts::Surface*> m_surfaces;
 };
 
 }  // namespace FW

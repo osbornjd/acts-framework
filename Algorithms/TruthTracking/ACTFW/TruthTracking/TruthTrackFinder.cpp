@@ -12,10 +12,11 @@
 #include <stdexcept>
 #include <vector>
 
-#include "ACTFW/EventData/DataContainers.hpp"
+#include "ACTFW/EventData/IndexContainers.hpp"
 #include "ACTFW/EventData/ProtoTrack.hpp"
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
+#include "ACTFW/Utilities/Range.hpp"
 
 using namespace FW;
 
@@ -36,11 +37,11 @@ TruthTrackFinder::TruthTrackFinder(const Config& cfg, Acts::Logging::Level lvl)
 ProcessCode
 TruthTrackFinder::execute(const AlgorithmContext& ctx) const
 {
-  using HitParticlesMap = IndexMultimap<Barcode>;
+  using HitParticlesMap = IndexMultimap<ActsFatras::Barcode>;
 
   // prepare input collections
   const auto& particles
-      = ctx.eventStore.get<SimParticles>(m_cfg.inputParticles);
+      = ctx.eventStore.get<SimParticleContainer>(m_cfg.inputParticles);
   const auto& hitParticlesMap
       = ctx.eventStore.get<HitParticlesMap>(m_cfg.inputHitParticlesMap);
   // compute particle_id -> {hit_id...} map from the
@@ -55,7 +56,7 @@ TruthTrackFinder::execute(const AlgorithmContext& ctx) const
   for (const auto& particle : particles) {
     // find the corresponding hits for this particle
     const auto& hits
-        = makeRange(particleHitsMap.equal_range(particle.barcode()));
+        = makeRange(particleHitsMap.equal_range(particle.particleId()));
     // fill hit indices to create the proto track
     ProtoTrack track;
     track.reserve(hits.size());

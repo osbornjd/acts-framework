@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <stdexcept>
 
-#include "ACTFW/EventData/Barcode.hpp"
 #include "ACTFW/Framework/WhiteBoard.hpp"
 
 FW::EventGenerator::EventGenerator(const Config& cfg, Acts::Logging::Level lvl)
@@ -44,11 +43,15 @@ FW::EventGenerator::availableEvents() const
 FW::ProcessCode
 FW::EventGenerator::read(const AlgorithmContext& ctx)
 {
-  std::vector<Data::SimVertex> event;
+  std::vector<SimVertex> event;
 
   auto rng = m_cfg.randomNumbers->spawnGenerator(ctx);
   // number of primary vertices within event
   size_t nPrimaryVertices = 0;
+  // number of secondary vertices associated to a primary vertex
+  size_t nSecondaryVertices = 0;
+  // number of particles associated to a vertex (primary + secondary)
+  size_t nParticlesVertex = 0;
   // total number of particles within event
   size_t nParticles = 0;
 
@@ -57,10 +60,9 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
 
     // generate the number of primary vertices from this generator
     for (size_t n = generate.multiplicity(rng); 0 < n; --n) {
-
       nPrimaryVertices += 1;
-      size_t nSecondaryVertices = 0;
-      size_t nParticlesVertex   = 0;
+      nSecondaryVertices = 0;
+      nParticlesVertex   = 0;
 
       // generate primary vertex position
       auto vertex = generate.vertex(rng);
@@ -69,27 +71,22 @@ FW::EventGenerator::read(const AlgorithmContext& ctx)
       // particles associated directly to the primary vertex itself.
       auto processVertices = generate.process(rng);
 
-      // update
       for (auto& processVertex : processVertices) {
         nSecondaryVertices += 1;
+        // shift the process vertex to the generated primary vertex position
+        processVertex.position4 += vertex;
 
-        // TODO use 4d vector in process directly
-        Acts::Vector3D vertexPosition = vertex.head<3>();
-        double         vertexTime     = vertex[3];
-        processVertex.position += vertexPosition;
-        processVertex.time += vertexTime;
-
-        auto updateParticleInPlace = [&](Data::SimParticle& particle) {
-          // move particle to the vertex
-          Acts::Vector3D particlePos  = vertexPosition + particle.position();
-          double         particleTime = vertexTime + particle.time();
+        auto updateParticleInPlace = [&](ActsFatras::Particle& particle) {
           // only set the primary vertex, leave everything else as-is
           // using the number of primary vertices as the index ensures
           // that barcode=0 is not used, since it is typically used elsewhere
           // to signify elements w/o an associated particle.
-          auto barcode = particle.barcode();
-          barcode.setVertexPrimary(nPrimaryVertices);
-          particle.place(particlePos, barcode, particleTime);
+          const auto pid = ActsFatras::Barcode(particle.particleId())
+                               .setVertexPrimary(nPrimaryVertices);
+          // move particle to the vertex
+          const auto pos4 = (vertex + particle.position4()).eval();
+          // this changes the particle identity; must reassign.
+          particle = particle.withParticleId(pid).setPosition4(pos4);
         };
 
         for (auto& particle : processVertex.incoming) {

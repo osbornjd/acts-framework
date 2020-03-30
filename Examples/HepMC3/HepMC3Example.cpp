@@ -7,6 +7,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <fstream>
+
 #include "ACTFW/EventData/SimParticle.hpp"
 #include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Plugins/HepMC3/HepMC3Event.hpp"
@@ -58,8 +59,7 @@ main(int argc, char* argv[])
   std::cout << "Event time: " << simEvent.eventTime(genevt) << std::endl;
 
   std::cout << "Beam particles: ";
-  std::vector<std::unique_ptr<FW::Data::SimParticle>> beam
-      = simEvent.beams(genevt);
+  std::vector<std::unique_ptr<FW::SimParticle>> beam = simEvent.beams(genevt);
   if (beam.empty())
     std::cout << "none" << std::endl;
   else {
@@ -69,7 +69,7 @@ main(int argc, char* argv[])
   }
 
   std::cout << std::endl << "Vertices: ";
-  std::vector<std::unique_ptr<FW::Data::SimVertex>> vertices
+  std::vector<std::unique_ptr<FW::SimVertex>> vertices
       = simEvent.vertices(genevt);
   if (vertices.empty())
     std::cout << "none" << std::endl;
@@ -81,25 +81,25 @@ main(int argc, char* argv[])
       std::cout << "-> ";
       for (auto& particle : vertex->outgoing)
         std::cout << HepPID::particleName(particle.pdg()) << " ";
-      std::cout << "\t@(" << vertex->time << ", " << vertex->position(0) << ", "
-                << vertex->position(1) << ", " << vertex->position(2) << ")"
-                << std::endl;
+      std::cout << "\t@(" << vertex->time() << ", " << vertex->position()(0)
+                << ", " << vertex->position()(1) << ", "
+                << vertex->position()(2) << ")" << std::endl;
     }
     std::cout << std::endl;
   }
 
   std::cout << "Total particle record:" << std::endl;
-  std::vector<std::unique_ptr<FW::Data::SimParticle>> particles
+  std::vector<std::unique_ptr<FW::SimParticle>> particles
       = simEvent.particles(genevt);
   for (auto& particle : particles)
     std::cout << HepPID::particleName(particle->pdg())
-              << "\tID:" << particle->barcode() << ", momentum: ("
-              << particle->momentum()(0) << ", " << particle->momentum()(1)
-              << ", " << particle->momentum()(2)
-              << "), mass:  " << particle->m() << std::endl;
+              << "\tID:" << particle->particleId() << ", momentum: ("
+              << particle->momentum4()(0) << ", " << particle->momentum4()(1)
+              << ", " << particle->momentum4()(2)
+              << "), mass:  " << particle->mass() << std::endl;
 
   std::cout << std::endl << "Initial to final state: ";
-  std::vector<std::unique_ptr<FW::Data::SimParticle>> fState
+  std::vector<std::unique_ptr<FW::SimParticle>> fState
       = simEvent.finalState(genevt);
   for (auto& pbeam : beam)
     std::cout << HepPID::particleName(pbeam->pdg()) << " ";

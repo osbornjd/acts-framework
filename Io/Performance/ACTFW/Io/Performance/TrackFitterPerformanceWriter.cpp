@@ -20,13 +20,10 @@
 using Acts::VectorHelpers::eta;
 
 FW::TrackFitterPerformanceWriter::TrackFitterPerformanceWriter(
-    const FW::TrackFitterPerformanceWriter::Config& cfg,
-    Acts::Logging::Level                            lvl)
+    FW::TrackFitterPerformanceWriter::Config cfg,
+    Acts::Logging::Level                     lvl)
   : WriterT(cfg.inputTrajectories, "TrackFitterPerformanceWriter", lvl)
-  , m_cfg(cfg)
-  , m_outputFile(
-        TFile::Open(joinPaths(cfg.outputDir, cfg.outputFilename).c_str(),
-                    "RECREATE"))
+  , m_cfg(std::move(cfg))
   , m_resPlotTool(m_cfg.resPlotToolConfig, lvl)
   , m_effPlotTool(m_cfg.effPlotToolConfig, lvl)
   , m_trackSummaryPlotTool(m_cfg.trackSummaryPlotToolConfig, lvl)
@@ -39,14 +36,14 @@ FW::TrackFitterPerformanceWriter::TrackFitterPerformanceWriter(
   if (m_cfg.inputParticles.empty()) {
     throw std::invalid_argument("Missing input particles collection");
   }
-  if (cfg.outputFilename.empty()) {
+  if (m_cfg.outputFilename.empty()) {
     throw std::invalid_argument("Missing output filename");
   }
 
   // the output file can not be given externally since TFile accesses to the
   // same file from multiple threads are unsafe.
   // must always be opened internally
-  auto path    = joinPaths(cfg.outputDir, cfg.outputFilename);
+  auto path    = joinPaths(m_cfg.outputDir, m_cfg.outputFilename);
   m_outputFile = TFile::Open(path.c_str(), "RECREATE");
   if (not m_outputFile) {
     throw std::invalid_argument("Could not open '" + path + "'");
@@ -91,13 +88,13 @@ FW::TrackFitterPerformanceWriter::writeT(
 {
   // Read truth particles from input collection
   const auto& particles
-      = ctx.eventStore.get<SimParticles>(m_cfg.inputParticles);
+      = ctx.eventStore.get<SimParticleContainer>(m_cfg.inputParticles);
 
   // Exclusive access to the tree while writing
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   // All reconstructed trajectories with truth info
-  std::map<Barcode, TruthFitTrack> reconTrajectories;
+  std::map<ActsFatras::Barcode, TruthFitTrack> reconTrajectories;
 
   // Loop over all trajectories
   for (const auto& traj : trajectories) {
@@ -105,46 +102,39 @@ FW::TrackFitterPerformanceWriter::writeT(
     const auto& [trackTip, track] = traj.trajectory();
 
     // get the majority truth particle to this track
-    std::vector<ParticleHitCount> particleHitCount
-        = traj.identifyMajorityParticle();
-    if (not particleHitCount.empty()) {
-      // get the barcode of the majority truth particle
-      auto barcode = particleHitCount.front().particleId;
-      // find the truth particle via the barcode
-      auto ip = particles.find(barcode);
-      if (ip != particles.end()) {
-        // record this trajectory with its truth info
-        reconTrajectories.emplace(ip->barcode(), traj);
+    const auto particleHitCount = traj.identifyMajorityParticle();
+    if (particleHitCount.empty()) { continue; }
 
-        // count the total number of hits and hits from the majority truth
-        // particle
-        size_t nTotalStates = 0, nHits = 0, nOutliers = 0, nHoles = 0;
-        track.visitBackwards(trackTip, [&](const auto& state) {
-          nTotalStates++;
-          auto typeFlags = state.typeFlags();
-          if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
-            nHits++;
-          } else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
-            nOutliers++;
-          } else if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
-            nHoles++;
-          }
-        });
+    // find the truth particle for the majority barcode
+    const auto ip = particles.find(particleHitCount.front().particleId);
+    if (ip == particles.end()) { continue; }
 
-        // fill the track detailed info
-        m_trackSummaryPlotTool.fill(m_trackSummaryPlotCache,
-                                    *ip,
-                                    nTotalStates,
-                                    nHits,
-                                    nOutliers,
-                                    nHoles);
+    // record this trajectory with its truth info
+    reconTrajectories.emplace(ip->particleId(), traj);
 
-        // fill the residual plots it the track has fitted parameter
-        if (traj.hasTrackParameters()) {
-          m_resPlotTool.fill(
-              m_resPlotCache, ctx.geoContext, *ip, traj.trackParameters());
-        }
+    // count the total number of hits and hits from the majority truth
+    // particle
+    size_t nTotalStates = 0, nHits = 0, nOutliers = 0, nHoles = 0;
+    track.visitBackwards(trackTip, [&](const auto& state) {
+      nTotalStates++;
+      auto typeFlags = state.typeFlags();
+      if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+        nHits++;
+      } else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
+        nOutliers++;
+      } else if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
+        nHoles++;
       }
+    });
+
+    // fill the track detailed info
+    m_trackSummaryPlotTool.fill(
+        m_trackSummaryPlotCache, *ip, nTotalStates, nHits, nOutliers, nHoles);
+
+    // fill the residual plots it the track has fitted parameter
+    if (traj.hasTrackParameters()) {
+      m_resPlotTool.fill(
+          m_resPlotCache, ctx.geoContext, *ip, traj.trackParameters());
     }
   }
 
@@ -153,8 +143,7 @@ FW::TrackFitterPerformanceWriter::writeT(
   // one truth track)
   // @Todo: add fake rate plots
   for (const auto& particle : particles) {
-    auto barcode = particle.barcode();
-    auto it      = reconTrajectories.find(barcode);
+    const auto it = reconTrajectories.find(particle.particleId());
     if (it != reconTrajectories.end()) {
       // when the trajectory is reconstructed
       m_effPlotTool.fill(

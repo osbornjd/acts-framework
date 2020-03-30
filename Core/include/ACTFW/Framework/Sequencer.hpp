@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <cstdlib>
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <utility>
@@ -35,9 +35,9 @@ public:
   struct Config
   {
     /// number of events to skip at the beginning
-    std::size_t skip = 0;
+    size_t skip = 0;
     /// number of events to process, SIZE_MAX to process all available events
-    std::size_t events = SIZE_MAX;
+    size_t events = SIZE_MAX;
     /// logging level
     Acts::Logging::Level logLevel = Acts::Logging::INFO;
     /// number of parallel threads to run, negative for automatic determination

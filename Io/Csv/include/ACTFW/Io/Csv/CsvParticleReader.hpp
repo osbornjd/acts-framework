@@ -27,21 +27,24 @@ namespace FW {
 ///
 /// and each line in the file corresponds to one particle. The
 /// input filename can be configured and defaults to `particles.csv`.
-class CsvParticleReader : public IReader
+class CsvParticleReader final : public IReader
 {
 public:
   struct Config
   {
-    /// Which particle collection to read into.
-    std::string outputParticles;
     /// Where to read input files from.
     std::string inputDir;
     /// Input filename stem.
     std::string inputStem = "particles";
+    /// Which particle collection to read into.
+    std::string outputParticles;
   };
 
-  CsvParticleReader(const Config&        cfg,
-                    Acts::Logging::Level level = Acts::Logging::INFO);
+  /// Construct the particle reader.
+  ///
+  /// @params cfg is the configuration object
+  /// @params lvl is the logging level
+  CsvParticleReader(const Config& cfg, Acts::Logging::Level lvl);
 
   std::string
   name() const final override;

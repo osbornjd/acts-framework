@@ -8,10 +8,11 @@
 
 #pragma once
 
+#include <cstdint>
 #include <mutex>
+#include <string>
 
 #include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimVertex.hpp"
 #include "ACTFW/Framework/WriterT.hpp"
 
 class TFile;
@@ -19,77 +20,87 @@ class TTree;
 
 namespace FW {
 
-/// Write out a particles associated to process vertices into a TTree
-///
-/// Safe to use from multiple writer threads - uses a std::mutex lock.
+/// Write out particles as a flat TTree.
 ///
 /// Each entry in the TTree corresponds to one particle for optimum writing
 /// speed. The event number is part of the written data.
 ///
-/// A common file can be provided for to the writer to attach his TTree,
-/// this is done by setting the Config::rootFile pointer to an existing file
-///
-/// Safe to use from multiple writer threads - uses a std::mutex lock.
-class RootParticleWriter final : public WriterT<std::vector<Data::SimVertex>>
+/// Safe to use from multiple writer threads. To avoid thread-saftey issues,
+/// the writer must be the sole owner of the underlying file. Thus, the
+/// output file pointer can not be given from the outside.
+class RootParticleWriter final : public WriterT<SimParticleContainer>
 {
 public:
   struct Config
   {
-    std::string collection;              ///< particle collection to write
-    std::string filePath;                ///< path of the output file
-    std::string fileMode = "RECREATE";   ///< file access mode
-    std::string treeName = "particles";  ///< name of the output tree
-    TFile*      rootFile = nullptr;      ///< common root file
+    /// Input particle collection to write.
+    std::string inputParticles;
+    /// Path to the output file.
+    std::string filePath;
+    /// Output file access mode.
+    std::string fileMode = "RECREATE";
+    /// Name of the tree within the output file.
+    std::string treeName = "particles";
   };
 
-  /// Constructor
+  /// Construct the particle writer.
   ///
-  /// @param cfg Configuration struct
-  /// @param level Message level declaration
-  RootParticleWriter(const Config&        cfg,
-                     Acts::Logging::Level level = Acts::Logging::INFO);
+  /// @params cfg is the configuration object
+  /// @params lvl is the logging level
+  RootParticleWriter(const Config& cfg, Acts::Logging::Level lvl);
 
-  /// Virtual destructor
-  ~RootParticleWriter() override;
+  /// Ensure underlying file is closed.
+  ~RootParticleWriter() final override;
 
   /// End-of-run hook
   ProcessCode
   endRun() final override;
 
 protected:
-  /// @brief Write method called by the base class
-  /// @param [in] context is the algorithm context for event information
-  /// @param [in] vertices is the process vertex collection for the
-  /// particles to be attached
+  /// Type-specific write implementation.
+  ///
+  /// @param[in] ctx is the algorithm context
+  /// @param[in] particles are the particle to be written
   ProcessCode
-  writeT(const AlgorithmContext&             context,
-         const std::vector<Data::SimVertex>& vertices) final override;
+  writeT(const AlgorithmContext&     ctx,
+         const SimParticleContainer& particles) final override;
 
 private:
-  Config     m_cfg;         ///< The config class
-  std::mutex m_writeMutex;  ///< Mutex used to protect multi-threaded writes
-  TFile*     m_outputFile{nullptr};  ///< The output file
-  TTree*     m_outputTree{nullptr};  ///< The output tree
-  int        m_eventNr{0};           ///< the event number of
-  float      m_vx{0.};               ///< Vertex position x
-  float      m_vy{0.};               ///< Vertex position y
-  float      m_vz{0.};               ///< Vertex position z
-  float      m_vt{0.};               ///< Vertex time t
-  float      m_px{0.};               ///< Momentum position x
-  float      m_py{0.};               ///< Momentum position y
-  float      m_pz{0.};               ///< Momentum position z
-  float      m_pT{0.};               ///< Momentum position transverse component
-  float      m_eta{0.};              ///< Momentum direction eta
-  float      m_phi{0.};              ///< Momentum direction phi
-  float      m_mass{0.};             ///< Particle mass
-  int        m_charge{0};            ///< Particle charge
-  int        m_pdgCode{0};           ///< Particle pdg code
-  uint64_t   m_barcode{0};           ///< Particle barcode
-  uint32_t   m_vertexPrimary{0};     ///< Barcode primary vertex id
-  uint32_t   m_vertexSecondary{0};   ///< Barcode secondary vertex id
-  uint32_t   m_particle{0};          ///< Barcode particle id
-  uint32_t   m_parentParticle{0};    ///< Barcode parent particle id
-  uint32_t   m_process{0};           ///< Barcode process id
+  Config     m_cfg;
+  std::mutex m_writeMutex;
+  TFile*     m_outputFile = nullptr;
+  TTree*     m_outputTree = nullptr;
+  /// Event identifier.
+  uint32_t m_eventId;
+  /// Event-unique particle identifier a.k.a barcode.
+  uint64_t m_particleId;
+  /// Particle type a.k.a. PDG particle number
+  int32_t m_particleType;
+  /// Production process type, i.e. what generated the particle.
+  uint32_t m_process;
+  /// Production position components in mm.
+  float m_vx, m_vy, m_vz;
+  // Production time in ns.
+  float m_vt;
+  /// Momentum components in GeV.
+  float m_px, m_py, m_pz;
+  /// Mass in GeV.
+  float m_m;
+  /// Charge in e.
+  float m_q;
+  // Derived kinematic quantities
+  /// Direction pseudo-rapidity.
+  float m_eta;
+  /// Direction angle in the transverse plane.
+  float m_phi;
+  /// Transverse momentum in GeV.
+  float m_pt;
+  // Decoded particle identifier; see Barcode definition for details.
+  uint32_t m_vertexPrimary;
+  uint32_t m_vertexSecondary;
+  uint32_t m_particle;
+  uint32_t m_generation;
+  uint32_t m_subParticle;
 };
 
 }  // namespace FW

@@ -9,20 +9,12 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 
-#include "ACTFW/EventData/SimHit.hpp"
-#include "ACTFW/EventData/SimParticle.hpp"
-#include "ACTFW/EventData/SimSourceLink.hpp"
 #include "ACTFW/Utilities/Helpers.hpp"
-#include "Acts/EventData/Measurement.hpp"
-#include "Acts/EventData/MultiTrajectory.hpp"
-#include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/EventData/TrackState.hpp"
-#include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Surfaces/Surface.hpp"
-#include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Utilities/Logger.hpp"
+#include "ActsFatras/EventData/Particle.hpp"
 
 namespace FW {
 
@@ -31,10 +23,6 @@ namespace FW {
 // smoothed track over all tracks
 class EffPlotTool
 {
-  using Identifier  = Data::SimSourceLink;
-  using Measurement = Acts::
-      Measurement<Identifier, Acts::ParDef::eLOC_0, Acts::ParDef::eLOC_1>;
-
 public:
   /// @brief The nested configuration struct
   struct Config
@@ -48,7 +36,6 @@ public:
   /// @brief Nested Cache struct
   struct EffPlotCache
   {
-
     TEfficiency* trackeff_vs_eta;  ///< Tracking efficiency vs eta
     TEfficiency* trackeff_vs_phi;  ///< Tracking efficiency vs phi
     TEfficiency* trackeff_vs_pT;   ///< Tracking efficiency vs pT
@@ -57,9 +44,8 @@ public:
   /// Constructor
   ///
   /// @param cfg Configuration struct
-  /// @param level Message level declaration
-  EffPlotTool(const Config&        cfg,
-              Acts::Logging::Level level = Acts::Logging::INFO);
+  /// @param lvl Message level declaration
+  EffPlotTool(const Config& cfg, Acts::Logging::Level lvl);
 
   /// @brief book the efficiency plots
   /// @param effPlotCache the cache for efficiency plots
@@ -72,9 +58,9 @@ public:
   /// @param truthParticle the truth Particle
   /// @param status the reconstruction status
   void
-  fill(EffPlotCache&            effPlotCache,
-       const Data::SimParticle& truthParticle,
-       bool                     status) const;
+  fill(EffPlotCache&               effPlotCache,
+       const ActsFatras::Particle& truthParticle,
+       bool                        status) const;
 
   /// @brief write the efficiency plots to file
   /// @param effPlotCache cache object for efficiency plots
