@@ -2,6 +2,9 @@
 build*
 install*
 
+# backup files from saves
+*.*~
+
 # data outputs
 *.csv
 *.hepmc
