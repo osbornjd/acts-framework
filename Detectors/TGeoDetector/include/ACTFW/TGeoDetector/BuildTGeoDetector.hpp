@@ -127,7 +127,8 @@ namespace TGeo {
     }
 
     // import the file from
-    TGeoManager::Import(rootFileName.c_str());
+    if(rootFileName != "none")
+      TGeoManager::Import(rootFileName.c_str());
 
     auto layerBuilderConfigs
         = FW::Options::readTGeoLayerBuilderConfigs<variable_maps_t>(
